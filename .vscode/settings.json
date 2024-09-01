@@ -1,0 +1,13 @@
+{
+  // Use the local `taplo` that we have installed, this way all developers will
+  // be using the same version.
+  "evenBetterToml.taplo.bundled": false,
+
+  // Automatically restart all the other extensions after loading the direnv
+  // environment. This way the other extensions will have the environment as
+  // well.
+  "direnv.restart.automatic": true,
+
+  // Automatically reload the direnv environment on file changes.
+  "direnv.watchForChanges": true
+}

@@ -5,4 +5,8 @@
   hide_env_diff = true
 
 [whitelist]
-prefix = [ "~/code/system-configurations", "~/code/bigolu.github.io", "~/code/practice", ]
+  prefix = [
+    "~/code/system-configurations",
+    "~/code/bigolu.github.io",
+    "~/code/practice",
+  ]

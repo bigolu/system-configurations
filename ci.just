@@ -4,9 +4,12 @@ set shell := ["bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # https://github.com/casey/just/issues/647#issuecomment-1404056424
 set positional-arguments := true
 
-# Display a list of all tasks.
-default:
-    @just --list --justfile {{ module_file() }} --unsorted
+[doc('''
+    List all tasks. You can run this whenever you forget something.
+''')]
+list:
+    @just --list --justfile {{ module_file() }} --unsorted --color always \
+        | less -R '-PsPress q to quit, scroll up/down with the mouse or k/j'
 
 fixup-renovate-pull-request-for-envrc:
     #!/usr/bin/env fish
@@ -16,8 +19,8 @@ fixup-renovate-pull-request-for-envrc:
     set new_envrc "$(string replace --regex -- 'source_url [\'"](?<url>https://raw.githubusercontent.com/nix-community/nix-direnv/.*/direnvrc.*)[\'"] [\'"].*[\'"]' "source_url '$nix_direnv_url' '$nix_direnv_hash'" "$original_envrc")"
     echo "$new_envrc" > .envrc
 
-gomod2nix:
-    cd ./flake-modules/bundler/gozip && nix develop github:nix-community/gomod2nix --command gomod2nix generate
+check-lint REPORTER:
+  bash scripts/ci/check-lint.bash "$@"
 
-test:
-    bash tests.bash
+check-code-generation:
+  bash scripts/ci/check-code-generation.bash

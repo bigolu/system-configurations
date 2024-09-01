@@ -8,12 +8,7 @@ vim.keymap.set({ "n" }, "Y", "yg_", {
   desc = "Til end of line, excluding newline",
 })
 
-vim.defer_fn(function()
-  vim.fn["plug#load"]("vim-caser")
-end, 0)
-Plug("arthurxavierx/vim-caser", {
-  on = {},
-})
+Plug("arthurxavierx/vim-caser")
 
 -- Formatting {{{
 local utilities = require("base.utilities")
@@ -77,10 +72,10 @@ Plug("stevearc/conform.nvim", {
       end, { expr = true, desc = "Format code", silent = true })
     end
 
+    -- The first entry can be a list and only the first one found in that list
+    -- will be run.
     local prettier = { { "prettierd", "prettier" } }
     local formatters_by_ft = {
-      ["*"] = { "injected" },
-      ["_"] = { "trim_whitespace", "squeeze_blanks" },
       lua = { "stylua" },
       python = { "usort", "black" },
       sh = { "shfmt" },
@@ -98,22 +93,43 @@ Plug("stevearc/conform.nvim", {
       css = prettier,
       html = prettier,
       scss = prettier,
+      toml = { "taplo" },
+
+      -- These two can't have a nested list as the first element.
+      ["*"] = { "injected" },
+      ["_"] = { "trim_whitespace", "squeeze_blanks" },
     }
+
     formatters_by_ft = vim
       .iter(formatters_by_ft)
       :fold({}, function(acc, filetype, formatters)
         formatters = vim.deepcopy(formatters)
+
         if not vim.tbl_contains({ "*", "_" }, filetype) then
           local first = formatters[1]
           if type(first) == "table" then
             table.insert(first, 1, "dprint")
             table.insert(first, 1, "treefmt")
-            formatters[1] = first
           else
             formatters[1] = { "treefmt", "dprint", first }
           end
+
+          acc[filetype] = function(bufnr)
+            local first_available = vim.iter(formatters[1]):find(function(name)
+              return conform.get_formatter_info(name, bufnr).available
+            end)
+
+            local retval = vim.deepcopy(formatters)
+            if first_available == nil then
+              table.remove(retval, 1)
+            else
+              retval[1] = first_available
+            end
+            return retval
+          end
+        else
+          acc[filetype] = formatters
         end
-        acc[filetype] = formatters
 
         return acc
       end)
@@ -148,7 +164,7 @@ Plug("stevearc/conform.nvim", {
           command = "treefmt",
           args = { "--stdin", "$FILENAME" },
           require_cwd = true,
-          cwd = util.root_file({ "treefmt.toml" }),
+          cwd = util.root_file({ "treefmt.toml", ".treefmt.toml" }),
         },
       },
       formatters_by_ft = formatters_by_ft,

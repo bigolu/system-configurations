@@ -33,8 +33,17 @@
       // Don't auto-merge if the major version is 0, in which case a minor/patch
       // update _can_ be a breaking change.
       matchCurrentVersion: "!/^0/",
+
       automerge: true,
       automergeType: "branch",
+
+      // Normally, CI checks (e.g. tests, linting) only run on pull requests,
+      // but since these branches won't be merged through a pull request, I
+      // want to run checks whenever the branch is pushed to. To identify these
+      // branches, I'm adding a prefix to the branch name.
+      //
+      // SYNC: AUTOMERGE_PREFIX
+      additionalBranchPrefix: "branch-automerge/",
     },
     {
       matchManagers: ["gomod"],

@@ -14,7 +14,7 @@ date: relative
 
 icons:
   theme: fancy
-  separator: ''
+  separator: ""
   # When filetype icons can have precedence over file name/extension icons then I'll start using
   # icons. This issue is for letting the directory icon have precedence over file type:
   # https://github.com/lsd-rs/lsd/issues/965

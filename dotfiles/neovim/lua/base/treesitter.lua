@@ -82,11 +82,7 @@ if IsRunningInTerminal then
     end,
   })
 
-  vim.defer_fn(function()
-    vim.fn["plug#load"]("nvim-treesitter-context")
-  end, 0)
   Plug("nvim-treesitter/nvim-treesitter-context", {
-    on = {},
     config = function()
       require("treesitter-context").setup({
         line_numbers = false,

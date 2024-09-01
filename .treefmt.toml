@@ -1,45 +1,93 @@
 [global]
-excludes = [
-  "*.gitkeep",
-  "*.lock",
-  "*.jsonc",
-  "*.toml",
-  "*.txt",
-  ".git-hook-assets/actions/*",
-  "dotfiles/*",
-  ".editorconfig",
-  ".gitignore",
-  ".ignore",
-  ".shellcheckrc",
-  "flake-modules/bundler/gozip/go.mod",
-  "flake-modules/bundler/gozip/go.sum",
+  excludes = [
+    # No formatters are available for these files
+    "*.gitkeep",
+    "*.txt",
+    "*.hjson",
+    "*.zsh",
+    "*.desktop",
+    "*.conf",
+    "*.plist",
+    "*.icns",
+    "*.keylayout",
+    "*.strings",
+    "*.service",
+    "*.timer",
+    "*.ipy",
+    ".editorconfig",
+    ".gitignore",
+    ".ignore",
+    ".shellcheckrc",
+    "flake-modules/bundler/gozip/go.mod",
 
-  # TODO: just's builtin formatter shifts aroung my comments so I'm not using
-  # it. I should file a report since they may not be aware of this.
-  #
-  # I would just comment out the just formatter, but then treefmt would
-  # warn me that any files that would have been formatted by it have not
-  # formatter. Instead, I'll ignore the files.
-  ".justfile",
-  "ci.just",
-]
+    # These have no file extension and aren't recognizable files like
+    # ".gitconfig" so there's no way to tell which formatter should be used.
+    "dotfiles/bat/config",
+    "dotfiles/cosmic/v1-shortcuts",
+    "dotfiles/firefox-developer-edition/my-firefox",
+    "dotfiles/flatpak/overrides/global",
+    "dotfiles/fzf/bin/fzf-help-preview",
+    "dotfiles/fzf/bin/fzf-zoom",
+    "dotfiles/general/bin-macos/trash",
+    "dotfiles/general/bin/edit",
+    "dotfiles/general/bin/elevate",
+    "dotfiles/general/bin/pbcopy",
+    "dotfiles/general/bin/process-output",
+    "dotfiles/git/bin/git-clean-branches",
+    "dotfiles/git/bin/git-http-to-ssh",
+    "dotfiles/git/bin/git-r",
+    "dotfiles/git/config",
+    "dotfiles/neovim/bin/conform",
+    "dotfiles/neovim/linux-bin/wezterm",
+    "dotfiles/nix/bin/nix",
+    "dotfiles/nix/bin/nix-gcroots",
+    "dotfiles/nix/bin/nix-upgrade-profiles",
+    "dotfiles/nix/bin/pynix",
+    "dotfiles/ripgrep/bin/djvutorga",
+    "dotfiles/ripgrep/ripgreprc",
+    "dotfiles/skhd/bin/yabai-move",
+    "dotfiles/skhd/bin/yabai-remove-from-stack",
+    "dotfiles/skhd/skhdrc",
+    "dotfiles/smart_plug/linux/turn-off-speakers",
+    "dotfiles/yabai/yabairc",
+    "dotfiles/yash/yashrc",
+
+    # SYNC: GENERATED_FILES
+    # The patterns are in glob regex syntax here, but the other sync blocks may
+    # be using PCRE2 syntax
+    "flake-modules/bundler/gozip/go.sum",
+    "flake-modules/bundler/gozip/gomod2nix.toml",
+    "*.lock",
+
+    # TODO: just's builtin formatter currently removes, or rearranges,
+    # comments. Until this is fixed I'll disable it:
+    # https://github.com/casey/just/issues/862
+    # I would just comment out the `formatter.just` entry, but then treefmt
+    # would warn me that any files that would have been formatted by it now have
+    # no formatter. Instead, I'll ignore the files.
+    ".justfile",
+    "ci.just",
+  ]
+
+[formatter.toml]
+  command = "taplo"
+  options = ["format"]
+  includes = ["*.toml"]
 
 [formatter.prettier]
-command = "prettier"
-options = ["--write"]
-includes = ["*.js", "*.json", "*.json5", "*.md", "*.yml",]
+  command = "prettier"
+  options = ["--write"]
+  includes = ["*.js", "*.json", "*.json5", "*.jsonc", "*.md", "*.yml", "*.yaml"]
 
 [formatter.sh]
-command = "shfmt"
-options = ["--write",]
-includes = [
-  ".github/run.sh"
-]
+  command = "shfmt"
+  options = ["--write"]
+  includes = ["*.sh"]
 
 [formatter.bash]
-command = "shfmt"
-options = ["--write",]
-includes = [".envrc", "*.bash",]
+  command = "shfmt"
+  options = ["--write"]
+  includes = ["*.envrc", "*.bash"]
 
 # TODO: Doesn't adhere to the treefmt spec for formatters in that it
 # unconditionally writes to input files, even if everything is formatted
@@ -47,51 +95,47 @@ includes = [".envrc", "*.bash",]
 #
 # It's fixed on master, but will be part of the release for v4.0
 [formatter.fish]
-command = "fish_indent"
-options = ["--write",]
-includes = ["*.fish",]
+  command = "fish_indent"
+  options = ["--write"]
+  includes = ["*.fish"]
 
 [formatter.nix-deadnix]
-priority = 0
-command = "deadnix"
-options = ["--edit"]
-includes = [ "*.nix" ]
+  priority = 0
+  command = "deadnix"
+  options = ["--edit"]
+  includes = ["*.nix"]
 
 [formatter.nix-statix]
-priority = 1
-command = "bash"
-options = [
-    "-euc",
-    """
+  priority = 1
+  command = "bash"
+  options = ["-euc", """
 # statix doesn't support passing multiple files yet:
 # https://github.com/nerdypepper/statix/issues/69
 for file in "$@"; do
   statix fix "$file"
 done
-    """,
-    "--",
-]
-includes = [ "*.nix" ]
+    """, "--"]
+  includes = ["*.nix"]
 
 [formatter.nix-alejandra]
-priority = 2
-command = "alejandra"
-includes = [ "*.nix" ]
+  priority = 2
+  command = "alejandra"
+  includes = ["*.nix"]
 
 [formatter.justfile]
-command = "just"
-options = ["--unstable", "--fmt", "--justfile",]
-includes = [".justfile",]
+  command = "just"
+  options = ["--unstable", "--fmt", "--justfile"]
+  includes = [".justfile"]
 
 [formatter.lua]
-command = "stylua"
-includes = ["*.lua",]
+  command = "stylua"
+  includes = ["*.lua"]
 
 [formatter.go]
-command = "gofmt"
-options = ["-w"]
-includes = ["*.go"]
+  command = "gofmt"
+  options = ["-w"]
+  includes = ["*.go"]
 
 [formatter.python]
-command = "black"
-includes = ["*.py"]
+  command = "black"
+  includes = ["*.py"]

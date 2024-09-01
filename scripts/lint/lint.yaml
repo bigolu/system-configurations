@@ -1,0 +1,40 @@
+# The `excludes` and `includes` properties use PCRE2 regular expression
+# syntax. The expressions are expected to match the entire path, as though the
+# pattern is prefixed by '^' and suffixed by '$'.
+
+global:
+  # SYNC: GENERATED_FILES
+  # The patterns are in PCRE2 regex syntax here, but the other sync blocks may
+  # be using glob syntax
+  excludes:
+    - flake-modules/bundler/gozip/go.sum
+    - flake-modules/bundler/gozip/gomod2nix.toml
+    - .*\.lock
+linters:
+  renovate:
+    command: renovate-config-validator
+    options: [--strict]
+    includes: [.*renovate\.json5]
+  statix:
+    command: bash
+    options:
+      - -euc
+      - |
+        # statix doesn't support passing multiple files yet:
+        # https://github.com/nerdypepper/statix/issues/70
+        for file in "$@"; do
+          statix check "$file"
+        done
+      - --
+    includes: [.*\.nix]
+  actionlint:
+    command: actionlint
+    includes: ["\\.github/workflows/.*\\.ya?ml"]
+  taplo_logic:
+    command: taplo
+    options: [lint]
+    includes: [.*\.toml]
+  taplo_style:
+    command: taplo
+    options: [format, --check, --diff]
+    includes: [.*\.toml]

@@ -9,25 +9,15 @@ vim.g.plug_pwindow = "above 12new"
 local configs_by_type = {
   sync = {},
   async = {},
-  lazy = {},
 }
 
--- Calls the configuration function for the specified, lazy-loaded plugin.
-local function plug_wrapper_apply_lazy_config(plugin_name)
-  local config = configs_by_type.lazy[plugin_name]
-  if type(config) == "function" then
-    config()
-  end
-end
-
--- Calls the configuration function for all non-lazy-loaded plugins.
+-- Call the configuration functions
 local function apply_configs(configs)
   for _, config in pairs(configs) do
     config()
   end
 end
 
-local group_id = vim.api.nvim_create_augroup("PlugLua", {})
 local original_plug = vim.fn["plug#"]
 local nix_plugins = require("nix-plugins")
 local function plug(repo, options)
@@ -51,17 +41,7 @@ local function plug(repo, options)
 
   local config = options.config
   if type(config) == "function" then
-    if options["on"] or options["for"] then
-      configs_by_type.lazy[plugin_name] = config
-      vim.api.nvim_create_autocmd("User", {
-        pattern = plugin_name,
-        callback = function()
-          plug_wrapper_apply_lazy_config(plugin_name)
-        end,
-        group = group_id,
-        once = true,
-      })
-    elseif options.sync then
+    if options.sync then
       table.insert(configs_by_type.sync, config)
     else
       table.insert(configs_by_type.async, config)

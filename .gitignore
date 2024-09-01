@@ -5,5 +5,5 @@
 .DS_Store
 .luarc.json
 secrets/**
-.git-hook-assets/actions/**
+.git-hook-assets/actions/generated/**
 .go-path/

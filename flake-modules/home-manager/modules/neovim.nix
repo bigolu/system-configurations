@@ -1,7 +1,6 @@
 {
   pkgs,
   config,
-  lib,
   specialArgs,
   ...
 }: let
@@ -66,37 +65,6 @@ in {
       page
       neovim
     ];
-
-    # TODO: vim.loader() uses modification time and file size as a cache key. This is a problem for
-    # the plugin sqlite.lua because in one of its files (defs.lua) has the path to sqlite which
-    # changes when I upgrade sqlite. The problem is that nix sets the modification time to the epoch
-    # for all files and the size will be the same because (I think) the hashes that nix generates
-    # for package paths are all the same length, only the letters in the hash change. This means
-    # when I start vim after sqlite has been upgraded, sqlite.lua won't be able to find sqlite
-    # (assuming the old version has been garbage collected already) because neovim is still using
-    # the stale, cached bytecode for defs.lua which contains the old path to sqlite. I should see
-    # if neovim can check the file contents instead. Someone brought this up in impatient.nvim, a
-    # plugin that offered this functionality before it was upstreamed, and a maintainer
-    # said checksums would be too slow, but they'd be open to someone adding an alternate change
-    # detection algorithm and letting users choose. I timed it and it was ~2% slower so maybe it's
-    # feasible.
-    #
-    # TODO: This is pretty slow, about 15 seconds which is half of my total `switch` time.
-    #
-    # issue where checksum is suggested:
-    # https://github.com/lewis6991/impatient.nvim/issues/42
-    #
-    # command for timing:
-    # hyperfine --shell=none 'nvim --headless -c "lua= vim.loop.fs_stat(\"./flake.nix\").mtime.sec" -c quit' 'nvim --headless -c "lua= vim.fn.sha256(io.open(\"./flake.nix\", \"r\"):read(\"*all\"))" -c quit'
-    activation.vimLoaderFix =
-      lib.hm.dag.entryAfter
-      ["writeBoundary"]
-      ''
-        dir="$HOME/.cache/nvim"
-        if [ -d "$dir" ]; then
-          rm -rf "$dir"
-        fi
-      '';
 
     file = {
       "${config.repository.directory}/.luarc.json".source = luarc;

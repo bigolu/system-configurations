@@ -31,18 +31,13 @@ pre-commit:
     gomod2nix:
       priority: 1
       glob: "*gozip/go.mod"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just gomod2nix
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just generate-gomod2nix-lock
 
     # Formatters. Change their priority so we format code after all the code
     # generators have run
     format:
       priority: 2
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just format {staged_files}
-      interactive: true
-    format-all:
-      priority: 2
-      glob: "{.stylua.toml,.editorconfig,treefmt.toml}"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just format
       interactive: true
 
     # Linters. Change the priority so we lint the code after all code generation

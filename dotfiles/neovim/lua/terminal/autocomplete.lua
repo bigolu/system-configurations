@@ -47,11 +47,13 @@ local is_cursor_preceded_by_nonblank_character = function()
 end
 
 function MyEnter()
-  return is_completion_menu_open() and vim.api.nvim_replace_termcodes("<C-y>", true, false, true) or require'nvim-autopairs'.completion_confirm()
+  return is_completion_menu_open()
+      and vim.api.nvim_replace_termcodes("<C-y>", true, false, true)
+    or require("nvim-autopairs").completion_confirm()
 end
 vim.api.nvim_set_keymap(
-  'i',
-  '<CR>',
+  "i",
+  "<CR>",
   "v:lua.MyEnter()",
   { expr = true, noremap = true }
 )
@@ -75,6 +77,6 @@ end, { desc = "Trigger/select next completion" }, "i")
 
 keymap("<S-Tab>", function()
   return is_completion_menu_open() and "<C-p>" or "<S-Tab>"
-end, {desc = "Select last completion", expr = true,}, "i")
+end, { desc = "Select last completion", expr = true }, "i")
 
 keymap("<C-f>", "<C-x><C-f>", { desc = "File completion" }, "i")

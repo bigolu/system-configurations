@@ -9,4 +9,3 @@ echo '1' | sudo tee /sys/module/hid_apple/parameters/fnmode
 
 echo options hid_apple fnmode=1 | sudo tee -a /etc/modprobe.d/hid_apple.conf
 sudo update-initramfs -u -k all
-

@@ -1,7 +1,5 @@
 # System Configurations
 
-[![built with nix][built-with-nix-badge]][built-with-nix-site]
-
 This repository holds the [Home Manager][home-manager] and [nix-darwin][nix-darwin] configurations for my machines.
 I don't expect anyone else to use this,
 but I figured I'd leave the repo public as a resource for people who want to manage
@@ -119,6 +117,4 @@ Where `<type>` can be `shell` or `terminal`.
 [home-manager]: https://github.com/nix-community/home-manager
 [nix-darwin]: https://github.com/LnL7/nix-darwin
 [rootless-nix]: https://github.com/NixOS/nix/issues/1971#issue-304578884
-[built-with-nix-site]: https://builtwithnix.org
-[built-with-nix-badge]: https://builtwithnix.org/badge.svg
 [keyd]: https://github.com/rvaiya/keyd

@@ -106,8 +106,11 @@ function MyPaste(was_in_visual_mode, is_capital_p)
   local enter_key = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
 
   -- This is flaky in vscode so I'll only use it in the terminal
-  local set_lazy_redraw = IsRunningInTerminal and ":set lazyredraw" .. enter_key or ""
-  local unset_lazy_redraw = IsRunningInTerminal and ":set nolazyredraw" .. enter_key or ""
+  local set_lazy_redraw = IsRunningInTerminal and ":set lazyredraw" .. enter_key
+    or ""
+  local unset_lazy_redraw = IsRunningInTerminal
+      and ":set nolazyredraw" .. enter_key
+    or ""
 
   local indent = is_multi_line_paste
       and string.format(
@@ -245,9 +248,7 @@ vim.api.nvim_create_autocmd("User", {
 -- Commands/mappings for working with variants of words. In particular I use its
 -- 'S' command for performing substitutions. It has more features than vim's
 -- built-in :substitution
-Plug("tpope/vim-abolish", {
-  on = "S",
-})
+Plug("tpope/vim-abolish")
 
 -- Autocommands get executed without `smagic` so I make sure that I explicitly
 -- specify it on the commandline so if my autocommand has a substitute command

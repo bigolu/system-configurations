@@ -104,7 +104,7 @@ in {
             item,
             index,
           }: {
-            name = "${config.repository.directory}/.git-hook-assets/actions/${toString index}";
+            name = "${config.repository.directory}/.git-hook-assets/actions/generated/${toString index}";
             value = {text = item;};
           }
         )

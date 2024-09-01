@@ -44,7 +44,7 @@
     outputs = {
       packages.smartPlug = cli;
 
-      # The devShell contains a lot of environment variables that are irrelevant
+      # TODO: The devShell contains a lot of environment variables that are irrelevant
       # to our development environment, but Nix is working on a solution to
       # that: https://github.com/NixOS/nix/issues/7501
       devShells.smartPlug = pkgs.mkShellNoCC {

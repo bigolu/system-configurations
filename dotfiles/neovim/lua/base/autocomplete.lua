@@ -13,12 +13,7 @@ Plug("windwp/nvim-autopairs", {
   end,
 })
 
-vim.defer_fn(function()
-  vim.fn["plug#load"]("nvim-ts-autotag")
-end, 0)
-Plug("windwp/nvim-ts-autotag", {
-  on = {},
-})
+Plug("windwp/nvim-ts-autotag")
 
 -- Automatically add closing keywords (e.g. function/endfunction in vimscript)
 Plug("RRethy/nvim-treesitter-endwise")

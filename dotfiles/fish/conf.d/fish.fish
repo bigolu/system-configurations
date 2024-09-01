@@ -296,7 +296,7 @@ function _reload_fish --on-variable _fish_reload_indicator
     exec fish
 end
 
-# BASH-style history expansion
+# Bash-style history expansion
 function _bash_style_history_expansion
     set token "$argv[1]"
     set last_command "$history[1]"
@@ -438,13 +438,13 @@ function fish_title
 end
 
 function _ls_after_directory_change --on-variable PWD
-        # These directories have too many files to always call ls on
-        #
-        # normalize to remove trailing slash
-        set blacklist /nix/store /tmp (path normalize "$TMPDIR")
-        if contains "$PWD" $blacklist
-            return
-        end
+    # These directories have too many files to always call ls on
+    #
+    # normalize to remove trailing slash
+    set blacklist /nix/store /tmp (path normalize "$TMPDIR")
+    if contains "$PWD" $blacklist
+        return
+    end
 
-        ls
+    ls
 end

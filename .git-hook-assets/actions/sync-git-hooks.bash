@@ -1,0 +1,1 @@
+just sync-git-hooks

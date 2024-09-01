@@ -6,6 +6,7 @@
   perSystem = {
     system,
     pkgs,
+    inputs',
     ...
   }: let
     inherit (lib.attrsets) optionalAttrs;
@@ -14,34 +15,37 @@
     metaPackage = pkgs.symlinkJoin {
       name = "tools";
       paths = with pkgs; [
-        # languages
+        # Languages
         bashInteractive
         go
         nix
-        lua
 
-        # formatters and linters
+        # Formatters
+        treefmt
         black
         usort
-        deadnix
-        statix
-        treefmt
         nodePackages.prettier
         shfmt
         alejandra
         stylua
         fish # for fish_indent
+
+        # Linters
+        deadnix
+        statix
         renovate # for renovate-config-validator
         actionlint
 
-        # version control
+        # Version control
         git
         lefthook
 
-        # for the Nix IDE vscode extension
+        # Language servers
         nil
+        taplo
+        efm-langserver
 
-        # various shell script dependencies
+        # Bash script dependencies
         coreutils-full
         moreutils
         findutils
@@ -49,10 +53,17 @@
         which
         gnused
         gnugrep
+        fd
+        ripgrep
+        yq-go
 
-        # misc.
+        # Miscellaneous
         just
         doctoc
+        reviewdog
+
+        # For paging the output of `just list`
+        less
       ];
 
       # TODO: Nix should be able to link in prettier, I think it doesn't work
@@ -64,7 +75,7 @@
     };
 
     outputs = {
-      # The devShell contains a lot of environment variables that are irrelevant
+      # TODO: The devShell contains a lot of environment variables that are irrelevant
       # to our development environment, but Nix is working on a solution to
       # that: https://github.com/NixOS/nix/issues/7501
       devShells.default = pkgs.mkShellNoCC {
@@ -72,6 +83,8 @@
           metaPackage
         ];
       };
+
+      devShells.gomod2nix = inputs'.gomod2nix.devShells.default;
     };
 
     supportedSystems = with inputs.flake-utils.lib.system; [x86_64-linux x86_64-darwin];

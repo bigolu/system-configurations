@@ -190,20 +190,10 @@ vim.keymap.set({ "n", "x" }, "g;", "g%", { remap = true })
 vim.keymap.set({ "n", "x" }, "];", ";", { remap = true })
 vim.keymap.set({ "n", "x" }, "[;", "g;", { remap = true })
 
-vim.defer_fn(function()
-  vim.fn["plug#load"]("CamelCaseMotion")
-end, 0)
-Plug("bkad/CamelCaseMotion", {
-  on = {},
-})
+Plug("bkad/CamelCaseMotion")
 vim.g.camelcasemotion_key = ","
 
-vim.defer_fn(function()
-  vim.fn["plug#load"]("nvim-treesitter-textobjects")
-end, 0)
-Plug("nvim-treesitter/nvim-treesitter-textobjects", {
-  on = {},
-})
+Plug("nvim-treesitter/nvim-treesitter-textobjects")
 
 local function marker_fold_object()
   -- excluded first and last lines for marker folds

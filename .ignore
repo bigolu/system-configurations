@@ -2,3 +2,4 @@ flake.lock
 dotfiles/fontconfig/10-nerd-font-symbols.conf
 dotfiles/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
 **/.gitkeep
+.vscode/ltex.hiddenFalsePositives.en-US.txt

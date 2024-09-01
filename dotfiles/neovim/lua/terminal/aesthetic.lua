@@ -33,11 +33,7 @@ vim.api.nvim_create_autocmd({ "VimResume" }, {
   group = cursor_group_id,
 })
 
-vim.defer_fn(function()
-  vim.fn["plug#load"]("dressing.nvim")
-end, 0)
 Plug("stevearc/dressing.nvim", {
-  on = {},
   config = function()
     require("dressing").setup({
       input = {

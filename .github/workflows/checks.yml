@@ -1,0 +1,52 @@
+name: "Checks"
+on:
+  pull_request:
+  push:
+    branches:
+      # SYNC: AUTOMERGE_PREFIX
+      - "renovate/branch-automerge/**"
+# There are 2 reasons for setting concurrency here:
+#   1. If a pull request is updated, the old checks should be cancelled.
+#   2. If one of renovate's branch automerges fails, it will open a pull
+#      request for the branch. Now this workflow will run once on `push`
+#      and once on `pull_request`. With concurrency set, one of the two
+#      workflows will get cancelled, though I'm not sure which.
+concurrency:
+  # This workflow will only run once per branch/tag.
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
+jobs:
+  check-lint:
+    name: "Check: Lint"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
+        with:
+          name: bigolu
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          # TODO: This isn't working right now:
+          # https://github.com/cachix/cachix-action/issues/169
+          useDaemon: false
+      - run: |
+          # shellcheck disable=2016
+          nix shell --impure nixpkgs#fish nixpkgs#direnv --command fish --command 'direnv hook fish | source; direnv allow; direnv exec "$PWD" nix-direnv-reload; direnv exec "$PWD" just ci check-lint "$REPORTER"'
+  check-code-generation:
+    name: "Check: Code Generation"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
+        with:
+          name: bigolu
+          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          # TODO: This isn't working right now:
+          # https://github.com/cachix/cachix-action/issues/169
+          useDaemon: false
+      - run: |
+          # shellcheck disable=2016
+          nix shell --impure nixpkgs#fish nixpkgs#direnv --command fish --command 'direnv hook fish | source; direnv allow; direnv exec "$PWD" nix-direnv-reload; direnv exec "$PWD" just ci check-code-generation'

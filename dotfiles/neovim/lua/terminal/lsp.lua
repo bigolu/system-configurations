@@ -380,9 +380,7 @@ vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
   return unpack(original_return_value)
 end
 
-Plug("b0o/SchemaStore.nvim")
-
-Plug("kosayoda/nvim-lightbulb", {
+Plug("lvim-tech/nvim-lightbulb", {
   config = function()
     require("nvim-lightbulb").setup({
       autocmd = { enabled = true },
@@ -406,35 +404,14 @@ Plug("neovim/nvim-lspconfig", {
   end,
 })
 
--- TODO: Ideally, I could just silence the error that comes up when nix isn't
--- installed. This way if the language server is available locally, I can still
--- use it. Maybe I should open an issue for that.
---
+Plug("b0o/SchemaStore.nvim")
+
 -- TODO: Maybe take the conform.nvim approach where I expect all LSPs to be
 -- installed and I just specify priorities for each LSP. The fallback for every
 -- file type will be lazy-lsp.
 if vim.fn.executable("nix") == 1 then
   Plug("dundalek/lazy-lsp.nvim", {
     config = function()
-      local efm_settings_by_filetype = {
-        markdown = {
-          {
-            lintCommand = "markdownlint --stdin",
-            lintFormats = { "%f:%l:%c %m", "%f:%l %m", "%f: %l: %m" },
-            lintIgnoreExitCode = true,
-            lintSource = "markdownlint",
-            lintStdin = true,
-          },
-        },
-        fish = {
-          {
-            lintCommand = "fish --no-execute '${INPUT}'",
-            lintFormats = { "%.%#(line %l): %m" },
-            lintSource = "fish",
-            lintIgnoreExitCode = true,
-          },
-        },
-      }
       require("lazy-lsp").setup({
         prefer_local = true,
 
@@ -448,18 +425,11 @@ if vim.fn.executable("nix") == 1 then
           "nixd",
           "quick_lint_js",
           "denols",
-          "als",
-        },
 
-        preferred_servers = {
-          fish = {
-            "efm",
-          },
-          markdown = {
-            "efm",
-            "marksman",
-            "ltex",
-          },
+          -- Warnings were being printed when these servers were included, even
+          -- though I wasn't using them.
+          "als",
+          "bazelrc-lsp",
         },
 
         -- TODO: consider contributing some these settings to nvim-lspconfig
@@ -488,17 +458,6 @@ if vim.fn.executable("nix") == 1 then
                 },
               },
             },
-          },
-
-          efm = {
-            settings = {
-              languages = efm_settings_by_filetype,
-            },
-            on_new_config = function(new_config)
-              local nix_pkgs = { "efm-langserver", "markdownlint-cli", "fish" }
-              new_config.cmd =
-                require("lazy-lsp").in_shell(nix_pkgs, new_config.cmd)
-            end,
           },
         },
       })

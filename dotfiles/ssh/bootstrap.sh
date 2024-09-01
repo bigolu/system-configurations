@@ -80,28 +80,28 @@ fi
 
 fetcher="$(get_dependency curl wget)"
 case "$fetcher" in
-  curl)
-    file_exists() {
-      curl --head --silent --fail "$1" 1>/dev/null 2>&1
-    }
-    download() {
-      curl --fail --progress-bar --location "$1" --output "$2"
-    }
-    update() {
-      curl --fail --progress-bar --location "$1" --output "$2"
-    }
-    ;;
-  wget)
-    file_exists() {
-      wget -q --method=HEAD "$1"
-    }
-    download() {
-      wget --output-document "$2" "$1"
-    }
-    update() {
-      download "$@"
-    }
-    ;;
+curl)
+  file_exists() {
+    curl --head --silent --fail "$1" 1>/dev/null 2>&1
+  }
+  download() {
+    curl --fail --progress-bar --location "$1" --output "$2"
+  }
+  update() {
+    curl --fail --progress-bar --location "$1" --output "$2"
+  }
+  ;;
+wget)
+  file_exists() {
+    wget -q --method=HEAD "$1"
+  }
+  download() {
+    wget --output-document "$2" "$1"
+  }
+  update() {
+    download "$@"
+  }
+  ;;
 esac
 
 prefix="$HOME/.cache/bigolu"
@@ -118,7 +118,7 @@ install_terminfo() {
   export TERMCAP
   # TODO: The newlines have been removed from the termcap so it can be put in an environment
   # variable and I'm not sure if I need to add them back now that I'm putting it in a file.
-  printf '%s' "$TERMCAP" > "$prefix/termcap"
+  printf '%s' "$TERMCAP" >"$prefix/termcap"
   export TERMPATH="$prefix/termcap"
 
   # TODO: I wonder if it's more portable to put a file path in here

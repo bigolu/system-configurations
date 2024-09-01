@@ -1,0 +1,9 @@
+# Prettier shouldn't be adding trailing commas to jsonc since
+# that's not in the spec. Until they fix this I'll disable it:
+# https://github.com/prettier/prettier/issues/15956
+
+[[overrides]]
+  files = ["*.jsonc"]
+
+  [overrides.options]
+    trailingComma = "none"
