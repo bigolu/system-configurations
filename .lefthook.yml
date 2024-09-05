@@ -58,7 +58,7 @@ post-rewrite:
     post-change:
       interactive: true
       run: |
-        if [ "${1:-}" = 'rebase' ]; then
+        if [ "$1" = 'rebase' ]; then
           DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
         fi
 
@@ -66,4 +66,10 @@ post-checkout:
   commands:
     post-change:
       interactive: true
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
+      run: |
+        # It's just a file checkout so exit
+        if [ "$3" = '0' ]; then
+          exit
+        fi
+
+        DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
