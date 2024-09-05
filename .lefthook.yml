@@ -48,13 +48,22 @@ pre-commit:
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just lint {staged_files}
 
 post-merge:
-  scripts:
-    "post-merge.bash":
-      runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
+  commands:
+    post-change:
       interactive: true
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
 
 post-rewrite:
-  scripts:
-    "post-rewrite.bash":
-      runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
+  commands:
+    post-change:
       interactive: true
+      run: |
+        if [ "${1:-}" = 'rebase' ]; then
+          DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
+        fi
+
+post-checkout:
+  commands:
+    post-change:
+      interactive: true
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
