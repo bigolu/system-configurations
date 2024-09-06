@@ -20,47 +20,45 @@
         go
         nix
 
-        # Formatters
-        treefmt
-        black
-        usort
-        nodePackages.prettier
-        shfmt
-        alejandra
-        stylua
-        fish # for fish_indent
-
-        # Linters
-        deadnix
-        statix
-        renovate # for renovate-config-validator
+        # Fixers and linters
         actionlint
+        alejandra
+        black
+        deadnix
+        fish # for fish_indent
         lychee
+        nodePackages.prettier
+        renovate # for renovate-config-validator
+        shfmt
+        statix
+        stylua
+        treefmt
+        usort
 
         # Version control
         git
         lefthook
 
         # Language servers
+        efm-langserver
         nil
         taplo
-        efm-langserver
 
         # Bash script dependencies
         coreutils-full
-        moreutils
-        findutils
-        jq
-        which
-        gnused
-        gnugrep
         fd
+        findutils
+        gnugrep
+        gnused
+        jq
+        moreutils
         ripgrep
+        which
         yq-go
 
         # Miscellaneous
-        just
         doctoc
+        just
         reviewdog
 
         # For paging the output of `just list`
