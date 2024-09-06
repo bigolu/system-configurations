@@ -54,22 +54,13 @@ post-merge:
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
 
 post-rewrite:
-  commands:
-    post-change:
+  scripts:
+    "post-rewrite.bash":
       interactive: true
-      run: |
-        if [ "$1" = 'rebase' ]; then
-          DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
-        fi
+      runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
 
 post-checkout:
-  commands:
-    post-change:
+  scripts:
+    "post-checkout.bash":
       interactive: true
-      run: |
-        # It's just a file checkout so exit
-        if [ "$3" = '0' ]; then
-          exit
-        fi
-
-        DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
+      runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
