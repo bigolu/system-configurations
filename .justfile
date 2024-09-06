@@ -89,12 +89,17 @@ lint *FILES:
     bash scripts/lint/lint.bash "$@"
 
 [doc('''
-    Get all secrets from BitWarden Secrets Manager. You'll be prompted for a
-    service token. You should run this whenever there are new secrets to fetch.
+    Get all secrets from BitWarden Secrets Manager. You'll be prompted for
+    a service token. You should run this whenever there are new secrets to
+    fetch. This task will also reload the direnv environment. If you are using
+    the VS Code configuration in this repository then its direnv environment
+    will be reloaded as well.
 ''')]
 [group('Environment Management')]
-get-secrets: && sync-nix-direnv
+get-secrets:
     bash scripts/get-secrets.bash
+    # This will trigger an environment reload in the terminal and VS Code
+    touch .envrc
 
 [doc('''
     Synchronize nix-direnv with the Nix devShell. nix-direnv is a direnv library
