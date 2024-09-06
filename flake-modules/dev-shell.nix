@@ -35,6 +35,7 @@
         statix
         renovate # for renovate-config-validator
         actionlint
+        lychee
 
         # Version control
         git

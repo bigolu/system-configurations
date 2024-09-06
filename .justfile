@@ -89,6 +89,19 @@ lint *FILES:
     bash scripts/lint/lint.bash "$@"
 
 [doc('''
+    Check for broken links in the input file(s). This runs periodically in CI so
+    you shouldn't have to run this.
+
+    Arguments:
+        FILES: The files to check. These can be: files (e.g. `myfile.txt`), directories
+               (e.g. `myDirectory`), remote files (e.g. `https://mysite.com/myfile.txt`),
+               or a single `-` which will check any text from stdin.
+''')]
+[group('Checks')]
+check-links *FILES:
+    lychee "$@"
+
+[doc('''
     Get all secrets from BitWarden Secrets Manager. You'll be prompted for
     a service token. You should run this whenever there are new secrets to
     fetch. This task will also reload the direnv environment. If you are using
