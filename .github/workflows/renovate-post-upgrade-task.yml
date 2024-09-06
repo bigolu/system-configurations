@@ -36,9 +36,6 @@ jobs:
         with:
           name: bigolu
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          # TODO: This isn't working right now:
-          # https://github.com/cachix/cachix-action/issues/169
-          useDaemon: false
       - run: ${{ inputs.command }}
       - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
       - name: Find Pull Request
