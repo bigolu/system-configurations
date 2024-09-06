@@ -1,8 +1,6 @@
 name: Tests
 on:
   push:
-    branches-ignore:
-      - ${{github.event.repository.default_branch}}
 env:
   # The checkout action clones the repository relative to github.workspace. I
   # set $HOME to github.workspace so that the directory structure matches that
@@ -10,6 +8,7 @@ env:
   HOME: ${{ github.workspace }}
 jobs:
   tests:
+    if: github.ref_name != github.event.repository.default_branch
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
