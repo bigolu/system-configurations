@@ -7,11 +7,6 @@ on:
       - "flake.lock"
       - "flake-modules/**"
       - "dotfiles/**"
-env:
-  # The checkout action clones the repository relative to github.workspace. I
-  # set $HOME to github.workspace so that the directory structure matches that
-  # of the machine I tested this on.
-  HOME: ${{ github.workspace }}
 jobs:
   publish-executable:
     if: github.ref_name == github.event.repository.default_branch
@@ -22,13 +17,8 @@ jobs:
         # that they still on run intel macs
         os: [ubuntu-latest, macos-13]
       fail-fast: false
-    defaults:
-      run:
-        working-directory: "code/system-configurations"
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-        with:
-          path: "code/system-configurations"
       - uses: DeterminateSystems/nix-installer-action@main
       - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
         with:
@@ -56,7 +46,7 @@ jobs:
       - name: Upload executable
         uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
-          file: "${{ env.HOME }}/code/system-configurations/tmp/*"
+          file: tmp/*
           file_glob: true
           overwrite: true
           repo_token: ${{ secrets.GITHUB_TOKEN }}

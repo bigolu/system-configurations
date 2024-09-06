@@ -10,11 +10,6 @@ on:
         required: true
       CACHIX_AUTH_TOKEN:
         required: true
-env:
-  # The checkout action clones the repository relative to github.workspace. I
-  # set $HOME to github.workspace so that the directory structure matches that
-  # of the machine I tested this on.
-  HOME: ${{ github.workspace }}
 jobs:
   renovate-post-upgrade-task:
     runs-on: ubuntu-latest
@@ -25,9 +20,6 @@ jobs:
     #
     # SYNC: RENOVATE_FIXUP
     if: startsWith(github.event.head_commit.message, '[RENOVATE_FIXUP]')
-    defaults:
-      run:
-        working-directory: "code/system-configurations"
     steps:
       - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
         id: bigolu-bot-app-token
@@ -36,7 +28,6 @@ jobs:
           private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
-          path: "code/system-configurations"
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           token: ${{ steps.bigolu-bot-app-token.outputs.token }}
@@ -50,8 +41,6 @@ jobs:
           useDaemon: false
       - run: ${{ inputs.command }}
       - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
-        with:
-          repository: "code/system-configurations"
       - name: Find Pull Request
         uses: juliangruber/find-pull-request-action@48b6133aa6c826f267ebd33aa2d29470f9d9e7d0 # v1
         id: find-pull-request
@@ -61,4 +50,4 @@ jobs:
         with:
           repo-token: ${{ steps.bigolu-bot-app-token.outputs.token }}
           pr-number: ${{ steps.find-pull-request.outputs.number }}
-          configuration-path: code/system-configurations/.github/labeler.yml
+          configuration-path: .github/labeler.yml
