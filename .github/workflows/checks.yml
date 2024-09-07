@@ -13,7 +13,8 @@ on:
 #      workflows will get cancelled, though I'm not sure which.
 concurrency:
   # This workflow will only run once per branch/tag.
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # For more on how the branch name is calculated: https://stackoverflow.com/a/71158878
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 env:
   REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
