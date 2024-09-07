@@ -1,0 +1,18 @@
+runner:
+  action-lint:
+    cmd: actionlint -no-color
+    errorformat:
+      - "%f:%l:%c: %m"
+    level: error
+  yaml-lint:
+    cmd: yamllint --strict --format parsable .
+    errorformat:
+      - "%f:%l:%c: [%t%*[a-z]] %m"
+    level: error
+  shellcheck:
+    cmd: bash ./scripts/shellcheck-all.bash --color=never --format=gcc
+    errorformat:
+      - "%f:%l:%c: %trror: %m"
+      - "%f:%l:%c: %tarning: %m"
+      - "%f:%l:%c: %tote: %m"
+    level: error

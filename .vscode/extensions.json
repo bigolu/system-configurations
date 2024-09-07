@@ -8,8 +8,14 @@
     // Applies the direnv environment to VS Code
     "mkhl.direnv",
 
-    // Runs the `taplo` language server which provides linting and autocomplete
-    "tamasfe.even-better-toml"
+    // language server for TOML
+    "tamasfe.even-better-toml",
+
+    // language server for YAML
+    "redhat.vscode-yaml",
+
+    // language server for Bash
+    "mads-hartmann.bash-ide-vscode"
   ],
 
   // List of extensions recommended by VS Code that should not be recommended

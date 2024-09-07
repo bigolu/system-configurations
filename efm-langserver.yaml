@@ -1,0 +1,29 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mattn/efm-langserver/master/schema.json
+tools:
+  action-lint: &action-lint
+    lint-command: >
+      env input=${INPUT} substr=.github/workflows sh -c
+      '[ "${input#*$substr}" != "$input" ] &&
+      actionlint -no-color -
+      $([ -f .github/actionlint.yaml ] && echo "-config-file .github/actionlint.yaml")
+      $([ -f .github/actionlint.yml ] && echo "-config-file .github/actionlint.yml")'
+    lint-source: "action-lint"
+    lint-stdin: true
+    lint-formats:
+      - "%f:%l:%c:%m"
+  yamllint: &yamllint
+    lint-command: "yamllint --strict --format parsable -"
+    lint-source: "yamllint"
+    lint-stdin: true
+    lint-formats:
+      - "%f:%l:%c: [%t%*[a-z]] %m"
+
+version: 2
+root-markers:
+  - .git/
+lint-debounce: 1s
+languages:
+  yaml:
+    - <<: *action-lint
+    - <<: *yamllint

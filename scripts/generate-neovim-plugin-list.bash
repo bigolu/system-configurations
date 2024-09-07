@@ -1,10 +1,10 @@
-set -euo pipefail
+set -o errexit
+set -o nounset
+set -o pipefail
 
-readarray -t config_files \
-  < <(find ./dotfiles/neovim/lua -type f -name '*.lua')
 # shellcheck disable=SC2016
 # The dollar signs are for ast-grep
-sg --lang lua --pattern 'Plug($ARG $$$)' --json=compact "${config_files[@]}" |
+ast-grep --lang lua --pattern 'Plug($ARG $$$)' --json=compact ./dotfiles/neovim/lua |
   jq --raw-output '.[].metaVariables.single.ARG.text' |
   cut -d'/' -f2 |
   sed 's/.$//' |

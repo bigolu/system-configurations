@@ -29,11 +29,15 @@
         lychee
         nodePackages.prettier
         renovate # for renovate-config-validator
+        shellcheck
         shfmt
         statix
         stylua
         treefmt
         usort
+        # TODO: If the YAML language server gets a CLI I should use that instead:
+        # https://github.com/redhat-developer/yaml-language-server/issues/535
+        yamllint
 
         # Version control
         git
@@ -55,6 +59,7 @@
         ripgrep
         which
         yq-go
+        ast-grep
 
         # Miscellaneous
         doctoc

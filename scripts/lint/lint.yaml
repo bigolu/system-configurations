@@ -38,3 +38,10 @@ linters:
     command: taplo
     options: [format, --check, --diff]
     includes: [.*\.toml]
+  yaml-lint:
+    command: yamllint
+    options: [--strict]
+    includes: [".*\\.ya?ml"]
+  shellcheck:
+    command: shellcheck
+    includes: [".*\\.(ba)?sh"]

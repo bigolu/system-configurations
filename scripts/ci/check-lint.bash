@@ -11,14 +11,12 @@ else
   exit 1
 fi
 
-reviewdog() {
-  command reviewdog -fail-level=any -filter-mode=nofilter "$reporter" "$@"
-}
-
 found_problem=
 run_linter() {
   "$@" || found_problem=1
 }
+
+run_linter reviewdog -fail-level=any -filter-mode=nofilter "$reporter"
 
 run_linter just lint --linters taplo_logic
 run_linter just lint --linters taplo_style

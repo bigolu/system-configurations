@@ -9,10 +9,10 @@ run_code_generator_and_report_changes() {
 
   "$@"
   if [ -z "$(git status --porcelain)" ]; then
-    printf 'No changes found when running code generation for "%s".' "$label"
+    printf 'No changes found when running code generation for "%s".\n' "$label"
   else
     found_changes=1
-    printf 'Found changes when running code generation for "%s". Diff:' "$label"
+    printf 'Found changes when running code generation for "%s". Diff:\n' "$label"
   fi
 
   git reset --hard
