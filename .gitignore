@@ -7,3 +7,4 @@
 secrets/**
 .git-hook-assets/actions/generated/**
 .go-path/
+.ast-grep/parsers

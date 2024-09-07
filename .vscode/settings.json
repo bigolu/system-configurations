@@ -9,7 +9,7 @@
   "direnv.restart.automatic": true,
 
   // Automatically reload the direnv environment on file changes.
-  "direnv.watchForChanges": true,
+  "direnv.watchForChanges": false,
 
   "glspc.documentFilters": [{ "pattern": "**" }],
   "glspc.serverCommand": "efm-langserver",

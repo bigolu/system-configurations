@@ -86,6 +86,13 @@
         packages = [
           metaPackage
         ];
+        shellHook = ''
+          # TODO: I should be getting the parsers from nvim-treesitter, but in
+          # my vim plugin overlay I remove the parsers from the plugin. When I
+          # eventually separate the dev environment stuff from the home-manager
+          # stuff I'll be able to use the original nvim-treesitter.
+          export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
+        '';
       };
 
       devShells.gomod2nix = inputs'.gomod2nix.devShells.default;
