@@ -118,7 +118,7 @@ if [ ${#files[@]} -eq 0 ]; then
 fi
 
 # Run linters on files
-found_problem=
+command_file="$(mktemp)"
 for linter in "${linters[@]}"; do
   readarray -d '' includes < <(config_get_linter_includes "$linter")
   readarray -d '' include_flags < <(rg_make_regexp_flags "${includes[@]}")
@@ -130,11 +130,13 @@ for linter in "${linters[@]}"; do
 
   readarray -d '' command_and_options \
     < <(config_get_linter_command_and_options "$linter")
-
   full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
-  "${full_command[@]}" || found_problem=1
+  printf 'echo -e "\\nRunning "%q"..."; echo "%s"; %s\n' \
+    "$linter" \
+    "$(printf '=%.0s' {1..40})" \
+    "$(printf '%q ' "${full_command[@]}")" \
+    >>"$command_file"
 done
-if [ -n "$found_problem" ]; then
-  exit 1
-fi
+
+parallel <"$command_file"

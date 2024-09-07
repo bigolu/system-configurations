@@ -60,9 +60,6 @@
       url = "github:Hammerspoon/Spoons";
       flake = false;
     };
-    wezterm = {
-      url = "github:wez/wezterm?dir=nix";
-    };
     # TODO: I get an error when i try to build the wezterm flake on darwin so
     # I'll use the one from nixpkgs
     #

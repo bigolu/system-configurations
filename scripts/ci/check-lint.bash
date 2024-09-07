@@ -16,10 +16,48 @@ run_linter() {
   "$@" || found_problem=1
 }
 
-run_linter reviewdog -fail-on-error -filter-mode=nofilter "$reporter"
+format_and_make_suggestion() {
+  name="$1"
+  set -- "${@:2}"
 
-run_linter just lint --linters taplo_logic
-run_linter just lint --linters taplo_style
+  "$@" || true
+
+  TMPFILE="$(mktemp)"
+  git diff >"$TMPFILE"
+
+  git stash -u
+
+  reviewdog \
+    -name="$name" \
+    -f=diff \
+    -f.diff.strip=1 \
+    "$reporter" \
+    -filter-mode=nofilter \
+    -fail-on-error \
+    -level=error \
+    <"$TMPFILE"
+
+  EXIT_CODE="$?"
+
+  git stash drop || true
+
+  exit "$EXIT_CODE"
+}
+
+# Logic lints
+run_linter reviewdog -fail-on-error -filter-mode=nofilter "$reporter"
+run_linter just lint --linters taplo
+
+# Style lints
+run_linter format_and_make_suggestion taplo treefmt --formatters toml --on-unmatched debug
+run_linter format_and_make_suggestion prettier treefmt --formatters prettier --on-unmatched debug
+run_linter format_and_make_suggestion shfmt treefmt --formatters sh --on-unmatched debug
+run_linter format_and_make_suggestion shfmt treefmt --formatters bash --on-unmatched debug
+run_linter format_and_make_suggestion fish treefmt --formatters fish --on-unmatched debug
+run_linter format_and_make_suggestion just treefmt --formatters justfile --on-unmatched debug
+run_linter format_and_make_suggestion stylua treefmt --formatters lua --on-unmatched debug
+run_linter format_and_make_suggestion gofmt treefmt --formatters go --on-unmatched debug
+run_linter format_and_make_suggestion black treefmt --formatters python --on-unmatched debug
 
 if [ "$found_problem" = '1' ]; then
   exit 1

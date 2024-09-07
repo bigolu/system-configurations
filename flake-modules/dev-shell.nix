@@ -11,6 +11,22 @@
   }: let
     inherit (lib.attrsets) optionalAttrs;
 
+    filterPrograms = package: programsToKeep: let
+      findFilters = builtins.map (program: "! -name '${program}'") programsToKeep;
+      findFiltersAsString = lib.strings.concatStringsSep " " findFilters;
+    in
+      pkgs.symlinkJoin {
+        name = "${package.name}-partial";
+        paths = [package];
+        buildInputs = [pkgs.makeWrapper];
+        postBuild = ''
+          cd $out/bin
+          find . ${findFiltersAsString} -type f,l -exec rm -f {} +
+        '';
+      };
+
+    myMoreutils = filterPrograms pkgs.moreutils ["chronic" "vipe" "vidir" "sponge" "pee"];
+
     # Make a meta-package so we don't have a $PATH entry for each package
     metaPackage = pkgs.symlinkJoin {
       name = "tools";
@@ -55,11 +71,12 @@
         gnugrep
         gnused
         jq
-        moreutils
         ripgrep
         which
         yq-go
         ast-grep
+        myMoreutils
+        parallel
 
         # Miscellaneous
         doctoc

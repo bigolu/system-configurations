@@ -133,8 +133,7 @@
 
       wezterm =
         if isLinux
-        # TODO: get upstream to set meta.mainProgram
-        then inputs.wezterm.packages.${final.system}.default // {meta.mainProgram = "wezterm";}
+        then prev.wezterm
         else (import inputs.nixpkgs-for-wezterm-darwin {inherit (final) system;}).wezterm;
     };
   in {

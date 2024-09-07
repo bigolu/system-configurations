@@ -30,13 +30,9 @@ linters:
   actionlint:
     command: actionlint
     includes: ["\\.github/workflows/.*\\.ya?ml"]
-  taplo_logic:
+  taplo:
     command: taplo
     options: [lint]
-    includes: [.*\.toml]
-  taplo_style:
-    command: taplo
-    options: [format, --check, --diff]
     includes: [.*\.toml]
   yaml-lint:
     command: yamllint
