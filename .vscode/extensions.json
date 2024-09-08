@@ -21,12 +21,17 @@
     // efm-langserver, but this tool takes a long time to start up.
     "valentjn.vscode-ltex",
 
-    // Syntax highlighting, file type association, linting, and autocomplete for
-    // fish
+    // Syntax highlighting, linting, and autocomplete for fish
     "bmalehorn.vscode-fish",
 
     // Language server for Lua
-    "sumneko.lua"
+    "sumneko.lua",
+
+    // Language client and Syntax highlighting for Nix
+    "jnoortheen.nix-ide",
+
+    // Syntax highlighting for Just
+    "nefrob.vscode-just-syntax"
   ],
 
   // List of extensions recommended by VS Code that should not be recommended

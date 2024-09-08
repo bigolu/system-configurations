@@ -65,7 +65,7 @@
 
         # Language servers
         efm-langserver
-        nil
+        nixd
         taplo
 
         # Bash script dependencies
@@ -146,6 +146,9 @@
           # eventually separate the dev environment stuff from the home-manager
           # stuff I'll be able to use the original nvim-treesitter.
           export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
+
+          # For nixd
+          export NIX_PATH=${lib.escapeShellArg inputs.nixpkgs}
 
           export LUA_LS_LIBRARIES=${lib.escapeShellArg luaLsLibraries}
         '';

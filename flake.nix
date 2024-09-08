@@ -31,6 +31,9 @@
           ./flake-modules/bootstrap.nix
         ];
 
+        # For nixd
+        debug = true;
+
         systems = with flake-utils.lib.system; [
           x86_64-linux
           x86_64-darwin
