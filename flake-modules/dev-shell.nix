@@ -101,32 +101,32 @@
 
     pluginNames = builtins.filter (name: name != "") (lib.strings.splitString "\n" (builtins.readFile "${inputs.self}/dotfiles/neovim/plugin-names.txt"));
     replaceDotsWithDashes = builtins.replaceStrings ["."] ["-"];
-    plugins =
-      map
-      (
-        pluginName: let
-          getPackageForPlugin = builtins.getAttr pluginName;
-          formattedPluginName = replaceDotsWithDashes pluginName;
-          package =
-            if builtins.hasAttr pluginName pkgs.vimPlugins
-            then getPackageForPlugin pkgs.vimPlugins
-            else if builtins.hasAttr formattedPluginName pkgs.vimPlugins
-            then (builtins.getAttr "overrideAttrs" (builtins.getAttr formattedPluginName pkgs.vimPlugins)) (_old: {pname = pluginName;})
-            else abort "Failed to find vim plugin: ${pluginName}";
-        in
-          package
-      )
-      pluginNames;
+    pluginsByName =
+      builtins.listToAttrs
+      (map
+        (
+          pluginName: let
+            getPackageForPlugin = builtins.getAttr pluginName;
+            formattedPluginName = replaceDotsWithDashes pluginName;
+            package =
+              if builtins.hasAttr pluginName pkgs.vimPlugins
+              then getPackageForPlugin pkgs.vimPlugins
+              else if builtins.hasAttr formattedPluginName pkgs.vimPlugins
+              then (builtins.getAttr "overrideAttrs" (builtins.getAttr formattedPluginName pkgs.vimPlugins)) (_old: {pname = pluginName;})
+              else abort "Failed to find vim plugin: ${pluginName}";
+          in {
+            name = pluginName;
+            value = package;
+          }
+        )
+        pluginNames);
 
     luaLsLibraries = pkgs.symlinkJoin {
       name = "lua-ls-libraries";
       paths = [];
       postBuild = ''
         cd $out
-        ln -s ${lib.escapeShellArg (pkgs.symlinkJoin {
-          name = "plugins";
-          paths = plugins;
-        })} ./plugins
+        ln -s ${lib.escapeShellArg (pkgs.linkFarm "plugins" pluginsByName)} ./plugins
         ln -s ${lib.escapeShellArg inputs.neodev-nvim}/types/nightly ./neodev
         ln -s ${lib.escapeShellArg pkgs.neovim}/share/nvim/runtime ./nvim-runtime
       '';
@@ -141,16 +141,11 @@
           tools
         ];
         shellHook = ''
-          # TODO: I should be getting the parsers from nvim-treesitter, but in
-          # my vim plugin overlay I remove the parsers from the plugin. When I
-          # eventually separate the dev environment stuff from the home-manager
-          # stuff I'll be able to use the original nvim-treesitter.
-          export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
-
           # For nixd
           export NIX_PATH=${lib.escapeShellArg inputs.nixpkgs}
 
           export LUA_LS_LIBRARIES=${lib.escapeShellArg luaLsLibraries}
+          export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
         '';
       };
 
