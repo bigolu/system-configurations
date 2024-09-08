@@ -18,6 +18,21 @@ tools:
     lint-stdin: true
     lint-formats:
       - "%f:%l:%c: [%t%*[a-z]] %m"
+  markdownlint-cli2: &markdownlint-cli2
+    lint-command: "markdownlint-cli2 ${INPUT}"
+    lint-source: "markdownlint-cli2"
+    lint-stdin: false
+    lint-formats:
+      - "%f:%l:%c: %m"
+      - "%f:%l:%c %m"
+      - "%f:%l: %m"
+      - "%f:%l %m"
+  desktop-file-validate: &desktop-file-validate
+    lint-command: bash -c '[[ ${INPUT} = *.desktop ]] && desktop-file-validate ${INPUT}'
+    lint-source: "desktop-file-validate"
+    lint-stdin: false
+    lint-formats:
+      - "%f: %m"
 
 version: 2
 root-markers:
@@ -27,3 +42,7 @@ languages:
   yaml:
     - <<: *action-lint
     - <<: *yamllint
+  markdown:
+    - <<: *markdownlint-cli2
+  =:
+    - <<: *desktop-file-validate

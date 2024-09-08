@@ -15,6 +15,12 @@ linters:
     command: renovate-config-validator
     options: [--strict]
     includes: [.*renovate\.json5]
+  jq:
+    command: bash
+    # Source: https://github.com/jqlang/jq/issues/1539#issuecomment-1033002365
+    options: [-euc, jq type "$@" 1>/dev/null, --]
+    includes: [.*\.json]
+    excludes: [.*\.vscode/.*\.json]
   statix:
     command: bash
     options:
@@ -41,3 +47,24 @@ linters:
   shellcheck:
     command: shellcheck
     includes: [".*\\.(ba)?sh"]
+  ltex-cli:
+    command: ltex-cli
+    options: [--server-command-line=ltex-ls]
+    includes: [.*\.md]
+  markdownlint-cli2:
+    command: markdownlint-cli2
+    includes: [.*\.md]
+  desktop-file-validate:
+    command: desktop-file-validate
+    includes: [.*\.desktop]
+  fish:
+    command: bash
+    options:
+      - -euc
+      - |
+        # fish doesn't support passing multiple files, I should open an issue
+        for file in "$@"; do
+          fish --no-execute "$file"
+        done
+      - --
+    includes: [.*\.fish]

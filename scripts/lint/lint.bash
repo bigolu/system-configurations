@@ -44,6 +44,10 @@ config_get_linter_includes() {
   config_yq_get_list ".linters.$1.includes[]"
 }
 
+config_get_linter_excludes() {
+  config_yq_get_list ".linters.$1.excludes[]"
+}
+
 config_get_linter_command() {
   config_yq ".linters.$1.command"
 }
@@ -122,8 +126,10 @@ command_file="$(mktemp)"
 for linter in "${linters[@]}"; do
   readarray -d '' includes < <(config_get_linter_includes "$linter")
   readarray -d '' include_flags < <(rg_make_regexp_flags "${includes[@]}")
+  readarray -d '' excludes < <(config_get_linter_excludes "$linter")
+  readarray -d '' exclude_flags < <(rg_make_regexp_flags "${excludes[@]}")
   readarray -d '' filtered_files \
-    < <(print_with_nul "${files[@]}" | rg "${include_flags[@]}")
+    < <(print_with_nul "${files[@]}" | rg "${include_flags[@]}" | rg --invert-match "${exclude_flags[@]}")
   if [ ${#filtered_files[@]} -eq 0 ]; then
     continue
   fi
@@ -139,4 +145,8 @@ for linter in "${linters[@]}"; do
     >>"$command_file"
 done
 
-parallel <"$command_file"
+if [ "${VERBOSE:-}" = 1 ]; then
+  parallel --verbose <"$command_file"
+else
+  parallel <"$command_file"
+fi

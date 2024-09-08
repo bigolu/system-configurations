@@ -3,8 +3,7 @@
 .direnv/
 .mypy_cache/
 .DS_Store
-.luarc.json
 secrets/**
 .git-hook-assets/actions/generated/**
-.go-path/
 .ast-grep/parsers
+.lua-ls-libraries

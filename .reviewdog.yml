@@ -16,3 +16,26 @@ runner:
       - "%f:%l:%c: %tarning: %m"
       - "%f:%l:%c: %tote: %m"
     level: error
+  ltex-cli:
+    cmd: bash ./scripts/ltex-cli-all.bash
+    errorformat:
+      - "%f:%l:%c: %m"
+    level: error
+  markdownlint-cli2:
+    cmd: bash ./scripts/markdownlint-cli2-all.bash
+    errorformat:
+      - "%f:%l:%c: %m"
+      - "%f:%l:%c %m"
+      - "%f:%l: %m"
+      - "%f:%l %m"
+    level: error
+  desktop-file-validate:
+    cmd: bash ./scripts/desktop-file-validate-all.bash
+    errorformat:
+      - "%f: %m"
+    level: error
+  fish:
+    cmd: bash ./scripts/fish-all.bash
+    errorformat:
+      - "%f (line %l): %m"
+    level: error

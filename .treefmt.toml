@@ -19,6 +19,7 @@
     ".ignore",
     ".shellcheckrc",
     "flake-modules/bundler/gozip/go.mod",
+    ".lycheeignore",
 
     # These have no file extension and aren't recognizable files like
     # ".gitconfig" so there's no way to tell which formatter should be used.
@@ -139,3 +140,8 @@ done
 [formatter.python]
   command = "black"
   includes = ["*.py"]
+
+[formatter.markdown]
+  command = "markdownlint-cli2"
+  options = ["--fix"]
+  includes = ["*.md"]

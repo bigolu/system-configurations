@@ -15,7 +15,18 @@
     "redhat.vscode-yaml",
 
     // language server for Bash
-    "mads-hartmann.bash-ide-vscode"
+    "mads-hartmann.bash-ide-vscode",
+
+    // Language server for prose in markup languages e.g. markdown. I'd use
+    // efm-langserver, but this tool takes a long time to start up.
+    "valentjn.vscode-ltex",
+
+    // Syntax highlighting, file type association, linting, and autocomplete for
+    // fish
+    "bmalehorn.vscode-fish",
+
+    // Language server for Lua
+    "sumneko.lua"
   ],
 
   // List of extensions recommended by VS Code that should not be recommended
