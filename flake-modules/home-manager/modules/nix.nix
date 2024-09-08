@@ -3,26 +3,26 @@
   specialArgs,
   lib,
   ...
-}: let
+}:
+let
   inherit (specialArgs) flakeInputs;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isDarwin isLinux;
   inherit (lib.lists) optionals;
   # TODO: Won't be needed if the daemon auto-reloads:
   # https://github.com/NixOS/nix/issues/8939
-  nix-daemon-reload =
-    pkgs.writeShellApplication
-    {
-      name = "nix-daemon-reload";
-      text = ''
-        if uname | grep -q Linux; then
-          systemctl restart nix-daemon.service
-        else
-          sudo launchctl stop org.nixos.nix-daemon && sudo launchctl start org.nixos.nix-daemon
-        fi
-      '';
-    };
-in {
+  nix-daemon-reload = pkgs.writeShellApplication {
+    name = "nix-daemon-reload";
+    text = ''
+      if uname | grep -q Linux; then
+        systemctl restart nix-daemon.service
+      else
+        sudo launchctl stop org.nixos.nix-daemon && sudo launchctl start org.nixos.nix-daemon
+      fi
+    '';
+  };
+in
+{
   imports = [
     flakeInputs.nix-index-database.hmModules.nix-index
   ];
@@ -30,7 +30,8 @@ in {
   # Don't make a command_not_found handler
   programs.nix-index.enableFishIntegration = false;
 
-  home.packages = with pkgs;
+  home.packages =
+    with pkgs;
     [
       nix-tree
       nix-melt
@@ -70,7 +71,7 @@ in {
       [
         {
           patterns = {
-            modified = [''^flake\.lock$''];
+            modified = [ ''^flake\.lock$'' ];
           };
 
           action = ''
@@ -83,13 +84,15 @@ in {
       ]
       ++ optionals isLinux [
         {
-          patterns = let
-            nixFixPattern = "nix-fix/";
-          in {
-            modified = [nixFixPattern];
-            added = [nixFixPattern];
-            deleted = [nixFixPattern];
-          };
+          patterns =
+            let
+              nixFixPattern = "nix-fix/";
+            in
+            {
+              modified = [ nixFixPattern ];
+              added = [ nixFixPattern ];
+              deleted = [ nixFixPattern ];
+            };
 
           action = ''
             echo 'The Nix $PATH fix for fish shell has changed. To apply these changes re-run the install script `${specialArgs.flakeInputs.self}/dotfiles/nix/nix-fix/install-nix-fix.bash`. Press enter to continue'

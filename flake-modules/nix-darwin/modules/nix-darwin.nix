@@ -3,12 +3,21 @@
   specialArgs,
   pkgs,
   ...
-}: let
-  inherit (specialArgs) hostName homeDirectory username repositoryDirectory;
+}:
+let
+  inherit (specialArgs)
+    hostName
+    homeDirectory
+    username
+    repositoryDirectory
+    ;
 
   hostctl-preview-switch = pkgs.writeShellApplication {
     name = "hostctl-preview-switch";
-    runtimeInputs = with pkgs; [nix coreutils];
+    runtimeInputs = with pkgs; [
+      nix
+      coreutils
+    ];
     text = ''
       cd "${repositoryDirectory}"
 
@@ -24,7 +33,11 @@
 
   hostctl-switch = pkgs.writeShellApplication {
     name = "hostctl-switch";
-    runtimeInputs = with pkgs; [nix nix-output-monitor coreutils];
+    runtimeInputs = with pkgs; [
+      nix
+      nix-output-monitor
+      coreutils
+    ];
     text = ''
       cd "${repositoryDirectory}"
 
@@ -45,7 +58,13 @@
 
   hostctl-upgrade = pkgs.writeShellApplication {
     name = "hostctl-upgrade";
-    runtimeInputs = with pkgs; [coreutils gitMinimal less direnv nix];
+    runtimeInputs = with pkgs; [
+      coreutils
+      gitMinimal
+      less
+      direnv
+      nix
+    ];
     text = ''
       # TODO: So `just` has access to `hostctl-switch`, not a great solution
       PATH="${config.system.profile}/sw/bin:$PATH"
@@ -85,25 +104,28 @@
     '';
   };
 
-  update-check =
-    pkgs.writeShellApplication
-    {
-      name = "update-check";
-      runtimeInputs = with pkgs; [coreutils gitMinimal terminal-notifier];
-      text = ''
-        log="$(mktemp --tmpdir 'nix_darwin_update_XXXXX')"
-        exec 2>"$log" 1>"$log"
-        trap 'terminal-notifier -title "Nix Darwin" -message "Update check failed :( Check the logs in $log"' ERR
+  update-check = pkgs.writeShellApplication {
+    name = "update-check";
+    runtimeInputs = with pkgs; [
+      coreutils
+      gitMinimal
+      terminal-notifier
+    ];
+    text = ''
+      log="$(mktemp --tmpdir 'nix_darwin_update_XXXXX')"
+      exec 2>"$log" 1>"$log"
+      trap 'terminal-notifier -title "Nix Darwin" -message "Update check failed :( Check the logs in $log"' ERR
 
-        cd "${repositoryDirectory}"
+      cd "${repositoryDirectory}"
 
-        git fetch
-        if [ -n "$(git log 'HEAD..@{u}' --oneline)" ]; then
-          terminal-notifier -title "Nix Darwin" -message "Updates are available, click here to update." -execute '/usr/local/bin/wezterm --config "default_prog={[[${hostctl-upgrade}/bin/hostctl-upgrade]]}" --config "exit_behavior=[[Hold]]"'
-        fi
-      '';
-    };
-in {
+      git fetch
+      if [ -n "$(git log 'HEAD..@{u}' --oneline)" ]; then
+        terminal-notifier -title "Nix Darwin" -message "Updates are available, click here to update." -execute '/usr/local/bin/wezterm --config "default_prog={[[${hostctl-upgrade}/bin/hostctl-upgrade]]}" --config "exit_behavior=[[Hold]]"'
+      fi
+    '';
+  };
+in
+{
   configureLoginShellForNixDarwin = true;
 
   users.users.${username} = {
@@ -132,9 +154,9 @@ in {
       # Since timers that go off when the computer is off never run, I try to
       # give myself more chances to see the message, 10am, 4pm, and 8pm:
       # https://superuser.com/a/546353
-      {Hour = 10;}
-      {Hour = 16;}
-      {Hour = 20;}
+      { Hour = 10; }
+      { Hour = 16; }
+      { Hour = 20; }
     ];
 
     command = ''${update-check}/bin/update-check'';

@@ -3,7 +3,8 @@
   config,
   lib,
   ...
-}: {
+}:
+{
   # Using this so Home Manager can include it's generated completion scripts
   programs.fish = {
     enable = true;
@@ -49,7 +50,7 @@
 
     git.onChange = [
       {
-        patterns.modified = [''^dotfiles/fish/conf\.d/''];
+        patterns.modified = [ ''^dotfiles/fish/conf\.d/'' ];
         action = ''
           echo "The fish shell configuration has changed. To apply these changes you should restart any running terminals. Press enter to continue"
 

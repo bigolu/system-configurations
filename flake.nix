@@ -8,16 +8,16 @@
     extra-trusted-public-keys = "bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw=";
   };
 
-  outputs = inputs @ {
-    flake-parts,
-    flake-utils,
-    nixpkgs,
-    ...
-  }:
-    flake-parts.lib.mkFlake
-    {inherit inputs;}
-    (
-      {self, ...}: {
+  outputs =
+    inputs@{
+      flake-parts,
+      flake-utils,
+      nixpkgs,
+      ...
+    }:
+    flake-parts.lib.mkFlake { inherit inputs; } (
+      { self, ... }:
+      {
         imports = [
           ./flake-modules/cache.nix
           ./flake-modules/nix-darwin
@@ -39,14 +39,14 @@
           x86_64-darwin
         ];
 
-        perSystem = {system, ...}: {
-          _module.args.pkgs =
-            import nixpkgs
-            {
+        perSystem =
+          { system, ... }:
+          {
+            _module.args.pkgs = import nixpkgs {
               inherit system;
-              overlays = [self.overlays.default];
+              overlays = [ self.overlays.default ];
             };
-        };
+          };
       }
     );
 

@@ -2,16 +2,17 @@
   flake-parts-lib,
   lib,
   ...
-}: let
+}:
+let
   inherit (flake-parts-lib) mkTransposedPerSystemModule;
   inherit (lib) mkOption types;
   bundlerOption = mkTransposedPerSystemModule {
     name = "bundlers";
     option = mkOption {
       type = types.anything;
-      default = {};
+      default = { };
     };
     file = ./option.nix;
   };
 in
-  bundlerOption
+bundlerOption

@@ -1,5 +1,5 @@
 rec {
-  pkgs = import <nixpkgs> {};
+  pkgs = import <nixpkgs> { };
   inherit (pkgs) lib;
 }
 // builtins

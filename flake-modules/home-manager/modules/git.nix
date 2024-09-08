@@ -3,7 +3,8 @@
   lib,
   specialArgs,
   ...
-}: {
+}:
+{
   home.packages = with pkgs; [
     gitMinimal
     delta

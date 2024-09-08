@@ -3,11 +3,13 @@
   lib,
   specialArgs,
   ...
-}: let
+}:
+let
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isDarwin isLinux;
   inherit (specialArgs) repositoryDirectory flakeInputs;
-in {
+in
+{
   home.file = optionalAttrs isDarwin {
     ".hammerspoon/Spoons/EmmyLua.spoon" = {
       source = "${specialArgs.flakeInputs.spoons}/Source/EmmyLua.spoon";
@@ -53,9 +55,13 @@ in {
         # bat theme is added, the theme needs to be linked before we can rebuild the bat cache.
         priority = 100;
         patterns = {
-          added = [".*"];
-          deleted = [".*"];
-          modified = [''^flake-modules/'' ''^flake\.nix$'' ''^flake\.lock$''];
+          added = [ ".*" ];
+          deleted = [ ".*" ];
+          modified = [
+            ''^flake-modules/''
+            ''^flake\.nix$''
+            ''^flake\.lock$''
+          ];
         };
         action = ''
           just switch
@@ -63,7 +69,7 @@ in {
       }
       {
         patterns = {
-          modified = [''^\.lefthook.yml$''];
+          modified = [ ''^\.lefthook.yml$'' ];
         };
         action = ''
           just install-git-hooks

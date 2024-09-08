@@ -3,7 +3,8 @@
   pkgs,
   specialArgs,
   ...
-}: let
+}:
+let
   inherit (specialArgs) isGui flakeInputs;
   inherit (pkgs.stdenv) isDarwin isLinux;
 
@@ -19,52 +20,49 @@
     '';
   };
 
-  mac =
-    lib.mkIf
-    (isGui && isDarwin)
-    {
-      repository.symlink = {
-        xdg = {
-          configFile = {
-            "yabai/yabairc".source = "yabai/yabairc";
-            "skhd/skhdrc".source = "skhd/skhdrc";
-          };
-        };
-
-        home.file = {
-          ".hammerspoon/init.lua".source = "hammerspoon/init.lua";
-          ".hammerspoon/stackline/conf.lua".source = "hammerspoon/stackline/conf.lua";
-          "Library/Keyboard Layouts/NoAccentKeys.bundle".source = "keyboard/US keyboard - no accent keys.bundle";
+  mac = lib.mkIf (isGui && isDarwin) {
+    repository.symlink = {
+      xdg = {
+        configFile = {
+          "yabai/yabairc".source = "yabai/yabairc";
+          "skhd/skhdrc".source = "skhd/skhdrc";
         };
       };
 
       home.file = {
-        ".hammerspoon/stackline" = {
-          source = stacklineWithoutConfig;
-          # I'm recursively linking because I link into this directory in other
-          # places.
-          recursive = true;
-        };
-      };
-
-      targets.darwin.keybindings = {
-        # By default, a bell sound goes off whenever I use ctrl+/, this disables that.
-        "^/" = "noop:";
+        ".hammerspoon/init.lua".source = "hammerspoon/init.lua";
+        ".hammerspoon/stackline/conf.lua".source = "hammerspoon/stackline/conf.lua";
+        "Library/Keyboard Layouts/NoAccentKeys.bundle".source = "keyboard/US keyboard - no accent keys.bundle";
       };
     };
 
-  linux =
-    lib.mkIf
-    (isGui && isLinux)
-    {
-      repository.symlink = {
-        xdg = {
-          configFile = {
-            # TODO: When COSMIC writes to this file it replaces the symlink with a regular copy :(
-            "cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom".source = "cosmic/v1-shortcuts";
-          };
+    home.file = {
+      ".hammerspoon/stackline" = {
+        source = stacklineWithoutConfig;
+        # I'm recursively linking because I link into this directory in other
+        # places.
+        recursive = true;
+      };
+    };
+
+    targets.darwin.keybindings = {
+      # By default, a bell sound goes off whenever I use ctrl+/, this disables that.
+      "^/" = "noop:";
+    };
+  };
+
+  linux = lib.mkIf (isGui && isLinux) {
+    repository.symlink = {
+      xdg = {
+        configFile = {
+          # TODO: When COSMIC writes to this file it replaces the symlink with a regular copy :(
+          "cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom".source = "cosmic/v1-shortcuts";
         };
       };
     };
+  };
 in
-  lib.mkMerge [mac linux]
+lib.mkMerge [
+  mac
+  linux
+]

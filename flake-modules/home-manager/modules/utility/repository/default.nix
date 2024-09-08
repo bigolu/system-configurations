@@ -1,7 +1,9 @@
 # Utilities for working with the repository that contains your Home Manager configuration.
-{lib, ...}: let
+{ lib, ... }:
+let
   inherit (lib) types;
-in {
+in
+{
   imports = [
     ./git.nix
     ./symlink.nix

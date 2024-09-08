@@ -2,9 +2,11 @@
   config,
   specialArgs,
   ...
-}: let
+}:
+let
   inherit (specialArgs) homeDirectory username;
-in {
+in
+{
   nix = {
     useDaemon = true;
 
@@ -30,7 +32,7 @@ in {
       nixpkgs.flake = specialArgs.flakeInputs.nixpkgs;
     };
     nixPath = [
-      {nixpkgs = "flake:nixpkgs";}
+      { nixpkgs = "flake:nixpkgs"; }
     ];
   };
 

@@ -5,11 +5,12 @@
   config,
   lib,
   ...
-}: let
+}:
+let
   inherit (lib) types;
   fileChangeType = lib.mkOption {
     type = types.listOf types.str;
-    default = [];
+    default = [ ];
   };
   onChangeType = types.submodule {
     options = {
@@ -31,86 +32,89 @@
       };
     };
   };
-in {
+in
+{
   options.repository.git = {
     onChange = lib.mkOption {
       type = types.listOf onChangeType;
-      default = [];
+      default = [ ];
     };
   };
 
-  config = let
-    mapOnChangeEntryToSnippet = onChangeEntry: let
-      # changeType is the name of a function in the script
-      makeIfConditionForChangeTypeAndPattern = changeType: pattern: "${changeType} ${lib.strings.escapeShellArgs [pattern]}";
-      changeTypes = builtins.attrNames onChangeEntry.patterns;
-      conditonsPerChangeType =
-        map
-        (
-          changeType: let
-            patterns = onChangeEntry.patterns.${changeType};
-            makeIfConditionForPattern = makeIfConditionForChangeTypeAndPattern changeType;
-            conditions = map makeIfConditionForPattern patterns;
-          in
+  config =
+    let
+      mapOnChangeEntryToSnippet =
+        onChangeEntry:
+        let
+          # changeType is the name of a function in the script
+          makeIfConditionForChangeTypeAndPattern =
+            changeType: pattern: "${changeType} ${lib.strings.escapeShellArgs [ pattern ]}";
+          changeTypes = builtins.attrNames onChangeEntry.patterns;
+          conditonsPerChangeType = map (
+            changeType:
+            let
+              patterns = onChangeEntry.patterns.${changeType};
+              makeIfConditionForPattern = makeIfConditionForChangeTypeAndPattern changeType;
+              conditions = map makeIfConditionForPattern patterns;
+            in
             conditions
-        )
-        changeTypes;
-      flattenedConditions = lib.lists.flatten conditonsPerChangeType;
-      joinedConditions = lib.strings.concatStringsSep " || " flattenedConditions;
-      action =
-        if onChangeEntry.confirmation == null
-        then onChangeEntry.action
-        else ''
-          if confirm ${lib.strings.escapeShellArgs [onChangeEntry.confirmation]}; then
-            ${onChangeEntry.action}
-          fi
-        '';
-      snippet = ''
-        if ${joinedConditions}; then
-          ${action}
-        fi
-      '';
-    in
-      snippet;
+          ) changeTypes;
+          flattenedConditions = lib.lists.flatten conditonsPerChangeType;
+          joinedConditions = lib.strings.concatStringsSep " || " flattenedConditions;
+          action =
+            if onChangeEntry.confirmation == null then
+              onChangeEntry.action
+            else
+              ''
+                if confirm ${lib.strings.escapeShellArgs [ onChangeEntry.confirmation ]}; then
+                  ${onChangeEntry.action}
+                fi
+              '';
+          snippet = ''
+            if ${joinedConditions}; then
+              ${action}
+            fi
+          '';
+        in
+        snippet;
 
-    # This sorts in increasing order, but I want decreasing order since higher priorities should go first.
-    # To reverse the sort order I negate the comparator return value.
-    sortedOnChangeEntries =
-      lib.lists.sort
-      (a: b: !(a.priority < b.priority))
-      config.repository.git.onChange;
+      # This sorts in increasing order, but I want decreasing order since higher priorities should go first.
+      # To reverse the sort order I negate the comparator return value.
+      sortedOnChangeEntries = lib.lists.sort (
+        a: b: !(a.priority < b.priority)
+      ) config.repository.git.onChange;
 
-    snippets = map mapOnChangeEntryToSnippet sortedOnChangeEntries;
+      snippets = map mapOnChangeEntryToSnippet sortedOnChangeEntries;
 
-    mapWithIndex = function: list: let
-      inherit (lib.lists) range zipLists;
-      indices = range 1 (builtins.length list);
-      zippedList = zipLists list indices;
-      zippedListRenamed =
-        map (x: {
-          item = x.fst;
-          index = x.snd;
-        })
-        zippedList;
-    in
-      map function zippedListRenamed;
+      mapWithIndex =
+        function: list:
+        let
+          inherit (lib.lists) range zipLists;
+          indices = range 1 (builtins.length list);
+          zippedList = zipLists list indices;
+          zippedListRenamed = map (x: {
+            item = x.fst;
+            index = x.snd;
+          }) zippedList;
+        in
+        map function zippedListRenamed;
 
-    onChangeFiles =
-      builtins.listToAttrs
-      (
-        mapWithIndex
-        (
+      onChangeFiles = builtins.listToAttrs (
+        mapWithIndex (
           {
             item,
             index,
-          }: {
+          }:
+          {
             name = "${config.repository.directory}/.git-hook-assets/actions/generated/${toString index}";
-            value = {text = item;};
+            value = {
+              text = item;
+            };
           }
-        )
-        snippets
+        ) snippets
       );
-  in {
-    home.file = onChangeFiles;
-  };
+    in
+    {
+      home.file = onChangeFiles;
+    };
 }

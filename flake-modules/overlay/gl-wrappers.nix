@@ -13,41 +13,52 @@
   inputs,
   lib,
   ...
-}: {
-  flake = let
-    makeGLWrapperOverlayForPackages = pkgNames: final: prev: let
-      wrapPackage = pkgName: let
-        pkg = prev.${pkgName};
-        mainProgramName =
-          if builtins.hasAttr "mainProgram" pkg.meta
-          then pkg.meta.mainProgram
-          else null;
-        # Merge with the original package to retain attributes like meta, terminfo, etc.
-        wrappedMainProgram =
-          pkg
-          // final.symlinkJoin {
-            name = "${pkg.name}-with-nixgl";
-            paths = let
-              wrappedMainProgram = final.writeShellScriptBin mainProgramName ''
-                exec ${inputs.nixgl.packages.${final.system}.nixGLDefault}/bin/nixGL ${pkg}/bin/${mainProgramName} "$@"
-              '';
+}:
+{
+  flake =
+    let
+      makeGLWrapperOverlayForPackages =
+        pkgNames: final: prev:
+        let
+          wrapPackage =
+            pkgName:
+            let
+              pkg = prev.${pkgName};
+              mainProgramName = if builtins.hasAttr "mainProgram" pkg.meta then pkg.meta.mainProgram else null;
+              # Merge with the original package to retain attributes like meta, terminfo, etc.
+              wrappedMainProgram =
+                pkg
+                // final.symlinkJoin {
+                  name = "${pkg.name}-with-nixgl";
+                  paths =
+                    let
+                      wrappedMainProgram = final.writeShellScriptBin mainProgramName ''
+                        exec ${
+                          inputs.nixgl.packages.${final.system}.nixGLDefault
+                        }/bin/nixGL ${pkg}/bin/${mainProgramName} "$@"
+                      '';
+                    in
+                    [ wrappedMainProgram ] ++ [ pkg ];
+                  inherit (pkg) meta;
+                };
             in
-              [wrappedMainProgram] ++ [pkg];
-            inherit (pkg) meta;
-          };
-      in
-        if mainProgramName == null
-        then builtins.throw "[gl-wrapper]: Unable to wrap '${pkg.name}', no mainProgram is defined for it."
-        else wrappedMainProgram;
+            if mainProgramName == null then
+              builtins.throw "[gl-wrapper]: Unable to wrap '${pkg.name}', no mainProgram is defined for it."
+            else
+              wrappedMainProgram;
+        in
+        lib.optionalAttrs prev.stdenv.isLinux (
+          builtins.listToAttrs (
+            builtins.map (pkgName: {
+              name = pkgName;
+              value = wrapPackage pkgName;
+            }) pkgNames
+          )
+        );
     in
-      lib.optionalAttrs prev.stdenv.isLinux (builtins.listToAttrs (builtins.map (pkgName: {
-          name = pkgName;
-          value = wrapPackage pkgName;
-        })
-        pkgNames));
-  in {
-    overlays.glWrappers = makeGLWrapperOverlayForPackages [
-      "wezterm"
-    ];
-  };
+    {
+      overlays.glWrappers = makeGLWrapperOverlayForPackages [
+        "wezterm"
+      ];
+    };
 }

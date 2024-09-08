@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   imports = [
     ../direnv.nix
     ../firefox-developer-edition.nix

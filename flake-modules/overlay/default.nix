@@ -2,7 +2,8 @@
   self,
   lib,
   ...
-}: {
+}:
+{
   imports = [
     ./plugins
     ./xdg.nix

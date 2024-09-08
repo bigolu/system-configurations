@@ -80,7 +80,7 @@ Plug("stevearc/conform.nvim", {
       python = { "usort", "black" },
       sh = { "shfmt" },
       fish = { "fish_indent" },
-      nix = { "alejandra" },
+      nix = { "nixfmt" },
       just = { "just" },
       go = { "gofmt" },
       javascript = prettier,

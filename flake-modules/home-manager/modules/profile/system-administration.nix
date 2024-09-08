@@ -2,11 +2,13 @@
   lib,
   pkgs,
   ...
-}: let
+}:
+let
   inherit (lib.lists) optionals;
   inherit (pkgs.stdenv) isLinux isDarwin;
   inherit (lib.attrsets) optionalAttrs;
-in {
+in
+{
   imports = [
     ../git.nix
     ../fzf.nix
@@ -15,7 +17,8 @@ in {
     ../ripgrep-all.nix
   ];
 
-  home.packages = with pkgs;
+  home.packages =
+    with pkgs;
     [
       fd
       jq
@@ -58,9 +61,9 @@ in {
 
   xdg = {
     configFile = {
-      "fish/conf.d/zoxide.fish".source = ''${
-          pkgs.runCommand "zoxide-config.fish" {} "${pkgs.zoxide}/bin/zoxide init --no-cmd fish > $out"
-        }'';
+      "fish/conf.d/zoxide.fish".source = ''${pkgs.runCommand "zoxide-config.fish" { }
+        "${pkgs.zoxide}/bin/zoxide init --no-cmd fish > $out"
+      }'';
 
       # Taken from home-manager [1]. I'm doing this because home-manager was
       # bringing in the broot source code as a dependency. Dummy file to prevent
@@ -71,10 +74,9 @@ in {
         recursive = true;
       };
 
-      "fish/conf.d/broot.fish".source = ''${
-          pkgs.runCommand "broot.fish" {nativeBuildInputs = [pkgs.broot];}
-          "broot --print-shell-function fish > $out"
-        }'';
+      "fish/conf.d/broot.fish".source = ''${pkgs.runCommand "broot.fish" {
+        nativeBuildInputs = [ pkgs.broot ];
+      } "broot --print-shell-function fish > $out"}'';
     };
   };
 
@@ -104,14 +106,10 @@ in {
       # [2]: https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW6
       home.file = {
         "${
-          if pkgs.stdenv.isLinux
-          then ".config"
-          else "Library/Application Support"
+          if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"
         }/tealdeer/config.toml".source = "tealdeer/config.toml";
         "${
-          if pkgs.stdenv.isLinux
-          then ".config"
-          else "Library/Application Support"
+          if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"
         }/viddy.toml".source = "viddy/viddy.toml";
       };
     };

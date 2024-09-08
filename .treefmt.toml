@@ -118,9 +118,9 @@ done
     """, "--"]
   includes = ["*.nix"]
 
-[formatter.nix-alejandra]
+[formatter.nix-nixfmt]
   priority = 2
-  command = "alejandra"
+  command = "nixfmt"
   includes = ["*.nix"]
 
 [formatter.justfile]

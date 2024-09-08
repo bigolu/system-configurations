@@ -1,4 +1,5 @@
-{pkgs, ...}: {
+{ pkgs, ... }:
+{
   home.packages = with pkgs; [
     direnv
   ];
@@ -8,8 +9,8 @@
   };
 
   xdg.configFile = {
-    "fish/conf.d/direnv.fish".source = ''${
-        pkgs.runCommand "direnv-config.fish" {} "${pkgs.direnv}/bin/direnv hook fish > $out"
-      }'';
+    "fish/conf.d/direnv.fish".source = ''${pkgs.runCommand "direnv-config.fish" { }
+      "${pkgs.direnv}/bin/direnv hook fish > $out"
+    }'';
   };
 }
