@@ -1,12 +1,15 @@
 name: Publish Shell Executable
 on:
-  push:
-    paths:
-      - ".github/workflows/publish-shell-executable.yml"
-      - "flake.nix"
-      - "flake.lock"
-      - "flake-modules/**"
-      - "dotfiles/**"
+  workflow_dispatch:
+  schedule:
+    # Once every 6 months
+    - cron: "0 0 1 */3 *"
+concurrency:
+  # Since we are only interested in publishing packages for the latest commit to
+  # the branch, we will limit the workflow to running at most once per branch,
+  # cancelling older runs when newer ones start.
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
 jobs:
   publish-executable:
     if: github.ref_name == github.event.repository.default_branch
@@ -24,23 +27,30 @@ jobs:
         with:
           name: bigolu
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: nix run --show-trace .#nix -- bundle --show-trace --bundler .# .#shellMinimal
-      - run: NIXPKGS_ALLOW_UNFREE=1 nix run --show-trace .#nix -- bundle --impure --show-trace --bundler .# .#terminalMinimal
-      # Dereference the symlinks so I can upload the actual executables. The symlinks' names will
-      # look like '<name>-x86_64-linux' so I'm using a glob pattern to match
-      # them.
-      - run: |
+      - name: Get the number of new commits
+        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '6 months ago' | wc -l)" >> "$GITHUB_ENV"
+      - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
+        name: Make the executable
+        run: |
+          nix run --show-trace .#nix -- bundle --show-trace --bundler .# .#shellMinimal
+
+          NIXPKGS_ALLOW_UNFREE=1 nix run --show-trace .#nix -- bundle --impure --show-trace --bundler .# .#terminalMinimal
+
           mkdir tmp
+          # Dereference the symlinks so I can upload the actual executables. The
+          # symlinks' names will look like '<name>-x86_64-linux' so I'm using a
+          # glob pattern to match them.
           cp -L shell-* ./tmp/
           cp -L terminal-* ./tmp/
-      - run: |
+
           size="$(du -m ./tmp/shell-* | cut -f1)"
           max_size='250'
           if (( "$size" > "$max_size" )); then
           echo "Shell is too big: $size MB. Max size: $max_size"
             exit 1
           fi
-      - name: Upload executable
+      - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
+        name: Upload the executable
         uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           file: tmp/*

@@ -66,6 +66,13 @@ local function listen(speakerctl_path)
       end
     end)
     :start()
+
+  -- If the computer is docked before I turn it on, then hammerspoon won't start
+  -- until I've already logged in so the speakers won't turn on. To get around
+  -- that, I'll turn them on now.
+  if is_laptop_docked() then
+    turn_on()
+  end
 end
 
 -- Using a login shell to make sure Nix's login shell configuration runs so I

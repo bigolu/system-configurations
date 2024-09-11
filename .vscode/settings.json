@@ -43,15 +43,18 @@
 
   "python.languageServer": "Jedi",
 
-  // Use the daemon since it's faster
+  // It's faster
   "mypy-type-checker.preferDaemon": true,
-  // Check the entire workspace
-  "mypy-type-checker.reportingScope": "workspace",
-  // Use the mypy binary from our environment, not the one bundled with the extension
+
+  // To be consistent with the version of mypy we use locally and in CI
   "mypy-type-checker.importStrategy": "fromEnvironment",
 
-  "go.lintTool": "golangci-lint",
+  "mypy-type-checker.reportingScope": "workspace",
+
+  // So the editor doesn't lag
   "go.lintFlags": ["--fast"],
+
+  "go.lintTool": "golangci-lint",
 
   "ltex.completionEnabled": true,
   "ltex.enabled": [

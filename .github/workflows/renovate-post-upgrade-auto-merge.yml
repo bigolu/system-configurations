@@ -6,7 +6,15 @@ on:
     # token, anything done here can trigger other workflows avoid creating an
     # infinite loop. That shouldn't be a problem here since this runs on a
     # schedule.
+    #
+    # Once daily at midnight
     - cron: "0 0 * * *"
+concurrency:
+  # There's no reason to have multiple runs of this workflow going on at the
+  # same time so we will limit the workflow to running at most once per branch,
+  # cancelling older runs when newer ones start.
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
 jobs:
   auto-merge:
     runs-on: ubuntu-latest

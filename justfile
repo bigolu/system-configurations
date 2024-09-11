@@ -58,7 +58,7 @@ init-nix-darwin HOST_NAME: sync-git-hooks get-secrets install-nix-from-flake ins
 ''')]
 [group('Checks')]
 test:
-    bash tests.bash
+    bash test.bash
 
 [doc('''
     Format source code. You should run this on all files if you make a

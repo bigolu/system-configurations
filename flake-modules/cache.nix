@@ -36,17 +36,9 @@ _: {
         in
         mapAttrs (_hostName: output: output.system) nixDarwinOutputsByHostName;
 
-      devShellsByName =
-        let
-          devShellOutputsKey = "devShells";
-        in
-        optionalAttrs (builtins.hasAttr devShellOutputsKey self') (
-          builtins.getAttr devShellOutputsKey self'
-        );
+      devShellsByName = attrByPath [ "devShells" ] { } self';
 
-      # Where simple means a package exposed in this flake that supports every system the flake
-      # supports.
-      simplePackages =
+      bootstrapPackagesByName =
         builtins.foldl'
           (
             acc: name:
@@ -67,7 +59,7 @@ _: {
           ];
 
       packagesToCacheByName =
-        homeManagerPackagesByName // nixDarwinPackagesByName // devShellsByName // simplePackages;
+        homeManagerPackagesByName // nixDarwinPackagesByName // devShellsByName // bootstrapPackagesByName;
 
       outputs = {
         packages.default = pkgs.linkFarm "packages-to-cache" packagesToCacheByName;
