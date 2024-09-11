@@ -77,7 +77,7 @@ Plug("stevearc/conform.nvim", {
     local prettier = { { "prettierd", "prettier" } }
     local formatters_by_ft = {
       lua = { "stylua" },
-      python = { "usort", "black" },
+      python = { "usort", "ruff_format", "black" },
       sh = { "shfmt" },
       fish = { "fish_indent" },
       nix = { "nixfmt" },

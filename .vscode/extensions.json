@@ -3,7 +3,6 @@
   // about workspace recommendations. Extension identifier format:
   // ${publisher}.${name}. Example: vscode.csharp
 
-  // List of extensions which should be recommended for users of this workspace.
   "recommendations": [
     // Applies the direnv environment to VS Code
     "mkhl.direnv",
@@ -27,14 +26,37 @@
     // Language server for Lua
     "sumneko.lua",
 
-    // Language client and Syntax highlighting for Nix
+    // Language server and Syntax highlighting for Nix
     "jnoortheen.nix-ide",
 
     // Syntax highlighting for Just
-    "nefrob.vscode-just-syntax"
+    "nefrob.vscode-just-syntax",
+
+    // Debugger for Python, ms-python.python is its dependency
+    "ms-python.debugpy",
+    "ms-python.python",
+
+    // Linting for Python
+    "charliermarsh.ruff",
+
+    // Snippets for Python
+    "ericsia.pythonsnippets3",
+    "njpwerner.autodocstring",
+
+    // Type checker for Python
+    "ms-python.mypy-type-checker",
+
+    // Semantic code search
+    "ast-grep.ast-grep-vscode",
+
+    // Editor settings like indentation size or end-of-line character
+    "editorconfig.editorconfig",
+
+    // Language server and debugger for Go
+    "golang.go",
   ],
 
   // List of extensions recommended by VS Code that should not be recommended
   // for users of this workspace.
-  "unwantedRecommendations": []
+  "unwantedRecommendations": ["ms-python.vscode-pylance"],
 }

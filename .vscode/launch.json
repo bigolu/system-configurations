@@ -9,15 +9,15 @@
       "request": "launch",
       "name": "Bash Script",
       "program": "${file}",
-      "argsString": "${input:args}"
-    }
+      "argsString": "${input:args}",
+    },
   ],
   "inputs": [
     {
       "id": "args",
       "type": "promptString",
       "description": "arguments to pass to the script",
-      "default": ""
-    }
-  ]
+      "default": "",
+    },
+  ],
 }

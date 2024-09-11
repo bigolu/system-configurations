@@ -46,7 +46,7 @@ format_and_make_suggestion() {
 
 # Logic lints
 run_linter reviewdog -fail-on-error -filter-mode=nofilter "$reporter"
-run_linter just lint --linters taplo,renovate,jq
+run_linter just lint --linters taplo,renovate,config-file-validator
 run_linter bash ./scripts/lua-ls-all.bash
 
 # Style lints
@@ -58,7 +58,12 @@ run_linter format_and_make_suggestion fish treefmt --formatters fish --on-unmatc
 run_linter format_and_make_suggestion just treefmt --formatters justfile --on-unmatched debug
 run_linter format_and_make_suggestion stylua treefmt --formatters lua --on-unmatched debug
 run_linter format_and_make_suggestion gofmt treefmt --formatters go --on-unmatched debug
-run_linter format_and_make_suggestion black treefmt --formatters python --on-unmatched debug
+run_linter format_and_make_suggestion python-ruff-format treefmt --formatters python-ruff-format --on-unmatched debug
+run_linter format_and_make_suggestion python-ruff-format-sort-imports treefmt --formatters python-ruff-format-sort-imports --on-unmatched debug
+run_linter format_and_make_suggestion python-ruff-fix-lint treefmt --formatters python-ruff-fix-lint --on-unmatched debug
+run_linter format_and_make_suggestion deadnix treefmt --formatters nix-deadnix --on-unmatched debug
+run_linter format_and_make_suggestion statix treefmt --formatters nix-statix --on-unmatched debug
+run_linter format_and_make_suggestion nixfmt treefmt --formatters nix-nixfmt --on-unmatched debug
 
 if [ "$found_problem" = '1' ]; then
   exit 1

@@ -13,23 +13,16 @@
     }:
     let
       inherit (lib.attrsets) optionalAttrs;
-      inherit (pkgs.stdenv) isLinux;
-      inherit (lib.lists) optionals;
 
       pythonPackages =
-        ps:
-        with ps;
-        [
+        ps: with ps; [
           pip
           python-kasa
           diskcache
           ipython
           platformdirs
           psutil
-        ]
-        ++ optionals isLinux [
-          dbus-python
-          pygobject3
+          mypy
         ];
       pythonWithPackages = pkgs.python3.withPackages pythonPackages;
 

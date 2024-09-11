@@ -14,6 +14,7 @@
     "*.service",
     "*.timer",
     "*.ipy",
+    "*.ini",
     ".editorconfig",
     ".gitignore",
     ".ignore",
@@ -21,8 +22,8 @@
     "flake-modules/bundler/gozip/go.mod",
     ".lycheeignore",
 
-    # These have no file extension and aren't recognizable files like
-    # ".gitconfig" so there's no way to tell which formatter should be used.
+    # These have no file extension so there's no way to tell which formatter
+    # should be used.
     "dotfiles/bat/config",
     "dotfiles/cosmic/v1-shortcuts",
     "dotfiles/firefox-developer-edition/my-firefox",
@@ -60,13 +61,13 @@
     "flake-modules/bundler/gozip/gomod2nix.toml",
     "*.lock",
 
-    # TODO: just's builtin formatter currently removes, or rearranges,
+    # TODO: just's builtin formatter currently removes/rearranges
     # comments. Until this is fixed I'll disable it:
     # https://github.com/casey/just/issues/862
     # I would just comment out the `formatter.just` entry, but then treefmt
     # would warn me that any files that would have been formatted by it now have
     # no formatter. Instead, I'll ignore the files.
-    ".justfile",
+    "justfile",
     "ci.just",
   ]
 
@@ -79,6 +80,16 @@
   command = "prettier"
   options = ["--write"]
   includes = ["*.js", "*.json", "*.json5", "*.jsonc", "*.md", "*.yml", "*.yaml"]
+  # VS Code's configuration files end in .json, so prettier will format
+  # them using the json parser, but they are actually jsonc files.
+  excludes = [".vscode/*.json"]
+
+# VS Code's configuration files end in .json, but they are actually jsonc
+# files.
+[formatter.prettier-vscode]
+  command = "prettier"
+  options = ["--parser", "jsonc", "--write"]
+  includes = [".vscode/*.json"]
 
 [formatter.sh]
   command = "shfmt"
@@ -137,8 +148,21 @@ done
   options = ["-w"]
   includes = ["*.go"]
 
-[formatter.python]
-  command = "black"
+# TODO: They're going to make a single command to fix lints and format:
+# https://github.com/astral-sh/ruff/issues/8232
+[formatter.python-ruff-fix-lint]
+  command = "ruff"
+  options = ["check", "--fix-only"]
+  includes = ["*.py"]
+
+[formatter.python-ruff-format]
+  command = "ruff"
+  options = ["format"]
+  includes = ["*.py"]
+
+[formatter.python-ruff-format-sort-imports]
+  command = "ruff"
+  options = ["check", "--select", "I", "--fix-only"]
   includes = ["*.py"]
 
 [formatter.markdown]

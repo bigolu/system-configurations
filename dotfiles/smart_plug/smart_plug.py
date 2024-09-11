@@ -2,15 +2,12 @@ import asyncio
 import sys
 from collections.abc import Awaitable
 from typing import TypeVar
-from typing_extensions import cast
 
-
-from kasa import Discover, SmartDevice
-from kasa import SmartPlug
-from kasa import SmartDeviceException
-from diskcache import Cache  # pyright: ignore [reportMissingTypeStubs]
-from platformdirs import user_cache_dir
 import psutil
+from diskcache import Cache
+from kasa import Discover, SmartDevice, SmartDeviceException, SmartPlug
+from platformdirs import user_cache_dir
+from typing_extensions import cast
 
 
 class SmartPlugController(object):
@@ -22,14 +19,10 @@ class SmartPlugController(object):
         self._plug = self._get_plug()
 
     def turn_off(self):
-        self._block_until_complete(
-            self._plug.turn_off()  # pyright: ignore [reportUnknownArgumentType, reportUnknownMemberType]
-        )
+        self._block_until_complete(self._plug.turn_off())
 
     def turn_on(self):
-        self._block_until_complete(
-            self._plug.turn_on()  # pyright: ignore [reportUnknownArgumentType, reportUnknownMemberType]
-        )
+        self._block_until_complete(self._plug.turn_on())
 
     def is_on(self):
         return self._plug.is_on
@@ -97,9 +90,7 @@ class SmartPlugController(object):
     ) -> dict[str, SmartDevice]:
         # discover() has its own timeout of 5 seconds so I don't need to set a timeout
         return self._block_until_complete(
-            Discover.discover(  # pyright: ignore [reportUnknownMemberType]
-                target=broadcast_address
-            ),
+            Discover.discover(target=broadcast_address),
             timeout=None,
         )
 
@@ -129,7 +120,7 @@ if __name__ == "__main__":
 
     try:
         plug_controller = SmartPlugController(plug_alias="plug")
-    except Exception as exception:
+    except Exception:
         sys.exit(2)
 
     if len(sys.argv) == 1:

@@ -1,11 +1,11 @@
-_: {
+{ inputs, ... }:
+{
   flake =
     let
       overlay =
         final: prev:
         let
-          inherit (prev.stdenv) isLinux;
-          inherit (prev.lib.attrsets) optionalAttrs;
+          inherit (final.stdenv) isLinux;
 
           catp = final.stdenv.mkDerivation {
             pname = "catp";
@@ -18,10 +18,41 @@ _: {
               mkdir -p $out/bin
               cp $src/catp $out/bin/
             '';
+            meta = {
+              platforms = with inputs.flake-utils.lib.system; [
+                x86_64-linux
+              ];
+            };
+          };
+
+          config-file-validator = final.stdenv.mkDerivation {
+            pname = "config-file-validator";
+            version = "1.7.1";
+            src = prev.fetchzip {
+              url = "https://github.com/Boeing/config-file-validator/releases/download/v1.7.1/validator-v1.7.1-${
+                if isLinux then "linux" else "darwin"
+              }-amd64.tar.gz";
+              sha256 =
+                if isLinux then
+                  "sha256-0GE2CBi4JPgDtt2ifYI6QeZ/cGz0lDgyTIT28tCC5Kk="
+                else
+                  "sha256-Bj84jL1YwBbgDM2Z9G1uIXo/YtDkOjrFe+atwXsISGE=";
+              stripRoot = false;
+            };
+            installPhase = ''
+              mkdir -p $out/bin
+              cp $src/validator $out/bin/
+            '';
+            meta = {
+              platforms = with inputs.flake-utils.lib.system; [
+                x86_64-linux
+                x86_64-darwin
+              ];
+            };
           };
         in
-        optionalAttrs isLinux {
-          inherit catp;
+        {
+          inherit catp config-file-validator;
         };
     in
     {

@@ -72,7 +72,7 @@ test:
 ''')]
 [group('Checks')]
 format *FILES:
-    fish scripts/treefmt-wrapper.fish "$@"
+    bash scripts/treefmt-wrapper.bash "$@"
 
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -141,6 +141,8 @@ get-secrets:
 ''')]
 [group('Environment Management')]
 sync-nix-direnv:
+    # TODO: watch_file isn't working
+    touch flake.nix
     nix-direnv-reload
 
 [doc('''

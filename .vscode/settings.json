@@ -1,6 +1,6 @@
 {
-  // Use the local `taplo` that we have installed, this way all developers will
-  // be using the same version.
+  // Use the local `taplo` that we have installed. This way VS Code, our
+  // pre-commit hook, and CI will all use the same version.
   "evenBetterToml.taplo.bundled": false,
 
   // Automatically restart all the other extensions after loading the direnv
@@ -8,12 +8,16 @@
   // well.
   "direnv.restart.automatic": true,
 
-  // Automatically reload the direnv environment on file changes.
+  // Don't reload the direnv environment when .envrc changes. When direnv
+  // reloads, it also reloads all extensions so they can pick up the environment
+  // changes. If someone were to edit the .envrc with autosave on it would trigger
+  // a lot reloads and probably make VS Code lag.
   "direnv.watchForChanges": false,
 
+  // Configure efm-langserver
   "glspc.documentFilters": [{ "pattern": "**" }],
   "glspc.serverCommand": "efm-langserver",
-  "glspc.serverCommandArguments": ["-c", "efm-langserver.yaml"],
+  "glspc.serverCommandArguments": ["-c", ".efm-langserver.yaml"],
   "glspc.trace.server": "verbose",
 
   "nix.enableLanguageServer": true,
@@ -22,18 +26,51 @@
     "nixd": {
       "options": {
         "bigmac": {
-          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").legacyPackages.x86_64-darwin.darwinConfigurations.bigmac.options"
+          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").legacyPackages.x86_64-darwin.darwinConfigurations.bigmac.options",
         },
         "desktop": {
-          "expr": "(builtins.getFlake \"/home/biggs/code/system-configurations\").legacyPackages.x86_64-linux.homeConfigurations.desktop.options"
+          "expr": "(builtins.getFlake \"/home/biggs/code/system-configurations\").legacyPackages.x86_64-linux.homeConfigurations.desktop.options",
         },
         "flake-parts": {
-          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").debug.options"
+          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").debug.options",
         },
         "flake-parts-per-system": {
-          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").currentSystem.options"
-        }
-      }
-    }
-  }
+          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").currentSystem.options",
+        },
+      },
+    },
+  },
+
+  "python.languageServer": "Jedi",
+
+  // Use the daemon since it's faster
+  "mypy-type-checker.preferDaemon": true,
+  // Check the entire workspace
+  "mypy-type-checker.reportingScope": "workspace",
+  // Use the mypy binary from our environment, not the one bundled with the extension
+  "mypy-type-checker.importStrategy": "fromEnvironment",
+
+  "go.lintTool": "golangci-lint",
+  "go.lintFlags": ["--fast"],
+
+  "ltex.completionEnabled": true,
+  "ltex.enabled": [
+    // This block of languages should contain all of the languages here:
+    // https://github.com/valentjn/ltex-ls/blob/1193c9959aa87b3d36ca436060447330bf735a9d/src/main/kotlin/org/bsplines/ltexls/parsing/CodeFragmentizer.kt
+    "bib",
+    "bibtex",
+    "git-commit",
+    "html",
+    "xhtml",
+    "context",
+    "context.tex",
+    "latex",
+    "plaintex",
+    "rsweave",
+    "tex",
+    "markdown",
+    "nop",
+    "org",
+    "restructuredtext",
+  ],
 }

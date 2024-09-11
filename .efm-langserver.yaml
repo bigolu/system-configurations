@@ -33,6 +33,15 @@ tools:
     lint-stdin: false
     lint-formats:
       - "%f: %m"
+  config-file-validator: &config-file-validator
+    lint-command: validator -groupby pass-fail ${INPUT}
+    lint-source: "config-file-validator"
+    lint-stdin: false
+    lint-formats:
+      - "%A    × %f"
+      - "%Z        error: Error at line %l column %c: %m"
+      - "%A    × %f"
+      - "%Z        error: %m"
 
 version: 2
 root-markers:
@@ -44,5 +53,9 @@ languages:
     - <<: *yamllint
   markdown:
     - <<: *markdownlint-cli2
+  editorconfig:
+    - <<: *config-file-validator
+  ini:
+    - <<: *config-file-validator
   =:
     - <<: *desktop-file-validate

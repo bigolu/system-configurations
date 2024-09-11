@@ -59,7 +59,7 @@
   plus-non-emph-style = "0 2"
   plus-emph-style = "0 15"
   zero-style = "syntax normal"
-  map-styles = normal 21 => 0 5, normal 22 => 0 6
+  map-styles = normal 21 => 0 5, normal 22 => 0 14
   commit-style = "blue"
 [color "diff"]
   oldMoved = normal 21

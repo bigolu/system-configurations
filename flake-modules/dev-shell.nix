@@ -44,13 +44,13 @@
         paths = with pkgs; [
           # Languages
           bashInteractive
+          # For VS Code Go extension
           go
           nix
 
           # Fixers and linters
           actionlint
           nixfmt-rfc-style
-          black
           deadnix
           fish # for fish_indent, also used as logic linter
           lychee
@@ -69,6 +69,8 @@
           markdownlint-cli2
           desktop-file-utils
           lua-language-server
+          golangci-lint
+          config-file-validator
 
           # Version control
           git
@@ -78,6 +80,7 @@
           efm-langserver
           nixd
           taplo
+          ruff
 
           # Bash script dependencies
           coreutils-full

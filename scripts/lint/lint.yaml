@@ -15,11 +15,11 @@ linters:
     command: renovate-config-validator
     options: [--strict]
     includes: [.*renovate\.json5]
-  jq:
-    command: bash
-    # Source: https://github.com/jqlang/jq/issues/1539#issuecomment-1033002365
-    options: [-euc, jq type "$@" 1>/dev/null, --]
-    includes: [.*\.json]
+  config-file-validator:
+    command: validator
+    options: [-groupby, pass-fail]
+    includes: [.*\.json, .editorconfig, .*\.ini]
+    # VS Code's configuration files end in .json, but they are actually jsonc files
     excludes: [.*\.vscode/.*\.json]
   statix:
     command: bash
@@ -62,9 +62,17 @@ linters:
     options:
       - -euc
       - |
-        # fish doesn't support passing multiple files, I should open an issue
+        # TODO: fish doesn't support passing multiple files, I should open an issue
         for file in "$@"; do
           fish --no-execute "$file"
         done
       - --
     includes: [.*\.fish]
+  ruff:
+    command: ruff
+    options: [check]
+    includes: [.*\.py]
+  # golangci-lint:
+  #   command: golangci-lint
+  #   options: [run]
+  #   includes: [.*\.go]

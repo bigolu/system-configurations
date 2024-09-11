@@ -39,3 +39,11 @@ runner:
     errorformat:
       - "%f (line %l): %m"
     level: error
+  ruff:
+    cmd: ruff check . --output-format sarif
+    format: sarif
+    level: error
+  # golangci-lint:
+  #   cmd: golangci-lint run --out-format sarif
+  #   format: sarif
+  #   level: error
