@@ -13,7 +13,9 @@ on:
 jobs:
   renovate-post-upgrade-task:
     runs-on: ubuntu-latest
-    # TODO: This will result in a bunch of runs that immediately exit if the branch wasn't just created. Ideally the job wouldn't even start if the branch wasn't just created:
+    # TODO: This will result in a bunch of runs that immediately exit if the
+    # branch wasn't just created. Ideally the job wouldn't even start if the
+    # branch wasn't just created:
     # https://github.com/orgs/community/discussions/39831
     # https://github.com/orgs/community/discussions/54860
     # https://github.com/orgs/community/discussions/26286
