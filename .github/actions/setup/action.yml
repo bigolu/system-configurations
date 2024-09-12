@@ -1,0 +1,18 @@
+name: Setup
+description: Run common setup steps. This is usually one of the first steps in your action.
+inputs:
+  checkout-token:
+    description: The token to use for checking out the repository
+    required: false
+    default: ""
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      with:
+        token: ${{ inputs.checkout-token || github.token }}
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+      with:
+        upstream-cache: https://null.com
+        use-flakehub: false

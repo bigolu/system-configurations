@@ -19,11 +19,10 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
-        id: bigolu-bot-app-token
+      - id: bot-token
+        uses: ./github/actions/get-bot-token
         with:
-          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
-          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+          bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - run: |
           set -o errexit
           set -o nounset
@@ -61,4 +60,4 @@ jobs:
             fi
           done < <(gh pr list --json number --jq '.[].number' --repo "$GITHUB_REPOSITORY" --label automerge)
         env:
-          GH_TOKEN: "${{ steps.bigolu-bot-app-token.outputs.token }}"
+          GH_TOKEN: "${{ steps.bot-token.outputs.token }}"

@@ -8,6 +8,7 @@ on:
     # - Change this action
     paths:
       - ".github/workflows/cache-build-results.yml"
+      - "./github/actions/setup/**"
       - "flake.nix"
       - "flake.lock"
       - "flake-modules/**"
@@ -36,10 +37,10 @@ jobs:
       # fixing one bug only to find another on a different matrix job.
       fail-fast: false
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: ./github/actions/setup
       - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
         with:
           name: bigolu
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          skipAddingSubstituter: true
       - run: NIXPKGS_ALLOW_UNFREE=1 nix run --show-trace .#nix -- build --impure --show-trace

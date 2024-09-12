@@ -8,36 +8,25 @@ on:
     secrets:
       BIGOLU_BOT_PRIVATE_KEY:
         required: true
-      CACHIX_AUTH_TOKEN:
-        required: true
 jobs:
   renovate-post-upgrade-task:
     runs-on: ubuntu-latest
     # TODO: This will result in a bunch of runs that immediately exit if the
     # branch wasn't just created. Ideally the job wouldn't even start if the
     # branch wasn't just created:
-    # https://github.com/orgs/community/discussions/39831
-    # https://github.com/orgs/community/discussions/54860
-    # https://github.com/orgs/community/discussions/26286
     #
     # SYNC: RENOVATE_FIXUP
     if: startsWith(github.event.head_commit.message, '[RENOVATE_FIXUP]')
     steps:
-      - uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
-        id: bigolu-bot-app-token
+      - id: bot-token
+        uses: ./github/actions/get-bot-token
         with:
-          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
-          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+          bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      - uses: ./github/actions/setup
         with:
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
-          token: ${{ steps.bigolu-bot-app-token.outputs.token }}
-      - uses: DeterminateSystems/nix-installer-action@main
-      - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
-        with:
-          name: bigolu
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          checkout-token: ${{ steps.bot-token.outputs.token }}
       - run: ${{ inputs.command }}
       - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
       - name: Find Pull Request
@@ -47,6 +36,6 @@ jobs:
           branch: ${{ github.ref_name }}
       - uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9 # v5
         with:
-          repo-token: ${{ steps.bigolu-bot-app-token.outputs.token }}
+          repo-token: ${{ steps.bot-token.outputs.token }}
           pr-number: ${{ steps.find-pull-request.outputs.number }}
           configuration-path: .github/labeler.yml
