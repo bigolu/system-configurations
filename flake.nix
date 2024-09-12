@@ -116,6 +116,7 @@
       # https://github.com/nix-community/nixGL?tab=readme-ov-file#directly-run-nixgl
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
 
     # fish
     ########################################
