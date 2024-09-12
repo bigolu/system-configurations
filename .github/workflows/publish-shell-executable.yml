@@ -47,11 +47,20 @@ jobs:
             exit 1
           fi
       - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
+        name: Set current date as env variable
+        run: echo "NOW=$(date +'%Y.%m.%d')" >> "$GITHUB_ENV"
+      - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
         name: Upload the executable
         uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
         with:
           file: tmp/*
           file_glob: true
-          overwrite: true
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: v0.0.1
+          tag: latest
+          release_name: ${{ env.NOW }}
+          body: >
+            To save space, assets are overwritten on new releases. The date that
+            the assets were last uploaded is in the title of the release.
+          # I don't want to take up a bunch of storage for old versions of this
+          # that no one will ever use.
+          overwrite: true

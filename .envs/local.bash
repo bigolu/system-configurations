@@ -18,6 +18,7 @@ function set_up_nix {
   PATH_rm "$nix_wrapper_path"
   PATH_add "$nix_wrapper_path"
 
+  create_symlink_to_path_in_environment_variable LUA_LS_LIBRARIES '.lua-ls-libraries'
   add_lines_to_nix_config \
     'extra-substituters = https://bigolu.cachix.org' \
     'extra-trusted-public-keys = bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw='
@@ -52,6 +53,13 @@ function get_secret {
     fi
     return 1
   fi
+}
+
+function add_lines_to_nix_config {
+  for line in "$@"; do
+    NIX_CONFIG="${NIX_CONFIG:-}"$'\n'"$line"
+  done
+  export NIX_CONFIG
 }
 
 set_up_environment

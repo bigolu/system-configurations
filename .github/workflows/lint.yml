@@ -29,17 +29,16 @@ concurrency:
   # calculated see: https://stackoverflow.com/a/71158878
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
-env:
-  REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
 jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   lint:
     runs-on: ubuntu-latest
-    env:
-      REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: ./github/actions/setup
         with:
           direnv-environment: ci-lint
-      - run: just ci check-lint "$REPORTER"
+      - env:
+          REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: just ci check-lint "$REPORTER"

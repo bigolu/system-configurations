@@ -1,17 +1,3 @@
 # I don't use any rules, but this key is required
 ruleDirs:
   - ./.ast-grep/rules
-
-customLanguages:
-  fish:
-    libraryPath: .ast-grep/parsers/fish.so
-    extensions: [fish]
-    expandoChar: _
-  nix:
-    libraryPath: .ast-grep/parsers/nix.so
-    extensions: [nix]
-    expandoChar: _
-  toml:
-    libraryPath: .ast-grep/parsers/toml.so
-    extensions: [toml]
-    expandoChar: _

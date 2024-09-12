@@ -174,7 +174,7 @@
       # to our development environment, but Nix is working on a solution to
       # that: https://github.com/NixOS/nix/issues/7501
       outputs = {
-        devShell = {
+        devShells = {
           default = pkgs.mkShellNoCC {
             packages = [
               local
@@ -184,7 +184,6 @@
               export NIX_PATH=${lib.escapeShellArg inputs.nixpkgs}
 
               export LUA_LS_LIBRARIES=${lib.escapeShellArg luaLsLibraries}
-              export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
             '';
           };
 
@@ -207,9 +206,6 @@
             packages = [
               ciCodegen
             ];
-            shellHook = ''
-              export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
-            '';
           };
 
           ciRenovate = pkgs.mkShellNoCC {
