@@ -3,7 +3,7 @@ set -o nounset
 set -o pipefail
 
 tmp="$(mktemp --directory)"
-chronic lua-language-server --logpath "$tmp" --checklevel=Information --check .
+lua-language-server --logpath "$tmp" --checklevel=Information --check . 1>/dev/null 2>&1
 result="$(cat "$tmp"/check.json)"
 if [ "$result" != '[]' ]; then
   echo "$result"

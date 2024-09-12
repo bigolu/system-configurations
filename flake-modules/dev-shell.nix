@@ -14,96 +14,78 @@
     let
       inherit (lib.attrsets) optionalAttrs;
 
-      filterPrograms =
-        package: programsToKeep:
-        let
-          findFilters = builtins.map (program: "! -name '${program}'") programsToKeep;
-          findFiltersAsString = lib.strings.concatStringsSep " " findFilters;
-        in
-        pkgs.symlinkJoin {
-          name = "${package.name}-partial";
-          paths = [ package ];
-          buildInputs = [ pkgs.makeWrapper ];
-          postBuild = ''
-            cd $out/bin
-            find . ${findFiltersAsString} -type f,l -exec rm -f {} +
-          '';
-        };
+      lintersAndFixers = with pkgs; [
+        actionlint
+        nixfmt-rfc-style
+        deadnix
+        fish # for fish_indent, also used as logic linter
+        lychee
+        nodePackages.prettier
+        renovate # for renovate-config-validator
+        shellcheck
+        shfmt
+        statix
+        stylua
+        treefmt
+        usort
+        # TODO: If the YAML language server gets a CLI I should use that instead:
+        # https://github.com/redhat-developer/yaml-language-server/issues/535
+        yamllint
+        ltex-ls # for ltex-cli
+        markdownlint-cli2
+        desktop-file-utils
+        lua-language-server
+        golangci-lint
+        config-file-validator
+        taplo
+        ruff
+        reviewdog
+      ];
 
-      myMoreutils = filterPrograms pkgs.moreutils [
-        "chronic"
-        "vipe"
-        "vidir"
-        "sponge"
-        "pee"
+      commonShellDeps = with pkgs; [
+        coreutils
+        fd
+        findutils
+        gnugrep
+        gnused
+        jq
+        ripgrep
+        which
+        nix
+        gitMinimal
       ];
 
       # Make a meta-package so we don't have a $PATH entry for each package
-      tools = pkgs.symlinkJoin {
+      local = pkgs.symlinkJoin {
         name = "tools";
-        paths = with pkgs; [
-          # Languages
-          bashInteractive
-          # For VS Code Go extension
-          go
-          nix
+        paths =
+          with pkgs;
+          [
+            # Languages
+            bashInteractive
+            # For VS Code Go extension
+            go
+            ast-grep
 
-          # Fixers and linters
-          actionlint
-          nixfmt-rfc-style
-          deadnix
-          fish # for fish_indent, also used as logic linter
-          lychee
-          nodePackages.prettier
-          renovate # for renovate-config-validator
-          shellcheck
-          shfmt
-          statix
-          stylua
-          treefmt
-          usort
-          # TODO: If the YAML language server gets a CLI I should use that instead:
-          # https://github.com/redhat-developer/yaml-language-server/issues/535
-          yamllint
-          ltex-ls # for ltex-cli
-          markdownlint-cli2
-          desktop-file-utils
-          lua-language-server
-          golangci-lint
-          config-file-validator
+            # Version control
+            lefthook
 
-          # Version control
-          git
-          lefthook
+            # Language servers for VS Code
+            efm-langserver
+            nixd
 
-          # Language servers
-          efm-langserver
-          nixd
-          taplo
-          ruff
+            # For linter
+            yq-go
+            parallel
 
-          # Bash script dependencies
-          coreutils-full
-          fd
-          findutils
-          gnugrep
-          gnused
-          jq # also used a linter for json
-          ripgrep
-          which
-          yq-go
-          ast-grep
-          myMoreutils
-          parallel
-
-          # Miscellaneous
-          doctoc
-          just
-          reviewdog
-
-          # For paging the output of `just list`
-          less
-        ];
+            # Miscellaneous
+            doctoc
+            just
+            # For paging the output of `just list`
+            less
+          ]
+          ++ lintersAndFixers
+          ++ commonShellDeps;
 
         # TODO: Nix should be able to link in prettier, I think it doesn't work
         # because the `prettier` is a symlink
@@ -111,6 +93,43 @@
           cd $out/bin
           ln -s ${pkgs.nodePackages.prettier}/bin/prettier ./prettier
         '';
+      };
+
+      ci = pkgs.symlinkJoin {
+        name = "tools";
+        paths = commonShellDeps;
+      };
+
+      ciLint = pkgs.symlinkJoin {
+        name = "tools";
+        paths = commonShellDeps ++ lintersAndFixers;
+
+        # TODO: Nix should be able to link in prettier, I think it doesn't work
+        # because the `prettier` is a symlink
+        postBuild = ''
+          cd $out/bin
+          ln -s ${pkgs.nodePackages.prettier}/bin/prettier ./prettier
+        '';
+      };
+
+      ciCodegen = pkgs.symlinkJoin {
+        name = "tools";
+        paths =
+          commonShellDeps
+          ++ (with pkgs; [
+            ast-grep
+            doctoc
+            go
+          ]);
+      };
+
+      ciRenovate = pkgs.symlinkJoin {
+        name = "tools";
+        paths =
+          commonShellDeps
+          ++ (with pkgs; [
+            fish
+          ]);
       };
 
       pluginNames = builtins.filter (name: name != "") (
@@ -151,24 +170,56 @@
         '';
       };
 
+      # TODO: The devShells contain a lot of environment variables that are irrelevant
+      # to our development environment, but Nix is working on a solution to
+      # that: https://github.com/NixOS/nix/issues/7501
       outputs = {
-        # TODO: The devShell contains a lot of environment variables that are irrelevant
-        # to our development environment, but Nix is working on a solution to
-        # that: https://github.com/NixOS/nix/issues/7501
-        devShells.default = pkgs.mkShellNoCC {
-          packages = [
-            tools
-          ];
-          shellHook = ''
-            # For nixd
-            export NIX_PATH=${lib.escapeShellArg inputs.nixpkgs}
+        devShell = {
+          default = pkgs.mkShellNoCC {
+            packages = [
+              local
+            ];
+            shellHook = ''
+              # For nixd
+              export NIX_PATH=${lib.escapeShellArg inputs.nixpkgs}
 
-            export LUA_LS_LIBRARIES=${lib.escapeShellArg luaLsLibraries}
-            export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
-          '';
+              export LUA_LS_LIBRARIES=${lib.escapeShellArg luaLsLibraries}
+              export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
+            '';
+          };
+
+          ci = pkgs.mkShellNoCC {
+            packages = [
+              ci
+            ];
+          };
+
+          ciLint = pkgs.mkShellNoCC {
+            packages = [
+              ciLint
+            ];
+            shellHook = ''
+              export LUA_LS_LIBRARIES=${lib.escapeShellArg luaLsLibraries}
+            '';
+          };
+
+          ciCodegen = pkgs.mkShellNoCC {
+            packages = [
+              ciCodegen
+            ];
+            shellHook = ''
+              export TREESITTER_PARSERS=${lib.escapeShellArg pkgs.vimPlugins.treesitter-parsers}/parser
+            '';
+          };
+
+          ciRenovate = pkgs.mkShellNoCC {
+            packages = [
+              ciRenovate
+            ];
+          };
+
+          gomod2nix = inputs'.gomod2nix.devShells.default;
         };
-
-        devShells.gomod2nix = inputs'.gomod2nix.devShells.default;
       };
 
       supportedSystems = with inputs.flake-utils.lib.system; [

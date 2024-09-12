@@ -24,6 +24,7 @@ jobs:
           bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - uses: ./github/actions/setup
         with:
+          direnv-environment: ci-renovate
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           checkout-token: ${{ steps.bot-token.outputs.token }}

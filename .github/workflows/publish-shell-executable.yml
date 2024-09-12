@@ -22,14 +22,16 @@ jobs:
       fail-fast: false
     steps:
       - uses: ./github/actions/setup
+        with:
+          direnv-environment: ci
       - name: Get the number of new commits
         run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '6 months ago' | wc -l)" >> "$GITHUB_ENV"
       - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
         name: Make the executable
         run: |
-          nix run --show-trace .#nix -- bundle --show-trace --bundler .# .#shellMinimal
+          nix bundle --show-trace --bundler .# .#shellMinimal
 
-          NIXPKGS_ALLOW_UNFREE=1 nix run --show-trace .#nix -- bundle --impure --show-trace --bundler .# .#terminalMinimal
+          NIXPKGS_ALLOW_UNFREE=1 nix bundle --impure --show-trace --bundler .# .#terminalMinimal
 
           mkdir tmp
           # Dereference the symlinks so I can upload the actual executables. The

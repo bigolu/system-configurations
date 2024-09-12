@@ -8,14 +8,6 @@ jobs:
   fix-envrc:
     uses: ./.github/workflows/renovate-post-upgrade-task.yml
     with:
-      command: |
-        # shellcheck disable=2016
-        nix shell --impure nixpkgs#fish nixpkgs#direnv \
-          --command fish --command '
-            direnv hook fish | source
-            direnv allow
-            direnv exec "$PWD" nix-direnv-reload
-            direnv exec "$PWD" just ci fixup-renovate-pull-request-for-envrc
-          '
+      command: just ci fixup-renovate-pull-request-for-envrc
     secrets:
       BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}

@@ -1,8 +1,4 @@
 {
-  // Use the local `taplo` that we have installed. This way VS Code, our
-  // pre-commit hook, and CI will all use the same version.
-  "evenBetterToml.taplo.bundled": false,
-
   // Automatically restart all the other extensions after loading the direnv
   // environment. This way the other extensions will have the environment as
   // well.
