@@ -1,13 +1,11 @@
 name: "Renovate Post Upgrade Task: Update nix-direnv hash in .envrc"
 on:
-  push:
-    branches:
-      # SYNC: RENOVATE_FIXUP_ENVRC RENOVATE_FIXUP
-      - "renovate/fixup/envrc/**"
+  pull_request:
 jobs:
   fix-envrc:
+    if: ${{ startsWith(github.head_ref, 'renovate/fixup/envrc/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task.yml
     with:
-      command: just ci fixup-renovate-pull-request-for-envrc
+      command: bash ./scripts/ci/set-nix-direnv-hash.bash
     secrets:
       BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}

@@ -37,8 +37,8 @@ jobs:
     steps:
       - uses: ./github/actions/setup
         with:
-          direnv-environment: ci-lint
+          devshell-name: ciLint
       - env:
           REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: just ci check-lint "$REPORTER"
+        run: bash ./scripts/ci/lint.bash "$REPORTER"

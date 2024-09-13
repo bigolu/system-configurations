@@ -1,0 +1,17 @@
+name: Load a devShell
+description: Install Nix, configure the cache, and load a devshell
+inputs:
+  devshell-name:
+    description: The name of the devShell to load
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+      with:
+        upstream-cache: https://null.com
+        use-flakehub: false
+    - uses: nicknovitski/nix-develop@v1
+      with:
+        arguments: .#${{ inputs.devshell-name }}

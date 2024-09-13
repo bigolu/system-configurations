@@ -19,11 +19,10 @@ run_code_generator_and_report_changes() {
   git clean --force -d
 }
 
-# TODO: Don't hardcode these, use `just --dump`
-run_code_generator_and_report_changes 'gomod2nix lock' just generate-gomod2nix-lock
-run_code_generator_and_report_changes 'neovim plugin list' just generate-neovim-plugin-list
-run_code_generator_and_report_changes 'readme table of contents' just generate-readme-table-of-contents
-run_code_generator_and_report_changes 'go mod tidy' just go-mod-tidy
+run_code_generator_and_report_changes 'gomod2nix lock' bash ./scripts/generate-gomod2nix-lock.bash
+run_code_generator_and_report_changes 'neovim plugin list' bash ./scripts/generate-neovim-plugin-list.bash
+run_code_generator_and_report_changes 'readme table of contents' bash ./scripts/generate-readme-table-of-contents.bash
+run_code_generator_and_report_changes 'go mod tidy' bash ./scripts/go-mod-tidy.bash
 
 if [ "$found_changes" = '1' ]; then
   exit 1

@@ -24,7 +24,7 @@ jobs:
           bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - uses: ./github/actions/setup
         with:
-          direnv-environment: ci-renovate
+          devshell-name: ciRenovate
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           checkout-token: ${{ steps.bot-token.outputs.token }}
@@ -34,7 +34,7 @@ jobs:
         uses: juliangruber/find-pull-request-action@48b6133aa6c826f267ebd33aa2d29470f9d9e7d0 # v1
         id: find-pull-request
         with:
-          branch: ${{ github.ref_name }}
+          branch: ${{ github.head_ref }}
       - uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9 # v5
         with:
           repo-token: ${{ steps.bot-token.outputs.token }}

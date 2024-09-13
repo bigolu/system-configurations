@@ -4,10 +4,6 @@ set shell := ["bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # https://github.com/casey/just/issues/647#issuecomment-1404056424
 set positional-arguments := true
 
-# TODO: Multi-Line doc comments aren't work for modules. I should report this.
-[doc("A module containing tasks that are only run during continuous integration (CI). To see the tasks run `just ci`.")]
-mod ci
-
 [doc('''List all tasks. You can run this whenever you forget something.''')]
 list:
     @just --list --justfile {{ module_file() }} --unsorted --color always \
@@ -167,8 +163,7 @@ sync-git-hooks:
 ''')]
 [group('Code Generation')]
 generate-gomod2nix-lock:
-    cd ./flake-modules/bundler/gozip \
-        && nix develop .#gomod2nix --command gomod2nix generate
+    bash ./scripts/generate-gomod2nix-lock.bash
 
 [doc('''
     Generate a file with a list of all the neovim plugins. You shouldn't have to
@@ -184,7 +179,7 @@ generate-neovim-plugin-list:
 ''')]
 [group('Code Generation')]
 generate-readme-table-of-contents:
-    doctoc README.md --github
+    bash ./scripts/generate-readme-table-of-contents.bash
 
 [doc('''
     Run `go mod tidy`. You shouldn't have to run this yourself since it runs
@@ -192,7 +187,7 @@ generate-readme-table-of-contents:
 ''')]
 [group('Code Generation')]
 go-mod-tidy:
-    cd ./flake-modules/bundler/gozip && go mod tidy
+    bash ./scripts/go-mod-tidy.bash
 
 [doc('''
     Update all packages and switch to a new generation of the host manager

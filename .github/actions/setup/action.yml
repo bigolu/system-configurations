@@ -5,8 +5,8 @@ inputs:
     description: The token to use for checking out the repository
     required: false
     default: ""
-  direnv-environment:
-    description: The name of the direnv environment to activate
+  devshell-name:
+    description: The name of the devShell to activate
     required: false
     default: ""
 runs:
@@ -15,12 +15,7 @@ runs:
     - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       with:
         token: ${{ inputs.checkout-token || github.token }}
-    - uses: DeterminateSystems/nix-installer-action@main
-    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - if: ${{ inputs.devshell-name != '' }}
+      uses: ./github/actions/load-devshell
       with:
-        upstream-cache: https://null.com
-        use-flakehub: false
-    - if: ${{ inputs.direnv-environment != '' }}
-      env:
-        ENV_NAME: ${{ inputs.direnv-environment }}
-      uses: HatsuneMiku3939/direnv-action@v1
+        devshell-name: ${{ inputs.devshell-name }}

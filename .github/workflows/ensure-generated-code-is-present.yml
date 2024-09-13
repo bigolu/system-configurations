@@ -6,7 +6,7 @@ on:
     # like that's a waste of resources. I'll just trust my pre-commit hook runs.
     branches:
       # Renovate merges some changes straight from a branch, without making a
-      # pull request, so we need to lint those too.
+      # pull request, so we need to check those too.
       #
       # SYNC: AUTOMERGE_PREFIX
       - "renovate/branch-automerge/**"
@@ -39,5 +39,5 @@ jobs:
     steps:
       - uses: ./github/actions/setup
         with:
-          direnv-environment: ci-codegen
-      - run: just ci check-code-generation
+          devshell-name: ciCodegen
+      - run: bash ./scripts/ci/check-code-generation.bash

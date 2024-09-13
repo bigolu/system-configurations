@@ -1,13 +1,11 @@
 name: "Renovate Post Upgrade Task: Update gomod2nix.toml"
 on:
-  push:
-    branches:
-      # SYNC: RENOVATE_FIXUP_GOLANG RENOVATE_FIXUP
-      - "renovate/fixup/golang/**"
+  pull_request:
 jobs:
   fix-envrc:
+    if: ${{ startsWith(github.head_ref, 'renovate/fixup/golang/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task.yml
     with:
-      command: just generate-gomod2nix-lock
+      command: bash ./scripts/generate-gomod2nix-lock.bash
     secrets:
       BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}

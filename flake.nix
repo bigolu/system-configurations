@@ -27,7 +27,7 @@
           ./flake-modules/home-manager
           ./flake-modules/lib.nix
           ./flake-modules/smart-plug.nix
-          ./flake-modules/dev-shell.nix
+          ./flake-modules/dev-shell
           ./flake-modules/bootstrap.nix
         ];
 

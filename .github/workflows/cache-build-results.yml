@@ -38,6 +38,8 @@ jobs:
       fail-fast: false
     steps:
       - uses: ./github/actions/setup
+        with:
+          devshell-name: ci
       - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
         with:
           name: bigolu

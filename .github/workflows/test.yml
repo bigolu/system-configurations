@@ -8,7 +8,7 @@ on:
     # it doesn't support or adding a program that doesn't build.
     branches:
       # Renovate merges some changes straight from a branch, without making a
-      # pull request, so we need to lint those too.
+      # pull request, so we need to test those too.
       #
       # SYNC: AUTOMERGE_PREFIX
       - "renovate/branch-automerge/**"
@@ -46,5 +46,5 @@ jobs:
     steps:
       - uses: ./github/actions/setup
         with:
-          direnv-environment: ci
-      - run: just test
+          devshell-name: ciTest
+      - run: bash test.bash

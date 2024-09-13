@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: ./github/actions/setup
         with:
-          direnv-environment: ci
+          devshell-name: ci
       - name: Get the number of new commits
         run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '6 months ago' | wc -l)" >> "$GITHUB_ENV"
       - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
