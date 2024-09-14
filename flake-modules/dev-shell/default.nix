@@ -83,7 +83,6 @@
         ltex-ls # for ltex-cli
         markdownlint-cli2
         desktop-file-utils
-        lua-language-server
         golangci-lint
         config-file-validator
         taplo

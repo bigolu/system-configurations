@@ -47,7 +47,6 @@ format_and_make_suggestion() {
 # Logic lints
 run_linter reviewdog -fail-on-error -filter-mode=nofilter "$reporter"
 run_linter just lint --linters taplo,renovate,config-file-validator
-run_linter bash ./scripts/lua-ls-all.bash
 
 # Style lints
 run_linter format_and_make_suggestion taplo treefmt --formatters toml --on-unmatched debug

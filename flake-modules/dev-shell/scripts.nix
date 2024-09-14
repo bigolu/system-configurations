@@ -50,13 +50,6 @@ let
       ];
       path = "${self}/scripts/ltex-cli-all.bash";
     };
-    lua-ls-all = {
-      inputs = with pkgs; [
-        coreutils
-        lua-language-server
-      ];
-      path = "${self}/scripts/lua-ls-all.bash";
-    };
     markdownlint-cli2-all = {
       inputs = with pkgs; [
         fd
@@ -128,7 +121,6 @@ let
         ++ lintersAndFixers
         ++ shellcheck-all.inputs
         ++ markdownlint-cli2-all.inputs
-        ++ lua-ls-all.inputs
         ++ ltex-cli-all.inputs
         ++ desktop-file-validate-all.inputs
         ++ fish-all.inputs;
