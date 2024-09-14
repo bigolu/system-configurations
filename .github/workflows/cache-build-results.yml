@@ -46,4 +46,4 @@ jobs:
           name: bigolu
           authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
           skipAddingSubstituter: true
-      - run: NIXPKGS_ALLOW_UNFREE=1 nix --impure --show-trace build
+      - run: NIXPKGS_ALLOW_UNFREE=1 nix build --impure --show-trace
