@@ -6,7 +6,7 @@
 let
   inherit (pkgs) lib;
 
-  dependenciesByName = {
+  dependenciesByName = rec {
     fish-all = {
       inputs = with pkgs; [
         fish
@@ -161,6 +161,10 @@ let
         "cannot:${pkgs.nix}/bin/nix"
         "cannot:${pkgs.yq-go}/bin/yq"
         "cannot:${pkgs.parallel}/bin/parallel"
+        "cannot:${pkgs.direnv}/bin/direnv"
+        "cannot:${pkgs.gh}/bin/gh"
+        "cannot:${pkgs.go}/bin/go"
+        "cannot:${pkgs.doctoc}/bin/doctoc"
       ];
       keep = {
         # Homebrew's installer says to use this so I don't want to change it
