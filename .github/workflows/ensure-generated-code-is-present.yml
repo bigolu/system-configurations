@@ -37,7 +37,8 @@ jobs:
   ensure-generated-code-is-present:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/setup
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: ./.github/actions/load-devshell
         with:
           devshell-name: ciCodegen
       - run: bash ./scripts/ci/check-code-generation.bash

@@ -37,7 +37,8 @@ jobs:
       # fixing one bug only to find another on a different matrix job.
       fail-fast: false
     steps:
-      - uses: ./.github/actions/setup
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: ./.github/actions/load-devshell
         with:
           devshell-name: ci
       - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15

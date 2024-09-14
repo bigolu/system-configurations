@@ -19,13 +19,15 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./.github/actions/setup
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: ./.github/actions/load-devshell
         with:
           devshell-name: ciAutoMerge
       - id: bot-token
-        uses: ./.github/actions/get-bot-token
+        uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
         with:
-          bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
+          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - run: bash ./scripts/ci/auto-merge.bash
         env:
           GH_TOKEN: "${{ steps.bot-token.outputs.token }}"

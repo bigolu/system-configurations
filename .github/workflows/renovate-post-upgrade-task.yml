@@ -19,15 +19,18 @@ jobs:
     if: startsWith(github.event.head_commit.message, '[RENOVATE_FIXUP]')
     steps:
       - id: bot-token
-        uses: ./.github/actions/get-bot-token
+        uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1
         with:
-          bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
-      - uses: ./.github/actions/setup
+          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
+          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
-          devshell-name: ciRenovate
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
-          checkout-token: ${{ steps.bot-token.outputs.token }}
+          token: ${{ steps.bot-token.outputs.token }}
+      - uses: ./.github/actions/load-devshell
+        with:
+          devshell-name: ciRenovate
       - run: ${{ inputs.command }}
       - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
       - name: Find Pull Request
