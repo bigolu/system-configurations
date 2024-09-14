@@ -48,4 +48,4 @@ jobs:
       - uses: ./.github/actions/load-devshell
         with:
           devshell-name: ciTest
-      - run: bash test.bash
+      - run: bash ./scripts/test.bash
