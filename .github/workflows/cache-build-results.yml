@@ -8,7 +8,7 @@ on:
     # - Change this action
     paths:
       - ".github/workflows/cache-build-results.yml"
-      - "./github/actions/setup/**"
+      - ".github/actions/setup/**"
       - "flake.nix"
       - "flake.lock"
       - "flake-modules/**"
@@ -37,7 +37,7 @@ jobs:
       # fixing one bug only to find another on a different matrix job.
       fail-fast: false
     steps:
-      - uses: ./github/actions/setup
+      - uses: ./.github/actions/setup
         with:
           devshell-name: ci
       - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15

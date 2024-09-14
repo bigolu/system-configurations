@@ -16,6 +16,6 @@ runs:
       with:
         token: ${{ inputs.checkout-token || github.token }}
     - if: ${{ inputs.devshell-name != '' }}
-      uses: ./github/actions/load-devshell
+      uses: ./.github/actions/load-devshell
       with:
         devshell-name: ${{ inputs.devshell-name }}

@@ -35,7 +35,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./github/actions/setup
+      - uses: ./.github/actions/setup
         with:
           devshell-name: ciLint
       - env:

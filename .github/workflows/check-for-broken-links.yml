@@ -14,9 +14,9 @@ jobs:
   check-for-broken-links:
     runs-on: ubuntu-latest
     steps:
-      - uses: ./github/actions/setup
+      - uses: ./.github/actions/setup
       - id: bot-token
-        uses: ./github/actions/get-bot-token
+        uses: ./.github/actions/get-bot-token
         with:
           bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - name: Link Checker

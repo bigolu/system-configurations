@@ -19,10 +19,10 @@ jobs:
     if: startsWith(github.event.head_commit.message, '[RENOVATE_FIXUP]')
     steps:
       - id: bot-token
-        uses: ./github/actions/get-bot-token
+        uses: ./.github/actions/get-bot-token
         with:
           bot-private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
-      - uses: ./github/actions/setup
+      - uses: ./.github/actions/setup
         with:
           devshell-name: ciRenovate
           # So when we commit, it triggers other workflows:

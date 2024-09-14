@@ -44,7 +44,7 @@ jobs:
         # that they still on run intel macs
         os: [ubuntu-latest, macos-13]
     steps:
-      - uses: ./github/actions/setup
+      - uses: ./.github/actions/setup
         with:
           devshell-name: ciTest
       - run: bash test.bash
