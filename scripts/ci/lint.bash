@@ -41,7 +41,7 @@ format_and_make_suggestion() {
 
   git stash drop || true
 
-  exit "$EXIT_CODE"
+  return "$EXIT_CODE"
 }
 
 # Logic lints
