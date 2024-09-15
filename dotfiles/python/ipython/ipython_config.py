@@ -1,6 +1,6 @@
 from IPython.terminal.prompts import Token
 
-c = get_config()
+c = get_config()  # noqa: F821
 
 c.InteractiveShellApp.extensions = ["autoreload", "storemagic"]
 c.TerminalIPythonApp.display_banner = False

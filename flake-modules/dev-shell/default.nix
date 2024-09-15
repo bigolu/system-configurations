@@ -108,6 +108,8 @@
         taplo
         ruff
         reviewdog
+        just
+        go
       ];
 
       scripts = import ./scripts.nix {
