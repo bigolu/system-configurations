@@ -7,6 +7,10 @@ set -o pipefail
 # gh pr list --json number,title,mergeable --repo "$GITHUB_REPOSITORY" --label automerge
 # echo
 
+# TODO: When a PR has a failing check, should I stop trying to
+# auto-merge? That's what it does now, but I'm thinking maybe if I continued to
+# rebase the PR it would eventually pass tests and be able to merge.
+
 while IFS= read -r pr_number; do
   echo "Processing PR #$pr_number"
 

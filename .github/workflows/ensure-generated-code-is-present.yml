@@ -18,10 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/setup
-        with:
-          direnv-environment: ciCodegen
-          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Get all codegen-related files that have changed
         id: changed-files-yaml
         uses: tj-actions/changed-files@v45
@@ -33,5 +29,10 @@ jobs:
               - "go.mod"
               - "**neovim/lua/*.lua"
               - "README.md"
+      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
+        uses: ./.github/actions/setup
+        with:
+          direnv-environment: ciCodegen
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
         run: bash ./scripts/ci/check-code-generation.bash
