@@ -16,7 +16,8 @@
   ss = status --short
   c = commit
   a = add
-  d = diff
+  d = "!git -c diff.external='difft --syntax-highlight off' diff"
+  nd = diff
   d-sub = diff --submodule=diff
   undo = checkout --
   some = add -u
@@ -64,6 +65,8 @@
 [color "diff"]
   oldMoved = normal 21
   newMoved = normal 22
+[difftool]
+  prompt = false
 [mergetool "vscode"]
   cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
 [difftool "vscode"]
