@@ -3,7 +3,6 @@ CamelCaseMotion
 conform.nvim
 dial.nvim
 direnv.vim
-dressing.nvim
 fidget.nvim
 firenvim
 lazy-lsp.nvim
@@ -17,10 +16,8 @@ nvim-treesitter-context
 nvim-treesitter-endwise
 nvim-treesitter-textobjects
 nvim-ts-autotag
-plenary.nvim
 SchemaStore.nvim
 splitjoin.vim
-traces.vim
 treesj
 vim-abolish
 vim-caser
@@ -31,4 +28,3 @@ vim-plug
 vim-repeat
 vim-signify
 vim-sleuth
-which-key.nvim

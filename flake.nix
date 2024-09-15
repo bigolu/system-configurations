@@ -167,10 +167,6 @@
       url = "github:direnv/direnv.vim";
       flake = false;
     };
-    vim-plugin-dressing-nvim = {
-      url = "github:stevearc/dressing.nvim";
-      flake = false;
-    };
     vim-plugin-fidget-nvim = {
       url = "github:j-hui/fidget.nvim";
       flake = false;
@@ -219,20 +215,12 @@
       url = "github:windwp/nvim-ts-autotag";
       flake = false;
     };
-    vim-plugin-plenary-nvim = {
-      url = "github:nvim-lua/plenary.nvim";
-      flake = false;
-    };
     vim-plugin-SchemaStore-nvim = {
       url = "github:b0o/SchemaStore.nvim";
       flake = false;
     };
     vim-plugin-splitjoin-vim = {
       url = "github:AndrewRadev/splitjoin.vim";
-      flake = false;
-    };
-    vim-plugin-traces-vim = {
-      url = "github:markonm/traces.vim";
       flake = false;
     };
     vim-plugin-treesj = {
@@ -273,10 +261,6 @@
     };
     vim-plugin-vim-sleuth = {
       url = "github:tpope/vim-sleuth";
-      flake = false;
-    };
-    vim-plugin-which-key-nvim = {
-      url = "github:folke/which-key.nvim";
       flake = false;
     };
     vim-plugin-Navigator-nvim = {

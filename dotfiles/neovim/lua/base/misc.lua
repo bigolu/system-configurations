@@ -248,6 +248,8 @@ vim.api.nvim_create_autocmd("User", {
 -- Commands/mappings for working with variants of words. In particular I use its
 -- 'S' command for performing substitutions. It has more features than vim's
 -- built-in :substitution
+--
+-- TODO: issue for `inccommand` support: https://github.com/tpope/vim-abolish/issues/107
 Plug("tpope/vim-abolish")
 
 -- Autocommands get executed without `smagic` so I make sure that I explicitly

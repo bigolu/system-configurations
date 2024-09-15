@@ -339,14 +339,6 @@ vim.api.nvim_create_autocmd("BufWinLeave", {
 -- To get the vim help pages for vim-plug itself, you need to add it as a plugin
 Plug("junegunn/vim-plug")
 
--- TODO: Using this so that substitutions made by vim-abolish get highlighted as I type them.
--- Won't be necessary if vim-abolish adds support for neovim's `inccommand`.
--- issue for `inccommand` support: https://github.com/tpope/vim-abolish/issues/107
-Plug("markonm/traces.vim")
-vim.g.traces_abolish_integration = 1
-
-Plug("nvim-lua/plenary.nvim")
-
 -- Use the ANSI OSC52 sequence to copy text to the system clipboard.
 --
 -- While neovim did add native support for it, it doesn't let you use it for only copy and not

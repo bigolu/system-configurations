@@ -593,7 +593,6 @@
         "vim-plugin-conform-nvim": "vim-plugin-conform-nvim",
         "vim-plugin-dial-nvim": "vim-plugin-dial-nvim",
         "vim-plugin-direnv-vim": "vim-plugin-direnv-vim",
-        "vim-plugin-dressing-nvim": "vim-plugin-dressing-nvim",
         "vim-plugin-fidget-nvim": "vim-plugin-fidget-nvim",
         "vim-plugin-firenvim": "vim-plugin-firenvim",
         "vim-plugin-lazy-lsp-nvim": "vim-plugin-lazy-lsp-nvim",
@@ -606,9 +605,7 @@
         "vim-plugin-nvim-treesitter-endwise": "vim-plugin-nvim-treesitter-endwise",
         "vim-plugin-nvim-treesitter-textobjects": "vim-plugin-nvim-treesitter-textobjects",
         "vim-plugin-nvim-ts-autotag": "vim-plugin-nvim-ts-autotag",
-        "vim-plugin-plenary-nvim": "vim-plugin-plenary-nvim",
         "vim-plugin-splitjoin-vim": "vim-plugin-splitjoin-vim",
-        "vim-plugin-traces-vim": "vim-plugin-traces-vim",
         "vim-plugin-treesj": "vim-plugin-treesj",
         "vim-plugin-vim-abolish": "vim-plugin-vim-abolish",
         "vim-plugin-vim-caser": "vim-plugin-vim-caser",
@@ -618,8 +615,7 @@
         "vim-plugin-vim-plug": "vim-plugin-vim-plug",
         "vim-plugin-vim-repeat": "vim-plugin-vim-repeat",
         "vim-plugin-vim-signify": "vim-plugin-vim-signify",
-        "vim-plugin-vim-sleuth": "vim-plugin-vim-sleuth",
-        "vim-plugin-which-key-nvim": "vim-plugin-which-key-nvim"
+        "vim-plugin-vim-sleuth": "vim-plugin-vim-sleuth"
       }
     },
     "spoons": {
@@ -793,22 +789,6 @@
       "original": {
         "owner": "direnv",
         "repo": "direnv.vim",
-        "type": "github"
-      }
-    },
-    "vim-plugin-dressing-nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1723846795,
-        "narHash": "sha256-6T2p0hI7/WqaDFQodaDq7uiyuplVqeekayQ2equ/mC0=",
-        "owner": "stevearc",
-        "repo": "dressing.nvim",
-        "rev": "c5775a888adbc50652cb370073fcfec963eca93e",
-        "type": "github"
-      },
-      "original": {
-        "owner": "stevearc",
-        "repo": "dressing.nvim",
         "type": "github"
       }
     },
@@ -1004,22 +984,6 @@
         "type": "github"
       }
     },
-    "vim-plugin-plenary-nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1724044857,
-        "narHash": "sha256-6Gm+4zZ80quI5iAW6qPAWTq9h1csPWkZFZ9KnFgYRM0=",
-        "owner": "nvim-lua",
-        "repo": "plenary.nvim",
-        "rev": "ec289423a1693aeae6cd0d503bac2856af74edaa",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nvim-lua",
-        "repo": "plenary.nvim",
-        "type": "github"
-      }
-    },
     "vim-plugin-splitjoin-vim": {
       "flake": false,
       "locked": {
@@ -1033,22 +997,6 @@
       "original": {
         "owner": "AndrewRadev",
         "repo": "splitjoin.vim",
-        "type": "github"
-      }
-    },
-    "vim-plugin-traces-vim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1649675031,
-        "narHash": "sha256-rRR760ZtzNa9LukcKVrmpKFnj3CYGyXV9uFiRtkMlj8=",
-        "owner": "markonm",
-        "repo": "traces.vim",
-        "rev": "9663fcf84de5776bee71b6c816c25ccb6ea11d1a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "markonm",
-        "repo": "traces.vim",
         "type": "github"
       }
     },
@@ -1209,22 +1157,6 @@
       "original": {
         "owner": "tpope",
         "repo": "vim-sleuth",
-        "type": "github"
-      }
-    },
-    "vim-plugin-which-key-nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1721858377,
-        "narHash": "sha256-nv9s4/ax2BoL9IQdk42uN7mxIVFYiTK+1FVvWDKRnGM=",
-        "owner": "folke",
-        "repo": "which-key.nvim",
-        "rev": "6c1584eb76b55629702716995cca4ae2798a9cca",
-        "type": "github"
-      },
-      "original": {
-        "owner": "folke",
-        "repo": "which-key.nvim",
         "type": "github"
       }
     }
