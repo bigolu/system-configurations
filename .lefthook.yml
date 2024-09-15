@@ -16,6 +16,7 @@ pre-commit:
   piped: true
   commands:
     # Code generators
+    # SYNC: GENERATORS
     generate-readme-table-of-contents:
       priority: 1
       glob: "README.md"

@@ -29,4 +29,16 @@ jobs:
         with:
           direnv-environment: ciTest
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: bash ./scripts/test.bash
+      - name: Get all package-related files that have changed
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@v45
+        with:
+          # Since all this test does is build packages, only run when there are
+          # changes in files that could affect the package set
+          files_yaml: |
+            packages:
+              - "flake.nix"
+              - "flake.lock"
+              - "flake-modules/**"
+      - if: steps.changed-files-yaml.outputs.packages_any_changed == 'true'
+        run: bash ./scripts/test.bash

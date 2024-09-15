@@ -22,4 +22,16 @@ jobs:
         with:
           direnv-environment: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: bash ./scripts/ci/check-code-generation.bash
+      - name: Get all codegen-related files that have changed
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@v45
+        with:
+          # SYNC: GENERATORS
+          files_yaml: |
+            codegen:
+              - "**/go.mod"
+              - "go.mod"
+              - "**neovim/lua/*.lua"
+              - "README.md"
+      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
+        run: bash ./scripts/ci/check-code-generation.bash
