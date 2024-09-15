@@ -8,7 +8,7 @@ concurrency:
   # Since we're only interested in checking the latest commit to the branch,
   # we'll limit the workflow to running at most once per branch, cancelling
   # older runs when newer ones start.
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: true
 jobs:
   # WARNING: This name is used to specify what checks are required to merge a
