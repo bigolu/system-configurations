@@ -14,6 +14,7 @@ jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   lint:
+    if: ${{ ! startsWith(github.head_ref, 'renovate/')  }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
