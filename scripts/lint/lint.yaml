@@ -47,10 +47,13 @@ linters:
   shellcheck:
     command: shellcheck
     includes: [".*\\.(ba)?sh"]
-  ltex-cli:
-    command: ltex-cli
-    options: [--server-command-line=ltex-ls]
-    includes: [.*\.md]
+  # TODO: The cli isn't respecting my dictionary or ignore files so I can't use it.
+  # https://github.com/valentjn/ltex-ls/issues/283
+  #
+  # ltex-cli:
+  #   command: ltex-cli
+  #   options: [--server-command-line=ltex-ls]
+  #   includes: [.*\.md]
   markdownlint-cli2:
     command: markdownlint-cli2
     includes: [.*\.md]

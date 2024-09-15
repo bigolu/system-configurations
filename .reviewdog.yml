@@ -16,11 +16,14 @@ runner:
       - "%f:%l:%c: %tarning: %m"
       - "%f:%l:%c: %tote: %m"
     level: error
-  ltex-cli:
-    cmd: bash ./scripts/ltex-cli-all.bash
-    errorformat:
-      - "%f:%l:%c: %m"
-    level: error
+  # TODO: The cli isn't respecting my dictionary or ignore files so I can't use it.
+  # https://github.com/valentjn/ltex-ls/issues/283
+  #
+  # ltex-cli:
+  #   cmd: bash ./scripts/ltex-cli-all.bash
+  #   errorformat:
+  #     - "%f:%l:%c: %m"
+  #   level: error
   markdownlint-cli2:
     cmd: bash ./scripts/markdownlint-cli2-all.bash
     errorformat:
