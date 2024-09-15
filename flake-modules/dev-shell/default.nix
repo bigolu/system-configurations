@@ -174,7 +174,7 @@
           ci = makeCiDevShell { };
 
           ciLint = makeCiDevShell {
-            packages = scripts.dependenciesByName.ci-lint.inputs;
+            packages = scripts.dependenciesByName.ci-lint.inputs ++ scripts.dependenciesByName.lint.inputs;
             shellHook = linkLuaLsLibrariesHook;
           };
 
