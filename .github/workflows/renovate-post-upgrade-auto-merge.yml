@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/set-up-nix
+      - uses: ./.github/actions/setup
         with:
-          devshell-name: ciAutoMerge
+          direnv-environment: ciAutoMerge
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - id: bot-token
         uses: actions/create-github-app-token@31c86eb3b33c9b601a1f60f98dcbfd1d70f379b4 # v1

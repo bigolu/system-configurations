@@ -36,9 +36,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/set-up-nix
+      - uses: ./.github/actions/setup
         with:
-          devshell-name: ciLint
+          direnv-environment: ciLint
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - env:
           REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
