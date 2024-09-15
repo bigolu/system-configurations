@@ -22,18 +22,7 @@ in
         "repl-flake"
         "auto-allocate-uids"
       ];
-
-      auto-allocate-uids = true;
     };
-
-    # Use the nixpkgs in this flake in the system flake registry. By default, it pulls the
-    # latest version of nixokgs-unstable.
-    registry = {
-      nixpkgs.flake = specialArgs.flakeInputs.nixpkgs;
-    };
-    nixPath = [
-      { nixpkgs = "flake:nixpkgs"; }
-    ];
   };
 
   launchd.daemons.nix-gc = {
