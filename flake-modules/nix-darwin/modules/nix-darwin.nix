@@ -146,7 +146,7 @@ in
     # be present until the build actually starts so I'm disabling the check.
     checks.verifyBuildUsers = false;
 
-    stateVersion = 5;
+    stateVersion = 4;
   };
 
   launchd.user.agents.nix-darwin-update-check = {
