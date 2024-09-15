@@ -38,12 +38,7 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/load-devshell
+      - uses: ./.github/actions/set-up-nix
         with:
           devshell-name: ci
-      - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
-        with:
-          name: bigolu
-          authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-          skipAddingSubstituter: true
       - run: NIXPKGS_ALLOW_UNFREE=1 nix build --impure --show-trace

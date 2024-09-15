@@ -4,8 +4,9 @@
   description = "Biggie's host configurations";
 
   nixConfig = {
-    extra-substituters = "https://bigolu.cachix.org";
-    extra-trusted-public-keys = "bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw=";
+    # SYNC: OUR_CACHES
+    extra-substituters = "https://cache.garnix.io https://bigolu.cachix.org";
+    extra-trusted-public-keys = "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw=";
   };
 
   outputs =

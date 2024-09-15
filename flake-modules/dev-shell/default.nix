@@ -40,7 +40,27 @@
         # that: https://github.com/NixOS/nix/issues/7501
         pkgs.mkShellNoCC {
           packages = [ metaPackage ];
-          inherit shellHook;
+          shellHook =
+            ''
+              function _bigolu_add_lines_to_nix_config {
+                for line in "$@"; do
+                  NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"
+                done
+                export NIX_CONFIG
+              }
+
+              # SYNC: OUR_CACHES
+              # Caches we push to and pull from
+              _bigolu_add_lines_to_nix_config \
+                'extra-substituters = https://cache.garnix.io https://bigolu.cachix.org' \
+                'extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw='
+
+              # Caches we only pull from
+              _bigolu_add_lines_to_nix_config \
+                'extra-substituters = https://nix-community.cachix.org' \
+                'extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs='
+            ''
+            + shellHook;
         };
 
       makeCiDevShell =

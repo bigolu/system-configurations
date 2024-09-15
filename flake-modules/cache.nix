@@ -1,18 +1,21 @@
 # This output makes it easy to build all the packages that I want to cache in my cloud-hosted Nix
 # package cache. I build this package from CI and cache everything that gets added to the Nix store
 # as a result of building it.
-_: {
+{ self, ... }:
+{
   perSystem =
     {
       self',
       pkgs,
       lib,
+      system,
       ...
     }:
     let
       inherit (lib.attrsets)
         optionalAttrs
         mapAttrs
+        filterAttrs
         hasAttrByPath
         attrByPath
         getAttrFromPath
@@ -20,21 +23,35 @@ _: {
 
       homeManagerPackagesByName =
         let
-          homeManagerOutputsByHostName = attrByPath [
-            "legacyPackages"
+          homeManagerConfigurationsByHostName = attrByPath [
             "homeConfigurations"
-          ] { } self';
+          ] { } self;
+
+          homeManagerPackagesByHostName = mapAttrs (
+            _hostName: output: output.activationPackage
+          ) homeManagerConfigurationsByHostName;
+
+          supportedHomeManagerPackagesByHostName = filterAttrs (
+            _hostName: package: package.system == system
+          ) homeManagerPackagesByHostName;
         in
-        mapAttrs (_hostName: output: output.activationPackage) homeManagerOutputsByHostName;
+        supportedHomeManagerPackagesByHostName;
 
       nixDarwinPackagesByName =
         let
-          nixDarwinOutputsByHostName = attrByPath [
-            "legacyPackages"
+          nixDarwinConfigurationsByHostName = attrByPath [
             "darwinConfigurations"
-          ] { } self';
+          ] { } self;
+
+          nixDarwinPackagesByHostName = mapAttrs (
+            _hostName: output: output.system
+          ) nixDarwinConfigurationsByHostName;
+
+          supportedNixDarwinPackagesByHostName = filterAttrs (
+            _hostName: package: package.system == system
+          ) nixDarwinPackagesByHostName;
         in
-        mapAttrs (_hostName: output: output.system) nixDarwinOutputsByHostName;
+        supportedNixDarwinPackagesByHostName;
 
       devShellsByName = attrByPath [ "devShells" ] { } self';
 

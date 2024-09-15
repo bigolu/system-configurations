@@ -50,9 +50,9 @@ let
       configuration
     ];
 
-  makeFlakeOutput =
-    system:
+  makeHomeConfigurationByHostName =
     args@{
+      system,
       hostName,
       modules,
       isGui ? true,
@@ -86,50 +86,31 @@ let
       };
     in
     {
-      # Using `legacyPackages` here because `packages` doesn't support nested derivations meaning the values
-      # inside the `packages` attribute set must be derivations.
-      # For more info: https://discourse.nixos.org/t/flake-questions/8741/2
-      legacyPackages.homeConfigurations.${hostName} = inputs.home-manager.lib.homeManagerConfiguration {
+      ${hostName} = inputs.home-manager.lib.homeManagerConfiguration {
         modules = modules ++ [ baseModule ];
         inherit pkgs extraSpecialArgs;
       };
     };
+
+  hosts = [
+    {
+      system = inputs.flake-utils.lib.system.x86_64-linux;
+      hostName = "desktop";
+      modules = [
+        "${moduleBaseDirectory}/profile/application-development.nix"
+        "${moduleBaseDirectory}/profile/system-administration.nix"
+        "${moduleBaseDirectory}/profile/personal.nix"
+      ];
+    }
+  ];
+  homeConfigurationsByHostName = map makeHomeConfigurationByHostName hosts;
 in
 {
   flake = {
     lib.home = {
-      inherit moduleBaseDirectory makeDarwinModules makeFlakeOutput;
+      inherit moduleBaseDirectory makeDarwinModules makeHomeConfigurationByHostName;
     };
+
+    homeConfigurations = self.lib.recursiveMerge homeConfigurationsByHostName;
   };
-
-  perSystem =
-    {
-      system,
-      lib,
-      ...
-    }:
-    let
-      hosts = [
-        {
-          configuration = {
-            hostName = "desktop";
-            modules = [
-              "${moduleBaseDirectory}/profile/application-development.nix"
-              "${moduleBaseDirectory}/profile/system-administration.nix"
-              "${moduleBaseDirectory}/profile/personal.nix"
-            ];
-          };
-          systems = with inputs.flake-utils.lib.system; [
-            x86_64-linux
-          ];
-        }
-      ];
-      isCurrentSystemSupportedByHost = host: builtins.elem system host.systems;
-      supportedHosts = builtins.filter isCurrentSystemSupportedByHost hosts;
-      makeFlakeOutputForHost = host: makeFlakeOutput system host.configuration;
-      hostOutputs = map makeFlakeOutputForHost supportedHosts;
-
-      mergedFlakeOutputs = self.lib.recursiveMerge hostOutputs;
-    in
-    mergedFlakeOutputs;
 }

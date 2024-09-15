@@ -62,13 +62,14 @@ let
       nix.enable = false;
     };
 
-  homeManagerOutput = self.lib.home.makeFlakeOutput system {
-    inherit hostName isGui;
+  homeConfigurationByHostName = self.lib.home.makeHomeConfigurationByHostName {
+    inherit system hostName isGui;
     overlays = [ portableOverlay ] ++ overlays;
 
-    # I want to remove the systemd dependency, but there is no option for that. Instead, I set the user
-    # to root since Home Manager won't include systemd if the user is root.
-    # see: https://github.com/nix-community/home-manager/blob/master/modules/systemd.nix
+    # I want to remove the systemd dependency, but there is no option for
+    # that. Instead, I set the user to root since Home Manager won't include
+    # systemd if the user is root. see:
+    # https://github.com/nix-community/home-manager/blob/master/modules/systemd.nix
     username = "root";
 
     modules = [
@@ -77,4 +78,4 @@ let
     ] ++ modules;
   };
 in
-homeManagerOutput.legacyPackages.homeConfigurations.${hostName}.activationPackage
+homeConfigurationByHostName.${hostName}.activationPackage

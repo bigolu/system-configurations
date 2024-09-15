@@ -22,10 +22,10 @@
     "nixd": {
       "options": {
         "bigmac": {
-          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").legacyPackages.x86_64-darwin.darwinConfigurations.bigmac.options",
+          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").darwinConfigurations.bigmac.options",
         },
         "desktop": {
-          "expr": "(builtins.getFlake \"/home/biggs/code/system-configurations\").legacyPackages.x86_64-linux.homeConfigurations.desktop.options",
+          "expr": "(builtins.getFlake \"/home/biggs/code/system-configurations\").homeConfigurations.desktop.options",
         },
         "flake-parts": {
           "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").debug.options",

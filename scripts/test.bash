@@ -9,9 +9,9 @@ nix flake show --json |
   jq ".devShells.\"$(nix show-config system)\"|keys[]" |
   xargs -I {} nix develop .#{} --command bash -c ':'
 
-# Build packages. We don't need to build the activation packages in
-# legacyPackages.* since they are included in the default package i.e. the
-# meta-package containing all packages to cache.
+# Build packages. We don't need to build the host manager activation packages
+# since they are included in the default package i.e. the meta-package
+# containing all packages to cache.
 nix flake show --json |
   jq ".packages.\"$(nix show-config system)\"|keys[]" |
   # Allow unfree since the terminal* packages use nvidia drivers
