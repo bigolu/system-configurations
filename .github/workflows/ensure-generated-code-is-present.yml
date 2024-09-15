@@ -1,33 +1,13 @@
 name: "Ensure Generated Code is Present"
 on:
+  # It should also run on the default branch to catch my mistakes, but I feel
+  # like that's a waste of resources. I'll just trust my pre-commit hook runs.
   pull_request:
-  push:
-    # It should also run on the default branch to catch my mistakes, but I feel
-    # like that's a waste of resources. I'll just trust my pre-commit hook runs.
-    branches:
-      # Renovate merges some changes straight from a branch, without making a
-      # pull request, so we need to check those too.
-      #
-      # SYNC: AUTOMERGE_PREFIX
-      - "renovate/branch-automerge/**"
 concurrency:
-  # There are 2 reasons for setting concurrency:
-  #
-  # 1. Since we're only interested in checking the latest commit to the branch,
+  # Since we're only interested in checking the latest commit to the branch,
   # we'll limit the workflow to running at most once per branch, cancelling
   # older runs when newer ones start.
-  #
-  # 2. If one of Renovate's branch automerges fails, it will open a pull request
-  # for the branch. Now this workflow will run once on the `push` event and once
-  # on `pull_request` event, resulting in two runs for the same branch. By
-  # limiting the workflow to one run per branch, one of the two workflows will
-  # get cancelled, though I'm not sure if it's guaranteed which one will get
-  # cancelled. From my tests, the workflow triggered by the `push` event always
-  # gets cancelled.
-  #
-  # For more on how the branch name, what comes after the '-' in `group`, is
-  # calculated see: https://stackoverflow.com/a/71158878
-  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: true
 env:
   REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}

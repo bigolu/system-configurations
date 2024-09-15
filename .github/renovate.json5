@@ -34,38 +34,31 @@
       // update _can_ be a breaking change.
       matchCurrentVersion: "!/^0/",
 
-      automerge: true,
-      automergeType: "branch",
+      // SYNC: RENOVATE_FIXUP
+      commitMessageAction: "[RENOVATE_FIXUP] Update",
 
-      // Normally, CI checks (e.g. tests, linting) only run on pull requests,
-      // but since these branches won't be merged through a pull request, I
-      // want to run checks whenever the branch is pushed to. To identify these
-      // branches, I'm adding a prefix to the branch name.
-      //
-      // SYNC: AUTOMERGE_PREFIX
-      additionalBranchPrefix: "branch-automerge/",
+      // SYNC: AUTOMERGE_LABEL
+      labels: ["automerge"],
     },
     {
       matchManagers: ["gomod"],
-      automergeType: "pr",
 
       // So I can add commits of my own
-      // SYNC: RENOVATE_FIXUP_GOLANG RENOVATE_FIXUP
+      // SYNC: RENOVATE_FIXUP_GOLANG
       additionalBranchPrefix: "fixup/golang/",
 
-      // SYNC: RENOVATE_FIXUP
-      commitMessageAction: "[RENOVATE_FIXUP] Update",
+      // Don't automerge these, after hte fixup the automerge label will be added.
+      labels: [],
     },
     {
       matchDepNames: ["nix-community/nix-direnv"],
-      automergeType: "pr",
 
       // So I can add commits of my own
-      // SYNC: RENOVATE_FIXUP_ENVRC RENOVATE_FIXUP
+      // SYNC: RENOVATE_FIXUP_ENVRC
       additionalBranchPrefix: "fixup/envrc/",
 
-      // SYNC: RENOVATE_FIXUP
-      commitMessageAction: "[RENOVATE_FIXUP] Update",
+      // Don't automerge these, after hte fixup the automerge label will be added.
+      labels: [],
     },
 
     // By default, indirect Go dependencies aren't updated
