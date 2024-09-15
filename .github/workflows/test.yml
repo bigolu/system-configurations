@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       - name: Get all package-related files that have changed
         id: changed-files-yaml
-        uses: tj-actions/changed-files@v45
+        uses: tj-actions/changed-files@e9772d140489982e0e3704fea5ee93d536f1e275 # v45
         with:
           # Since all this test does is build packages, only run when there are
           # changes in files that could affect the package set
