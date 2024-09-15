@@ -20,6 +20,6 @@ runs:
         # Cache everything
         upstream-cache: https://null.com
         use-flakehub: false
-    - uses: nicknovitski/nix-develop@v1
+    - uses: HatsuneMiku3939/direnv-action@v1
       env:
         ENV_NAME: ${{ inputs.direnv-environment }}
