@@ -8,6 +8,8 @@ on:
     secrets:
       BIGOLU_BOT_PRIVATE_KEY:
         required: true
+      CACHIX_AUTH_TOKEN:
+        required: true
 jobs:
   renovate-post-upgrade-task:
     runs-on: ubuntu-latest
@@ -31,6 +33,7 @@ jobs:
       - uses: ./.github/actions/set-up-nix
         with:
           devshell-name: ciRenovate
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: ${{ inputs.command }}
       - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
       - name: Find Pull Request

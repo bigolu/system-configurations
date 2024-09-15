@@ -9,3 +9,4 @@ jobs:
       command: bash ./scripts/ci/set-nix-direnv-hash.bash
     secrets:
       BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}

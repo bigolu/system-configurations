@@ -4,6 +4,9 @@ inputs:
   devshell-name:
     description: The name of the devShell to load
     required: true
+  cachix-auth-token:
+    description: An authentication token for Cachix
+    required: true
 runs:
   using: "composite"
   steps:
@@ -11,7 +14,7 @@ runs:
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:
         name: bigolu
-        authToken: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+        authToken: "${{ inputs.cachix-auth-token }}"
     - uses: DeterminateSystems/magic-nix-cache-action@main
       with:
         # Cache everything

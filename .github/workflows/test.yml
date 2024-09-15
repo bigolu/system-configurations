@@ -48,4 +48,5 @@ jobs:
       - uses: ./.github/actions/set-up-nix
         with:
           devshell-name: ciTest
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: bash ./scripts/test.bash

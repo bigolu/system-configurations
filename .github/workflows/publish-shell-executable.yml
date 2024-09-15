@@ -25,6 +25,7 @@ jobs:
       - uses: ./.github/actions/set-up-nix
         with:
           devshell-name: ci
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - name: Get the number of new commits
         run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '6 months ago' | wc -l)" >> "$GITHUB_ENV"
       - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
