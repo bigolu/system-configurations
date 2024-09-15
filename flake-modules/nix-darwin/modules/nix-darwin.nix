@@ -145,6 +145,8 @@ in
     # demand. This means this check will always fail since the build users won't
     # be present until the build actually starts so I'm disabling the check.
     checks.verifyBuildUsers = false;
+
+    stateVersion = 5;
   };
 
   launchd.user.agents.nix-darwin-update-check = {
