@@ -1,3 +1,0 @@
-# I don't use any rules, but this key is required
-ruleDirs:
-  - ./.ast-grep/rules

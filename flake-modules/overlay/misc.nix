@@ -137,7 +137,6 @@
           inherit myTerminfoDatabase myPython;
           neovim = nightlyNeovimWithDependencies;
           ripgrep-all = ripgrepAllWithDependencies;
-          inherit ((import inputs.nixpkgs-for-diffoscope { inherit (final) system; })) diffoscope;
 
           wezterm =
             if isLinux then

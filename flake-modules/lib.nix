@@ -7,12 +7,10 @@
   options = {
     flake = flake-parts-lib.mkSubmoduleOptions {
       lib = lib.mkOption {
-        # types.anything recursively merges its values, which I don't want, so I
-        # wrapped it in uniq
-        type = lib.types.attrsOf (lib.types.uniq lib.types.anything);
+        type = lib.types.lazyAttrsOf lib.types.unspecified;
         default = { };
         internal = true;
-        description = "Utilties for other flake modules to use.";
+        description = "Utilties only to be used inside of this flake.";
       };
     };
   };

@@ -6,7 +6,7 @@
 {
   imports = [
     # I defined this in a separate file to avoid an infinite recursion. The
-    # function use in option.nix that makes the bundler option return a set with
+    # function used in option.nix that makes the bundler option returns a set with
     # the keys `config` and `option`.  The set returned here would also have a
     # `config` key, for the perSystem. To combine the two, I would use my helper
     # function `self.lib.recursiveMerge`. It needs to be recursive since they

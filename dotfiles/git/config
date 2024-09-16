@@ -16,8 +16,8 @@
   ss = status --short
   c = commit
   a = add
-  d = "!git -c diff.external='difft --syntax-highlight off' diff"
-  nd = diff
+  d = diff
+  dt = "!git -c diff.external='difft --syntax-highlight off' diff"
   d-sub = diff --submodule=diff
   undo = checkout --
   some = add -u
@@ -26,7 +26,6 @@
   gui = "!gitkraken --path \"$(git rev-parse --show-toplevel)\" --log-file /dev/null --show-splash-screen false"
   l = log
   mt = mergetool
-  dt = difftool
   f = fetch
   # A safer force push. For more info read this:
   # https://stackoverflow.com/questions/65837109/when-should-i-use-git-push-force-if-includes
@@ -65,8 +64,6 @@
 [color "diff"]
   oldMoved = normal 21
   newMoved = normal 22
-[difftool]
-  prompt = false
 [mergetool "vscode"]
   cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
 [difftool "vscode"]
