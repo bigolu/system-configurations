@@ -16,14 +16,30 @@ on:
       CACHIX_AUTH_TOKEN:
         required: true
 jobs:
-  renovate-post-upgrade-task:
+  get-commit-message:
+    name: Get Commit Message
     runs-on: ubuntu-latest
+    outputs:
+      head-commit-message: ${{ steps.commit-message.outputs.HEAD_COMMIT_MESSAGE }}
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        with:
+          ref: ${{ env.GITHUB_SHA }}
+      - id: commit-message
+        # multi-line output values require special handling so to avoid that
+        # we'll only get the first line:
+        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-output-parameter
+        run: echo "HEAD_COMMIT_MESSAGE=$(git log --oneline --format=%s --max-count 1)" >> "$GITHUB_OUTPUT"
+
+  renovate-post-upgrade-task:
+    needs: get-commit-message
     # TODO: This will result in a bunch of runs that immediately exit if the
     # branch wasn't just created. Ideally the job wouldn't even start if the
     # branch wasn't just created:
     #
     # SYNC: RENOVATE_FIXUP
-    if: contains(github.event.head_commit.message, '[RENOVATE_FIXUP]')
+    if: ${{ contains(needs.get-commit-message.outputs.head-commit-message, '[RENOVATE_FIXUP]') }}
+    runs-on: ubuntu-latest
     steps:
       - id: bot-token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
