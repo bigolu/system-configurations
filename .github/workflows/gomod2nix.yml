@@ -2,7 +2,7 @@ name: "Renovate Post Upgrade Task: Update gomod2nix.toml"
 on:
   pull_request:
 jobs:
-  fix-envrc:
+  update-gomod2nix:
     if: ${{ startsWith(github.head_ref, 'renovate/fixup/golang/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task.yml
     with:

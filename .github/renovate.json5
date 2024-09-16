@@ -35,7 +35,7 @@
       matchCurrentVersion: "!/^0/",
 
       // SYNC: RENOVATE_FIXUP
-      commitMessageAction: "[RENOVATE_FIXUP] Update",
+      commitMessageAction: "[renovate_fixup] Update",
 
       // SYNC: AUTOMERGE_LABEL
       labels: ["automerge"],

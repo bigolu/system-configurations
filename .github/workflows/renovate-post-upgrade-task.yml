@@ -38,7 +38,7 @@ jobs:
     # branch wasn't just created:
     #
     # SYNC: RENOVATE_FIXUP
-    if: ${{ contains(needs.get-commit-message.outputs.head-commit-message, '[RENOVATE_FIXUP]') }}
+    if: ${{ contains(needs.get-commit-message.outputs.head-commit-message, '[renovate_fixup]') }}
     runs-on: ubuntu-latest
     steps:
       - id: bot-token
