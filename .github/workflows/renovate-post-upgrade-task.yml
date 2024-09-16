@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
         with:
-          ref: ${{ env.GITHUB_SHA }}
+          ref: ${{ github.event.pull_request.head.sha }}
       - id: commit-message
         # multi-line output values require special handling so to avoid that
         # we'll only get the first line:
