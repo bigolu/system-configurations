@@ -28,9 +28,7 @@ linters:
       - |
         # statix doesn't support passing multiple files yet:
         # https://github.com/nerdypepper/statix/issues/70
-        for file in "$@"; do
-          statix check "$file"
-        done
+        parallel statix check ::: "$@"
       - --
     includes: [.*\.nix]
   actionlint:
@@ -66,9 +64,7 @@ linters:
       - -euc
       - |
         # TODO: fish doesn't support passing multiple files, I should open an issue
-        for file in "$@"; do
-          fish --no-execute "$file"
-        done
+        parallel fish --no-execute ::: "$@"
       - --
     includes: [.*\.fish]
   ruff:

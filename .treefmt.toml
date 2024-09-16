@@ -123,9 +123,7 @@
   options = ["-euc", """
 # statix doesn't support passing multiple files yet:
 # https://github.com/nerdypepper/statix/issues/69
-for file in "$@"; do
-  statix fix "$file"
-done
+parallel statix fix ::: "$@"
     """, "--"]
   includes = ["*.nix"]
 
