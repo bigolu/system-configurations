@@ -23,7 +23,7 @@ jobs:
     # branch wasn't just created:
     #
     # SYNC: RENOVATE_FIXUP
-    if: startsWith(github.event.head_commit.message, '[RENOVATE_FIXUP]')
+    if: contains(github.event.head_commit.message, '[RENOVATE_FIXUP]')
     steps:
       - id: bot-token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1

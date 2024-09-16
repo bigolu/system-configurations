@@ -36,6 +36,7 @@ jobs:
               - "flake.nix"
               - "flake.lock"
               - "flake-modules/**"
+              - "!flake-modules/bundler/gozip/**"
       - if: steps.changed-files-yaml.outputs.packages_any_changed == 'true'
         uses: ./.github/actions/setup
         with:
