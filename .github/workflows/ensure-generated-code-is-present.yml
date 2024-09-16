@@ -3,14 +3,18 @@ on:
   # It should also run on the default branch to catch my mistakes, but I feel
   # like that's a waste of resources. I'll just trust my pre-commit hook runs.
   pull_request:
+    # SYNC: GENERATORS
+    paths:
+      - "**/go.mod"
+      - "go.mod"
+      - "**neovim/lua/*.lua"
+      - "README.md"
 concurrency:
   # Since we're only interested in checking the latest commit to the branch,
   # we'll limit the workflow to running at most once per branch, cancelling
   # older runs when newer ones start.
   group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: true
-env:
-  REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
 jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
@@ -18,21 +22,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - name: Get all codegen-related files that have changed
-        id: changed-files-yaml
-        uses: tj-actions/changed-files@e9772d140489982e0e3704fea5ee93d536f1e275 # v45
-        with:
-          # SYNC: GENERATORS
-          files_yaml: |
-            codegen:
-              - "**/go.mod"
-              - "go.mod"
-              - "**neovim/lua/*.lua"
-              - "README.md"
-      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
-        uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup
         with:
           direnv-environment: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
-        run: bash ./scripts/ci/check-code-generation.bash
+      - run: bash ./scripts/ci/check-code-generation.bash

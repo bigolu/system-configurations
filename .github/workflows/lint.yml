@@ -23,6 +23,5 @@ jobs:
           direnv-environment: ciLint
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - env:
-          REPORTER: ${{ github.event_name == 'pull_request' && 'pr' || 'commit' }}
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash ./scripts/ci/lint.bash "$REPORTER"
+        run: bash ./scripts/ci/lint.bash

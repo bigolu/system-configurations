@@ -2,14 +2,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-if [ "$1" = 'pr' ]; then
-  reporter='-reporter=github-pr-review'
-elif [ "$1" = 'commit' ]; then
-  reporter='-reporter=github-check'
-else
-  echo 'Error: reporter type not specified' 1>&2
-  exit 1
-fi
+reporter='-reporter=github-pr-review'
 
 found_problem=
 run_linter() {
