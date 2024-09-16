@@ -62,14 +62,14 @@
       url = "github:Hammerspoon/Spoons";
       flake = false;
     };
+
+    # Nix
+    ########################################
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     # TODO: When this gets resolved, I can remove the revision pin:
     # https://github.com/NixOS/nixpkgs/issues/239384
     nixpkgs-for-wezterm-darwin.url = "github:nixos/nixpkgs?rev=ff0a5a776b56e0ca32d47a4a47695452ec7f7d80";
     nix-flatpak.url = "https://flakehub.com/f/gmodena/nix-flatpak/*.tar.gz";
-
-    # nix
-    ########################################
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nix-index-database = {
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -96,8 +96,6 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
-    flake-utils.url = "github:numtide/flake-utils";
-    flake-parts.url = "github:hercules-ci/flake-parts";
     # UNFREE
     # IMPURE
     # TODO: I think I can make its auto-detection pure by having the nixGL
@@ -111,7 +109,12 @@
       # https://github.com/nix-community/nixGL?tab=readme-ov-file#directly-run-nixgl
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    # Flake
+    ########################################
     flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
+    flake-utils.url = "github:numtide/flake-utils";
+    flake-parts.url = "github:hercules-ci/flake-parts";
 
     # fish
     ########################################
