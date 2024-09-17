@@ -56,20 +56,11 @@
     "dotfiles/yash/yashrc",
 
     # SYNC: GENERATED_FILES
-    # The patterns are in glob regex syntax here, but the other sync blocks may
+    # The patterns are in glob syntax here, but the other sync blocks may
     # be using PCRE2 syntax
     "flake-modules/bundler/gozip/go.sum",
     "flake-modules/bundler/gozip/gomod2nix.toml",
     "*.lock",
-
-    # TODO: just's builtin formatter currently removes/rearranges
-    # comments. Until this is fixed I'll disable it:
-    # https://github.com/casey/just/issues/862
-    # I would just comment out the `formatter.just` entry, but then treefmt
-    # would warn me that any files that would have been formatted by it now have
-    # no formatter. Instead, I'll ignore the files.
-    "justfile",
-    "ci.just",
   ]
 
 [formatter.toml]
@@ -136,7 +127,12 @@ parallel statix fix ::: "$@"
 [formatter.justfile]
   command = "just"
   options = ["--unstable", "--fmt", "--justfile"]
-  includes = [".justfile"]
+  # TODO: just's builtin formatter currently removes/rearranges comments. Until
+  # this is fixed I'll disable it: https://github.com/casey/just/issues/862.
+  # I would just comment out the `formatter.just` entry, but then treefmt would
+  # warn me that any files that would have been formatted by it now have no
+  # formatter. Instead, I'll exclude the file.
+  excludes = [".justfile"]
 
 [formatter.lua]
   command = "stylua"

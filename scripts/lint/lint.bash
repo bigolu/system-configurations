@@ -141,7 +141,7 @@ for linter in "${linters[@]}"; do
   printf 'echo -e "\\nRunning "%q"..."; echo "%s"; %s\n' \
     "$linter" \
     "$(printf '=%.0s' {1..40})" \
-    "$(printf '%q ' "${full_command[@]}")" \
+    "$(printf '%q ' chronic "${full_command[@]}")" \
     >>"$command_file"
 done
 
