@@ -197,6 +197,7 @@
             packages = scripts.dependenciesByName.test.inputs;
           };
 
+          # So we can cache it
           gomod2nix = inputs'.gomod2nix.devShells.default;
         };
       };

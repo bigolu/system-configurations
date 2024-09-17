@@ -1,4 +1,4 @@
-# These are packages that I need to set up my flake.
+# These are packages that I need to set up my flake. I'm adding them so I can cache them.
 { inputs, ... }:
 {
   perSystem =
