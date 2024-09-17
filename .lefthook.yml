@@ -20,25 +20,25 @@ pre-commit:
     generate-readme-table-of-contents:
       priority: 1
       glob: "README.md"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just generate-readme-table-of-contents
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./scripts/generate-readme-table-of-contents.bash
     generate-neovim-plugin-list:
       priority: 1
       glob: "*neovim/lua/*.lua"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just generate-neovim-plugin-list
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/generate-neovim-plugin-list.bash
     go-mod-tidy:
       priority: 1
       glob: "*gozip/go.mod"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just go-mod-tidy
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./scripts/go-mod-tidy.bash
     gomod2nix:
       priority: 1
       glob: "*gozip/go.mod"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just generate-gomod2nix-lock
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./scripts/generate-gomod2nix-lock.bash
 
     # Formatters. Change their priority so we format code after all the code
     # generators have run
     format:
       priority: 2
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just format {staged_files}
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/treefmt-wrapper.bash {staged_files}
       interactive: true
 
     # Linters. Change the priority so we lint the code after all code generation
@@ -46,7 +46,7 @@ pre-commit:
     # error.
     lint:
       priority: 3
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" just lint {staged_files}
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/lint/lint.bash {staged_files}
 
 post-merge:
   commands:
