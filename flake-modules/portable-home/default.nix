@@ -45,31 +45,11 @@
               isGui = false;
               inherit isMinimal;
             };
-
-          makeTerminal =
-            { isMinimal }:
-            let
-              portableHome = makePortableHome {
-                isGui = true;
-                inherit isMinimal;
-              };
-            in
-            pkgs.writeScriptBin "terminal" ''
-              #!${pkgs.bash}/bin/bash
-
-              set -o errexit
-              set -o nounset
-              set -o pipefail
-
-              exec ${lib.getExe portableHome} -c 'exec wezterm --config "font_locator=[[ConfigDirsOnly]]" --config "font_dirs={[[${pkgs.myFonts}]]}" --config "default_prog={[[$SHELL]]}" --config "set_environment_variables={SHELL=[[$SHELL]], TERMINFO_DIRS=[[${pkgs.myTerminfoDatabase}/share/terminfo]]}"'
-            '';
         in
         {
           packages = {
             shell = makeShell { isMinimal = false; };
             shellMinimal = makeShell { isMinimal = true; };
-            terminal = makeTerminal { isMinimal = false; };
-            terminalMinimal = makeTerminal { isMinimal = true; };
           };
         };
     in

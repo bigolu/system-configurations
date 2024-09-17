@@ -11,7 +11,6 @@
     ./meta-packages.nix
     ./partial-packages.nix
     ./misc.nix
-    ./gl-wrappers.nix
   ];
 
   flake = {
@@ -22,10 +21,6 @@
       self.overlays.metaPackages
       self.overlays.partialPackages
       self.overlays.misc
-
-      # WARNING: This needs to go last since it may be wrapping programs that
-      # were altered in other overlays
-      self.overlays.glWrappers
     ];
   };
 }

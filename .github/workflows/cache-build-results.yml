@@ -42,4 +42,4 @@ jobs:
         with:
           direnv-environment: ci
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: NIXPKGS_ALLOW_UNFREE=1 nix build --impure --show-trace
+      - run: nix build --show-trace

@@ -15,4 +15,4 @@ nix flake show --json |
 nix flake show --json |
   jq ".packages.\"$(nix show-config system)\"|keys[]" |
   # Allow unfree since the terminal* packages use nvidia drivers
-  NIXPKGS_ALLOW_UNFREE=1 xargs -I {} nix build --impure --no-link .#{}
+  xargs -I {} nix build --no-link .#{}

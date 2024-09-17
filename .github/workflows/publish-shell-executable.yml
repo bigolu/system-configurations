@@ -33,7 +33,7 @@ jobs:
         run: |
           nix bundle --show-trace --bundler .# .#shellMinimal
 
-          NIXPKGS_ALLOW_UNFREE=1 nix bundle --impure --show-trace --bundler .# .#terminalMinimal
+          nix bundle --show-trace --bundler .# .#terminalMinimal
 
           mkdir tmp
           # Dereference the symlinks so I can upload the actual executables. The

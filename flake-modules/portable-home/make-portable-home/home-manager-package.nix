@@ -46,8 +46,6 @@ let
           source = makeEmptyPackage "stub-spoon";
           recursive = false;
         };
-
-        packages = lib.lists.optionals isGui [ pkgs.wezterm ];
       };
 
       xdg = {

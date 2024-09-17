@@ -16,6 +16,7 @@ if test -z "${BWS_ACCESS_TOKEN:-}"; then
   export BWS_ACCESS_TOKEN="$token"
 fi
 
+# I need --impure to read the NIXPKGS_ALLOW_UNFREE environment variable
 bws="$(NIXPKGS_ALLOW_UNFREE=1 nix shell --impure nixpkgs#bws --command which -- bws)"
 PATH="$(dirname "$bws"):$PATH"
 

@@ -137,12 +137,6 @@
           inherit myTerminfoDatabase myPython;
           neovim = nightlyNeovimWithDependencies;
           ripgrep-all = ripgrepAllWithDependencies;
-
-          wezterm =
-            if isLinux then
-              prev.wezterm
-            else
-              (import inputs.nixpkgs-for-wezterm-darwin { inherit (final) system; }).wezterm;
         };
     in
     {
