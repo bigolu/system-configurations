@@ -21,6 +21,7 @@
     ".shellcheckrc",
     "flake-modules/bundler/gozip/go.mod",
     ".lycheeignore",
+    ".env.example",
 
     # These have no file extension so there's no way to tell which formatter
     # should be used.

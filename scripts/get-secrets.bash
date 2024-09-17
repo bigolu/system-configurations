@@ -20,8 +20,7 @@ bws="$(NIXPKGS_ALLOW_UNFREE=1 nix shell --impure nixpkgs#bws --command which -- 
 PATH="$(dirname "$bws"):$PATH"
 
 declare -A secrets_to_fetch=(
-  ['917561bd-57d8-4009-8155-b0f9016c89a2']="$project_dir/secrets/bws.txt"
-  ['b2fe18ea-c96b-48e6-ae20-b0f90159d299']="$project_dir/secrets/github.txt"
+  ['b9e0fe3d-037c-4de9-a933-b1ee011abdfd']="$project_dir/.env"
   ['a45acbd3-45ac-43f1-96fd-b0f9015b6c2c']="$HOME/.cloudflared/a52a24f6-92ee-4dc5-b537-24bad84b7b1f.json"
 )
 declare -A secrets_to_commit

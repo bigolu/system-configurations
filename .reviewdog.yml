@@ -46,6 +46,12 @@ runner:
     cmd: ruff check . --output-format sarif
     format: sarif
     level: error
+  dotenv-linter:
+    # I think it's ok to quote values whether they need to be or not, better
+    # safe than sorry.
+    cmd: dotenv-linter --recursive --exclude .env --skip QuoteCharacter --
+    format: dotenv-linter
+    level: error
   # golangci-lint:
   #   cmd: golangci-lint run --out-format sarif
   #   format: sarif

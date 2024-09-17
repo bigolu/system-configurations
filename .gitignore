@@ -1,4 +1,3 @@
-.git/
 .venv/
 .direnv/
 .mypy_cache/
@@ -7,3 +6,4 @@ secrets/**
 .git-hook-assets/actions/generated/**
 .ast-grep/parsers
 .lua-ls-libraries
+.env

@@ -42,6 +42,14 @@ tools:
       - "%Z        error: Error at line %l column %c: %m"
       - "%A    × %f"
       - "%Z        error: %m"
+  dotenv-linter: &dotenv-linter
+    # I skip the QuoteCharacter rule because I think it's ok to quote values
+    # whether they need to be or not, better safe than sorry.
+    lint-command: dotenv-linter --quiet --no-color --skip QuoteCharacter -- ${INPUT}
+    lint-source: "dotenv-linter"
+    lint-stdin: false
+    lint-formats:
+      - "%f:%l %m"
 
 version: 2
 root-markers:
@@ -57,5 +65,7 @@ languages:
     - <<: *config-file-validator
   ini:
     - <<: *config-file-validator
+  dotenv:
+    - <<: *dotenv-linter
   =:
     - <<: *desktop-file-validate

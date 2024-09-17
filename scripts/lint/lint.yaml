@@ -71,6 +71,12 @@ linters:
     command: ruff
     options: [check]
     includes: [.*\.py]
+  dotenv-linter:
+    command: dotenv-linter
+    # I think it's ok to quote values whether they need to be or not, better
+    # safe than sorry.
+    options: [--skip, QuoteCharacter, --]
+    includes: [\.env\.example]
   # golangci-lint:
   #   command: golangci-lint
   #   options: [run]
