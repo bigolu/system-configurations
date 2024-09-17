@@ -33,14 +33,11 @@ jobs:
         run: |
           nix bundle --show-trace --bundler .# .#shellMinimal
 
-          nix bundle --show-trace --bundler .# .#terminalMinimal
-
           mkdir tmp
           # Dereference the symlinks so I can upload the actual executables. The
           # symlinks' names will look like '<name>-x86_64-linux' so I'm using a
           # glob pattern to match them.
           cp -L shell-* ./tmp/
-          cp -L terminal-* ./tmp/
 
           size="$(du -m ./tmp/shell-* | cut -f1)"
           max_size='250'

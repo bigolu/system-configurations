@@ -35,7 +35,7 @@ preview-switch:
 ''')]
 [group('Host Management')]
 init-home-manager HOST_NAME: sync-git-hooks get-secrets install-nix-from-flake && run-linux-root-scripts
-    nix run .#nix -- run .#homeManager -- switch --flake .#{{ HOST_NAME }}
+    nix run .#homeManager -- switch --flake .#{{ HOST_NAME }}
 
 [doc('''
     Apply the first generation of a nix-darwin configuration. You only need to
@@ -46,7 +46,7 @@ init-home-manager HOST_NAME: sync-git-hooks get-secrets install-nix-from-flake &
 ''')]
 [group('Host Management')]
 init-nix-darwin HOST_NAME: sync-git-hooks get-secrets install-nix-from-flake install-homebrew
-    nix run .#nix -- run .#nixDarwin -- switch --flake .#{{ HOST_NAME }}
+    nix run .#nixDarwin -- switch --flake .#{{ HOST_NAME }}
 
 [doc('''
     Run tests. You should run this before submitting changes to find potential

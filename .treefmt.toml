@@ -125,14 +125,16 @@ parallel statix fix ::: "$@"
   includes = ["*.nix"]
 
 [formatter.justfile]
-  command = "just"
-  options = ["--unstable", "--fmt", "--justfile"]
   # TODO: just's builtin formatter currently removes/rearranges comments. Until
   # this is fixed I'll disable it: https://github.com/casey/just/issues/862.
   # I would just comment out the `formatter.just` entry, but then treefmt would
   # warn me that any files that would have been formatted by it now have no
-  # formatter. Instead, I'll exclude the file.
-  excludes = [".justfile"]
+  # formatter. Instead, I'll make it a no-op.
+  command = "bash"
+  options = ["-c", "true"]
+  # command = "just"
+  # options = ["--unstable", "--fmt", "--justfile"]
+  includes = ["justfile"]
 
 [formatter.lua]
   command = "stylua"
