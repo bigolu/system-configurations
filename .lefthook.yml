@@ -65,3 +65,9 @@ post-checkout:
     "post-checkout.bash":
       interactive: true
       runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
+
+pre-push:
+  scripts:
+    "pre-push.bash":
+      interactive: true
+      runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
