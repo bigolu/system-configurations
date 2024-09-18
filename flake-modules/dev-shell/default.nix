@@ -44,7 +44,7 @@
             ''
               function _bigolu_add_lines_to_nix_config {
                 for line in "$@"; do
-                  NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"
+                  NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"$'\n'
                 done
                 export NIX_CONFIG
               }
