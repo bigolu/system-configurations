@@ -1,11 +1,12 @@
--- TODO: When running in a portable home, vim.loader hit the max path segment
--- limit (255) so until this issue gets resolved, I won't use it:
--- https://github.com/neovim/neovim/issues/25008
-if #(os.getenv("BIGOLU_IN_PORTABLE_HOME") or "") == 0 then
-  -- Enabling this will cache any lua modules that are required after this
-  -- point.
-  vim.loader.enable()
-end
+-- Enabling this will cache any lua modules that are required after this point.
+-- I'm disabling it for a few reasons:
+--
+-- When running in a portable home, vim.loader hit the max path segment limit
+-- (255): https://github.com/neovim/neovim/issues/25008
+--
+-- Since Nix sets the modification time of all files to the epoch, the cache
+-- isn't invalidated properly.
+vim.loader.disable()
 
 -- Every time we enter a buffer, reset the fold options. This avoids the issue
 -- where you set a foldmethod maybe because the attached LSP server supports

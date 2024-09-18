@@ -1,3 +1,5 @@
 #!/usr/bin/env fish
 
-sudo --set-home --preserve-env=PATH env nix profile upgrade '.*'
+# Per the installer readme:
+# https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#upgrading-nix
+sudo -i nix upgrade-nix

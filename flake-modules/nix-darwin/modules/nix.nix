@@ -1,6 +1,7 @@
 {
   config,
   specialArgs,
+  pkgs,
   ...
 }:
 let
@@ -9,6 +10,11 @@ in
 {
   nix = {
     useDaemon = true;
+
+    # Newer versions of nix are backwards compatible with the manifest.json of
+    # older versions. Since I don't know which version of nix will be on my
+    # host, I'll use latest here to have the best chance at compatibility.
+    package = pkgs.nixVersions.latest;
 
     settings = {
       trusted-users = [
@@ -19,7 +25,6 @@ in
       experimental-features = [
         "nix-command"
         "flakes"
-        "repl-flake"
         "auto-allocate-uids"
       ];
     };
