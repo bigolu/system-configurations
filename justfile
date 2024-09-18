@@ -34,7 +34,7 @@ preview-switch:
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-home-manager HOST_NAME: sync-git-hooks get-secrets install-nix-from-flake && run-linux-root-scripts
+init-home-manager HOST_NAME: sync-git-hooks get-secrets && run-linux-root-scripts
     nix run .#homeManager -- switch --flake .#{{ HOST_NAME }}
 
 [doc('''
@@ -45,7 +45,7 @@ init-home-manager HOST_NAME: sync-git-hooks get-secrets install-nix-from-flake &
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-nix-darwin HOST_NAME: sync-git-hooks get-secrets install-nix-from-flake install-homebrew
+init-nix-darwin HOST_NAME: sync-git-hooks get-secrets install-homebrew
     nix run .#nixDarwin -- switch --flake .#{{ HOST_NAME }}
 
 [doc('''
@@ -215,16 +215,6 @@ run-post-change-hook:
 [private]
 install-homebrew:
     bash scripts/install-homebrew.bash
-
-# I'm not able to upgrade the nix and cacert that come with the nix installation
-# using `nix profile upgrade '.*'` so here I'm installing them from the nixpkgs
-# flake and giving them priority over the original ones.
-[private]
-install-nix-from-flake:
-    sudo --set-home --preserve-env=PATH \
-        env nix profile install nixpkgs#nix --priority 4
-    sudo --set-home --preserve-env=PATH \
-        env nix profile install nixpkgs#cacert --priority 4
 
 # Home Manager can't run these since they require root privileges so I'll run
 # them here.
