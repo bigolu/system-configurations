@@ -45,8 +45,9 @@ init-home-manager HOST_NAME: sync-git-hooks get-secrets && run-linux-root-script
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-nix-darwin HOST_NAME: sync-git-hooks get-secrets install-homebrew
-    nix run .#nixDarwin -- switch --flake .#{{ HOST_NAME }}
+init-nix-darwin HOST_NAME: sync-git-hooks get-secrets
+    bash scripts/init-nix-darwin.bash "$@"
+
 
 [doc('''
     Run tests. You should run this before submitting changes to find potential
@@ -54,7 +55,7 @@ init-nix-darwin HOST_NAME: sync-git-hooks get-secrets install-homebrew
 ''')]
 [group('Checks')]
 test:
-    bash test.bash
+    bash scripts/test.bash
 
 [doc('''
     Format source code. You should run this on all files if you make a
@@ -83,6 +84,9 @@ format *FILES:
 [group('Checks')]
 lint *FILES:
     bash scripts/lint/lint.bash "$@"
+
+[group('Checks')]
+check: format lint
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
@@ -211,10 +215,6 @@ upgrade:
 [group('Debugging')]
 run-post-change-hook:
     bash ./.git-hook-assets/on-change.bash
-
-[private]
-install-homebrew:
-    bash scripts/install-homebrew.bash
 
 # Home Manager can't run these since they require root privileges so I'll run
 # them here.

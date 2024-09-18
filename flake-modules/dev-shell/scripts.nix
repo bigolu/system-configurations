@@ -38,9 +38,13 @@ let
       ];
       path = "${self}/scripts/get-secrets.bash";
     };
-    install-homebrew = {
-      inputs = with pkgs; [ curl ];
-      path = "${self}/scripts/install-homebrew.bash";
+    init-nix-darwin = {
+      inputs = with pkgs; [
+        curl
+        coreutils
+        nix
+      ];
+      path = "${self}/scripts/init-nix-darwin.bash";
     };
     ltex-cli-all = {
       inputs = with pkgs; [
