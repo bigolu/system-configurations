@@ -24,6 +24,6 @@ jobs:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       - uses: ./.github/actions/setup
         with:
-          direnv-environment: ciCodegen
+          dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: bash ./scripts/ci/check-code-generation.bash

@@ -62,6 +62,10 @@
       url = "github:Hammerspoon/Spoons";
       flake = false;
     };
+    nix-develop-gha = {
+      url = "github:nicknovitski/nix-develop";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # Nix
     ########################################

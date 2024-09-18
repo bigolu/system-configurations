@@ -1,7 +1,7 @@
 name: Setup
 description: Install Nix, configure the cache(s), and load a direnv environment
 inputs:
-  direnv-environment:
+  dev-shell:
     description: The name of the direnv environment to activate
     required: true
   cachix-auth-token:
@@ -20,5 +20,5 @@ runs:
         # Cache everything
         upstream-cache: https://null.com
         use-flakehub: false
-    - run: nix run github:nicknovitski/nix-develop -- .#${{ inputs.direnv-environment }}
+    - run: nix run .#nix-develop-gha -- .#${{ inputs.dev-shell }}
       shell: bash

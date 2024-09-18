@@ -137,6 +137,8 @@
         '';
 
       outputs = {
+        packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
+
         devShells = {
           default = makeDevShell {
             packages =
