@@ -1,5 +1,5 @@
 name: Setup
-description: Install Nix, configure the cache(s), and load a direnv environment
+description: Install Nix, configure the cache(s), and load a devShell.
 inputs:
   dev-shell:
     description: The name of the devShell to activate

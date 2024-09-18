@@ -140,6 +140,15 @@ let
         ++ go-mod-tidy.inputs;
       path = "${self}/scripts/ci/check-code-generation.bash";
     };
+    ci-check-for-leaked-secrets = {
+      inputs = with pkgs; [
+        gitMinimal
+        trufflehog
+        jq
+        coreutils
+      ];
+      path = "${self}/scripts/ci/check-for-leaked-secrets.bash";
+    };
   };
 
   allDependencies = lib.attrsets.foldlAttrs (
@@ -169,6 +178,7 @@ let
         "cannot:${pkgs.gh}/bin/gh"
         "cannot:${pkgs.go}/bin/go"
         "cannot:${pkgs.doctoc}/bin/doctoc"
+        "cannot:${pkgs.trufflehog}/bin/trufflehog"
       ];
       keep = {
         # Homebrew's installer says to use this so I don't want to change it

@@ -110,6 +110,7 @@
         reviewdog
         just
         go
+        trufflehog
       ];
 
       scripts = import ./scripts.nix {
@@ -196,6 +197,10 @@
 
           ciTest = makeCiDevShell {
             packages = scripts.dependenciesByName.test.inputs;
+          };
+
+          ciLeakedSecrets = makeCiDevShell {
+            packages = scripts.dependenciesByName.ci-check-for-leaked-secrets.inputs;
           };
 
           # So we can cache it
