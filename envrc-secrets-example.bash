@@ -3,7 +3,7 @@
 # Why: To get secrets in the future without having to provide this token.
 #
 # Get yours here: https://bitwarden.com/products/secrets-manager/
-BWS_ACCESS_TOKEN='<secret>'
+export BWS_ACCESS_TOKEN='<secret>'
 
 # Personal access token for GitHub.
 #
@@ -13,6 +13,6 @@ BWS_ACCESS_TOKEN='<secret>'
 #
 # Why: To avoid being rate-limited by GitHub when using `lychee` or `nix flake update`.
 #
-# Learn how to get yours here: 
+# Learn how to get yours here:
 # https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token
-GITHUB_TOKEN='<secret>'
+export GITHUB_TOKEN='<secret>'

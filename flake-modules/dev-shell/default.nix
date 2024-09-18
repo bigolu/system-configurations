@@ -110,7 +110,6 @@
         reviewdog
         just
         go
-        dotenv-linter
       ];
 
       scripts = import ./scripts.nix {
