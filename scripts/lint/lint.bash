@@ -11,21 +11,8 @@ print_with_nul() {
   printf '%s\0' "$@"
 }
 
-rg() {
-  command rg --line-regexp --null-data --null "$@"
-}
-
-rg_make_regexp_flags() {
-  flags=()
-  for pattern in "$@"; do
-    flags=("${flags[@]}" '--regexp' "$pattern")
-  done
-
-  print_with_nul "${flags[@]}"
-}
-
 config_yq() {
-  yq --input-format yaml "$@" <./scripts/lint/lint.yaml
+  yq --input-format yaml "$@" <./scripts/lint/config.yaml
 }
 
 config_yq_get_list() {
@@ -88,54 +75,46 @@ else
   readarray -d '' linters < <(config_get_linter_names)
 fi
 
-# Files
-if [ $# -eq 0 ]; then
-  readarray -d '' files < <(git ls-files -z)
-else
-  # Ensure input files exist
-  nonexistent_files=()
-  for file in "$@"; do
-    if [ ! -f "$file" ]; then
-      nonexistent_files=("${nonexistent_files[@]}" "$file")
+function files {
+  readarray -d '' inputs
+
+  if [ ${#inputs[@]} -eq 0 ]; then
+    git ls-files -z
+  # TODO: Avoid hitting ARG_MAX: https://www.in-ulm.de/~mascheck/various/argmax/
+  else
+    # Ensure input files exist
+    nonexistent_files=()
+    for file in "${inputs[@]}"; do
+      if [ ! -f "$file" ]; then
+        nonexistent_files=("${nonexistent_files[@]}" "$file")
+      fi
+    done
+    if [ ${#nonexistent_files[@]} -gt 0 ]; then
+      echo 'Error: The following files do not exist:'
+      printf '%s\n' "${nonexistent_files[@]}"
+      exit 1
     fi
-  done
-  if [ ${#nonexistent_files[@]} -gt 0 ]; then
-    echo 'Error: The following files do not exist:'
-    printf '%s\n' "${nonexistent_files[@]}"
-    exit 1
+
+    # Normalize the file names
+    realpath --zero --canonicalize-existing --no-symlinks --relative-to "$PWD" "${inputs[@]}"
   fi
-
-  # Normalize the file names
-  readarray -d '' files \
-    < <(realpath --zero --canonicalize-existing --no-symlinks --relative-to "$PWD" "$@")
-fi
-
-# Filter out files that match the global excludes
-readarray -d '' global_excludes < <(config_get_global_excludes)
-readarray -d '' rg_exclude_flags \
-  < <(rg_make_regexp_flags "${global_excludes[@]}")
-readarray -d '' files \
-  < <(print_with_nul "${files[@]}" | rg --invert-match "${rg_exclude_flags[@]}")
-
-if [ ${#files[@]} -eq 0 ]; then
-  exit
-fi
+}
 
 # Run linters on files
 command_file="$(mktemp)"
+readarray -d '' global_excludes < <(config_get_global_excludes)
 for linter in "${linters[@]}"; do
   readarray -d '' includes < <(config_get_linter_includes "$linter")
-  readarray -d '' include_flags < <(rg_make_regexp_flags "${includes[@]}")
   readarray -d '' excludes < <(config_get_linter_excludes "$linter")
-  readarray -d '' exclude_flags < <(rg_make_regexp_flags "${excludes[@]}")
   readarray -d '' filtered_files \
-    < <(print_with_nul "${files[@]}" | rg "${include_flags[@]}" | rg --invert-match "${exclude_flags[@]}")
+    < <(files | bash glob.bash filter "${includes[@]}" | bash glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
   if [ ${#filtered_files[@]} -eq 0 ]; then
     continue
   fi
 
   readarray -d '' command_and_options \
     < <(config_get_linter_command_and_options "$linter")
+  # TODO: Avoid hitting ARG_MAX: https://www.in-ulm.de/~mascheck/various/argmax/
   full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
   printf 'echo -e "\\nRunning "%q"..."; echo "%s"; %s\n' \

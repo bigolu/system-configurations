@@ -69,7 +69,7 @@ test:
 ''')]
 [group('Checks')]
 format *FILES:
-    bash scripts/treefmt-wrapper.bash "$@"
+    printf '%s\0' "$@" | bash scripts/treefmt-wrapper.bash
 
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -83,10 +83,7 @@ format *FILES:
 ''')]
 [group('Checks')]
 lint *FILES:
-    bash scripts/lint/lint.bash "$@"
-
-[group('Checks')]
-check: format lint
+    printf '%s\0' "$@" | bash scripts/lint/lint.bash
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
@@ -101,6 +98,10 @@ check: format lint
 check-links *FILES:
     lychee "$@"
 
+[group('Checks')]
+check:
+    bash scripts/check.bash
+
 [doc('''
     Get all secrets from BitWarden Secrets Manager. You'll be prompted for
     a service token. You should run this whenever there are new secrets to
@@ -111,8 +112,6 @@ check-links *FILES:
 [group('Environment Management')]
 get-secrets:
     bash scripts/get-secrets.bash
-    # This will trigger an environment reload in the terminal and VS Code
-    touch .envrc
 
 [doc('''
     Synchronize nix-direnv with the Nix devShell. nix-direnv is a direnv library

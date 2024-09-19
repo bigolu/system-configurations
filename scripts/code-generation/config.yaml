@@ -1,0 +1,24 @@
+# The `excludes` and `includes` properties use globs.
+
+# SYNC: GENERATORS
+generators:
+  neovim-plugin-list:
+    command: bash
+    options:
+      - scripts/code-generation/generate-neovim-plugin-list.bash
+    includes: ["*neovim/lua/*.lua"]
+  go-mod-tidy:
+    command: bash
+    options:
+      - scripts/code-generation/go-mod-tidy.bash
+    includes: ["*gozip/go.mod"]
+  gomod2nix-lock:
+    command: bash
+    options:
+      - scripts/code-generation/generate-gomod2nix-lock.bash
+    includes: ["*gozip/go.mod"]
+  readme-table-of-contents:
+    command: bash
+    options:
+      - scripts/code-generation/generate-readme-table-of-contents.bash
+    includes: [README.md]

@@ -2,8 +2,6 @@
 .direnv/
 .mypy_cache/
 .DS_Store
-secrets/**
 .git-hook-assets/actions/generated/**
-.ast-grep/parsers
 .lua-ls-libraries
 envrc-secrets.bash

@@ -1,26 +1,22 @@
-# The `excludes` and `includes` properties use PCRE2 regular expression
-# syntax. The expressions are expected to match the entire path, as though the
-# pattern is prefixed by '^' and suffixed by '$'.
+# The `excludes` and `includes` properties use globs.
 
 global:
   # SYNC: GENERATED_FILES
-  # The patterns are in PCRE2 regex syntax here, but the other sync blocks may
-  # be using glob syntax
   excludes:
     - flake-modules/bundler/gozip/go.sum
     - flake-modules/bundler/gozip/gomod2nix.toml
-    - .*\.lock
+    - "*.lock"
 linters:
   renovate:
     command: renovate-config-validator
     options: [--strict]
-    includes: [.*renovate\.json5]
+    includes: ["*renovate.json5"]
   config-file-validator:
     command: validator
     options: [-groupby, pass-fail]
-    includes: [.*\.json, .editorconfig, .*\.ini]
+    includes: ["*.json", .editorconfig, "*.ini"]
     # VS Code's configuration files end in .json, but they are actually jsonc files
-    excludes: [.*\.vscode/.*\.json]
+    excludes: ["*.vscode/*.json"]
   statix:
     command: bash
     options:
@@ -30,34 +26,34 @@ linters:
         # https://github.com/nerdypepper/statix/issues/70
         parallel statix check ::: "$@"
       - --
-    includes: [.*\.nix]
+    includes: ["*.nix"]
   actionlint:
     command: actionlint
-    includes: ["\\.github/workflows/.*\\.ya?ml"]
+    includes: [".github/workflows/*.yaml", ".github/workflows/*.yml"]
   taplo:
     command: taplo
     options: [lint]
-    includes: [.*\.toml]
+    includes: ["*.toml"]
   yaml-lint:
     command: yamllint
     options: [--strict]
-    includes: [".*\\.ya?ml"]
+    includes: ["*.yaml", "*.yml"]
   shellcheck:
     command: shellcheck
-    includes: [".*\\.(ba)?sh"]
+    includes: ["*.bash", "*.sh"]
   # TODO: The cli isn't respecting my dictionary or ignore files so I can't use it.
   # https://github.com/valentjn/ltex-ls/issues/283
   #
   # ltex-cli:
   #   command: ltex-cli
   #   options: [--server-command-line=ltex-ls]
-  #   includes: [.*\.md]
+  #   includes: ["*.md"]
   markdownlint-cli2:
     command: markdownlint-cli2
-    includes: [.*\.md]
+    includes: ["*.md"]
   desktop-file-validate:
     command: desktop-file-validate
-    includes: [.*\.desktop]
+    includes: ["*.desktop"]
   fish:
     command: bash
     options:
@@ -66,12 +62,12 @@ linters:
         # TODO: fish doesn't support passing multiple files, I should open an issue
         parallel fish --no-execute ::: "$@"
       - --
-    includes: [.*\.fish]
+    includes: ["*.fish"]
   ruff:
     command: ruff
     options: [check]
-    includes: [.*\.py]
+    includes: ["*.py"]
   # golangci-lint:
   #   command: golangci-lint
   #   options: [run]
-  #   includes: [.*\.go]
+  #   includes: ["*.go"]

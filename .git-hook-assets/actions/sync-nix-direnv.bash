@@ -1,1 +1,0 @@
-just sync-nix-direnv

@@ -10,58 +10,65 @@ colors:
   red: 1
   yellow: 3
 
-output: false
+output: true
 
-pre-commit:
-  piped: true
+pre-push:
   commands:
-    # Code generators
-    # SYNC: GENERATORS
-    generate-readme-table-of-contents:
-      priority: 1
-      glob: "README.md"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./scripts/generate-readme-table-of-contents.bash
-    generate-neovim-plugin-list:
-      priority: 1
-      glob: "*neovim/lua/*.lua"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/generate-neovim-plugin-list.bash
-    go-mod-tidy:
-      priority: 1
-      glob: "*gozip/go.mod"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./scripts/go-mod-tidy.bash
-    gomod2nix:
-      priority: 1
-      glob: "*gozip/go.mod"
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./scripts/generate-gomod2nix-lock.bash
-
-    # Formatters. Change their priority so we format code after all the code
-    # generators have run
-    format:
-      priority: 2
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/treefmt-wrapper.bash {staged_files}
+    check:
       interactive: true
-
-    # Linters. Change the priority so we lint the code after all code generation
-    # and formatting has run, in the unlikely event that they cause a lint
-    # error.
-    lint:
-      priority: 3
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/lint/lint.bash {staged_files}
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/check.bash
 
 post-merge:
   commands:
-    post-change:
+    on-change:
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run on-change
+    home-manager-on-change:
       interactive: true
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
 
 post-rewrite:
-  scripts:
-    "post-rewrite.bash":
+  commands:
+    on-change:
+      only: rebase
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run on-change
+    home-manager-on-change:
+      only: rebase
       interactive: true
-      runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
 
 post-checkout:
+  commands:
+    on-change:
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run on-change
+  # TODO: Open an issue for passing the git hook arguments to the only/skip
+  # commands. Then I could remove this script.
   scripts:
     "post-checkout.bash":
       interactive: true
       runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
+
+# NOTE: Everything here will be run in parallel:
+# https://github.com/evilmartians/lefthook/issues/132#issuecomment-1833411442
+on-change:
+  files: git diff --name-only ORIG_HEAD HEAD
+  commands:
+    envrc-secrets:
+      glob: "envrc-secrets-example.bash"
+      run: >
+        DIFF=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        bash scripts/print-hint.bash
+        'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash'
+        {files}
+    dev-shell:
+      glob: "flake{.nix,.lock,-modules/**/*.nix}"
+      run: >
+        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        bash scripts/print-hint.bash
+        'The following files have changed and may affect your devShell, run `just sync-nix-direnv`: '
+        {files}
+    lefthook:
+      glob: ".lefthook.yml"
+      run: >
+        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        bash scripts/print-hint.bash
+        '.lefthook.yml has changed, run `just sync-git-hooks`'

@@ -56,8 +56,6 @@
     "dotfiles/yash/yashrc",
 
     # SYNC: GENERATED_FILES
-    # The patterns are in glob syntax here, but the other sync blocks may
-    # be using PCRE2 syntax
     "flake-modules/bundler/gozip/go.sum",
     "flake-modules/bundler/gozip/gomod2nix.toml",
     "*.lock",
