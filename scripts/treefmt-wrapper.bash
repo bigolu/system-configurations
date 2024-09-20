@@ -12,7 +12,7 @@ else
   for file in "$@"; do
     treefmt --on-unmatched=fatal --fail-on-change "$file" || changed_file=1
   done
-  
+
   if [ -n "$changed_file" ]; then
     return 1
   else

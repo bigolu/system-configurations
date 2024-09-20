@@ -75,12 +75,13 @@ else
   readarray -d '' linters < <(config_get_linter_names)
 fi
 
+readarray -d '' inputs
+if [ "${inputs[-1]}" = $'\0' ]; then
+  unset 'inputs[-1]'
+fi
 function files {
-  readarray -d '' inputs
-
   if [ ${#inputs[@]} -eq 0 ]; then
     git ls-files -z
-  # TODO: Avoid hitting ARG_MAX: https://www.in-ulm.de/~mascheck/various/argmax/
   else
     # Ensure input files exist
     nonexistent_files=()
@@ -107,17 +108,16 @@ for linter in "${linters[@]}"; do
   readarray -d '' includes < <(config_get_linter_includes "$linter")
   readarray -d '' excludes < <(config_get_linter_excludes "$linter")
   readarray -d '' filtered_files \
-    < <(files | bash glob.bash filter "${includes[@]}" | bash glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
+    < <(files | bash scripts/glob.bash filter "${includes[@]}" | bash scripts/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
   if [ ${#filtered_files[@]} -eq 0 ]; then
     continue
   fi
 
   readarray -d '' command_and_options \
     < <(config_get_linter_command_and_options "$linter")
-  # TODO: Avoid hitting ARG_MAX: https://www.in-ulm.de/~mascheck/various/argmax/
   full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
-  printf 'echo -e "\\nRunning "%q"..."; echo "%s"; %s\n' \
+  printf 'echo -e "\\nRunning linter: "%q"..."; echo "%s"; %s\n' \
     "$linter" \
     "$(printf '=%.0s' {1..40})" \
     "$(printf '%q ' chronic "${full_command[@]}")" \

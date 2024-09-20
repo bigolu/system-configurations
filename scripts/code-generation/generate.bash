@@ -47,6 +47,10 @@ config_get_generator_command_and_options() {
   print_with_nul "$command" "${options[@]}"
 }
 
+config_get_global_excludes() {
+  config_yq_get_list '.global.excludes[]'
+}
+
 # generators
 if [ "${1:-}" = '--generators' ]; then
   IFS=',' read -ra generators <<<"$2"
@@ -69,12 +73,13 @@ else
   readarray -d '' generators < <(config_get_generator_names)
 fi
 
+readarray -d '' inputs
+if [ "${inputs[-1]}" = $'\0' ]; then
+  unset 'inputs[-1]'
+fi
 function files {
-  readarray -d '' inputs
-
   if [ ${#inputs[@]} -eq 0 ]; then
     git ls-files -z
-  # TODO: Avoid hitting ARG_MAX: https://www.in-ulm.de/~mascheck/various/argmax/
   else
     # Ensure input files exist
     nonexistent_files=()
@@ -101,7 +106,7 @@ for generator in "${generators[@]}"; do
   readarray -d '' includes < <(config_get_generator_includes "$generator")
   readarray -d '' excludes < <(config_get_generator_excludes "$generator")
   readarray -d '' filtered_files \
-    < <(files | bash glob.bash filter "${includes[@]}" | bash glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
+    < <(files | bash scripts/glob.bash filter "${includes[@]}" | bash scripts/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
   if [ ${#filtered_files[@]} -eq 0 ]; then
     continue
   fi
@@ -110,7 +115,7 @@ for generator in "${generators[@]}"; do
     < <(config_get_generator_command_and_options "$generator")
   full_command=("${command_and_options[@]}")
 
-  printf 'echo -e "\\nRunning "%q"..."; echo "%s"; %s\n' \
+  printf 'echo -e "\\nRunning code generator: "%q"..."; echo "%s"; %s\n' \
     "$generator" \
     "$(printf '=%.0s' {1..40})" \
     "$(printf '%q ' chronic "${full_command[@]}")" \

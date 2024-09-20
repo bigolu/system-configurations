@@ -13,9 +13,10 @@ function main {
   found_problem=
 
   # Code generators
-  changed_or_untracked_files \
-    | bash scripts/code-generation/generate.bash || found_problem=1
+  changed_or_untracked_files |
+    bash scripts/code-generation/generate.bash || found_problem=1
 
+  printf '\nRunning fixers...\n%s' "$(printf '=%.0s' {1..40})"
   # treefmt keeps a cache to tell whether a file has changed since it last ran so
   # no need to pass in changed files.
   bash scripts/treefmt-wrapper.bash || found_problem=1
