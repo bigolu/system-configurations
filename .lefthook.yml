@@ -71,11 +71,13 @@ on-change:
       run: >
         DIRENV_LOG_FORMAT='' direnv exec "$PWD"
         bash scripts/print-hint.bash
-        'The following files have changed and may affect your devShell, run `just sync-nix-direnv`: '
+        'The following files have changed and may affect your devShell, consider running `just sync-nix-direnv`: '
         {files}
-    lefthook:
-      glob: ".lefthook.yml"
-      run: >
-        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-        bash scripts/print-hint.bash
-        '.lefthook.yml has changed, run `just sync-git-hooks`'
+    # TODO: lefthook syncs hooks automatically, though I'd prefer if I had
+    # control over that.
+    # lefthook:
+    #   glob: ".lefthook.yml"
+    #   run: >
+    #     DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+    #     bash scripts/print-hint.bash
+    #     '.lefthook.yml has changed, consider running `just sync-git-hooks`'
