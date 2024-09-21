@@ -68,9 +68,9 @@ let
       ];
       path = "${self}/scripts/shellcheck-all.bash";
     };
-    treefmt-wrapper = {
-      inputs = with pkgs; [ treefmt ];
-      path = "${self}/scripts/treefmt-wrapper.bash";
+    treefmt = {
+      inputs = [ pkgs.treefmt ];
+      path = "${self}/scripts/treefmt.bash";
     };
     generate-gomod2nix-lock = {
       inputs = with pkgs; [ nix ];

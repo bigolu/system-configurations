@@ -11,8 +11,6 @@ colors:
   red: 1
   yellow: 3
 
-source_dir: scripts/lefthook/
-
 output:
   - failure
   - execution
@@ -27,57 +25,53 @@ pre-push:
 
 post-merge:
   commands:
-    on-change:
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run on-change
-    home-manager-on-change:
+    change-notifications:
       interactive: true
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
 
 post-rewrite:
   commands:
-    on-change:
-      only: rebase
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run on-change
-    home-manager-on-change:
+    change-notifications:
       only: rebase
       interactive: true
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash ./.git-hook-assets/on-change.bash
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
 
 post-checkout:
   commands:
-    on-change:
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run on-change
-  # TODO: Open an issue for passing the git hook arguments to the only/skip
-  # commands. Then I could remove this script.
-  scripts:
-    "post-checkout.bash":
+    change-notifications:
       interactive: true
-      runner: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash
+      # TODO: Open an issue for passing the git hook arguments to the only/skip
+      # commands. Then I could remove this script.
+      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/git-hooks/run-if-not-file-checkout.bash lefthook run change-notifications
 
 # NOTE: Everything here will be run in parallel:
 # https://github.com/evilmartians/lefthook/issues/132#issuecomment-1833411442
-on-change:
+change-notifications:
   files: git diff --name-only ORIG_HEAD HEAD
   commands:
     envrc-secrets:
       glob: "envrc-secrets-example.bash"
       run: >
         DIFF=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-        bash scripts/print-hint.bash
+        bash scripts/git-hooks/change-notifications/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash'
         {files}
     dev-shell:
       glob: "flake{.nix,.lock,-modules/**/*.nix}"
       run: >
         DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-        bash scripts/print-hint.bash
+        bash scripts/git-hooks/change-notifications/notify.bash
         'The following files have changed and may affect your devShell, consider running `just sync-nix-direnv`: '
         {files}
+    home-manager:
+      run: >
+        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        bash scripts/git-hooks/change-notifications/home-manager/check-for-changes.bash
     # TODO: lefthook syncs hooks automatically, though I'd prefer if I had
     # control over that.
     # lefthook:
     #   glob: ".lefthook.yml"
     #   run: >
     #     DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-    #     bash scripts/print-hint.bash
+    #     bash scripts/git-hooks/change-notifications/notify.bash
     #     '.lefthook.yml has changed, consider running `just sync-git-hooks`'

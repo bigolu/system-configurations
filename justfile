@@ -69,7 +69,7 @@ test:
 ''')]
 [group('Checks')]
 format *FILES:
-    bash scripts/treefmt-wrapper.bash "$@"
+    bash scripts/treefmt.bash "$@"
 
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -227,10 +227,4 @@ upgrade:
 ''')]
 [group('Debugging')]
 run-post-change-hook:
-    bash ./.git-hook-assets/on-change.bash
-
-# Home Manager can't run these since they require root privileges so I'll run
-# them here.
-[private]
-run-linux-root-scripts:
-    bash scripts/run-linux-root-scripts.bash
+    lefthook run change-notifications

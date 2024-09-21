@@ -82,6 +82,9 @@ linters:
         # of this linter, it always exits with 0. To get around this, we set
         # pipefail. Now, the exit code will be that of the last/rightmost
         # command that failed.
+        #
+        # TODO: SARIF support is being added:
+        # https://github.com/Boeing/config-file-validator/issues/32
         - -o
         - pipefail
         - -euc

@@ -4,6 +4,8 @@ set -o pipefail
 
 nix run .#homeManager -- switch --flake .#"$1"
 
+# Home Manager can't run these since they require root privileges so I'll run
+# them here.
 ./dotfiles/nix/set-locale-variable.bash
 ./dotfiles/nix/nix-fix/install-nix-fix.bash
 ./dotfiles/nix/systemd-garbage-collection/install.bash
