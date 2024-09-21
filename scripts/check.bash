@@ -6,8 +6,7 @@ function main {
   found_problem=
 
   # Code generators
-  files |
-    bash scripts/qa/qa.bash generate || found_problem=1
+  files | bash scripts/qa/qa.bash generate || found_problem=1
 
   # treefmt keeps a cache to tell whether a file has changed since it last ran so
   # no need to pass in changed files.

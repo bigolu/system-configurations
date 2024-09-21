@@ -116,12 +116,12 @@ function lint_check {
   type=checkers
 
   if [ "${arg_list:-}" = 1 ]; then
-    config_get_lint_checker_names "$type"
+    config_get_linter_names "$type"
     return
   fi
 
   if [ "${#arg_linters[@]}" -eq 0 ]; then
-    readarray -d '' lint_checkers < <(config_get_lint_checker_names "$type")
+    readarray -d '' lint_checkers < <(config_get_linter_names "$type")
   else
     lint_checkers=("${arg_lint_checkers[@]}")
   fi
@@ -129,10 +129,10 @@ function lint_check {
   command_file="$(mktemp)"
   readarray -d '' global_excludes < <(config_get_global_excludes)
   for lint_checker in "${lint_checkers[@]}"; do
-    readarray -d '' includes < <(config_get_lint_checker_includes "$type" "$lint_checker")
-    readarray -d '' excludes < <(config_get_lint_checker_excludes "$type" "$lint_checker")
+    readarray -d '' includes < <(config_get_linter_includes "$type" "$lint_checker")
+    readarray -d '' excludes < <(config_get_linter_excludes "$type" "$lint_checker")
     readarray -d '' filtered_files \
-      < <(get_files | bash scripts/glob.bash filter "${includes[@]}" | bash scripts/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
+      < <(get_files | bash scripts/qa/glob.bash filter "${includes[@]}" | bash scripts/qa/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
     if [ ${#filtered_files[@]} -eq 0 ]; then
       continue
     fi
@@ -153,9 +153,13 @@ function lint_check {
     echo 'No lints found'
   else
     if [ "${VERBOSE:-}" = 1 ]; then
-      parallel --verbose <"$command_file"
+      if parallel --verbose <"$command_file"; then
+        echo 'No lints found'
+      fi
     else
-      parallel <"$command_file"
+      if chronic parallel <"$command_file"; then
+        echo 'No lints found'
+      fi
     fi
   fi
 }
@@ -164,12 +168,12 @@ function lint_fix {
   type=fixers
 
   if [ "${arg_list:-}" = 1 ]; then
-    config_get_lint_fixer_names "$type"
+    config_get_linter_names "$type"
     return
   fi
 
   if [ "${#arg_linters[@]}" -eq 0 ]; then
-    readarray -d '' lint_fixers < <(config_get_lint_fixer_names "$type")
+    readarray -d '' lint_fixers < <(config_get_linter_names "$type")
   else
     lint_fixers=("${arg_linters[@]}")
   fi
@@ -178,10 +182,10 @@ function lint_fix {
   made_fixes=
   readarray -d '' global_excludes < <(config_get_global_excludes)
   for lint_fixer in "${lint_fixers[@]}"; do
-    readarray -d '' includes < <(config_get_lint_fixer_includes "$type" "$lint_fixer")
-    readarray -d '' excludes < <(config_get_lint_fixer_excludes "$type" "$lint_fixer")
+    readarray -d '' includes < <(config_get_linter_includes "$type" "$lint_fixer")
+    readarray -d '' excludes < <(config_get_linter_excludes "$type" "$lint_fixer")
     readarray -d '' filtered_files \
-      < <(get_files | bash scripts/glob.bash filter "${includes[@]}" | bash scripts/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
+      < <(get_files | bash scripts/qa/glob.bash filter "${includes[@]}" | bash scripts/qa/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
     if [ ${#filtered_files[@]} -eq 0 ]; then
       continue
     fi
