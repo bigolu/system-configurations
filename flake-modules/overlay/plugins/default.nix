@@ -64,7 +64,7 @@
     in
     {
       lib.pluginOverlay = {
-        inherit makePluginPackages;
+        makePluginPackages = makePluginPackages;
       };
       overlays.plugins = lib.composeManyExtensions [
         self.overlays.vimPlugins
