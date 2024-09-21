@@ -5,7 +5,6 @@ let
 in
 {
   imports = [
-    ./git.nix
     ./symlink.nix
   ];
 

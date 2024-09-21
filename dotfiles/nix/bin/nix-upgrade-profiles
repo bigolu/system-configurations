@@ -1,5 +1,0 @@
-#!/usr/bin/env fish
-
-# Per the installer readme:
-# https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#upgrading-nix
-sudo -i nix upgrade-nix

@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
 
-# By default lefthook uses true colors (e.g. #FFFFFF), but they may not be
+# By default lefthook uses true colors (e.g. #FFFFFF), but they may notf be
 # readable depending on the terminal background color. Instead I'm using ANSI
 # colors since they come from the terminal's color palette.
 # TODO: They should change this.
@@ -35,6 +35,12 @@ post-rewrite:
       only: rebase
       interactive: true
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
+    # This is too noisy to do on all change-related hooks.
+    change-notification-for-host-configuration:
+      run: >
+        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        bash scripts/git-hooks/notify.bash
+        'Files have changed, which may affect the host configuration. Consider running `just switch`'
 
 post-checkout:
   commands:
@@ -53,25 +59,41 @@ change-notifications:
       glob: "envrc-secrets-example.bash"
       run: >
         DIFF=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-        bash scripts/git-hooks/change-notifications/notify.bash
+        bash scripts/git-hooks/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash'
         {files}
     dev-shell:
-      glob: "flake{.nix,.lock,-modules/**/*.nix}"
+      glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       run: >
         DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-        bash scripts/git-hooks/change-notifications/notify.bash
+        bash scripts/git-hooks/notify.bash
         'The following files have changed and may affect your devShell, consider running `just sync-nix-direnv`: '
         {files}
-    home-manager:
+    fish:
+      glob: "dotfiles/fish/conf.d/**.fish"
       run: >
         DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-        bash scripts/git-hooks/change-notifications/home-manager/check-for-changes.bash
+        bash scripts/git-hooks/notify.bash
+        'The following files have changed and may affect your devShell, consider restarting any running terminals: '
+        {files}
+    nix:
+      glob: "flake.lock"
+      run: >
+        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        bash scripts/git-hooks/notify.bash
+        'The flake.lock has changed, consider running `just upgrade-nix`'
+    nix-fix:
+      glob: "dotfiles/nix/nix-fix/**"
+      run: >
+        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        bash scripts/git-hooks/notify.bash
+        'Files related to the Nix $PATH fix have changed, consider re-running its installer: '
+        {files}
     # TODO: lefthook syncs hooks automatically, though I'd prefer if I had
     # control over that.
     # lefthook:
     #   glob: ".lefthook.yml"
     #   run: >
     #     DIRENV_LOG_FORMAT='' direnv exec "$PWD"
-    #     bash scripts/git-hooks/change-notifications/notify.bash
+    #     bash scripts/git-hooks/notify.bash
     #     '.lefthook.yml has changed, consider running `just sync-git-hooks`'

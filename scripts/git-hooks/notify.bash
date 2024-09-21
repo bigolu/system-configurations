@@ -3,8 +3,8 @@ set -o nounset
 set -o pipefail
 
 reset='\e[m'
-yellow_fg_reversed='\e[1m\e[7m\e[33m'
-badge="$yellow_fg_reversed WARNING $reset"
+blue_fg_reversed='\e[1m\e[7m\e[34m'
+badge="$blue_fg_reversed INFO $reset"
 
 function print_hint {
   if [ -n "${DIFF:-}" ]; then

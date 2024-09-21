@@ -10,6 +10,15 @@ list:
         | less -R '-PsPress q to quit, scroll up/down with the mouse or k/j'
 
 [doc('''
+    TODO
+''')]
+[group('Host Management')]
+upgrade-nix:
+    # Per the installer readme:
+    # https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#upgrading-nix
+    sudo -i nix upgrade-nix
+
+[doc('''
     Switch to a new generation of the host manager (nix-darwin or Home Manager)
     configuration.
 ''')]

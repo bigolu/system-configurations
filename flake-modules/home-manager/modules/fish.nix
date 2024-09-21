@@ -47,22 +47,5 @@
         recursive = true;
       };
     };
-
-    git.onChange = [
-      {
-        patterns.modified = [ ''^dotfiles/fish/conf\.d/'' ];
-        action = ''
-          echo "The fish shell configuration has changed. To apply these changes you should restart any running terminals. Press enter to continue"
-
-          # To hide any keys the user may press before enter I disable echo. After prompting them, I re-enable it.
-          stty_original="$(stty -g)"
-          stty -echo
-          # I don't care if read mangles backslashes since I'm not using the input anyway.
-          # shellcheck disable=2162
-          read _unused
-          stty "$stty_original"
-        '';
-      }
-    ];
   };
 }

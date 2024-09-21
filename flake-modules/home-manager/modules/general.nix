@@ -47,34 +47,5 @@ in
           };
       };
     };
-
-    git.onChange = [
-      {
-        # This should be the first check since other checks might depend on new files
-        # being linked, or removed files being unlinked, in order to work. For example, if a new
-        # bat theme is added, the theme needs to be linked before we can rebuild the bat cache.
-        priority = 100;
-        patterns = {
-          added = [ ".*" ];
-          deleted = [ ".*" ];
-          modified = [
-            ''^flake-modules/''
-            ''^flake\.nix$''
-            ''^flake\.lock$''
-          ];
-        };
-        action = ''
-          just switch
-        '';
-      }
-      {
-        patterns = {
-          modified = [ ''^\.lefthook.yml$'' ];
-        };
-        action = ''
-          just install-git-hooks
-        '';
-      }
-    ];
   };
 }
