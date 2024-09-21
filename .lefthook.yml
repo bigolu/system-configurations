@@ -37,6 +37,8 @@ post-rewrite:
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
     # This is too noisy to do on all change-related hooks.
     change-notification-for-host-configuration:
+      only: rebase
+      interactive: true
       run: >
         DIRENV_LOG_FORMAT='' direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
