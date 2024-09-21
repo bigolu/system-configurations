@@ -20,25 +20,24 @@ output:
 pre-push:
   commands:
     check:
+      # TODO: treefmt needs this because if it doesn't have a TTY input it
+      # lags. I need to report this.
       interactive: true
       run: PRE_PUSH_HOOK=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/check.bash
 
 post-merge:
   commands:
     change-notifications:
-      interactive: true
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
 
 post-rewrite:
   commands:
     change-notifications:
       only: rebase
-      interactive: true
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
     # This is too noisy to do on all change-related hooks.
     change-notification-for-host-configuration:
       only: rebase
-      interactive: true
       run: >
         DIRENV_LOG_FORMAT='' direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
@@ -47,7 +46,6 @@ post-rewrite:
 post-checkout:
   commands:
     change-notifications:
-      interactive: true
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands. Then I could remove this script.
       run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/git-hooks/run-if-not-file-checkout.bash lefthook run change-notifications

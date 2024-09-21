@@ -7,29 +7,6 @@ let
   inherit (pkgs) lib;
 
   dependenciesByName = rec {
-    fish-all = {
-      inputs = with pkgs; [
-        fish
-        fd
-      ];
-      path = "${self}/scripts/fish-all.bash";
-    };
-    desktop-file-validate-all = {
-      inputs = with pkgs; [
-        fd
-        desktop-file-utils
-      ];
-      path = "${self}/scripts/desktop-file-validate-all.bash";
-    };
-    generate-neovim-plugin-list = {
-      inputs = with pkgs; [
-        ast-grep
-        jq
-        coreutils
-        gnused
-      ];
-      path = "${self}/scripts/code-generation/generate-neovim-plugin-list.bash";
-    };
     get-secrets = {
       inputs = with pkgs; [
         jq
@@ -46,41 +23,31 @@ let
       ];
       path = "${self}/scripts/init-nix-darwin.bash";
     };
-    ltex-cli-all = {
-      inputs = with pkgs; [
-        fd
-        coreutils
-        ltex-ls
-      ];
-      path = "${self}/scripts/ltex-cli-all.bash";
-    };
-    markdownlint-cli2-all = {
-      inputs = with pkgs; [
-        fd
-        markdownlint-cli2
-      ];
-      path = "${self}/scripts/markdownlint-cli2-all.bash";
-    };
-    shellcheck-all = {
-      inputs = with pkgs; [
-        fd
-        shellcheck
-      ];
-      path = "${self}/scripts/shellcheck-all.bash";
-    };
     treefmt = {
-      inputs = [ pkgs.treefmt ];
+      inputs = [
+        pkgs.treefmt
+        pkgs.moreutils
+      ];
       path = "${self}/scripts/treefmt.bash";
     };
-    generate-gomod2nix-lock = {
+    code-generation-generate-neovim-plugin-list = {
+      inputs = with pkgs; [
+        ast-grep
+        jq
+        coreutils
+        gnused
+      ];
+      path = "${self}/scripts/code-generation/generate-neovim-plugin-list.bash";
+    };
+    code-generation-generate-gomod2nix-lock = {
       inputs = with pkgs; [ nix ];
       path = "${self}/scripts/code-generation/generate-gomod2nix-lock.bash";
     };
-    generate-readme-table-of-contents = {
+    code-generation-generate-readme-table-of-contents = {
       inputs = with pkgs; [ doctoc ];
       path = "${self}/scripts/code-generation/generate-readme-table-of-contents.bash";
     };
-    go-mod-tidy = {
+    code-generation-go-mod-tidy = {
       inputs = with pkgs; [ go ];
       path = "${self}/scripts/code-generation/go-mod-tidy.bash";
     };
@@ -92,19 +59,6 @@ let
       ];
       path = "${self}/scripts/test.bash";
     };
-    lint = {
-      inputs =
-        with pkgs;
-        [
-          ripgrep
-          yq-go
-          coreutils
-          gitMinimal
-          parallel
-        ]
-        ++ lintersAndFixers;
-      path = "${self}/scripts/lint/lint.bash";
-    };
     ci-set-nix-direnv-hash = {
       inputs = with pkgs; [ direnv ];
       path = "${self}/scripts/ci/set-nix-direnv-hash.bash";
@@ -114,31 +68,48 @@ let
       path = "${self}/scripts/ci/auto-merge.bash";
     };
     ci-lint = {
+      inputs = qa-qa.inputs;
+      path = "${self}/scripts/ci/lint.bash";
+    };
+    ci-ensure-code-generation-is-up-to-date = {
+      inputs = qa-qa.inputs;
+      path = "${self}/scripts/ci/ensure-code-generation-is-up-to-date.bash";
+    };
+    git-hooks-notify = {
       inputs =
         with pkgs;
         [
           coreutils
           gitMinimal
-          reviewdog
-          treefmt
+          gnugrep
         ]
-        ++ lintersAndFixers
-        ++ shellcheck-all.inputs
-        ++ markdownlint-cli2-all.inputs
-        ++ ltex-cli-all.inputs
-        ++ desktop-file-validate-all.inputs
-        ++ fish-all.inputs;
-      path = "${self}/scripts/ci/lint.bash";
+        ++ lib.lists.optionals pkgs.stdenv.isDarwin [
+          terminal-notifier
+        ]
+        ++ lib.lists.optionals pkgs.stdenv.isLinux [ libnotify ];
+      path = "${self}/scripts/git-hooks/notify.bash";
     };
-    ci-code-generation = {
+    qa-glob = {
+      inputs = with pkgs; [ findutils ];
+      path = "${self}/scripts/qa/glob.bash";
+    };
+    qa-qa = {
       inputs =
         with pkgs;
-        [ gitMinimal ]
-        ++ generate-gomod2nix-lock.inputs
-        ++ generate-neovim-plugin-list.inputs
-        ++ generate-readme-table-of-contents.inputs
-        ++ go-mod-tidy.inputs;
-      path = "${self}/scripts/ci/check-code-generation.bash";
+        [
+          gitMinimal
+          moreutils
+          parallel
+          coreutils
+          yq-go
+        ]
+        ++ qa-glob.inputs
+        ++ lintersAndFixers
+        ++ code-generation-generate-gomod2nix-lock.inputs
+        ++ code-generation-generate-neovim-plugin-list.inputs
+        ++ code-generation-generate-readme-table-of-contents.inputs
+        ++ code-generation-go-mod-tidy.inputs;
+      path = "${self}/scripts/qa/qa.bash";
     };
   };
 
@@ -169,14 +140,23 @@ let
         "cannot:${pkgs.gh}/bin/gh"
         "cannot:${pkgs.go}/bin/go"
         "cannot:${pkgs.doctoc}/bin/doctoc"
+        "cannot:${pkgs.moreutils}/bin/chronic"
+        "cannot:${pkgs.terminal-notifier}/bin/terminal-notifier"
       ];
       keep = {
         # Homebrew's installer says to use this so I don't want to change it
         "/bin/bash" = true;
+        "\"$subcommand\"" = true;
       };
       fake = {
-        # I don't want to resolve it since it's unfree
-        external = [ "bws" ];
+        external =
+          [
+            # I don't want to resolve it since it's unfree
+            "bws"
+            "bash"
+          ]
+          ++ lib.lists.optionals pkgs.stdenv.isLinux [ "terminal-notifier" ]
+          ++ lib.lists.optionals pkgs.stdenv.isDarwin [ "notify-send" ];
       };
     } (builtins.readFile deps.path)
   ) dependenciesByName;

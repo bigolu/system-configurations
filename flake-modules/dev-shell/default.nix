@@ -176,18 +176,17 @@
           ci = makeCiDevShell { };
 
           ciLint = makeCiDevShell {
-            packages = scripts.dependenciesByName.ci-lint.inputs ++ scripts.dependenciesByName.lint.inputs;
+            packages = scripts.dependenciesByName.ci-lint.inputs;
             shellHook = linkLuaLsLibrariesHook;
           };
 
           ciCodegen = makeCiDevShell {
-            packages = scripts.dependenciesByName.ci-code-generation.inputs;
+            packages = scripts.dependenciesByName.ci-ensure-code-generation-is-up-to-date.inputs;
           };
 
           ciRenovate = makeCiDevShell {
             packages =
-              scripts.dependenciesByName.ci-set-nix-direnv-hash.inputs
-              ++ scripts.dependenciesByName.generate-gomod2nix-lock.inputs;
+              scripts.dependenciesByName.ci-set-nix-direnv-hash.inputs ++ scripts.dependenciesByName.qa-qa.inputs;
           };
 
           ciAutoMerge = makeCiDevShell {

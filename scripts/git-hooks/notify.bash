@@ -6,7 +6,9 @@ function main {
   repository_name="$(basename "$PWD")"
 
   vscode_environment_variables=("${!VSCODE_@}")
-  if [ "${#vscode_environment_variables[@]}" -gt 0 ]; then
+  # If VSCODE_INJECTION is set we are in the VS Code terminal, in which case we
+  # still want the terminal backend.
+  if [ "${#vscode_environment_variables[@]}" -gt 0 ] && [ -z "${VSCODE_INJECTION:-}" ]; then
     vscode "$@"
   else
     terminal "$@"
@@ -15,10 +17,14 @@ function main {
 
 function vscode {
   if [ -n "${DIFF:-}" ]; then
-    desktop_notification "$1"' (Check the git output panel in VS Code for a diff of the hanges)' 
+    desktop_notification "$1"' (Check the git output panel in VS Code for a diff of the hanges)'
     set -- "${@:2}"
 
-    diff "$@"
+    # Pipe to cat so if you're at the terminal, it doesn't launch a full screen
+    # pager that you'd have to eit.
+    #
+    # Remove colors since VS Code's output panel doesn't support them
+    git diff --color never ORIG_HEAD HEAD -- "$@" | cat
   else
     desktop_notification "$1"
   fi
@@ -33,16 +39,12 @@ function terminal {
     echo -e "$badge" "$1"
     set -- "${@:2}"
 
-    diff "$@"
-  else
-    echo -e "$badge" "$@"
-  fi
-}
-
-function diff {
     # Pipe to cat so if you're at the terminal, it doesn't launch a full screen
     # pager that you'd have to eit.
     git diff --color ORIG_HEAD HEAD -- "$@" | cat
+  else
+    echo -e "$badge" "$@"
+  fi
 }
 
 function desktop_notification {

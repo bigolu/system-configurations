@@ -26,4 +26,4 @@ jobs:
         with:
           dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: bash ./scripts/ci/check-code-generation.bash
+      - run: bash scripts/ci/ensure-code-generation-is-up-to-date.bash
