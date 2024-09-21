@@ -91,34 +91,23 @@
   options = ["--write"]
   includes = ["*.envrc", "*.bash"]
 
-# TODO: Doesn't adhere to the treefmt spec for formatters in that it
-# unconditionally writes to input files, even if everything is formatted
-# correctly.
-#
-# It's fixed on master, but will be part of the release for v4.0
 [formatter.fish]
-  command = "fish_indent"
-  options = ["--write"]
+  # TODO: Doesn't adhere to the treefmt spec for formatters in that it
+  # unconditionally writes to input files, even if everything is formatted
+  # correctly.
+  #
+  # It's fixed on master, but will be part of the release for v4.0.
+  #
+  # I would just comment out the `formatter.fish` entry, but then treefmt would
+  # warn me that any files that would have been formatted by it now have no
+  # formatter. Instead, I'll make it a no-op.
+  command = "bash"
+  options = ["-c", "true"]
+  # command = "fish_indent"
+  # options = ["--write"]
   includes = ["*.fish"]
 
-[formatter.nix-deadnix]
-  priority = 0
-  command = "deadnix"
-  options = ["--edit"]
-  includes = ["*.nix"]
-
-[formatter.nix-statix]
-  priority = 1
-  command = "bash"
-  options = ["-euc", """
-# statix doesn't support passing multiple files yet:
-# https://github.com/nerdypepper/statix/issues/69
-parallel statix fix ::: "$@"
-    """, "--"]
-  includes = ["*.nix"]
-
 [formatter.nix-nixfmt]
-  priority = 2
   command = "nixfmt"
   includes = ["*.nix"]
 
@@ -143,13 +132,6 @@ parallel statix fix ::: "$@"
   options = ["-w"]
   includes = ["*.go"]
 
-# TODO: They're going to make a single command to fix lints and format:
-# https://github.com/astral-sh/ruff/issues/8232
-[formatter.python-ruff-fix-lint]
-  command = "ruff"
-  options = ["check", "--fix-only"]
-  includes = ["*.py"]
-
 [formatter.python-ruff-format]
   command = "ruff"
   options = ["format"]
@@ -159,8 +141,3 @@ parallel statix fix ::: "$@"
   command = "ruff"
   options = ["check", "--select", "I", "--fix-only"]
   includes = ["*.py"]
-
-[formatter.markdown]
-  command = "markdownlint-cli2"
-  options = ["--fix"]
-  includes = ["*.md"]

@@ -28,7 +28,7 @@ let
         coreutils
         gnused
       ];
-      path = "${self}/scripts/generate-neovim-plugin-list.bash";
+      path = "${self}/scripts/code-generation/generate-neovim-plugin-list.bash";
     };
     get-secrets = {
       inputs = with pkgs; [
@@ -74,15 +74,15 @@ let
     };
     generate-gomod2nix-lock = {
       inputs = with pkgs; [ nix ];
-      path = "${self}/scripts/generate-gomod2nix-lock.bash";
+      path = "${self}/scripts/code-generation/generate-gomod2nix-lock.bash";
     };
     generate-readme-table-of-contents = {
       inputs = with pkgs; [ doctoc ];
-      path = "${self}/scripts/generate-readme-table-of-contents.bash";
+      path = "${self}/scripts/code-generation/generate-readme-table-of-contents.bash";
     };
     go-mod-tidy = {
       inputs = with pkgs; [ go ];
-      path = "${self}/scripts/go-mod-tidy.bash";
+      path = "${self}/scripts/code-generation/go-mod-tidy.bash";
     };
     test = {
       inputs = with pkgs; [

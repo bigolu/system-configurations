@@ -3,6 +3,7 @@
 # By default lefthook uses true colors (e.g. #FFFFFF), but they may not be
 # readable depending on the terminal background color. Instead I'm using ANSI
 # colors since they come from the terminal's color palette.
+# TODO: They should change this.
 colors:
   cyan: 6
   gray: 8
@@ -10,13 +11,21 @@ colors:
   red: 1
   yellow: 3
 
-output: true
+source_dir: scripts/lefthook/
+
+output:
+  - meta
+  - summary
+  - failure
+  - execution
+  - execution_out
+  - execution_info
 
 pre-push:
   commands:
     check:
       interactive: true
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/check.bash
+      run: PRE_PUSH_HOOK=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/check.bash
 
 post-merge:
   commands:

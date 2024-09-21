@@ -6,7 +6,7 @@ jobs:
     if: ${{ startsWith(github.head_ref, 'renovate/fixup/golang/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task.yml
     with:
-      command: bash ./scripts/generate-gomod2nix-lock.bash
+      command: bash ./scripts/code-generation/generate-gomod2nix-lock.bash
     secrets:
       BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}

@@ -34,8 +34,8 @@ preview-switch:
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-home-manager HOST_NAME: sync-git-hooks get-secrets && run-linux-root-scripts
-    nix run .#homeManager -- switch --flake .#{{ HOST_NAME }}
+init-home-manager HOST_NAME: sync-git-hooks get-secrets
+    bash scripts/init-home-manager.bash "$@"
 
 [doc('''
     Apply the first generation of a nix-darwin configuration. You only need to
@@ -69,7 +69,7 @@ test:
 ''')]
 [group('Checks')]
 format *FILES:
-    printf '%s\0' "$@" | bash scripts/treefmt-wrapper.bash
+    bash scripts/treefmt-wrapper.bash "$@"
 
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -82,8 +82,22 @@ format *FILES:
                linted.
 ''')]
 [group('Checks')]
-lint *FILES:
-    printf '%s\0' "$@" | bash scripts/lint/lint.bash
+lint-check *FILES:
+    bash scripts/qa/qa.bash lint check "$@"
+    
+[doc('''
+    Lint source code. You should run this on all files if you make a
+    change to how linting is done. You should also run this on any changed
+    files before committing, but you don't have to worry about that since this
+    task gets run during the git pre-commit hook.
+
+    Arguments:
+        FILES: The files to lint. If none are given, then all files will be
+               linted.
+''')]
+[group('Checks')]
+lint-fix *FILES:
+    bash scripts/qa/qa.bash lint fix "$@"
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
@@ -166,7 +180,7 @@ sync-git-hooks:
 ''')]
 [group('Code Generation')]
 generate-gomod2nix-lock:
-    bash ./scripts/generate-gomod2nix-lock.bash
+    bash scripts/qa/qa.bash generate --generators gomod2nix-lock
 
 [doc('''
     Generate a file with a list of all the neovim plugins. You shouldn't have to
@@ -174,7 +188,7 @@ generate-gomod2nix-lock:
 ''')]
 [group('Code Generation')]
 generate-neovim-plugin-list:
-    bash scripts/generate-neovim-plugin-list.bash
+    bash scripts/qa/qa.bash generate --generators neovim-plugin-list
 
 [doc('''
     Generate the Table of Contents in the README. You shouldn't have to run this
@@ -182,7 +196,7 @@ generate-neovim-plugin-list:
 ''')]
 [group('Code Generation')]
 generate-readme-table-of-contents:
-    bash ./scripts/generate-readme-table-of-contents.bash
+    bash scripts/qa/qa.bash generate --generators readme-table-of-contents
 
 [doc('''
     Run `go mod tidy`. You shouldn't have to run this yourself since it runs
@@ -190,7 +204,7 @@ generate-readme-table-of-contents:
 ''')]
 [group('Code Generation')]
 go-mod-tidy:
-    bash ./scripts/go-mod-tidy.bash
+    bash scripts/qa/qa.bash generate --generators go-mod-tidy
 
 [doc('''
     Update all packages and switch to a new generation of the host manager

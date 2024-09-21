@@ -2,7 +2,6 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-# DEBUG:
 # echo "DEBUG"
 # gh pr list --json number,title,mergeable --repo "$GITHUB_REPOSITORY" --label automerge
 # echo
