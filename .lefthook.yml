@@ -14,8 +14,6 @@ colors:
 source_dir: scripts/lefthook/
 
 output:
-  - meta
-  - summary
   - failure
   - execution
   - execution_out

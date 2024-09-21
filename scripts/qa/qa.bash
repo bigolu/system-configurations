@@ -57,6 +57,7 @@ function generate {
   printf '\nRunning code generators...\n%s\n' "$(printf '=%.0s' {1..40})"
   readarray -d '' global_excludes < <(config_get_global_excludes)
   made_changes=
+  ran_generator=
   for generator in "${generators[@]}"; do
     readarray -d '' includes < <(config_get_generator_includes "$generator")
     readarray -d '' excludes < <(config_get_generator_excludes "$generator")
@@ -66,27 +67,35 @@ function generate {
       continue
     fi
 
+    ran_generator=1
+
     readarray -d '' command_and_options \
       < <(config_get_generator_command_and_options "$generator")
     full_command=("${command_and_options[@]}")
 
-    printf '\nRunning code generator: %s...\n%s' "$generator" "$(printf '=%.0s' {1..40})"
-    if ! run_generator chronic "${full_command[@]}"; then
+    printf '\nRunning code generator: %s...\n%s\n' "$generator" "$(printf '=%.0s' {1..40})"
+    if ! fail_if_files_change chronic "${full_command[@]}"; then
+      reset='\e[m'
+      red='\e[31m'
+      echo -e "$red"'Changes made'"$reset"
       made_changes=1
+    else
+      echo 'No changes made'
     fi
   done
 
-  if [ "$made_changes" = '1' ]; then
-    echo 'Changes made'
-    return 1
+  if [ "$ran_generator" != '1' ]; then
+    echo 'No generators matches the input files'
   else
-    echo 'No changes made'
+    if [ "$made_changes" = '1' ]; then
+      return 1
+    fi
   fi
 }
 
 # Generator exits with 0 whether it changes anything or not. Instead lets exit
 # with 1 if something changes, similar to how formatters and linters behave.
-function run_generator {
+function fail_if_files_change {
   repository_state_before_running="$(git diff) $(git ls-files --others --exclude-standard)"
   "$@"
   repository_state_after_running="$(git diff) $(git ls-files --others --exclude-standard)"
@@ -125,7 +134,7 @@ function lint_check {
   if [ "${#arg_linters[@]}" -eq 0 ]; then
     readarray -d '' lint_checkers < <(config_get_linter_names "$type")
   else
-    lint_checkers=("${arg_lint_checkers[@]}")
+    lint_checkers=("${arg_linters[@]}")
   fi
 
   command_file="$(mktemp)"
@@ -182,6 +191,7 @@ function lint_fix {
 
   printf '\nRunning lint fixers...\n%s\n' "$(printf '=%.0s' {1..40})"
   made_fixes=
+  ran_fixer=
   readarray -d '' global_excludes < <(config_get_global_excludes)
   for lint_fixer in "${lint_fixers[@]}"; do
     readarray -d '' includes < <(config_get_linter_includes "$type" "$lint_fixer")
@@ -192,21 +202,29 @@ function lint_fix {
       continue
     fi
 
+    ran_fixer=1
+
     readarray -d '' command_and_options \
       < <(config_get_linter_command_and_options "$type" "$lint_fixer")
     full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
-    printf '\nRunning lint fixer: %s...\n%s' "$lint_fixer" "$(printf '=%.0s' {1..40})"
-    if ! chronic "${full_command[@]}"; then
+    printf '\nRunning lint fixer: %s...\n%s\n' "$lint_fixer" "$(printf '=%.0s' {1..40})"
+    if ! fail_if_files_change chronic "${full_command[@]}"; then
+      reset='\e[m'
+      red='\e[31m'
+      echo -e "$red"'Fixes made'"$reset"
       made_fixes=1
+    else
+      echo 'No fixes made'
     fi
   done
 
-  if [ "$made_fixes" = '1' ]; then
-    echo 'Fixes made'
-    return 1
+  if [ "$ran_fixer" != '1' ]; then
+    echo 'No lint fixers matches the input files'
   else
-    echo 'No fixes made'
+    if [ "$made_fixes" = '1' ]; then
+      return 1
+    fi
   fi
 }
 # END LINT FUNCTIONS }}}
