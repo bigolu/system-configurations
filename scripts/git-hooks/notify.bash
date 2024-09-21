@@ -2,19 +2,55 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-reset='\e[m'
-blue_fg_reversed='\e[1m\e[7m\e[34m'
-badge="$blue_fg_reversed INFO $reset"
+function main {
+  repository_name="$(basename "$PWD")"
 
-function print_hint {
+  vscode_environment_variables=("${!VSCODE_@}")
+  if [ "${#vscode_environment_variables[@]}" -gt 0 ]; then
+    vscode "$@"
+  else
+    terminal "$@"
+  fi
+}
+
+function vscode {
+  if [ -n "${DIFF:-}" ]; then
+    desktop_notification "$1"' (Check the git output panel in VS Code for a diff of the hanges)' 
+    set -- "${@:2}"
+
+    diff "$@"
+  else
+    desktop_notification "$1"
+  fi
+}
+
+function terminal {
+  reset='\e[m'
+  blue_fg_reversed='\e[1m\e[7m\e[34m'
+  badge="$blue_fg_reversed INFO $reset"
+
   if [ -n "${DIFF:-}" ]; then
     echo -e "$badge" "$1"
     set -- "${@:2}"
 
-    git diff --color ORIG_HEAD HEAD -- "$@"
+    diff "$@"
   else
     echo -e "$badge" "$@"
   fi
 }
 
-print_hint "$@"
+function diff {
+    # Pipe to cat so if you're at the terminal, it doesn't launch a full screen
+    # pager that you'd have to eit.
+    git diff --color ORIG_HEAD HEAD -- "$@" | cat
+}
+
+function desktop_notification {
+  if uname | grep -q Linux; then
+    notify-send --app-name "$repository_name" "$1"
+  else
+    terminal-notifier -title "$repository_name" -message "$1"
+  fi
+}
+
+main "$@"
