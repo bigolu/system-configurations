@@ -84,8 +84,6 @@ function generate {
       red='\e[31m'
       echo -e "$red"'Changes made'"$reset"
       made_changes=1
-    else
-      echo 'No changes made'
     fi
   done
 
@@ -222,8 +220,6 @@ function lint_fix {
     if ! fail_if_files_change chronic "${full_command[@]}"; then
       echo -e "$red"'Fixes made'"$reset"
       made_fixes=1
-    else
-      echo 'No fixes made'
     fi
   done
 
