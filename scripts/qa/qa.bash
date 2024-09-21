@@ -62,7 +62,6 @@ function generate {
   printf '\n\e%s┃ Generate code ❯\e%s\n' "$accent_no_esc" "$reset_no_esc"
   readarray -d '' global_excludes < <(config_get_global_excludes)
   made_changes=
-  ran_generator=
   for generator in "${generators[@]}"; do
     readarray -d '' includes < <(config_get_generator_includes "$generator")
     readarray -d '' excludes < <(config_get_generator_excludes "$generator")
@@ -71,8 +70,6 @@ function generate {
     if [ ${#filtered_files[@]} -eq 0 ]; then
       continue
     fi
-
-    ran_generator=1
 
     readarray -d '' command_and_options \
       < <(config_get_generator_command_and_options "$generator")
@@ -87,12 +84,8 @@ function generate {
     fi
   done
 
-  if [ "$ran_generator" != '1' ]; then
-    echo 'No generators matched the input files'
-  else
-    if [ "$made_changes" = '1' ]; then
-      return 1
-    fi
+  if [ "$made_changes" = '1' ]; then
+    return 1
   fi
 }
 
@@ -164,22 +157,8 @@ function lint_check {
   done
 
   printf '\n\e%s┃ Check lints ❯\e%s\n' "$accent_no_esc" "$reset_no_esc"
-  if ! [ -s "$command_file" ]; then
-    echo 'No lints found'
-  else
-    if [ "${VERBOSE:-}" = 1 ]; then
-      if parallel --verbose <"$command_file"; then
-        echo 'No lints found'
-      else
-        return 1
-      fi
-    else
-      if chronic parallel <"$command_file"; then
-        echo 'No lints found'
-      else
-        return 1
-      fi
-    fi
+  if ! chronic parallel <"$command_file"; then
+    return 1
   fi
 }
 
@@ -199,7 +178,6 @@ function lint_fix {
 
   printf '\n\e%s┃ Fix lints ❯\e%s\n' "$accent_no_esc" "$reset_no_esc"
   made_fixes=
-  ran_fixer=
   readarray -d '' global_excludes < <(config_get_global_excludes)
   for lint_fixer in "${lint_fixers[@]}"; do
     readarray -d '' includes < <(config_get_linter_includes "$type" "$lint_fixer")
@@ -209,8 +187,6 @@ function lint_fix {
     if [ ${#filtered_files[@]} -eq 0 ]; then
       continue
     fi
-
-    ran_fixer=1
 
     readarray -d '' command_and_options \
       < <(config_get_linter_command_and_options "$type" "$lint_fixer")
@@ -223,12 +199,8 @@ function lint_fix {
     fi
   done
 
-  if [ "$ran_fixer" != '1' ]; then
-    echo 'No lint fixers matched the input files'
-  else
-    if [ "$made_fixes" = '1' ]; then
-      return 1
-    fi
+  if [ "$made_fixes" = '1' ]; then
+    return 1
   fi
 }
 # END LINT FUNCTIONS }}}
