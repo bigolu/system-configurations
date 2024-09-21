@@ -18,9 +18,9 @@ else
   done
 
   if [ -n "$changed_file" ]; then
-    return 1
+    exit 1
   else
     echo 'No files were formattted'
-    return 0
+    exit 0
   fi
 fi
