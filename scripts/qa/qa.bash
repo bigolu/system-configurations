@@ -52,7 +52,7 @@ function generate {
     generators=("${arg_generators[@]}")
   fi
 
-  printf '\nRunning code generators...\n%s\n' "$(printf '=%.0s' {1..40})"
+  printf '\n┃ Generate code ❯\n'
   readarray -d '' global_excludes < <(config_get_global_excludes)
   made_changes=
   ran_generator=
@@ -71,7 +71,7 @@ function generate {
       < <(config_get_generator_command_and_options "$generator")
     full_command=("${command_and_options[@]}")
 
-    printf '\nRunning code generator: %s...\n%s\n' "$generator" "$(printf '=%.0s' {1..40})"
+    printf '\n┃ Generate code ❯ %s ❯\n' "$generator"
     if ! fail_if_files_change chronic "${full_command[@]}"; then
       reset='\e[m'
       red='\e[31m'
@@ -150,14 +150,13 @@ function lint_check {
       < <(config_get_linter_command_and_options "$type" "$lint_checker")
     full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
-    printf 'echo -e "\\nRunning lint checker: "%q"..."; echo "%s"; %s\n' \
+    printf 'echo -e "\\n┃ Check lint ❯ "%q" ❯"; %s\n' \
       "$lint_checker" \
-      "$(printf '=%.0s' {1..40})" \
       "$(printf '%q ' chronic "${full_command[@]}")" \
       >>"$command_file"
   done
 
-  printf '\nRunning lint checkers...\n%s\n' "$(printf '=%.0s' {1..40})"
+  printf '\n┃ Check lints ❯\n'
   if ! [ -s "$command_file" ]; then
     echo 'No lints found'
   else
@@ -191,7 +190,7 @@ function lint_fix {
     lint_fixers=("${arg_linters[@]}")
   fi
 
-  printf '\nRunning lint fixers...\n%s\n' "$(printf '=%.0s' {1..40})"
+  printf '\n┃ Fix lints ❯\n'
   made_fixes=
   ran_fixer=
   readarray -d '' global_excludes < <(config_get_global_excludes)
@@ -210,7 +209,7 @@ function lint_fix {
       < <(config_get_linter_command_and_options "$type" "$lint_fixer")
     full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
-    printf '\nRunning lint fixer: %s...\n%s\n' "$lint_fixer" "$(printf '=%.0s' {1..40})"
+    printf '\n┃ Fix lints ❯ %s ❯\n' "$lint_fixer"
     if ! fail_if_files_change chronic "${full_command[@]}"; then
       reset='\e[m'
       red='\e[31m'
