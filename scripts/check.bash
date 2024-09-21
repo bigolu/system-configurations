@@ -4,17 +4,18 @@ set -o pipefail
 
 function main {
   found_problem=
+  readarray -d '' files < <(get_files)
 
   # Code generators
-  files | bash scripts/qa/qa.bash generate || found_problem=1
+  bash scripts/qa/qa.bash generate "${files[@]}" || found_problem=1
 
   # treefmt keeps a cache to tell whether a file has changed since it last ran so
   # no need to pass in changed files.
-  bash scripts/treefmt-wrapper.bash || found_problem=1
+  bash scripts/treefmt-wrapper.bash "${files[@]}" || found_problem=1
 
-  files | bash scripts/qa/qa.bash lint fix || found_problem=1
+  bash scripts/qa/qa.bash lint fix "${files[@]}" || found_problem=1
 
-  files | bash scripts/qa/qa.bash lint check || found_problem=1
+  bash scripts/qa/qa.bash lint check "${files[@]}" || found_problem=1
 
   if [ "$found_problem" = 1 ]; then
     exit 1
@@ -33,7 +34,7 @@ function get_default_branch {
   echo "$remote/$default_branch_name"
 }
 
-function files {
+function get_files {
   if [ "${PRE_PUSH_HOOK:-}" = 1 ]; then
     # Since we assume everything on the default branch is correct, lets get all
     # commmits between the HEAD of the default branch and the HEAD of the

@@ -1,10 +1,9 @@
 # This script is modeled after treefmt: https://github.com/numtide/treefmt
 #
 # treefmt only supports formatting code, but the authors are considering adding
-# support for linting as well. https://github.com/numtide/treefmt/issues/11
+# support for linting as well: https://github.com/numtide/treefmt/issues/11
 #
-# TODO: Open an issue to see if they could add support for code generation as
-# well.
+# TODO: Open an issue to see if they could add support for code generation.
 
 # Usage:
 #
@@ -14,7 +13,6 @@
 # bash qa.bash lint {check,fix} --list
 # bash qa.bash lint {check,fix} [--linters [LINTERS...]] [FILES...]
 #
-# You can also pass FILES through stdin, NUL-delimited.
 # GENERATORS and LINTERS should be delimited by ','.
 
 set -o errexit
@@ -85,7 +83,7 @@ function generate {
   done
 
   if [ "$ran_generator" != '1' ]; then
-    echo 'No generators matches the input files'
+    echo 'No generators matched the input files'
   else
     if [ "$made_changes" = '1' ]; then
       return 1
@@ -220,7 +218,7 @@ function lint_fix {
   done
 
   if [ "$ran_fixer" != '1' ]; then
-    echo 'No lint fixers matches the input files'
+    echo 'No lint fixers matched the input files'
   else
     if [ "$made_fixes" = '1' ]; then
       return 1
@@ -231,12 +229,6 @@ function lint_fix {
 
 # START ARGUMENT FUNCTIONS {{{
 function parse_arguments {
-  # stdin
-  readarray -d '' arg_files
-  if [ "${#arg_files[@]}" -gt 0 ] && [ "${arg_files[-1]}" = $'\0' ]; then
-    unset 'arg_files[-1]'
-  fi
-
   arg_action="${inputs[0]}"
   remove_arg
 
@@ -247,7 +239,7 @@ function parse_arguments {
       if [ "${inputs[0]}" = '--list' ]; then
         arg_list=1
         return
-      else # assume --generators
+      elif [ "${inputs[0]}" = '--generators' ]; then
         remove_arg
         IFS=',' read -ra arg_generators <<<"${inputs[0]}"
         remove_arg
@@ -263,7 +255,7 @@ function parse_arguments {
       if [ "${inputs[0]}" = '--list' ]; then
         arg_list=1
         return
-      else # assume --linters
+      elif [ "${inputs[0]}" = '--linters' ]; then
         remove_arg
         IFS=',' read -ra arg_linters <<<"${inputs[0]}"
         remove_arg
@@ -274,6 +266,8 @@ function parse_arguments {
   # everything else must be files
   if has_more_args; then
     arg_files=("${inputs[@]}")
+  else
+    arg_files=()
   fi
 }
 

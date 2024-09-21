@@ -62,7 +62,7 @@ linters:
         - -euc
         - |
           renovate-config-validator --strict "$@" \
-            | bash scripts/reviewdog.bash -name=renovate -efm '' -tee
+            | bash scripts/reviewdog.bash -name=renovate -efm '_REVIEWDOG_DO_NOT_MATCH' -tee
           exit "${PIPESTATUS[0]}"
         - --
     config-file-validator:
@@ -74,7 +74,7 @@ linters:
         - -euc
         - |
           validator -groupby pass-fail "$@" \
-            | bash scripts/reviewdog.bash -name=config-file-validator -efm '' -tee
+            | bash scripts/reviewdog.bash -name=config-file-validator -efm '_REVIEWDOG_DO_NOT_MATCH' -tee
           exit "${PIPESTATUS[0]}"
         - --
     statix:
@@ -84,7 +84,7 @@ linters:
         - |
           # statix doesn't support passing multiple files yet:
           # https://github.com/nerdypepper/statix/issues/70
-          parallel -q -- bash -c 'set -o pipefail; statix check {} | bash scripts/reviewdog.bash -name=statix -efm "" -tee' ::: "$@"
+          parallel -q -- bash -c 'set -o pipefail; statix check {} | bash scripts/reviewdog.bash -name=statix -efm '_REVIEWDOG_DO_NOT_MATCH' -tee' ::: "$@"
         - --
       includes: ["*.nix"]
     actionlint:
@@ -104,7 +104,7 @@ linters:
         - -euc
         - |
           taplo lint "$@" \
-            | bash scripts/reviewdog.bash -name=taplo -efm '' -tee
+            | bash scripts/reviewdog.bash -name=taplo -efm '_REVIEWDOG_DO_NOT_MATCH' -tee
           exit "${PIPESTATUS[0]}"
         - --
     yaml-lint:
