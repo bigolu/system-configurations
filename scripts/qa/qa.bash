@@ -21,6 +21,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+# It's annoying to pass "$@" around so I'll just use a global variable.
 inputs=("$@")
 
 function main {
@@ -34,6 +35,7 @@ function main {
     lint
     ;;
   *)
+    echo 'Error: unknown subcommand' 1>&2
     exit 1
     ;;
   esac
@@ -293,17 +295,12 @@ function remove_arg {
 # END ARGUMENT FUNCTIONS }}}
 
 # START CONFIG FUNCTIONS {{{
-
 config_yq() {
   yq --input-format yaml "$@" <./scripts/qa/config.yaml
 }
 
 config_yq_get_list() {
   config_yq --nul-output "$@"
-}
-
-config_has_linter() {
-  config_yq --exit-status '.linters | has("'"$1"'")' 1>/dev/null 2>&1
 }
 
 config_get_generator_names() {
@@ -361,7 +358,6 @@ config_get_linter_command_and_options() {
 config_get_global_excludes() {
   config_yq_get_list '.global.excludes[]'
 }
-
 # END CONFIG FUNCTIONS }}}
 
 # START UTILITY FUNCTIONS {{{
