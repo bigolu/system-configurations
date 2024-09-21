@@ -2,6 +2,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+printf '\nRunning formatters...\n%s\n' "$(printf '=%.0s' {1..40})"
+
 if [ $# -eq 0 ]; then
   treefmt --on-unmatched=fatal --fail-on-change
 else

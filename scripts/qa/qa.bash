@@ -52,6 +52,7 @@ function generate {
     generators=("${arg_generators[@]}")
   fi
 
+  printf '\nRunning code generators...\n%s\n' "$(printf '=%.0s' {1..40})"
   readarray -d '' global_excludes < <(config_get_global_excludes)
   made_changes=
   for generator in "${generators[@]}"; do
@@ -69,15 +70,15 @@ function generate {
 
     printf '\nRunning code generator: %s...\n%s' "$generator" "$(printf '=%.0s' {1..40})"
     if ! run_generator chronic "${full_command[@]}"; then
-      echo 'Changes made'
       made_changes=1
-    else
-      echo 'No changes made'
     fi
   done
 
   if [ "$made_changes" = '1' ]; then
+    echo 'Changes made'
     return 1
+  else
+    echo 'No changes made'
   fi
 }
 
@@ -112,13 +113,15 @@ function lint {
 }
 
 function lint_check {
+  type=checkers
+
   if [ "${arg_list:-}" = 1 ]; then
-    config_get_lint_checker_names
+    config_get_lint_checker_names "$type"
     return
   fi
 
   if [ "${#arg_linters[@]}" -eq 0 ]; then
-    readarray -d '' lint_checkers < <(config_get_lint_checker_names)
+    readarray -d '' lint_checkers < <(config_get_lint_checker_names "$type")
   else
     lint_checkers=("${arg_lint_checkers[@]}")
   fi
@@ -126,8 +129,8 @@ function lint_check {
   command_file="$(mktemp)"
   readarray -d '' global_excludes < <(config_get_global_excludes)
   for lint_checker in "${lint_checkers[@]}"; do
-    readarray -d '' includes < <(config_get_lint_checker_includes "$lint_checker")
-    readarray -d '' excludes < <(config_get_lint_checker_excludes "$lint_checker")
+    readarray -d '' includes < <(config_get_lint_checker_includes "$type" "$lint_checker")
+    readarray -d '' excludes < <(config_get_lint_checker_excludes "$type" "$lint_checker")
     readarray -d '' filtered_files \
       < <(get_files | bash scripts/glob.bash filter "${includes[@]}" | bash scripts/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
     if [ ${#filtered_files[@]} -eq 0 ]; then
@@ -135,7 +138,7 @@ function lint_check {
     fi
 
     readarray -d '' command_and_options \
-      < <(config_get_linter_command_and_options "$lint_checker")
+      < <(config_get_linter_command_and_options "$type" "$lint_checker")
     full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
     printf 'echo -e "\\nRunning lint checker: "%q"..."; echo "%s"; %s\n' \
@@ -145,30 +148,38 @@ function lint_check {
       >>"$command_file"
   done
 
-  if [ "${VERBOSE:-}" = 1 ]; then
-    parallel --verbose <"$command_file"
+  printf '\nRunning lint checkers...\n%s\n' "$(printf '=%.0s' {1..40})"
+  if ! [ -s "$command_file" ]; then
+    echo 'No lints found'
   else
-    parallel <"$command_file"
+    if [ "${VERBOSE:-}" = 1 ]; then
+      parallel --verbose <"$command_file"
+    else
+      parallel <"$command_file"
+    fi
   fi
 }
 
 function lint_fix {
+  type=fixers
+
   if [ "${arg_list:-}" = 1 ]; then
-    config_get_lint_fixer_names
+    config_get_lint_fixer_names "$type"
     return
   fi
 
   if [ "${#arg_linters[@]}" -eq 0 ]; then
-    readarray -d '' lint_fixers < <(config_get_lint_fixer_names)
+    readarray -d '' lint_fixers < <(config_get_lint_fixer_names "$type")
   else
-    lint_fixers=("${arg_lint_fixers[@]}")
+    lint_fixers=("${arg_linters[@]}")
   fi
 
+  printf '\nRunning lint fixers...\n%s\n' "$(printf '=%.0s' {1..40})"
   made_fixes=
   readarray -d '' global_excludes < <(config_get_global_excludes)
   for lint_fixer in "${lint_fixers[@]}"; do
-    readarray -d '' includes < <(config_get_lint_fixer_includes "$lint_fixer")
-    readarray -d '' excludes < <(config_get_lint_fixer_excludes "$lint_fixer")
+    readarray -d '' includes < <(config_get_lint_fixer_includes "$type" "$lint_fixer")
+    readarray -d '' excludes < <(config_get_lint_fixer_excludes "$type" "$lint_fixer")
     readarray -d '' filtered_files \
       < <(get_files | bash scripts/glob.bash filter "${includes[@]}" | bash scripts/glob.bash filter --invert "${excludes[@]}" "${global_excludes[@]}")
     if [ ${#filtered_files[@]} -eq 0 ]; then
@@ -176,20 +187,20 @@ function lint_fix {
     fi
 
     readarray -d '' command_and_options \
-      < <(config_get_linter_command_and_options "$lint_fixer")
+      < <(config_get_linter_command_and_options "$type" "$lint_fixer")
     full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
     printf '\nRunning lint fixer: %s...\n%s' "$lint_fixer" "$(printf '=%.0s' {1..40})"
     if ! chronic "${full_command[@]}"; then
-      echo 'Fixes made'
       made_fixes=1
-    else
-      echo 'No fixes made'
     fi
   done
 
   if [ "$made_fixes" = '1' ]; then
+    echo 'Fixes made'
     return 1
+  else
+    echo 'No fixes made'
   fi
 }
 # END LINT FUNCTIONS }}}
@@ -317,25 +328,29 @@ config_get_generator_command_and_options() {
   print_with_nul "$command" "${options[@]}"
 }
 
+function config_get_linter_names {
+  config_yq_get_list ".linters.$1 | keys[]"
+}
+
 config_get_linter_includes() {
-  config_yq_get_list ".linters.$1.includes[]"
+  config_yq_get_list ".linters.$1.$2.includes[]"
 }
 
 config_get_linter_excludes() {
-  config_yq_get_list ".linters.$1.excludes[]"
+  config_yq_get_list ".linters.$1.$2.excludes[]"
 }
 
 config_get_linter_command() {
-  config_yq ".linters.$1.command"
+  config_yq ".linters.$1.$2.command"
 }
 
 config_get_linter_options() {
-  config_yq_get_list ".linters.$1.options[]"
+  config_yq_get_list ".linters.$1.$2.options[]"
 }
 
 config_get_linter_command_and_options() {
-  readarray -d '' options < <(config_get_linter_options "$1")
-  command="$(config_get_linter_command "$1")"
+  readarray -d '' options < <(config_get_linter_options "$@")
+  command="$(config_get_linter_command "$@")"
   print_with_nul "$command" "${options[@]}"
 }
 

@@ -9,7 +9,6 @@ function main {
   files |
     bash scripts/qa/qa.bash generate || found_problem=1
 
-  printf '\nRunning formatters...\n%s\n' "$(printf '=%.0s' {1..40})"
   # treefmt keeps a cache to tell whether a file has changed since it last ran so
   # no need to pass in changed files.
   bash scripts/treefmt-wrapper.bash || found_problem=1
