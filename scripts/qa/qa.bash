@@ -164,10 +164,14 @@ function lint_check {
     if [ "${VERBOSE:-}" = 1 ]; then
       if parallel --verbose <"$command_file"; then
         echo 'No lints found'
+      else
+        return 1
       fi
     else
       if chronic parallel <"$command_file"; then
         echo 'No lints found'
+      else
+        return 1
       fi
     fi
   fi

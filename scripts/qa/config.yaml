@@ -59,11 +59,17 @@ linters:
       includes: ["*renovate.json5"]
       command: bash
       options:
+        # By default, the exit code for a pipeline is the exit code of the
+        # last command. Since reviewdog doesn't understand the error format
+        # of this linter, it always exits with 0. To get around this, we set
+        # pipefail. Now, the exit code will be that of the last/rightmost
+        # command that failed.
+        - -o
+        - pipefail
         - -euc
         - |
           renovate-config-validator --strict "$@" \
             | bash scripts/reviewdog.bash -name=renovate -efm '_REVIEWDOG_DO_NOT_MATCH' -tee
-          exit "${PIPESTATUS[0]}"
         - --
     config-file-validator:
       includes: ["*.json", .editorconfig, "*.ini"]
@@ -71,11 +77,17 @@ linters:
       excludes: ["*.vscode/*.json"]
       command: bash
       options:
+        # By default, the exit code for a pipeline is the exit code of the
+        # last command. Since reviewdog doesn't understand the error format
+        # of this linter, it always exits with 0. To get around this, we set
+        # pipefail. Now, the exit code will be that of the last/rightmost
+        # command that failed.
+        - -o
+        - pipefail
         - -euc
         - |
           validator -groupby pass-fail "$@" \
             | bash scripts/reviewdog.bash -name=config-file-validator -efm '_REVIEWDOG_DO_NOT_MATCH' -tee
-          exit "${PIPESTATUS[0]}"
         - --
     statix:
       command: bash
@@ -84,6 +96,12 @@ linters:
         - |
           # statix doesn't support passing multiple files yet:
           # https://github.com/nerdypepper/statix/issues/70
+          #
+          # By default, the exit code for a pipeline is the exit code of the
+          # last command. Since reviewdog doesn't understand the error format
+          # of this linter, it always exits with 0. To get around this, we set
+          # pipefail. Now, the exit code will be that of the last/rightmost
+          # command that failed.
           parallel -q -- bash -c 'set -o pipefail; statix check {} | bash scripts/reviewdog.bash -name=statix -efm '_REVIEWDOG_DO_NOT_MATCH' -tee' ::: "$@"
         - --
       includes: ["*.nix"]
@@ -101,11 +119,17 @@ linters:
       includes: ["*.toml"]
       command: bash
       options:
+        # By default, the exit code for a pipeline is the exit code of the
+        # last command. Since reviewdog doesn't understand the error format
+        # of this linter, it always exits with 0. To get around this, we set
+        # pipefail. Now, the exit code will be that of the last/rightmost
+        # command that failed.
+        - -o
+        - pipefail
         - -euc
         - |
           taplo lint "$@" \
             | bash scripts/reviewdog.bash -name=taplo -efm '_REVIEWDOG_DO_NOT_MATCH' -tee
-          exit "${PIPESTATUS[0]}"
         - --
     yaml-lint:
       includes: ["*.yaml", "*.yml"]
