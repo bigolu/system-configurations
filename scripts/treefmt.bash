@@ -2,7 +2,9 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-printf '\nRunning formatters...\n%s\n' "$(printf '=%.0s' {1..40})"
+reset='[m'
+accent='[36m'
+printf '\n\e%s┃ Format ❯\e%s\n' "$accent" "$reset"
 
 if [ $# -eq 0 ]; then
   if chronic treefmt --on-unmatched=fatal --fail-on-change; then

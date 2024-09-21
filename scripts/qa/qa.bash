@@ -22,6 +22,13 @@ set -o pipefail
 # It's annoying to pass "$@" around so I'll just use a global variable.
 inputs=("$@")
 
+reset_no_esc='[m'
+accent_no_esc='[36m'
+
+reset='\e[m'
+red='\e[31m'
+accent='\e[36m'
+
 function main {
   parse_arguments
 
@@ -52,7 +59,7 @@ function generate {
     generators=("${arg_generators[@]}")
   fi
 
-  printf '\n┃ Generate code ❯\n'
+  printf '\n\e%s┃ Generate code ❯\e%s\n' "$accent_no_esc" "$reset_no_esc"
   readarray -d '' global_excludes < <(config_get_global_excludes)
   made_changes=
   ran_generator=
@@ -71,7 +78,7 @@ function generate {
       < <(config_get_generator_command_and_options "$generator")
     full_command=("${command_and_options[@]}")
 
-    printf '\n┃ Generate code ❯ %s ❯\n' "$generator"
+    printf '\n\e%s┃ Generate code ❯ %s ❯\e%s\n' "$accent_no_esc" "$generator" "$reset_no_esc"
     if ! fail_if_files_change chronic "${full_command[@]}"; then
       reset='\e[m'
       red='\e[31m'
@@ -150,13 +157,15 @@ function lint_check {
       < <(config_get_linter_command_and_options "$type" "$lint_checker")
     full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
-    printf 'echo -e "\\n┃ Check lint ❯ "%q" ❯"; %s\n' \
+    printf 'echo -e "\\n%s┃ Check lint ❯ "%q" ❯%s"; %s\n' \
+      "$accent" \
       "$lint_checker" \
+      "$reset" \
       "$(printf '%q ' chronic "${full_command[@]}")" \
       >>"$command_file"
   done
 
-  printf '\n┃ Check lints ❯\n'
+  printf '\n\e%s┃ Check lints ❯\e%s\n' "$accent_no_esc" "$reset_no_esc"
   if ! [ -s "$command_file" ]; then
     echo 'No lints found'
   else
@@ -190,7 +199,7 @@ function lint_fix {
     lint_fixers=("${arg_linters[@]}")
   fi
 
-  printf '\n┃ Fix lints ❯\n'
+  printf '\n\e%s┃ Fix lints ❯\e%s\n' "$accent_no_esc" "$reset_no_esc"
   made_fixes=
   ran_fixer=
   readarray -d '' global_excludes < <(config_get_global_excludes)
@@ -209,10 +218,8 @@ function lint_fix {
       < <(config_get_linter_command_and_options "$type" "$lint_fixer")
     full_command=("${command_and_options[@]}" "${filtered_files[@]}")
 
-    printf '\n┃ Fix lints ❯ %s ❯\n' "$lint_fixer"
+    printf '\n\e%s┃ Fix lints ❯ %s ❯\e%s\n' "$accent_no_esc" "$lint_fixer" "$reset_no_esc"
     if ! fail_if_files_change chronic "${full_command[@]}"; then
-      reset='\e[m'
-      red='\e[31m'
       echo -e "$red"'Fixes made'"$reset"
       made_fixes=1
     else
