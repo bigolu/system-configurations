@@ -3,12 +3,6 @@ on:
   # It should also run on the default branch to catch my mistakes, but I feel
   # like that's a waste of resources. I'll just trust my pre-commit hook runs.
   pull_request:
-    # SYNC: GENERATORS
-    paths:
-      - "**/go.mod"
-      - "go.mod"
-      - "**neovim/lua/*.lua"
-      - "README.md"
 concurrency:
   # Since we're only interested in checking the latest commit to the branch,
   # we'll limit the workflow to running at most once per branch, cancelling
@@ -22,12 +16,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/setup
+      # We can't use 'paths:' filters because this a required check so it
+      # has to run for a pull request to be merged. Instead, we skip using a
+      # conditional, this way it still counts as a run.
+      - name: Get all codegen-related files that have changed
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@e9772d140489982e0e3704fea5ee93d536f1e275 # v45
+        with:
+          # SYNC: GENERATORS
+          files_yaml: |
+            codegen:
+              - "**/go.mod"
+              - "go.mod"
+              - "**neovim/lua/*.lua"
+              - "README.md"
+      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
+        uses: ./.github/actions/setup
         with:
           dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: bash scripts/qa/qa.bash generate || true
-      - uses: reviewdog/action-suggester@v1
+      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
+        run: bash scripts/qa/qa.bash generate || true
+      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
+        uses: reviewdog/action-suggester@v1
         with:
           tool_name: code-generation
           level: error

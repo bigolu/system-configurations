@@ -14,114 +14,14 @@
     let
       inherit (lib.attrsets) optionalAttrs;
 
-      makeMetaPackage =
-        packages:
-        pkgs.symlinkJoin {
-          name = "tools";
-          paths = lib.lists.unique packages;
-          # TODO: Nix should be able to link in prettier, I think it doesn't work
-          # because the `prettier` is a symlink
-          postBuild = lib.optionalString (builtins.elem pkgs.nodePackages.prettier packages) ''
-            cd $out/bin
-            ln -s ${pkgs.nodePackages.prettier}/bin/prettier ./prettier
-          '';
-        };
-
-      makeDevShell =
-        {
-          packages ? [ ],
-          shellHook ? "",
-        }:
-        let
-          metaPackage = makeMetaPackage packages;
-        in
-        # TODO: The devShells contain a lot of environment variables that are irrelevant
-        # to our development environment, but Nix is working on a solution to
-        # that: https://github.com/NixOS/nix/issues/7501
-        pkgs.mkShellNoCC {
-          packages = [ metaPackage ];
-          shellHook =
-            ''
-              function _bigolu_add_lines_to_nix_config {
-                for line in "$@"; do
-                  NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"$'\n'
-                done
-                export NIX_CONFIG
-              }
-
-              # SYNC: OUR_CACHES
-              # Caches we push to and pull from
-              _bigolu_add_lines_to_nix_config \
-                'extra-substituters = https://cache.garnix.io https://bigolu.cachix.org' \
-                'extra-trusted-public-keys = cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g= bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw='
-
-              # Caches we only pull from
-              _bigolu_add_lines_to_nix_config \
-                'extra-substituters = https://nix-community.cachix.org' \
-                'extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs='
-            ''
-            + shellHook;
-        };
-
-      makeCiDevShell =
-        {
-          packages ? [ ],
-          shellHook ? "",
-        }:
-        let
-          # To avoid having to make one line scripts lets put some common utils here
-          ciCommon = with pkgs; [
-            nix
-            # Why we need bashInteractive and not just bash:
-            # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
-            bashInteractive
-            coreutils
-          ];
-        in
-        makeDevShell {
-          packages = ciCommon ++ packages;
-          inherit shellHook;
-        };
-
-      lintersAndFixers = with pkgs; [
-        actionlint
-        nixfmt-rfc-style
-        deadnix
-        fish # for fish_indent, also used as logic linter
-        lychee
-        nodePackages.prettier
-        renovate # for renovate-config-validator
-        shellcheck
-        shfmt
-        statix
-        stylua
-        treefmt
-        usort
-        # TODO: If the YAML language server gets a CLI I should use that instead:
-        # https://github.com/redhat-developer/yaml-language-server/issues/535
-        yamllint
-        ltex-ls # for ltex-cli
-        markdownlint-cli2
-        desktop-file-utils
-        golangci-lint
-        config-file-validator
-        taplo
-        ruff
-        reviewdog
-        just
-        go
-      ];
-
-      scripts = import ./scripts.nix {
-        inherit pkgs lintersAndFixers;
+      utilities = import ./utilities.nix { inherit pkgs; };
+      inherit (utilities) makeDevShell makeCiDevShell;
+      
+      scriptDependencyInfo = import ./scripts.nix {
+        inherit pkgs;
         inherit (inputs) self;
       };
-
-      vsCodeDependencies = with pkgs; [
-        go
-        efm-langserver
-        nixd
-      ];
+      scripts = scriptDependencyInfo.dependenciesByName;
 
       linkLuaLsLibrariesHook =
         let
@@ -135,29 +35,83 @@
           ${pkgs.coreutils}/bin/ln --symbolic ${lib.escapeShellArg luaLsLibraries} "$dest"
         '';
 
+      linters = with pkgs; [
+        actionlint
+        deadnix
+        fish
+        lychee
+        renovate # for renovate-config-validator
+        shellcheck
+        statix
+        ltex-ls # for ltex-cli
+        markdownlint-cli2
+        desktop-file-utils
+        golangci-lint
+        config-file-validator
+        taplo
+        ruff
+
+        # Not actually a linter, but it reports the errors
+        reviewdog
+
+        # TODO: If the YAML language server gets a CLI I should use that instead:
+        # https://github.com/redhat-developer/yaml-language-server/issues/535
+        yamllint
+      ];
+
+      formatters = with pkgs; [
+        nixfmt-rfc-style
+        fish # for fish_indent
+        nodePackages.prettier
+        shfmt
+        stylua
+        treefmt
+        just
+        go # for gofmt
+        taplo
+        ruff
+      ];
+
+      vsCodeDependencies =
+        with pkgs;
+        [
+          go
+          efm-langserver
+          nixd
+        ]
+        # for efm-langserver
+        ++ linters;
+
+      taskRunnerDependencies = with pkgs; [
+        just
+        less # For paging the output of `just list`
+      ];
+
+      versionControlDependencies = with pkgs; [
+        gitMinimal
+        lefthook
+      ];
+
+      languageDependencies = with pkgs; [
+        nix
+        bashInteractive
+        go
+      ];
+
       outputs = {
         packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
 
         devShells = {
           default = makeDevShell {
+            name = "local-dependencies";
             packages =
               vsCodeDependencies
-              ++ lintersAndFixers
-              ++ scripts.allDependencies
-              ++ (with pkgs; [
-                # Languages
-                nix
-                bashInteractive
-                go
-
-                # Version control
-                gitMinimal
-                lefthook
-
-                # Task runner
-                just
-                less # For paging the output of `just list`
-              ]);
+              ++ linters
+              ++ formatters
+              ++ scriptDependencyInfo.allDependencies
+              ++ taskRunnerDependencies
+              ++ versionControlDependencies
+              ++ languageDependencies;
             shellHook =
               ''
                 # For nixd
@@ -168,33 +122,55 @@
                 # their dependencies properly. To force the package containing
                 # the resholve scripts to be evaluated, I'm adding a reference
                 # to the package here.
-                # ${lib.escapeShellArg scripts.meta}
+                # ${lib.escapeShellArg scriptDependencyInfo.validationPackage}
               ''
               + linkLuaLsLibrariesHook;
           };
 
-          ci = makeCiDevShell { };
+          ci = makeCiDevShell { name = "ci-dependencies"; };
 
           ciLint = makeCiDevShell {
-            packages = scripts.dependenciesByName.qa-qa.inputs;
+            name = "ci-lint-dependencies";
+            packages = linters;
+            scripts = with scripts; [ qa-qa ];
             shellHook = linkLuaLsLibrariesHook;
           };
 
-          ciCodegen = makeCiDevShell {
-            packages = scripts.dependenciesByName.qa-qa.inputs;
+          ciCheckStyle = makeCiDevShell {
+            name = "ci-check-style-dependencies";
+            packages = [ pkgs.treefmt ] ++ formatters;
           };
 
+          ciCodegen =
+            let
+              codegen-scripts = (
+                lib.attrsets.foldlAttrs (
+                  acc: name: script:
+                  acc ++ lib.lists.optionals (lib.hasPrefix "code-generation" name) script.dependencies
+                ) [ ] scripts
+              );
+            in
+            makeCiDevShell {
+              name = "ci-codegen-dependencies";
+              scripts = [ scripts.qa-qa ] ++ codegen-scripts;
+            };
+
           ciRenovate = makeCiDevShell {
-            packages =
-              scripts.dependenciesByName.ci-set-nix-direnv-hash.inputs ++ scripts.dependenciesByName.qa-qa.inputs;
+            name = "ci-renovate-dependencies";
+            scripts = with scripts; [
+              ci-set-nix-direnv-hash
+              code-generation-generate-gomod2nix-lock
+            ];
           };
 
           ciAutoMerge = makeCiDevShell {
-            packages = scripts.dependenciesByName.ci-auto-merge.inputs;
+            name = "ci-auto-merge-dependencies";
+            scripts = with scripts; [ ci-auto-merge ];
           };
 
           ciTest = makeCiDevShell {
-            packages = scripts.dependenciesByName.test.inputs;
+            name = "ci-test-dependencies";
+            scripts = with scripts; [ test ];
           };
 
           # So we can cache it
@@ -206,6 +182,7 @@
         x86_64-linux
         x86_64-darwin
       ];
+
       isSupportedSystem = builtins.elem system supportedSystems;
     in
     optionalAttrs isSupportedSystem outputs;

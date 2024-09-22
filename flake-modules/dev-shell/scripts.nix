@@ -1,171 +1,230 @@
 {
   pkgs,
   self,
-  lintersAndFixers,
 }:
 let
   inherit (pkgs) lib;
 
-  dependenciesByName = rec {
-    get-secrets = {
-      inputs = with pkgs; [
-        jq
+  filterPrograms =
+    package: programsToKeep:
+    let
+      findFilters = builtins.map (program: "! -name '${program}'") programsToKeep;
+      findFiltersAsString = lib.strings.concatStringsSep " " findFilters;
+    in
+    pkgs.symlinkJoin {
+      name = "${package.name}-partial";
+      paths = [ package ];
+      buildInputs = [ pkgs.makeWrapper ];
+      postBuild = ''
+        cd $out/bin
+        find . ${findFiltersAsString} -type f,l -exec rm -f {} +
+      '';
+    };
+
+  moreutilsWithoutParallel = filterPrograms pkgs.moreutils [
+    "chronic"
+    "vidir"
+    "pee"
+    "sponge"
+    "vipe"
+  ];
+
+  code-generation-generate-neovim-plugin-list = {
+    dependencies = with pkgs; [
+      ast-grep
+      jq
+      coreutils
+      gnused
+    ];
+    path = "scripts/code-generation/generate-neovim-plugin-list.bash";
+  };
+
+  code-generation-generate-gomod2nix-lock = {
+    dependencies = with pkgs; [ nix ];
+    path = "scripts/code-generation/generate-gomod2nix-lock.bash";
+  };
+
+  code-generation-generate-readme-table-of-contents = {
+    dependencies = with pkgs; [ doctoc ];
+    path = "scripts/code-generation/generate-readme-table-of-contents.bash";
+  };
+
+  code-generation-go-mod-tidy = {
+    dependencies = with pkgs; [ go ];
+    path = "scripts/code-generation/go-mod-tidy.bash";
+  };
+
+  get-secrets = {
+    dependencies = with pkgs; [
+      jq
+      coreutils
+      nix
+    ];
+    path = "scripts/get-secrets.bash";
+  };
+
+  init-nix-darwin = {
+    dependencies = with pkgs; [
+      curl
+      coreutils
+      nix
+    ];
+    path = "scripts/init-nix-darwin.bash";
+  };
+
+  treefmt = {
+    dependencies = [
+      pkgs.treefmt
+      moreutilsWithoutParallel
+    ];
+    path = "scripts/treefmt.bash";
+  };
+
+  test = {
+    dependencies = with pkgs; [
+      findutils
+      jq
+      nix
+    ];
+    path = "scripts/test.bash";
+  };
+
+  ci-set-nix-direnv-hash = {
+    dependencies = with pkgs; [ direnv ];
+    path = "scripts/ci/set-nix-direnv-hash.bash";
+  };
+
+  ci-auto-merge = {
+    dependencies = with pkgs; [ gh ];
+    path = "scripts/ci/auto-merge.bash";
+  };
+
+  git-hooks-notify = {
+    dependencies =
+      with pkgs;
+      [
         coreutils
-        nix
-      ];
-      path = "${self}/scripts/get-secrets.bash";
-    };
-    init-nix-darwin = {
-      inputs = with pkgs; [
-        curl
+        gitMinimal
+        gnugrep
+      ]
+      ++ lib.lists.optionals pkgs.stdenv.isDarwin [ terminal-notifier ]
+      ++ lib.lists.optionals pkgs.stdenv.isLinux [ libnotify ];
+    path = "scripts/git-hooks/notify.bash";
+  };
+
+  qa-glob = {
+    dependencies = with pkgs; [ findutils ];
+    path = "scripts/qa/glob.bash";
+  };
+
+  qa-qa = {
+    dependencies =
+      with pkgs;
+      [
+        gitMinimal
+        moreutilsWithoutParallel
+        parallel
         coreutils
-        nix
-      ];
-      path = "${self}/scripts/init-nix-darwin.bash";
-    };
-    treefmt = {
-      inputs = [
-        pkgs.treefmt
-        pkgs.moreutils
-      ];
-      path = "${self}/scripts/treefmt.bash";
-    };
-    code-generation-generate-neovim-plugin-list = {
-      inputs = with pkgs; [
-        ast-grep
-        jq
-        coreutils
-        gnused
-      ];
-      path = "${self}/scripts/code-generation/generate-neovim-plugin-list.bash";
-    };
-    code-generation-generate-gomod2nix-lock = {
-      inputs = with pkgs; [ nix ];
-      path = "${self}/scripts/code-generation/generate-gomod2nix-lock.bash";
-    };
-    code-generation-generate-readme-table-of-contents = {
-      inputs = with pkgs; [ doctoc ];
-      path = "${self}/scripts/code-generation/generate-readme-table-of-contents.bash";
-    };
-    code-generation-go-mod-tidy = {
-      inputs = with pkgs; [ go ];
-      path = "${self}/scripts/code-generation/go-mod-tidy.bash";
-    };
-    test = {
-      inputs = with pkgs; [
-        findutils
-        jq
-        nix
-      ];
-      path = "${self}/scripts/test.bash";
-    };
-    ci-set-nix-direnv-hash = {
-      inputs = with pkgs; [ direnv ];
-      path = "${self}/scripts/ci/set-nix-direnv-hash.bash";
-    };
-    ci-auto-merge = {
-      inputs = with pkgs; [ gh ];
-      path = "${self}/scripts/ci/auto-merge.bash";
-    };
-    git-hooks-notify = {
-      inputs =
-        with pkgs;
-        [
-          coreutils
-          gitMinimal
-          gnugrep
-        ]
-        ++ lib.lists.optionals pkgs.stdenv.isDarwin [
-          terminal-notifier
-        ]
-        ++ lib.lists.optionals pkgs.stdenv.isLinux [ libnotify ];
-      path = "${self}/scripts/git-hooks/notify.bash";
-    };
-    qa-glob = {
-      inputs = with pkgs; [ findutils ];
-      path = "${self}/scripts/qa/glob.bash";
-    };
-    qa-qa = {
-      inputs =
-        with pkgs;
-        [
-          gitMinimal
-          moreutils
-          parallel
-          coreutils
-          yq-go
-        ]
-        ++ qa-glob.inputs
-        ++ lintersAndFixers
-        ++ code-generation-generate-gomod2nix-lock.inputs
-        ++ code-generation-generate-neovim-plugin-list.inputs
-        ++ code-generation-generate-readme-table-of-contents.inputs
-        ++ code-generation-go-mod-tidy.inputs;
-      path = "${self}/scripts/qa/qa.bash";
-    };
+        yq-go
+      ]
+      ++ qa-glob.dependencies;
+    path = "scripts/qa/qa.bash";
+  };
+
+  dependenciesByName = {
+    inherit
+      code-generation-generate-neovim-plugin-list
+      code-generation-generate-gomod2nix-lock
+      code-generation-generate-readme-table-of-contents
+      code-generation-go-mod-tidy
+      get-secrets
+      init-nix-darwin
+      treefmt
+      test
+      ci-set-nix-direnv-hash
+      ci-auto-merge
+      git-hooks-notify
+      qa-glob
+      qa-qa
+      ;
   };
 
   allDependencies = lib.attrsets.foldlAttrs (
-    accumulator: _: deps:
-    accumulator ++ deps.inputs
+    acc: _: script:
+    acc ++ script.dependencies
   ) [ ] dependenciesByName;
 
-  byName = lib.attrsets.mapAttrs (
-    name: deps:
-    pkgs.resholve.writeScriptBin name {
-      interpreter = "${pkgs.bash}/bin/bash";
-      inherit (deps) inputs;
-      execer = [
-        "cannot:${pkgs.fd}/bin/fd"
-        "cannot:${pkgs.lua-language-server}/bin/lua-language-server"
-        "cannot:${pkgs.ast-grep}/bin/ast-grep"
-        "cannot:${pkgs.gitMinimal}/bin/git"
-        "cannot:${pkgs.treefmt}/bin/treefmt"
-        "cannot:${pkgs.markdownlint-cli2}/bin/markdownlint-cli2"
-        "cannot:${pkgs.ltex-ls}/bin/ltex-cli"
-        "cannot:${pkgs.ripgrep}/bin/rg"
-        "cannot:${pkgs.reviewdog}/bin/reviewdog"
-        "cannot:${pkgs.nix}/bin/nix"
-        "cannot:${pkgs.yq-go}/bin/yq"
-        "cannot:${pkgs.parallel}/bin/parallel"
-        "cannot:${pkgs.direnv}/bin/direnv"
-        "cannot:${pkgs.gh}/bin/gh"
-        "cannot:${pkgs.go}/bin/go"
-        "cannot:${pkgs.doctoc}/bin/doctoc"
-        "cannot:${pkgs.moreutils}/bin/chronic"
-      ] ++ lib.lists.optionals pkgs.stdenv.isDarwin [
-        "cannot:${pkgs.terminal-notifier}/bin/terminal-notifier"
-      ] ++ lib.lists.optionals pkgs.stdenv.isLinux [
-        "cannot:${pkgs.libnotify}/bin/notify-send"
-      ];
-      keep = {
-        # Homebrew's installer says to use this so I don't want to change it
-        "/bin/bash" = true;
-        "\"$subcommand\"" = true;
-      };
-      fake = {
-        external =
-          [
-            # I don't want to resolve it since it's unfree
-            "bws"
-            "bash"
-          ]
-          ++ lib.lists.optionals pkgs.stdenv.isLinux [ "terminal-notifier" ]
-          ++ lib.lists.optionals pkgs.stdenv.isDarwin [ "notify-send" ];
-      };
-    } (builtins.readFile deps.path)
-  ) dependenciesByName;
+  validationPackage = pkgs.resholve.mkDerivation {
+    pname = "script-validation-package";
+    version = "no-version";
 
-  meta = pkgs.symlinkJoin {
-    name = "tools";
-    paths = builtins.attrValues byName;
+    src = self;
+
+    dontConfigure = true;
+    dontBuild = true;
+
+    installPhase = ''
+      mkdir -p "$out/scripts"
+      cp --dereference --recursive "$src/scripts"/* "$out/scripts/"
+    '';
+
+    solutions = {
+      default = {
+        scripts = lib.attrsets.foldlAttrs (
+          acc: _: script:
+          acc ++ [script.path]
+        ) [ ] dependenciesByName;
+
+        interpreter = "${pkgs.bash}/bin/bash";
+        inputs = allDependencies;
+
+        execer =
+          [
+            "cannot:${pkgs.fd}/bin/fd"
+            "cannot:${pkgs.lua-language-server}/bin/lua-language-server"
+            "cannot:${pkgs.ast-grep}/bin/ast-grep"
+            "cannot:${pkgs.gitMinimal}/bin/git"
+            "cannot:${pkgs.treefmt}/bin/treefmt"
+            "cannot:${pkgs.markdownlint-cli2}/bin/markdownlint-cli2"
+            "cannot:${pkgs.ltex-ls}/bin/ltex-cli"
+            "cannot:${pkgs.ripgrep}/bin/rg"
+            "cannot:${pkgs.reviewdog}/bin/reviewdog"
+            "cannot:${pkgs.nix}/bin/nix"
+            "cannot:${pkgs.yq-go}/bin/yq"
+            "cannot:${pkgs.parallel}/bin/parallel"
+            "cannot:${pkgs.direnv}/bin/direnv"
+            "cannot:${pkgs.gh}/bin/gh"
+            "cannot:${pkgs.go}/bin/go"
+            "cannot:${pkgs.doctoc}/bin/doctoc"
+            "cannot:${moreutilsWithoutParallel}/bin/chronic"
+          ]
+          ++ lib.lists.optionals pkgs.stdenv.isDarwin [
+            "cannot:${pkgs.terminal-notifier}/bin/terminal-notifier"
+          ]
+          ++ lib.lists.optionals pkgs.stdenv.isLinux [
+            "cannot:${pkgs.libnotify}/bin/notify-send"
+          ];
+
+        keep = {
+          # Homebrew's installer says to use this so I don't want to change it
+          "/bin/bash" = true;
+          "\"$subcommand\"" = true;
+        };
+
+        fake = {
+          external =
+            [
+              # I don't want to resolve it since it's unfree
+              "bws"
+              "bash"
+            ]
+            ++ lib.lists.optionals pkgs.stdenv.isLinux [ "terminal-notifier" ]
+            ++ lib.lists.optionals pkgs.stdenv.isDarwin [ "notify-send" ];
+        };
+      };
+    };
   };
 in
 {
-  inherit
-    byName
-    allDependencies
-    dependenciesByName
-    meta
-    ;
+  inherit dependenciesByName allDependencies validationPackage;
 }

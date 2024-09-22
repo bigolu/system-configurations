@@ -1,17 +1,6 @@
 name: "Test"
 on:
-  # It should also run on the default branch to catch my mistakes, but I feel
-  # like that's a waste of resources. The caching workflow that runs on master
-  # should be enough to catch my mistakes e.g. adding a program to a platform
-  # it doesn't support or adding a program that doesn't build.
   pull_request:
-    # Since all this test does is build packages, only run when there are
-    # changes in files that could affect the package set
-    paths:
-      - "flake.nix"
-      - "flake.lock"
-      - "flake-modules/**"
-      - "!flake-modules/bundler/gozip/**"
 concurrency:
   # Since we're only interested in checking the latest commit to the branch,
   # we'll limit the workflow to running at most once per branch, cancelling
@@ -30,8 +19,25 @@ jobs:
         os: [ubuntu-latest, macos-13]
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/setup
+      # We can't use 'paths:' filters because this a required check so it
+      # has to run for a pull request to be merged. Instead, we skip using a
+      # conditional, this way it still counts as a run.
+      - name: Get all package-related files that have changed
+        id: changed-files-yaml
+        uses: tj-actions/changed-files@e9772d140489982e0e3704fea5ee93d536f1e275 # v45
+        with:
+          # Since all this test does is build packages, only run when there are
+          # changes in files that could affect the package set
+          files_yaml: |
+            packages:
+              - "flake.nix"
+              - "flake.lock"
+              - "flake-modules/**"
+              - "!flake-modules/bundler/gozip/**"
+      - if: steps.changed-files-yaml.outputs.packages_any_changed == 'true'
+        uses: ./.github/actions/setup
         with:
           dev-shell: ciTest
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: bash ./scripts/test.bash
+      - if: steps.changed-files-yaml.outputs.packages_any_changed == 'true'
+        run: bash ./scripts/test.bash
