@@ -143,12 +143,10 @@
 
           ciCodegen =
             let
-              codegen-scripts = (
-                lib.attrsets.foldlAttrs (
-                  acc: name: script:
-                  acc ++ lib.lists.optionals (lib.hasPrefix "code-generation" name) script.dependencies
-                ) [ ] scripts
-              );
+              codegen-scripts = lib.attrsets.foldlAttrs (
+                acc: name: script:
+                acc ++ lib.lists.optionals (lib.hasPrefix "code-generation" name) [ script ]
+              ) [ ] scripts;
             in
             makeCiDevShell {
               name = "ci-codegen-dependencies";
