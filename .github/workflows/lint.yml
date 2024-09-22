@@ -26,7 +26,7 @@ jobs:
           if ! bash scripts/qa/qa.bash lint fix; then
             echo 'DID_FAIL=true' >> "$GITHUB_ENV"
           fi
-      - uses: reviewdog/action-suggester@v1
+      - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
         with:
           tool_name: lint-autofix
           level: error
