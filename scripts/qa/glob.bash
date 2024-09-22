@@ -61,7 +61,12 @@ function parse_arguments {
 }
 
 function print_with_nul {
-  printf '%s\0' "$@"
+  for ((i = 1; i <= $#; i++)); do
+    printf '%s' "${!i}"
+    if [ $i -ne $# ]; then
+      printf '\0'
+    fi
+  done
 }
 
 main "$@"

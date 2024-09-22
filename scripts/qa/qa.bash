@@ -351,8 +351,13 @@ config_get_global_excludes() {
 # END CONFIG FUNCTIONS }}}
 
 # START UTILITY FUNCTIONS {{{
-print_with_nul() {
-  printf '%s\0' "$@"
+function print_with_nul {
+  for ((i = 1; i <= $#; i++)); do
+    printf '%s' "${!i}"
+    if [ $i -ne $# ]; then
+      printf '\0'
+    fi
+  done
 }
 # END UTILITY FUNCTIONS }}}
 

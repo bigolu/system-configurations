@@ -43,19 +43,33 @@ function get_default_branch {
 }
 
 function get_files {
+  all_files=()
   if [ "${PRE_PUSH_HOOK:-}" = 1 ]; then
     # Since we assume everything on the default branch is correct, lets get all
     # commmits between the HEAD of the default branch and the HEAD of the
     # current branch.
-    git diff -z --diff-filter=d --name-only HEAD "$(get_default_branch)"
+    readarray -d '' tmp < <(git diff -z --diff-filter=d --name-only HEAD "$(get_default_branch)")
+    all_files=("${all_files[@]}" "${tmp[@]}")
   else
     # Since we assume everything on the default branch is correct, lets get all
     # modified files between the HEAD of the default branch and the HEAD of the
     # current branch, including untracked files.
-    git diff -z --diff-filter=d --name-only "$(get_default_branch)"
-    printf '\0'
-    git ls-files -z --others --exclude-standard
+    readarray -d '' tmp < <(git diff -z --diff-filter=d --name-only "$(get_default_branch)")
+    all_files=("${all_files[@]}" "${tmp[@]}")
+
+    readarray -d '' tmp < <(git ls-files -z --others --exclude-standard)
+    all_files=("${all_files[@]}" "${tmp[@]}")
   fi
+  print_with_nul "${all_files[@]}"
+}
+
+function print_with_nul {
+  for ((i = 1; i <= $#; i++)); do
+    printf '%s' "${!i}"
+    if [ $i -ne $# ]; then
+      printf '\0'
+    fi
+  done
 }
 
 main
