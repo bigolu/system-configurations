@@ -7,9 +7,7 @@ accent='[36m'
 printf '\n\e%s┃ Format ❯\e%s\n' "$accent" "$reset"
 
 if [ $# -eq 0 ]; then
-  if chronic treefmt --on-unmatched=fatal --fail-on-change; then
-    echo 'No files were formattted'
-  else
+  if ! chronic treefmt --on-unmatched=fatal --fail-on-change; then
     exit 1
   fi
 else
@@ -23,8 +21,5 @@ else
 
   if [ -n "$changed_file" ]; then
     exit 1
-  else
-    echo 'No files were formattted'
-    exit 0
   fi
 fi
