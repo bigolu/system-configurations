@@ -99,7 +99,7 @@ linters:
           # of this linter, it always exits with 0. To get around this, we set
           # pipefail. Now, the exit code will be that of the last/rightmost
           # command that failed.
-          parallel -q -- bash -c 'set -o pipefail; statix check {} | bash scripts/reviewdog.bash -name=statix -efm '_REVIEWDOG_DO_NOT_MATCH' -tee' ::: "$@"
+          parallel -q -- bash -c 'set -o pipefail; statix check {} | bash scripts/reviewdog.bash -name=statix -efm "_REVIEWDOG_DO_NOT_MATCH" -tee' ::: "$@"
         - --
       includes: ["*.nix"]
     actionlint:
