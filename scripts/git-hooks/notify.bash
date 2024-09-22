@@ -17,7 +17,7 @@ function main {
 
 function vscode {
   if [ -n "${DIFF:-}" ]; then
-    desktop_notification "$1"' (Check the git output panel in VS Code for a diff of the hanges)'
+    desktop_notification "$1"' (Check the git output panel in VS Code for a diff of the changes)'
     set -- "${@:2}"
 
     # Pipe to cat so if you're at the terminal, it doesn't launch a full screen

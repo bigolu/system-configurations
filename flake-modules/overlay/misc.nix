@@ -137,6 +137,7 @@
           inherit myTerminfoDatabase myPython;
           neovim = nightlyNeovimWithDependencies;
           ripgrep-all = ripgrepAllWithDependencies;
+          nix = final.nixVersions.latest;
         };
     in
     {

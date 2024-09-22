@@ -11,7 +11,7 @@ function main {
 
   # treefmt keeps a cache to tell whether a file has changed since it last ran so
   # no need to pass in changed files.
-  bash scripts/treefmt.bash "${files[@]}" || found_problem=1
+  bash scripts/treefmt.bash || found_problem=1
 
   bash scripts/qa/qa.bash lint fix "${files[@]}" || found_problem=1
 
