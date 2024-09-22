@@ -1,4 +1,4 @@
-name: "Ensure Generated Code is Present"
+name: "Ensure Generated Code is Up to Date"
 on:
   # It should also run on the default branch to catch my mistakes, but I feel
   # like that's a waste of resources. I'll just trust my pre-commit hook runs.
@@ -12,7 +12,7 @@ concurrency:
 jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
-  ensure-generated-code-is-present:
+  ensure-generated-code-is-up-to-date:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
