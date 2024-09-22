@@ -55,7 +55,7 @@
     "dotfiles/yabai/yabairc",
     "dotfiles/yash/yashrc",
 
-    # SYNC: GENERATED_FILES
+    # Generated files
     "flake-modules/bundler/gozip/go.sum",
     "flake-modules/bundler/gozip/gomod2nix.toml",
     "*.lock",

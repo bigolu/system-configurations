@@ -176,12 +176,12 @@
           ci = makeCiDevShell { };
 
           ciLint = makeCiDevShell {
-            packages = scripts.dependenciesByName.ci-lint.inputs;
+            packages = scripts.dependenciesByName.qa-qa.inputs;
             shellHook = linkLuaLsLibrariesHook;
           };
 
           ciCodegen = makeCiDevShell {
-            packages = scripts.dependenciesByName.ci-ensure-code-generation-is-up-to-date.inputs;
+            packages = scripts.dependenciesByName.qa-qa.inputs;
           };
 
           ciRenovate = makeCiDevShell {

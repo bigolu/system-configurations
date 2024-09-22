@@ -22,6 +22,26 @@ jobs:
         with:
           dev-shell: ciLint
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - run: |
+          if ! bash scripts/qa/qa.bash lint fix; then
+            echo 'DID_FAIL=true' >> "$GITHUB_ENV"
+          fi
+      - uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: lint-autofix
+          level: error
+          filter_mode: nofilter
+          fail_on_error: false
       - env:
+          # 'lint check' calls reviewdog so it needs a token
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash ./scripts/ci/lint.bash
+        run: |
+          if ! bash scripts/qa/qa.bash lint check; then
+            echo 'DID_FAIL=true' >> "$GITHUB_ENV"
+          fi
+      # By waiting until everything has run to fail the job, we'll see all the
+      # errors at once instead of fixing some errors, rerunning the job, and
+      # finding more.
+      - if: ${{ env.DID_FAIL == 'true' }}
+        run: exit 1
+

@@ -26,4 +26,10 @@ jobs:
         with:
           dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: bash scripts/ci/ensure-code-generation-is-up-to-date.bash
+      - run: bash scripts/qa/qa.bash generate || true
+      - uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: code-generation
+          level: error
+          filter_mode: nofilter
+          fail_on_error: true

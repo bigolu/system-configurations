@@ -67,14 +67,6 @@ let
       inputs = with pkgs; [ gh ];
       path = "${self}/scripts/ci/auto-merge.bash";
     };
-    ci-lint = {
-      inputs = qa-qa.inputs;
-      path = "${self}/scripts/ci/lint.bash";
-    };
-    ci-ensure-code-generation-is-up-to-date = {
-      inputs = qa-qa.inputs;
-      path = "${self}/scripts/ci/ensure-code-generation-is-up-to-date.bash";
-    };
     git-hooks-notify = {
       inputs =
         with pkgs;

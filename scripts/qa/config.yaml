@@ -24,12 +24,6 @@ generators:
     includes: [README.md]
 
 linters:
-  # SYNC: GENERATED_FILES
-  excludes:
-    - flake-modules/bundler/gozip/go.sum
-    - flake-modules/bundler/gozip/gomod2nix.toml
-    - "*.lock"
-
   fixers:
     deadnix:
       command: deadnix
@@ -120,6 +114,8 @@ linters:
         - --
     taplo:
       includes: ["*.toml"]
+      # This is a generated file
+      excludes: [ flake-modules/bundler/gozip/gomod2nix.toml ]
       command: bash
       options:
         # By default, the exit code for a pipeline is the exit code of the
