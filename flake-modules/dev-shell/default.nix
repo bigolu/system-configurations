@@ -115,7 +115,7 @@
             shellHook =
               ''
                 # For nixd
-                export NIX_PATH=${lib.escapeShellArg inputs.nixpkgs}
+                export NIX_PATH='nixpkgs='${lib.escapeShellArg inputs.nixpkgs}
 
                 # Even though I never use the scripts made by resholve, I still
                 # want resholve to make them so it can verify that I specified

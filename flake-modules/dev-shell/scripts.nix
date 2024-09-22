@@ -131,7 +131,6 @@ let
       code-generation-go-mod-tidy
       get-secrets
       init-nix-darwin
-      treefmt
       test
       ci-set-nix-direnv-hash
       ci-auto-merge
