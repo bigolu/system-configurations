@@ -6,6 +6,11 @@ function main {
   found_problem=
   readarray -d '' files < <(get_files)
 
+  if [ "${#files[@]}" -eq 0 ]; then
+    echo 'No files differ from the default branch, exiting.'
+    exit
+  fi
+
   # Code generators
   bash scripts/qa/qa.bash generate "${files[@]}" || found_problem=1
 
