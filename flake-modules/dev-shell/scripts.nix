@@ -172,7 +172,7 @@ let
       default = {
         scripts = lib.attrsets.foldlAttrs (
           acc: _: script:
-          acc ++ [script.path]
+          acc ++ [ script.path ]
         ) [ ] dependenciesByName;
 
         interpreter = "${pkgs.bash}/bin/bash";

@@ -16,7 +16,7 @@
 
       utilities = import ./utilities.nix { inherit pkgs; };
       inherit (utilities) makeDevShell makeCiDevShell;
-      
+
       scriptDependencyInfo = import ./scripts.nix {
         inherit pkgs;
         inherit (inputs) self;
