@@ -133,7 +133,10 @@ let
         "cannot:${pkgs.go}/bin/go"
         "cannot:${pkgs.doctoc}/bin/doctoc"
         "cannot:${pkgs.moreutils}/bin/chronic"
+      ] ++ lib.lists.optionals pkgs.stdenv.isDarwin [
         "cannot:${pkgs.terminal-notifier}/bin/terminal-notifier"
+      ] ++ lib.lists.optionals pkgs.stdenv.isLinux [
+        "cannot:${pkgs.libnotify}/bin/notify-send"
       ];
       keep = {
         # Homebrew's installer says to use this so I don't want to change it
