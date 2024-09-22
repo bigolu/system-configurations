@@ -115,7 +115,7 @@ linters:
     taplo:
       includes: ["*.toml"]
       # This is a generated file
-      excludes: [ flake-modules/bundler/gozip/gomod2nix.toml ]
+      excludes: [flake-modules/bundler/gozip/gomod2nix.toml]
       command: bash
       options:
         # By default, the exit code for a pipeline is the exit code of the

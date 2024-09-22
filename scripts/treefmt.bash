@@ -9,6 +9,8 @@ printf '\n\e%s┃ Format ❯\e%s\n' "$accent" "$reset"
 if [ $# -eq 0 ]; then
   if chronic treefmt --on-unmatched=fatal --fail-on-change; then
     echo 'No files were formattted'
+  else
+    exit 1
   fi
 else
   changed_file=
