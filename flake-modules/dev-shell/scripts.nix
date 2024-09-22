@@ -72,14 +72,6 @@ let
     path = "scripts/init-nix-darwin.bash";
   };
 
-  treefmt = {
-    dependencies = [
-      pkgs.treefmt
-      moreutilsWithoutParallel
-    ];
-    path = "scripts/treefmt.bash";
-  };
-
   test = {
     dependencies = with pkgs; [
       findutils

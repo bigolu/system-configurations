@@ -71,14 +71,10 @@ test:
     change to how formatting is done. You should also run this on any changed
     files before committing, but you don't have to worry about that since this
     task gets run during the git pre-commit hook.
-
-    Arguments:
-        FILES: The files to format. If none are given, then all files will be
-               formatted.
 ''')]
 [group('Checks')]
-format *FILES:
-    bash scripts/treefmt.bash "$@"
+format:
+    treefmt --on-unmatched=fatal --fail-on-change
 
 [doc('''
     Lint source code. You should run this on all files if you make a

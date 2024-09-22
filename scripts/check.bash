@@ -11,17 +11,22 @@ function main {
     exit
   fi
 
-  # Code generators
   bash scripts/qa/qa.bash generate "${files[@]}" || found_problem=1
 
   bash scripts/qa/qa.bash lint fix "${files[@]}" || found_problem=1
 
+  # Print a header for consistency with qa.bash.
+  reset='[m'
+  accent='[36m'
+  printf '\n\e%s┃ Format ❯\e%s\n' "$accent" "$reset"
   # treefmt keeps a cache to tell whether a file has changed since it last ran
   # so no need to pass in changed files.
   #
+  # Use chronic so there's no output if it succeeds, like qa.bash.
+  #
   # Run formatting after lint fixes because sometimes a lint fix produces code
   # that doesn't comply with the formatting.
-  bash scripts/treefmt.bash || found_problem=1
+  chronic treefmt --on-unmatched=fatal --fail-on-change || found_problem=1
 
   bash scripts/qa/qa.bash lint check "${files[@]}" || found_problem=1
 
@@ -33,7 +38,7 @@ function main {
 }
 
 function get_default_branch {
-  # TODO: This may not be the remote being pushed to
+  # TODO: This may not be the remote that the code will eventually be pushed to.
   remote='origin'
 
   # source: https://stackoverflow.com/a/50056710
