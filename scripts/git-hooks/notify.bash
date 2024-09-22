@@ -31,19 +31,15 @@ function vscode {
 }
 
 function terminal {
-  reset='\e[m'
-  blue_fg_reversed='\e[1m\e[7m\e[34m'
-  badge="$blue_fg_reversed INFO $reset"
-
   if [ -n "${DIFF:-}" ]; then
-    echo -e "$badge" "$1"
+    echo -e "$1"
     set -- "${@:2}"
 
     # Pipe to cat so if you're at the terminal, it doesn't launch a full screen
     # pager that you'd have to eit.
     git diff --color ORIG_HEAD HEAD -- "$@" | cat
   else
-    echo -e "$badge" "$@"
+    echo -e "$@"
   fi
 }
 
