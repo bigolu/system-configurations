@@ -23,23 +23,31 @@ pre-push:
       # TODO: treefmt needs this because if it doesn't have a TTY input it
       # lags. I need to report this.
       interactive: true
-      run: PRE_PUSH_HOOK=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/check.bash
+      env:
+        DIRENV_LOG_FORMAT: ""
+      run: direnv exec "$PWD" bash scripts/check.bash {push_files}
 
 post-merge:
   commands:
     change-notifications:
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
+      env:
+        DIRENV_LOG_FORMAT: ""
+      run: direnv exec "$PWD" lefthook run change-notifications
 
 post-rewrite:
   commands:
     change-notifications:
       only: rebase
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" lefthook run change-notifications
+      env:
+        DIRENV_LOG_FORMAT: ""
+      run: direnv exec "$PWD" lefthook run change-notifications
     # This is too noisy to do on all change-related hooks.
     change-notification-for-host-configuration:
       only: rebase
+      env:
+        DIRENV_LOG_FORMAT: ""
       run: >
-        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'The following files have changed, which may affect the host configuration. Consider running `just switch`: '
         {files}
@@ -47,9 +55,11 @@ post-rewrite:
 post-checkout:
   commands:
     change-notifications:
+      env:
+        DIRENV_LOG_FORMAT: ""
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands. Then I could remove this script.
-      run: DIRENV_LOG_FORMAT='' direnv exec "$PWD" bash scripts/git-hooks/run-if-not-file-checkout.bash lefthook run change-notifications
+      run: direnv exec "$PWD" bash scripts/git-hooks/run-if-not-file-checkout.bash lefthook run change-notifications
 
 # NOTE: Everything here will be run in parallel:
 # https://github.com/evilmartians/lefthook/issues/132#issuecomment-1833411442
@@ -58,34 +68,45 @@ change-notifications:
   commands:
     envrc-secrets:
       glob: "envrc-secrets-example.bash"
+      env:
+        DIRENV_LOG_FORMAT: ""
+        DIFF: "1"
       run: >
-        DIFF=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash'
     dev-shell:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
+      env:
+        DIRENV_LOG_FORMAT: ""
       run: >
-        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'The following files have changed and may affect your devShell, consider running `just sync-nix-direnv`: '
         {files}
     fish:
       glob: "dotfiles/fish/conf.d/**.fish"
+      env:
+        DIRENV_LOG_FORMAT: ""
       run: >
-        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'The following files have changed and may affect your devShell, consider restarting any running terminals: '
         {files}
     nix:
       glob: "flake.lock"
+      env:
+        DIRENV_LOG_FORMAT: ""
       run: >
-        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'The flake.lock has changed, consider running `just upgrade-nix`'
     nix-fix:
       glob: "dotfiles/nix/nix-fix/**"
+      env:
+        DIRENV_LOG_FORMAT: ""
       run: >
-        DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+        direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'Files related to the Nix $PATH fix have changed, consider re-running its installer: '
         {files}
@@ -93,7 +114,9 @@ change-notifications:
     # control over that.
     # lefthook:
     #   glob: ".lefthook.yml"
+    #   env:
+    #     DIRENV_LOG_FORMAT: ''
     #   run: >
-    #     DIRENV_LOG_FORMAT='' direnv exec "$PWD"
+    #     direnv exec "$PWD"
     #     bash scripts/git-hooks/notify.bash
     #     '.lefthook.yml has changed, consider running `just sync-git-hooks`'

@@ -1,3 +1,9 @@
+# Script names should be the path relative to the scripts directory, with '/'
+# replaced by '-'.
+#
+# I don't make the scripts into packages because then I'd have to wait for the
+# devShell to rebuild to test any script changes.
+
 {
   pkgs,
   self,
@@ -140,10 +146,11 @@ let
       ;
   };
 
-  allDependencies = lib.attrsets.foldlAttrs (
-    acc: _: script:
-    acc ++ script.dependencies
-  ) [ ] dependenciesByName;
+  allDependencies = lib.trivial.pipe dependenciesByName [
+    builtins.attrValues
+    (map (builtins.getAttr "dependencies"))
+    builtins.concatLists
+  ];
 
   validationPackage = pkgs.resholve.mkDerivation {
     pname = "script-validation-package";

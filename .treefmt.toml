@@ -92,11 +92,11 @@
   includes = ["*.envrc", "*.bash"]
 
 [formatter.fish]
-  # TODO: Doesn't adhere to the treefmt spec for formatters in that it
-  # unconditionally writes to input files, even if everything is formatted
-  # correctly.
+  # TODO: Doesn't adhere to the treefmt spec for formatters
+  # in that it unconditionally writes to input files:
+  # https://treefmt.com/formatter-spec#_2-write-to-changed-files
   #
-  # It's fixed on master, but will be part of the release for v4.0.
+  # It's fixed on master, but a new version hasn't been released.
   #
   # I would just comment out the `formatter.fish` entry, but then treefmt would
   # warn me that any files that would have been formatted by it now have no

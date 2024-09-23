@@ -44,7 +44,7 @@ in
     ];
 
     command = ''
-      /bin/sh -c ' \
+      ${pkgs.dash}/bin/dash -c ' \
         export PATH="${config.nix.package}/bin:''$PATH"; \
         nix-env --profile /nix/var/nix/profiles/system --delete-generations +5; \
         nix-env --profile /nix/var/nix/profiles/default --delete-generations +5; \
@@ -55,4 +55,9 @@ in
       '
     '';
   };
+
+  system.activationScripts.postActivation.text = ''
+    echo >&2 '[bigolu] Installing Nix $PATH fix...'
+    ${pkgs.bashInteractive}/bin/bash ${specialArgs.flakeInputs.self}/dotfiles/nix/nix-fix/install-nix-fix.bash
+  '';
 }

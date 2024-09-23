@@ -4,7 +4,12 @@ set -o pipefail
 
 function main {
   found_problem=
-  readarray -d '' files < <(get_files)
+
+  if [ $# -gt 0 ]; then
+    files=("$@")
+  else
+    readarray -d '' files < <(get_files)
+  fi
 
   if [ "${#files[@]}" -eq 0 ]; then
     echo 'No files differ from the default branch, exiting.'
@@ -49,22 +54,17 @@ function get_default_branch {
 
 function get_files {
   all_files=()
-  if [ "${PRE_PUSH_HOOK:-}" = 1 ]; then
-    # Since we assume everything on the default branch is correct, lets get all
-    # commmits between the HEAD of the default branch and the HEAD of the
-    # current branch.
-    readarray -d '' tmp < <(git diff -z --diff-filter=d --name-only HEAD "$(get_default_branch)")
-    all_files=("${all_files[@]}" "${tmp[@]}")
-  else
-    # Since we assume everything on the default branch is correct, lets get all
-    # modified files between the HEAD of the default branch and the HEAD of the
-    # current branch, including untracked files.
-    readarray -d '' tmp < <(git diff -z --diff-filter=d --name-only "$(get_default_branch)")
-    all_files=("${all_files[@]}" "${tmp[@]}")
 
-    readarray -d '' tmp < <(git ls-files -z --others --exclude-standard)
-    all_files=("${all_files[@]}" "${tmp[@]}")
-  fi
+  # Since we assume everything on the default branch is correct, lets get all
+  # modified files between the HEAD of the default branch and the HEAD of the
+  # current branch , included staged and unstaged changes.
+  readarray -d '' tmp < <(git diff -z --diff-filter=d --name-only "$(get_default_branch)")
+  all_files=("${all_files[@]}" "${tmp[@]}")
+
+  # Add in untracked files as well
+  readarray -d '' tmp < <(git ls-files -z --others --exclude-standard)
+  all_files=("${all_files[@]}" "${tmp[@]}")
+
   print_with_nul "${all_files[@]}"
 }
 
@@ -77,4 +77,4 @@ function print_with_nul {
   done
 }
 
-main
+main "$@"

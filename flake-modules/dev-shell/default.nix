@@ -35,7 +35,7 @@
           ${pkgs.coreutils}/bin/ln --symbolic ${lib.escapeShellArg luaLsLibraries} "$dest"
         '';
 
-      linters = with pkgs; [
+      lintingDependencies = with pkgs; [
         actionlint
         deadnix
         fish
@@ -51,30 +51,32 @@
         taplo
         ruff
 
-        # Not actually a linter, but it reports the errors
-        reviewdog
-
         # TODO: If the YAML language server gets a CLI I should use that instead:
         # https://github.com/redhat-developer/yaml-language-server/issues/535
         yamllint
+
+        # This reports the errors
+        reviewdog
       ];
 
-      formatters = with pkgs; [
+      formattingDependencies = with pkgs; [
         nixfmt-rfc-style
         fish # for fish_indent
         nodePackages.prettier
         shfmt
         stylua
-        treefmt
         just
         go # for gofmt
         taplo
         ruff
+
+        # This calls the formatters
+        treefmt
       ];
 
       vsCodeDependencies =
         let
-          efmDependencies = [ pkgs.efm-langserver ] ++ linters;
+          efmDependencies = [ pkgs.efm-langserver ] ++ lintingDependencies;
         in
         with pkgs;
         [
@@ -107,8 +109,8 @@
             name = "local-dependencies";
             packages =
               vsCodeDependencies
-              ++ linters
-              ++ formatters
+              ++ lintingDependencies
+              ++ formattingDependencies
               ++ taskRunnerDependencies
               ++ versionControlDependencies
               ++ languageDependencies;
@@ -132,22 +134,27 @@
 
           ciLint = makeCiDevShell {
             name = "ci-lint-dependencies";
-            packages = linters;
+            packages = lintingDependencies;
             scripts = with scripts; [ qa-qa ];
             shellHook = linkLuaLsLibrariesHook;
           };
 
           ciCheckStyle = makeCiDevShell {
             name = "ci-check-style-dependencies";
-            packages = [ pkgs.treefmt ] ++ formatters;
+            packages = formattingDependencies;
           };
 
           ciCodegen =
             let
-              codegen-scripts = lib.attrsets.foldlAttrs (
-                acc: name: script:
-                acc ++ lib.lists.optionals (lib.hasPrefix "code-generation" name) [ script ]
-              ) [ ] scripts;
+              codegen-scripts =
+                let
+                  isCodegenScript = lib.hasPrefix "code-generation";
+                  filterForCodegenScripts = lib.filterAttrs (name: _script: isCodegenScript name);
+                in
+                lib.trivial.pipe scripts [
+                  filterForCodegenScripts
+                  builtins.attrValues
+                ];
             in
             makeCiDevShell {
               name = "ci-codegen-dependencies";

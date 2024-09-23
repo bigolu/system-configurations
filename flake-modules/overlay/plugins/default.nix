@@ -22,9 +22,11 @@
           filterRepositoriesForPrefix =
             repositories:
             let
-              hasPrefix = string: (builtins.match "${repositoryPrefix}.*" string) != null;
+              hasRepositoryPrefix = lib.hasPrefix repositoryPrefix;
             in
-            lib.attrsets.filterAttrs (repositoryName: _ignored: hasPrefix repositoryName) repositories;
+            lib.attrsets.filterAttrs (
+              repositoryName: _ignored: hasRepositoryPrefix repositoryName
+            ) repositories;
 
           removePrefixFromRepositories =
             repositories:
