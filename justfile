@@ -14,9 +14,7 @@ list:
 ''')]
 [group('Host Management')]
 upgrade-nix:
-    # Per the installer readme:
-    # https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#upgrading-nix
-    sudo -i nix upgrade-nix
+    sudo --set-home nix upgrade-nix --profile default
 
 [doc('''
     Switch to a new generation of the host manager (nix-darwin or Home Manager)
