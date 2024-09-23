@@ -108,10 +108,10 @@
               vsCodeDependencies
               ++ linters
               ++ formatters
-              ++ scriptDependencyInfo.allDependencies
               ++ taskRunnerDependencies
               ++ versionControlDependencies
               ++ languageDependencies;
+            scripts = builtins.attrValues scripts;
             shellHook =
               ''
                 # For nixd

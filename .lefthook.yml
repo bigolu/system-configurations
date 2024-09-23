@@ -41,7 +41,8 @@ post-rewrite:
       run: >
         DIRENV_LOG_FORMAT='' direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
-        'Files have changed, which may affect the host configuration. Consider running `just switch`'
+        'The following files have changed, which may affect the host configuration. Consider running `just switch`: '
+        {files}
 
 post-checkout:
   commands:
@@ -61,7 +62,6 @@ change-notifications:
         DIFF=1 DIRENV_LOG_FORMAT='' direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash'
-        {files}
     dev-shell:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       run: >

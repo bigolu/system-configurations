@@ -217,5 +217,5 @@ let
   };
 in
 {
-  inherit dependenciesByName allDependencies validationPackage;
+  inherit dependenciesByName validationPackage;
 }
