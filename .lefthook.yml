@@ -75,6 +75,7 @@ change-notifications:
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash'
+        'envrc-secrets-example.bash'
     dev-shell:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       env:
