@@ -11,7 +11,7 @@ export BWS_ACCESS_TOKEN='<secret>'
 # given. This will only allow the token read access to public repositories on
 # github.com.
 #
-# Why: To avoid being rate-limited by GitHub when using `lychee` or `nix flake update`.
+# Why: To avoid being rate-limited by GitHub when using `lychee`.
 #
 # Learn how to get yours here:
 # https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-fine-grained-personal-access-token
