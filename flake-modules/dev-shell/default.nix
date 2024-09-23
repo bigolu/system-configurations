@@ -73,14 +73,15 @@
       ];
 
       vsCodeDependencies =
+        let
+          efmDependencies = [ pkgs.efm-langserver ] ++ linters;
+        in
         with pkgs;
         [
           go
-          efm-langserver
           nixd
         ]
-        # for efm-langserver
-        ++ linters;
+        ++ efmDependencies;
 
       taskRunnerDependencies = with pkgs; [
         just
