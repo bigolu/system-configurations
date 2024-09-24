@@ -60,7 +60,7 @@ post-rewrite:
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
-        'The following files have changed, which may affect the host configuration. Consider running `just switch`: '
+        'Files related to the host configuration have changed. Consider running `just switch`. '
         {files}
 
 post-checkout:
@@ -85,8 +85,8 @@ change-notifications:
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
-        'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash'
-        'envrc-secrets-example.bash'
+        'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash.'
+        {files}
     dev-shell:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       env:
@@ -95,7 +95,7 @@ change-notifications:
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
-        'The following files have changed and may affect your devShell, consider running `just sync-nix-direnv`: '
+        'Files related to the devShell have changed, consider running `just sync-nix-direnv`.'
         {files}
     fish:
       glob: "dotfiles/fish/conf.d/**.fish"
@@ -105,7 +105,7 @@ change-notifications:
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
-        'The following files have changed and may affect your devShell, consider restarting any running terminals: '
+        'Files related to fish have changed, consider running `r`.'
         {files}
     nix:
       glob: "flake.lock"
@@ -115,7 +115,8 @@ change-notifications:
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
-        'The flake.lock has changed, consider running `just upgrade-nix`'
+        'The flake.lock has changed, consider running `just upgrade-nix`.'
+        {files}
     nix-fix:
       glob: "dotfiles/nix/nix-fix/**"
       env:
@@ -124,7 +125,7 @@ change-notifications:
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
-        'Files related to the Nix $PATH fix have changed, consider re-running its installer: '
+        'Files related to the Nix $PATH fix have changed, consider re-running its installer.'
         {files}
     # TODO: lefthook syncs hooks automatically, though I'd prefer if I had
     # control over that.
@@ -136,4 +137,5 @@ change-notifications:
     #   run: >
     #     direnv exec "$PWD"
     #     bash scripts/git-hooks/notify.bash
-    #     '.lefthook.yml has changed, consider running `just sync-git-hooks`'
+    #     '.lefthook.yml has changed, consider running `just sync-git-hooks`.'
+    #     {files}
