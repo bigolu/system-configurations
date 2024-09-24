@@ -12,5 +12,5 @@ fi
 reviewdog \
   "$reporter" \
   -filter-mode=nofilter \
-  -fail-on-error \
+  -fail-level=any \
   -level=error "$@"

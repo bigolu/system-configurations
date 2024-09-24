@@ -43,4 +43,4 @@ jobs:
           tool_name: code-generation
           level: error
           filter_mode: nofilter
-          fail_on_error: true
+          reviewdog_flags: '-fail-level=any'

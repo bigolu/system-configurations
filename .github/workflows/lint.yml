@@ -31,7 +31,7 @@ jobs:
           tool_name: lint-autofix
           level: error
           filter_mode: nofilter
-          fail_on_error: false
+          reviewdog_flags: '-fail-level=any'
       - env:
           # 'lint check' calls reviewdog so it needs a token
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
