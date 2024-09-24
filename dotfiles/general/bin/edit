@@ -1,9 +1,0 @@
-#!/bin/sh
-# ^ Using /bin/sh instead of env for speed
-# shellcheck shell=sh
-
-if [ -n "$VSCODE_INJECTION" ]; then
-    exec code --reuse-window --wait "$@"
-else
-    exec nvim "$@"
-fi

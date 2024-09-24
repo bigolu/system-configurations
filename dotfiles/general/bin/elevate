@@ -1,3 +1,0 @@
-#!/usr/bin/env fish
-
-sudo --preserve-env=PATH,SHLVL,HOME --shell $argv

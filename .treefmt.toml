@@ -32,8 +32,6 @@
     "dotfiles/fzf/bin/fzf-help-preview",
     "dotfiles/fzf/bin/fzf-zoom",
     "dotfiles/general/bin-macos/trash",
-    "dotfiles/general/bin/edit",
-    "dotfiles/general/bin/elevate",
     "dotfiles/general/bin/pbcopy",
     "dotfiles/general/bin/process-output",
     "dotfiles/git/bin/git-clean-branches",

@@ -1,1 +1,2 @@
-fish_add_path --prepend --move "$HOME/.local/bin"
+# macOS doesn't set this
+fish_add_path --global --prepend --move "$HOME/.local/bin"

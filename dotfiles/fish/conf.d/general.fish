@@ -51,8 +51,19 @@ end
 # preferred editor so I'll set both.  For more information on the meaning of
 # these variables, see:
 # https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference/302391#302391
-set --global --export VISUAL (command -v edit)
-set --global --export EDITOR $VISUAL
+begin
+    set --local editor
+    if set --query VSCODE_INJECTION
+        set editor code --reuse-window --wait
+    else
+        set editor nvim
+    end
+    set --global --export VISUAL "$(command -v $editor[1]) $editor[2..]"
+    set --global --export EDITOR $VISUAL
+end
+if test (uname) = Darwin
+    abbr --add --global -- sudoedit 'sudo --edit'
+end
 abbr --add --global -- vim nvim
 
 # Change the color grep uses for highlighting matches to magenta
