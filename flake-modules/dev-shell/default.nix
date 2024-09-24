@@ -179,7 +179,7 @@
             scripts = with scripts; [ test ];
           };
 
-          # So we can cache it
+          # So we can cache it and pin a version.
           gomod2nix = inputs'.gomod2nix.devShells.default;
         };
       };

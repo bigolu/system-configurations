@@ -27,12 +27,12 @@ class SmartPlugController(object):
     def is_on(self):
         return self._plug.is_on
 
-    def _get_plug(self):
-        plug = self._get_plug_from_cache()
+    async def _get_plug(self):
+        plug = await self._get_plug_from_cache()
         if plug is not None:
             return plug
 
-        plug = self._find_plug()
+        plug = await self._find_plug()
         if plug is not None:
             return plug
 
@@ -56,8 +56,8 @@ class SmartPlugController(object):
 
         return None
 
-    def _find_plug(self):
-        for ip_address, device in self._discover_devices().items():
+    async def _find_plug(self):
+        for ip_address, device in (await self._discover_devices()).items():
             if device.alias == self._plug_alias and device.is_plug:
                 self._add_plug_address_to_cache(ip_address)
                 return device
@@ -72,7 +72,7 @@ class SmartPlugController(object):
     # this, I look for the correct broadcast address myself using psutil which gives me
     # all addresses assigned to each NIC on my machine. I then try discovery using all
     # the addresses that are marked as broadcast addresses until I find a Kasa device.
-    async def _discover_devices(self) -> dict[str, SmartDevice]:
+    async def _discover_devices(self):
         # return the first non-empty map of devices
         return next(
             filter(
