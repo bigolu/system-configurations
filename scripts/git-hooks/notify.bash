@@ -8,7 +8,7 @@ function main {
 
   set_changes_file "$@"
 
-  display_notification "$message (To see the diff run 'just show-changes $DIFF')"
+  display_notification "$message"
 }
 
 function set_changes_file {
@@ -20,10 +20,9 @@ function set_changes_file {
 }
 
 function display_notification {
+  echo "$1 (To see the diff run 'just show-changes $DIFF')"
   if is_in_vscode && ! is_in_vscode_terminal; then
-    desktop_notification "$1"
-  else
-    echo "$1"
+    desktop_notification "$1 (Check the VS Code Git/GitLens output panel for details)"
   fi
 }
 
