@@ -3,52 +3,53 @@ set -o nounset
 set -o pipefail
 
 function main {
-  repository_name="$(basename "$PWD")"
+  message="$1"
+  shift
 
-  vscode_environment_variables=("${!VSCODE_@}")
-  # If VSCODE_INJECTION is set we are in the VS Code terminal, in which case we
-  # still want the terminal backend.
-  if [ "${#vscode_environment_variables[@]}" -gt 0 ] && [ -z "${VSCODE_INJECTION:-}" ]; then
-    vscode "$@"
+  set_changes_file "$@"
+
+  display_notification "$message (To see the diff run 'just show-changes $DIFF')"
+}
+
+function set_changes_file {
+  if git config --get diff.tool 1>/dev/null; then
+    write_command_to_file git difftool --no-prompt "$COMMIT_1" "$COMMIT_2" -- "$@"
   else
-    terminal "$@"
+    write_command_to_file git diff "$COMMIT_1" "$COMMIT_2" -- "$@"
   fi
 }
 
-function vscode {
-  if [ -n "${DIFF:-}" ]; then
-    desktop_notification "$1"' (Check the git output panel in VS Code for a diff of the changes)'
-    set -- "${@:2}"
-
-    # Pipe to cat so if you're at the terminal, it doesn't launch a full screen
-    # pager that you'd have to eit.
-    #
-    # Remove colors since VS Code's output panel doesn't support them
-    git diff --color never ORIG_HEAD HEAD -- "$@" | cat
-  else
+function display_notification {
+  if is_in_vscode && ! is_in_vscode_terminal; then
     desktop_notification "$1"
-  fi
-}
-
-function terminal {
-  if [ -n "${DIFF:-}" ]; then
-    echo -e "$1"
-    set -- "${@:2}"
-
-    # Pipe to cat so if you're at the terminal, it doesn't launch a full screen
-    # pager that you'd have to eit.
-    git diff --color ORIG_HEAD HEAD -- "$@" | cat
   else
-    echo -e "$@"
+    echo "$1"
   fi
 }
 
 function desktop_notification {
+  local repository_name
+  repository_name="$(basename "$PWD")"
+
   if uname | grep -q Linux; then
     notify-send --app-name "$repository_name" "$1"
   else
     terminal-notifier -title "$repository_name" -message "$1"
   fi
+}
+
+function write_command_to_file {
+  mkdir -p ".git/change-commands"
+  printf '%q ' "$@" >".git/change-commands/$DIFF"
+}
+
+function is_in_vscode {
+  local tmp=("${!VSCODE_@}")
+  [ "${#tmp[@]}" -gt 0 ]
+}
+
+function is_in_vscode_terminal {
+  [ -n "${VSCODE_INJECTION:-}" ]
 }
 
 main "$@"

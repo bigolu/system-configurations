@@ -231,3 +231,10 @@ upgrade:
 [group('Debugging')]
 run-post-change-hook:
     lefthook run change-notifications
+
+[doc('''
+    TODO
+''')]
+[group('Changes')]
+show-changes NAME:
+    [ -f .git/change-commands/"$1" ] && bash .git/change-commands/"$1" || echo 'No changes to show.'

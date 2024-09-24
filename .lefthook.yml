@@ -1,5 +1,8 @@
 # yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
 
+# TODO: Since VS Code doesn't connect git hooks to a TTY. Ideally, I'd set
+# environment variable inside direnv that only enables no_tty mode for VS Code,
+# but lefthook doesn't have a variable for that.
 no_tty: true
 
 # By default lefthook uses true colors (e.g. #FFFFFF), but they may notf be
@@ -34,6 +37,8 @@ post-merge:
     change-notifications:
       env:
         DIRENV_LOG_FORMAT: ""
+        COMMIT_1: "ORIG_HEAD"
+        COMMIT_2: "HEAD"
       run: direnv exec "$PWD" lefthook run change-notifications
 
 post-rewrite:
@@ -42,12 +47,15 @@ post-rewrite:
       only: rebase
       env:
         DIRENV_LOG_FORMAT: ""
+        COMMIT_1: "ORIG_HEAD"
+        COMMIT_2: "HEAD"
       run: direnv exec "$PWD" lefthook run change-notifications
     # This is too noisy to do on all change-related hooks.
     change-notification-for-host-configuration:
       only: rebase
       env:
         DIRENV_LOG_FORMAT: ""
+        DIFF: "host"
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
@@ -61,18 +69,18 @@ post-checkout:
         DIRENV_LOG_FORMAT: ""
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands. Then I could remove this script.
-      run: direnv exec "$PWD" bash scripts/git-hooks/run-if-not-file-checkout.bash lefthook run change-notifications
+      run: COMMIT_1={1} COMMIT_2={2} direnv exec "$PWD" bash scripts/git-hooks/run-if-not-file-checkout.bash lefthook run change-notifications
 
 # NOTE: Everything here will be run in parallel:
 # https://github.com/evilmartians/lefthook/issues/132#issuecomment-1833411442
 change-notifications:
-  files: git diff --name-only ORIG_HEAD HEAD
+  files: git diff-tree -r --name-only --no-commit-id "$COMMIT_1" "$COMMIT_2"
   commands:
     envrc-secrets:
       glob: "envrc-secrets-example.bash"
       env:
         DIRENV_LOG_FORMAT: ""
-        DIFF: "1"
+        DIFF: "envrc-secrets"
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
@@ -82,6 +90,7 @@ change-notifications:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       env:
         DIRENV_LOG_FORMAT: ""
+        DIFF: "dev-shell"
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
@@ -91,6 +100,7 @@ change-notifications:
       glob: "dotfiles/fish/conf.d/**.fish"
       env:
         DIRENV_LOG_FORMAT: ""
+        DIFF: "fish"
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
@@ -100,6 +110,7 @@ change-notifications:
       glob: "flake.lock"
       env:
         DIRENV_LOG_FORMAT: ""
+        DIFF: "nix"
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
@@ -108,6 +119,7 @@ change-notifications:
       glob: "dotfiles/nix/nix-fix/**"
       env:
         DIRENV_LOG_FORMAT: ""
+        DIFF: "nix-fix"
       run: >
         direnv exec "$PWD"
         bash scripts/git-hooks/notify.bash
@@ -119,6 +131,7 @@ change-notifications:
     #   glob: ".lefthook.yml"
     #   env:
     #     DIRENV_LOG_FORMAT: ''
+    #     DIFF: "lefthook"
     #   run: >
     #     direnv exec "$PWD"
     #     bash scripts/git-hooks/notify.bash
