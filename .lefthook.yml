@@ -19,16 +19,14 @@ colors:
   red: 1
   yellow: 3
 
-output:
-  - failure
+# output:
+#   - failure
 
 pre-push:
   commands:
     check:
-      # TODO: treefmt needs this because if it doesn't have a TTY input it
-      # lags. I need to report this.
-      interactive: true
-      run: bash scripts/run-in-devshell.bash bash scripts/check.bash {push_files}
+      run: echo {files}; exit 1
+      # run: bash scripts/run-in-devshell.bash bash scripts/check.bash {push_files}
 
 post-merge:
   commands:
@@ -163,6 +161,73 @@ generate:
         bash scripts/code-generation/generate-gomod2nix-lock.bash
         # {files}
 
+format:
+  commands:
+    taplo:
+      glob: "*.toml"
+      exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
+      run: >
+        bash scripts/fail-if-files-change.bash
+        taplo format {files}
+    prettier:
+      glob: '*.{md,js,json{,5,c},y{,a}ml}'
+      # VS Code's configuration files end in .json, so prettier will format
+      # them using the json parser, but they are actually jsonc files.
+      exclude: [".vscode/*.json"]
+      run: >
+        bash scripts/fail-if-files-change.bash
+        prettier --write {files}
+    # VS Code's configuration files end in .json, but they are actually jsonc
+    # files.
+    prettier-vscode:
+      glob: ".vscode/*.json"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        prettier --parser jsonc --write {files}
+    shfmt:
+      glob: "*.{envrc,sh,bash}"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        shfmt --write {files}
+    fish_indent:
+      glob: "*.fish"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        fish_indent --write {files}
+    nixfmt:
+      glob: "*.nix"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        nixfmt {files}
+    just:
+      # TODO: just's builtin formatter currently removes/rearranges comments. Until
+      # this is fixed I'll disable it: https://github.com/casey/just/issues/862.
+      skip: true
+      glob: "justfile"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        just --unstable --fmt --justfile {files}
+    stylua:
+      glob: "*.lua"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        stylua {files}
+    gofmt:
+      glob: "*.go"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        gofmt -w {files}
+    ruff-format:
+      glob: "*.py"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        ruff format {files}
+    ruff-format-sort-imports:
+      glob: "*.py"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        ruff check --select I --fix-only {files}
+      
 fix-lint:
   commands:
     deadnix:
