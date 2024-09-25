@@ -19,14 +19,26 @@ colors:
   red: 1
   yellow: 3
 
-# output:
-#   - failure
+output:
+  - failure
+  - execution_info
 
 pre-push:
   commands:
-    check:
-      run: echo {files}; exit 1
-      # run: bash scripts/run-in-devshell.bash bash scripts/check.bash {push_files}
+    generate:
+      priority: 1
+      run: printf '%s\0' {push_files} | lefthook run generate --files-from-stdin
+    fix-lint:
+      priority: 2
+      run: printf '%s\0' {push_files} | lefthook run fix-lint --files-from-stdin
+    # Run formatting after lint fixes because sometimes a lint fix produces code
+    # that doesn't comply with the formatting.
+    format:
+      priority: 3
+      run: printf '%s\0' {push_files} | lefthook run format --files-from-stdin
+    check-lint:
+      priority: 4
+      run: printf '%s\0' {push_files} | lefthook run check-lint --files-from-stdin
 
 post-merge:
   commands:
@@ -66,8 +78,10 @@ post-checkout:
         bash scripts/git-hooks/run-if-not-file-checkout.bash
         lefthook run change-notifications
 
-# NOTE: Everything here will be run in parallel:
-# https://github.com/evilmartians/lefthook/issues/132#issuecomment-1833411442
+# 'exit 1' is here because I only show execution output if a command fails,
+# where fail means it 'did something' e.g. a formatter modified a file or a
+# linter found an issue. These commands always do something if the glob matches
+# so they should always fail.
 change-notifications:
   files: git diff-tree -r --name-only --no-commit-id "$COMMIT_1" "$COMMIT_2"
   commands:
@@ -80,6 +94,7 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash.'
         {files}
+        ; exit 1
     dev-shell:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       env:
@@ -89,6 +104,7 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'Files related to the devShell have changed, consider running `just sync-nix-direnv`.'
         {files}
+        ; exit 1
     fish:
       glob: "dotfiles/fish/conf.d/**.fish"
       env:
@@ -98,6 +114,7 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'Files related to fish have changed, consider running `r`.'
         {files}
+        ; exit 1
     nix:
       glob: "flake.lock"
       env:
@@ -107,6 +124,7 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'The flake.lock has changed, consider running `just upgrade-nix`.'
         {files}
+        ; exit 1
     nix-fix:
       glob: "dotfiles/nix/nix-fix/**"
       env:
@@ -116,6 +134,7 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'Files related to the Nix $PATH fix have changed, consider re-running its installer.'
         {files}
+        ; exit 1
     lefthook:
       # TODO: No need for this yet since lefthook syncs hooks automatically, I
       # should ask them to make this optional.
@@ -128,6 +147,7 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         '.lefthook.yml has changed, consider running `just sync-git-hooks`.'
         {files}
+        ; exit 1
 
 # SYNC: GENERATORS
 #
@@ -170,7 +190,7 @@ format:
         bash scripts/fail-if-files-change.bash
         taplo format {files}
     prettier:
-      glob: '*.{md,js,json{,5,c},y{,a}ml}'
+      glob: "*.{md,js,json{,5,c},y{,a}ml}"
       # VS Code's configuration files end in .json, so prettier will format
       # them using the json parser, but they are actually jsonc files.
       exclude: [".vscode/*.json"]
@@ -227,7 +247,7 @@ format:
       run: >
         bash scripts/fail-if-files-change.bash
         ruff check --select I --fix-only {files}
-      
+
 fix-lint:
   commands:
     deadnix:
@@ -283,6 +303,7 @@ check-lint:
         ' -- {files}
     fish:
       glob: "*.fish"
+      # TODO: Fish doesn't support passing multple files, I should open an issue.
       run: >
         parallel fish --no-execute '{}' '2>&1' '|' bash scripts/reviewdog.bash -name=fish -efm '"%f (line %l): %m"' ::: {files}
     desktop-file-validate:
@@ -324,6 +345,13 @@ check-lint:
         actionlint -no-color "$@"
         | bash scripts/reviewdog.bash -name=actionlint -efm "%f:%l:%c: %m"
         ' -- {files}
+    statix:
+      glob: "*.nix"
+      # statix doesn't support passing multiple files yet:
+      # https://github.com/nerdypepper/statix/issues/70
+      run: >
+        parallel -q -- bash -c 'set -o pipefail; statix check {} -o errfmt
+        | bash scripts/reviewdog.bash -name=statix -efm "%f>%l:%c:%t:%n:%m"' ::: {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should
     # open issues with all them. In the meantime, I put reviewdog in tee mode
@@ -347,12 +375,6 @@ check-lint:
         renovate-config-validator --strict "$@"
         | bash scripts/reviewdog.bash -name=renovate -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         ' -- {files}
-    statix:
-      glob: "*.nix"
-      # statix doesn't support passing multiple files yet:
-      # https://github.com/nerdypepper/statix/issues/70
-      run: >
-        parallel -q -- bash -c 'set -o pipefail; statix check {} | bash scripts/reviewdog.bash -name=statix -efm "_REVIEWDOG_DO_NOT_MATCH" -tee' ::: {files}
     taplo:
       glob: "*.toml"
       # This is a generated file

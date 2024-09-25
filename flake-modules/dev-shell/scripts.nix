@@ -89,18 +89,9 @@ let
 
   fail-if-files-change = {
     dependencies = with pkgs; [
-      gitminimal
+      gitMinimal
     ];
     path = "scripts/fail-if-files-change.bash";
-  };
-
-  check = {
-    dependencies = with pkgs; [
-      gitminimal
-      lefthook
-      moreutilsWithoutParallel
-    ];
-    path = "scripts/check.bash";
   };
 
   ci-set-nix-direnv-hash = {
@@ -139,7 +130,6 @@ let
       ci-auto-merge
       git-hooks-notify
       fail-if-files-change
-      check
       ;
   };
 
@@ -179,7 +169,6 @@ let
             "cannot:${pkgs.lua-language-server}/bin/lua-language-server"
             "cannot:${pkgs.ast-grep}/bin/ast-grep"
             "cannot:${pkgs.gitMinimal}/bin/git"
-            "cannot:${pkgs.treefmt}/bin/treefmt"
             "cannot:${pkgs.markdownlint-cli2}/bin/markdownlint-cli2"
             "cannot:${pkgs.ltex-ls}/bin/ltex-cli"
             "cannot:${pkgs.ripgrep}/bin/rg"

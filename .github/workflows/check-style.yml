@@ -21,7 +21,7 @@ jobs:
         with:
           dev-shell: ciCheckStyle
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: treefmt --on-unmatched=fatal
+      - run: lefthook run format --all-files
       - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
         with:
           tool_name: code-style

@@ -35,47 +35,56 @@
           ${pkgs.coreutils}/bin/ln --symbolic ${lib.escapeShellArg luaLsLibraries} "$dest"
         '';
 
-      lintingDependencies = with pkgs; [
-        actionlint
-        deadnix
-        fish
-        lychee
-        renovate # for renovate-config-validator
-        shellcheck
-        statix
-        ltex-ls # for ltex-cli
-        markdownlint-cli2
-        desktop-file-utils
-        golangci-lint
-        config-file-validator
-        taplo
-        ruff
-
-        # TODO: If the YAML language server gets a CLI I should use that instead:
-        # https://github.com/redhat-developer/yaml-language-server/issues/535
-        yamllint
-
-        # This reports the errors
-        reviewdog
-
-        # Runs the linters
+      lefthookDependencies = with pkgs; [
         lefthook
+        # These are called in the lefthook configuration file
+        gnused
+        gitMinimal
       ];
 
-      formattingDependencies = with pkgs; [
-        nixfmt-rfc-style
-        fish # for fish_indent
-        nodePackages.prettier
-        shfmt
-        stylua
-        just
-        go # for gofmt
-        taplo
-        ruff
+      lintingDependencies =
+        with pkgs;
+        [
+          actionlint
+          deadnix
+          fish
+          lychee
+          renovate # for renovate-config-validator
+          shellcheck
+          statix
+          ltex-ls # for ltex-cli
+          markdownlint-cli2
+          desktop-file-utils
+          golangci-lint
+          config-file-validator
+          taplo
+          ruff
 
-        # This calls the formatters
-        treefmt
-      ];
+          # TODO: If the YAML language server gets a CLI I should use that instead:
+          # https://github.com/redhat-developer/yaml-language-server/issues/535
+          yamllint
+
+          # This reports the errors
+          reviewdog
+        ]
+        # Runs the linters
+        ++ lefthookDependencies;
+
+      formattingDependencies =
+        with pkgs;
+        [
+          nixfmt-rfc-style
+          fish # for fish_indent
+          nodePackages.prettier
+          shfmt
+          stylua
+          just
+          go # for gofmt
+          taplo
+          ruff
+        ]
+        # Runs the formatters
+        ++ lefthookDependencies;
 
       vsCodeDependencies =
         let
@@ -93,10 +102,12 @@
         less # For paging the output of `just list`
       ];
 
-      versionControlDependencies = with pkgs; [
-        gitMinimal
-        lefthook
-      ];
+      versionControlDependencies =
+        with pkgs;
+        [
+          gitMinimal
+        ]
+        ++ lefthookDependencies;
 
       languageDependencies = with pkgs; [
         nix
@@ -114,14 +125,11 @@
             lib.trivial.pipe scripts [
               filterForCodegenScripts
               builtins.attrValues
-              (builtins.getAttr "dependencies")
+              (builtins.map (builtins.getAttr "dependencies"))
+              (builtins.concatLists)
             ];
         in
-        with pkgs;
-        [
-          # Runs the generators
-          lefthook
-        ]
+        lefthookDependencies # Runs the generators
         ++ codegenScriptDependencies;
 
       outputs = {

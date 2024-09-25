@@ -71,8 +71,9 @@ test:
     task gets run during the git pre-commit hook.
 ''')]
 [group('Checks')]
-format:
-    treefmt --on-unmatched=fatal --fail-on-change
+format *FILES:
+    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
+    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run format --files-from-stdin
 
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -87,7 +88,7 @@ format:
 [group('Checks')]
 check-lint *FILES:
     # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    printf '%s\0' "$@" | lefthook run --files-from-stdin check-lint
+    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run check-lint --files-from-stdin
     
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -102,7 +103,7 @@ check-lint *FILES:
 [group('Checks')]
 lint-fix *FILES:
     # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    printf '%s\0' "$@" | lefthook run --files-from-stdin fix-lint
+    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run fix-lint --files-from-stdin
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
@@ -118,8 +119,9 @@ check-links *FILES:
     lychee "$@"
 
 [group('Checks')]
-check:
-    bash scripts/check.bash
+check *FILES:
+    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
+    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run pre-push --files-from-stdin
 
 [doc('''
     Get all secrets from BitWarden Secrets Manager. You'll be prompted for
