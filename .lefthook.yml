@@ -6,7 +6,7 @@
 # file. Right now this affects lefthook.
 no_tty: false
 
-# By default lefthook uses true colors (e.g. #FFFFFF), but they may notf be
+# By default lefthook uses true colors (e.g. #FFFFFF), but they may not be
 # readable depending on the terminal background color. Instead I'm using ANSI
 # colors since they come from the terminal's color palette.
 # TODO: They should change this.
@@ -23,41 +23,59 @@ output:
   - failure
   - execution_info
 
+# The groups below are all git hooks and the ones below them are custom
+# groups. Since these groups are called whenever a git hook gets triggered, we
+# need to load the devShell environment in case the git hook was not triggered
+# at the terminal e.g. IDE.
+#
+# TODO: If direnv supported exporting to POSIX shell, I could use the 'rc' field
+# in this configuration and have lefthook call direnv to get the environment
+# before running any of these commands.
 pre-push:
   commands:
     generate:
       priority: 1
-      run: printf '%s\0' {push_files} | lefthook run generate --files-from-stdin
+      run: >
+        printf '%s\0' {push_files}
+        | bash scripts/run-in-devshell.bash lefthook run generate --files-from-stdin
     fix-lint:
       priority: 2
-      run: printf '%s\0' {push_files} | lefthook run fix-lint --files-from-stdin
+      run: >
+        printf '%s\0' {push_files}
+        | bash scripts/run-in-devshell.bash lefthook run fix-lint --files-from-stdin
     # Run formatting after lint fixes because sometimes a lint fix produces code
     # that doesn't comply with the formatting.
     format:
       priority: 3
-      run: printf '%s\0' {push_files} | lefthook run format --files-from-stdin
+      run: >
+        printf '%s\0' {push_files}
+        | bash scripts/run-in-devshell.bash lefthook run format --files-from-stdin
     check-lint:
       priority: 4
-      run: printf '%s\0' {push_files} | lefthook run check-lint --files-from-stdin
-
+      run: >
+        printf '%s\0' {push_files}
+        | bash scripts/run-in-devshell.bash lefthook run check-lint --files-from-stdin
 post-merge:
   commands:
-    change-notifications:
+    check-for-actionable-changes:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-      run: bash scripts/run-in-devshell.bash lefthook run change-notifications
-
+      run: >
+        bash scripts/run-in-devshell.bash
+        lefthook run change-notifications
 post-rewrite:
   commands:
-    change-notifications:
+    check-for-actionable-changes:
       only: rebase
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-      run: bash scripts/run-in-devshell.bash lefthook run change-notifications
+      run: >
+        bash scripts/run-in-devshell.bash
+        lefthook run change-notifications
     # This is too noisy to do on all change-related hooks.
-    change-notification-for-host-configuration:
+    check-for-actionable-changes-for-host-configuration:
       only: rebase
       env:
         DIFF: "host"
@@ -66,10 +84,9 @@ post-rewrite:
         bash scripts/git-hooks/notify.bash
         'Files related to the host configuration have changed. Consider running `just switch`.'
         {files}
-
 post-checkout:
   commands:
-    "Checking for actionable changes":
+    check-for-actionable-changes:
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands. Then I could remove this script.
       run: >

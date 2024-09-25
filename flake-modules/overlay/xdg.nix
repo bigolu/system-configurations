@@ -16,7 +16,6 @@
           xdgOverlay = xdgModuleContents.config.lib.xdg.xdgOverlay {
             specs = {
               ripgrep.env.RIPGREP_CONFIG_PATH = { config }: "${config}/ripgreprc";
-              figlet.env.FIGLET_FONTDIR = { data }: data;
             };
           };
           xdgWrappers = xdgOverlay final prev;
