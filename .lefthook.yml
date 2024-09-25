@@ -61,6 +61,7 @@ post-merge:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
+        NO_COLOR: '1'
       run: >
         bash scripts/run-in-devshell.bash
         lefthook run change-notifications
@@ -71,6 +72,7 @@ post-rewrite:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
+        NO_COLOR: '1'
       run: >
         bash scripts/run-in-devshell.bash
         lefthook run change-notifications
@@ -87,6 +89,8 @@ post-rewrite:
 post-checkout:
   commands:
     check-for-actionable-changes:
+      env:
+        NO_COLOR: '1'
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands. Then I could remove this script.
       run: >
