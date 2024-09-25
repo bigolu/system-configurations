@@ -55,11 +55,6 @@ let
     path = "scripts/code-generation/generate-readme-table-of-contents.bash";
   };
 
-  code-generation-go-mod-tidy = {
-    dependencies = with pkgs; [ go ];
-    path = "scripts/code-generation/go-mod-tidy.bash";
-  };
-
   get-secrets = {
     dependencies = with pkgs; [
       jq
@@ -122,7 +117,6 @@ let
       code-generation-generate-neovim-plugin-list
       code-generation-generate-gomod2nix-lock
       code-generation-generate-readme-table-of-contents
-      code-generation-go-mod-tidy
       get-secrets
       init-nix-darwin
       test
@@ -176,7 +170,6 @@ let
             "cannot:${pkgs.nix}/bin/nix"
             "cannot:${pkgs.direnv}/bin/direnv"
             "cannot:${pkgs.gh}/bin/gh"
-            "cannot:${pkgs.go}/bin/go"
             "cannot:${moreutilsWithoutParallel}/bin/chronic"
             "cannot:${pkgs.doctoc}/bin/doctoc"
           ]

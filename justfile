@@ -206,14 +206,6 @@ generate-readme-table-of-contents:
     lefthook run --force --commands readme-table-of-contents generate
 
 [doc('''
-    Run `go mod tidy`. You shouldn't have to run this yourself since it runs
-    during the pre-commit hook.
-''')]
-[group('Code Generation')]
-go-mod-tidy:
-    lefthook run --force --commands go-mod-tidy generate
-
-[doc('''
     Update all packages and switch to a new generation of the host manager
     (nix-darwin or Home Manager) configuration. You shouldn't have to run
     this since packages get updated on the remote automatically and there's a

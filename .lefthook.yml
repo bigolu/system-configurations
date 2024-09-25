@@ -162,12 +162,6 @@ generate:
         bash scripts/fail-if-files-change.bash
         bash scripts/code-generation/generate-readme-table-of-contents.bash
         # {files}
-    go-mod-tidy:
-      glob: "*gozip/go.mod"
-      run: >
-        bash scripts/fail-if-files-change.bash
-        bash scripts/code-generation/go-mod-tidy.bash
-        # {files}
     neovim-plugin-list:
       glob: "*neovim/lua/*.lua"
       run: >
@@ -271,6 +265,13 @@ fix-lint:
       run: >
         bash scripts/fail-if-files-change.bash
         markdownlint-cli2 --fix {files}
+    go-mod-tidy:
+      glob: "*gozip/go.{mod,sum}"
+      # The '# {files}' is there because lefthook only applies the glob if you
+      # have a 'files' command or you use {files} in your run command:
+      # https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+      run: >
+        cd ./flake-modules/bundler/gozip && go mod tidy # {files}
 
 check-lint:
   parallel: true
