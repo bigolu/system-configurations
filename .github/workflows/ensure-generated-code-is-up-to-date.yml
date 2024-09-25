@@ -36,11 +36,11 @@ jobs:
           dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
-        run: bash scripts/qa/qa.bash generate || true
+        run: lefthook run --all-files generate || true
       - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
         uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
         with:
           tool_name: code-generation
           level: error
           filter_mode: nofilter
-          reviewdog_flags: '-fail-level=any'
+          reviewdog_flags: "-fail-level=any"

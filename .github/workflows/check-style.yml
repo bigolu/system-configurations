@@ -27,4 +27,4 @@ jobs:
           tool_name: code-style
           level: error
           filter_mode: nofilter
-          reviewdog_flags: '-fail-level=any'
+          reviewdog_flags: "-fail-level=any"

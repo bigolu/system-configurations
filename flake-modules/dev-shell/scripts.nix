@@ -87,6 +87,22 @@ let
     path = "scripts/test.bash";
   };
 
+  fail-if-files-change = {
+    dependencies = with pkgs; [
+      gitminimal
+    ];
+    path = "scripts/fail-if-files-change.bash";
+  };
+
+  check = {
+    dependencies = with pkgs; [
+      gitminimal
+      lefthook
+      moreutilsWithoutParallel
+    ];
+    path = "scripts/check.bash";
+  };
+
   ci-set-nix-direnv-hash = {
     dependencies = with pkgs; [ direnv ];
     path = "scripts/ci/set-nix-direnv-hash.bash";
@@ -110,25 +126,6 @@ let
     path = "scripts/git-hooks/notify.bash";
   };
 
-  qa-glob = {
-    dependencies = with pkgs; [ findutils ];
-    path = "scripts/qa/glob.bash";
-  };
-
-  qa-qa = {
-    dependencies =
-      with pkgs;
-      [
-        gitMinimal
-        moreutilsWithoutParallel
-        parallel
-        coreutils
-        yq-go
-      ]
-      ++ qa-glob.dependencies;
-    path = "scripts/qa/qa.bash";
-  };
-
   dependenciesByName = {
     inherit
       code-generation-generate-neovim-plugin-list
@@ -141,8 +138,8 @@ let
       ci-set-nix-direnv-hash
       ci-auto-merge
       git-hooks-notify
-      qa-glob
-      qa-qa
+      fail-if-files-change
+      check
       ;
   };
 
@@ -188,13 +185,11 @@ let
             "cannot:${pkgs.ripgrep}/bin/rg"
             "cannot:${pkgs.reviewdog}/bin/reviewdog"
             "cannot:${pkgs.nix}/bin/nix"
-            "cannot:${pkgs.yq-go}/bin/yq"
-            "cannot:${pkgs.parallel}/bin/parallel"
             "cannot:${pkgs.direnv}/bin/direnv"
             "cannot:${pkgs.gh}/bin/gh"
             "cannot:${pkgs.go}/bin/go"
-            "cannot:${pkgs.doctoc}/bin/doctoc"
             "cannot:${moreutilsWithoutParallel}/bin/chronic"
+            "cannot:${pkgs.doctoc}/bin/doctoc"
           ]
           ++ lib.lists.optionals pkgs.stdenv.isDarwin [
             "cannot:${pkgs.terminal-notifier}/bin/terminal-notifier"

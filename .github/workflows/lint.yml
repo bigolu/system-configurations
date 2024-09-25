@@ -23,7 +23,7 @@ jobs:
           dev-shell: ciLint
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: |
-          if ! bash scripts/qa/qa.bash lint fix; then
+          if ! lefthook run --all-files fix-lint; then
             echo 'DID_FAIL=true' >> "$GITHUB_ENV"
           fi
       - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
@@ -31,12 +31,12 @@ jobs:
           tool_name: lint-autofix
           level: error
           filter_mode: nofilter
-          reviewdog_flags: '-fail-level=any'
+          reviewdog_flags: "-fail-level=any"
       - env:
           # 'lint check' calls reviewdog so it needs a token
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if ! bash scripts/qa/qa.bash lint check; then
+          if ! lefthook run --all-files check-lint; then
             echo 'DID_FAIL=true' >> "$GITHUB_ENV"
           fi
       # By waiting until everything has run to fail the job, we'll see all the

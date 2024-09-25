@@ -4,14 +4,16 @@
 # output file it gives to git hooks is a tty file. To work around this I'm
 # setting no_tty. Though VS Code should address by not providing a tty
 # file. Right now this affects lefthook.
-no_tty: true
+no_tty: false
 
 # By default lefthook uses true colors (e.g. #FFFFFF), but they may notf be
 # readable depending on the terminal background color. Instead I'm using ANSI
 # colors since they come from the terminal's color palette.
 # TODO: They should change this.
 colors:
-  cyan: 6
+  # My terminal's light theme uses a shade of red as cyan so I'll use blue here
+  # to make it easier to distinguish from errors.
+  cyan: 4
   gray: 8
   green: 2
   red: 1
@@ -19,8 +21,6 @@ colors:
 
 output:
   - failure
-  - execution
-  - execution_out
 
 pre-push:
   commands:
@@ -118,15 +118,182 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'Files related to the Nix $PATH fix have changed, consider re-running its installer.'
         {files}
-    # TODO: lefthook syncs hooks automatically, though I'd prefer if I had
-    # control over that.
-    # lefthook:
-    #   glob: ".lefthook.yml"
-    #   env:
-    #     DIFF: "lefthook"
-    #   run: >
-    #     bash scripts/run-in-devshell.bash
-    #     bash scripts/git-hooks/notify.bash
-    #     '.lefthook.yml has changed, consider running `just sync-git-hooks`.'
-    #     {files}
+    lefthook:
+      # TODO: No need for this yet since lefthook syncs hooks automatically, I
+      # should ask them to make this optional.
+      skip: true
+      glob: ".lefthook.yml"
+      env:
+        DIFF: "lefthook"
+      run: >
+        bash scripts/run-in-devshell.bash
+        bash scripts/git-hooks/notify.bash
+        '.lefthook.yml has changed, consider running `just sync-git-hooks`.'
+        {files}
 
+# SYNC: GENERATORS
+#
+# The '# {files}' is there because lefthook only applies the glob if you have a
+# 'files' command or you use {files} in your run command:
+# https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+generate:
+  commands:
+    readme-table-of-contents:
+      glob: README.md
+      run: >
+        bash scripts/fail-if-files-change.bash
+        bash scripts/code-generation/generate-readme-table-of-contents.bash
+        # {files}
+    go-mod-tidy:
+      glob: "*gozip/go.mod"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        bash scripts/code-generation/go-mod-tidy.bash
+        # {files}
+    neovim-plugin-list:
+      glob: "*neovim/lua/*.lua"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        bash scripts/code-generation/generate-neovim-plugin-list.bash
+        # {files}
+    gomod2nix-lock:
+      glob: "*gozip/go.mod"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        bash scripts/code-generation/generate-gomod2nix-lock.bash
+        # {files}
+
+fix-lint:
+  commands:
+    deadnix:
+      glob: "*.nix"
+      run: deadnix --fail --quiet --edit {files}
+    ruff:
+      glob: "*.py"
+      run: ruff check --fix-only --exit-non-zero-on-fix {files}
+
+    # TODO: These fixers don't fail on change, I should open issues to see if
+    # that can be added.
+    statix:
+      glob: "*.nix"
+      # statix doesn't support passing multiple files yet:
+      # https://github.com/nerdypepper/statix/issues/69
+      run: >
+        bash scripts/fail-if-files-change.bash
+        parallel statix fix ::: {files}
+    markdownlint-cli2:
+      glob: "*.md"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        markdownlint-cli2 --fix {files}
+
+check-lint:
+  parallel: true
+  commands:
+    ltex-cli:
+      # TODO: The cli isn't respecting my dictionary or ignore files so I can't use it.
+      # https://github.com/valentjn/ltex-ls/issues/283
+      skip: true
+      glob: "*.md"
+      run: >
+        bash -o pipefail -euc '
+        ltex-cli --server-command-line=ltex-ls "$@"
+        | bash scripts/reviewdog.bash -name=ltex-cli -efm '%f:%l:%c: %m'
+        ' -- {files}
+    golangci-lint:
+      # TODO: Don't want to address these issues yet
+      skip: true
+      glob: "*.go"
+      run: >
+        bash -o pipefail -euc '
+        golangci-lint run --out-format sarif "$@"
+        | bash scripts/reviewdog.bash -name=golangci-lint -f sarif
+        ' -- {files}
+    ruff:
+      glob: "*.py"
+      run: >
+        bash -o pipefail -euc '
+        ruff check --output-format sarif "$@"
+        | bash scripts/reviewdog.bash -name=ruff -f sarif
+        ' -- {files}
+    fish:
+      glob: "*.fish"
+      run: >
+        parallel fish --no-execute '{}' '2>&1' '|' bash scripts/reviewdog.bash -name=fish -efm '"%f (line %l): %m"' ::: {files}
+    desktop-file-validate:
+      glob: "*.desktop"
+      run: >
+        bash -o pipefail -euc '
+        desktop-file-validate "$@"
+        | bash scripts/reviewdog.bash -name=desktop-file-validate -efm "%f: %m"
+        ' -- {files}
+    markdownlint-cli2:
+      glob: "*.md"
+      run: >
+        bash -o pipefail -euc '
+        markdownlint-cli2 "$@"
+        | bash scripts/reviewdog.bash -name=markdownlint-cli2
+        -efm "%f:%l:%c: %m"
+        -efm "%f:%l:%c %m"
+        -efm "%f:%l: %m"
+        -efm "%f:%l %m"
+        ' -- {files}
+    shellcheck:
+      glob: "*.{sh,bash}"
+      run: >
+        bash -o pipefail -euc '
+        shellcheck --format checkstyle --color=never "$@"
+        | bash scripts/reviewdog.bash -name=shellcheck -f checkstyle
+        ' -- {files}
+    yamllint:
+      glob: "*.{yaml,yml}"
+      run: >
+        bash -o pipefail -euc '
+        yamllint --strict --format parsable "$@"
+        | bash scripts/reviewdog.bash -name=yamllint -efm "%f:%l:%c: [%t%*[a-z]] %m"
+        ' -- {files}
+    actionlint:
+      glob: ".github/workflows/*.{yaml,yml}"
+      run: >
+        bash -o pipefail -euc '
+        actionlint -no-color "$@"
+        | bash scripts/reviewdog.bash -name=actionlint -efm "%f:%l:%c: %m"
+        ' -- {files}
+
+    # TODO: These tools don't output a format that reviewdog can parse, I should
+    # open issues with all them. In the meantime, I put reviewdog in tee mode
+    # so it will just output whatever the tool outputs. Though this means these
+    # errors won't show up as comments on the code in a PR, you'll have to check
+    # the console.
+    config-file-validator:
+      glob: "*.{editorconfig,json,ini}"
+      exclude: [".vscode/*.json"]
+      # TODO: SARIF support is being added:
+      # https://github.com/Boeing/config-file-validator/issues/32
+      run: >
+        bash -o pipefail -euc '
+        validator -groupby pass-fail "$@"
+        | bash scripts/reviewdog.bash -name=config-file-validator -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        ' -- {files}
+    renovate:
+      glob: ".github/renovate.json5"
+      run: >
+        bash -o pipefail -euc '
+        renovate-config-validator --strict "$@"
+        | bash scripts/reviewdog.bash -name=renovate -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        ' -- {files}
+    statix:
+      glob: "*.nix"
+      # statix doesn't support passing multiple files yet:
+      # https://github.com/nerdypepper/statix/issues/70
+      run: >
+        parallel -q -- bash -c 'set -o pipefail; statix check {} | bash scripts/reviewdog.bash -name=statix -efm "_REVIEWDOG_DO_NOT_MATCH" -tee' ::: {files}
+    taplo:
+      glob: "*.toml"
+      # This is a generated file
+      exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
+      run: >
+        bash -o pipefail -euc '
+        taplo lint "$@"
+        | bash scripts/reviewdog.bash -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        ' -- {files}

@@ -57,6 +57,9 @@
 
         # This reports the errors
         reviewdog
+
+        # Runs the linters
+        lefthook
       ];
 
       formattingDependencies = with pkgs; [
@@ -101,6 +104,26 @@
         go
       ];
 
+      codeGenerationDependencies =
+        let
+          codegenScriptDependencies =
+            let
+              isCodegenScript = lib.hasPrefix "code-generation";
+              filterForCodegenScripts = lib.filterAttrs (name: _script: isCodegenScript name);
+            in
+            lib.trivial.pipe scripts [
+              filterForCodegenScripts
+              builtins.attrValues
+              (builtins.getAttr "dependencies")
+            ];
+        in
+        with pkgs;
+        [
+          # Runs the generators
+          lefthook
+        ]
+        ++ codegenScriptDependencies;
+
       outputs = {
         packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
 
@@ -111,6 +134,7 @@
               vsCodeDependencies
               ++ lintingDependencies
               ++ formattingDependencies
+              ++ codeGenerationDependencies
               ++ taskRunnerDependencies
               ++ versionControlDependencies
               ++ languageDependencies;
@@ -135,7 +159,6 @@
           ciLint = makeCiDevShell {
             name = "ci-lint-dependencies";
             packages = lintingDependencies;
-            scripts = with scripts; [ qa-qa ];
             shellHook = linkLuaLsLibrariesHook;
           };
 
@@ -144,22 +167,10 @@
             packages = formattingDependencies;
           };
 
-          ciCodegen =
-            let
-              codegen-scripts =
-                let
-                  isCodegenScript = lib.hasPrefix "code-generation";
-                  filterForCodegenScripts = lib.filterAttrs (name: _script: isCodegenScript name);
-                in
-                lib.trivial.pipe scripts [
-                  filterForCodegenScripts
-                  builtins.attrValues
-                ];
-            in
-            makeCiDevShell {
-              name = "ci-codegen-dependencies";
-              scripts = [ scripts.qa-qa ] ++ codegen-scripts;
-            };
+          ciCodegen = makeCiDevShell {
+            name = "ci-codegen-dependencies";
+            packages = codeGenerationDependencies;
+          };
 
           ciRenovate = makeCiDevShell {
             name = "ci-renovate-dependencies";

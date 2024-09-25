@@ -16,24 +16,27 @@ function main {
     exit
   fi
 
-  bash scripts/qa/qa.bash generate "${files[@]}" || found_problem=1
+  print_with_nul "${files[@]}" |
+    lefthook run --files-from-stdin generate || found_problem=1
 
-  bash scripts/qa/qa.bash lint fix "${files[@]}" || found_problem=1
+  print_with_nul "${files[@]}" |
+    lefthook run --files-from-stdin fix-lint || found_problem=1
 
-  # Print a header for consistency with qa.bash.
+  # Print a header for consistency with lefthook
   reset='[m'
   accent='[36m'
   printf '\n\e%s┃ Format ❯\e%s\n' "$accent" "$reset"
   # treefmt keeps a cache to tell whether a file has changed since it last ran
   # so no need to pass in changed files.
   #
-  # Use chronic so there's no output if it succeeds, like qa.bash.
+  # Use chronic so there's no output if it succeeds, like lefthook.
   #
   # Run formatting after lint fixes because sometimes a lint fix produces code
   # that doesn't comply with the formatting.
   chronic treefmt --on-unmatched=fatal --fail-on-change || found_problem=1
 
-  bash scripts/qa/qa.bash lint check "${files[@]}" || found_problem=1
+  print_with_nul "${files[@]}" |
+    lefthook run --files-from-stdin check-lint || found_problem=1
 
   if [ "$found_problem" = 1 ]; then
     exit 1

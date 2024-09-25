@@ -85,8 +85,9 @@ format:
                linted.
 ''')]
 [group('Checks')]
-lint-check *FILES:
-    bash scripts/qa/qa.bash lint check "$@"
+check-lint *FILES:
+    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
+    printf '%s\0' "$@" | lefthook run --files-from-stdin check-lint
     
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -100,7 +101,8 @@ lint-check *FILES:
 ''')]
 [group('Checks')]
 lint-fix *FILES:
-    bash scripts/qa/qa.bash lint fix "$@"
+    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
+    printf '%s\0' "$@" | lefthook run --files-from-stdin fix-lint
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
@@ -183,7 +185,7 @@ sync-git-hooks:
 ''')]
 [group('Code Generation')]
 generate-gomod2nix-lock:
-    bash scripts/qa/qa.bash generate --generators gomod2nix-lock
+    lefthook run --force --commands gomod2nix-lock generate
 
 [doc('''
     Generate a file with a list of all the neovim plugins. You shouldn't have to
@@ -191,7 +193,7 @@ generate-gomod2nix-lock:
 ''')]
 [group('Code Generation')]
 generate-neovim-plugin-list:
-    bash scripts/qa/qa.bash generate --generators neovim-plugin-list
+    lefthook run --force --commands neovim-plugin-list generate
 
 [doc('''
     Generate the Table of Contents in the README. You shouldn't have to run this
@@ -199,7 +201,7 @@ generate-neovim-plugin-list:
 ''')]
 [group('Code Generation')]
 generate-readme-table-of-contents:
-    bash scripts/qa/qa.bash generate --generators readme-table-of-contents
+    lefthook run --force --commands readme-table-of-contents generate
 
 [doc('''
     Run `go mod tidy`. You shouldn't have to run this yourself since it runs
@@ -207,7 +209,7 @@ generate-readme-table-of-contents:
 ''')]
 [group('Code Generation')]
 go-mod-tidy:
-    bash scripts/qa/qa.bash generate --generators go-mod-tidy
+    lefthook run --force --commands go-mod-tidy generate
 
 [doc('''
     Update all packages and switch to a new generation of the host manager
