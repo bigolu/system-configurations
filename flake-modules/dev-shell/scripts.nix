@@ -11,30 +11,6 @@
 let
   inherit (pkgs) lib;
 
-  filterPrograms =
-    package: programsToKeep:
-    let
-      findFilters = builtins.map (program: "! -name '${program}'") programsToKeep;
-      findFiltersAsString = lib.strings.concatStringsSep " " findFilters;
-    in
-    pkgs.symlinkJoin {
-      name = "${package.name}-partial";
-      paths = [ package ];
-      buildInputs = [ pkgs.makeWrapper ];
-      postBuild = ''
-        cd $out/bin
-        find . ${findFiltersAsString} -type f,l -exec rm -f {} +
-      '';
-    };
-
-  moreutilsWithoutParallel = filterPrograms pkgs.moreutils [
-    "chronic"
-    "vidir"
-    "pee"
-    "sponge"
-    "vipe"
-  ];
-
   code-generation-generate-neovim-plugin-list = {
     dependencies = with pkgs; [
       ast-grep
@@ -170,7 +146,6 @@ let
             "cannot:${pkgs.nix}/bin/nix"
             "cannot:${pkgs.direnv}/bin/direnv"
             "cannot:${pkgs.gh}/bin/gh"
-            "cannot:${moreutilsWithoutParallel}/bin/chronic"
             "cannot:${pkgs.doctoc}/bin/doctoc"
           ]
           ++ lib.lists.optionals pkgs.stdenv.isDarwin [

@@ -40,6 +40,7 @@
         # These are called in the lefthook configuration file
         gnused
         gitMinimal
+        parallel
       ];
 
       lintingDependencies =
@@ -127,7 +128,7 @@
               filterForCodegenScripts
               builtins.attrValues
               (builtins.map (builtins.getAttr "dependencies"))
-              (builtins.concatLists)
+              builtins.concatLists
             ];
         in
         lefthookDependencies # Runs the generators
