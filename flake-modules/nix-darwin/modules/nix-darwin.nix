@@ -84,6 +84,7 @@ let
           direnv allow
           direnv exec "$PWD" nix-direnv-reload
           direnv exec "$PWD" git pull
+          direnv exec "$PWD" just switch
       else
           # Something probably went wrong so we're trying to upgrade again even
           # though there's nothing to pull. In which case, just run the hook as
@@ -91,6 +92,7 @@ let
           direnv allow
           direnv exec "$PWD" nix-direnv-reload
           direnv exec "$PWD" lefthook run post-rewrite
+          direnv exec "$PWD" just switch
       fi
 
       # HACK:
