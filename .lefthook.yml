@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
 
+rc: '"$PWD"/.direnv/direnv.sh'
+
 # TODO: The VS Code output panel doesn't interpret escape sequences yet the
 # output file it gives to git hooks is a tty file. To work around this I'm
 # setting no_tty. Though VS Code should address by not providing a tty
@@ -27,43 +29,29 @@ output:
 # groups. Since these groups are called whenever a git hook gets triggered, we
 # need to load the devShell environment in case the git hook was not triggered
 # at the terminal e.g. IDE.
-#
-# TODO: If direnv supported exporting to POSIX shell, I could use the 'rc' field
-# in this configuration and have lefthook call direnv to get the environment
-# before running any of these commands.
 pre-push:
   commands:
     generate:
       priority: 1
-      run: >
-        printf '%s\0' {push_files}
-        | bash scripts/run-in-devshell.bash lefthook run generate --files-from-stdin
+      run: printf '%s\0' {push_files} | lefthook run generate --files-from-stdin
     fix-lint:
       priority: 2
-      run: >
-        printf '%s\0' {push_files}
-        | bash scripts/run-in-devshell.bash lefthook run fix-lint --files-from-stdin
+      run: printf '%s\0' {push_files} | lefthook run fix-lint --files-from-stdin
     # Run formatting after lint fixes because sometimes a lint fix produces code
     # that doesn't comply with the formatting.
     format:
       priority: 3
-      run: >
-        printf '%s\0' {push_files}
-        | bash scripts/run-in-devshell.bash lefthook run format --files-from-stdin
+      run: printf '%s\0' {push_files} | lefthook run format --files-from-stdin
     check-lint:
       priority: 4
-      run: >
-        printf '%s\0' {push_files}
-        | bash scripts/run-in-devshell.bash lefthook run check-lint --files-from-stdin
+      run: printf '%s\0' {push_files} | lefthook run check-lint --files-from-stdin
 post-merge:
   commands:
     check-for-actionable-changes:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-      run: >
-        bash scripts/run-in-devshell.bash
-        lefthook run change-notifications
+      run: lefthook run change-notifications
 post-rewrite:
   commands:
     check-for-actionable-changes:
@@ -71,16 +59,13 @@ post-rewrite:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-      run: >
-        bash scripts/run-in-devshell.bash
-        lefthook run change-notifications
+      run: lefthook run change-notifications
     # This is too noisy to do on all change-related hooks.
     check-for-actionable-changes-for-host-configuration:
       only: rebase
       env:
         DIFF: "host"
       run: >
-        bash scripts/run-in-devshell.bash 
         bash scripts/git-hooks/notify.bash
         'Files related to the host configuration have changed. Consider running `just switch`.'
         {files}
@@ -91,7 +76,6 @@ post-checkout:
       # commands. Then I could remove this script.
       run: >
         COMMIT_1={1} COMMIT_2={2}
-        bash scripts/run-in-devshell.bash
         bash scripts/git-hooks/run-if-not-file-checkout.bash
         lefthook run change-notifications
 
@@ -107,7 +91,6 @@ change-notifications:
       env:
         DIFF: "envrc-secrets"
       run: >
-        bash scripts/run-in-devshell.bash
         bash scripts/git-hooks/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash.'
         {files}
@@ -117,7 +100,6 @@ change-notifications:
       env:
         DIFF: "dev-shell"
       run: >
-        bash scripts/run-in-devshell.bash
         bash scripts/git-hooks/notify.bash
         'Files related to the devShell have changed, consider running `just sync-nix-direnv`.'
         {files}
@@ -127,7 +109,6 @@ change-notifications:
       env:
         DIFF: "fish"
       run: >
-        bash scripts/run-in-devshell.bash
         bash scripts/git-hooks/notify.bash
         'Files related to fish have changed, consider running `r`.'
         {files}
@@ -137,7 +118,6 @@ change-notifications:
       env:
         DIFF: "nix"
       run: >
-        bash scripts/run-in-devshell.bash
         bash scripts/git-hooks/notify.bash
         'The flake.lock has changed, consider running `just upgrade-nix`.'
         {files}
@@ -147,7 +127,6 @@ change-notifications:
       env:
         DIFF: "nix-fix"
       run: >
-        bash scripts/run-in-devshell.bash
         bash scripts/git-hooks/notify.bash
         'Files related to the Nix $PATH fix have changed, consider re-running its installer.'
         {files}
@@ -160,7 +139,6 @@ change-notifications:
       env:
         DIFF: "lefthook"
       run: >
-        bash scripts/run-in-devshell.bash
         bash scripts/git-hooks/notify.bash
         '.lefthook.yml has changed, consider running `just sync-git-hooks`.'
         {files}
