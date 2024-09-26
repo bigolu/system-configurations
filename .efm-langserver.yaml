@@ -42,6 +42,13 @@ tools:
       - "%Z        error: Error at line %l column %c: %m"
       - "%A    × %f"
       - "%Z        error: %m"
+  typos: &typos
+    lint-command: typos --color never --format brief ${INPUT}
+    lint-source: typos
+    lint-stdin: false
+    lint-severity: 2
+    lint-formats:
+      - "%f:%l:%c: %m"
 
 version: 2
 root-markers:
@@ -59,3 +66,4 @@ languages:
     - <<: *config-file-validator
   =:
     - <<: *desktop-file-validate
+    - <<: *typos
