@@ -73,7 +73,10 @@ test:
 [group('Checks')]
 format *FILES:
     # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run format --files-from-stdin
+    [ $# -gt 0 ] \
+      && printf '%s\0' "$@" \
+      || bash scripts/get-files-that-differ-from-default-branch.bash \
+    | lefthook run format --files-from-stdin
 
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -88,7 +91,10 @@ format *FILES:
 [group('Checks')]
 check-lint *FILES:
     # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run check-lint --files-from-stdin
+    [ $# -gt 0 ] \
+      && printf '%s\0' "$@" \
+      || bash scripts/get-files-that-differ-from-default-branch.bash \
+    | lefthook run check-lint --files-from-stdin
     
 [doc('''
     Lint source code. You should run this on all files if you make a
@@ -103,7 +109,10 @@ check-lint *FILES:
 [group('Checks')]
 lint-fix *FILES:
     # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run fix-lint --files-from-stdin
+    [ $# -gt 0 ] \
+      && printf '%s\0' "$@" \
+      || bash scripts/get-files-that-differ-from-default-branch.bash \
+    | lefthook run fix-lint --files-from-stdin
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
@@ -121,7 +130,10 @@ check-links *FILES:
 [group('Checks')]
 check *FILES:
     # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] && printf '%s\0' "$@" || bash scripts/get-files-that-differ-from-default-branch.bash | lefthook run pre-push --files-from-stdin
+    [ $# -gt 0 ] \
+      && printf '%s\0' "$@" \
+      || bash scripts/get-files-that-differ-from-default-branch.bash \
+    | lefthook run pre-push --files-from-stdin
 
 [doc('''
     Get all secrets from BitWarden Secrets Manager. You'll be prompted for
@@ -233,4 +245,6 @@ run-post-change-hook:
 ''')]
 [group('Changes')]
 show-changes NAME:
-    [ -f .git/change-commands/"$1" ] && bash .git/change-commands/"$1" || echo 'No changes to show.'
+    [ -f .git/change-commands/"$1" ] \
+      && bash .git/change-commands/"$1" \
+      || echo 'No changes to show.'
