@@ -46,7 +46,7 @@ post-merge:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-      run: lefthook run change-notifications
+      run: lefthook run check-for-actionable-changes
 post-rewrite:
   commands:
     check-for-actionable-changes:
@@ -54,7 +54,7 @@ post-rewrite:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-      run: lefthook run change-notifications
+      run: lefthook run check-for-actionable-changes
     # This is too noisy to do on all change-related hooks.
     check-for-actionable-changes-for-host-configuration:
       only: rebase
@@ -72,9 +72,9 @@ post-checkout:
       run: >
         COMMIT_1={1} COMMIT_2={2}
         bash scripts/git-hooks/run-if-not-file-checkout.bash
-        lefthook run change-notifications
+        lefthook run check-for-actionable-changes
 
-change-notifications:
+check-for-actionable-changes:
   files: git diff-tree -r --name-only --no-commit-id "$COMMIT_1" "$COMMIT_2"
   commands:
     envrc-secrets:
@@ -167,7 +167,7 @@ format:
       glob: "*.{md,js,json{,5,c},y{,a}ml}"
       # VS Code's configuration files end in .json, so prettier will format
       # them using the json parser, but they are actually jsonc files.
-      exclude: [".vscode/*.json"]
+      exclude: ["*.vscode/*.json"]
       # TODO: Get prettier to not log unchanged files:
       # https://github.com/prettier/prettier/issues/2611
       run: >
@@ -176,7 +176,7 @@ format:
     # VS Code's configuration files end in .json, but they are actually jsonc
     # files.
     prettier-vscode:
-      glob: ".vscode/*.json"
+      glob: "*.vscode/*.json"
       run: >
         bash scripts/fail-if-files-change.bash
         prettier --parser jsonc --write {files}
@@ -260,17 +260,20 @@ fix-lint:
         bash scripts/fail-if-files-change.bash
         typos --write-changes --format silent {files}
     dos2unix:
+      # It modified this file, but I'm not confident that won't break anything.
+      exclude:
+        - "dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/en.lproj/InfoPlist.strings"
       run: >
         bash scripts/fail-if-files-change.bash
         dos2unix --add-eol {files}
     mac2unix:
+      # It modified this file, but I'm not confident that won't break anything.
+      exclude:
+        - "dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/en.lproj/InfoPlist.strings"
       run: >
         bash scripts/fail-if-files-change.bash
         mac2unix --add-eol {files}
 
-# I use pipefail anywhere I use a pipe because I hide the output of successful
-# commands so I'd never see the failure of any commands besides the last one in
-# the pipe.
 check-lint:
   parallel: true
   commands:
@@ -366,7 +369,7 @@ check-lint:
     # the console.
     config-file-validator:
       glob: "*.{editorconfig,json,ini}"
-      exclude: [".vscode/*.json"]
+      exclude: ["*.vscode/*.json"]
       # TODO: SARIF support is being added:
       # https://github.com/Boeing/config-file-validator/issues/32
       run: >
@@ -385,6 +388,8 @@ check-lint:
       glob: "*.toml"
       # This is a generated file
       exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
+      # Support for GitHub annotation format is being considered. This could be
+      # parsed by reviewdog: https://github.com/tamasfe/taplo/issues/470
       run: >
         bash -o pipefail -euc '
         taplo lint "$@"

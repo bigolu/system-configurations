@@ -135,6 +135,10 @@ check *FILES:
       || bash scripts/get-files-that-differ-from-default-branch.bash \
     | lefthook run pre-push --files-from-stdin
 
+[group('Checks')]
+check-all:
+    lefthook run pre-push --all-files
+
 [doc('''
     Get all secrets from BitWarden Secrets Manager. You'll be prompted for
     a service token. You should run this whenever there are new secrets to
