@@ -17,8 +17,8 @@ schema = 3
     version = "v0.4.7"
     hash = "sha256-rDcdNYH6ZD8KouyyiZCUEy8JrjOQoAkxHBhugrfHjFo="
   [mod."github.com/schollz/progressbar/v3"]
-    version = "v3.15.0"
-    hash = "sha256-aKSO2dmm4zLr5qmKGMOc1kLoATCvt1/o/t70Iph+shg="
+    version = "v3.16.0"
+    hash = "sha256-81zpi2O7b8lYsPSegac8xyegvm4EIc6Ulw9HhnJ602I="
   [mod."golang.org/x/sync"]
     version = "v0.8.0"
     hash = "sha256-usvF0z7gq1vsX58p4orX+8WHlv52pdXgaueXlwj2Wss="
