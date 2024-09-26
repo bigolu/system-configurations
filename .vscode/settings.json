@@ -72,4 +72,7 @@
     "org",
     "restructuredtext",
   ],
+
+  // Use our version for consistency
+  "evenBetterToml.taplo.bundled": false,
 }

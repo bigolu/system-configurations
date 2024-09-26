@@ -98,6 +98,7 @@
         [
           go
           nixd
+          taplo
         ]
         ++ efmDependencies;
 

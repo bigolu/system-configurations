@@ -109,13 +109,13 @@ let
         # hour passes.  This behavior isn't correct based on the `notify-send`
         # manpage, not sure if the bug is with `notify-send` or my desktop
         # environment, COSMIC.
-        timeout 1h \
-          notify-send \
-            --wait \
-            --app-name 'Home Manager' \
-            'Updates are available. To update, click the "x" button now or after the notification has been dismissed.'
-        if [ $? -ne 124 ]; then
+        if timeout 1h notify-send --wait --app-name 'Home Manager' \
+        'Updates are available. To update, click the "x" button now or after the notification has been dismissed.'; then
           flatpak run org.wezfurlong.wezterm --config 'default_prog={[[${hostctl-upgrade}/bin/hostctl-upgrade]]}' --config 'exit_behavior=[[Hold]]'
+        else
+          if [ $? -ne 124 ]; then
+            flatpak run org.wezfurlong.wezterm --config 'default_prog={[[${hostctl-upgrade}/bin/hostctl-upgrade]]}' --config 'exit_behavior=[[Hold]]'
+          fi
         fi
       fi
     '';

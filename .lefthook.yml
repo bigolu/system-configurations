@@ -305,6 +305,9 @@ fix-lint:
         bash scripts/fail-if-files-change.bash
         mac2unix --add-eol {files}
 
+# I use pipefail anywhere I use a pipe because I hide the output of successful
+# commands so I'd never see the failure of any commands besides the last one in
+# the pipe.
 check-lint:
   parallel: true
   commands:
@@ -388,8 +391,10 @@ check-lint:
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
-        typos --color never --format brief {files}
+        bash -o pipefail -euc '
+        typos --color never --format brief "$@"
         | bash scripts/reviewdog.bash -name=typos -efm '%f:%l:%c: %m'
+        ' -- {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should
     # open issues with all them. In the meantime, I put reviewdog in tee mode
