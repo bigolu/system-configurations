@@ -20,7 +20,6 @@ colors:
   yellow: 3
 
 output:
-  - failure
   - execution_info
 
 # The groups below are all git hooks and the ones below them are custom
@@ -61,7 +60,6 @@ post-merge:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-        NO_COLOR: '1'
       run: >
         bash scripts/run-in-devshell.bash
         lefthook run change-notifications
@@ -72,7 +70,6 @@ post-rewrite:
       env:
         COMMIT_1: "ORIG_HEAD"
         COMMIT_2: "HEAD"
-        NO_COLOR: '1'
       run: >
         bash scripts/run-in-devshell.bash
         lefthook run change-notifications
@@ -89,8 +86,6 @@ post-rewrite:
 post-checkout:
   commands:
     check-for-actionable-changes:
-      env:
-        NO_COLOR: '1'
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands. Then I could remove this script.
       run: >
@@ -209,6 +204,8 @@ format:
       # VS Code's configuration files end in .json, so prettier will format
       # them using the json parser, but they are actually jsonc files.
       exclude: [".vscode/*.json"]
+      # TODO: Get prettier to not log unchanged files:
+      # https://github.com/prettier/prettier/issues/2611
       run: >
         bash scripts/fail-if-files-change.bash
         prettier --write {files}
