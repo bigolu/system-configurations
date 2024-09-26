@@ -3,7 +3,7 @@
 # task logic into `inputs.command`. They're considering adding it:
 # https://github.com/actions/runner/issues/1478
 
-name: "Renovate Post-Upgrade Task"
+name: "Renovate Post-Upgrade Task Runner"
 on:
   workflow_call:
     inputs:
@@ -31,7 +31,7 @@ jobs:
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-output-parameter
         run: echo "HEAD_COMMIT_MESSAGE=$(git log --oneline --format=%s --max-count 1)" >> "$GITHUB_OUTPUT"
 
-  renovate-post-upgrade-task:
+  renovate-post-upgrade-task-runner:
     needs: get-commit-message
     # TODO: This will result in a bunch of runs that immediately exit if the
     # branch wasn't just created. Ideally the job wouldn't even start if the
