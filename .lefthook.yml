@@ -1,7 +1,5 @@
 # yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
 
-rc: '"$PWD"/.direnv/direnv.sh'
-
 # TODO: The VS Code output panel doesn't interpret escape sequences yet the
 # output file it gives to git hooks is a tty file. To work around this I'm
 # setting no_tty. Though VS Code should address by not providing a tty
