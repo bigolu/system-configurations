@@ -40,32 +40,9 @@ var writer = func() io.Writer {
 	return io.Discard
 }()
 
-var stopTicker chan struct{} = nil
-
 // since both the rewrite and extract steps need the total file count I'll store
 // it here so I don't have to get it twice
 var archiveCount int = 0
-
-// the spinner only updates when the state of the bar changes
-// so we'll keep setting the description on an interval:
-// https://github.com/schollz/progressbar/issues/166
-func MakeTicker(bar *progressbar.ProgressBar) chan struct{} {
-	ticker := time.NewTicker(time.Second / 30)
-	quit := make(chan struct{})
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				bar.Describe(bar.State().Description)
-			case <-quit:
-				ticker.Stop()
-				return
-			}
-		}
-	}()
-
-	return quit
-}
 
 func NextStep(count int, name string, options ...progressbar.Option) *progressbar.ProgressBar {
 	EndProgress()
@@ -87,10 +64,6 @@ func NextStep(count int, name string, options ...progressbar.Option) *progressba
 		progressbar.OptionSetPredictTime(false),
 	}
 	currentBar = progressbar.NewOptions(count, append(defaultOptions, options...)...)
-
-	if count == -1 {
-		stopTicker = MakeTicker(currentBar)
-	}
 
 	return currentBar
 }
@@ -120,11 +93,11 @@ func ClearProgressBar() {
 }
 
 func EndProgress() {
-	if stopTicker != nil {
-		close(stopTicker)
-		stopTicker = nil
-	}
 	if currentBar != nil {
+    // So the spinner stops. We have to do this before calling clear or else the
+    // spinner will just render the bar again.
+    currentBar.Finish()
+
 		currentBar.Clear()
 		ClearProgressBar()
 		currentBar = nil
