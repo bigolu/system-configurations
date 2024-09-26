@@ -32,7 +32,7 @@ let
     # TODO: firenvim resolves the runtime directory at build time which is a problem for Nix since
     # it gets built in a sandbox. I'm hardcoding /tmp for now, but I should see if upstream can
     # resolve the runtime directory at runtime instead. Plus it feel weird to set a runtime
-    # directoy at build time since there is no guarantee that directory won't be taken by the
+    # directory at build time since there is no guarantee that directory won't be taken by the
     # time firenvim actually runs.
     HOME="$home" XDG_RUNTIME_DIR="/tmp" nvim --headless -c 'lua vim.fn["firenvim#install"](1)' -c quit
   '';

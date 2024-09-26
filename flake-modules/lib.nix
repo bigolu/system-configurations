@@ -10,7 +10,7 @@
         type = lib.types.lazyAttrsOf lib.types.unspecified;
         default = { };
         internal = true;
-        description = "Utilties only to be used inside of this flake.";
+        description = "Utilities only to be used inside of this flake.";
       };
     };
   };

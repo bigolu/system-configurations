@@ -206,7 +206,7 @@ vim.lsp.handlers[methods.textDocument_signatureHelp] = enhanced_float_handler(
   end
 )
 
--- Should be idempotent since it may be called mutiple times for the same
+-- Should be idempotent since it may be called multiple times for the same
 -- buffer. For example, it could get called again if a server registers
 -- another capability dynamically.
 local code_lens_refresh_autocmd_ids_by_buffer = {}
@@ -428,7 +428,7 @@ if vim.fn.executable("nix") == 1 then
 
           -- Warnings were being printed when these servers were included, even
           -- though I wasn't using them.
-          "als",
+          "also",
           "bazelrc-lsp",
         },
 

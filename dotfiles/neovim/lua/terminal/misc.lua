@@ -4,7 +4,7 @@ vim.o.mouse = "a"
 vim.o.jumpoptions = "stack"
 vim.o.mousemoveevent = true
 
--- Gets rid of the press enter prompt when accesing a file over a network
+-- Gets rid of the press enter prompt when accessing a file over a network
 vim.g.netrw_silent = 1
 
 -- TODO: Avoid weird flickering issue, should report this

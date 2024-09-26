@@ -284,7 +284,7 @@ function _git_context --argument-names max_length
     # replace first comma with ' ('
     # e.g. ',<branch>,dirty,untracked' -> ' (<branch> dirty,untracked'
     set --local formatted_status (string replace ',' ' (' $formatted_status)
-    # only add the closing parenthese if we added the opening one
+    # only add the closing parentheses if we added the opening one
     and set formatted_status (string join '' $formatted_status ')')
 
     set max_status_length (math $max_length - (string length $context_prefix))

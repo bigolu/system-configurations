@@ -21,6 +21,7 @@ colors:
 
 output:
   - execution_info
+  - summary
 
 # The groups below are all git hooks and the ones below them are custom
 # groups. Since these groups are called whenever a git hook gets triggered, we
@@ -290,6 +291,11 @@ fix-lint:
       # https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
       run: >
         cd ./flake-modules/bundler/gozip && go mod tidy # {files}
+    typos:
+      glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        typos --write-changes --format silent {files}
 
 check-lint:
   parallel: true
@@ -322,7 +328,7 @@ check-lint:
         ' -- {files}
     fish:
       glob: "*.fish"
-      # TODO: Fish doesn't support passing multple files, I should open an issue.
+      # TODO: Fish doesn't support passing multiple files, I should open an issue.
       run: >
         parallel fish --no-execute '{}' '2>&1' '|' bash scripts/reviewdog.bash -name=fish -efm '"%f (line %l): %m"' ::: {files}
     desktop-file-validate:
@@ -371,6 +377,11 @@ check-lint:
       run: >
         parallel -q -- bash -c 'set -o pipefail; statix check {} -o errfmt
         | bash scripts/reviewdog.bash -name=statix -efm "%f>%l:%c:%t:%n:%m"' ::: {files}
+    typos:
+      glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
+      run: >
+        typos --color never --format brief {files}
+        | bash scripts/reviewdog.bash -name=typos -efm '%f:%l:%c: %m'
 
     # TODO: These tools don't output a format that reviewdog can parse, I should
     # open issues with all them. In the meantime, I put reviewdog in tee mode

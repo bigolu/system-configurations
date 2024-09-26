@@ -175,7 +175,7 @@ function _insert_entries_into_commandline
 
     set space ' '
 
-    # None of this applies if there are mutiple entries
+    # None of this applies if there are multiple entries
     if test (count $entries) -eq 1
         # Don't add a space if the entry is an abbreviation.
         #

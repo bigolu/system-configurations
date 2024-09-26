@@ -156,7 +156,7 @@ local groups = {
   LspInfoBorder = "FloatBorder",
   LspInlayHint = { bold = true, italic = true, ctermfg = 15 },
   LspCodeLens = "LspInlayHint", -- Used to color the virtual text of the codelens. See |nvim_buf_set_extmark()|.
-  LspCodeLensSeparator = { bold = true, italic = true, ctermfg = 8 }, -- Used to color the seperator between two or more code lens.
+  LspCodeLensSeparator = { bold = true, italic = true, ctermfg = 8 }, -- Used to color the separator between two or more code lens.
   -- }}}
 
   Conceal = { ctermfg = 8 }, -- Placeholder characters substituted for concealed text (see 'conceallevel')
@@ -177,7 +177,7 @@ local groups = {
   SpellCap = "Warning", -- Word that should start with a capital. |spell| Combined with the highlighting used otherwise.
   Title = "Normal", -- Titles for output from ":set all", ":autocmd" etc.
   Whitespace = { ctermfg = 15 }, -- "nbsp", "space", "tab" and "trail" in 'listchars'
-  WinSeparator = { ctermfg = 8 }, -- Separator between window splits. Inherts from |hl-VertSplit| by default, which it will replace eventually.
+  WinSeparator = { ctermfg = 8 }, -- Separator between window splits. Inherits from |hl-VertSplit| by default, which it will replace eventually.
   ColorColumn = "WinSeparator",
   GitBlameVirtualText = { bold = true, italic = true, ctermfg = 8 },
   WhichKeyFloat = "Normal", -- Normal text in floating windows.

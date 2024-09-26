@@ -2,7 +2,7 @@ vim.o.complete = ".,w,b,u"
 vim.o.pumheight = 6
 vim.o.completeopt = "menu,popup,fuzzy,noselect"
 
--- Should be idempotent since it may be called mutiple times for the same
+-- Should be idempotent since it may be called multiple times for the same
 -- buffer. For example, it could get called again if a server registers
 -- another capability dynamically.
 vim.api.nvim_create_autocmd("LspAttach", {

@@ -66,7 +66,7 @@ function __grep_widget --argument-names title grep_command
             --preview-window '+{2}/3,75%,~1' \
             # the minus 2 prevents a weird line wrap issue
             #
-            # wrap=never is there so the preview window is moved to the corrent
+            # wrap=never is there so the preview window is moved to the current
             # line
             --preview 'bat --style=\'header-filename\' --color always --wrap=never --paging=never --terminal-width (math $FZF_PREVIEW_COLUMNS - 2) {1} --highlight-line {2}' \
     )
@@ -259,7 +259,7 @@ end
 mybind --no-focus \cf file-widget
 
 # use ctrl+d for directory search instead of default alt+c
-function directory-widget --description 'Seach directories'
+function directory-widget --description 'Search directories'
     set dir (__widgets_get_directory_from_current_token)
     set prompt (__widgets_format_directory_for_prompt $dir)
 

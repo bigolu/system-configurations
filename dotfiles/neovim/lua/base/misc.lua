@@ -223,7 +223,7 @@ vim.api.nvim_create_autocmd("User", {
         -- o: Automatically insert the current comment leader after hitting o/O
         --   in normal mode.
         -- /: Don't auto insert a comment leader if the comment is next to a
-        --   statemnt.
+        --   statement.
         -- j: Remove comment leader when joining lines
         vim.bo.formatoptions = "ro/j"
       end,
