@@ -21,7 +21,6 @@ colors:
 
 output:
   - execution_info
-  - summary
 
 # The groups below are all git hooks and the ones below them are custom
 # groups. Since these groups are called whenever a git hook gets triggered, we
@@ -77,10 +76,6 @@ post-checkout:
         bash scripts/git-hooks/run-if-not-file-checkout.bash
         lefthook run change-notifications
 
-# 'exit 1' is here because I only show execution output if a command fails,
-# where fail means it 'did something' e.g. a formatter modified a file or a
-# linter found an issue. These commands always do something if the glob matches
-# so they should always fail.
 change-notifications:
   files: git diff-tree -r --name-only --no-commit-id "$COMMIT_1" "$COMMIT_2"
   commands:
@@ -92,7 +87,6 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash.'
         {files}
-        ; exit 1
     dev-shell:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       env:
@@ -101,7 +95,6 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'Files related to the devShell have changed, consider running `just sync-nix-direnv`.'
         {files}
-        ; exit 1
     fish:
       glob: "dotfiles/fish/conf.d/**.fish"
       env:
@@ -110,7 +103,6 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'Files related to fish have changed, consider running `r`.'
         {files}
-        ; exit 1
     nix:
       glob: "flake.lock"
       env:
@@ -119,7 +111,6 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'The flake.lock has changed, consider running `just upgrade-nix`.'
         {files}
-        ; exit 1
     nix-fix:
       glob: "dotfiles/nix/nix-fix/**"
       env:
@@ -128,7 +119,6 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         'Files related to the Nix $PATH fix have changed, consider re-running its installer.'
         {files}
-        ; exit 1
     lefthook:
       # TODO: No need for this yet since lefthook syncs hooks automatically, I
       # should ask them to make this optional.
@@ -140,7 +130,6 @@ change-notifications:
         bash scripts/git-hooks/notify.bash
         '.lefthook.yml has changed, consider running `just sync-git-hooks`.'
         {files}
-        ; exit 1
 
 # SYNC: GENERATORS
 #
