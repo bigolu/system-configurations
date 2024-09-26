@@ -1,7 +1,7 @@
 name: "Check Pull Request"
 on:
-  # It should also run on pushes to the default branch to catch my mistakes, but
-  # I feel like that's a waste of resources.
+  # It should also run on pushes to the default branch since I push there
+  # directly, but I feel like that's a waste of resources.
   pull_request:
 concurrency:
   # Since we're only interested in checking the latest commit to the branch,

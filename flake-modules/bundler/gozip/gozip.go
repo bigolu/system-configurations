@@ -94,9 +94,9 @@ func ClearProgressBar() {
 
 func EndProgress() {
 	if currentBar != nil {
-    // So the spinner stops. We have to do this before calling clear or else the
-    // spinner will just render the bar again.
-    currentBar.Finish()
+		// So the spinner stops. We have to do this before calling clear or else the
+		// spinner will just render the bar again.
+		currentBar.Finish()
 
 		currentBar.Clear()
 		ClearProgressBar()

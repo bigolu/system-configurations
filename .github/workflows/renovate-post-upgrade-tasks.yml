@@ -1,4 +1,4 @@
-name: "Renovate Post Upgrade Task: Update gomod2nix.toml"
+name: "Renovate Post-Upgrade Tasks"
 on:
   pull_request:
 jobs:
@@ -7,6 +7,14 @@ jobs:
     uses: ./.github/workflows/renovate-post-upgrade-task.yml
     with:
       command: bash ./scripts/code-generation/generate-gomod2nix-lock.bash
+    secrets:
+      BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+  fix-envrc:
+    if: ${{ startsWith(github.head_ref, 'renovate/fixup/envrc/')  }}
+    uses: ./.github/workflows/renovate-post-upgrade-task.yml
+    with:
+      command: bash ./scripts/ci/set-nix-direnv-hash.bash
     secrets:
       BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
