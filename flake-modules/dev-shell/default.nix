@@ -62,6 +62,7 @@
           ruff
           go # for 'go mod tidy'
           typos
+          dos2unix
 
           # TODO: If the YAML language server gets a CLI I should use that instead:
           # https://github.com/redhat-developer/yaml-language-server/issues/535

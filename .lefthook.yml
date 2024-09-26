@@ -296,6 +296,14 @@ fix-lint:
       run: >
         bash scripts/fail-if-files-change.bash
         typos --write-changes --format silent {files}
+    dos2unix:
+      run: >
+        bash scripts/fail-if-files-change.bash
+        dos2unix --add-eol {files}
+    mac2unix:
+      run: >
+        bash scripts/fail-if-files-change.bash
+        mac2unix --add-eol {files}
 
 check-lint:
   parallel: true
