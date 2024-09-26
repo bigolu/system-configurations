@@ -20,10 +20,14 @@ function set_changes_file {
 }
 
 function display_notification {
-  echo "$1 (To see the diff run 'just show-changes $DIFF')"
-  if is_in_vscode && ! is_in_vscode_terminal; then
-    desktop_notification "$1 (Check the VS Code Git/GitLens output panel for details)"
-  fi
+  # TODO: Workaround since I disable output for successful commands in lefthook,
+  # but I can't make an exception for this.
+  desktop_notification "$1 (To see the diff run 'just show-changes $DIFF')"
+
+  # echo "$1 (To see the diff run 'just show-changes $DIFF')"
+  # if is_in_vscode && ! is_in_vscode_terminal; then
+  #   desktop_notification "$1 (Check the VS Code Git/GitLens output panel for details)"
+  # fi
 }
 
 function desktop_notification {
