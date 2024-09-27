@@ -114,8 +114,8 @@ let
     version = "no-version";
 
     src = lib.fileset.toSource {
-      root = "${root}/scripts";
-      fileset = "${root}/scripts";
+      root = root + "/scripts";
+      fileset = root + "/scripts";
     };
 
     dontConfigure = true;

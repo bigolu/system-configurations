@@ -170,7 +170,7 @@ format:
         bash scripts/fail-if-files-change.bash
         taplo format {files}
     prettier:
-      glob: "*.{md,js,json{,5,c},y{,a}ml}"
+      glob: "*.{md,js,json,json{5,c},yml,yaml}"
       # VS Code's configuration files end in .json, so prettier will format
       # them using the json parser, but they are actually jsonc files.
       exclude: ["*.vscode/*.json"]

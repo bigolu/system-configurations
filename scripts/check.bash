@@ -13,7 +13,6 @@ fi
 if [ -n "${ALL_FILES:-}" ]; then
   "${lefthook_command[@]}" --all-files
 elif [ "${#user_specified_files[@]}" -gt 0 ]; then
-  # There's an extra '\0' at the end, but lefthook seems to be fine with that.
   printf '%s\0' "${user_specified_files[@]}" |
     "${lefthook_command[@]}" --files-from-stdin
 else
