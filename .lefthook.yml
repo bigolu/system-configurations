@@ -369,7 +369,7 @@ check-lint:
         ' -- {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should
-    # open issues with all them. In the meantime, I put reviewdog in tee mode
+    # open issues with all of them. In the meantime, I put reviewdog in tee mode
     # so it will just output whatever the tool outputs. Though this means these
     # errors won't show up as comments on the code in a PR, you'll have to check
     # the console.

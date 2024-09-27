@@ -31,6 +31,7 @@ let
     # to our development environment, but Nix is working on a solution to
     # that: https://github.com/NixOS/nix/issues/7501
     pkgs.mkShellNoCC {
+      inherit name;
       packages = [ metaPackage ];
       shellHook =
         ''

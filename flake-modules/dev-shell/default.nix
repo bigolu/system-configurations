@@ -143,7 +143,7 @@
 
         devShells = {
           default = makeDevShell {
-            name = "local-dependencies";
+            name = "local";
             packages =
               vsCodeDependencies
               ++ lintingDependencies
@@ -168,26 +168,26 @@
               + linkLuaLsLibrariesHook;
           };
 
-          ci = makeCiDevShell { name = "ci-dependencies"; };
+          ci = makeCiDevShell { name = "ci"; };
 
           ciLint = makeCiDevShell {
-            name = "ci-lint-dependencies";
+            name = "ci-lint";
             packages = lintingDependencies;
             shellHook = linkLuaLsLibrariesHook;
           };
 
           ciCheckStyle = makeCiDevShell {
-            name = "ci-check-style-dependencies";
+            name = "ci-check-style";
             packages = formattingDependencies;
           };
 
           ciCodegen = makeCiDevShell {
-            name = "ci-codegen-dependencies";
+            name = "ci-codegen";
             packages = codeGenerationDependencies;
           };
 
           ciRenovate = makeCiDevShell {
-            name = "ci-renovate-dependencies";
+            name = "ci-renovate";
             scripts = with scripts; [
               ci-set-nix-direnv-hash
               code-generation-generate-gomod2nix-lock
@@ -195,12 +195,12 @@
           };
 
           ciAutoMerge = makeCiDevShell {
-            name = "ci-auto-merge-dependencies";
+            name = "ci-auto-merge";
             scripts = with scripts; [ ci-auto-merge ];
           };
 
           ciTest = makeCiDevShell {
-            name = "ci-test-dependencies";
+            name = "ci-test";
             scripts = with scripts; [ test ];
           };
 

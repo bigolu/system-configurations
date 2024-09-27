@@ -39,6 +39,7 @@ in
       nix-output-monitor
       nix-diff
       nix-search-cli
+      nix-derivation
     ]
     ++ optionals isLinux [
       # for breakpointHook:

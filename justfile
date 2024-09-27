@@ -79,7 +79,7 @@ bundle PACKAGE:
 
     Arguments:
         GROUPS: Comma-Delimited list of groups. use 'all' to run all groups.
-                Possible groups are: generate, format, fix-lint, and check-lint.
+                Possible groups are: generate, format, fix-lint, check-lint, and all.
                 Example: `just check format,generate`
         FILES:  The files to check. If none are given, then it runs on all files
                 that differ from the default branch, including untracked files.
@@ -99,15 +99,21 @@ check-all GROUPS:
     ALL_FILES=1 bash scripts/check.bash "$1"
 
 [doc('''
-    Get all secrets from BitWarden Secrets Manager. You'll be prompted for
-    a service token. You should run this whenever there are new secrets to
-    fetch. This task will also reload the terminal's direnv environment. Don't
-    forget to reload the direnv environment in your editor as well.
+    Reload the direnv environment inside the terminal where this is run. You
+    should run this whenever you, or someone else, makes a change to the .envrc.
 ''')]
 [group('Environment Management')]
-get-secrets:
-    bash scripts/get-secrets.bash
+reload: && direnv-reminder
     direnv reload
+
+[doc('''
+    Get all secrets from BitWarden Secrets Manager. You'll be prompted for
+    a service token. You should run this whenever there are new secrets to
+    fetch. This task will also reload the terminal's direnv environment.
+''')]
+[group('Environment Management')]
+get-secrets: && reload
+    bash scripts/get-secrets.bash
 
 [doc('''
     Synchronize nix-direnv with the Nix devShell and reload the direnv
@@ -123,11 +129,9 @@ get-secrets:
         so you can test your changes.
       - After anyone else makes changes to devShell-related files,
         this way you can apply the changes.
-
-    Don't forget to reload the direnv environment in your editor as well.
 ''')]
 [group('Environment Management')]
-sync-nix-direnv:
+sync-nix-direnv: && direnv-reminder
     # TODO: watch_file isn't working
     touch flake.nix
     nix-direnv-reload
@@ -180,3 +184,7 @@ check-links *FILES:
 [group('Debugging')]
 test:
     bash scripts/test.bash
+
+[private]
+direnv-reminder:
+    printf "\n\e[34m┃ system-configurations: Don't forget to reload direnv inside your editor as well.\e(B\e[m\n\n"
