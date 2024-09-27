@@ -114,6 +114,7 @@ jobs:
               - "go.mod"
               - "**neovim/lua/*.lua"
               - "README.md"
+              - "flake.nix"
       - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
         uses: ./.github/actions/setup
         with:

@@ -154,6 +154,12 @@ generate:
         bash scripts/fail-if-files-change.bash
         bash scripts/code-generation/generate-gomod2nix-lock.bash
         # {files}
+    flake-lock:
+      glob: "flake.nix"
+      run: >
+        bash scripts/fail-if-files-change.bash
+        nix flake lock
+        # {files}
 
 format:
   commands:

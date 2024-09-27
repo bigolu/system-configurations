@@ -55,6 +55,8 @@ let
       nix
     ];
     text = ''
+      trap 'Upgrade failed, run "just upgrade" to try again.' ERR
+
       # TODO: So `just` has access to `hostctl-switch`, not a great solution
       PATH="${config.home.profileDirectory}/bin:$PATH"
       cd "${config.repository.directory}"
