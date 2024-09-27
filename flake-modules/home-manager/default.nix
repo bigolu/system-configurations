@@ -30,6 +30,7 @@ let
           ;
         isHomeManagerRunningAsASubmodule = true;
         flakeInputs = inputs;
+        inherit (self.lib) root;
       };
       configuration = {
         home-manager = {
@@ -84,6 +85,7 @@ let
           ;
         isHomeManagerRunningAsASubmodule = false;
         flakeInputs = inputs;
+        inherit (self.lib) root;
       };
     in
     {

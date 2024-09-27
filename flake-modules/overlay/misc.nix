@@ -1,6 +1,7 @@
 {
   inputs,
   lib,
+  self,
   ...
 }:
 {
@@ -10,6 +11,7 @@
         final: prev:
         let
           inherit (final.stdenv) isLinux isDarwin;
+          fs = lib.fileset;
 
           # ncurses doesn't come with wezterm's terminfo so I need to add it to the
           # database.
@@ -36,9 +38,25 @@
                   coreutils-full
                 ];
               };
+              neovimBin = fs.toSource {
+                root = self.lib.root + "/dotfiles/neovim/bin";
+                fileset = self.lib.root + "/dotfiles/neovim/bin";
+              };
+              generalBin = fs.toSource {
+                root = self.lib.root + "/dotfiles/general/bin";
+                fileset = self.lib.root + "/dotfiles/general/bin";
+              };
+              generalMacosBin = fs.toSource {
+                root = self.lib.root + "/dotfiles/general/bin-macos";
+                fileset = self.lib.root + "/dotfiles/general/bin-macos";
+              };
+              neovimLinuxBin = fs.toSource {
+                root = self.lib.root + "/dotfiles/neovim/linux-bin";
+                fileset = self.lib.root + "/dotfiles/neovim/linux-bin";
+              };
             in
             final.symlinkJoin {
-              inherit (nightly) name;
+              name = "my-${nightly.name}";
               paths = [ nightly ];
               buildInputs = [ final.makeWrapper ];
               postBuild = ''
@@ -55,8 +73,8 @@
                   --set TERMINFO_DIRS '${myTerminfoDatabase}/share/terminfo' \
                   --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
                   --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} \
-                  --prefix PATH : ${lib.escapeShellArg "${inputs.self}/dotfiles/neovim/bin"} \
-                  --prefix PATH : ${lib.escapeShellArg "${inputs.self}/dotfiles/general/bin"} ${lib.strings.optionalString isDarwin "--prefix PATH : ${inputs.self}/dotfiles/general/bin-macos"} ${lib.strings.optionalString isLinux "--prefix PATH : ${inputs.self}/dotfiles/neovim/linux-bin"}
+                  --prefix PATH : ${lib.escapeShellArg neovimBin} \
+                  --prefix PATH : ${lib.escapeShellArg generalBin} ${lib.strings.optionalString isDarwin "--prefix PATH : ${generalMacosBin}"} ${lib.strings.optionalString isLinux "--prefix PATH : ${neovimLinuxBin}"}
               '';
             };
 
@@ -71,13 +89,17 @@
                   djvulibre
                 ];
               };
+              ripgrepBin = fs.toSource {
+                root = self.lib.root + "/dotfiles/ripgrep/bin";
+                fileset = self.lib.root + "/dotfiles/ripgrep/bin";
+              };
             in
             final.symlinkJoin {
               inherit (prev.ripgrep-all) name;
               paths = [ prev.ripgrep-all ];
               buildInputs = [ final.makeWrapper ];
               postBuild = ''
-                wrapProgram $out/bin/rga --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg "${inputs.self}/dotfiles/ripgrep/bin"}
+                wrapProgram $out/bin/rga --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg ripgrepBin}
               '';
             };
 

@@ -1,7 +1,6 @@
 {
   lib,
   inputs,
-  self,
   ...
 }:
 {
@@ -27,7 +26,7 @@
       pythonWithPackages = pkgs.python3.withPackages pythonPackages;
 
       scriptText = ''
-        python ${self}/dotfiles/smart_plug/smart_plug.py "$@"
+        python ${../dotfiles/smart_plug/smart_plug.py} "$@"
       '';
 
       cli = pkgs.writeShellApplication {

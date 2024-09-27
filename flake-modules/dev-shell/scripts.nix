@@ -6,7 +6,7 @@
 
 {
   pkgs,
-  self,
+  root,
 }:
 let
   inherit (pkgs) lib;
@@ -113,14 +113,17 @@ let
     pname = "script-validation-package";
     version = "no-version";
 
-    src = self;
+    src = lib.fileset.toSource {
+      root = "${root}/scripts";
+      fileset = "${root}/scripts";
+    };
 
     dontConfigure = true;
     dontBuild = true;
 
     installPhase = ''
       mkdir -p "$out/scripts"
-      cp --dereference --recursive "$src/scripts"/* "$out/scripts/"
+      cp --dereference --recursive "$src"/* "$out/scripts/"
     '';
 
     solutions = {

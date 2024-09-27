@@ -20,7 +20,7 @@ let
       packages ? [ ],
       scripts ? [ ],
       shellHook ? "",
-      name ? "tools",
+      name,
     }:
     let
       metaPackage = makeMetaPackage name (
@@ -60,7 +60,7 @@ let
       packages ? [ ],
       scripts ? [ ],
       shellHook ? "",
-      name ? "tools",
+      name,
     }:
     let
       # To avoid having to make one line scripts lets put some common utils here

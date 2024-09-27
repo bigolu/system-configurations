@@ -32,6 +32,10 @@
           ./flake-modules/bootstrap.nix
         ];
 
+        flake = {
+          lib.root = ./.;
+        };
+
         # For nixd
         debug = true;
 

@@ -1,6 +1,7 @@
 {
   lib,
   inputs,
+  self,
   ...
 }:
 {
@@ -19,7 +20,7 @@
 
       scriptDependencyInfo = import ./scripts.nix {
         inherit pkgs;
-        inherit (inputs) self;
+        inherit (self.lib) root;
       };
       scripts = scriptDependencyInfo.dependenciesByName;
 

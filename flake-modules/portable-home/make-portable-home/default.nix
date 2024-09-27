@@ -90,14 +90,18 @@ let
           "export LOCALE_ARCHIVE=${lib.escapeShellArg "${locales}/lib/locale/locale-archive"}"
         else
           "";
+
       bootstrap = pkgs.resholve.mkDerivation {
         pname = "bootstrap";
         version = "0.0.1";
-        src = self;
+        src = lib.fileset.toSource {
+          root = ./.;
+          fileset = ./bootstrap.bash;
+        };
         dontConfigure = true;
         dontBuild = true;
         installPhase = ''
-          install -D flake-modules/portable-home/make-portable-home/bootstrap.bash $out/bin/bootstrap
+          install -D bootstrap.bash $out/bin/bootstrap
         '';
         solutions = {
           default = {

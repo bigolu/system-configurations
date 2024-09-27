@@ -1,12 +1,9 @@
 {
-  specialArgs,
   pkgs,
   lib,
+  specialArgs,
   ...
 }:
-let
-  inherit (specialArgs) flakeInputs;
-in
 {
   services = {
     skhd = {
@@ -24,13 +21,17 @@ in
               jq
             ];
           };
+          skhdBin = lib.fileset.toSource {
+            root = specialArgs.root + "/dotfiles/skhd/bin";
+            fileset = specialArgs.root + "/dotfiles/skhd/bin";
+          };
         in
         pkgs.symlinkJoin {
           name = "my-${pkgs.skhd.name}";
           paths = [ pkgs.skhd ];
           buildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
-            wrapProgram $out/bin/skhd --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg "${flakeInputs.self}/dotfiles/skhd/bin"}
+            wrapProgram $out/bin/skhd --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg skhdBin}
           '';
         };
     };

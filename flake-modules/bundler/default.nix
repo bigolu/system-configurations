@@ -1,6 +1,5 @@
 {
   inputs,
-  self,
   ...
 }:
 {
@@ -55,17 +54,16 @@
         pkgs.stdenv.mkDerivation {
           pname = nameWithArch;
           name = nameWithArch;
-          src = self;
+          dontUnpack = true;
           buildInputs = [ gozip ];
           installPhase = ''
             mkdir deps
             cp --recursive $(cat ${pkgs.writeClosure derivation}) ./deps/
             chmod -R 777 ./deps
-            cd ./flake-modules/bundler/gozip
-            cp --dereference "$(${pkgs.which}/bin/which gozip)" $out
-            cd ../../../deps
+            cd ./deps
             cp ${entrypoint} entrypoint
             chmod 777 entrypoint
+            cp --dereference "$(${pkgs.which}/bin/which gozip)" $out
             chmod +w $out
             gozip -internalCreate $out ./*
           '';

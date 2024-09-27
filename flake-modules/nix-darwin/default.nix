@@ -40,6 +40,7 @@ let
             repositoryDirectory
             ;
           flakeInputs = inputs;
+          inherit (self.lib) root;
         };
       };
     in

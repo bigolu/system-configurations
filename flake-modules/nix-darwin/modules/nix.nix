@@ -5,7 +5,8 @@
   ...
 }:
 let
-  inherit (specialArgs) homeDirectory username;
+  inherit (specialArgs) homeDirectory username root;
+  fs = pkgs.lib.fileset;
 in
 {
   nix = {
@@ -58,6 +59,11 @@ in
 
   system.activationScripts.postActivation.text = ''
     echo >&2 '[bigolu] Installing Nix $PATH fix...'
-    ${pkgs.bashInteractive}/bin/bash ${specialArgs.flakeInputs.self}/dotfiles/nix/nix-fix/install-nix-fix.bash
+    ${pkgs.bashInteractive}/bin/bash ${
+      fs.toSource {
+        root = root + "/dotfiles/nix/nix-fix";
+        fileset = root + "/dotfiles/nix/nix-fix";
+      }
+    }/install-nix-fix.bash
   '';
 }

@@ -43,7 +43,14 @@
       ''
         target=${lib.escapeShellArg "${config.xdg.dataHome}/flatpak/overrides/"}
         mkdir -p "$target"
-        cp --no-preserve=mode --dereference ${lib.escapeShellArg "${specialArgs.flakeInputs.self}/dotfiles/flatpak/overrides/"}* "$target"
+        cp --no-preserve=mode --dereference ${
+          lib.escapeShellArg (
+            lib.fileset.toSource {
+              root = "${specialArgs.root}/dotfiles/flatpak/overrides";
+              fileset = "${specialArgs.root}/dotfiles/flatpak/overrides";
+            }
+          )
+        }* "$target"
       ''
     else
       ""
