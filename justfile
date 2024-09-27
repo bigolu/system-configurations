@@ -182,6 +182,36 @@ fix-lint-all:
     lefthook run fix-lint --all-files
 
 [doc('''
+    Run the relevant code generators, based on the specified files.  You should
+    run this with any changed files before pushing. You can do so by running
+    this task without arguments.
+
+    Instead of running this directly, you can run 'check' which includes other checks.
+
+    Arguments:
+        CHANGED_FILES: The files that have changed. If none are given, then it runs on
+                       all files that differ from the default branch, including
+                       untracked files.
+''')]
+[group('Checks')]
+generate *CHANGED_FILES:
+    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
+    [ $# -gt 0 ] \
+      && printf '%s\0' "$@" \
+      || bash scripts/get-files-that-differ-from-default-branch.bash \
+    | lefthook run generate --files-from-stdin
+
+[doc('''
+    Run all code generators. You should run this if you make a change to how
+    code generation is done so the changes get applied to all files.
+
+    Instead of running this directly, you can run 'check-all' which includes other checks.
+''')]
+[group('Checks')]
+generate-all:
+    lefthook run generate --all-files
+
+[doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
     you shouldn't ever have to run this.
 
@@ -249,39 +279,6 @@ sync-nix-direnv:
 [group('Environment Management')]
 sync-git-hooks:
     lefthook install --force
-
-[doc('''
-    Generate the lock file for gomod2nix. Run this after editing the go.mod. In
-    case you forget, it runs during the pre-push hook.
-''')]
-[group('Code Generation')]
-generate-gomod2nix-lock:
-    lefthook run --force --commands gomod2nix-lock generate
-
-[doc('''
-    Generate a file with a list of all the neovim plugins. You shouldn't have to
-    run this yourself since it runs during the pre-commit hook.
-''')]
-[group('Code Generation')]
-generate-neovim-plugin-list:
-    lefthook run --force --commands neovim-plugin-list generate
-
-[doc('''
-    Generate the Table of Contents in the README. Run it after editing the
-    README. In case you forget, it runs during the pre-push hook.
-''')]
-[group('Code Generation')]
-generate-readme-table-of-contents:
-    lefthook run --force --commands readme-table-of-contents generate
-
-[doc('''
-    Regenerate a flake.lock for the flake.nix. This should be run after removing
-    any inputs from the flake. You shouldn't have to run this manually since it
-    runs on the pre-push hook.
-''')]
-[group('Code Generation')]
-generate-flake-lock:
-  nix flake lock .
 
 [doc('''
     Sometimes a change is made that requires you to run something e.g.
