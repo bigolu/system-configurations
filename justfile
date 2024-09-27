@@ -66,172 +66,37 @@ bundle PACKAGE:
   nix bundle --bundler .# "$1"
 
 [doc('''
-    This task runs the following tasks: format, check-lint, fix-lint, and all
-    generator tasks. You should run this on any changed files before pushing. You
-    can do so by running this task without arguments. In case you forget to run
-    it, it also runs during the git pre-push hook.
+    Run various checks on the code, automatically fixing issues if
+    possible. These checks are split into the following groups: format,
+    check-lint, fix-lint, and generate.  You should run this with any files you
+    change before pushing. You can do so by running this task without providing
+    the FILES argument e.g. `just check all`. In case you forget to run it, it
+    also runs during the git pre-push hook, where it only checks files in the
+    commits that you are about to push.
+
+    If you want to see what kind of checks are being run, they're defined in
+    .lefthook.yml.
 
     Arguments:
-        FILES: The files to check. If none are given, then it runs on all files
-               that differ from the default branch, including untracked files.
+        GROUPS: Comma-Delimited list of groups. use 'all' to run all groups.
+                Possible groups are: generate, format, fix-lint, and check-lint.
+                Example: `just check format,generate`
+        FILES:  The files to check. If none are given, then it runs on all files
+                that differ from the default branch, including untracked files.
+                Example: `just check all myfile.txt myotherfile.js`
 ''')]
 [group('Checks')]
-check *FILES:
-    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] \
-      && printf '%s\0' "$@" \
-      || bash scripts/get-files-that-differ-from-default-branch.bash \
-    | lefthook run pre-push --files-from-stdin
+check GROUPS *FILES:
+    bash scripts/check.bash "$@"
 
 [doc('''
-    This task runs the following tasks on all files: format, check-lint,
-    fix-lint, and all generator tasks. You should run this if you make changes
-    to how any of the previously mentioned tasks work so those changes can be
-    applied to all files.
+    This is the same as the check task above, except that it runs on all files.
+    You should run this if you make changes that affect how any of the GROUPS
+    work. For example, changing the configuration file for a linter.
 ''')]
 [group('Checks')]
-check-all:
-    lefthook run pre-push --all-files
-
-[doc('''
-    Format the code. You should run this on any changed files before
-    pushing. You can do so by running this task without arguments.
-
-    Instead of running this directly, you can run 'check' which includes other checks.
-
-    Arguments:
-        FILES: The files to format. If none are given, then it runs on all files
-               that differ from the default branch, including untracked files.
-
-''')]
-[group('Checks')]
-format *FILES:
-    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] \
-      && printf '%s\0' "$@" \
-      || bash scripts/get-files-that-differ-from-default-branch.bash \
-    | lefthook run format --files-from-stdin
-
-[doc('''
-    Format all the code. You should run this if you make a change to how
-    formatting is done (e.g. change the config file for a formatter) so the
-    changes get applied to all files.
-
-    Instead of running this directly, you can run 'check-all' which includes other checks.
-''')]
-[group('Checks')]
-format-all:
-    lefthook run format --all-files
-
-[doc('''
-    Check for lint issues. You should run this on any changed files before
-    pushing. You can do so by running this task without arguments.
-
-    Instead of running this directly, you can run 'check' which includes other checks.
-
-    Arguments:
-        FILES: The files to check. If none are given, then it runs on all files
-               that differ from the default branch, including untracked files.
-''')]
-[group('Checks')]
-check-lint *FILES:
-    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] \
-      && printf '%s\0' "$@" \
-      || bash scripts/get-files-that-differ-from-default-branch.bash \
-    | lefthook run check-lint --files-from-stdin
-
-[doc('''
-    Check for lint issues in all files. You should run this if you make a change to how
-    lint checking is done (e.g. change the config file for a lint checker) so the
-    changes get applied to all files.
-
-    Instead of running this directly, you can run 'check-all' which includes other checks.
-''')]
-[group('Checks')]
-check-lint-all:
-    lefthook run check-lint --all-files
-
-[doc('''
-    Fix lint issues. You should run this on any changed files before
-    pushing. You can do so by running this task without arguments.
-
-    Instead of running this directly, you can run 'check' which includes other checks.
-
-    Arguments:
-        FILES: The files to fix. If none are given, then it runs on all files
-               that differ from the default branch, including untracked files.
-''')]
-[group('Checks')]
-fix-lint *FILES:
-    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] \
-      && printf '%s\0' "$@" \
-      || bash scripts/get-files-that-differ-from-default-branch.bash \
-    | lefthook run fix-lint --files-from-stdin
-
-[doc('''
-    Fix lint issues in all files. You should run this if you make a change to how
-    lint fixing is done (e.g. change the config file for a lint fixer) so the
-    changes get applied to all files.
-    
-    Instead of running this directly, you can run 'check-all' which includes other checks.
-''')]
-[group('Checks')]
-fix-lint-all:
-    lefthook run fix-lint --all-files
-
-[doc('''
-    Run the relevant code generators, based on the specified files.  You should
-    run this with any changed files before pushing. You can do so by running
-    this task without arguments.
-
-    Instead of running this directly, you can run 'check' which includes other checks.
-
-    Arguments:
-        CHANGED_FILES: The files that have changed. If none are given, then it runs on
-                       all files that differ from the default branch, including
-                       untracked files.
-''')]
-[group('Checks')]
-generate *CHANGED_FILES:
-    # There's an extra '\0' at the end, but lefthook seems to be fine with that.
-    [ $# -gt 0 ] \
-      && printf '%s\0' "$@" \
-      || bash scripts/get-files-that-differ-from-default-branch.bash \
-    | lefthook run generate --files-from-stdin
-
-[doc('''
-    Run all code generators. You should run this if you make a change to how
-    code generation is done so the changes get applied to all files.
-
-    Instead of running this directly, you can run 'check-all' which includes other checks.
-''')]
-[group('Checks')]
-generate-all:
-    lefthook run generate --all-files
-
-[doc('''
-    Check for broken links in the input file(s). This runs periodically in CI so
-    you shouldn't ever have to run this.
-
-    Arguments:
-        FILES: The files to check. These can be: files (e.g. `myfile.txt`), directories
-               (e.g. `myDirectory`), remote files (e.g. `https://mysite.com/myfile.txt`),
-               or a single `-` which will check any text from stdin.
-''')]
-[group('Checks')]
-check-links *FILES:
-    lychee "$@"
-
-[doc('''
-    Run the tests. Useful to run after a big change to ensure everything still
-    works, but the cache workflow usually catches my mistakes so I don't run
-    this much.
-''')]
-[group('Checks')]
-test:
-    bash scripts/test.bash
+check-all GROUPS:
+    ALL_FILES=1 bash scripts/check.bash "$1"
 
 [doc('''
     Get all secrets from BitWarden Secrets Manager. You'll be prompted for
@@ -293,3 +158,25 @@ show-changes NAME:
     [ -f .git/change-commands/"$1" ] \
       && bash .git/change-commands/"$1" \
       || echo 'No changes to show.'
+
+[doc('''
+    Check for broken links in the input file(s). This runs periodically in CI so
+    you shouldn't ever have to run this.
+
+    Arguments:
+        FILES: The files to check. These can be: files (e.g. `myfile.txt`), directories
+               (e.g. `myDirectory`), remote files (e.g. `https://mysite.com/myfile.txt`),
+               or a single `-` which will check any text from stdin.
+''')]
+[group('Debugging')]
+check-links *FILES:
+    lychee "$@"
+
+[doc('''
+    Run the tests. Useful to run after a big change to ensure everything still
+    works, but the cache workflow usually catches my mistakes so I don't run
+    this much.
+''')]
+[group('Debugging')]
+test:
+    bash scripts/test.bash
