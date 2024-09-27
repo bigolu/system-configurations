@@ -140,7 +140,7 @@ generate:
       glob: README.md
       run: >
         bash scripts/fail-if-files-change.bash
-        bash scripts/code-generation/generate-readme-table-of-contents.bash
+        doctoc README.md --github
         # {files}
     neovim-plugin-list:
       glob: "*neovim/lua/*.lua"

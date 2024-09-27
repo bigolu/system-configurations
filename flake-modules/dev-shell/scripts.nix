@@ -26,11 +26,6 @@ let
     path = "scripts/code-generation/generate-gomod2nix-lock.bash";
   };
 
-  code-generation-generate-readme-table-of-contents = {
-    dependencies = with pkgs; [ doctoc ];
-    path = "scripts/code-generation/generate-readme-table-of-contents.bash";
-  };
-
   get-secrets = {
     dependencies = with pkgs; [
       jq
@@ -92,7 +87,6 @@ let
     inherit
       code-generation-generate-neovim-plugin-list
       code-generation-generate-gomod2nix-lock
-      code-generation-generate-readme-table-of-contents
       get-secrets
       init-nix-darwin
       test
@@ -149,7 +143,6 @@ let
             "cannot:${pkgs.nix}/bin/nix"
             "cannot:${pkgs.direnv}/bin/direnv"
             "cannot:${pkgs.gh}/bin/gh"
-            "cannot:${pkgs.doctoc}/bin/doctoc"
           ]
           ++ lib.lists.optionals pkgs.stdenv.isDarwin [
             "cannot:${pkgs.terminal-notifier}/bin/terminal-notifier"

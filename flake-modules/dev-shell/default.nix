@@ -38,8 +38,8 @@
 
       lefthookDependencies = with pkgs; [
         lefthook
-        # These are called in the lefthook configuration file
-        gnused
+        # These are called in the lefthook configuration file, but aren't
+        # specific to a task group e.g. format or check-lint
         gitMinimal
         parallel
       ];
@@ -135,8 +135,11 @@
               builtins.concatLists
             ];
         in
-        lefthookDependencies # Runs the generators
-        ++ codegenScriptDependencies;
+        # Runs the generators
+        lefthookDependencies
+        ++ codegenScriptDependencies
+        # This gets called from lefthook
+        ++ (with pkgs; [ doctoc ]);
 
       outputs = {
         packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
