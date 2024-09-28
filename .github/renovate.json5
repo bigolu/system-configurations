@@ -71,7 +71,7 @@
       // SYNC: AUTOMERGE_LABEL
       labels: ["automerge"],
       // SYNC: RENOVATE_FIXUP
-      commitMessageAction: "[renovate_fixup] Update",
+      commitMessageAction: "[renovate_fixup] lock file maintenance",
     },
     // By default, indirect Go dependencies aren't updated
     {
