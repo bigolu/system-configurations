@@ -187,4 +187,4 @@ test:
 
 [private]
 direnv-reminder:
-    printf "\n\e[34m┃ system-configurations: Don't forget to reload direnv inside your editor as well.\e(B\e[m\n\n"
+    printf "\n\e[34m┃ system-configurations: Don't forget to reload direnv inside your editor as well.\e(B\e[m\n"
