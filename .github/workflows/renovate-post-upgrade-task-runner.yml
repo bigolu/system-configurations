@@ -54,6 +54,7 @@ jobs:
           # Fetch the last 2 commits instead of just 1.
           # (Fetching just 1 commit would overwrite the whole history since we are amending)
           fetch-depth: 2
+          ref: ${{ github.head_ref }}
       - uses: ./.github/actions/setup
         with:
           dev-shell: ciRenovate
