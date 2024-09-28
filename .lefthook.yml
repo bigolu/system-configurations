@@ -19,6 +19,7 @@ colors:
   red: 1
   yellow: 3
 
+# I would include summary, but it's too noisy if you nest lefthook invocations.
 output:
   - execution_info
 
@@ -40,92 +41,83 @@ pre-push:
       run: printf '%s\0' {push_files} | lefthook run check-lint --files-from-stdin
 post-merge:
   commands:
-    check-for-actionable-changes:
-      env:
-        COMMIT_1: "ORIG_HEAD"
-        COMMIT_2: "HEAD"
-      run: lefthook run check-for-actionable-changes
+    mark-sync-point:
+      run: >
+        printf ORIG_HEAD >.git/sync-point-1.txt
+        && printf HEAD >.git/sync-point-2.txt
 post-rewrite:
   commands:
-    check-for-actionable-changes:
+    mark-sync-point:
       only: rebase
-      env:
-        COMMIT_1: "ORIG_HEAD"
-        COMMIT_2: "HEAD"
-      run: lefthook run check-for-actionable-changes
-    # This is too noisy to do on all change-related hooks.
-    check-for-actionable-changes-for-host-configuration:
-      only: rebase
-      env:
-        DIFF: "host"
       run: >
-        bash scripts/git-hooks/notify.bash
-        'Files related to the host configuration have changed. Consider running `just switch`.'
-        {files}
+        printf ORIG_HEAD >.git/sync-point-1.txt
+        && printf HEAD >.git/sync-point-2.txt
 post-checkout:
   commands:
-    check-for-actionable-changes:
+    mark-sync-point:
+      # The conditional checks that this isn't a file checkout.
+      #
       # TODO: Open an issue for passing the git hook arguments to the only/skip
-      # commands. Then I could remove this script.
+      # commands, or add new skip/only conditions e.g. 'file' and 'branch'. Then
+      # I could remove this conditional.
       run: >
-        COMMIT_1={1} COMMIT_2={2}
-        bash scripts/git-hooks/run-if-not-file-checkout.bash
-        lefthook run check-for-actionable-changes
+        [ {3} != '0' ]
+        && printf {1} >.git/sync-point-1.txt
+        && printf {2} >.git/sync-point-2.txt
 
-check-for-actionable-changes:
-  files: git diff-tree -r --name-only --no-commit-id "$COMMIT_1" "$COMMIT_2"
+sync:
+  # Add '|| true' so lefthook doesn't exit with code 1
+  files: >
+    [ -f .git/sync-point-1.txt -a -f .git/sync-point-2.txt ]
+    && git diff-tree -r --name-only --no-commit-id
+    "$(cat .git/sync-point-1.txt)" "$(cat .git/sync-point-2.txt)"
+    || true
   commands:
-    envrc-secrets:
+    direnv:
+      glob: ".envrc"
+      run: just reload
+    # Get all secrets from BitWarden Secrets Manager. You'll be prompted for
+    # a service token. You should run this whenever there are new secrets to
+    # fetch. This task will also reload the terminal's direnv environment.
+    secrets:
       glob: "envrc-secrets-example.bash"
-      env:
-        DIFF: "envrc-secrets"
       run: >
-        bash scripts/git-hooks/notify.bash
-        'envrc-secrets-example.bash has changed, consider updating your envrc-secrets.bash.'
-        {files}
+        bash scripts/get-secrets.bash
+        && just reload
+    # Synchronize nix-direnv with the Nix devShell and reload the direnv
+    # environment. nix-direnv is a direnv library that builds our Nix devShell and
+    # makes all the packages within it available on the $PATH. Since building the
+    # devShell can take a while, nix-direnv won't do it automatically. Instead,
+    # it will only build the devShell when it's explicitly told to do
+    # so, otherwise it just uses the last devShell it built. This task will tell
+    # nix-direnv to rebuild the devShell and reload the direnv environment.
     dev-shell:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
-      env:
-        DIFF: "dev-shell"
+      # touch flake.nix to force nix-direnv to reload.
+      # TODO: See if they can add an option to force because I don't want to
+      # enumerate every file that can affect the dev shell.
       run: >
-        bash scripts/git-hooks/notify.bash
-        'Files related to the devShell have changed, consider running `just sync-nix-direnv`.'
-        {files}
+        touch flake.nix
+        && nix-direnv-reload
+        && just direnv-reminder
     fish:
       glob: "dotfiles/fish/conf.d/**.fish"
-      env:
-        DIFF: "fish"
-      run: >
-        bash scripts/git-hooks/notify.bash
-        'Files related to fish have changed, consider running `r`.'
-        {files}
+      run: echo 'Files related to fish have changed, consider running `r`.'
     nix:
       glob: "flake.lock"
-      env:
-        DIFF: "nix"
-      run: >
-        bash scripts/git-hooks/notify.bash
-        'The flake.lock has changed, consider running `just upgrade-nix`.'
-        {files}
+      run: echo 'The flake.lock has changed, consider running `just upgrade-nix`.'
     nix-fix:
       glob: "dotfiles/nix/nix-fix/**"
-      env:
-        DIFF: "nix-fix"
-      run: >
-        bash scripts/git-hooks/notify.bash
-        'Files related to the Nix $PATH fix have changed, consider re-running its installer.'
-        {files}
+      # Must be interactive since the user will be prompted for their password,
+      # for sudo.
+      interactive: true
+      run: bash dotfiles/nix/nix-fix/install-nix-fix.bash
     lefthook:
       # TODO: No need for this yet since lefthook syncs hooks automatically, I
       # should ask them to make this optional.
       skip: true
       glob: ".lefthook.yml"
-      env:
-        DIFF: "lefthook"
-      run: >
-        bash scripts/git-hooks/notify.bash
-        '.lefthook.yml has changed, consider running `just sync-git-hooks`.'
-        {files}
+      run: lefthook install --force
 
 # SYNC: GENERATORS
 #

@@ -42,7 +42,7 @@ preview-switch:
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-home-manager HOST_NAME: sync-git-hooks get-secrets
+init-home-manager HOST_NAME: && (sync-force "lefthook,secrets")
     bash scripts/init-home-manager.bash "$@"
 
 [doc('''
@@ -53,7 +53,7 @@ init-home-manager HOST_NAME: sync-git-hooks get-secrets
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-nix-darwin HOST_NAME: sync-git-hooks get-secrets
+init-nix-darwin HOST_NAME: && (sync-force "lefthook,secrets")
     bash scripts/init-nix-darwin.bash "$@"
  
 [doc('''
@@ -99,69 +99,32 @@ check-all GROUPS:
     ALL_FILES=1 bash scripts/check.bash "$1"
 
 [doc('''
-    Reload the direnv environment inside the terminal where this is run. You
-    should run this whenever you, or someone else, makes a change to the .envrc.
+    Run various tasks to synchronize your environment with the state of the code.
+    Run this anytime you incorporate someone else's changes. For example, after
+    doing 'git pull' or checking out someone else's branch.
+
+    For a list of available tasks, see .lefthook.yml.
 ''')]
-[group('Environment Management')]
-reload: && direnv-reminder
-    direnv reload
+[group('Syncing')]
+sync:
+    LEFTHOOK_OUTPUT='execution_out' lefthook run sync
 
 [doc('''
-    Get all secrets from BitWarden Secrets Manager. You'll be prompted for
-    a service token. You should run this whenever there are new secrets to
-    fetch. This task will also reload the terminal's direnv environment.
-''')]
-[group('Environment Management')]
-get-secrets: && reload
-    bash scripts/get-secrets.bash
+    This is the same as the sync recipe above, except that it forces all tasks specified
+    to run, regardless of what files have changed. If no tasks are provided, then
+    all of them are run.
 
-[doc('''
-    Synchronize nix-direnv with the Nix devShell and reload the direnv
-    environment. nix-direnv is a direnv library that builds our Nix devShell and
-    makes all the packages within it available on the $PATH. Since building the
-    devShell can take a while, nix-direnv won't do it automatically. Instead,
-    it will only build the devShell when it's explicitly told to do
-    so, otherwise it just uses the last devShell it built. This task will tell
-    nix-direnv to rebuild the devShell and reload the direnv environment.
-    
-    When to run this task:
-      - After making changes to any of the files that affect the devShell
-        so you can test your changes.
-      - After anyone else makes changes to devShell-related files,
-        this way you can apply the changes.
-''')]
-[group('Environment Management')]
-sync-nix-direnv: && direnv-reminder
-    # TODO: watch_file isn't working
-    touch flake.nix
-    nix-direnv-reload
+    For a list of available tasks, see .lefthook.yml.
 
-[doc('''
-    Synchronize git hooks with the lefthook configuration. 
-
-    When to run this task:
-      - After making changes to any of the files that affect the lefthook
-        configuration so you can test your changes.
-      - After anyone else makes changes to lefthook-related files,
-        this way you can apply the changes.
+    Arguments:
+        TASKS: Comma-Delimited list of tasks.
+               Example: `just sync-force direnv,dev-shell`
 ''')]
-[group('Environment Management')]
-sync-git-hooks:
-    lefthook install --force
-
-[doc('''
-    Sometimes a change is made that requires you to run something e.g.
-    reinstalling dependencies when the dependencies file changes.  After a git
-    checkout, rebase, or merge, you'll get a desktop notification with any
-    actions you should take. It will also give you a task to run that can show
-    you a diff of the changes, which is this task. Only run this if you want
-    more details on any of the changes that you get notified about.
-''')]
-[group('Environment Management')]
-show-changes NAME:
-    [ -f .git/change-commands/"$1" ] \
-      && bash .git/change-commands/"$1" \
-      || echo 'No changes to show.'
+[group('Syncing')]
+sync-force *TASKS:
+    (( $# > 0 )) \
+      && LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1" \
+      || LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
@@ -188,3 +151,7 @@ test:
 [private]
 direnv-reminder:
     printf "\n\e[34m┃ system-configurations: Don't forget to reload direnv inside your editor as well.\e(B\e[m\n"
+
+[private]
+reload: && direnv-reminder
+    direnv reload

@@ -79,19 +79,6 @@ let
     path = "scripts/ci/remove-text.bash";
   };
 
-  git-hooks-notify = {
-    dependencies =
-      with pkgs;
-      [
-        coreutils
-        gitMinimal
-        gnugrep
-      ]
-      ++ lib.lists.optionals pkgs.stdenv.isDarwin [ terminal-notifier ]
-      ++ lib.lists.optionals pkgs.stdenv.isLinux [ libnotify ];
-    path = "scripts/git-hooks/notify.bash";
-  };
-
   dependenciesByName = {
     inherit
       code-generation-generate-neovim-plugin-list
@@ -102,7 +89,6 @@ let
       ci-set-nix-direnv-hash
       ci-auto-merge
       ci-remove-text
-      git-hooks-notify
       fail-if-files-change
       ;
   };
@@ -140,26 +126,19 @@ let
         interpreter = "${pkgs.bash}/bin/bash";
         inputs = allDependencies;
 
-        execer =
-          [
-            "cannot:${pkgs.fd}/bin/fd"
-            "cannot:${pkgs.lua-language-server}/bin/lua-language-server"
-            "cannot:${pkgs.ast-grep}/bin/ast-grep"
-            "cannot:${pkgs.gitMinimal}/bin/git"
-            "cannot:${pkgs.markdownlint-cli2}/bin/markdownlint-cli2"
-            "cannot:${pkgs.ltex-ls}/bin/ltex-cli"
-            "cannot:${pkgs.ripgrep}/bin/rg"
-            "cannot:${pkgs.reviewdog}/bin/reviewdog"
-            "cannot:${pkgs.nix}/bin/nix"
-            "cannot:${pkgs.direnv}/bin/direnv"
-            "cannot:${pkgs.gh}/bin/gh"
-          ]
-          ++ lib.lists.optionals pkgs.stdenv.isDarwin [
-            "cannot:${pkgs.terminal-notifier}/bin/terminal-notifier"
-          ]
-          ++ lib.lists.optionals pkgs.stdenv.isLinux [
-            "cannot:${pkgs.libnotify}/bin/notify-send"
-          ];
+        execer = [
+          "cannot:${pkgs.fd}/bin/fd"
+          "cannot:${pkgs.lua-language-server}/bin/lua-language-server"
+          "cannot:${pkgs.ast-grep}/bin/ast-grep"
+          "cannot:${pkgs.gitMinimal}/bin/git"
+          "cannot:${pkgs.markdownlint-cli2}/bin/markdownlint-cli2"
+          "cannot:${pkgs.ltex-ls}/bin/ltex-cli"
+          "cannot:${pkgs.ripgrep}/bin/rg"
+          "cannot:${pkgs.reviewdog}/bin/reviewdog"
+          "cannot:${pkgs.nix}/bin/nix"
+          "cannot:${pkgs.direnv}/bin/direnv"
+          "cannot:${pkgs.gh}/bin/gh"
+        ];
 
         keep = {
           # Homebrew's installer says to use this so I don't want to change it
@@ -168,14 +147,11 @@ let
         };
 
         fake = {
-          external =
-            [
-              # I don't want to resolve it since it's unfree
-              "bws"
-              "bash"
-            ]
-            ++ lib.lists.optionals pkgs.stdenv.isLinux [ "terminal-notifier" ]
-            ++ lib.lists.optionals pkgs.stdenv.isDarwin [ "notify-send" ];
+          external = [
+            # I don't want to resolve it since it's unfree
+            "bws"
+            "bash"
+          ];
         };
       };
     };
