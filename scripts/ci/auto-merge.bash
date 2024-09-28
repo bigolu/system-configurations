@@ -33,6 +33,10 @@ while IFS= read -r pr_number; do
       --title "[automerge-failed] $old_title"
     gh pr comment "$pr_number" --repo "$GITHUB_REPOSITORY" \
       --body "$comment_body"
+    # Renovate uses the pull request title as its state so we shouldn't mess with it:
+    # https://docs.renovatebot.com/configuration-options/#prtitle
+    gh pr edit "$pr_number" --repo "$GITHUB_REPOSITORY" \
+      --title "$old_title"
   else
     gh pr update-branch "$pr_number" --repo "$GITHUB_REPOSITORY" --rebase
     gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --auto --squash
