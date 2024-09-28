@@ -70,6 +70,15 @@ let
     path = "scripts/ci/auto-merge.bash";
   };
 
+  ci-remove-text = {
+    dependencies = with pkgs; [
+      openssl
+      perl
+      gnugrep
+    ];
+    path = "scripts/ci/remove-text.bash";
+  };
+
   git-hooks-notify = {
     dependencies =
       with pkgs;
@@ -92,6 +101,7 @@ let
       test
       ci-set-nix-direnv-hash
       ci-auto-merge
+      ci-remove-text
       git-hooks-notify
       fail-if-files-change
       ;

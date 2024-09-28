@@ -194,6 +194,7 @@
             scripts = with scripts; [
               ci-set-nix-direnv-hash
               code-generation-generate-gomod2nix-lock
+              ci-remove-text
             ];
           };
 
