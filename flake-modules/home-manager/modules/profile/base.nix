@@ -28,7 +28,7 @@
       myPython
       fish
     ]
-    ++ lib.lists.optionals specialArgs.isGui [
+    ++ lib.lists.optionals (specialArgs.isGui && pkgs.stdenv.isLinux) [
       # TODO: Only doing this because Pop!_OS doesn't come with it by default, but
       # I think it should
       wl-clipboard
