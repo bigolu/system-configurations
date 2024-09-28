@@ -265,6 +265,8 @@ fix-lint:
       run: >
         bash scripts/fail-if-files-change.bash
         typos --write-changes --format silent {files}
+    # TODO: This always writes to the file, even if no changes are made. This
+    # causes unnecessary direnv reloads.
     dos2unix:
       # It modified this file, but I'm not confident that won't break anything.
       exclude:
@@ -272,6 +274,8 @@ fix-lint:
       run: >
         bash scripts/fail-if-files-change.bash
         dos2unix --add-eol {files}
+    # TODO: This always writes to the file, even if no changes are made. This
+    # causes unnecessary direnv reloads.
     mac2unix:
       # It modified this file, but I'm not confident that won't break anything.
       exclude:

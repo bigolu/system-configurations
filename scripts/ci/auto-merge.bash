@@ -2,21 +2,24 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-# echo "DEBUG"
-# gh pr list --json number,title,mergeable --repo "$GITHUB_REPOSITORY" --label automerge
-# echo
-
-# TODO: When a PR has a failing check, should I stop trying to
-# auto-merge? That's what it does now, but I'm thinking maybe if I continued to
-# rebase the PR it would eventually pass tests and be able to merge.
+# TODO: Add debug mode that just logs what it would do, triggered by lack of
+# github environment variable being set. This way I can test locally.
 
 while IFS= read -r pr_number; do
   echo "Processing PR #$pr_number"
 
   comment_body=
   if [[ "$(gh pr checks "$pr_number" --json bucket --jq '.[].bucket' --repo "$GITHUB_REPOSITORY" --required)" =~ 'fail' ]]; then
-    echo 'Status checks failed'
-    comment_body='A status check failed so auto-merging has been disabled.'
+    # SYNC: NIX_BRANCH_PREFIX
+    if [[ "$(gh pr view "$pr_number" --json headRefName --jq '.headRefName' --repo "$GITHUB_REPOSITORY")" == renovate/flake-lock/* ]]; then
+      # Since I track nixpkgs-unstable some failures are expected. Just close
+      # the PR and hope it passes next time since the lock will get regenerated.
+      gh pr close "$pr_number" --repo "$GITHUB_REPOSITORY"
+      continue
+    else
+      echo 'Status checks failed'
+      comment_body='A status check failed so auto-merging has been disabled.'
+    fi
   elif [ "$(gh pr view "$pr_number" --json mergeable --jq '.mergeable' --repo "$GITHUB_REPOSITORY")" = CONFLICTING ]; then
     echo 'PR is conflicted'
     comment_body='This PR has a conflict with its base branch so auto-merging has been disabled.'

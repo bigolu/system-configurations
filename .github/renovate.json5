@@ -47,7 +47,7 @@
       // SYNC: RENOVATE_FIXUP_GOLANG
       additionalBranchPrefix: "fixup/golang/",
 
-      // Don't automerge these, after hte fixup the automerge label will be added.
+      // Don't automerge these, after the fixup the automerge label will be added.
       labels: [],
     },
     {
@@ -57,10 +57,22 @@
       // SYNC: RENOVATE_FIXUP_ENVRC
       additionalBranchPrefix: "fixup/envrc/",
 
-      // Don't automerge these, after hte fixup the automerge label will be added.
+      // Don't automerge these, after the fixup the automerge label will be added.
       labels: [],
     },
+    {
+      matchManagers: ["nix"],
+      matchUpdateTypes: ["lockFileMaintenance"],
 
+      // SYNC: NIX_BRANCH_PREFIX
+      additionalBranchPrefix: "flake-lock/",
+
+      // There may be breaking changes, but I'm ok with that.
+      // SYNC: AUTOMERGE_LABEL
+      labels: ["automerge"],
+      // SYNC: RENOVATE_FIXUP
+      commitMessageAction: "[renovate_fixup] Update",
+    },
     // By default, indirect Go dependencies aren't updated
     {
       matchManagers: ["gomod"],
