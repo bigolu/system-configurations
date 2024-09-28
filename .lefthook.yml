@@ -19,8 +19,6 @@ colors:
   red: 1
   yellow: 3
 
-# TODO: I'd like to add summary here, but with nested calls to lefthook it gets
-# messy.
 output:
   - execution_info
 

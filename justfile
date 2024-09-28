@@ -157,7 +157,7 @@ sync-git-hooks:
     you a diff of the changes, which is this task. Only run this if you want
     more details on any of the changes that you get notified about.
 ''')]
-[group('Changes')]
+[group('Environment Management')]
 show-changes NAME:
     [ -f .git/change-commands/"$1" ] \
       && bash .git/change-commands/"$1" \

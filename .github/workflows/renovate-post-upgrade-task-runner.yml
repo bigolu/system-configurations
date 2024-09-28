@@ -30,7 +30,6 @@ jobs:
         # we'll only get the first line:
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-output-parameter
         run: echo "HEAD_COMMIT_MESSAGE=$(git log --oneline --format=%s --max-count 1)" >> "$GITHUB_OUTPUT"
-
   renovate-post-upgrade-task-runner:
     needs: get-commit-message
     # TODO: This will result in a bunch of runs that immediately exit if the
