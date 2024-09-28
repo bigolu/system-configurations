@@ -3,21 +3,22 @@ set -o nounset
 set -o pipefail
 
 function main {
-  readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
-
-  track_files "${untracked_files[@]}"
-
-  repository_state_before_running="$(git diff)"
+  diff_before_running="$(diff_including_untracked)"
   "$@"
-  repository_state_after_running="$(git diff)"
+  diff_after_running="$(diff_including_untracked)"
 
-  untrack_files "${untracked_files[@]}"
-
-  if [ "$repository_state_before_running" != "$repository_state_after_running" ]; then
+  if [ "$diff_before_running" != "$diff_after_running" ]; then
     return 1
   else
     return 0
   fi
+}
+
+function diff_including_untracked {
+  readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
+  track_files "${untracked_files[@]}"
+  git diff
+  untrack_files "${untracked_files[@]}"
 }
 
 function track_files {
