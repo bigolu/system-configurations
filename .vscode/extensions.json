@@ -1,0 +1,62 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=827846 to learn
+  // about workspace recommendations. Extension identifier format:
+  // ${publisher}.${name}. Example: vscode.csharp
+
+  "recommendations": [
+    // Applies the direnv environment to VS Code
+    "mkhl.direnv",
+
+    // language server for TOML
+    "tamasfe.even-better-toml",
+
+    // language server for YAML
+    "redhat.vscode-yaml",
+
+    // language server for Bash
+    "mads-hartmann.bash-ide-vscode",
+
+    // Language server for prose in markup languages e.g. markdown. I'd use
+    // efm-langserver, but this tool takes a long time to start up.
+    "valentjn.vscode-ltex",
+
+    // Syntax highlighting, linting, and autocomplete for fish
+    "bmalehorn.vscode-fish",
+
+    // Language server for Lua
+    "sumneko.lua",
+
+    // Language server and Syntax highlighting for Nix
+    "jnoortheen.nix-ide",
+
+    // Syntax highlighting for Just
+    "nefrob.vscode-just-syntax",
+
+    // Debugger for Python, ms-python.python is its dependency
+    "ms-python.debugpy",
+    "ms-python.python",
+
+    // Linting for Python
+    "charliermarsh.ruff",
+
+    // Snippets for Python
+    "ericsia.pythonsnippets3",
+    "njpwerner.autodocstring",
+
+    // Type checker for Python
+    "ms-python.mypy-type-checker",
+
+    // Semantic code search
+    "ast-grep.ast-grep-vscode",
+
+    // Editor settings like indentation size or end-of-line character
+    "editorconfig.editorconfig",
+
+    // Language server and debugger for Go
+    "golang.go",
+  ],
+
+  // List of extensions recommended by VS Code that should not be recommended
+  // for users of this workspace.
+  "unwantedRecommendations": ["ms-python.vscode-pylance"],
+}

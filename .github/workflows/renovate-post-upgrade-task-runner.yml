@@ -1,0 +1,79 @@
+# TODO: Ideally this would a composite action. This way, the action could
+# register post run steps and users would not have to force all of their upgrade
+# task logic into `inputs.command`. They're considering adding it:
+# https://github.com/actions/runner/issues/1478
+
+name: "Renovate Post-Upgrade Task Runner"
+on:
+  workflow_call:
+    inputs:
+      command:
+        required: true
+        type: string
+    secrets:
+      BIGOLU_BOT_PRIVATE_KEY:
+        required: true
+      CACHIX_AUTH_TOKEN:
+        required: true
+jobs:
+  get-commit-message:
+    name: Get Commit Message
+    runs-on: ubuntu-latest
+    outputs:
+      head-commit-message: ${{ steps.commit-message.outputs.HEAD_COMMIT_MESSAGE }}
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - id: commit-message
+        # multi-line output values require special handling so to avoid that
+        # we'll only get the first line:
+        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-output-parameter
+        run: echo "HEAD_COMMIT_MESSAGE=$(git log --oneline --format=%s --max-count 1)" >> "$GITHUB_OUTPUT"
+
+  renovate-post-upgrade-task-runner:
+    needs: get-commit-message
+    # TODO: This will result in a bunch of runs that immediately exit if the
+    # branch wasn't just created. Ideally the job wouldn't even start if the
+    # branch wasn't just created:
+    #
+    # SYNC: RENOVATE_FIXUP
+    if: ${{ contains(needs.get-commit-message.outputs.head-commit-message, vars.RENOVATE_EMAIL_IGNORE_MARKER) }}
+    runs-on: ubuntu-latest
+    steps:
+      - id: bot-token
+        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        with:
+          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
+          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+        with:
+          # So when we commit, it triggers other workflows:
+          # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
+          token: ${{ steps.bot-token.outputs.token }}
+      - uses: ./.github/actions/setup
+        with:
+          dev-shell: ciRenovate
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - run: ${{ inputs.command }}
+      # Now that the PR title has the marker in it, we can remove it from the commit.
+      - id: remove-renovate-email-ignore-marker
+        run: bash scripts/ci/remove-text.bash
+        env:
+          TEXT: ${{ needs.get-commit-message.outputs.head-commit-message }}
+          TEXT_TO_REMOVE: ${{ vars.RENOVATE_EMAIL_IGNORE_MARKER }}
+      - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
+        with:
+          commit_message: ${{ steps.remove-renovate-email-ignore-marker.outputs.new-text }}
+          commit_options: "--amend"
+          push_options: "--force"
+      - name: Find Pull Request
+        uses: juliangruber/find-pull-request-action@48b6133aa6c826f267ebd33aa2d29470f9d9e7d0 # v1
+        id: find-pull-request
+        with:
+          branch: ${{ github.head_ref }}
+      - uses: actions/labeler@8558fd74291d67161a8a78ce36a881fa63b766a9 # v5
+        with:
+          repo-token: ${{ steps.bot-token.outputs.token }}
+          pr-number: ${{ steps.find-pull-request.outputs.number }}
+          configuration-path: .github/labeler.yml

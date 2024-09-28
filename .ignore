@@ -1,0 +1,6 @@
+.git
+flake.lock
+dotfiles/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
+**/.gitkeep
+.vscode/ltex.hiddenFalsePositives.en-US.txt
+flake-modules/bundler/gozip/gomod2nix.toml

@@ -1,0 +1,65 @@
+name: Publish Shell Executable
+on:
+  workflow_dispatch:
+  schedule:
+    # Once every 6 months
+    - cron: "0 0 1 */3 *"
+concurrency:
+  # Since we are only interested in publishing packages for the latest commit to
+  # the branch, we will limit the workflow to running at most once per branch,
+  # cancelling older runs when newer ones start.
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  publish-executable:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # macos-latest uses M1 so I'll just use the most recent version of macOS
+        # that they still on run intel macs
+        os: [ubuntu-latest, macos-13]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: ./.github/actions/setup
+        with:
+          dev-shell: ci
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - name: Get the number of new commits
+        run: echo "NEW_COMMIT_COUNT=$(git log --oneline --since '6 months ago' | wc -l)" >> "$GITHUB_ENV"
+      - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
+        name: Make the executable
+        run: |
+          nix bundle --show-trace --bundler .# .#shellMinimal
+
+          mkdir tmp
+          # Dereference the symlinks so I can upload the actual executables. The
+          # symlinks' names will look like '<name>-x86_64-linux' so I'm using a
+          # glob pattern to match them.
+          cp -L shell-* ./tmp/
+
+          size="$(du -m ./tmp/shell-* | cut -f1)"
+          max_size='250'
+          if (( "$size" > "$max_size" )); then
+          echo "Shell is too big: $size MB. Max size: $max_size"
+            exit 1
+          fi
+      - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
+        name: Set current date as env variable
+        run: echo "NOW=$(date +'%Y.%m.%d')" >> "$GITHUB_ENV"
+      - if: ${{ env.NEW_COMMIT_COUNT > 0 }}
+        name: Upload the executable
+        uses: svenstaro/upload-release-action@04733e069f2d7f7f0b4aebc4fbdbce8613b03ccd # v2
+        with:
+          file: tmp/*
+          file_glob: true
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: latest
+          release_name: ${{ env.NOW }}
+          body: >
+            To save space, assets are overwritten on new releases. The date that
+            the assets were last uploaded is in the title of the release.
+          # I don't want to take up a bunch of storage for old versions of this
+          # that no one will ever use.
+          overwrite: true

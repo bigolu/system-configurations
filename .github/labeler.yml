@@ -1,0 +1,4 @@
+# SYNC: AUTOMERGE_LABEL
+automerge:
+  - changed-files:
+      - any-glob-to-any-file: "**"

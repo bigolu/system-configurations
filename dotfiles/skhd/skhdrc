@@ -1,0 +1,169 @@
+# Switch into this mode if you want a shortcut to pass through without being
+# processed by skhd.  For example, if you wanted to input "cmd -a" directly,
+# instead of whatever you have it mapped to, you can do:
+# `skhd -k "hyper - 0x80"; skhd -k "cmd - a"; skhd -k "hyper - 0x80"`
+:: passthrough
+hyper - 0x80 ; passthrough
+passthrough < hyper - 0x80 ; default
+
+# OS shortcuts
+########################################
+# lock screen
+cmd - escape : skhd -k "cmd + ctrl - q"
+# cmd + / for spotlight
+cmd - 0x2C : skhd -k "cmd - space"
+
+# Yabai shortcuts
+# TODO: Put these in their own file
+########################################
+# refresh Hammerspoon
+cmd - r : hs -c 'hs.reload()'
+# reset window sizes to be equal
+cmd + shift - 0 : yabai -m space --balance
+# toggle float mode on the current window
+cmd - g : yabai -m window --toggle float
+# toggle stack for the current window
+cmd - s : yabai -m window --insert stack
+# toggle sticky for current window
+cmd - p : yabai -m window --toggle sticky
+# maximize window, remove gaps, and hide stack icons
+cmd - m : yabai -m window --toggle zoom-fullscreen
+cmd + shift - m : yabai -m window --toggle zoom-parent
+# make window fullscreen
+cmd - f : skhd -k "fn - f"
+# rotate windows [counter]clockwise
+cmd - o : yabai -m space --rotate 270
+cmd + shift - o : yabai -m space --rotate 90
+# focus display
+cmd + alt - h : yabai -m display --focus west
+cmd + alt - j : yabai -m display --focus south
+cmd + alt - k : yabai -m display --focus north
+cmd + alt - l : yabai -m display --focus east
+# change focus
+cmd - h : yabai -m window --focus west || skhd -k "cmd + alt - h"
+cmd - j : yabai-move down
+cmd - k : yabai-move up
+cmd - l : yabai -m window --focus east || skhd -k "cmd + alt - l"
+cmd + ctrl - backspace : yabai -m space --focus recent
+cmd + alt - backspace : yabai -m display --focus recent
+# move window
+cmd + shift - h : yabai-remove-from-stack west || yabai -m window --warp west || $(yabai -m window --display west; yabai -m display --focus west)
+cmd + shift - j : yabai-remove-from-stack south || yabai -m window --warp south || $(yabai -m window --display south; yabai -m display --focus south)
+cmd + shift - k : yabai-remove-from-stack north || yabai -m window --warp north || $(yabai -m window --display north; yabai -m display --focus north)
+cmd + shift - l : yabai-remove-from-stack east || yabai -m window --warp east || $(yabai -m window --display east; yabai -m display --focus east)
+# swap windows
+cmd + ctrl - h : yabai -m window --swap west
+cmd + ctrl - j : yabai -m window --swap south
+cmd + ctrl - k : yabai -m window --swap north
+cmd + ctrl - l : yabai -m window --swap east
+
+# App shortcuts
+########################################
+# Use hjkl as arrow keys when holding down Fn
+fn - h : skhd -k "left"
+fn - j : skhd -k "down"
+fn - k : skhd -k "up"
+fn - l : skhd -k "right"
+# Move back/forward through browser history
+alt - 0x21 [
+  "Firefox" : skhd -k "cmd - left"
+  "Firefox Developer Edition" : skhd -k "cmd - left"
+  * ~
+]
+alt - 0x1E [
+  "Firefox" : skhd -k "cmd - right"
+  "Firefox Developer Edition" : skhd -k "cmd - right"
+  * ~
+]
+# scroll
+ctrl - j [
+  "Firefox" : skhd -k "fn - down" && skhd -k "fn - down" && skhd -k "fn - down"
+  "Firefox Developer Edition" : skhd -k "fn - down" && skhd -k "fn - down" && skhd -k "fn - down"
+  * ~
+]
+ctrl - k [
+  "Firefox" : skhd -k "fn - up" && skhd -k "fn - up" && skhd -k "fn - up"
+  "Firefox Developer Edition" : skhd -k "fn - up" && skhd -k "fn - up" && skhd -k "fn - up"
+  * ~
+]
+ctrl - h [
+  "Firefox" : skhd -k "fn - left" && skhd -k "fn - left" && skhd -k "fn - left"
+  "Firefox Developer Edition" : skhd -k "fn - left" && skhd -k "fn - left" && skhd -k "fn - left"
+  * ~
+]
+ctrl - l [
+  "Firefox" : skhd -k "fn - right" && skhd -k "fn - right" && skhd -k "fn - right"
+  "Firefox Developer Edition" : skhd -k "fn - right" && skhd -k "fn - right" && skhd -k "fn - right"
+  * ~
+]
+# refresh
+ctrl - r [
+  "Firefox" : skhd -k "f5"
+  "Firefox Developer Edition" : skhd -k "f5"
+  * ~
+]
+ctrl + shift - r [
+  "Firefox" : skhd -k "cmd + shift - r"
+  "Firefox Developer Edition" : skhd -k "cmd + shift - r"
+  * ~
+]
+# close tab
+ctrl - q [
+  "Firefox" : skhd -k "cmd - w"
+  "Firefox Developer Edition" : skhd -k "cmd - w"
+  * ~
+]
+# Go to last tab
+ctrl - backspace [
+  "Firefox" : skhd -k "ctrl + shift - left"
+  "Firefox Developer Edition" : skhd -k "ctrl + shift - left"
+  * ~
+]
+# restore the last closed tab
+ctrl + shift - t [
+  "Firefox" : skhd -k "cmd + shift - t"
+  "Firefox Developer Edition" : skhd -k "cmd + shift - t"
+  * ~
+]
+# new tab
+ctrl - t [
+  "Firefox" : skhd -k "cmd - t"
+  "Firefox Developer Edition" : skhd -k "cmd - t"
+  * ~
+]
+# Go to next/previous tab
+ctrl - 0x21 [
+  "Firefox" : skhd -k "cmd + alt - left"
+  "Firefox Developer Edition" : skhd -k "cmd + alt - left"
+  * ~
+]
+ctrl - 0x1E [
+  "Firefox" : skhd -k "cmd + alt - right"
+  "Firefox Developer Edition" : skhd -k "cmd + alt - right"
+  * ~
+]
+# Find
+ctrl - f [
+  "Firefox" : skhd -k "hyper - 0x80" ; skhd -k "cmd - f" ; skhd -k "hyper - 0x80"
+  "Firefox Developer Edition" : skhd -k "hyper - 0x80" ; skhd -k "cmd - f" ; skhd -k "hyper - 0x80"
+  "Notesnook" : skhd -k "hyper - 0x80" ; skhd -k "cmd - f" ; skhd -k "hyper - 0x80"
+  * ~
+]
+# ctrl + / to go to address bar
+ctrl - 0x2C [
+  "Firefox" : skhd -k "f6"
+  "Firefox Developer Edition" : skhd -k "f6"
+  * ~
+]
+# Open bookmarks bar in Firefox
+ctrl - b [
+  "Firefox" : skhd -k "cmd - b"
+  "Firefox Developer Edition" : skhd -k "cmd - b"
+  * ~
+]
+# Open developer console in Firefox
+ctrl + shift - i [
+  "Firefox" : skhd -k "cmd + alt - i"
+  "Firefox Developer Edition" : skhd -k "cmd + alt - i"
+  * ~
+]

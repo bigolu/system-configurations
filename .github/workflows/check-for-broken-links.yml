@@ -1,0 +1,36 @@
+name: Check for Broken Links
+on:
+  workflow_dispatch:
+  schedule:
+    # Once a week
+    - cron: "0 0 * * 0"
+concurrency:
+  # Since we are only interested in checking links for the latest commit to
+  # the branch, we will limit the workflow to running at most once per branch,
+  # cancelling older runs when newer ones start.
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  check-for-broken-links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - id: bot-token
+        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        with:
+          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
+          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      - name: Link Checker
+        id: lychee
+        uses: lycheeverse/lychee-action@2b973e86fc7b1f6b36a93795fe2c9c6ae1118621 # v1
+        with:
+          # To avoid being rate-limited by GitHub
+          token: "${{ steps.bot-token.outputs.token }}"
+          args: "--verbose --no-progress ."
+      - name: Create Issue From File
+        if: env.lychee_exit_code != 0
+        uses: peter-evans/create-issue-from-file@24452a72d85239eacf1468b0f1982a9f3fec4c94 # v5
+        with:
+          title: Link Checker Report
+          content-filepath: ./lychee/out.md
+          labels: report, automated issue

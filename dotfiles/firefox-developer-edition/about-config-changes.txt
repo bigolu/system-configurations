@@ -1,0 +1,2 @@
+ui.key.menuAccessKey = 17
+ui.key.menuAccessKeyFocuses = false

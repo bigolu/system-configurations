@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+  "diagnostics": {
+    "unusedLocalExclude": ["_*"]
+  },
+  "workspace": {
+    "library": [
+      ".lua-ls-libraries",
+      "/Users/biggs/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+    ],
+    "checkThirdParty": "Disable"
+  },
+  "runtime": {
+    "version": "LuaJIT",
+    "path": ["dotfiles/neovim/lua/?.lua", "dotfiles/neovim/lua/?/init.lua"]
+  },
+  "telemetry": {
+    "enable": false
+  },
+  "hint": {
+    "enable": true
+  }
+}

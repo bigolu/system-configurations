@@ -1,0 +1,34 @@
+name: auto-merge
+on:
+  workflow_dispatch:
+  schedule:
+    # Since we are using an app token, instead of the default github action
+    # token, anything done here can trigger other workflows avoid creating an
+    # infinite loop. That shouldn't be a problem here since this runs on a
+    # schedule.
+    #
+    # Once daily at midnight
+    - cron: "0 0 * * *"
+concurrency:
+  # There's no reason to have multiple runs of this workflow going on at the
+  # same time so we will limit the workflow to running at most once per branch,
+  # cancelling older runs when newer ones start.
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: ./.github/actions/setup
+        with:
+          dev-shell: ciAutoMerge
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - id: bot-token
+        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
+        with:
+          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
+          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      - run: bash ./scripts/ci/auto-merge.bash
+        env:
+          GH_TOKEN: "${{ steps.bot-token.outputs.token }}"

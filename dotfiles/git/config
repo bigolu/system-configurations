@@ -1,0 +1,75 @@
+[user]
+  name = Biggie Emmanuel
+  email = code@bigo.lu
+[core]
+  pager = delta
+[push]
+  default = current
+[pull]
+  default = current
+[alias]
+  all = add -A
+  commit-all = commit -am
+  p = pull
+  p-sub = submodule update
+  s = status
+  ss = status --short
+  c = commit
+  C = commit --no-verify
+  Push = push --no-verify
+  a = add
+  d = diff
+  dt = "!git -c diff.external='difft --syntax-highlight off' diff"
+  d-sub = diff --submodule=diff
+  undo = checkout --
+  some = add -u
+  undocommit = reset "HEAD^"
+  co = checkout
+  gui = "!gitkraken --path \"$(git rev-parse --show-toplevel)\" --log-file /dev/null --show-splash-screen false"
+  l = log
+  mt = mergetool
+  f = fetch
+  # A safer force push. For more info read this:
+  # https://stackoverflow.com/questions/65837109/when-should-i-use-git-push-force-if-includes
+  force-push = push --force-with-lease --force-if-includes
+  untracked = "!git ls-files --others --exclude-standard | xargs -I FILE git add --intent-to-add FILE"
+  graph = log --oneline --graph --all
+[init]
+  defaultBranch = master
+[merge]
+  conflictstyle = diff3
+  tool = vscode
+[diff]
+  colorMoved = default
+  tool = vscode
+[interactive]
+  diffFilter = delta --color-only
+[delta]
+  navigate = true
+  hyperlinks = true
+  syntax-theme = ansi
+  tabs = 2
+  blame-palette = 0
+  file-decoration-style = "bright-white ul"
+  file-style = "normal"
+  hunk-header-decoration-style = "bright-white box"
+  hunk-header-line-number-style = "normal"
+  hunk-header-style = "line-number normal"
+  minus-style = "0 1"
+  minus-non-emph-style = "0 1"
+  minus-emph-style = "0 15"
+  plus-style = "0 2"
+  plus-non-emph-style = "0 2"
+  plus-emph-style = "0 15"
+  zero-style = "syntax normal"
+  map-styles = normal 21 => 0 5, normal 22 => 0 14
+  commit-style = "blue"
+[color "diff"]
+  oldMoved = normal 21
+  newMoved = normal 22
+[mergetool "vscode"]
+  cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+[status]
+  showUntrackedFiles = all

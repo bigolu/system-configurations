@@ -1,0 +1,10 @@
+--no-heading
+--smart-case
+--colors=match:none
+--colors=match:fg:blue
+--colors=path:none
+--colors=path:fg:blue
+--colors=line:none
+--colors=line:fg:blue
+--colors=column:none
+--colors=column:fg:blue

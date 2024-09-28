@@ -1,0 +1,102 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  prCreation: "not-pending",
+  nix: {
+    enabled: true,
+  },
+  gomod: {
+    pinDigests: true,
+  },
+  postUpdateOptions: ["gomodTidy", "gomodMassage"],
+  extends: [
+    "config:best-practices",
+    "schedule:weekends",
+    "schedule:automergeWeekends",
+  ],
+  separateMajorMinor: true,
+  separateMultipleMajor: true,
+  lockFileMaintenance: {
+    enabled: true,
+    schedule: ["every weekend"],
+  },
+  packageRules: [
+    {
+      matchUpdateTypes: [
+        "minor",
+        "patch",
+        "pin",
+        "pinDigest",
+        "digest",
+        "lockFileMaintenance",
+      ],
+
+      // Don't auto-merge if the major version is 0, in which case a minor/patch
+      // update _can_ be a breaking change.
+      matchCurrentVersion: "!/^0/",
+
+      // SYNC: RENOVATE_FIXUP
+      commitMessageAction: "[renovate_fixup] Update",
+
+      // SYNC: AUTOMERGE_LABEL
+      labels: ["automerge"],
+    },
+    {
+      matchManagers: ["gomod"],
+
+      // So I can add commits of my own
+      // SYNC: RENOVATE_FIXUP_GOLANG
+      additionalBranchPrefix: "fixup/golang/",
+
+      // Don't automerge these, after the fixup the automerge label will be added.
+      labels: [],
+    },
+    {
+      matchDepNames: ["nix-community/nix-direnv"],
+
+      // So I can add commits of my own
+      // SYNC: RENOVATE_FIXUP_ENVRC
+      additionalBranchPrefix: "fixup/envrc/",
+
+      // Don't automerge these, after the fixup the automerge label will be added.
+      labels: [],
+    },
+    {
+      matchManagers: ["nix"],
+      matchUpdateTypes: ["lockFileMaintenance"],
+
+      // SYNC: NIX_BRANCH_PREFIX
+      additionalBranchPrefix: "flake-lock/",
+
+      // There may be breaking changes, but I'm ok with that.
+      // SYNC: AUTOMERGE_LABEL
+      labels: ["automerge"],
+      // SYNC: RENOVATE_FIXUP
+      commitMessageAction: "[renovate_fixup] Update",
+    },
+    // By default, indirect Go dependencies aren't updated
+    {
+      matchManagers: ["gomod"],
+      matchDepTypes: ["indirect"],
+      enabled: true,
+    },
+  ],
+  osvVulnerabilityAlerts: true,
+  vulnerabilityAlerts: {
+    labels: ["security"],
+
+    // Don't automerge, it may be wrong:
+    // https://docs.renovatebot.com/configuration-options/#vulnerabilityalerts
+    automerge: false,
+  },
+  customManagers: [
+    {
+      customType: "regex",
+      datasourceTemplate: "github-releases",
+      depNameTemplate: "nix-community/nix-direnv",
+      fileMatch: ["(^|/).envrc$"],
+      matchStrings: [
+        "['\"]https:\\/\\/raw\\.githubusercontent\\.com\\/nix-community\\/nix-direnv\\/(?<currentValue>.+)\\/direnvrc['\"]",
+      ],
+    },
+  ],
+}
