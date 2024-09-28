@@ -51,6 +51,9 @@ jobs:
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           token: ${{ steps.bot-token.outputs.token }}
+          # Fetch the last 2 commits instead of just 1.
+          # (Fetching just 1 commit would overwrite the whole history since we are amending)
+          fetch-depth: 2
       - uses: ./.github/actions/setup
         with:
           dev-shell: ciRenovate
@@ -58,15 +61,20 @@ jobs:
       - run: ${{ inputs.command }}
       # Now that the PR title has the marker in it, we can remove it from the commit.
       - id: remove-renovate-email-ignore-marker
-        run: bash scripts/ci/remove-text.bash
+        run: |
+          bash scripts/ci/remove-text.bash
+          echo "author=$(git log -1 --pretty='%an <%ae>')" >> "$GITHUB_OUTPUT"
         env:
           TEXT: ${{ needs.get-commit-message.outputs.head-commit-message }}
           TEXT_TO_REMOVE: ${{ vars.RENOVATE_EMAIL_IGNORE_MARKER }}
       - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
         with:
+          commit_author: ${{ steps.remove-renovate-email-ignore-marker.outputs.author }}
           commit_message: ${{ steps.remove-renovate-email-ignore-marker.outputs.new-text }}
           commit_options: "--amend"
           push_options: "--force"
+          # so as not to make it too shallow for commit --amend and push -f
+          skip_fetch: true
       - name: Find Pull Request
         uses: juliangruber/find-pull-request-action@48b6133aa6c826f267ebd33aa2d29470f9d9e7d0 # v1
         id: find-pull-request
