@@ -448,5 +448,4 @@ function _ls_after_directory_change --on-variable PWD
 
     echo -e "\n$(set_color brblack)┃ fish: Current directory contents$(set_color normal)"
     ls
-    echo
 end
