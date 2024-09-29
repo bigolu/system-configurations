@@ -42,8 +42,18 @@ preview-switch:
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-home-manager HOST_NAME: && (sync-force "lefthook,secrets")
-    bash scripts/init-home-manager.bash "$@"
+init-home-manager HOST_NAME: && (force-sync "lefthook,secrets")
+  nix run .#homeManager -- switch --flake .#"$1"
+
+  # Home Manager can't run these since they require root privileges so I'll run
+  # them here.
+  ./dotfiles/nix/set-locale-variable.bash
+  ./dotfiles/nix/nix-fix/install-nix-fix.bash
+  ./dotfiles/nix/systemd-garbage-collection/install.bash
+  ./dotfiles/smart_plug/linux/install.bash
+  ./dotfiles/linux/set-keyboard-to-mac-mode.sh
+  ./dotfiles/keyd/install.bash
+  ./dotfiles/firefox-developer-edition/set-default-browser.sh
 
 [doc('''
     Apply the first generation of a nix-darwin configuration. You only need to
@@ -53,7 +63,7 @@ init-home-manager HOST_NAME: && (sync-force "lefthook,secrets")
         HOST_NAME: The name of the host configuration to apply.
 ''')]
 [group('Host Management')]
-init-nix-darwin HOST_NAME: && (sync-force "lefthook,secrets")
+init-nix-darwin HOST_NAME: && (force-sync "lefthook,secrets")
     bash scripts/init-nix-darwin.bash "$@"
  
 [doc('''
@@ -68,26 +78,25 @@ bundle PACKAGE:
 [doc('''
     Run various checks on the code, automatically fixing issues if
     possible. These checks are split into the following groups: format,
-    check-lint, fix-lint, and generate.  You should run this with any files you
-    change before pushing. You can do so by running this task without providing
-    the FILES argument e.g. `just check all`. In case you forget to run it, it
-    also runs during the git pre-push hook, where it only checks files in the
-    commits that you are about to push.
+    check-lint, fix-lint, and generate. It runs on all files that differ between
+    the current branch and the default branch, including untracked files. This
+    is usually what you want since you can assume any files merged into the
+    default branch have been checked. In case you forget to run it, it also runs
+    during the git pre-push hook, where it only checks files in the commits that
+    you are about to push.
 
     If you want to see what kind of checks are being run, they're defined in
     .lefthook.yml.
 
     Arguments:
-        GROUPS: Comma-Delimited list of groups. use 'all' to run all groups.
-                Possible groups are: generate, format, fix-lint, check-lint, and all.
+        GROUPS: Comma-Delimited list of groups. If you don't specify any groups,
+                all of them will be run. Possible groups are: generate, format,
+                fix-lint, and check-lint.
                 Example: `just check format,generate`
-        FILES:  The files to check. If none are given, then it runs on all files
-                that differ from the default branch, including untracked files.
-                Example: `just check all myfile.txt myotherfile.js`
 ''')]
 [group('Checks')]
-check GROUPS *FILES:
-    bash scripts/check.bash "$@"
+check GROUPS='all':
+    bash scripts/check.bash "$1" 'diff-from-default'
 
 [doc('''
     This is the same as the check task above, except that it runs on all files.
@@ -95,8 +104,8 @@ check GROUPS *FILES:
     work. For example, changing the configuration file for a linter.
 ''')]
 [group('Checks')]
-check-all GROUPS:
-    ALL_FILES=1 bash scripts/check.bash "$1"
+check-all GROUPS='all':
+    bash scripts/check.bash "$1" 'all'
 
 [doc('''
     Run various tasks to synchronize your environment with the state of the code.
@@ -121,10 +130,10 @@ sync:
                Example: `just sync-force direnv,dev-shell`
 ''')]
 [group('Syncing')]
-sync-force *TASKS:
-    (( $# > 0 )) \
-      && LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1" \
-      || LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force
+force-sync TASKS='all':
+    [ "$1" = 'all' ] \
+      && LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force \
+      || LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1"
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
