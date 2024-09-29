@@ -18,6 +18,14 @@ upgrade-nix:
     sudo --set-home nix upgrade-nix --profile default
 
 [doc('''
+    Pull changes and apply them. You'll get notifications occasionally if there are
+    changes so no need to run manually.
+''')]
+[group('Host Management')]
+upgrade:
+    hostctl-upgrade
+
+[doc('''
     Switch to a new generation of the host manager (nix-darwin or Home Manager)
     configuration.
 ''')]
