@@ -25,26 +25,16 @@ output:
 
 pre-push:
   commands:
-    generate:
-      priority: 1
-      run: printf '%s\0' {push_files} | lefthook run generate --files-from-stdin
-    fix-lint:
-      priority: 2
-      run: printf '%s\0' {push_files} | lefthook run fix-lint --files-from-stdin
-    # Run formatting after lint fixes because sometimes a lint fix produces code
-    # that doesn't comply with the formatting.
-    format:
-      priority: 3
-      run: printf '%s\0' {push_files} | lefthook run format --files-from-stdin
-    check-lint:
-      priority: 4
-      run: printf '%s\0' {push_files} | lefthook run check-lint --files-from-stdin
+    check:
+      run: printf '%s\0' {push_files} | lefthook run check --files-from-stdin
+
 post-merge:
   commands:
     mark-sync-point:
       run: >
         printf ORIG_HEAD >.git/sync-point-1.txt
         && printf HEAD >.git/sync-point-2.txt
+
 post-rewrite:
   commands:
     mark-sync-point:
@@ -52,6 +42,7 @@ post-rewrite:
       run: >
         printf ORIG_HEAD >.git/sync-point-1.txt
         && printf HEAD >.git/sync-point-2.txt
+
 post-checkout:
   commands:
     mark-sync-point:
@@ -122,6 +113,23 @@ sync:
       skip: true
       glob: ".lefthook.yml"
       run: lefthook install --force
+
+check:
+  commands:
+    generate:
+      priority: 1
+      run: printf '%s\0' {files} | lefthook run generate --files-from-stdin
+    fix-lint:
+      priority: 2
+      run: printf '%s\0' {files} | lefthook run fix-lint --files-from-stdin
+    # Run formatting after lint fixes because sometimes a lint fix produces code
+    # that doesn't comply with the formatting.
+    format:
+      priority: 3
+      run: printf '%s\0' {files} | lefthook run format --files-from-stdin
+    check-lint:
+      priority: 4
+      run: printf '%s\0' {files} | lefthook run check-lint --files-from-stdin
 
 # SYNC: GENERATORS
 #

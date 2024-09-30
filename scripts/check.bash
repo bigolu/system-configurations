@@ -6,7 +6,7 @@ function main {
   groups="$1"
   files="$2"
 
-  lefthook_command=(lefthook run pre-push)
+  lefthook_command=(lefthook run check)
   if [ "$groups" != 'all' ]; then
     lefthook_command=("${lefthook_command[@]}" --commands "$groups")
   fi
