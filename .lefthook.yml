@@ -57,6 +57,9 @@ post-checkout:
         && printf {2} >.git/sync-point-2.txt
 
 sync:
+  # So we can see the output of dev-shell and host-manager. It can take a while
+  # so it's nice to see what it's doing.
+  follow: true
   # Add '|| true' so lefthook doesn't exit with code 1
   files: >
     [ -f .git/sync-point-1.txt -a -f .git/sync-point-2.txt ]
