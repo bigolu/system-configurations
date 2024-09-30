@@ -161,11 +161,6 @@ generate:
       run: >
         ./scripts/fail-if-files-change.bash
         ./scripts/code-generation/generate-gomod2nix-lock.bash
-    flake-lock:
-      glob: "flake.nix"
-      run: >
-        ./scripts/fail-if-files-change.bash
-        nix flake lock
     script-dependencies:
       glob: "scripts/**"
       run: >
@@ -302,6 +297,11 @@ fix-lint:
       run: >
         ./scripts/fail-if-files-change.bash
         mac2unix --add-eol {files}
+    flake-lock:
+      glob: "flake.nix"
+      run: >
+        ./scripts/fail-if-files-change.bash
+        nix flake lock
 
 check-lint:
   files: |
