@@ -173,6 +173,8 @@ lib.mkMerge [
       };
     };
 
+    nix.package = pkgs.nixVersions.latest;
+
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
 
