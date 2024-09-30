@@ -26,14 +26,6 @@ upgrade:
     hostctl-upgrade
 
 [doc('''
-    Switch to a new generation of the host manager (nix-darwin or Home Manager)
-    configuration.
-''')]
-[group('Host Management')]
-switch:
-    hostctl-switch
-
-[doc('''
     Show a preview of what changes would be made to the host if you were to
     switch to a new configuration. This will not actually switch to the new
     configuration.
