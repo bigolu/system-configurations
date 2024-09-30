@@ -76,7 +76,7 @@ sync:
     secrets:
       glob: "envrc-secrets-example.bash"
       run: >
-        bash scripts/get-secrets.bash
+        ./scripts/get-secrets.bash
         && just reload
     # Synchronize nix-direnv with the Nix devShell and reload the direnv
     # environment. nix-direnv is a direnv library that builds our Nix devShell and
@@ -149,23 +149,30 @@ generate:
     readme-table-of-contents:
       glob: README.md
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         doctoc README.md --github
     neovim-plugin-list:
       glob: "*neovim/lua/*.lua"
       run: >
-        bash scripts/fail-if-files-change.bash
-        bash scripts/code-generation/generate-neovim-plugin-list.bash
+        ./scripts/fail-if-files-change.bash
+        ./scripts/code-generation/generate-neovim-plugin-list.bash
     gomod2nix-lock:
       glob: "*gozip/go.mod"
       run: >
-        bash scripts/fail-if-files-change.bash
-        bash scripts/code-generation/generate-gomod2nix-lock.bash
+        ./scripts/fail-if-files-change.bash
+        ./scripts/code-generation/generate-gomod2nix-lock.bash
     flake-lock:
       glob: "flake.nix"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         nix flake lock
+    script-dependencies:
+      glob: "scripts/**"
+      run: >
+        rg --glob '*.bash' '^#!' scripts
+        | rg --only-matching --replace '$1' 'local#nixpkgs\.([^ ]*)'
+        | sort --unique
+        > scripts/dependencies.txt
 
 format:
   files: |
@@ -176,7 +183,7 @@ format:
       glob: "*.toml"
       exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         taplo format {files}
     prettier:
       glob: "*.{md,js,json,json{5,c},yml,yaml}"
@@ -186,29 +193,29 @@ format:
       # TODO: Get prettier to not log unchanged files:
       # https://github.com/prettier/prettier/issues/2611
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         prettier --write {files}
     # VS Code's configuration files end in .json, but they are actually jsonc
     # files.
     prettier-vscode:
       glob: "*.vscode/*.json"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         prettier --parser jsonc --write {files}
     shfmt:
       glob: "*.{envrc,sh,bash}"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         shfmt --write {files}
     fish_indent:
       glob: "*.fish"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         fish_indent --write {files}
     nixfmt:
       glob: "*.nix"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         nixfmt {files}
     just:
       # TODO: just's builtin formatter currently removes/rearranges comments. Until
@@ -216,27 +223,27 @@ format:
       skip: true
       glob: "justfile"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         just --unstable --fmt --justfile {files}
     stylua:
       glob: "*.lua"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         stylua {files}
     gofmt:
       glob: "*.go"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         gofmt -w {files}
     ruff-format:
       glob: "*.py"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         ruff format {files}
     ruff-format-sort-imports:
       glob: "*.py"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         ruff check --select I --fix-only {files}
 
 fix-lint:
@@ -258,12 +265,12 @@ fix-lint:
       # statix doesn't support passing multiple files yet:
       # https://github.com/nerdypepper/statix/issues/69
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         parallel statix fix ::: {files}
     markdownlint-cli2:
       glob: "*.md"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         markdownlint-cli2 --fix {files}
     go-mod-tidy:
       glob: "*gozip/go.{mod,sum}"
@@ -275,7 +282,7 @@ fix-lint:
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         typos --write-changes --format silent {files}
     # TODO: This always writes to the file, even if no changes are made. This
     # causes unnecessary direnv reloads.
@@ -284,7 +291,7 @@ fix-lint:
       exclude:
         - "dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/en.lproj/InfoPlist.strings"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         dos2unix --add-eol {files}
     # TODO: This always writes to the file, even if no changes are made. This
     # causes unnecessary direnv reloads.
@@ -293,7 +300,7 @@ fix-lint:
       exclude:
         - "dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/en.lproj/InfoPlist.strings"
       run: >
-        bash scripts/fail-if-files-change.bash
+        ./scripts/fail-if-files-change.bash
         mac2unix --add-eol {files}
 
 check-lint:
@@ -310,7 +317,7 @@ check-lint:
       run: >
         bash -o pipefail -euc '
         ltex-cli --server-command-line=ltex-ls "$@"
-        | bash scripts/reviewdog.bash -name=ltex-cli -efm '%f:%l:%c: %m'
+        | ./scripts/reviewdog.bash -name=ltex-cli -efm '%f:%l:%c: %m'
         ' -- {files}
     golangci-lint:
       # TODO: Don't want to address these issues yet
@@ -319,33 +326,33 @@ check-lint:
       run: >
         bash -o pipefail -euc '
         golangci-lint run --out-format sarif "$@"
-        | bash scripts/reviewdog.bash -name=golangci-lint -f sarif
+        | ./scripts/reviewdog.bash -name=golangci-lint -f sarif
         ' -- {files}
     ruff:
       glob: "*.py"
       run: >
         bash -o pipefail -euc '
         ruff check --output-format sarif "$@"
-        | bash scripts/reviewdog.bash -name=ruff -f sarif
+        | ./scripts/reviewdog.bash -name=ruff -f sarif
         ' -- {files}
     fish:
       glob: "*.fish"
       # TODO: Fish doesn't support passing multiple files, I should open an issue.
       run: >
-        parallel fish --no-execute '{}' '2>&1' '|' bash scripts/reviewdog.bash -name=fish -efm '"%f (line %l): %m"' ::: {files}
+        parallel fish --no-execute '{}' '2>&1' '|' ./scripts/reviewdog.bash -name=fish -efm '"%f (line %l): %m"' ::: {files}
     desktop-file-validate:
       glob: "*.desktop"
       run: >
         bash -o pipefail -euc '
         desktop-file-validate "$@"
-        | bash scripts/reviewdog.bash -name=desktop-file-validate -efm "%f: %m"
+        | ./scripts/reviewdog.bash -name=desktop-file-validate -efm "%f: %m"
         ' -- {files}
     markdownlint-cli2:
       glob: "*.md"
       run: >
         bash -o pipefail -euc '
         markdownlint-cli2 "$@"
-        | bash scripts/reviewdog.bash -name=markdownlint-cli2
+        | ./scripts/reviewdog.bash -name=markdownlint-cli2
         -efm "%f:%l:%c: %m"
         -efm "%f:%l:%c %m"
         -efm "%f:%l: %m"
@@ -356,21 +363,21 @@ check-lint:
       run: >
         bash -o pipefail -euc '
         shellcheck --format checkstyle --color=never "$@"
-        | bash scripts/reviewdog.bash -name=shellcheck -f checkstyle
+        | ./scripts/reviewdog.bash -name=shellcheck -f checkstyle
         ' -- {files}
     yamllint:
       glob: "*.{yaml,yml}"
       run: >
         bash -o pipefail -euc '
         yamllint --strict --format parsable "$@"
-        | bash scripts/reviewdog.bash -name=yamllint -efm "%f:%l:%c: [%t%*[a-z]] %m"
+        | ./scripts/reviewdog.bash -name=yamllint -efm "%f:%l:%c: [%t%*[a-z]] %m"
         ' -- {files}
     actionlint:
       glob: ".github/workflows/*.{yaml,yml}"
       run: >
         bash -o pipefail -euc '
         actionlint -no-color "$@"
-        | bash scripts/reviewdog.bash -name=actionlint -efm "%f:%l:%c: %m"
+        | ./scripts/reviewdog.bash -name=actionlint -efm "%f:%l:%c: %m"
         ' -- {files}
     statix:
       glob: "*.nix"
@@ -378,13 +385,13 @@ check-lint:
       # https://github.com/nerdypepper/statix/issues/70
       run: >
         parallel -q -- bash -c 'set -o pipefail; statix check {} -o errfmt
-        | bash scripts/reviewdog.bash -name=statix -efm "%f>%l:%c:%t:%n:%m"' ::: {files}
+        | ./scripts/reviewdog.bash -name=statix -efm "%f>%l:%c:%t:%n:%m"' ::: {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
         bash -o pipefail -euc '
         typos --color never --format brief "$@"
-        | bash scripts/reviewdog.bash -name=typos -efm '%f:%l:%c: %m'
+        | ./scripts/reviewdog.bash -name=typos -efm '%f:%l:%c: %m'
         ' -- {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should
@@ -400,14 +407,14 @@ check-lint:
       run: >
         bash -o pipefail -euc '
         validator -groupby pass-fail "$@"
-        | bash scripts/reviewdog.bash -name=config-file-validator -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        | ./scripts/reviewdog.bash -name=config-file-validator -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         ' -- {files}
     renovate:
       glob: ".github/renovate.json5"
       run: >
         bash -o pipefail -euc '
         renovate-config-validator --strict "$@"
-        | bash scripts/reviewdog.bash -name=renovate -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        | ./scripts/reviewdog.bash -name=renovate -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         ' -- {files}
     taplo:
       glob: "*.toml"
@@ -418,5 +425,5 @@ check-lint:
       run: >
         bash -o pipefail -euc '
         taplo lint "$@"
-        | bash scripts/reviewdog.bash -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        | ./scripts/reviewdog.bash -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         ' -- {files}

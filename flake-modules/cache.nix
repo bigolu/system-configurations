@@ -75,8 +75,16 @@
             "nix"
           ];
 
+      scriptDependenciesByName = {
+        deps = pkgs.script-dependencies;
+      };
+
       packagesToCacheByName =
-        homeManagerPackagesByName // nixDarwinPackagesByName // devShellsByName // bootstrapPackagesByName;
+        homeManagerPackagesByName
+        // nixDarwinPackagesByName
+        // devShellsByName
+        // bootstrapPackagesByName
+        // scriptDependenciesByName;
 
       outputs = {
         packages.default = pkgs.linkFarm "packages-to-cache" packagesToCacheByName;

@@ -160,6 +160,19 @@
           neovim = nightlyNeovimWithDependencies;
           ripgrep-all = ripgrepAllWithDependencies;
           nix = final.nixVersions.latest;
+          script-dependencies = lib.trivial.pipe (self.lib.root + "/scripts/dependencies.txt") [
+            builtins.readFile
+            (lib.strings.splitString "\n")
+            (builtins.filter (name: name != ""))
+            (names: map (name: final.${name}) names)
+            (
+              deps:
+              final.symlinkJoin {
+                name = "script-dependencies";
+                paths = deps;
+              }
+            )
+          ];
         };
     in
     {

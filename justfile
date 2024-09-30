@@ -64,7 +64,7 @@ init-home-manager HOST_NAME: && (force-sync "lefthook,secrets")
 ''')]
 [group('Host Management')]
 init-nix-darwin HOST_NAME: && (force-sync "lefthook,secrets")
-    bash scripts/init-nix-darwin.bash "$@"
+    ./scripts/init-nix-darwin.bash "$@"
  
 [doc('''
     Create a bundle for the specified package (e.g. .#shellMinimal) using the
@@ -96,7 +96,7 @@ bundle PACKAGE:
 ''')]
 [group('Checks')]
 check GROUPS='all':
-    bash scripts/check.bash "$1" 'diff-from-default'
+    ./scripts/check.bash "$1" 'diff-from-default'
 
 [doc('''
     This is the same as the check task above, except that it runs on all files.
@@ -105,7 +105,7 @@ check GROUPS='all':
 ''')]
 [group('Checks')]
 check-all GROUPS='all':
-    bash scripts/check.bash "$1" 'all'
+    ./scripts/check.bash "$1" 'all'
 
 [doc('''
     Run various tasks to synchronize your environment with the state of the code.
@@ -155,7 +155,7 @@ check-links *FILES:
 ''')]
 [group('Debugging')]
 test:
-    bash scripts/test.bash
+    ./scripts/test.bash
 
 [private]
 direnv-reminder:

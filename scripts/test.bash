@@ -1,3 +1,8 @@
+#!/usr/bin/env nix
+#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.findutils local#nixpkgs.jq --command bash
+
+# shellcheck shell=bash
+
 # Make sure everything builds. This is necessary since I use nixpkgs-unstable.
 
 set -o errexit

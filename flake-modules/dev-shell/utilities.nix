@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, self }:
 let
   inherit (pkgs) lib;
 
@@ -18,14 +18,11 @@ let
   makeDevShell =
     {
       packages ? [ ],
-      scripts ? [ ],
       shellHook ? "",
       name,
     }:
     let
-      metaPackage = makeMetaPackage name (
-        packages ++ (builtins.foldl' (acc: script: acc ++ script.dependencies) [ ] scripts)
-      );
+      metaPackage = makeMetaPackage name packages;
     in
     # TODO: The devShells contain a lot of environment variables that are irrelevant
     # to our development environment, but Nix is working on a solution to
@@ -34,6 +31,27 @@ let
       inherit name;
       packages = [ metaPackage ];
       shellHook =
+        let
+          # Adapted from home-manager:
+          # https://github.com/nix-community/home-manager/blob/2f23fa308a7c067e52dfcc30a0758f47043ec176/modules/misc/nix.nix#L215
+          registry = (pkgs.formats.json { }).generate "registry.json" {
+            version = 2;
+            flakes = [
+              {
+                exact = true;
+                from = {
+                  id = "local";
+                  type = "indirect";
+                };
+                to = {
+                  type = "path";
+                  path = self.outPath;
+                  inherit (self) lastModified narHash;
+                };
+              }
+            ];
+          };
+        in
         ''
           function _bigolu_add_lines_to_nix_config {
             for line in "$@"; do
@@ -41,6 +59,9 @@ let
             done
             export NIX_CONFIG
           }
+
+          _bigolu_add_lines_to_nix_config \
+          'flake-registry = '${pkgs.lib.escapeShellArg registry}
 
             # SYNC: OUR_CACHES
             # Caches we push to and pull from
@@ -59,7 +80,6 @@ let
   makeCiDevShell =
     {
       packages ? [ ],
-      scripts ? [ ],
       shellHook ? "",
       name,
     }:
@@ -75,7 +95,7 @@ let
     in
     makeDevShell {
       packages = ciCommon ++ packages;
-      inherit shellHook scripts name;
+      inherit shellHook name;
     };
 in
 {

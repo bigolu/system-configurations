@@ -22,13 +22,12 @@ jobs:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       - uses: ./.github/actions/setup
         with:
-          dev-shell: ciAutoMerge
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - id: bot-token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
         with:
           app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
           private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
-      - run: bash ./scripts/ci/auto-merge.bash
+      - run: ./scripts/ci/auto-merge.bash
         env:
           GH_TOKEN: "${{ steps.bot-token.outputs.token }}"

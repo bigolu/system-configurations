@@ -3,7 +3,8 @@ description: Install Nix, configure the cache(s), and load a direnv environment
 inputs:
   dev-shell:
     description: The name of the devShell to activate
-    required: true
+    required: false
+    default: ci
   cachix-auth-token:
     description: An authentication token for Cachix
     required: true

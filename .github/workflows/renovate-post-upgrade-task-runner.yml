@@ -56,13 +56,12 @@ jobs:
           ref: ${{ github.head_ref }}
       - uses: ./.github/actions/setup
         with:
-          dev-shell: ciRenovate
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: ${{ inputs.command }}
       # Now that the PR title has the marker in it, we can remove it from the commit.
       - id: remove-renovate-email-ignore-marker
         run: |
-          bash scripts/ci/remove-text.bash
+          ./scripts/ci/remove-text.bash
           echo "author=$(git log -1 --pretty='%an <%ae>')" >> "$GITHUB_OUTPUT"
         env:
           TEXT: ${{ needs.get-commit-message.outputs.head-commit-message }}

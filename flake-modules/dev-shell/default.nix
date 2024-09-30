@@ -15,14 +15,8 @@
     let
       inherit (lib.attrsets) optionalAttrs;
 
-      utilities = import ./utilities.nix { inherit pkgs; };
+      utilities = import ./utilities.nix { inherit pkgs self; };
       inherit (utilities) makeDevShell makeCiDevShell;
-
-      scriptDependencyInfo = import ./scripts.nix {
-        inherit pkgs;
-        inherit (self.lib) root;
-      };
-      scripts = scriptDependencyInfo.dependenciesByName;
 
       linkLuaLsLibrariesHook =
         let
@@ -122,27 +116,20 @@
       ];
 
       codeGenerationDependencies =
-        let
-          codegenScriptDependencies =
-            let
-              isCodegenScript = lib.hasPrefix "code-generation";
-              filterForCodegenScripts = lib.filterAttrs (name: _script: isCodegenScript name);
-            in
-            lib.trivial.pipe scripts [
-              filterForCodegenScripts
-              builtins.attrValues
-              (builtins.map (builtins.getAttr "dependencies"))
-              builtins.concatLists
-            ];
-        in
         # Runs the generators
         lefthookDependencies
-        ++ codegenScriptDependencies
         # This gets called from lefthook
-        ++ (with pkgs; [ doctoc ]);
+        ++ (with pkgs; [
+          doctoc
+          ripgrep
+          coreutils
+        ]);
 
       outputs = {
+        # So we can cache it and pin a version.
         packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
+
+        legacyPackages.nixpkgs = pkgs;
 
         devShells = {
           default = makeDevShell {
@@ -154,19 +141,12 @@
               ++ codeGenerationDependencies
               ++ taskRunnerDependencies
               ++ versionControlDependencies
-              ++ languageDependencies;
-            scripts = builtins.attrValues scripts;
+              ++ languageDependencies
+              ++ [ pkgs.script-dependencies ];
             shellHook =
               ''
                 # For nixd
                 export NIX_PATH='nixpkgs='${lib.escapeShellArg inputs.nixpkgs}
-
-                # Even though I never use the scripts made by resholve, I still
-                # want resholve to make them so it can verify that I specified
-                # their dependencies properly. To force the package containing
-                # the resholve scripts to be evaluated, I'm adding a reference
-                # to the package here.
-                # ${lib.escapeShellArg scriptDependencyInfo.validationPackage}
               ''
               + linkLuaLsLibrariesHook;
           };
@@ -176,7 +156,6 @@
           ciLint = makeCiDevShell {
             name = "ci-lint";
             packages = lintingDependencies;
-            shellHook = linkLuaLsLibrariesHook;
           };
 
           ciCheckStyle = makeCiDevShell {
@@ -187,25 +166,6 @@
           ciCodegen = makeCiDevShell {
             name = "ci-codegen";
             packages = codeGenerationDependencies;
-          };
-
-          ciRenovate = makeCiDevShell {
-            name = "ci-renovate";
-            scripts = with scripts; [
-              ci-set-nix-direnv-hash
-              code-generation-generate-gomod2nix-lock
-              ci-remove-text
-            ];
-          };
-
-          ciAutoMerge = makeCiDevShell {
-            name = "ci-auto-merge";
-            scripts = with scripts; [ ci-auto-merge ];
-          };
-
-          ciTest = makeCiDevShell {
-            name = "ci-test";
-            scripts = with scripts; [ test ];
           };
 
           # So we can cache it and pin a version.

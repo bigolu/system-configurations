@@ -1,0 +1,15 @@
+ast-grep
+bash
+coreutils
+curl
+direnv
+findutils
+gh
+gitMinimal
+gnugrep
+gnused
+jq
+lefthook
+openssl
+perl
+reviewdog
