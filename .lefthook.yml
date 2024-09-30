@@ -121,6 +121,9 @@ sync:
       run: hostctl-switch
 
 check:
+  files: |
+    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
+    exit 1
   commands:
     generate:
       priority: 1
@@ -137,39 +140,37 @@ check:
       priority: 4
       run: printf '%s\0' {files} | lefthook run check-lint --files-from-stdin
 
-# SYNC: GENERATORS
-#
-# The '# {files}' is there because lefthook only applies the glob if you have a
-# 'files' command or you use {files} in your run command:
-# https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
 generate:
+  files: |
+    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
+    exit 1
+  # SYNC: GENERATOR_PATTERNS
   commands:
     readme-table-of-contents:
       glob: README.md
       run: >
         bash scripts/fail-if-files-change.bash
         doctoc README.md --github
-        # {files}
     neovim-plugin-list:
       glob: "*neovim/lua/*.lua"
       run: >
         bash scripts/fail-if-files-change.bash
         bash scripts/code-generation/generate-neovim-plugin-list.bash
-        # {files}
     gomod2nix-lock:
       glob: "*gozip/go.mod"
       run: >
         bash scripts/fail-if-files-change.bash
         bash scripts/code-generation/generate-gomod2nix-lock.bash
-        # {files}
     flake-lock:
       glob: "flake.nix"
       run: >
         bash scripts/fail-if-files-change.bash
         nix flake lock
-        # {files}
 
 format:
+  files: |
+    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
+    exit 1
   commands:
     taplo:
       glob: "*.toml"
@@ -239,6 +240,9 @@ format:
         ruff check --select I --fix-only {files}
 
 fix-lint:
+  files: |
+    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
+    exit 1
   commands:
     deadnix:
       glob: "*.nix"
@@ -293,6 +297,9 @@ fix-lint:
         mac2unix --add-eol {files}
 
 check-lint:
+  files: |
+    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
+    exit 1
   parallel: true
   commands:
     ltex-cli:
