@@ -35,9 +35,7 @@ jobs:
     # TODO: This will result in a bunch of runs that immediately exit if the
     # branch wasn't just created. Ideally the job wouldn't even start if the
     # branch wasn't just created:
-    #
-    # SYNC: RENOVATE_FIXUP
-    if: ${{ contains(needs.get-commit-message.outputs.head-commit-message, vars.RENOVATE_EMAIL_IGNORE_MARKER) }}
+    if: ${{ ! contains(needs.get-commit-message.outputs.head-commit-message, vars.RENOVATE_EMAIL_IGNORE_MARKER) }}
     runs-on: ubuntu-latest
     steps:
       - id: bot-token
@@ -50,30 +48,14 @@ jobs:
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           token: ${{ steps.bot-token.outputs.token }}
-          # Fetch the last 2 commits instead of just 1.
-          # (Fetching just 1 commit would overwrite the whole history since we are amending)
-          fetch-depth: 2
           ref: ${{ github.head_ref }}
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: ${{ inputs.command }}
-      # Now that the PR title has the marker in it, we can remove it from the commit.
-      - id: remove-renovate-email-ignore-marker
-        run: |
-          ./scripts/ci/remove-text.bash
-          echo "author=$(git log -1 --pretty='%an <%ae>')" >> "$GITHUB_OUTPUT"
-        env:
-          TEXT: ${{ needs.get-commit-message.outputs.head-commit-message }}
-          TEXT_TO_REMOVE: ${{ vars.RENOVATE_EMAIL_IGNORE_MARKER }}
       - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
         with:
-          commit_author: ${{ steps.remove-renovate-email-ignore-marker.outputs.author }}
-          commit_message: ${{ steps.remove-renovate-email-ignore-marker.outputs.new-text }}
-          commit_options: "--amend"
-          push_options: "--force"
-          # so as not to make it too shallow for commit --amend and push -f
-          skip_fetch: true
+          commit_message: ${{ vars.RENOVATE_EMAIL_IGNORE_MARKER }} fixup
       - name: Find Pull Request
         uses: juliangruber/find-pull-request-action@48b6133aa6c826f267ebd33aa2d29470f9d9e7d0 # v1
         id: find-pull-request

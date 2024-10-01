@@ -1,6 +1,7 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   prCreation: "not-pending",
+  automerge: false,
   nix: {
     enabled: true,
   },
@@ -34,44 +35,40 @@
       // update _can_ be a breaking change.
       matchCurrentVersion: "!/^0/",
 
-      // SYNC: RENOVATE_FIXUP
-      commitMessageAction: "[renovate_fixup] Update",
+      // Disable PR creation, so I can make the PR myself without getting a
+      // notification.
+      prCreation: "approval",
 
-      // SYNC: AUTOMERGE_LABEL
-      labels: ["automerge"],
+      // So my automerger knows to create PRs for these branches.
+      // SYNC: AUTOMERGE_PREFIX
+      additionalBranchPrefix: "branch-automerge/",
     },
     {
       matchManagers: ["gomod"],
 
       // So I can add commits of my own
-      // SYNC: RENOVATE_FIXUP_GOLANG
-      additionalBranchPrefix: "fixup/golang/",
-
-      // Don't automerge these, after the fixup the automerge label will be added.
-      labels: [],
+      // SYNC: RENOVATE_FIXUP_GOLANG AUTOMERGE_PREFIX
+      additionalBranchPrefix: "branch-automerge/fixup/golang/",
     },
     {
       matchDepNames: ["nix-community/nix-direnv"],
 
       // So I can add commits of my own
-      // SYNC: RENOVATE_FIXUP_ENVRC
-      additionalBranchPrefix: "fixup/envrc/",
-
-      // Don't automerge these, after the fixup the automerge label will be added.
-      labels: [],
+      // SYNC: RENOVATE_FIXUP_ENVRC AUTOMERGE_PREFIX
+      additionalBranchPrefix: "branch-automerge/fixup/envrc/",
     },
     {
       matchManagers: ["nix"],
       matchUpdateTypes: ["lockFileMaintenance"],
 
-      // SYNC: NIX_BRANCH_PREFIX
-      additionalBranchPrefix: "flake-lock/",
+      // Disable PR creation, so I can make the PR myself without getting a
+      // notification.
+      prCreation: "approval",
 
-      // There may be breaking changes, but I'm ok with that.
-      // SYNC: AUTOMERGE_LABEL
-      labels: ["automerge"],
-      // SYNC: RENOVATE_FIXUP
-      commitMessageAction: "[renovate_fixup] lock file maintenance",
+      // Add the prefix that marks this as automergeable.
+      // Add another prefix so I can apply special rules for automerging these.
+      // SYNC: NIX_BRANCH_PREFIX AUTOMERGE_PREFIX
+      additionalBranchPrefix: "branch-automerge/flake-lock/",
     },
     // By default, indirect Go dependencies aren't updated
     {
@@ -86,7 +83,8 @@
 
     // Don't automerge, it may be wrong:
     // https://docs.renovatebot.com/configuration-options/#vulnerabilityalerts
-    automerge: false,
+    additionalBranchPrefix: "",
+    prCreation: "not-pending",
   },
   customManagers: [
     {
