@@ -30,7 +30,7 @@ function main {
     fi
 
     # TODO: I hardcoded 'origin'
-    gh pr create --repo "$GITHUB_REPOSITORY" --head "$branch_to_automerge_without_pr" --base "$(git symbolic-ref --short HEAD)" --title "$IGNORE_MARKER origin/$(git show -s --format=%B "$branch_to_automerge_without_pr")" --body 'A renovate automergeable update.' "${labels[@]}"
+    gh pr create --repo "$GITHUB_REPOSITORY" --head "$branch_to_automerge_without_pr" --base "$(git symbolic-ref --short HEAD)" --title "$IGNORE_MARKER $(git show -s --format=%B origin/"$branch_to_automerge_without_pr")" --body 'A renovate automergeable update.' "${labels[@]}"
   done
 
   while IFS= read -r pr_number; do
