@@ -68,12 +68,14 @@ sync:
     || true
   commands:
     direnv:
+      priority: 1
       glob: ".envrc"
       run: just reload
     # Get all secrets from BitWarden Secrets Manager. You'll be prompted for
     # a service token. You should run this whenever there are new secrets to
     # fetch. This task will also reload the terminal's direnv environment.
     secrets:
+      priority: 1
       glob: "envrc-secrets-example.bash"
       run: >
         ./scripts/get-secrets.bash
@@ -86,6 +88,7 @@ sync:
     # so, otherwise it just uses the last devShell it built. This task will tell
     # nix-direnv to rebuild the devShell and reload the direnv environment.
     dev-shell:
+      priority: 1
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
       # touch flake.nix to force nix-direnv to reload.
       # TODO: See if they can add an option to force because I don't want to
@@ -94,31 +97,41 @@ sync:
         touch flake.nix
         && nix-direnv-reload
         && just direnv-reminder
-    fish:
-      glob: "dotfiles/fish/conf.d/**.fish"
-      run: >
-        printf
-        '\n\e[34m┃ system-configurations: Files related to fish have changed, run `r`.\e(B\e[m\n'
-    nix:
-      glob: "flake.lock"
-      run: >
-        printf
-        '\n\e[34m┃ system-configurations: The flake.lock has changed, consider running `just upgrade-nix`.\e(B\e[m\n'
     nix-fix:
+      priority: 1
       glob: "dotfiles/nix/nix-fix/**"
       # Must be interactive since the user will be prompted for their password,
       # for sudo.
       interactive: true
       run: bash dotfiles/nix/nix-fix/install-nix-fix.bash
     lefthook:
+      priority: 1
       # TODO: No need for this yet since lefthook syncs hooks automatically, I
       # should ask them to make this optional.
       skip: true
       glob: ".lefthook.yml"
       run: lefthook install --force
     host-manager:
+      priority: 1
+      # For password prompt
+      interactive: true
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
       run: hostctl-switch
+
+    # These should run last so their messages aren't lost in the output of other
+    # commands.
+    fish:
+      priority: 2
+      glob: "dotfiles/fish/conf.d/**.fish"
+      run: >
+        printf
+        '\n\e[34m┃ system-configurations: Files related to fish have changed, run `r`.\e(B\e[m\n'
+    nix:
+      priority: 2
+      glob: "flake.lock"
+      run: >
+        printf
+        '\n\e[34m┃ system-configurations: The flake.lock has changed, consider running `just upgrade-nix`.\e(B\e[m\n'
 
 check:
   files: |
