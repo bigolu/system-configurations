@@ -29,7 +29,8 @@ function main {
       labels=(--label automerge)
     fi
 
-    gh pr create --repo "$GITHUB_REPOSITORY" --head "$branch_to_automerge_without_pr" --base "$(git symbolic-ref --short HEAD)" --title "$IGNORE_MARKER $(git show -s --format=%B "$branch_to_automerge_without_pr")" --body 'A renovate automergeable update.' "${labels[@]}"
+    # TODO: I hardcoded 'origin'
+    gh pr create --repo "$GITHUB_REPOSITORY" --head "$branch_to_automerge_without_pr" --base "$(git symbolic-ref --short HEAD)" --title "$IGNORE_MARKER origin/$(git show -s --format=%B "$branch_to_automerge_without_pr")" --body 'A renovate automergeable update.' "${labels[@]}"
   done
 
   while IFS= read -r pr_number; do
@@ -63,7 +64,7 @@ function main {
         --body "$comment_body"
     else
       gh pr update-branch "$pr_number" --repo "$GITHUB_REPOSITORY" --rebase
-      gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --auto --squash
+      gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --auto --squash --delete-branch
     fi
     # SYNC: AUTOMERGE_LABEL
   done < <(gh pr list --json number --jq '.[].number' --repo "$GITHUB_REPOSITORY" --label automerge)
