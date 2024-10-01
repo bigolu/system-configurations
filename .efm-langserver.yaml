@@ -57,14 +57,6 @@ tools:
     lint-severity: 2
     lint-formats:
       - "%f:%l:%c: %m"
-  committed: &committed
-    lint-after-open: true
-    lint-command: committed --color never --format brief --commit-file ${INPUT}
-    lint-source: committed
-    lint-stdin: false
-    lint-severity: 2
-    lint-formats:
-      - "%f: error %m"
 
 version: 2
 root-markers:
@@ -80,10 +72,6 @@ languages:
     - <<: *config-file-validator
   ini:
     - <<: *config-file-validator
-  git-commit:
-    - <<: *committed
-  git-rebase:
-    - <<: *committed
   =:
     - <<: *desktop-file-validate
     - <<: *typos

@@ -393,21 +393,6 @@ check-lint:
         typos --color never --format brief "$@"
         | ./scripts/reviewdog.bash -name=typos -efm '%f:%l:%c: %m'
         ' -- {files}
-    commit-message-committed:
-      skip:
-        # Don't run in CI since I don't this check to be required. It shouldn't
-        # be because there is no easy way to ignore false positives in a commit
-        # message e.g. "no qa".
-        #
-        # This variable is set by the GitHub CI runner:
-        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
-        - run: >
-            [ "$GITHUB_ACTIONS" = true ]
-      run: >
-        bash -o pipefail -euc '
-        committed --color never --format brief "${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"..HEAD
-        | ./scripts/reviewdog.bash -name=committed -efm "%f: error %m"
-        '
     commit-message-typos:
       skip:
         # Don't run in CI since I don't this check to be required. It shouldn't

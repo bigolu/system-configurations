@@ -58,7 +58,6 @@
           go # for 'go mod tidy'
           typos
           dos2unix
-          committed
 
           # These aren't linters, but they get called as part of a linting command
           gitMinimal
