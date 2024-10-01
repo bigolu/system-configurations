@@ -28,8 +28,9 @@ function main {
 }
 
 function get_files_that_differ_from_default_branch {
-  remote="${GIT_REMOTE:-origin}"
-  git diff -z --diff-filter=d --name-only "$remote/HEAD"
+  # I'm using merge-base in case the current branch is behind the default branch.
+  git diff -z --diff-filter=d --name-only \
+    "$(git merge-base "${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}" HEAD)"
   # Untracked files
   git ls-files -z --others --exclude-standard
 }

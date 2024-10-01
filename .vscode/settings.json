@@ -75,4 +75,9 @@
 
   // Use our version for consistency
   "evenBetterToml.taplo.bundled": false,
+
+  "files.associations": {
+    ".envrc": "shellscript",
+    "*.json5": "json5",
+  },
 }

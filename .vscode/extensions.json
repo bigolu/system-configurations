@@ -54,6 +54,9 @@
 
     // Language server and debugger for Go
     "golang.go",
+
+    // For json5 syntax highlighting
+    "tudoudou.json5-for-vscode",
   ],
 
   // List of extensions recommended by VS Code that should not be recommended

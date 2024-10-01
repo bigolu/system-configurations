@@ -1,24 +1,29 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mattn/efm-langserver/master/schema.json
+
+# TODO: lint-after-open should be the default, but it isn't set on the server:
+# https://github.com/mattn/efm-langserver/pull/277
+
 tools:
   action-lint: &action-lint
+    lint-after-open: true
     lint-command: >
       env input=${INPUT} substr=.github/workflows sh -c
       '[ "${input#*$substr}" != "$input" ] &&
-      actionlint -no-color -
-      $([ -f .github/actionlint.yaml ] && echo "-config-file .github/actionlint.yaml")
-      $([ -f .github/actionlint.yml ] && echo "-config-file .github/actionlint.yml")'
+      actionlint -no-color -'
     lint-source: "action-lint"
     lint-stdin: true
     lint-formats:
       - "%f:%l:%c:%m"
   yamllint: &yamllint
+    lint-after-open: true
     lint-command: "yamllint --strict --format parsable -"
     lint-source: "yamllint"
     lint-stdin: true
     lint-formats:
       - "%f:%l:%c: [%t%*[a-z]] %m"
   markdownlint-cli2: &markdownlint-cli2
+    lint-after-open: true
     lint-command: "markdownlint-cli2 ${INPUT}"
     lint-source: "markdownlint-cli2"
     lint-stdin: false
@@ -28,12 +33,14 @@ tools:
       - "%f:%l: %m"
       - "%f:%l %m"
   desktop-file-validate: &desktop-file-validate
+    lint-after-open: true
     lint-command: bash -c '[[ ${INPUT} = *.desktop ]] && desktop-file-validate ${INPUT}'
     lint-source: "desktop-file-validate"
     lint-stdin: false
     lint-formats:
       - "%f: %m"
   config-file-validator: &config-file-validator
+    lint-after-open: true
     lint-command: validator -groupby pass-fail ${INPUT}
     lint-source: "config-file-validator"
     lint-stdin: false
@@ -43,6 +50,7 @@ tools:
       - "%A    × %f"
       - "%Z        error: %m"
   typos: &typos
+    lint-after-open: true
     lint-command: typos --color never --format brief ${INPUT}
     lint-source: typos
     lint-stdin: false
@@ -61,7 +69,7 @@ tools:
 version: 2
 root-markers:
   - .git/
-lint-debounce: 1s
+lint-debounce: 0.5s
 languages:
   yaml:
     - <<: *action-lint

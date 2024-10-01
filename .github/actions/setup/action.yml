@@ -1,5 +1,5 @@
 name: Setup
-description: Install Nix, configure the cache(s), and load a direnv environment
+description: Install Nix, configure the cache(s), and load a devShell.
 inputs:
   dev-shell:
     description: The name of the devShell to activate
@@ -12,6 +12,9 @@ runs:
   using: "composite"
   steps:
     - uses: DeterminateSystems/nix-installer-action@main
+    # TODO: This cache shouldn't be enabled for packages that only get used in CI,
+    # but since I hit the rate-limit a lot for magic-nix-cache, I need to have
+    # this as a backup.
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:
         name: bigolu

@@ -25,7 +25,7 @@ bws="$(NIXPKGS_ALLOW_UNFREE=1 nix shell --impure nixpkgs#bws --command which -- 
 PATH="$(dirname "$bws"):$PATH"
 
 declare -A secrets_to_fetch=(
-  ['b9e0fe3d-037c-4de9-a933-b1ee011abdfd']="$project_dir/.env"
+  ['b9e0fe3d-037c-4de9-a933-b1ee011abdfd']="$project_dir/envrc-secrets.bash"
   ['a45acbd3-45ac-43f1-96fd-b0f9015b6c2c']="$HOME/.cloudflared/a52a24f6-92ee-4dc5-b537-24bad84b7b1f.json"
 )
 declare -A secrets_to_commit
