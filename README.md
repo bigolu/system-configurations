@@ -28,20 +28,14 @@ their systems similarly.
 
 1. Install Nix by running:
 
-   > NOTE: Please confirm that everything in the command provided above, besides the `--extra-conf` flags, is up-to-date with
+   > NOTE: Please confirm that everything in the command provided above, besides the `--extra-conf` flag, is up-to-date with
    > what is currently listed on the [Installer Website][determinate-systems-installer].
 
    ```bash
-   # The first `--extra-conf` adds your user to `trusted-users` so you can do things
+   # The `--extra-conf` adds your user to `trusted-users` so you can do things
    # like accepting a binary cache.
-   #
-   # The second one enables the feature `auto-allocate-uids`. I'm enabling it because
-   # of one instance where I was running a flake output I got an error because this
-   # feature wasn't enabled. I'm assuming the flake, or one of its dependencies, set
-   # `auto-allocate-uids = true` in the `nixConfig` section of its `flake.nix`.
    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install \
-     --extra-conf "extra-trusted-users = $(whoami)" \
-     --extra-conf 'extra-experimental-features = auto-allocate-uids'
+     --extra-conf "extra-trusted-users = $(whoami)"
    ```
 
 2. Start a Nix shell with the other required programs and clone the repository by running:
