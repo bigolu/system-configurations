@@ -81,25 +81,25 @@ fi
 fetcher="$(get_dependency curl wget)"
 case "$fetcher" in
 curl)
+  curl() {
+    command curl --proto '=https' -fL "$@"
+  }
   file_exists() {
-    curl --head --silent --fail "$1" 1>/dev/null 2>&1
+    curl -s --head "$1" 1>/dev/null 2>&1
   }
   download() {
-    curl --fail --progress-bar --location "$1" --output "$2"
-  }
-  update() {
-    curl --fail --progress-bar --location "$1" --output "$2"
+    curl --progress-bar "$1" --output "$2"
   }
   ;;
 wget)
+  wget() {
+    command wget --https-only
+  }
   file_exists() {
     wget -q --method=HEAD "$1"
   }
   download() {
-    wget --output-document "$2" "$1"
-  }
-  update() {
-    download "$@"
+    wget -O "$2" "$1"
   }
   ;;
 esac
@@ -159,23 +159,17 @@ install_shell() {
 
   show_free_space
 
-  shell_path="$prefix/shell"
-  if [ -f "$shell_path" ]; then
+  shell="$prefix/shell"
+  if [ -f "$shell" ]; then
     printf "Do you want to update your shell? (y/n): "
-    read -r response
-    if [ "$response" = y ]; then
-      update "$release_artifact_url" "$shell_path"
-      chmod +x "$shell_path"
-    fi
   else
     printf "Would you like to continue with downloading your shell? (y/n): "
-    read -r response
-    if [ "$response" = y ]; then
-      download "$release_artifact_url" "$shell_path"
-      chmod +x "$shell_path"
-    fi
   fi
-  shell="$shell_path"
+  read -r response
+  if [ "$response" = y ]; then
+    download "$release_artifact_url" "$shell"
+    chmod +x "$shell"
+  fi
 }
 if [ "$BIGOLU_BOOTSTRAP_SIZE" = 'big' ]; then
   install_shell

@@ -98,12 +98,12 @@ need to use the configuration temporarily and not apply it, like when you're in 
 Just run one of these commands, depending on whether you have `wget` or `curl`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/bigolu/system-configurations/master/.github/run.sh \
+curl --proto '=https' -fsSL https://raw.githubusercontent.com/bigolu/system-configurations/master/.github/run.sh \
   | sh -s -- <type>
 ```
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/bigolu/system-configurations/master/.github/run.sh \
+wget --https-only -qO- https://raw.githubusercontent.com/bigolu/system-configurations/master/.github/run.sh \
   | sh -s -- <type>
 ```
 
