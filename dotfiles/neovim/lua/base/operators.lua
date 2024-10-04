@@ -27,7 +27,7 @@ Plug("stevearc/conform.nvim", {
       local escape_key =
         vim.api.nvim_replace_termcodes("<ESC>", true, false, true)
       local command = string.format(
-        [[%s:silent %s,%s!conform %s %s%s]],
+        [[%s:silent %s,%s!conform.bash %s %s%s]],
         escape_key,
         start_mark,
         end_mark,

@@ -50,10 +50,17 @@
                 root = self.lib.root + "/dotfiles/general/bin-macos";
                 fileset = self.lib.root + "/dotfiles/general/bin-macos";
               };
-              neovimLinuxBin = fs.toSource {
-                root = self.lib.root + "/dotfiles/neovim/linux-bin";
-                fileset = self.lib.root + "/dotfiles/neovim/linux-bin";
-              };
+              neovimLinuxBin =
+                let
+                  src = fs.toSource {
+                    root = self.lib.root + "/dotfiles/neovim/linux-bin";
+                    fileset = self.lib.root + "/dotfiles/neovim/linux-bin";
+                  };
+                in
+                final.runCommand "neovim-linux-bin" { } ''
+                  mkdir "$out"
+                  cp ${lib.escapeShellArg src}/wezterm.bash "$out/wezterm"
+                '';
             in
             final.symlinkJoin {
               name = "my-${nightly.name}";

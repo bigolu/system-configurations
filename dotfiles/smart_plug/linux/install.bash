@@ -10,7 +10,7 @@ script_directory="$(
   pwd -P
 )"
 
-sudo install --compare --owner=root --group=root --mode='u=rwx,g=r,o=r' -D --verbose --no-target-directory "$script_directory/turn-off-speakers" /etc/NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers
+sudo install --compare --owner=root --group=root --mode='u=rwx,g=r,o=r' -D --verbose --no-target-directory "$script_directory/turn-off-speakers.sh" /etc/NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers.sh
 sudo install --compare --owner=root --group=root --mode='u=rwx,g=r,o=r' -D --verbose --no-target-directory "$script_directory/smart-plug.service" /etc/systemd/system/smart-plug.service
 speaker_path='/opt/speaker'
 sudo mkdir -p "$speaker_path"

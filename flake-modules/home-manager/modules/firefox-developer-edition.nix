@@ -12,7 +12,7 @@ let
       "applications/my-firefox.desktop".source = "firefox-developer-edition/my-firefox.desktop";
     };
 
-    repository.symlink.xdg.executable."my-firefox".source = "firefox-developer-edition/my-firefox";
+    repository.symlink.xdg.executable."my-firefox".source = "firefox-developer-edition/my-firefox.sh";
   };
   darwin = lib.mkIf (isGui && isDarwin) {
     repository.symlink.home.file.".finicky.js".source = "firefox-developer-edition/finicky/finicky.js";

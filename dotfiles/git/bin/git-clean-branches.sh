@@ -9,16 +9,16 @@ set -o nounset
 branches_merged_to_master=$(git branch --merged "${1-master}" | grep -v " ${1-master}$")
 
 if [ "$branches_merged_to_master" = "" ]; then
-    echo 'No branches to delete'
-    return
+  echo 'No branches to delete'
+  return
 fi
 
 printf "The following branches have already been merged to master:\n%s\n" "$branches_merged_to_master"
 echo "Are these branches ok to delete? (y/n): "
 read -r response
 if [ "$response" = "y" ]; then
-    echo "$branches_merged_to_master" | xargs -r git branch -d
-    echo "Branches deleted"
+  echo "$branches_merged_to_master" | xargs -r git branch -d
+  echo "Branches deleted"
 else
-    echo "No branches were deleted"
+  echo "No branches were deleted"
 fi

@@ -4,8 +4,8 @@
 # for accessing the trash: https://github.com/Byron/trash-rs/issues/8
 
 import os
-import sys
 import subprocess
+import sys
 
 if len(sys.argv) > 1:
     files: list[str] = []

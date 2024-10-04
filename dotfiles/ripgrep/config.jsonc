@@ -80,7 +80,7 @@
       "extensions": ["djvu"],
       "mimetypes": ["image/vnd.djvu"],
 
-      "binary": "djvutorga",
+      "binary": "djvutorga.bash",
       "args": ["$input_virtual_path"],
       "output_path_hint": "${input_virtual_path}.txt.asciipagebreaks",
       "disabled_by_default": false,

@@ -55,10 +55,13 @@ fi
 # Command substitution removes trailing newlines, but I want to keep them. To do so, I add a
 # character to the end of the input, this way any trailing newlines will no longer be trailing. Then
 # I remove the extra character by getting a substring that excludes the last character.
-input=$(cat; printf x)
+input=$(
+  cat
+  printf x
+)
 input=${input::-1}
 
-inputlen=$( printf '%s' "$input" | wc -c )
+inputlen=$(printf '%s' "$input" | wc -c)
 
 # https://sunaku.github.io/tmux-yank-osc52.html
 # The maximum length of an OSC 52 escape sequence is 100_000 bytes, of which
@@ -68,10 +71,10 @@ maxlen=74994
 
 # warn if exceeds maxlen
 if [ "$inputlen" -gt "$maxlen" ]; then
-  printf "input is %d bytes too long" "$(( inputlen - maxlen ))" >&2
+  printf "input is %d bytes too long" "$((inputlen - maxlen))" >&2
 fi
 
 # build up OSC 52 ANSI escape sequence
-esc="\033]52;c;$( printf '%s' "$input" | head -c $maxlen | base64 | tr -d '\r\n' )\a"
+esc="\033]52;c;$(printf '%s' "$input" | head -c $maxlen | base64 | tr -d '\r\n')\a"
 
-printf %b "$esc" > "$target_tty"
+printf %b "$esc" >"$target_tty"

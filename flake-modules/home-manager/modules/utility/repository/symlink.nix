@@ -51,6 +51,12 @@
       executableSymlinkOptions = submoduleContext: {
         options = {
           inherit source executable recursive;
+          removeExtension = lib.mkOption {
+            type = types.nullOr types.bool;
+            default = true;
+            internal = true;
+            readOnly = true;
+          };
           target = lib.mkOption {
             type = types.str;
             apply =
@@ -153,13 +159,30 @@
               convertAbsolutePathStringToPath absoluteSource
             else
               config.lib.file.mkOutOfStoreSymlink absoluteSource;
-          homeManagerSymlink = file // {
+          homeManagerSymlink = (lib.attrsets.filterAttrs (k: _v: k != "removeExtension") file) // {
             source = symlinkSource;
+            target =
+              let
+                removeExtension =
+                  path:
+                  let
+                    basename = builtins.baseNameOf path;
+                    split = lib.strings.splitString "." basename;
+                    baseNameWithoutExtension =
+                      if builtins.length split == 1 then
+                        basename
+                      else
+                        lib.strings.concatStringsSep "." (lib.lists.sublist 0 ((builtins.length split) - 1) split);
+                  in
+                  if basename == path then
+                    baseNameWithoutExtension
+                  else
+                    "${builtins.dirOf path}/${baseNameWithoutExtension}";
+              in
+              if (file.removeExtension or false) then (removeExtension file.target) else file.target;
           };
         in
         homeManagerSymlink;
-      # TODO: I won't need this if Home Manager gets support for recursive symlinks.
-      # issue: https://github.com/nix-community/home-manager/issues/3514
       getHomeManagerSymlinkSetForFilesInDirectory =
         directory:
         let
@@ -174,6 +197,7 @@
               source = "${directory.source}/${basename}";
               target = "${directory.target}/${basename}";
               inherit (directory) executable;
+              removeExtension = directory.removeExtension or false;
             })
           ) (readDirRecursive sourcePath);
         in

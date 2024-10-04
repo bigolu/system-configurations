@@ -7,7 +7,7 @@
 let
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isDarwin isLinux;
-  inherit (specialArgs) repositoryDirectory flakeInputs root;
+  inherit (specialArgs) repositoryDirectory root;
 in
 {
   home.file = optionalAttrs isDarwin {

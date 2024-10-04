@@ -11,7 +11,6 @@ if [ -z "$OTHER_STACKED_WINDOW_ID" ]; then
   exit 1
 fi
 
-
 # remove current window from stack
 yabai -m window --toggle float
 
