@@ -13,3 +13,7 @@ function nix
     end
     command nix $argv
 end
+
+function nix-store-size
+    numfmt --to=iec-i --suffix=B --format="%9.2f" (nix path-info --json --all | jq 'map(.narSize) | add')
+end
