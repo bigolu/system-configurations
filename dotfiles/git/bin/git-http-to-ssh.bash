@@ -1,12 +1,10 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-# Exit if a command returns a non-zero exit code
 set -o errexit
-
-# Exit if an unset variable is referenced
 set -o nounset
+set -o pipefail
 
-#The if condition is for checking your remote HTTPS URL has `.git` at the end or not
+# See if remote url end in '.git'
 if git config --get remote.origin.url | grep -P '\.git$' >/dev/null; then
   newURL=$(git config --get remote.origin.url | sed -r 's#(http.*://)([^/]+)/(.+)$#git@\2:\3#g')
 else

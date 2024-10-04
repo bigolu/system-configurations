@@ -54,7 +54,8 @@ post-checkout:
       run: >
         [ {3} != '0' ]
         && printf {1} >.git/sync-point-1.txt
-        && printf {2} >.git/sync-point-2.txt
+        && printf {2} >.git/sync-point-2.txt;
+        exit 0
 
 sync:
   # So we can see the output of dev-shell and host-manager. It can take a while

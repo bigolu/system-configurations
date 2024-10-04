@@ -1,12 +1,10 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # If Firefox Developer Edition is open, use that instead of normal firefox.
 
-# Exit if a command returns a non-zero exit code
 set -o errexit
-
-# Exit if an unset variable is referenced
 set -o nounset
+set -o pipefail
 
 devedition_executable_name='firefox-devedition'
 regular_executable_name='firefox'

@@ -51,9 +51,9 @@ init-home-manager HOST_NAME: && (force-sync "lefthook,secrets")
   ./dotfiles/nix/nix-fix/install-nix-fix.bash
   ./dotfiles/nix/systemd-garbage-collection/install.bash
   ./dotfiles/smart_plug/linux/install.bash
-  ./dotfiles/linux/set-keyboard-to-mac-mode.sh
+  ./dotfiles/linux/set-keyboard-to-mac-mode.bash
   ./dotfiles/keyd/install.bash
-  ./dotfiles/firefox-developer-edition/set-default-browser.sh
+  ./dotfiles/firefox-developer-edition/set-default-browser.bash
 
 [doc('''
     Apply the first generation of a nix-darwin configuration. You only need to

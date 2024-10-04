@@ -109,61 +109,10 @@
                 wrapProgram $out/bin/rga --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg ripgrepBin}
               '';
             };
-
-          # TODO: Python virtualenvs use the canonical path of the base python. This
-          # is an issue for Nix because when I update my system and the old python
-          # gets garbage collected, it breaks any virtualenvs made against it. So I
-          # made a wrapper that injects the --copies flag whenever a virtualenv is
-          # being made.
-          myPython =
-            let
-              pythonWithPackages = final.python3.withPackages (
-                ps: with ps; [
-                  pip
-                  mypy
-                  ipython
-                ]
-              );
-              python3CopyVenvsByDefault = final.writeShellApplication {
-                name = "python";
-                text = ''
-                  new_args=()
-                  seen_m=""
-                  seen_venv=""
-                  for arg in "$@"; do
-                    new_args=("''${new_args[@]}" "$arg")
-                      if [ "$arg" = '-m' ]; then
-                        seen_m=1
-                          elif [ -n "$seen_m" ] && [ -z "$seen_venv" ] && [ "$arg" = 'venv' ] && [ -z "''${BIGOLU_NO_COPY:-}" ]; then
-                          new_args=("''${new_args[@]}" "--copies")
-                          seen_venv=1
-                          printf '\nInjecting the "--copies" flag into the venv command. This is to avoid breaking virtual environments when Nix does garbage collection. You can disable this injection by setting the environment variable "BIGOLU_NO_COPY=1"\n\n'
-                          fi
-                          done
-
-                          exec ${pythonWithPackages}/bin/python "''${new_args[@]}"
-                '';
-              };
-
-              python3CopyVenvsByDefaultPackage = final.runCommand "python-copy-venvs" { } ''
-                mkdir -p $out/bin
-                name="$(find ${pythonWithPackages}/bin -printf '%f\n' | grep -E '^python3\.[0-9]+(\.[0-9]+)?$')"
-                cp ${python3CopyVenvsByDefault}/bin/python "$out/bin/$name"
-                cp ${python3CopyVenvsByDefault}/bin/python "$out/bin/python"
-                cp ${python3CopyVenvsByDefault}/bin/python "$out/bin/python3"
-              '';
-            in
-            final.symlinkJoin {
-              name = "myPython";
-              paths = [
-                python3CopyVenvsByDefaultPackage
-                pythonWithPackages
-              ];
-            };
         in
         {
           # I'm renaming these to avoid rebuilds.
-          inherit myTerminfoDatabase myPython;
+          inherit myTerminfoDatabase;
           neovim = nightlyNeovimWithDependencies;
           ripgrep-all = ripgrepAllWithDependencies;
           nix = final.nixVersions.latest;

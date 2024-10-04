@@ -68,7 +68,6 @@ let
         lesspipe = makeEmptyPackage "lesspipe";
         wordnet = makeEmptyPackage "wordnet";
         diffoscope = makeEmptyPackage "diffoscope";
-        myPython = makeEmptyPackage "myPython";
         gitMinimal = makeEmptyPackage "gitMinimal";
 
         fish = prev.fish.override {
