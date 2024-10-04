@@ -6,7 +6,7 @@ set -o pipefail
 # ACTIVATION_PACKAGE
 # BASH_PATH
 
-if [ -t 2 ]; then
+if [[ -t 2 ]]; then
   printf 'Bootstrapping portable home...'
 fi
 
@@ -34,7 +34,7 @@ xdg_cache_directory="$(make_directory_in_prefix 'cache')"
 # Nix store isn't writable we copy the directories into temporary ones.
 activation_package_config_directory="$ACTIVATION_PACKAGE/home-files/.config"
 activation_package_data_directory="$ACTIVATION_PACKAGE/home-files/.local/share"
-if ! [ -w "$ACTIVATION_PACKAGE" ]; then
+if ! [[ -w "$ACTIVATION_PACKAGE" ]]; then
   xdg_config_directory="$(make_directory_in_prefix config)"
   xdg_data_directory="$(make_directory_in_prefix data)"
   cp --no-preserve=mode --recursive --dereference \
@@ -111,7 +111,7 @@ shell="$(which fish)"
 export SHELL="$shell"
 
 # Clear the message we printed earlier
-if [ -t 2 ]; then
+if [[ -t 2 ]]; then
   printf '\33[2K\r'
 fi
 

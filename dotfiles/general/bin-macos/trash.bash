@@ -8,7 +8,7 @@ function main {
   if (($# > 0)); then
     extant_files=()
     for file in "$@"; do
-      if [ -f "$file" ]; then
+      if [[ -f "$file" ]]; then
         file="$(realpath "$file")"
         # This replaces '\' with '\\'
         file="${file//\\/\\\\}"

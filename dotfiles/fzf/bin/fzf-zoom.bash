@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-if [ "${TERM_PROGRAM:-}" != WezTerm ]; then
+if [[ "${TERM_PROGRAM:-}" != WezTerm ]]; then
   exec fzf "$@"
 fi
 

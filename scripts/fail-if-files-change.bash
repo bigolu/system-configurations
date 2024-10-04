@@ -12,7 +12,7 @@ function main {
   "$@"
   diff_after_running="$(diff_including_untracked)"
 
-  if [ "$diff_before_running" != "$diff_after_running" ]; then
+  if [[ "$diff_before_running" != "$diff_after_running" ]]; then
     return 1
   else
     return 0

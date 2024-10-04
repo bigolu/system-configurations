@@ -7,15 +7,15 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-if ! [ -x /usr/local/bin/brew ]; then
+if ! [[ -x /usr/local/bin/brew ]]; then
   # Install homebrew. Source: https://brew.sh/
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
 original_conf='/etc/nix/nix.conf'
 backup="$original_conf".before-nix-darwin
-if [ -f "$original_conf" ]; then
-  if ! [ -f "$backup" ]; then
+if [[ -f "$original_conf" ]]; then
+  if ! [[ -f "$backup" ]]; then
     mv "$original_conf" "$backup"
 
     # Since there isn't a nix.conf anymore, we have to re-enable any necessary

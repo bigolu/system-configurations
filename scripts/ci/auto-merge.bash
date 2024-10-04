@@ -49,12 +49,12 @@ function main {
         echo 'Status checks failed'
         comment_body='A status check failed so auto-merging has been disabled.'
       fi
-    elif [ "$(gh pr view "$pr_number" --json mergeable --jq '.mergeable' --repo "$GITHUB_REPOSITORY")" = CONFLICTING ]; then
+    elif [[ "$(gh pr view "$pr_number" --json mergeable --jq '.mergeable' --repo "$GITHUB_REPOSITORY")" = CONFLICTING ]]; then
       echo 'PR is conflicted'
       comment_body='This PR has a conflict with its base branch so auto-merging has been disabled.'
     fi
 
-    if [ -n "$comment_body" ]; then
+    if [[ -n "$comment_body" ]]; then
       old_title="$(gh pr view "$pr_number" --json title --jq '.title' --repo "$GITHUB_REPOSITORY")"
       gh pr edit "$pr_number" --repo "$GITHUB_REPOSITORY" \
         --remove-label automerge \

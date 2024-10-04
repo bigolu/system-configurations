@@ -53,7 +53,7 @@ function get_symlink_chain {
 
   joined_chain="$(join ' -> ' "${chase_output_only_filenames[@]}")"
 
-  if [ -n "${NIX_GCROOTS_INCLUDE_SIZE:-}" ]; then
+  if [[ -n "${NIX_GCROOTS_INCLUDE_SIZE:-}" ]]; then
     # The out put of `du` looks like '<size> <filename>' so we're taking the
     # first group after splitting by a space.
     size="$(du --apparent-size -shL "$symlink" 2>/dev/null | cut -d' ' -f 1)"
@@ -80,7 +80,7 @@ function print_roots_for_directory {
     for root in "${roots[@]}"; do
       chains=("${chains[@]}" "$(get_symlink_chain "$root")")
     done
-    if [ -n "${NIX_GCROOTS_INCLUDE_SIZE:-}" ]; then
+    if [[ -n "${NIX_GCROOTS_INCLUDE_SIZE:-}" ]]; then
       # sort by size, descending
       readarray -t chains < <(printf '%s\n' "${chains[@]}" | sort --human-numeric-sort --reverse)
     else

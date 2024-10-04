@@ -17,11 +17,11 @@ function main {
   # eventually we'll reach the real nix.
   readarray -t nix_commands < <(which -a nix)
   this_nix_index="$(index_of "$0" "${nix_commands[@]}")"
-  if [ -z "$this_nix_index" ]; then
+  if [[ -z "$this_nix_index" ]]; then
     abort
   fi
   real_nix="${nix_commands[(($this_nix_index + 1))]}"
-  if [ -z "$real_nix" ]; then
+  if [[ -z "$real_nix" ]]; then
     abort
   fi
 
@@ -34,7 +34,7 @@ function maybe_warn {
   found_flake=
   current_directory="$PWD"
   while true; do
-    if [ -f "$current_directory/flake.nix" ]; then
+    if [[ -f "$current_directory/flake.nix" ]]; then
       found_flake=1
       break
     fi
@@ -47,7 +47,7 @@ function maybe_warn {
     current_directory="$parent_directory"
   done
 
-  if [ -z "$found_flake" ]; then
+  if [[ -z "$found_flake" ]]; then
     return
   fi
 
@@ -63,7 +63,7 @@ function maybe_warn {
 }
 
 function abort {
-  if [ -t 2 ]; then
+  if [[ -t 2 ]]; then
     echo -e '\e[31mError: Unable to find the real nix' >&2
   fi
   exit 127
