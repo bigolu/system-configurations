@@ -1,10 +1,12 @@
-{ self, ... }:
+{ self, inputs, ... }:
 {
   flake =
     let
       overlay =
         final: prev:
         let
+          inherit (final) lib;
+
           vimPluginRepositoryPrefix = "vim-plugin-";
 
           vimPluginBuilder =
@@ -38,9 +40,39 @@
               # 'plugged' directory
               nvim-treesitter = newVimPlugins.nvim-treesitter.withPlugins (_: [ ]);
             };
+
+          myVimPlugins =
+            let
+              pluginNames = builtins.filter (name: name != "") (
+                lib.strings.splitString "\n" (builtins.readFile "${inputs.self}/dotfiles/neovim/plugin-names.txt")
+              );
+              replaceDotsWithDashes = builtins.replaceStrings [ "." ] [ "-" ];
+            in
+            builtins.listToAttrs (
+              map (
+                pluginName:
+                let
+                  getPackageForPlugin = builtins.getAttr pluginName;
+                  formattedPluginName = replaceDotsWithDashes pluginName;
+                  package =
+                    if builtins.hasAttr pluginName final.vimPlugins then
+                      getPackageForPlugin final.vimPlugins
+                    else if builtins.hasAttr formattedPluginName final.vimPlugins then
+                      (builtins.getAttr "overrideAttrs" (builtins.getAttr formattedPluginName final.vimPlugins)) (_old: {
+                        pname = pluginName;
+                      })
+                    else
+                      abort "Failed to find vim plugin: ${pluginName}";
+                in
+                {
+                  name = pluginName;
+                  value = package;
+                }
+              ) pluginNames
+            );
         in
         {
-          inherit vimPlugins;
+          inherit vimPlugins myVimPlugins;
         };
     in
     {

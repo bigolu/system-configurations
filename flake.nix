@@ -1,7 +1,7 @@
 # TODO: Trick renovate into working: "github:NixOS/nixpkgs/nixpkgs-unstable"
 # Source: https://github.com/renovatebot/renovate/issues/29721
 {
-  description = "Biggie's host configurations";
+  description = "Host configurations";
 
   nixConfig = {
     # SYNC: OUR_CACHES
@@ -35,9 +35,6 @@
         flake = {
           lib.root = ./.;
         };
-
-        # For nixd
-        debug = true;
 
         systems = with flake-utils.lib.system; [
           x86_64-linux
