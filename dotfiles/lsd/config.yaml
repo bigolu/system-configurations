@@ -14,12 +14,13 @@ date: relative
 
 icons:
   theme: fancy
-  separator: ""
-  # When filetype icons can have precedence over file name/extension icons then I'll start using
-  # icons. This issue is for letting the directory icon have precedence over file type:
+  separator: " "
+  # When filetype icons can have precedence over file name/extension icons then
+  # I'll start using File type icons have priority over directory and executable
+  # icons. If this changes, then I'll start using icons.
+  #
+  # This issue is for letting the directory icon have precedence over file type:
   # https://github.com/lsd-rs/lsd/issues/965
-  # Maybe a value you can set for the name/extension like "inherit" so it can take the value set for
-  # the file type. Or maybe make the indicator icon and position configurable.
   when: never
 
 indicators: true
