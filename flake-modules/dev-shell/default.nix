@@ -185,9 +185,11 @@
       };
 
       outputs = {
-        # So we can cache it and pin a version.
+        # So we can cache them and pin a version.
         packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
+        devShells.gomod2nix = inputs'.gomod2nix.devShells.default;
 
+        # So I can reference nixpkgs, with my overlays applied, from my scripts.
         legacyPackages.nixpkgs = pkgs;
 
         devShells = {
@@ -221,9 +223,6 @@
             name = "ci-codegen";
             dependencies = codeGenerationDependencies;
           };
-
-          # So we can cache it and pin a version.
-          gomod2nix = inputs'.gomod2nix.devShells.default;
         };
       };
 

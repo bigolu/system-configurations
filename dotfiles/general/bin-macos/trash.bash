@@ -8,8 +8,9 @@ function main {
   if (($# > 0)); then
     extant_files=()
     for file in "$@"; do
-      if [[ -f "$file" ]]; then
-        file="$(realpath "$file")"
+      # -h accounts for broken symlinks
+      if [[ -e "$file" || -h "$file" ]]; then
+        file="$(realpath --no-symlinks "$file")"
         # This replaces '\' with '\\'
         file="${file//\\/\\\\}"
         # This replaces '"' with '\"'
