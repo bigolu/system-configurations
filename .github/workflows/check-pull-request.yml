@@ -59,7 +59,7 @@ jobs:
       # conditional, this way it still counts as a run.
       - name: Get all package-related files that have changed
         id: changed-files-yaml
-        uses: tj-actions/changed-files@48d8f15b2aaa3d255ca5af3eba4870f807ce6b3c # v45
+        uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c # v45
         with:
           # Since all this test does is build packages, only run when there are
           # changes in files that could affect the package set
@@ -104,7 +104,7 @@ jobs:
       # conditional, this way it still counts as a run.
       - name: Get all codegen-related files that have changed
         id: changed-files-yaml
-        uses: tj-actions/changed-files@48d8f15b2aaa3d255ca5af3eba4870f807ce6b3c # v45
+        uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c # v45
         with:
           # SYNC: GENERATOR_PATTERNS
           files_yaml: |
