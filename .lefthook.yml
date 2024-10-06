@@ -419,11 +419,15 @@ check-lint:
             [ "$GITHUB_ACTIONS" = true ]
       run: |
         bash -o pipefail -euc '
-        git rev-list --abbrev-commit --ancestry-path "${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"..HEAD | while read -r commit; do
-          tmp="$(mktemp --tmpdir "XXXXX_commit_hash_$commit")"
-          git show -s --format=%B "$commit" > "$tmp"
-          typos --color never --format brief "$tmp"
-        done | ./scripts/reviewdog.bash -name=typos -efm "%f:%l:%c: %m"
+          while read -r commit; do
+            echo "Checking commit $commit ($(git show --no-patch --format=%s "$commit"))..."
+            echo "----------------------------------------"
+            if ! git show -s --format=%B "$commit" | typos --color never --format brief --no-check-filenames - | ./scripts/reviewdog.bash -name=typos -efm "%f:%l:%c: %m"; then
+              found_problem=1
+            fi
+            echo
+          done < <(git rev-list --abbrev-commit --ancestry-path "${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"..HEAD)
+          [[ -z "${found_problem:-}" ]]
         '
 
     # TODO: These tools don't output a format that reviewdog can parse, I should
