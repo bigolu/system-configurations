@@ -440,7 +440,7 @@ function _nix_context
         set packages ": $packages"
     end
 
-    printf "nix shell$packages"
+    printf "nix$packages"
 end
 
 function _broot_context
