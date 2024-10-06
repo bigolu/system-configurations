@@ -48,7 +48,7 @@ let
               done
               export NIX_CONFIG
             }
-            
+
             function symlink {
               source="$1"
               destination="$2"

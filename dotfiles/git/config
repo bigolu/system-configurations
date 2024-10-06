@@ -9,6 +9,7 @@
   default = current
 [alias]
   all = add -A
+  unstage-all = reset
   commit-all = commit -am
   p = pull
   p-sub = submodule update

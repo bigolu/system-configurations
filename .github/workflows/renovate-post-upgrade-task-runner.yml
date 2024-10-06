@@ -35,7 +35,7 @@ jobs:
     # TODO: This will result in a bunch of runs that immediately exit if the
     # branch wasn't just created. Ideally the job wouldn't even start if the
     # branch wasn't just created:
-    if: ${{ ! contains(needs.get-commit-message.outputs.head-commit-message, vars.RENOVATE_EMAIL_IGNORE_MARKER) }}
+    if: ! contains(needs.get-commit-message.outputs.head-commit-message, vars.RENOVATE_EMAIL_IGNORE_MARKER)
     runs-on: ubuntu-latest
     steps:
       - id: bot-token
