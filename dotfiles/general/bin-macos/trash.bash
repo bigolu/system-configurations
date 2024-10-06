@@ -9,7 +9,7 @@ function main {
     extant_files=()
     for file in "$@"; do
       # -h accounts for broken symlinks
-      if [[ -e "$file" || -h "$file" ]]; then
+      if [[ -e "$file" || -L "$file" ]]; then
         file="$(realpath --no-symlinks "$file")"
         # This replaces '\' with '\\'
         file="${file//\\/\\\\}"
