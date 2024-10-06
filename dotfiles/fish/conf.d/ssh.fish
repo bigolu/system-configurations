@@ -10,8 +10,6 @@ function ssh
     if not set index (contains --index -- '--bootstrap' $argv)
         command ssh $argv
     else
-        set size $argv[(math $index + 1)]
-        set --erase argv[$index]
         set --erase argv[$index]
 
         set xdg_config "$HOME/.config"
@@ -25,7 +23,7 @@ function ssh
         # https://github.com/kovidgoyal/kitty/blob/d33afd4e96cb6b9f84512568ce97816257a256c4/kittens/ssh/main.go#L486
         set encoded_script (tr \n\'! \r\v\b <$script | tr \\ \f 2>/dev/null)
         set decode_script 'eval "$(echo "$0" | tr "\r\v\b\f" "\n\047\041\134")"'
-        set remote_command "BIGOLU_BOOTSTRAP_SIZE='$size' sh -c '$decode_script' '$encoded_script'"
+        set remote_command "sh -c '$decode_script' '$encoded_script'"
 
         # If I'm already SSH'd this will be set so I can just pass it along
         if not set --query BIGOLU_TERMINFO
@@ -54,10 +52,10 @@ function ssh
             # Using quotes to preserve newlines
             set BIGOLU_TERMCAP "$(infocmp -Cr0Tq | base64)"
         end
-        set remote_command "BIGOLU_TERMCAP='$BIGOLU_TERMCAP' BIGOLU_TERMINFO='$BIGOLU_TERMINFO' BIGOLU_COLORTERM='$COLORTERM' $remote_command"
+        set remote_command "BIGOLU_TERMCAP='$BIGOLU_TERMCAP' BIGOLU_TERMINFO='$BIGOLU_TERMINFO' $remote_command"
 
         ssh -o RequestTTY=yes $argv "$remote_command"
     end
 end
 
-complete --command ssh --long-option bootstrap --description 'set up terminfo and/or shell on remote' --no-files --require-parameter --arguments '(printf %s\n "small"\t"only terminfo" "big"\t"terminfo and shell")'
+complete --command ssh --long-option bootstrap --description 'set up terminfo on remote'

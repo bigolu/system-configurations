@@ -1,9 +1,9 @@
 # System Configurations
 
-This repository holds the [Home Manager][home-manager] and [nix-darwin][nix-darwin] configurations for my machines.
-I don't expect anyone else to use this,
-but I figured I'd leave the repo public as a resource for people who want to manage
-their systems similarly.
+This repository holds the [Home Manager][home-manager] and
+[nix-darwin][nix-darwin] configurations for my machines. I don't expect anyone
+else to use this, but I figured I'd leave the repo public as a resource for
+people who want to manage their systems similarly.
 
 ## Table of Contents
 
@@ -28,8 +28,9 @@ their systems similarly.
 
 1. Install Nix by running:
 
-   > NOTE: Please confirm that everything in the command provided above, besides the `--extra-conf` flag, is up-to-date with
-   > what is currently listed on the [Installer Website][determinate-systems-installer].
+   > NOTE: Please confirm that everything in the command provided above, besides
+   > the `--extra-conf` flag, is up-to-date with what is currently listed on the
+   > [Installer Website][determinate-systems-installer].
 
    ```bash
    # The `--extra-conf` adds your user to `trusted-users` so you can do things
@@ -38,7 +39,8 @@ their systems similarly.
      --extra-conf "extra-trusted-users = $(whoami)"
    ```
 
-2. Start a Nix shell with the other required programs and clone the repository by running:
+2. Start a Nix shell with the other required programs and clone the repository
+   by running:
 
    ```bash
    nix shell --impure nixpkgs#fish nixpkgs#direnv nixpkgs#git \
@@ -55,17 +57,22 @@ The next steps depend on the operating system you're using:
 
 ### Linux
 
-1. Apply the Home Manager configuration by running `just init-home-manager <host_name>`
-   where `<host_name>` is one of the hosts defined in the [Home Manager flake module](flake-modules/home-manager/default.nix).
+1. Apply the Home Manager configuration by running
+   `just init-home-manager <host_name>` where `<host_name>` is one of the hosts
+   defined in the
+   [Home Manager flake module](flake-modules/home-manager/default.nix).
 
 2. Install and start [`keyd`][keyd]
 
-3. Apply the Firefox `about:config` changes in `dotfiles/firefox-developer-edition/about-config-changes.txt`
+3. Apply the Firefox `about:config` changes in
+   `dotfiles/firefox-developer-edition/about-config-changes.txt`
 
 ### macOS
 
-1. Apply the nix-darwin configuration by running `just init-nix-darwin <host_name>` where
-   `<host_name>` is one of the hosts defined in the [nix-darwin flake module](flake-modules/nix-darwin/default.nix).
+1. Apply the nix-darwin configuration by running
+   `just init-nix-darwin <host_name>` where `<host_name>` is one of the hosts
+   defined in the
+   [nix-darwin flake module](flake-modules/nix-darwin/default.nix).
 
 2. Keyboard:
 
@@ -78,37 +85,34 @@ The next steps depend on the operating system you're using:
 
    - Shortcuts:
 
-     - Disable: "Select the previous input source" `ctrl+space`, "Application windows" `ctrl+↓`
+     - Disable: "Select the previous input source" `ctrl+space`, "Application
+       windows" `ctrl+↓`
 
-     - Change: "Mission Control → Move left/right a space" to `cmd+[` and `cmd+]` respectively, "Mission Control" to `cmd+d`, "Mission Control → Switch to Desktop 1-9" `cmd+[1-9]`
+     - Change: "Mission Control → Move left/right a space" to `cmd+[` and
+       `cmd+]` respectively, "Mission Control" to `cmd+d`, "Mission Control →
+       Switch to Desktop 1-9" `cmd+[1-9]`
 
-3. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels, Nightfall, and "Mac Mouse Fix" to configure them.
+3. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels, Nightfall,
+   and "Mac Mouse Fix" to configure them.
 
 ## Running the Home Configuration
 
-You can also run a shell or terminal with the home configuration already loaded in it. This is helpful when you only
-need to use the configuration temporarily and not apply it, like when you're in a remote host. The executable is a self-extracting archive
-(SEA) that contains all the command-line programs I use, as well as my config files for them.
-Just run one of these commands, depending on whether you have `wget` or `curl`:
+You can also run a shell with the home configuration already loaded in it. This
+is helpful when you only need to use the configuration temporarily and not apply
+it, like when you're in a remote host or container. The executable is a
+self-extracting archive (SEA) that contains all the command-line programs I use,
+as well as my config files for them. You can download it from the [releases
+page][releases].
 
-```bash
-curl --proto '=https' -fsSL https://raw.githubusercontent.com/bigolu/system-configurations/master/.github/run.sh \
-  | sh -s -- <type>
-```
+> NOTE: While the SEA doesn't depend on any programs on your computer, it does
+> require that you have a `/tmp` directory. You can read this [GitHub issue
+> comment regarding a "rootless Nix"][rootless-nix] to see why this is needed,
+> as well as learn more about how this works.
 
-```bash
-wget --https-only -qO- https://raw.githubusercontent.com/bigolu/system-configurations/master/.github/run.sh \
-  | sh -s -- <type>
-```
-
-Where `<type>` can be `shell` or `terminal`.
-
-> NOTE: While the SEA doesn't depend on any programs on your computer, it does require that you have a `/tmp`
-> directory. You can read this [GitHub issue comment regarding a "rootless Nix"][rootless-nix] to see why this is
-> needed, as well as learn more about how this works.
-
-[determinate-systems-installer]: https://github.com/DeterminateSystems/nix-installer
+[determinate-systems-installer]:
+  https://github.com/DeterminateSystems/nix-installer
 [home-manager]: https://github.com/nix-community/home-manager
 [nix-darwin]: https://github.com/LnL7/nix-darwin
 [rootless-nix]: https://github.com/NixOS/nix/issues/1971#issue-304578884
 [keyd]: https://github.com/rvaiya/keyd
+[releases]: https://github.com/bigolu/system-configurations/releases/latest

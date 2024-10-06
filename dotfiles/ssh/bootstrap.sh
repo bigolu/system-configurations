@@ -10,16 +10,6 @@ abort() {
   exit 1
 }
 
-get_dependency() {
-  for command in "$@"; do
-    if command -v "$command" 1>/dev/null 2>&1; then
-      printf '%s' "$command"
-      return
-    fi
-  done
-  abort "Unable to find at least one of these commands: $*"
-}
-
 if command -v base64 1>/dev/null 2>&1; then
   base64_decode() {
     base64 -d
@@ -69,40 +59,8 @@ else
   }
 fi
 
-if [ -z "$BIGOLU_BOOTSTRAP_SIZE" ]; then
-  abort 'No bootstrap size was specified'
-fi
-if [ "$BIGOLU_BOOTSTRAP_SIZE" != 'small' ] && [ "$BIGOLU_BOOTSTRAP_SIZE" != 'big' ]; then
-  abort "Invalid bootstrap size: $BIGOLU_BOOTSTRAP_SIZE"
-fi
 [ -z "$BIGOLU_TERMINFO" ] && abort 'No terminfo was provided'
 [ -z "$BIGOLU_TERMCAP" ] && abort 'No termcap was provided'
-
-fetcher="$(get_dependency curl wget)"
-case "$fetcher" in
-curl)
-  curl() {
-    command curl --proto '=https' -fL "$@"
-  }
-  file_exists() {
-    curl -s --head "$1" 1>/dev/null 2>&1
-  }
-  download() {
-    curl --progress-bar "$1" --output "$2"
-  }
-  ;;
-wget)
-  wget() {
-    command wget --https-only
-  }
-  file_exists() {
-    wget -q --method=HEAD "$1"
-  }
-  download() {
-    wget -O "$2" "$1"
-  }
-  ;;
-esac
 
 prefix="$HOME/.cache/bigolu"
 if ! mkdir -p "$prefix"; then
@@ -148,37 +106,6 @@ show_free_space() {
 
 install_terminfo
 
-shell=''
-install_shell() {
-  platform="$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]')"
-  release_artifact_name="shell-$platform"
-  release_artifact_url="https://github.com/bigolu/system-configurations/releases/download/latest/$release_artifact_name"
-  if ! file_exists "$release_artifact_url"; then
-    abort "Your platform isn't supported: $platform"
-  fi
-
-  show_free_space
-
-  shell="$prefix/shell"
-  if [ -f "$shell" ]; then
-    printf "Do you want to update your shell? (y/n): "
-  else
-    printf "Would you like to continue with downloading your shell? (y/n): "
-  fi
-  read -r response
-  if [ "$response" = y ]; then
-    download "$release_artifact_url" "$shell"
-    chmod +x "$shell"
-  fi
-}
-if [ "$BIGOLU_BOOTSTRAP_SIZE" = 'big' ]; then
-  install_shell
-fi
-
 export BIGOLU_BOOTSTRAP_PREFIX="$prefix"
 
-if [ -z "$shell" ]; then
-  exec "$SHELL" -l
-else
-  exec "$SHELL" -l -c "exec '$shell'"
-fi
+exec "$SHELL" -l

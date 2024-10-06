@@ -1,0 +1,87 @@
+name: Make a Release
+on:
+  workflow_dispatch:
+  schedule:
+    # Once every 3 months
+    # SYNC: NEW_COMMITS_SINCE
+    - cron: "0 0 1 */3 *"
+concurrency:
+  # Since we are only interested in publishing packages for the latest commit to
+  # the branch, we will limit the workflow to running at most once per branch,
+  # cancelling older runs when newer ones start.
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  get-new-commit-count:
+    name: Get New Commit Count
+    runs-on: ubuntu-latest
+    outputs:
+      count: ${{ steps.get-new-commit-count.outputs.count }}
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      # SYNC: NEW_COMMITS_SINCE
+      - name: Get the number of new commits
+        id: get-new-commit-count
+        run: echo "count=$(git log --oneline --since '3 months ago' | wc -l)" >> "$GITHUB_OUTPUT"
+  make-assets:
+    name: Make Assets
+    needs: get-new-commit-count
+    if: |
+      github.ref_name == github.event.repository.default_branch &&
+      (needs.get-new-commit-count.outputs.count > 0 || github.event_name == 'workflow_dispatch')
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # macos-latest uses M1 so I'll just use the most recent version of macOS
+        # that they still on run intel macs
+        os: [ubuntu-latest, macos-13]
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: ./.github/actions/setup
+        with:
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - id: make-assets
+        run: |
+          nix bundle --show-trace --bundler .# .#shellMinimal
+
+          # The symlink's names will look like 'shell-<platform>', e.g.
+          # shell-x86_64-linux, so I'm using a glob pattern to match it.
+          shell_name="$(ls shell-*)"
+
+          asset_directory="$(mktemp --directory)"
+          shell_path="$asset_directory/assets/$shell_name"
+          # Dereference the symlink so I can upload the actual executable.
+          cp --dereference "$shell_name" "$shell_path"
+
+          size="$(du -m "$shell_path" | cut -f1)"
+          max_size=250
+          if (( size > max_size )); then
+            echo "Shell is too big: $size MB. Max size: $max_size"
+            exit 1
+          fi
+
+          sha256sum "$shell_path" > "$asset_directory/checksums/$shell_name.txt"
+
+          echo "asset-directory=$asset_directory" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: artifacts-${{ matrix.os }}
+          path: ${{ steps.make-assets.outputs.asset-directory }}
+          retention-days: 1
+  make-release:
+    needs: make-assets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: ./.github/actions/setup
+        with:
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: artifacts-*
+          merge-multiple: true
+      - run: ./scripts/ci/release.bash
+        env:
+          GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
