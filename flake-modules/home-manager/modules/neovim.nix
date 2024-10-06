@@ -1,6 +1,5 @@
 {
   pkgs,
-  config,
   ...
 }:
 let
@@ -57,6 +56,4 @@ in
       source = "neovim";
     };
   };
-
-  vimPlug.pluginFile = config.repository.directoryPath + "/dotfiles/neovim/plugin-names.txt";
 }
