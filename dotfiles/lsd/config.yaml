@@ -15,15 +15,12 @@ date: relative
 icons:
   theme: fancy
   separator: " "
-  # When filetype icons can have precedence over file name/extension icons then
-  # I'll start using File type icons have priority over directory and executable
-  # icons. If this changes, then I'll start using icons.
+  # TODO: File type icons have priority over directory and executable
+  # icons. It'd be nice if you could override that.
   #
   # This issue is for letting the directory icon have precedence over file type:
   # https://github.com/lsd-rs/lsd/issues/965
-  when: never
-
-indicators: true
+  when: always
 
 total-size: false
 

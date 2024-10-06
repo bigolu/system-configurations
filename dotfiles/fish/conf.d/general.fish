@@ -75,11 +75,6 @@ abbr --add --position anywhere --global ll 'ls -l'
 # Add colors for files types that aren't already given an icon by `ls
 # --classify` e.g. broken symlinks.
 #
-# TODO: I added color for some types that are already given icons by `ls
-# --classify`. The colors let me distinguish between the file name and the icon
-# added by `--classify`. I'll remove these colors when `lsd` allows for more
-# configurable icons. see my `lsd` config for details.
-#
 # File types:
 # [bd]="block device"
 # [ca]="file with capability"
@@ -102,7 +97,7 @@ abbr --add --position anywhere --global ll 'ls -l'
 # [su]="set-user-ID"
 # [tw]="sticky and other-writable directory"
 # From: https://askubuntu.com/a/884513/1497983
-set --global --export LS_COLORS 'di=0:ln=35:so=35:pi=35:ex=35:bd=35:cd=35:su=35:sg=35:tw=35:ow=35:or=31:mi=31:no=37:*=37'
+set --global --export LS_COLORS 'di=0:ln=37:so=37:pi=37:ex=37:bd=37:cd=37:su=37:sg=37:tw=37:ow=37:or=31:mi=31:no=37:*=37'
 
 # cd
 abbr --add --global -- - 'cd -'
