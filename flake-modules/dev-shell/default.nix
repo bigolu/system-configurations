@@ -18,7 +18,7 @@
     }:
     let
       inherit (lib.attrsets) optionalAttrs;
-      inherit (import ./utilities.nix { inherit pkgs self; }) makeEnvironment makeCiEnvironment;
+      inherit (import ./utilities.nix { inherit pkgs self; }) makeEnvironment;
 
       lefthookEnvironment = makeEnvironment {
         packages = with pkgs; [
@@ -151,7 +151,7 @@
         ];
       };
 
-      languageEnvironment = makeEnvironment {
+      languagesEnvironment = makeEnvironment {
         packages = with pkgs; [
           nix
           bashInteractive
@@ -172,8 +172,19 @@
         ];
       };
 
-      scriptEnvironment = makeEnvironment {
+      scriptsEnvironment = makeEnvironment {
         packages = [ pkgs.script-dependencies ];
+      };
+
+      ciUtilitiesEnvironment = makeEnvironment {
+        name = "ci";
+        packages = with pkgs; [
+          nix
+          # Why we need bashInteractive and not just bash:
+          # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
+          bashInteractive
+          coreutils
+        ];
       };
 
       outputs = {
@@ -194,26 +205,38 @@
               codeGenerationEnvironment
               taskRunnerEnvironment
               versionControlEnvironment
-              languageEnvironment
-              scriptEnvironment
+              languagesEnvironment
+              scriptsEnvironment
             ];
           };
 
-          ci = makeCiEnvironment { name = "ci"; };
+          ci = makeEnvironment {
+            name = "ci";
+            mergeWith = [ ciUtilitiesEnvironment ];
+          };
 
-          ciLint = makeCiEnvironment {
+          ciLint = makeEnvironment {
             name = "ci-lint";
-            mergeWith = [ lintingEnvironment ];
+            mergeWith = [
+              ciUtilitiesEnvironment
+              lintingEnvironment
+            ];
           };
 
-          ciCheckStyle = makeCiEnvironment {
+          ciCheckStyle = makeEnvironment {
             name = "ci-check-style";
-            mergeWith = [ formattingEnvironment ];
+            mergeWith = [
+              ciUtilitiesEnvironment
+              formattingEnvironment
+            ];
           };
 
-          ciCodegen = makeCiEnvironment {
+          ciCodegen = makeEnvironment {
             name = "ci-codegen";
-            mergeWith = [ codeGenerationEnvironment ];
+            mergeWith = [
+              ciUtilitiesEnvironment
+              codeGenerationEnvironment
+            ];
           };
         };
       };

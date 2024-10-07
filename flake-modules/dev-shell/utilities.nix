@@ -125,27 +125,7 @@ let
       };
     in
     modifiedShell;
-
-  makeCiEnvironment =
-    args:
-    makeEnvironment (
-      args
-      // {
-        mergeWith = (args.mergeWith or [ ]) ++ [ ciBaseEnvironment ];
-      }
-    );
-
-  ciBaseEnvironment = makeEnvironment {
-    name = "ci";
-    packages = with pkgs; [
-      nix
-      # Why we need bashInteractive and not just bash:
-      # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
-      bashInteractive
-      coreutils
-    ];
-  };
 in
 {
-  inherit makeEnvironment makeCiEnvironment;
+  inherit makeEnvironment;
 }
