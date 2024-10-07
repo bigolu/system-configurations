@@ -18,16 +18,11 @@
     }:
     let
       inherit (lib.attrsets) optionalAttrs;
-      inherit (import ./utilities.nix { inherit pkgs self; })
-        mergeDependencies
-        makeDevShell
-        makeCiDevShell
-        ;
+      inherit (import ./utilities.nix { inherit pkgs self; }) makeEnvironment makeCiEnvironment;
 
-      lefthookDependencies = {
+      lefthookEnvironment = makeEnvironment {
         packages = with pkgs; [
           lefthook
-
           # These are called in the lefthook configuration file, but aren't
           # specific to a task group e.g. format or check-lint
           gitMinimal
@@ -35,72 +30,70 @@
         ];
       };
 
-      lintingDependencies = mergeDependencies [
-        # Runs the linters
-        lefthookDependencies
+      lintingEnvironment = makeEnvironment {
+        mergeWith = [
+          # Runs the linters
+          lefthookEnvironment
+        ];
 
-        {
-          packages = with pkgs; [
-            actionlint
-            deadnix
-            fish
-            lychee
-            renovate # for renovate-config-validator
-            shellcheck
-            statix
-            ltex-ls # for ltex-cli
-            markdownlint-cli2
-            desktop-file-utils
-            golangci-lint
-            config-file-validator
-            taplo
-            ruff
-            go # for 'go mod tidy'
-            typos
-            dos2unix
+        packages = with pkgs; [
+          actionlint
+          deadnix
+          fish
+          lychee
+          renovate # for renovate-config-validator
+          shellcheck
+          statix
+          ltex-ls # for ltex-cli
+          markdownlint-cli2
+          desktop-file-utils
+          golangci-lint
+          config-file-validator
+          taplo
+          ruff
+          go # for 'go mod tidy'
+          typos
+          dos2unix
 
-            # These aren't linters, but they get called as part of a linting command
-            gitMinimal
+          # These aren't linters, but they get called as part of a linting command
+          gitMinimal
 
-            # TODO: If the YAML language server gets a CLI I should use that instead:
-            # https://github.com/redhat-developer/yaml-language-server/issues/535
-            yamllint
+          # TODO: If the YAML language server gets a CLI I should use that instead:
+          # https://github.com/redhat-developer/yaml-language-server/issues/535
+          yamllint
 
-            # This reports the errors
-            reviewdog
-          ];
-        }
-      ];
+          # This reports the errors
+          reviewdog
+        ];
+      };
 
-      formattingDependencies = mergeDependencies [
-        # Runs the formatters
-        lefthookDependencies
+      formattingEnvironment = makeEnvironment {
+        mergeWith = [
+          # Runs the formatters
+          lefthookEnvironment
+        ];
 
-        {
-          packages = with pkgs; [
-            nixfmt-rfc-style
-            nodePackages.prettier
-            shfmt
-            stylua
-            just
-            taplo
-            ruff
-            # for gofmt
-            go
-            # for fish_indent
-            fish
-          ];
-        }
-      ];
+        packages = with pkgs; [
+          nixfmt-rfc-style
+          nodePackages.prettier
+          shfmt
+          stylua
+          just
+          taplo
+          ruff
+          go # for gofmt
+          fish # for fish_indent
+        ];
+      };
 
-      vsCodeDependencies =
+      vsCodeEnvironment =
         let
-          efmLsDependencies = mergeDependencies [
-            lintingDependencies
-            { packages = [ pkgs.efm-langserver ]; }
-          ];
+          efmLsEnvironment = makeEnvironment {
+            mergeWith = [ lintingEnvironment ];
+            packages = [ pkgs.efm-langserver ];
+          };
 
-          luaLsDependencies =
+          luaLsEnvironment =
             let
               libraryMetaPackage = pkgs.runCommand "lua-ls-libraries" { } ''
                 mkdir "$out"
@@ -110,7 +103,7 @@
                 ln -s ${pkgs.neovim}/share/nvim/runtime ./nvim-runtime
               '';
             in
-            {
+            makeEnvironment {
               shellHooks = [
                 ''
                   symlink ${libraryMetaPackage} '.lua-ls-libraries'
@@ -118,7 +111,7 @@
               ];
             };
 
-          nixdDependencies = {
+          nixdEnvironment = makeEnvironment {
             packages = [ pkgs.nixd ];
             # Why I need this:
             # https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#default-configuration--who-needs-configuration
@@ -129,19 +122,19 @@
             ];
           };
         in
-        mergeDependencies [
-          luaLsDependencies
-          efmLsDependencies
-          nixdDependencies
-          {
-            packages = with pkgs; [
-              go
-              taplo
-            ];
-          }
-        ];
+        makeEnvironment {
+          mergeWith = [
+            luaLsEnvironment
+            efmLsEnvironment
+            nixdEnvironment
+          ];
+          packages = with pkgs; [
+            go
+            taplo
+          ];
+        };
 
-      taskRunnerDependencies = {
+      taskRunnerEnvironment = makeEnvironment {
         packages = with pkgs; [
           just
           # For paging the output of `just list`
@@ -149,16 +142,16 @@
         ];
       };
 
-      versionControlDependencies = mergeDependencies [
-        lefthookDependencies
-        {
-          packages = with pkgs; [
-            gitMinimal
-          ];
-        }
-      ];
+      versionControlEnvironment = makeEnvironment {
+        mergeWith = [
+          lefthookEnvironment
+        ];
+        packages = with pkgs; [
+          gitMinimal
+        ];
+      };
 
-      languageDependencies = {
+      languageEnvironment = makeEnvironment {
         packages = with pkgs; [
           nix
           bashInteractive
@@ -166,21 +159,20 @@
         ];
       };
 
-      codeGenerationDependencies = mergeDependencies [
-        # Runs the generators
-        lefthookDependencies
+      codeGenerationEnvironment = makeEnvironment {
+        mergeWith = [
+          # Runs the generators
+          lefthookEnvironment
+        ];
+        # These get called in the lefthook config
+        packages = with pkgs; [
+          doctoc
+          ripgrep
+          coreutils
+        ];
+      };
 
-        {
-          # These gets called in the lefthook config
-          packages = with pkgs; [
-            doctoc
-            ripgrep
-            coreutils
-          ];
-        }
-      ];
-
-      scriptDependencies = {
+      scriptEnvironment = makeEnvironment {
         packages = [ pkgs.script-dependencies ];
       };
 
@@ -193,35 +185,35 @@
         legacyPackages.nixpkgs = pkgs;
 
         devShells = {
-          default = makeDevShell {
+          default = makeEnvironment {
             name = "local";
-            dependencies = mergeDependencies [
-              vsCodeDependencies
-              lintingDependencies
-              formattingDependencies
-              codeGenerationDependencies
-              taskRunnerDependencies
-              versionControlDependencies
-              languageDependencies
-              scriptDependencies
+            mergeWith = [
+              vsCodeEnvironment
+              lintingEnvironment
+              formattingEnvironment
+              codeGenerationEnvironment
+              taskRunnerEnvironment
+              versionControlEnvironment
+              languageEnvironment
+              scriptEnvironment
             ];
           };
 
-          ci = makeCiDevShell { name = "ci"; };
+          ci = makeCiEnvironment { name = "ci"; };
 
-          ciLint = makeCiDevShell {
+          ciLint = makeCiEnvironment {
             name = "ci-lint";
-            dependencies = lintingDependencies;
+            mergeWith = [ lintingEnvironment ];
           };
 
-          ciCheckStyle = makeCiDevShell {
+          ciCheckStyle = makeCiEnvironment {
             name = "ci-check-style";
-            dependencies = formattingDependencies;
+            mergeWith = [ formattingEnvironment ];
           };
 
-          ciCodegen = makeCiDevShell {
+          ciCodegen = makeCiEnvironment {
             name = "ci-codegen";
-            dependencies = codeGenerationDependencies;
+            mergeWith = [ codeGenerationEnvironment ];
           };
         };
       };
