@@ -131,7 +131,7 @@ sync:
 ''')]
 [group('Syncing')]
 force-sync TASKS='all':
-    [ "$1" = 'all' ] \
+    [[ "$1" = 'all' ]] \
       && LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force \
       || LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1"
 
@@ -156,6 +156,17 @@ check-links *FILES:
 [group('Debugging')]
 test:
     ./scripts/test.bash
+
+[doc('''
+    Run `nix build` in debug mode.
+
+    Arguments:
+        PACKAGE: The package to build.
+                 Example: just debug .#darwinConfigurations.bigmac.system
+''')]
+[group('Debugging')]
+debug PACKAGE:
+    nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$1"
 
 [private]
 direnv-reminder:

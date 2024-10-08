@@ -228,7 +228,7 @@ function file-widget --description 'Search files'
         # TODO: switch to kitty when wezterm gets support:
         # https://github.com/wez/wezterm/issues/986
         timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-    else if test -n "$VSCODE_INJECTION"
+    else if set --export --names | string match --quiet  --regex \'^VSCODE_.*\'
         # TODO: timg should use iterm2 image mode for vscode
         timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
     else

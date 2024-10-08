@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -762,7 +763,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	if err != nil {
 		return "", "", err
 	}
-	expectedExecutableChecksum := hash.Sum(nil)
+	expectedExecutableChecksum := []byte(hex.EncodeToString(hash.Sum(nil)))
 	archiveContentsPath := filepath.Join(executableCachePath, "archive-contents")
 
 	isNewExtraction := false

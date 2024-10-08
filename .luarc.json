@@ -5,7 +5,7 @@
   },
   "workspace": {
     "library": [
-      ".lua-ls-libraries",
+      ".lua-libraries",
       "/Users/biggs/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
     ],
     "checkThirdParty": "Disable"

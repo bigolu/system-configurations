@@ -14,7 +14,7 @@ function timg --wraps timg
         # TODO: switch to kitty when wezterm gets support:
         # https://github.com/wez/wezterm/issues/986
         set options -p iterm2
-    else if test -n "$VSCODE_INJECTION"
+    else if set --export --names | string match --quiet --regex '^VSCODE_.*'
         # TODO: timg should use iterm2 image mode for vscode
         set options -p iterm2
     end
@@ -53,7 +53,7 @@ end
 # https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference/302391#302391
 begin
     set --local editor
-    if set --query VSCODE_INJECTION
+    if set --export --names | string match --quiet --regex '^VSCODE_.*'
         set editor code --reuse-window --wait
     else
         set editor nvim
@@ -107,6 +107,11 @@ abbr --add --global -- - 'cd -'
 # add it myself using the same formatting as the rest of my prompt.
 set --global --export VIRTUAL_ENV_DISABLE_PROMPT 1
 function python --wraps python
+    if not type --no-functions --query python
+        echo (set_color red)'error'(set_color normal)': python was not found on the PATH' >&2
+        return 1
+    end
+
     # Check if python is being run interactively
     if test (count $argv) -eq 0
         or contains -- -i $argv

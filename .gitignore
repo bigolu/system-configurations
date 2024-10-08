@@ -3,5 +3,5 @@
 .mypy_cache/
 .DS_Store
 scripts/git-hooks/change-notifications/home-manager/notifications/**
-.lua-ls-libraries
+.lua-libraries
 envrc-secrets.bash

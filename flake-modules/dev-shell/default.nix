@@ -95,7 +95,7 @@
 
           luaLsEnvironment =
             let
-              libraryMetaPackage = pkgs.runCommand "lua-ls-libraries" { } ''
+              luaLibraries = pkgs.runCommand "lua-libraries" { } ''
                 mkdir "$out"
                 cd "$out"
                 ln -s ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} ./plugins
@@ -106,7 +106,7 @@
             makeEnvironment {
               shellHooks = [
                 ''
-                  symlink ${libraryMetaPackage} '.lua-ls-libraries'
+                  symlink ${luaLibraries} '.lua-libraries'
                 ''
               ];
             };
@@ -173,18 +173,7 @@
       };
 
       scriptsEnvironment = makeEnvironment {
-        packages = [ pkgs.script-dependencies ];
-      };
-
-      ciUtilitiesEnvironment = makeEnvironment {
-        name = "ci";
-        packages = with pkgs; [
-          nix
-          # Why we need bashInteractive and not just bash:
-          # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
-          bashInteractive
-          coreutils
-        ];
+        packages = with pkgs; [ script-dependencies ];
       };
 
       outputs = {
@@ -210,34 +199,32 @@
             ];
           };
 
+          # Have a general environment with common dependencies so I don't have
+          # to make an environment for every CI workflow.
           ci = makeEnvironment {
-            name = "ci";
-            mergeWith = [ ciUtilitiesEnvironment ];
+            packages = with pkgs; [
+              nix
+              # Why we need bashInteractive and not just bash:
+              # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
+              bashInteractive
+              coreutils
+            ];
           };
 
           ciLint = makeEnvironment {
-            name = "ci-lint";
             mergeWith = [
-              ciUtilitiesEnvironment
               lintingEnvironment
             ];
-          };
-
-          ciCheckStyle = makeEnvironment {
-            name = "ci-check-style";
-            mergeWith = [
-              ciUtilitiesEnvironment
-              formattingEnvironment
+            packages = with pkgs; [
+              # Why we need bashInteractive and not just bash:
+              # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
+              bashInteractive
             ];
           };
 
-          ciCodegen = makeEnvironment {
-            name = "ci-codegen";
-            mergeWith = [
-              ciUtilitiesEnvironment
-              codeGenerationEnvironment
-            ];
-          };
+          ciCheckStyle = formattingEnvironment;
+
+          ciCodegen = codeGenerationEnvironment;
         };
       };
 

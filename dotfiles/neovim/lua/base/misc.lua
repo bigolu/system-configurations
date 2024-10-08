@@ -226,6 +226,11 @@ vim.api.nvim_create_autocmd("User", {
         --   statement.
         -- j: Remove comment leader when joining lines
         vim.bo.formatoptions = "ro/j"
+
+        if vim.o.filetype == "gitcommit" then
+          vim.bo.formatoptions = vim.bo.formatoptions .. "t"
+          vim.bo.textwidth = 80
+        end
       end,
       group = vim_default_overrides_group_id,
     })

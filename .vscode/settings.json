@@ -39,6 +39,7 @@
     },
   },
 
+  // I prefer Jedi since it's FOSS
   "python.languageServer": "Jedi",
 
   // It's faster

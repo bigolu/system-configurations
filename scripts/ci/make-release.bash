@@ -21,7 +21,7 @@ function make_new_release {
   gh release create "$1" \
     --latest \
     --notes-file "$(make_release_notes)" \
-    --title "$1" \
+    --title "$(date +'%Y.%m.%d')" \
     artifacts/assets/*
 }
 
