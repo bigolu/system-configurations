@@ -24,16 +24,16 @@
       // https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
       "options": {
         "bigmac": {
-          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").darwinConfigurations.bigmac.options",
+          "expr": "(builtins.getFlake (toString ./.)).darwinConfigurations.bigmac.options",
         },
         "desktop": {
-          "expr": "(builtins.getFlake \"/home/biggs/code/system-configurations\").homeConfigurations.desktop.options",
+          "expr": "(builtins.getFlake (toString ./.)).homeConfigurations.desktop.options",
         },
         "flake-parts": {
-          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").debug.options",
+          "expr": "(builtins.getFlake (toString ./.)).debug.options",
         },
         "flake-parts-per-system": {
-          "expr": "(builtins.getFlake \"/Users/biggs/code/system-configurations\").currentSystem.options",
+          "expr": "(builtins.getFlake (toString ./.)).currentSystem.options",
         },
       },
     },
