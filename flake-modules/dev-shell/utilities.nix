@@ -36,13 +36,7 @@ let
         }
 
         function symlink {
-          source="$1"
-          destination="$2"
-
-          if [ -L "$destination" ]; then
-            ${pkgs.coreutils}/bin/rm "$destination"
-          fi
-          ${pkgs.coreutils}/bin/ln --symbolic "$source" "$destination"
+          ${pkgs.coreutils}/bin/ln --symbolic --force --no-dereference "$1" "$2"
         }
       '';
 
