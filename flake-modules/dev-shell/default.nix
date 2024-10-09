@@ -20,9 +20,9 @@
       inherit (lib.attrsets) optionalAttrs;
       inherit (import ./utilities.nix { inherit pkgs self; }) makeEnvironment;
 
-      lefthookEnvironment = makeEnvironment {
+      lefthook = makeEnvironment {
         packages = with pkgs; [
-          lefthook
+          pkgs.lefthook
           # These are called in the lefthook configuration file, but aren't
           # specific to a task group e.g. format or check-lint
           gitMinimal
@@ -30,10 +30,10 @@
         ];
       };
 
-      lintingEnvironment = makeEnvironment {
+      linting = makeEnvironment {
         mergeWith = [
           # Runs the linters
-          lefthookEnvironment
+          lefthook
         ];
 
         packages = with pkgs; [
@@ -67,10 +67,10 @@
         ];
       };
 
-      formattingEnvironment = makeEnvironment {
+      formatting = makeEnvironment {
         mergeWith = [
           # Runs the formatters
-          lefthookEnvironment
+          lefthook
         ];
 
         packages = with pkgs; [
@@ -86,14 +86,14 @@
         ];
       };
 
-      vsCodeEnvironment =
+      vsCode =
         let
-          efmLsEnvironment = makeEnvironment {
-            mergeWith = [ lintingEnvironment ];
+          efmLs = makeEnvironment {
+            mergeWith = [ linting ];
             packages = [ pkgs.efm-langserver ];
           };
 
-          luaLsEnvironment =
+          luaLs =
             let
               luaLibraries = pkgs.runCommand "lua-libraries" { } ''
                 mkdir "$out"
@@ -111,7 +111,7 @@
               ];
             };
 
-          nixdEnvironment = makeEnvironment {
+          nixd = makeEnvironment {
             packages = [ pkgs.nixd ];
             # Why I need this:
             # https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#default-configuration--who-needs-configuration
@@ -124,9 +124,9 @@
         in
         makeEnvironment {
           mergeWith = [
-            luaLsEnvironment
-            efmLsEnvironment
-            nixdEnvironment
+            luaLs
+            efmLs
+            nixd
           ];
           packages = with pkgs; [
             go
@@ -134,7 +134,7 @@
           ];
         };
 
-      taskRunnerEnvironment = makeEnvironment {
+      taskRunner = makeEnvironment {
         packages = with pkgs; [
           just
           # For paging the output of `just list`
@@ -142,16 +142,16 @@
         ];
       };
 
-      versionControlEnvironment = makeEnvironment {
+      versionControl = makeEnvironment {
         mergeWith = [
-          lefthookEnvironment
+          lefthook
         ];
         packages = with pkgs; [
           gitMinimal
         ];
       };
 
-      languagesEnvironment = makeEnvironment {
+      languages = makeEnvironment {
         packages = with pkgs; [
           nix
           bashInteractive
@@ -159,10 +159,10 @@
         ];
       };
 
-      codeGenerationEnvironment = makeEnvironment {
+      codeGeneration = makeEnvironment {
         mergeWith = [
           # Runs the generators
-          lefthookEnvironment
+          lefthook
         ];
         # These get called in the lefthook config
         packages = with pkgs; [
@@ -172,7 +172,7 @@
         ];
       };
 
-      scriptsEnvironment = makeEnvironment {
+      scriptDependencies = makeEnvironment {
         packages = with pkgs; [ script-dependencies ];
       };
 
@@ -188,14 +188,14 @@
           default = makeEnvironment {
             name = "local";
             mergeWith = [
-              vsCodeEnvironment
-              lintingEnvironment
-              formattingEnvironment
-              codeGenerationEnvironment
-              taskRunnerEnvironment
-              versionControlEnvironment
-              languagesEnvironment
-              scriptsEnvironment
+              vsCode
+              linting
+              formatting
+              codeGeneration
+              taskRunner
+              versionControl
+              languages
+              scriptDependencies
             ];
           };
 
@@ -213,7 +213,7 @@
 
           ciLint = makeEnvironment {
             mergeWith = [
-              lintingEnvironment
+              linting
             ];
             packages = with pkgs; [
               # Why we need bashInteractive and not just bash:
@@ -222,9 +222,9 @@
             ];
           };
 
-          ciCheckStyle = formattingEnvironment;
+          ciCheckStyle = formatting;
 
-          ciCodegen = codeGenerationEnvironment;
+          ciCodegen = codeGeneration;
         };
       };
 
