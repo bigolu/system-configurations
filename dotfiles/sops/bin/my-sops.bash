@@ -11,4 +11,4 @@ else
   clipboard_tool='pbpaste'
 fi
 
-SOPS_AGE_KEY="$("$clipboard_tool")" sops "$@"
+"$clipboard_tool" | SOPS_AGE_KEY_FILE=/dev/stdin sops "$@"
