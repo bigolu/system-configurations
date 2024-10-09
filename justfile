@@ -131,9 +131,15 @@ sync:
 ''')]
 [group('Syncing')]
 force-sync TASKS='all':
-    [[ "$1" = 'all' ]] \
-      && LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force \
-      || LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1"
+    #!/usr/bin/env bash
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    if [[ "$1" = 'all' ]]; then
+      LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force
+    else
+      LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1"
+    fi
 
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
