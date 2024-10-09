@@ -4,11 +4,23 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-clipboard_tool=
-if uname | grep -q Linux; then
-  clipboard_tool='wl-paste'
-else
-  clipboard_tool='pbpaste'
-fi
+function main {
+  key="$(paste)"
+  clear_clipboard
 
-"$clipboard_tool" | SOPS_AGE_KEY_FILE=/dev/stdin sops "$@"
+  SOPS_AGE_KEY_FILE=/dev/stdin sops "$@" <<<"$key"
+}
+
+function clear_clipboard {
+  : | pbcopy
+}
+
+function paste {
+  if uname | grep -q Linux; then
+    wl-paste
+  else
+    pbpaste
+  fi
+}
+
+main "$@"
