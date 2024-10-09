@@ -10,8 +10,10 @@ fi
 
 wezterm cli zoom-pane --zoom
 
+set +o errexit
 fzf "$@"
 fzf_exit_code=$?
+set -o errexit
 
 wezterm cli zoom-pane --unzoom
 
