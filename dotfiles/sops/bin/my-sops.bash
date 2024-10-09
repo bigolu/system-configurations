@@ -57,7 +57,8 @@ function is_valid {
 }
 
 function add_key_to_keychain {
-  echo "$1" | envchain --set --require-passphrase "$namespace" "$variable"
+  # Suppressing stdout to hide envchain's prompt
+  echo "$1" | envchain --set --require-passphrase "$namespace" "$variable" 1>/dev/null
 }
 
 function get_key_from_keychain {
