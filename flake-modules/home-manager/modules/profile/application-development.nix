@@ -10,6 +10,7 @@
   home.packages = with pkgs; [
     cloudflared
     sops
+    envchain
   ];
 
   repository.symlink = {
