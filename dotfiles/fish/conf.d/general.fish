@@ -197,7 +197,8 @@ function tunnel --description 'Connect my cloudflare tunnel to the specified por
             "ERROR: You need to specify a port, e.g. '$function_name 8000'" >/dev/stderr
         return 1
     end
-    cloudflared tunnel run --url "http://localhost:$port"
+    my-sops exec-file ~/code/secrets/src/system-configurations/cloudflared/a52a24f6-92ee-4dc5-b537-24bad84b7b1f.enc.json \
+        "TUNNEL_CRED_FILE={} cloudflared tunnel run --url \"http://localhost:$port\""
 end
 
 function rust --description 'run the given rust source file' --wraps rustc

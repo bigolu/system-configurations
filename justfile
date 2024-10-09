@@ -7,7 +7,7 @@ set positional-arguments := true
 [doc('''List all tasks. You can run this whenever you forget something.''')]
 list:
     @just --list --justfile {{ module_file() }} --unsorted --color always \
-        | less -R '-PsPress q to quit, scroll up/down with the mouse or k/j'
+        | "${PAGER:-less}"
 
 [doc('''
     Upgrade the version of nix used by the system. This should be run every once

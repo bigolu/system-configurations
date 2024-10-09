@@ -2,6 +2,4 @@
 .direnv/
 .mypy_cache/
 .DS_Store
-scripts/git-hooks/change-notifications/home-manager/notifications/**
 .lua-libraries
-envrc-secrets.bash

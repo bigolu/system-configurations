@@ -72,15 +72,6 @@ sync:
       priority: 1
       glob: ".envrc"
       run: just reload
-    # Get all secrets from BitWarden Secrets Manager. You'll be prompted for
-    # a service token. You should run this whenever there are new secrets to
-    # fetch. This task will also reload the terminal's direnv environment.
-    secrets:
-      priority: 1
-      glob: "envrc-secrets-example.bash"
-      run: >
-        ./scripts/get-secrets.bash
-        && just reload
     # Synchronize nix-direnv with the Nix devShell and reload the direnv
     # environment. nix-direnv is a direnv library that builds our Nix devShell and
     # makes all the packages within it available on the $PATH. Since building the
@@ -178,10 +169,12 @@ generate:
     script-dependencies:
       glob: "scripts/**"
       run: >
-        rg --glob '*.bash' '^#!' scripts
-        | rg --only-matching --replace '$1' 'local#nixpkgs\.([^ ]*)'
+        ./scripts/fail-if-files-change.bash bash -o pipefail -euc '
+        rg --glob "*.bash" "^#!" scripts
+        | rg --only-matching --replace '\''$1'\'' "local#nixpkgs\.([^ ]*)"
         | sort --unique
         > scripts/dependencies.txt
+        '
 
 format:
   files: |
