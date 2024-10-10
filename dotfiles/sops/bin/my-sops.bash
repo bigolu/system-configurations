@@ -46,9 +46,9 @@ function is_valid {
   exit_code=$?
   set -o errexit
 
-  if (( exit_code == 0 )); then
+  if ((exit_code == 0)); then
     return 0
-  elif (( exit_code == invalid_key_exit_code )); then
+  elif ((exit_code == invalid_key_exit_code)); then
     return 1
   else
     echo 'error: Unexpected exit code from sops, exiting.' >&2
@@ -64,7 +64,7 @@ function add_key_to_keychain {
 function get_key_from_keychain {
   # If the namespace doesn't exist, printenv will fail, but I'm going to
   # suppress that failure and just return an empty string.
-  # 
+  #
   # I suppress stderr since envchain will print a warning message if the namespace does
   # not exist.
   envchain "$namespace" printenv "$variable" 2>/dev/null || true
