@@ -16,7 +16,7 @@ jobs:
     if: ${{ ! startsWith(github.head_ref, 'renovate/')  }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           dev-shell: ciLint
@@ -53,7 +53,7 @@ jobs:
         # that they still on run intel macs
         os: [ubuntu-latest, macos-13]
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       # We can't use 'paths:' filters because this a required check so it
       # has to run for a pull request to be merged. Instead, we skip using a
       # conditional, this way it still counts as a run.
@@ -81,7 +81,7 @@ jobs:
     if: ${{ ! startsWith(github.head_ref, 'renovate/')  }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           dev-shell: ciCheckStyle
@@ -98,7 +98,7 @@ jobs:
   ensure-generated-code-is-up-to-date:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       # We can't use 'paths:' filters because this a required check so it
       # has to run for a pull request to be merged. Instead, we skip using a
       # conditional, this way it still counts as a run.
