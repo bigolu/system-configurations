@@ -48,7 +48,7 @@
               fileset = specialArgs.root + "/dotfiles/flatpak/overrides";
             }
           )
-        }* "$target"
+        }/* "$target"
       ''
     else
       ""
