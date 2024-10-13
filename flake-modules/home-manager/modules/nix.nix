@@ -61,10 +61,13 @@ in
   };
 
   nix = {
-    # Use the nixpkgs in this flake in the system flake registry. By default, it
-    # pulls the latest version of nixpkgs-unstable.
     registry = {
+      # Use the nixpkgs in this flake in the system flake registry. By default, it
+      # pulls the latest version of nixpkgs-unstable.
       nixpkgs.flake = flakeInputs.nixpkgs;
+
+      # In case something is broken on unstable
+      nixpkgs-stable.flake = flakeInputs.nixpkgs-stable;
     };
 
     settings = {

@@ -492,6 +492,20 @@
         "url": "https://github.com/NixOS/nixpkgs/archive/356624c12086a18f2ea2825fed34523d60ccc4e3.tar.gz"
       }
     },
+    "nixpkgs-stable": {
+      "locked": {
+        "lastModified": 1728500571,
+        "narHash": "sha256-dOymOQ3AfNI4Z337yEwHGohrVQb4yPODCW9MDUyAc4w=",
+        "rev": "d51c28603def282a24fa034bcb007e2bcb5b5dd0",
+        "revCount": 635766,
+        "type": "tarball",
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2405.635766%2Brev-d51c28603def282a24fa034bcb007e2bcb5b5dd0/019275ca-f862-7c32-ba40-e24d02152b27/source.tar.gz"
+      },
+      "original": {
+        "type": "tarball",
+        "url": "https://flakehub.com/f/NixOS/nixpkgs/%2A.tar.gz"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1727716680,
@@ -527,6 +541,7 @@
         "nix-index-database": "nix-index-database",
         "nix-xdg": "nix-xdg",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-stable": "nixpkgs-stable",
         "spoons": "spoons",
         "stackline": "stackline",
         "vim-plugin-CamelCaseMotion": "vim-plugin-CamelCaseMotion",
