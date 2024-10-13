@@ -337,6 +337,8 @@ function _make_hyperlink_to_git_branch --argument-names branch_name
     end
 end
 function _git_status
+    # Since this will be executed in a separate process, I have to set all these
+    # global variables here.
     set --global __fish_git_prompt_showupstream informative
     set --global __fish_git_prompt_showdirtystate 1
     set --global __fish_git_prompt_showuntrackedfiles 1

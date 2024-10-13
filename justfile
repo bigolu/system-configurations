@@ -65,7 +65,7 @@ init-home-manager HOST_NAME: && (force-sync "lefthook,secrets")
 [group('Host Management')]
 init-nix-darwin HOST_NAME: && (force-sync "lefthook,secrets")
     ./scripts/init-nix-darwin.bash "$@"
- 
+
 [doc('''
     Create a bundle for the specified package (e.g. .#shellMinimal) using the
     bundler included in this repository. This runs periodically in CI when
