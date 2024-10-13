@@ -9,9 +9,17 @@ let
   inherit (lib.attrsets) optionalAttrs;
 in
 optionalAttrs isGui {
-  home.packages = with pkgs; [
-    ncurses
-  ];
+  home.packages =
+    with pkgs;
+    [
+      ncurses
+    ]
+    ++ lib.lists.optionals (pkgs.stdenv.isLinux && specialArgs.isGui) [
+      (writeShellApplication {
+        name = "wezterm";
+        text = ''flatpak run org.wezfurlong.wezterm "$@"'';
+      })
+    ];
 
   services.flatpak = lib.attrsets.optionalAttrs (pkgs.stdenv.isLinux && specialArgs.isGui) {
     packages = [

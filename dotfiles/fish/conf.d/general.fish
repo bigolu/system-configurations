@@ -28,10 +28,6 @@ if test (uname) = Linux
     abbr --add --global desktop-entry-reload 'sudo update-desktop-database; update-desktop-database ~/.local/share/applications'
     abbr --add --global ruhroh 'sudo truncate -s 0 /var/log/syslog'
     abbr --add --global font-reload 'fc-cache -vr'
-    if type --query flatpak
-        and flatpak list --app | string match --quiet --regex 'org\.wezfurlong\.wezterm'
-        alias wezterm 'flatpak run org.wezfurlong.wezterm'
-    end
     abbr --add --global open xdg-open
     abbr --add --position anywhere --global pbpaste fish_clipboard_paste
     # autocomplete doesn't work unless "put" is used, even though just 'trash'
