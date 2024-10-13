@@ -139,9 +139,6 @@ end
 set --global --export DIRENV_LOG_FORMAT \n(set_color brblack)'┃ direnv: %s'(set_color normal)
 set -g direnv_fish_mode disable_arrow # trigger direnv at prompt only
 
-# watch
-abbr --add --global watch 'watch --no-title --differences --interval 0.5'
-
 # vscode
 # Clearing SHELL because my config for the OS default shell only launches fish
 # if the current shell isn't fish.
@@ -218,10 +215,16 @@ function ls --wraps lsd
     lsd $argv
 end
 
-# Wrapping watch since viddy doesn't have autocomplete
+# Wrapping watch since viddy doesn't have autocomplete:
+# https://github.com/sachaos/viddy/issues/73
+#
+# The function has options I always want enabled, the abbreviation has options I
+# may want to tweak interactively.
 function watch --wraps watch
-    viddy --pty $argv
+    viddy --disable_auto_save $argv
 end
+# watch
+abbr --add --global watch 'watch --no-title --differences --interval 1s'
 
 function sh --wraps yash
     if type --query yash
