@@ -18,7 +18,7 @@
     }:
     let
       inherit (lib.attrsets) optionalAttrs;
-      inherit (import ./utilities.nix { inherit pkgs self; }) makeEnvironment;
+      makeEnvironment = import ./make-environment { inherit pkgs self; };
 
       pythonWithPackages = pkgs.python3.withPackages (
         ps: with ps; [
@@ -43,7 +43,7 @@
       };
 
       linting = makeEnvironment {
-        mergeWith = [
+        environments = [
           # Runs the linters
           lefthook
         ];
@@ -80,7 +80,7 @@
       };
 
       formatting = makeEnvironment {
-        mergeWith = [
+        environments = [
           # Runs the formatters
           lefthook
         ];
@@ -101,7 +101,7 @@
       vsCode =
         let
           efmLs = makeEnvironment {
-            mergeWith = [ linting ];
+            environments = [ linting ];
             packages = [ pkgs.efm-langserver ];
           };
 
@@ -135,7 +135,7 @@
           };
         in
         makeEnvironment {
-          mergeWith = [
+          environments = [
             luaLs
             efmLs
             nixd
@@ -155,7 +155,7 @@
       };
 
       versionControl = makeEnvironment {
-        mergeWith = [
+        environments = [
           lefthook
         ];
         packages = with pkgs; [
@@ -172,7 +172,7 @@
       };
 
       codeGeneration = makeEnvironment {
-        mergeWith = [
+        environments = [
           # Runs the generators
           lefthook
         ];
@@ -212,8 +212,7 @@
 
         devShells = {
           default = makeEnvironment {
-            name = "local";
-            mergeWith = [
+            environments = [
               vsCode
               linting
               formatting
@@ -239,7 +238,7 @@
           };
 
           ciLint = makeEnvironment {
-            mergeWith = [
+            environments = [
               linting
             ];
             packages = with pkgs; [
