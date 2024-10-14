@@ -2,23 +2,6 @@
 let
   inherit (pkgs) lib;
 
-  makeMetaPackage =
-    { name, packages }:
-    pkgs.symlinkJoin {
-      inherit name;
-      paths = packages;
-      # TODO: symlinkJoin doesn't work if the file to link is a symlink itself.
-      # More info: https://ertt.ca/blog/2022/01-12-nix-symlinkJoin-nodePackages/
-      postBuild = ''
-        shopt -s nullglob
-        for file in $out/lib/node_modules/.bin/*; do
-          ln --symbolic \
-            "$(readlink --canonicalize-missing "$file")" \
-            "$out/bin/$(basename $file)"
-        done
-      '';
-    };
-
   makeEnvironment =
     {
       name ? "tools",
@@ -105,12 +88,7 @@ let
       ];
       shell = pkgs.mkShellNoCC {
         inherit name;
-        packages = [
-          (makeMetaPackage {
-            inherit name;
-            packages = mergedPackages;
-          })
-        ];
+        packages = mergedPackages;
         shellHook = lib.strings.concatStringsSep "\n" mergedShellHooks;
       };
       modifiedShell = shell // {
