@@ -42,11 +42,11 @@
   // I prefer Jedi since it's FOSS
   "python.languageServer": "Jedi",
 
-  // It's faster
+  // It's faster. The readme says it defaults to true, but it doesn't seem to.
   "mypy-type-checker.preferDaemon": true,
 
   // To be consistent with the version of mypy we use locally and in CI
-  "mypy-type-checker.importStrategy": "fromEnvironment",
+  "mypy-type-checker.path": ["mypy"],
 
   "mypy-type-checker.reportingScope": "workspace",
 

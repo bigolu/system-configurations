@@ -20,6 +20,18 @@
       inherit (lib.attrsets) optionalAttrs;
       inherit (import ./utilities.nix { inherit pkgs self; }) makeEnvironment;
 
+      pythonWithPackages = pkgs.python3.withPackages (
+        ps: with ps; [
+          pip
+          python-kasa
+          diskcache
+          ipython
+          platformdirs
+          psutil
+          mypy
+        ]
+      );
+
       lefthook = makeEnvironment {
         packages = with pkgs; [
           pkgs.lefthook
@@ -176,6 +188,12 @@
         packages = with pkgs; [ script-dependencies ];
       };
 
+      smartPlug = makeEnvironment {
+        packages = [
+          pythonWithPackages
+        ];
+      };
+
       outputs = {
         # So we can cache them and pin a version.
         packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
@@ -183,6 +201,14 @@
 
         # So I can reference nixpkgs, with my overlays applied, from my scripts.
         legacyPackages.nixpkgs = pkgs;
+
+        packages.smartPlug = pkgs.writeShellApplication {
+          name = "speakerctl";
+          runtimeInputs = [ pythonWithPackages ];
+          text = ''
+            python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
+          '';
+        };
 
         devShells = {
           default = makeEnvironment {
@@ -196,6 +222,7 @@
               versionControl
               languages
               scriptDependencies
+              smartPlug
             ];
           };
 
