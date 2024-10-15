@@ -1,13 +1,13 @@
 { pkgs, self }:
 {
   packages ? [ ],
-  shellHooks ? [ ],
+  shellHook ? null,
   environments ? [ ],
 }:
 let
   inherit (pkgs) lib;
   inherit (lib.trivial) pipe;
-  inherit (lib.lists) unique concatLists;
+  inherit (lib.lists) unique concatLists optionals;
   inherit (lib.strings) concatStringsSep;
 
   concatListsAndDeduplicate =
@@ -41,8 +41,8 @@ let
     concatListsAndDeduplicate [
       baseShellHooks
       shellHooksFromEnvironments
-      shellHooks
-    ];
+    ]
+    ++ optionals (shellHook != null) [ shellHook ];
 
   shell = pkgs.mkShellNoCC {
     packages = mergedPackages;

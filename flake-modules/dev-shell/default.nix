@@ -116,22 +116,18 @@
               '';
             in
             makeEnvironment {
-              shellHooks = [
-                ''
-                  symlink ${luaLibraries} '.lua-libraries'
-                ''
-              ];
+              shellHook = ''
+                symlink ${luaLibraries} '.lua-libraries'
+              '';
             };
 
           nixd = makeEnvironment {
             packages = [ pkgs.nixd ];
             # Why I need this:
             # https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#default-configuration--who-needs-configuration
-            shellHooks = [
-              ''
-                export NIX_PATH='nixpkgs='${lib.escapeShellArg inputs.nixpkgs}
-              ''
-            ];
+            shellHook = ''
+              export NIX_PATH='nixpkgs='${lib.escapeShellArg inputs.nixpkgs}
+            '';
           };
         in
         makeEnvironment {
