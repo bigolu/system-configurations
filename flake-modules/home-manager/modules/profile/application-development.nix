@@ -9,8 +9,7 @@
 
   home.packages = with pkgs; [
     cloudflared
-    sops
-    envchain
+    doppler
   ];
 
   repository.symlink = {
@@ -27,11 +26,6 @@
           # I'm linking recursively because ipython makes files in this directory
           recursive = true;
         };
-      };
-
-      executable."sops" = {
-        source = "sops/bin";
-        recursive = true;
       };
     };
   };

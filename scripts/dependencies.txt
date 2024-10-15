@@ -3,7 +3,7 @@ bash
 coreutils
 curl
 direnv
-dotenv-cli
+doppler
 findutils
 gh
 gitMinimal
