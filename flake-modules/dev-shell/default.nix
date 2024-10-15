@@ -18,7 +18,7 @@
     }:
     let
       inherit (lib.attrsets) optionalAttrs;
-      makeEnvironment = import ./make-environment { inherit pkgs self; };
+      makeShell = import ./make-shell { inherit pkgs self; };
 
       pythonWithPackages = pkgs.python3.withPackages (
         ps: with ps; [
@@ -32,7 +32,7 @@
         ]
       );
 
-      lefthook = makeEnvironment {
+      lefthook = makeShell {
         packages = with pkgs; [
           pkgs.lefthook
           # These are called in the lefthook configuration file, but aren't
@@ -42,8 +42,8 @@
         ];
       };
 
-      linting = makeEnvironment {
-        environments = [
+      linting = makeShell {
+        mergeWith = [
           # Runs the linters
           lefthook
         ];
@@ -79,8 +79,8 @@
         ];
       };
 
-      formatting = makeEnvironment {
-        environments = [
+      formatting = makeShell {
+        mergeWith = [
           # Runs the formatters
           lefthook
         ];
@@ -100,8 +100,8 @@
 
       vsCode =
         let
-          efmLs = makeEnvironment {
-            environments = [ linting ];
+          efmLs = makeShell {
+            mergeWith = [ linting ];
             packages = [ pkgs.efm-langserver ];
           };
 
@@ -115,13 +115,13 @@
                 ln -s ${pkgs.neovim}/share/nvim/runtime ./nvim-runtime
               '';
             in
-            makeEnvironment {
+            makeShell {
               shellHook = ''
                 symlink ${luaLibraries} '.lua-libraries'
               '';
             };
 
-          nixd = makeEnvironment {
+          nixd = makeShell {
             packages = [ pkgs.nixd ];
             # Why I need this:
             # https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#default-configuration--who-needs-configuration
@@ -130,8 +130,8 @@
             '';
           };
         in
-        makeEnvironment {
-          environments = [
+        makeShell {
+          mergeWith = [
             luaLs
             efmLs
             nixd
@@ -142,7 +142,7 @@
           ];
         };
 
-      taskRunner = makeEnvironment {
+      taskRunner = makeShell {
         packages = with pkgs; [
           just
           # For paging the output of `just list`
@@ -150,8 +150,8 @@
         ];
       };
 
-      versionControl = makeEnvironment {
-        environments = [
+      versionControl = makeShell {
+        mergeWith = [
           lefthook
         ];
         packages = with pkgs; [
@@ -159,7 +159,7 @@
         ];
       };
 
-      languages = makeEnvironment {
+      languages = makeShell {
         packages = with pkgs; [
           nix
           bashInteractive
@@ -167,8 +167,8 @@
         ];
       };
 
-      codeGeneration = makeEnvironment {
-        environments = [
+      codeGeneration = makeShell {
+        mergeWith = [
           # Runs the generators
           lefthook
         ];
@@ -180,11 +180,11 @@
         ];
       };
 
-      scriptDependencies = makeEnvironment {
+      scriptDependencies = makeShell {
         packages = with pkgs; [ script-dependencies ];
       };
 
-      smartPlug = makeEnvironment {
+      smartPlug = makeShell {
         packages = [
           pythonWithPackages
         ];
@@ -207,8 +207,8 @@
         };
 
         devShells = {
-          default = makeEnvironment {
-            environments = [
+          default = makeShell {
+            mergeWith = [
               vsCode
               linting
               formatting
@@ -221,9 +221,9 @@
             ];
           };
 
-          # Have a general environment with common dependencies so I don't have
-          # to make an environment for every CI workflow.
-          ci = makeEnvironment {
+          # Have a general shell with common dependencies so I don't have
+          # to make a shell for every CI workflow.
+          ci = makeShell {
             packages = with pkgs; [
               nix
               # Why we need bashInteractive and not just bash:
@@ -233,8 +233,8 @@
             ];
           };
 
-          ciLint = makeEnvironment {
-            environments = [
+          ciLint = makeShell {
+            mergeWith = [
               linting
             ];
             packages = with pkgs; [

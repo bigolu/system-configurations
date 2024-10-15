@@ -2,7 +2,7 @@
 {
   packages ? [ ],
   shellHook ? null,
-  environments ? [ ],
+  mergeWith ? [ ],
 }:
 let
   inherit (pkgs) lib;
@@ -19,13 +19,13 @@ let
 
   mergedPackages =
     let
-      packagesFromEnvironments = pipe environments [
-        (map (env: env._packages))
+      packagesFromShellsToMergeWith = pipe mergeWith [
+        (map (shell: shell._packages))
         concatLists
       ];
     in
     concatListsAndDeduplicate [
-      packagesFromEnvironments
+      packagesFromShellsToMergeWith
       packages
     ];
 
@@ -33,14 +33,14 @@ let
     let
       baseShellHooks = import ./base-shell-hooks.nix { inherit pkgs self; };
 
-      shellHooksFromEnvironments = pipe environments [
-        (map (env: env._shellHooks))
+      shellHooksFromShellsToMergeWith = pipe mergeWith [
+        (map (shell: shell._shellHooks))
         concatLists
       ];
     in
     concatListsAndDeduplicate [
       baseShellHooks
-      shellHooksFromEnvironments
+      shellHooksFromShellsToMergeWith
     ]
     ++ optionals (shellHook != null) [ shellHook ];
 
