@@ -61,10 +61,6 @@ in
 
   xdg = {
     configFile = {
-      "fish/conf.d/zoxide.fish".source = ''${pkgs.runCommand "zoxide-config.fish" { }
-        "${pkgs.zoxide}/bin/zoxide init --no-cmd fish > $out"
-      }'';
-
       # Taken from home-manager [1]. I'm doing this because home-manager was
       # bringing in the broot source code as a dependency. Dummy file to prevent
       # broot from trying to reinstall itself
@@ -73,10 +69,6 @@ in
         source = pkgs.writeTextDir "launcher/installed-v1" "";
         recursive = true;
       };
-
-      "fish/conf.d/broot.fish".source = ''${pkgs.runCommand "broot.fish" {
-        nativeBuildInputs = [ pkgs.broot ];
-      } "broot --print-shell-function fish > $out"}'';
     };
   };
 
