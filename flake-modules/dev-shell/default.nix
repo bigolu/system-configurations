@@ -32,22 +32,7 @@
         ]
       );
 
-      lefthook = makeShell {
-        packages = with pkgs; [
-          pkgs.lefthook
-
-          # These are called in the lefthook configuration file, but aren't
-          # specific to a task group e.g. format or check-lint
-          gitMinimal
-        ];
-      };
-
       linting = makeShell {
-        mergeWith = [
-          # Runs the linters
-          lefthook
-        ];
-
         packages = with pkgs; [
           actionlint
           deadnix
@@ -78,15 +63,13 @@
 
           # This reports the errors
           reviewdog
+
+          # Runs the linters
+          lefthook
         ];
       };
 
       formatting = makeShell {
-        mergeWith = [
-          # Runs the formatters
-          lefthook
-        ];
-
         packages = with pkgs; [
           nixfmt-rfc-style
           nodePackages.prettier
@@ -97,6 +80,9 @@
           ruff
           go # for gofmt
           fish # for fish_indent
+
+          # Runs the formatters
+          lefthook
         ];
       };
 
@@ -147,38 +133,35 @@
       taskRunner = makeShell {
         packages = with pkgs; [
           just
+
           # For paging the output of `just list`
           less
         ];
       };
 
       versionControl = makeShell {
-        mergeWith = [
-          lefthook
-        ];
         packages = with pkgs; [
           gitMinimal
+          lefthook
         ];
       };
 
       languages = makeShell {
         packages = with pkgs; [
-          nix
           bashInteractive
           go
         ];
       };
 
       codeGeneration = makeShell {
-        mergeWith = [
-          # Runs the generators
-          lefthook
-        ];
-        # These get called in the lefthook config
         packages = with pkgs; [
+          # These get called in the lefthook config
           doctoc
           ripgrep
           coreutils
+
+          # Runs the generators
+          lefthook
         ];
       };
 
@@ -227,7 +210,6 @@
           # to make a shell for every CI workflow.
           ci = makeShell {
             packages = with pkgs; [
-              nix
               # Why we need bashInteractive and not just bash:
               # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
               bashInteractive
