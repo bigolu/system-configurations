@@ -35,10 +35,10 @@
       lefthook = makeShell {
         packages = with pkgs; [
           pkgs.lefthook
+
           # These are called in the lefthook configuration file, but aren't
           # specific to a task group e.g. format or check-lint
           gitMinimal
-          parallel
         ];
       };
 
@@ -67,8 +67,10 @@
           typos
           dos2unix
 
-          # These aren't linters, but they get called as part of a linting command
+          # These aren't linters, but they get called as part of certain linting
+          # commands.
           gitMinimal
+          parallel
 
           # TODO: If the YAML language server gets a CLI I should use that instead:
           # https://github.com/redhat-developer/yaml-language-server/issues/535
