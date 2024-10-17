@@ -2,7 +2,8 @@
 require("hs.ipc")
 hs.ipc.cliInstall()
 
--- Create annotations that lua language servers can use to provide documentation, autocomplete, etc.
+-- Create annotations that a language server could use to provide documentation,
+-- autocomplete, etc.
 hs.loadSpoon("EmmyLua", false)
 
 hs.loadSpoon("Speakers")
