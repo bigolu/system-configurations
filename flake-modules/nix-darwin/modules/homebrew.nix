@@ -31,11 +31,10 @@
   # TODO:
   # https://github.com/LnL7/nix-darwin/issues/663
   system.activationScripts.postActivation.text = ''
-    # Homebrew services won't have any of my nix profile /bin directories on
-    # their path so below I'm copying the programs they need into a directory
-    # that is on their $PATH.
+    # Hammerspoon won't have any of my nix profile /bin directories on its path so
+    # below I'm copying the programs it needs into a directory that is on its $PATH.
     #
-    # One of hammerspoon's plugins, stackline, needs yabai.
+    # The stackline plugin needs yabai.
     test -e /usr/local/bin/yabai && rm /usr/local/bin/yabai
     cp ${config.services.yabai.package}/bin/yabai /usr/local/bin/
 
