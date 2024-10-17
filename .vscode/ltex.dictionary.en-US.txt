@@ -73,3 +73,7 @@ $PATH-like
 nixGL
 readme
 systemd
+dbus-python
+Kasa
+mainloop
+Direnv
