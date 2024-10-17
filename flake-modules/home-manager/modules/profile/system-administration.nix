@@ -69,6 +69,16 @@ in
         source = pkgs.writeTextDir "launcher/installed-v1" "";
         recursive = true;
       };
+
+      # TODO: I shouldn't have to do this. The programs should generate the files as
+      # part of their build so they can be put in vendor_conf.d. See the direnv
+      # package for an example of how this is done.
+      "fish/conf.d/zoxide.fish".source =
+        pkgs.runCommand "zoxide-config.fish" { }
+          "${pkgs.zoxide}/bin/zoxide init --no-cmd fish > $out";
+      "fish/conf.d/broot.fish".source =
+        pkgs.runCommand "broot.fish" { }
+          "${pkgs.broot}/bin/broot --print-shell-function fish > $out";
     };
   };
 
