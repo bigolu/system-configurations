@@ -11,14 +11,20 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # TODO: Renovate won't manage this action's version until the following is
+    # resolved:
+    # https://github.com/renovatebot/renovate/issues/28016
     - uses: DeterminateSystems/nix-installer-action@main
     # TODO: This cache shouldn't be enabled for packages that only get used in CI,
-    # but since I hit the rate-limit a lot for magic-nix-cache, I need to have
-    # this as a backup.
+    # but since I usually hit the rate limit for the GitHub Action cache, I use this
+    # as a backup.
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:
         name: bigolu
         authToken: "${{ inputs.cachix-auth-token }}"
+    # TODO: Renovate won't manage this action's version until the following is
+    # resolved:
+    # https://github.com/renovatebot/renovate/issues/28016
     - uses: DeterminateSystems/magic-nix-cache-action@main
       with:
         # Cache everything
