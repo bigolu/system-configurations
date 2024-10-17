@@ -4,25 +4,27 @@ This project contains:
 
 - A script to turn a Kasa smart plug on and off.
 
-- A [systemd](https://systemd.io/) service to automatically turn it on after the
-  computer starts up or is woken up and turn it off before the computer
-  suspends, hibernates, restarts, or shuts down. (**TODO:** Need to document
-  this)
-
-- A macOS tray icon to turn the plug on and off. (**TODO:** Need to document
-  this)
+- A daemon to automatically turn it on after the computer starts up or is woken
+  up and turn it off before the computer suspends, hibernates, restarts, or
+  shuts down. The daemon is created using [systemd][systemd] and
+  [Hammerspoon][hammerspoon] for Linux and macOS respectively.
 
 ## Why
 
-If you leave studio monitors on while turning off the sound source, you will get
-a loud POP noise, which
-[isn't good for the speakers](https://www.sweetwater.com/insync/power-power-off-sequence/).
+To avoid damage to self-powered speakers, you should always turn them on _after_
+turning on the sound source (e.g. computer) and turn them off _before_ turning
+off the sound source. By connecting my speakers to a smart plug, I can have this
+project do it for me.
+
+> TIP: If the speaker makes a POP noise when you connect/disconnect the sound
+> source, then you probably turned the devices on/off in the wrong order.
 
 ## Requirements
 
-- [nix](https://nixos.org/) -- For dependencies. See the README at the root of
-  this repository for installation instructions.
-- direnv -- To manage the development environment
+- [Nix](https://nixos.org/) for dependencies. See the README at the root of this
+  repository for installation instructions.
+- Direnv to manage the development environment. You can install this with nix by
+  running `nix profile install nixpkgs#direnv`.
 - A Kasa smart plug with the alias 'plug'
 
 ## Run
@@ -33,20 +35,17 @@ a loud POP noise, which
 
 ## Development
 
-- direnv will automatically set up the development environment when you enter
+- Direnv will automatically set up the development environment when you enter
   this directory and remove when you leave.
 
 ## Resources
 
 - [login1 dbus interface](https://www.freedesktop.org/software/systemd/man/org.freedesktop.login1.html)
 - [inhibitor API](https://www.freedesktop.org/wiki/Software/systemd/inhibit/)
-- [stackoverflow post](https://stackoverflow.com/questions/33428804/role-of-mainloops-event-loops-in-dbus-service)
-  on how dbus-python integrates with a mainloop
+- [Stack Overflow post on how dbus-python integrates with a mainloop](https://stackoverflow.com/questions/33428804/role-of-mainloops-event-loops-in-dbus-service)
 - [intro to dbus](https://www.freedesktop.org/wiki/IntroductionToDBus/)
-- This
-  [stackoverflow post](https://unix.stackexchange.com/questions/337853/how-can-i-trigger-a-systemd-unit-on-suspend-before-networking-is-shut-down)
-  where the poster explains why a pure systemd service solution doesn't work and
-  provides a repo with a working solution. I started with their code and adapted
-  it to my specific use case
-- [Stackoverflow post](https://unix.stackexchange.com/questions/152039/how-to-run-a-user-script-after-systemd-wakeup)
-  on why a user service would not work
+- [Stack Overflow post where the poster explains why a systemd service alone wouldn't work](https://unix.stackexchange.com/questions/337853/how-can-i-trigger-a-systemd-unit-on-suspend-before-networking-is-shut-down)
+- [Stack Overflow post on why a user service would not work](https://unix.stackexchange.com/questions/152039/how-to-run-a-user-script-after-systemd-wakeup)
+
+[systemd]: https://systemd.io/
+[hammerspoon]: https://www.hammerspoon.org/
