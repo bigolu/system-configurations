@@ -51,6 +51,10 @@ end)
 vim.keymap.del({ "n", "x" }, "=")
 vim.keymap.del({ "n" }, "==")
 
+vim.keymap.set({ "n", "x" }, "gq", function()
+  vscode.call("rewrap.rewrapComment")
+end)
+
 -- Toggle visual elements {{{
 local function toggle(values, setting)
   local current = vscode.get_config(setting)
