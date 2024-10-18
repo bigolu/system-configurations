@@ -22,7 +22,6 @@
           ./flake-modules/home-manager
           ./flake-modules/lib.nix
           ./flake-modules/dev-shell
-          ./flake-modules/bootstrap.nix
         ];
 
         flake = {

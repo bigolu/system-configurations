@@ -176,8 +176,10 @@
       };
 
       outputs = {
-        # So we can cache them and pin a version.
+        # So I can pin a version
         packages.nix-develop-gha = inputs'.nix-develop-gha.packages.default;
+
+        # So I can pin a version and cache it.
         devShells.gomod2nix = inputs'.gomod2nix.devShells.default;
 
         # So I can reference nixpkgs, with my overlays applied, from my scripts.
