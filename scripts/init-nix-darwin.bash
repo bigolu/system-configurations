@@ -18,10 +18,14 @@ if [[ -f "$original_conf" ]]; then
   if ! [[ -f "$backup" ]]; then
     mv "$original_conf" "$backup"
 
-    # Since there isn't a nix.conf anymore, we have to re-enable any necessary
-    # experimental features.
-    export NIX_CONFIG="$NIX_CONFIG"$'\n''extra-experimental-features = nix-command flakes'
+    # Since we moved the nix.conf, load it into an environment variable.
+    NIX_CONFIG="$(<"$backup")"
+    export NIX_CONFIG
   fi
 fi
 
-nix run .#nixDarwin -- switch --flake .#"$1"
+# Run as root so NIX_CONFIG will be respected.
+#
+# To avoid having root directly manipulate the store, explicitly set the daemon.
+# Source: https://docs.lix.systems/manual/lix/stable/installation/multi-user.html#multi-user-mode
+sudo nix run --eval-store daemon .#nixDarwin -- switch --flake .#"$1"

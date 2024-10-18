@@ -26,20 +26,28 @@ people who want to manage their systems similarly.
 
 ## Applying a Configuration
 
-1. Install Nix by running:
+1. Install Nix using the [Determinate Systems Nix
+   Installer][determinate-systems-installer].
 
-   > NOTE: Please confirm that everything in the command provided above, besides
-   > the `--extra-conf` flag, is up-to-date with what is currently listed on the
-   > [Installer Website][determinate-systems-installer].
+2. Set the binary caches by running:
+
+   <!-- SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS -->
 
    ```bash
-   # The `--extra-conf` adds your user to `trusted-users` so you can do things
-   # like accepting a binary cache.
-   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install \
-     --extra-conf "extra-trusted-users = $(whoami)"
+   echo '
+     extra-trusted-public-keys = bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+     extra-substituters = https://bigolu.cachix.org https://nix-community.cachix.org
+   ' | sudo tee -a /etc/nix/nix.conf
+
+   # Reload the daemon so it picks up the configuration changes.
+   if uname | grep -q Linux; then
+     systemctl restart nix-daemon.service
+   else
+     sudo launchctl kickstart -k system/org.nixos.nix-daemon
+   fi
    ```
 
-2. Start a Nix shell with the other required programs and clone the repository
+3. Start a Nix shell with the other required programs and clone the repository
    by running:
 
    ```bash
