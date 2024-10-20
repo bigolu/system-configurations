@@ -10,5 +10,6 @@ gitMinimal
 gnused
 jq
 lefthook
+perl
 reviewdog
 ripgrep

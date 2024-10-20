@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.curl local#nixpkgs.coreutils --command bash
+#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.curl local#nixpkgs.coreutils local#nixpkgs.perl --command bash
 
 # shellcheck shell=bash
 
@@ -12,20 +12,12 @@ if ! [[ -x /usr/local/bin/brew ]]; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-original_conf='/etc/nix/nix.conf'
-backup="$original_conf".before-nix-darwin
-if [[ -f "$original_conf" ]]; then
-  if ! [[ -f "$backup" ]]; then
-    mv "$original_conf" "$backup"
+hash_file='flake-modules/nix-darwin/nix-conf-hash.txt'
 
-    # Since we moved the nix.conf, load it into an environment variable.
-    NIX_CONFIG="$(<"$backup")"
-    export NIX_CONFIG
-  fi
-fi
+# Tell nix-darwin the hash of my nix.conf so it can overwrite it. You can find more
+# information in the comment where this file is read.
+shasum -a 256 /etc/nix/nix.conf | cut -d ' ' -f 1 >"$hash_file"
 
-# Run as root so NIX_CONFIG will be respected.
-#
-# To avoid having root directly manipulate the store, explicitly set the daemon.
-# Source: https://docs.lix.systems/manual/lix/stable/installation/multi-user.html#multi-user-mode
-sudo --preserve-env=PATH,NIX_CONFIG nix run --eval-store daemon .#nixDarwin -- switch --flake .#"$1"
+nix run .#nixDarwin -- switch --flake .#"$1"
+
+git checkout -- "$hash_file"
