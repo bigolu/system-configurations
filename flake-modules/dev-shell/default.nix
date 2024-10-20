@@ -167,6 +167,21 @@
         ];
       };
 
+      sync = makeShell {
+        packages = with pkgs; [
+          # These get called in the lefthook config
+          gitMinimal
+          just
+          bash
+          runAsAdmin
+          # for uname
+          coreutils
+
+          # Runs the sync tasks
+          lefthook
+        ];
+      };
+
       scriptDependencies = makeShell {
         packages = with pkgs; [ script-dependencies ];
       };
@@ -210,6 +225,7 @@
               linting
               formatting
               codeGeneration
+              sync
               taskRunner
               versionControl
               languages
