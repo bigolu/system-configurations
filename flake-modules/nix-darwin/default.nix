@@ -27,7 +27,7 @@ let
       };
       pkgs = import inputs.nixpkgs {
         inherit system;
-        overlays = [ self.overlays.default ];
+        overlays = [ self.lib.overlay ];
       };
       darwinConfiguration = inputs.nix-darwin.lib.darwinSystem {
         inherit pkgs;

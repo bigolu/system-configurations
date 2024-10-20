@@ -39,7 +39,7 @@
           {
             _module.args.pkgs = import nixpkgs {
               inherit system;
-              overlays = [ self.overlays.default ];
+              overlays = [ self.lib.overlay ];
             };
           };
       }
