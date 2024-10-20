@@ -41,9 +41,6 @@ let
     text = ''
       cd "${repositoryDirectory}"
 
-      # Get sudo authentication now so I don't have to wait for it to ask me later
-      sudo --validate
-
       oldGenerationPath="$(readlink --canonicalize ${config.system.profile})"
 
       ${config.system.profile}/sw/bin/darwin-rebuild switch --flake "${repositoryDirectory}#${hostName}" "$@" |& nom

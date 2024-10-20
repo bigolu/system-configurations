@@ -20,9 +20,6 @@ let
     name = "hostctl-switch";
     runtimeInputs = with pkgs; [ nix-output-monitor ];
     text = ''
-      # Get sudo authentication now so I don't have to wait for it to ask me later
-      sudo --validate
-
       cd "${config.repository.directory}"
       ${config.home.profileDirectory}/bin/home-manager switch --flake "${config.repository.directory}#${hostName}" "''$@" |& nom
 
