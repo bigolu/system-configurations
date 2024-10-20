@@ -43,29 +43,75 @@ in
   };
 
   launchd.daemons.nix-gc = {
+    # To avoid having root directly manipulate the store, explicitly set the daemon.
+    # Source: https://docs.lix.systems/manual/lix/stable/installation/multi-user.html#multi-user-mode
     environment.NIX_REMOTE = "daemon";
+
     serviceConfig.RunAtLoad = false;
 
     serviceConfig.StartCalendarInterval = [
-      # once a month
+      # Run GC once a month. Since timers that go off when the computer is off never
+      # run, I try to give it more chances to run.
+      # source: https://superuser.com/a/546353
       {
         Day = 1;
-        Hour = 0;
-        Minute = 0;
+        Hour = 10;
+      }
+      {
+        Day = 1;
+        Hour = 12;
+      }
+      {
+        Day = 1;
+        Hour = 16;
+      }
+      {
+        Day = 1;
+        Hour = 18;
+      }
+      {
+        Day = 1;
+        Hour = 20;
       }
     ];
 
-    command = ''
-      ${pkgs.dash}/bin/dash -c ' \
-        export PATH="${config.nix.package}/bin:''$PATH"; \
-        nix-env --profile /nix/var/nix/profiles/system --delete-generations +5; \
-        nix-env --profile /nix/var/nix/profiles/default --delete-generations +5; \
-        nix-env --profile /nix/var/nix/profiles/per-user/root/profile --delete-generations +5; \
-        nix-env --profile ${homeDirectory}/.local/state/nix/profiles/home-manager --delete-generations +5; \
-        nix-env --profile ${homeDirectory}/.local/state/nix/profiles/profile --delete-generations +5; \
-        nix-collect-garbage --delete-older-than 180d; \
-      '
-    '';
+    command = pkgs.writeShellApplication {
+      name = "gc";
+      runtimeInputs = with pkgs; [
+        config.nix.package
+        coreutils
+        terminal-notifier
+      ];
+      text = ''
+        log="$(mktemp --tmpdir 'nix_garbage_collection_XXXXX')"
+        exec 2>"$log" 1>"$log"
+        trap 'terminal-notifier -title "Nix Darwin" -message "Garbage collection failed :( Check the logs in $log"' ERR
+
+        last_gc_file='/nix/last-gc.txt'
+        if [[ -e "$last_gc_file" ]]; then
+          last_gc="$(<"$last_gc_file")"
+        else
+          last_gc=
+        fi
+        now="$(date '+%y%m')"
+        # This to ensure it runs at most once in a day. To learn why I can't
+        # just schedule it to run once in a day, check the comment where the schedule
+        # is defined.
+        if [[ "$last_gc" == "$now" ]]; then
+          exit
+        fi
+
+        # nix-darwin
+        nix-env --profile /nix/var/nix/profiles/system --delete-generations old
+        nix-env --profile /nix/var/nix/profiles/default --delete-generations old
+        nix-env --profile ${homeDirectory}/.local/state/nix/profiles/home-manager --delete-generations old
+        nix-env --profile ${homeDirectory}/.local/state/nix/profiles/profile --delete-generations old
+
+        nix-collect-garbage --delete-older-than 30d
+
+        printf '%s' "$now" >"$last_gc_file"
+      '';
+    };
   };
 
   system.activationScripts.postActivation.text = ''
