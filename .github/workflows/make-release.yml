@@ -43,7 +43,7 @@ jobs:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - id: make-assets
         run: |
-          nix bundle --show-trace --bundler .# .#shellMinimal
+          nix bundle --show-trace --bundler .# .#shell
 
           # The symlink's names will look like 'shell-<platform>', e.g.
           # shell-x86_64-linux, so I'm using a glob pattern to match it.

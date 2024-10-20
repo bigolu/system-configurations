@@ -1,7 +1,6 @@
 {
   pkgs,
   self,
-  isGui,
   modules ? [ ],
   overlays ? [ ],
 }:
@@ -61,7 +60,8 @@ let
     };
 
   homeConfigurationByHostName = self.lib.home.makeHomeConfigurationByHostName {
-    inherit system hostName isGui;
+    inherit system hostName;
+    isGui = false;
     overlays = [ portableOverlay ] ++ overlays;
 
     # I want to remove the systemd dependency, but there is no option for

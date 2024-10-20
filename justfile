@@ -59,7 +59,7 @@ init-nix-darwin HOST_NAME: && (force-sync "lefthook,secrets")
     ./scripts/init-nix-darwin.bash "$@"
 
 [doc('''
-    Create a bundle for the specified package (e.g. .#shellMinimal) using the
+    Create a bundle for the specified package (e.g. .#shell) using the
     bundler included in this repository. This runs periodically in CI when
     releasing a new version of the shell.
 ''')]

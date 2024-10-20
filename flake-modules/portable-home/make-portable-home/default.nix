@@ -1,6 +1,4 @@
 {
-  isGui,
-  isMinimal,
   pkgs,
   self,
   modules ? [ ],
@@ -9,78 +7,61 @@
 }:
 let
   inherit (pkgs) lib;
-  inherit (lib.lists) optionals;
   inherit (pkgs.stdenv) isLinux;
 
-  fish =
-    if isMinimal then
-      (pkgs.fish.override {
-        usePython = false;
-      })
-    else
-      pkgs.fish;
+  fish = pkgs.fish.override {
+    usePython = false;
+  };
 
   # "C.UTF-8/UTF-8" is the locale that perl said wasn't supported so I added it here.
   # "en_US.UTF-8/UTF-8" is the default locale so I'm keeping it just in case.
-  locales =
-    if isMinimal then
-      (pkgs.glibcLocales.override {
-        allLocales = false;
-        locales = [
-          "en_US.UTF-8/UTF-8"
-          "C.UTF-8/UTF-8"
-        ];
-      })
-    else
-      pkgs.glibcLocales;
+  locales = pkgs.glibcLocales.override {
+    allLocales = false;
+    locales = [
+      "en_US.UTF-8/UTF-8"
+      "C.UTF-8/UTF-8"
+    ];
+  };
 
   makeEmptyPackage = packageName: pkgs.runCommand packageName { } ''mkdir -p $out/bin'';
 
-  allModules =
-    modules
-    ++ optionals isMinimal [
-      (
-        { lib, ... }:
-        {
-          xdg = {
-            dataFile = {
-              "nvim/site/parser" = lib.mkForce {
-                source = makeEmptyPackage "parsers";
-              };
+  allModules = modules ++ [
+    (
+      { lib, ... }:
+      {
+        xdg = {
+          dataFile = {
+            "nvim/site/parser" = lib.mkForce {
+              source = makeEmptyPackage "parsers";
             };
           };
-          home = {
-            # remove moreutils dependency
-            activation.batSetup = lib.mkForce (lib.hm.dag.entryAfter [ "linkGeneration" ] "");
-          };
-        }
-      )
-    ];
-
-  allOverlays =
-    overlays
-    ++ optionals isMinimal [
-      (_final: prev: {
-        moreutils = makeEmptyPackage "moreutils";
-        ast-grep = makeEmptyPackage "ast-grep";
-        timg = makeEmptyPackage "timg";
-        ripgrep-all = makeEmptyPackage "ripgrep-all";
-        lesspipe = makeEmptyPackage "lesspipe";
-        wordnet = makeEmptyPackage "wordnet";
-        diffoscope = makeEmptyPackage "diffoscope";
-        gitMinimal = makeEmptyPackage "gitMinimal";
-
-        fish = prev.fish.override {
-          usePython = false;
         };
-      })
-    ];
+      }
+    )
+  ];
+
+  allOverlays = overlays ++ [
+    (_final: prev: {
+      moreutils = makeEmptyPackage "moreutils";
+      ast-grep = makeEmptyPackage "ast-grep";
+      timg = makeEmptyPackage "timg";
+      ripgrep-all = makeEmptyPackage "ripgrep-all";
+      lesspipe = makeEmptyPackage "lesspipe";
+      wordnet = makeEmptyPackage "wordnet";
+      diffoscope = makeEmptyPackage "diffoscope";
+      gitMinimal = makeEmptyPackage "gitMinimal";
+
+      fish = prev.fish.override {
+        usePython = false;
+      };
+    })
+  ];
 
   portableHome =
     let
       bashPath = "${pkgs.bash}/bin/bash";
       activationPackage = import ./home-manager-package.nix {
-        inherit pkgs self isGui;
+        inherit pkgs self;
         modules = allModules;
         overlays = allOverlays;
       };

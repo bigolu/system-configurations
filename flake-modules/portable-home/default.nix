@@ -23,35 +23,13 @@
         in
         builtins.elem system supportedSystems;
 
-      portableHomeOutputs =
-        let
-          makePortableHome =
-            {
-              isGui,
-              isMinimal,
-            }:
-            import ./make-portable-home {
-              inherit
-                pkgs
-                self
-                isGui
-                isMinimal
-                ;
-            };
-
-          makeShell =
-            { isMinimal }:
-            makePortableHome {
-              isGui = false;
-              inherit isMinimal;
-            };
-        in
-        {
-          packages = {
-            shell = makeShell { isMinimal = false; };
-            shellMinimal = makeShell { isMinimal = true; };
+      portableHomeOutputs = {
+        packages = {
+          shell = import ./make-portable-home {
+            inherit pkgs self;
           };
         };
+      };
     in
     optionalAttrs isSupportedSystem portableHomeOutputs;
 }
