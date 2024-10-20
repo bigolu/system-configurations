@@ -105,10 +105,8 @@ sync:
       run: lefthook install --force
     host-manager:
       priority: 1
-      # For password prompt
-      interactive: true
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
-      run: hostctl-switch
+      run: sudo run-as-admin hostctl-switch
 
     # These should run last so their messages aren't lost in the output of other
     # commands.

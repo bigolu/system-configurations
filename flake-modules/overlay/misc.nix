@@ -105,10 +105,56 @@ let
         wrapProgram $out/bin/rga --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg ripgrepBin}
       '';
     };
+
+  runAsAdmin = final.writeShellApplication {
+    name = "run-as-admin";
+    runtimeInputs = with final; [ coreutils ];
+    text = ''
+      # WARNING: Don't copy this unless you understand the consequences. On a
+      # multi-user machine this is probably a bad idea. I'm assuming that on a
+      # personal, single-user, machine, this won't leave me any more vulnerable in
+      # practice. Considering most of the sensitive stuff in my home directory
+      # anyway[2]. You may be wondering why I have a sudo password at all. While it
+      # won't help from a security standpoint, I do like having it as a confirmation
+      # whenever I'm about to do something that operates on the system. This way if I
+      # accidentally run something that modifies the system, when I only mean to
+      # modify the user, I get a password prompt and that lets me know I'm probably
+      # doing something wrong and save me from having to reinstall if that command
+      # would have corrupted/removed anything.
+      #
+      # I want to run `darwin-rebuild switch` and only input my password once, but
+      # homebrew, rightly, invalidates the sudo cache before it runs[1] so I have to
+      # input my password again for subsequent steps in the rebuild. This script
+      # allows ANY command to be run without a password, for the duration of the
+      # specified command. It also runs the specified command as the user that
+      # launched this script, i.e. SUDO_USER, and not root.
+      #
+      # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
+      # [2]: https://xkcd.com/1200/
+
+      temp="$(mktemp)"
+      printf '%%admin		ALL = (ALL) NOPASSWD: ALL\n' > "$temp"
+
+      sudo chown --reference /etc/sudoers "$temp"
+      sudo mv "$temp" /etc/sudoers.d/temp-config
+
+      set +o errexit
+      sudo -u "$SUDO_USER" "$@"
+      exit_code=$?
+      set -o errexit
+
+      sudo rm /etc/sudoers.d/temp-config
+
+      exit $exit_code
+    '';
+  };
 in
 {
-  # I'm renaming this to avoid rebuilds.
-  inherit myTerminfoDatabase;
+  inherit
+    # I'm renaming this to avoid rebuilds.
+    myTerminfoDatabase
+    runAsAdmin
+    ;
 
   neovim = nightlyNeovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;

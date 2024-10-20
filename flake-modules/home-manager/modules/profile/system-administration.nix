@@ -47,6 +47,7 @@ in
       bat
       coreutils-full
       gnused
+      runAsAdmin
     ]
     ++ optionals isLinux [
       trashy
