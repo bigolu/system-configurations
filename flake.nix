@@ -1,5 +1,6 @@
 # TODO: Trick renovate into working: "github:NixOS/nixpkgs/nixpkgs-unstable"
 # Source: https://github.com/renovatebot/renovate/issues/29721
+# fix: https://github.com/renovatebot/renovate/pull/31921
 {
   description = "Host configurations";
 

@@ -16,7 +16,7 @@ let
       if uname | grep -q Linux; then
         systemctl restart nix-daemon.service
       else
-        sudo launchctl stop org.nixos.nix-daemon && sudo launchctl start org.nixos.nix-daemon
+        sudo launchctl kickstart -k system/org.nixos.nix-daemon
       fi
     '';
   };
@@ -76,7 +76,7 @@ in
         "flakes"
       ];
 
-      # Always show the entire stack of an error.
+      # Always show the entire stack trace of an error.
       show-trace = true;
 
       # Don't warn me that the git repository is dirty

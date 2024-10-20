@@ -111,8 +111,9 @@
             };
         in
         {
-          # I'm renaming these to avoid rebuilds.
+          # I'm renaming this to avoid rebuilds.
           inherit myTerminfoDatabase;
+
           neovim = nightlyNeovimWithDependencies;
           ripgrep-all = ripgrepAllWithDependencies;
 
@@ -121,10 +122,11 @@
           # manifest version change between the two, I can't use stable nix. When
           # stable nix supports my manifest version, I should switch back to it.
           nix = final.nixVersions.latest;
+
           script-dependencies = lib.trivial.pipe (self.lib.root + "/scripts/dependencies.txt") [
             builtins.readFile
             (lib.strings.splitString "\n")
-            (builtins.filter (name: name != ""))
+            (builtins.filter (line: line != ""))
             (names: map (name: final.${name}) names)
             (
               deps:
