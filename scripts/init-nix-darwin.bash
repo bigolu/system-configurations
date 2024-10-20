@@ -28,4 +28,4 @@ fi
 #
 # To avoid having root directly manipulate the store, explicitly set the daemon.
 # Source: https://docs.lix.systems/manual/lix/stable/installation/multi-user.html#multi-user-mode
-sudo nix run --eval-store daemon .#nixDarwin -- switch --flake .#"$1"
+sudo --preserve-env=PATH,NIX_CONFIG nix run --eval-store daemon .#nixDarwin -- switch --flake .#"$1"
