@@ -115,6 +115,11 @@
           inherit myTerminfoDatabase;
           neovim = nightlyNeovimWithDependencies;
           ripgrep-all = ripgrepAllWithDependencies;
+
+          # TODO: The Determinate Systems Nix Installer installs a version of nix
+          # that is higher than stable nix (pkgs.nix). Since there has been a
+          # manifest version change between the two, I can't use stable nix. When
+          # stable nix supports my manifest version, I should switch back to it.
           nix = final.nixVersions.latest;
           script-dependencies = lib.trivial.pipe (self.lib.root + "/scripts/dependencies.txt") [
             builtins.readFile

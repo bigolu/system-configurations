@@ -18,16 +18,60 @@ people who want to manage their systems similarly.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Applying a Configuration](#applying-a-configuration)
-  - [Linux](#linux)
-  - [macOS](#macos)
+  - [Hosts](#hosts)
+  - [Steps](#steps)
+    - [Linux](#linux)
+    - [macOS](#macos)
 - [Running the Home Configuration](#running-the-home-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## Applying a Configuration
 
+### Hosts
+
+For reference, here are all the hosts, grouped by host manager, in the format
+"\<host_name> / \<platform>":
+
+<!-- START_CONFIGURATIONS -->
+
+- Home Manager
+
+  - desktop / x86_64-linux
+
+- nix-darwin
+
+  - bigmac / x86_64-darwin
+
+<!-- END_CONFIGURATIONS -->
+
+### Steps
+
+<!--
+  I used to use HTML comments to denote the start and end of the nix version e.g.
+  <!-- START_VERSION>...<!-- END_VERSION>, but when prettier hard-wrapped the line
+  and moved the version to its own line, the version was on its own line in the
+  rendered markdown as well. I tested this with a few other markdown parsers and it
+  seems like content between two comment tags gets its own line. To avoid this, I use
+  an id. Prettier did warn that some renderers would be whitespace-sensitive[1].
+
+  [1]: https://prettier.io/docs/en/options.html#prose-wrap
+-->
+
 1. Install Nix using the [Determinate Systems Nix
-   Installer][determinate-systems-installer].
+   Installer][determinate-systems-installer]. Make sure you install the same
+   version of nix as the one being used in this flake,
+   <code id="nix-version">2.24.8</code>. You can specify a version by doing
+   something like the following (make sure you update the platform used in the
+   URL to match that of your host):
+
+   > NOTE: The installer may have changed since this was written so make sure
+   > everything below is still valid.
+
+   ```bash
+   ./nix-installer install \
+     --nix-package-url https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-x86_64-linux.tar.xz
+   ```
 
 2. Set the binary caches by running:
 
@@ -51,7 +95,7 @@ people who want to manage their systems similarly.
    by running:
 
    ```bash
-   nix shell --impure nixpkgs#fish nixpkgs#direnv nixpkgs#git \
+   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#gitMinimal \
      --command fish --init-command '
        direnv hook fish | source
        and git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations
@@ -63,24 +107,22 @@ people who want to manage their systems similarly.
 
 The next steps depend on the operating system you're using:
 
-### Linux
+#### Linux
 
-1. Apply the Home Manager configuration by running
-   `just init-home-manager <host_name>` where `<host_name>` is one of the hosts
-   defined in the
-   [Home Manager flake module](flake-modules/home-manager/default.nix).
+1. Apply a Home Manager configuration by running
+   `just init-home-manager <host_name>` where `<host_name>` is any compatible
+   host from the [host list](#hosts).
 
 2. Install and start [`keyd`][keyd]
 
 3. Apply the Firefox `about:config` changes in
    `dotfiles/firefox-developer-edition/about-config-changes.txt`
 
-### macOS
+#### macOS
 
-1. Apply the nix-darwin configuration by running
-   `just init-nix-darwin <host_name>` where `<host_name>` is one of the hosts
-   defined in the
-   [nix-darwin flake module](flake-modules/nix-darwin/default.nix).
+1. Apply a nix-darwin configuration by running
+   `just init-nix-darwin <host_name>` where `<host_name>` is any compatible host
+   from the [host list](#hosts).
 
 2. Keyboard:
 

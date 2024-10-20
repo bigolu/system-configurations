@@ -19,17 +19,12 @@ let
 
   mergedPackages =
     let
-      basePackages = with pkgs; [
-        nix
-      ];
-
       packagesFromShellsToMergeWith = pipe mergeWith [
         (map (shell: shell._packages))
         concatLists
       ];
     in
     concatListsAndDeduplicate [
-      basePackages
       packagesFromShellsToMergeWith
       packages
     ];

@@ -12,11 +12,6 @@ in
   nix = {
     useDaemon = true;
 
-    # Newer versions of nix are backwards compatible with the manifest.json of
-    # older versions. Since I don't know which version of nix will be on my
-    # host, I'll use latest here to have the best chance at compatibility.
-    package = pkgs.nixVersions.latest;
-
     settings = {
       trusted-users = [
         "root"
@@ -81,5 +76,33 @@ in
         fileset = root + "/dotfiles/nix/nix-fix";
       }
     }/install-nix-fix.bash
+
+    echo >&2 "[bigolu] Syncing nix-darwin's nix/cacert version with the system..."
+    # Use --set-home to avoid sudo's warning that current user doesn't own the home
+    # directory.
+    PATH="${
+      pkgs.lib.makeBinPath (
+        with pkgs;
+        [
+          coreutils
+          jq
+        ]
+      )
+    }:$PATH"
+    desired_store_paths=(${config.nix.package} ${pkgs.cacert})
+    store_path_diff="$(comm -3 <(sudo --set-home nix profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) <(printf '%s\n' "''${desired_store_paths[@]}" | sort))"
+    if [[ -n "$store_path_diff" ]]; then
+      sudo --set-home nix profile remove --all
+      sudo --set-home nix profile install "''${desired_store_paths[@]}"
+
+      # Restart the daemon so we use the daemon from the version of nix we just installed
+      sudo --set-home launchctl kickstart -k system/org.nixos.nix-daemon
+      # To avoid having root directly manipulate the store, explicitly set the daemon.
+      # Source: https://docs.lix.systems/manual/lix/stable/installation/multi-user.html#multi-user-mode
+      while ! nix-store --store daemon -q --hash ${pkgs.stdenv.shell} &>/dev/null; do
+        echo "waiting for nix-daemon" >&2
+        sleep 0.5
+      done
+    fi
   '';
 }

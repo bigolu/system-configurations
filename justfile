@@ -10,14 +10,6 @@ list:
         | "${PAGER:-less}"
 
 [doc('''
-    Upgrade the version of nix used by the system. This should be run every once
-    in a while, like after flake updates.
-''')]
-[group('Host Management')]
-upgrade-nix:
-    sudo --set-home nix upgrade-nix --profile default
-
-[doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
     changes so no need to run manually.
 ''')]

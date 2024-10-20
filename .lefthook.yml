@@ -118,12 +118,6 @@ sync:
       run: >
         printf
         '\n\e[34m┃ system-configurations: Files related to fish have changed, run `r`.\e(B\e[m\n'
-    nix:
-      priority: 2
-      glob: "flake.lock"
-      run: >
-        printf
-        '\n\e[34m┃ system-configurations: The flake.lock has changed, consider running `just upgrade-nix`.\e(B\e[m\n'
     system-nix-config:
       priority: 2
       glob: "flake-modules/nix-darwin/modules/nix.nix"
@@ -183,6 +177,21 @@ generate:
         | sort --unique
         > scripts/dependencies.txt
         '
+    nix-version:
+      glob: "flake.lock"
+      run: >
+        ./scripts/fail-if-files-change.bash bash -o pipefail -euc '
+        version="$(nix --version)";
+        version_number="${version##* }";
+        sed -i "s/<code id=\"nix-version\">.*<\/code>/<code id=\"nix-version\">$version_number<\/code>/" README.md;
+        sed -i "s/\/nix-[0-9]*\.[0-9]*\.[0-9]*/\/nix-$version_number/g" README.md;
+        '
+    configs:
+      glob: "{flake-modules/**,flake.nix}"
+      run: |
+        ./scripts/fail-if-files-change.bash perl -0777 -i -pe "s{<!-- START_CONFIGURATIONS -->.*<!-- END_CONFIGURATIONS -->}{<!-- START_CONFIGURATIONS -->$(./scripts/get-host-configurations.bash)
+
+        <!-- END_CONFIGURATIONS -->}igs" README.md
 
 format:
   files: |

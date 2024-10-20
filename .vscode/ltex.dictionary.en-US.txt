@@ -77,3 +77,4 @@ dbus-python
 Kasa
 mainloop
 Direnv
+bigmac
