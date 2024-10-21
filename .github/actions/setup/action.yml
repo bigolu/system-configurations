@@ -8,6 +8,10 @@ inputs:
   cachix-auth-token:
     description: An authentication token for Cachix
     required: true
+  use-magic-nix-cache:
+    description: Use Magic Nix Cache
+    required: false
+    default: "true"
 runs:
   using: "composite"
   steps:
@@ -29,10 +33,11 @@ runs:
       with:
         name: bigolu
         authToken: "${{ inputs.cachix-auth-token }}"
-    # TODO: Renovate won't manage this action's version until the following is
-    # resolved:
-    # https://github.com/renovatebot/renovate/issues/28016
-    - uses: DeterminateSystems/magic-nix-cache-action@main
+    - if: inputs.use-magic-nix-cache == 'true'
+      # TODO: Renovate won't manage this action's version until the following is
+      # resolved:
+      # https://github.com/renovatebot/renovate/issues/28016
+      uses: DeterminateSystems/magic-nix-cache-action@main
       with:
         # Cache everything
         upstream-cache: https://null.com

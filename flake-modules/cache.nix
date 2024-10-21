@@ -5,9 +5,10 @@ _: {
   perSystem =
     {
       self',
+      lib,
       ...
     }:
     {
-      packages.default = self'.devShells.gomod2nix;
+      legacyPackages.cache = lib.recurseIntoAttrs { inherit (self'.devShells) gomod2nix; };
     };
 }

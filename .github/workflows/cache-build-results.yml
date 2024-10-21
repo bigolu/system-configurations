@@ -41,4 +41,13 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: nix build --show-trace
+          dev-shell: ciCache
+          # nix-fast-build will only build packages that aren't available in any
+          # substituters. I don't wan't Magic Nix Cache to be considered since it's
+          # only accessible in GitHub Actions.
+          use-magic-nix-cache: "false"
+      - run: |
+          nix-fast-build \
+            --no-nom \
+            --skip-cached \
+            --flake ".#legacyPackages.$(nix eval --raw --impure --expr 'builtins.currentSystem').cache"

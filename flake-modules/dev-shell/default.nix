@@ -262,6 +262,12 @@
           ciCheckStyle = formatting;
 
           ciCodegen = codeGeneration;
+
+          ciCache = makeShell {
+            packages = with pkgs; [
+              nix-fast-build
+            ];
+          };
         };
       };
 
