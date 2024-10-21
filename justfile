@@ -159,15 +159,6 @@ check-links *FILES:
     lychee "$@"
 
 [doc('''
-    Run the tests. Useful to run after a big change to ensure everything still
-    works, but the cache workflow usually catches my mistakes so I don't run
-    this much.
-''')]
-[group('Debugging')]
-test:
-    ./scripts/test.bash
-
-[doc('''
     Run `nix build` in debug mode.
 
     Arguments:
