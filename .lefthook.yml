@@ -475,3 +475,10 @@ check-lint:
         taplo lint "$@"
         | ./scripts/reviewdog.bash -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         ' -- {files}
+
+    # local-only checks
+    nix-config:
+      skip:
+        - run: '[ "$GITHUB_ACTIONS" = true ]'
+      glob: "{flake-modules/**,flake.{lock,nix}}"
+      run: nix config check
