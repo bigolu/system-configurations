@@ -45,6 +45,12 @@ jobs:
           # nix-fast-build will only build packages that aren't available in any
           # substituters. I don't wan't Magic Nix Cache to be considered since it's
           # only accessible in GitHub Actions.
+          #
+          # Ideally, I could use this cache, but still build a package if it's only
+          # present in this cache.
+          #
+          # Also, there's an open issue for adding the --skip-cached functionality to
+          # nix: https://github.com/NixOS/nix/issues/3946
           use-magic-nix-cache: "false"
       - run: |
           nix-fast-build \
