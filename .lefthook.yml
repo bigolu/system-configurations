@@ -58,8 +58,9 @@ post-checkout:
         exit 0
 
 sync:
-  # So we can see the output of dev-shell and host-manager. It can take a while
-  # so it's nice to see what it's doing.
+  # So we can see the output of dev-shell and host-manager. It can take a while so
+  # it's nice to see what it's doing. Plus some of these tasks print messages I want
+  # to see.
   follow: true
   # Add '|| true' so lefthook doesn't exit with code 1
   files: >
@@ -124,6 +125,18 @@ sync:
       run: >
         printf
         '\n\e[34m┃ system-configurations: The system Nix config in nix-darwin has changed, make sure this system's Nix config is still in sync with it.\e(B\e[m\n'
+    # Not quite a sync task, but this will let me know when I can switch back to
+    # stable nix.
+    go-back-to-stable-nix:
+      priority: 2
+      glob: "flake.lock"
+      only:
+        # This means stable nix understand my profile manifest version so I can use
+        # it.
+        - run: nix run nixpkgs#nix -- profile list
+      run: >
+        printf
+        '\n\e[34m┃ system-configurations: You should move back to stable nix now.\e(B\e[m\n'
 
 check:
   files: |
