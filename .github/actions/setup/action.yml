@@ -17,9 +17,11 @@ runs:
     - uses: DeterminateSystems/nix-installer-action@main
       with:
         # SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS
+        # ^ With the exception of Cachix, since the Cachix action adds the
+        # subsituter.
         extra-conf: |
-          extra-trusted-public-keys = bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-          extra-substituters = https://bigolu.cachix.org https://nix-community.cachix.org
+          extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+          extra-substituters = https://nix-community.cachix.org
     # TODO: This cache shouldn't be enabled for packages that only get used in CI,
     # but since I usually hit the rate limit for the GitHub Action cache, I use this
     # as a backup.
