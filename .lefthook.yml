@@ -202,6 +202,7 @@ generate:
         version_number="${version##* }";
         sed -i "s/<code id=\"nix-version\">.*<\/code>/<code id=\"nix-version\">$version_number<\/code>/" README.md;
         sed -i "s/\/nix-[0-9]*\.[0-9]*\.[0-9]*/\/nix-$version_number/g" README.md;
+        sed -i "s/\/nix-[0-9]*\.[0-9]*\.[0-9]*/\/nix-$version_number/g" .github/actions/setup/action.yml;
         '
     configs:
       glob: "{flake-modules/**,flake.nix}"
