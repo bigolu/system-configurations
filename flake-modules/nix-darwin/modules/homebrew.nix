@@ -37,9 +37,5 @@
     # The stackline plugin needs yabai.
     test -e /usr/local/bin/yabai && rm /usr/local/bin/yabai
     cp ${config.services.yabai.package}/bin/yabai /usr/local/bin/
-
-    # Disable the Gatekeeper so I can open apps that weren't codesigned without
-    # being warned.
-    sudo spctl --master-disable
   '';
 }
