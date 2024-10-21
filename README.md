@@ -71,39 +71,40 @@ For reference, here are all the hosts, grouped by host manager, in the format
      --nix-package-url https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-x86_64-linux.tar.xz
    ```
 
-2. Set the binary caches by running:
+2. The following command will start a fish shell within a Nix shell containing
+   the other required programs, set the binary caches, and clone the repository
+   by running:
 
    <!-- SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS -->
 
    ```bash
-   echo '
-     extra-trusted-public-keys = bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-     extra-substituters = https://bigolu.cachix.org https://nix-community.cachix.org
-   ' | sudo tee -a /etc/nix/nix.conf
-
-   # Reload the daemon so it picks up the configuration changes.
-   if uname | grep -q Linux; then
-     systemctl restart nix-daemon.service
-   else
-     sudo launchctl kickstart -k system/org.nixos.nix-daemon
-   fi
-   ```
-
-3. Start a Nix shell with the other required programs and clone the repository
-   by running:
-
-   ```bash
    nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#gitMinimal \
      --command fish --init-command '
-       direnv hook fish | source
-       and git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations
-       and cd ~/code/system-configurations
-       and direnv allow
-       and direnv exec "$PWD" nix-direnv-reload
+       # Fish does not have a way to exit whenever a command fails so I am
+       # manually adding `|| exit`.
+       # https://github.com/fish-shell/fish-shell/issues/510
+
+       echo "
+         extra-trusted-public-keys = bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+         extra-substituters = https://bigolu.cachix.org https://nix-community.cachix.org
+       " | sudo tee -a /etc/nix/nix.conf || exit
+
+       # Reload the daemon so it picks up the configuration changes.
+       if uname | grep -q Linux
+         systemctl restart nix-daemon.service || exit
+       else
+         sudo launchctl kickstart -k system/org.nixos.nix-daemon || exit
+       end
+
+       direnv hook fish | source || exit
+       git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations || exit
+       cd ~/code/system-configurations || exit
+       direnv allow || exit
+       direnv exec "$PWD" nix-direnv-reload || exit
      '
    ```
 
-4. The next steps depend on the operating system you're using:
+3. The next steps depend on the operating system you're using:
 
    - Linux
 
