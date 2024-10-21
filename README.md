@@ -20,8 +20,6 @@ people who want to manage their systems similarly.
 - [Applying a Configuration](#applying-a-configuration)
   - [Hosts](#hosts)
   - [Steps](#steps)
-    - [Linux](#linux)
-    - [macOS](#macos)
 - [Running the Home Configuration](#running-the-home-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -105,45 +103,45 @@ For reference, here are all the hosts, grouped by host manager, in the format
      '
    ```
 
-The next steps depend on the operating system you're using:
+4. The next steps depend on the operating system you're using:
 
-#### Linux
+   - Linux
 
-1. Apply a Home Manager configuration by running
-   `just init-home-manager <host_name>` where `<host_name>` is any compatible
-   host from the [host list](#hosts).
+     1. Apply a Home Manager configuration by running
+        `just init-home-manager <host_name>` where `<host_name>` is any
+        compatible host from the [host list](#hosts).
 
-2. Install and start [`keyd`][keyd]
+     2. Install and start [`keyd`][keyd]
 
-3. Apply the Firefox `about:config` changes in
-   `dotfiles/firefox-developer-edition/about-config-changes.txt`
+     3. Apply the Firefox `about:config` changes in
+        `dotfiles/firefox-developer-edition/about-config-changes.txt`
 
-#### macOS
+   - macOS
 
-1. Apply a nix-darwin configuration by running
-   `just init-nix-darwin <host_name>` where `<host_name>` is any compatible host
-   from the [host list](#hosts).
+     1. Apply a nix-darwin configuration by running
+        `just init-nix-darwin <host_name>` where `<host_name>` is any compatible
+        host from the [host list](#hosts).
 
-2. Keyboard:
+     2. Keyboard:
 
-   - Set the keyboard input source to 'Others → (No Accent Keys)'.
+        - Set the keyboard input source to 'Others → (No Accent Keys)'.
 
-   <!--
-     I can automate shortcuts when this issue gets resolved:
-     https://github.com/LnL7/nix-darwin/issues/185
-   -->
+        <!--
+          I can automate shortcuts when this issue gets resolved:
+          https://github.com/LnL7/nix-darwin/issues/185
+        -->
 
-   - Shortcuts:
+        - Shortcuts:
 
-     - Disable: "Select the previous input source" `ctrl+space`, "Application
-       windows" `ctrl+↓`
+          - Disable: "Select the previous input source" `ctrl+space`,
+            "Application windows" `ctrl+↓`
 
-     - Change: "Mission Control → Move left/right a space" to `cmd+[` and
-       `cmd+]` respectively, "Mission Control" to `cmd+d`, "Mission Control →
-       Switch to Desktop 1-9" `cmd+[1-9]`
+          - Change: "Mission Control → Move left/right a space" to `cmd+[` and
+            `cmd+]` respectively, "Mission Control" to `cmd+d`, "Mission Control
+            → Switch to Desktop 1-9" `cmd+[1-9]`
 
-3. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels, Nightfall,
-   and "Mac Mouse Fix" to configure them.
+     3. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels,
+        Nightfall, and "Mac Mouse Fix" to configure them.
 
 ## Running the Home Configuration
 
