@@ -15,19 +15,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # In other workflows I use Bash plus some other command-line tools. Since I can't
-    # use Nix here to get them, I'll go with Python since operating systems can come
-    # with different implementations of the same command-line tool that work
-    # differently.
-    - shell: python
-      id: get-platform
-      run: |
-        import os
-        os_info = os.uname()
-        platform = os_info.machine + '-' + os_info.sysname.lower()
-
-        with open(os.environ['GITHUB_OUTPUT'], 'a') as file_handle:
-            print(f'platform={platform}', file=file_handle)
     # TODO: Renovate won't manage this action's version until the following is
     # resolved:
     # https://github.com/renovatebot/renovate/issues/28016
@@ -43,7 +30,7 @@ runs:
         # good for consistency, but it also ensures that the nix installed here will
         # be able to parse my flake registry.json. The version number is updated
         # automatically, see the lefthook configuration.
-        nix-package-url: https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-${{ steps.get-platform.outputs.platform }}.tar.xz
+        nix-package-url: https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-x86_64-${{ runner.os == 'Linux' && 'linux' || '' }}${{ runner.os == 'macOS' && 'darwin' || '' }}.tar.xz
     # TODO: This cache shouldn't be enabled for packages that only get used in CI,
     # but since I usually hit the rate limit for the GitHub Action cache, I use this
     # as a backup.
