@@ -35,6 +35,7 @@
   force-push = push --force-with-lease --force-if-includes
   untracked = "!git ls-files --others --exclude-standard | xargs -I FILE git add --intent-to-add FILE"
   graph = log --oneline --graph --all
+  rc = rebase --continue
 [init]
   defaultBranch = master
 [merge]
