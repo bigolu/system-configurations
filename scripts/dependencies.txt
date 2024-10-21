@@ -3,8 +3,6 @@ bash
 coreutils
 curl
 direnv
-doppler
-findutils
 gh
 gitMinimal
 gnused

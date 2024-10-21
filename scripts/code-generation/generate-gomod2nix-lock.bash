@@ -8,4 +8,4 @@ set -o nounset
 set -o pipefail
 
 cd ./flake-modules/bundler/gozip
-nix develop .#gomod2nix --command gomod2nix generate
+nix develop --inputs-from . gomod2nix# --command gomod2nix generate

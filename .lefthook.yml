@@ -163,11 +163,17 @@ generate:
         ./scripts/code-generation/generate-neovim-plugin-list.bash
     gomod2nix-lock:
       glob: "*gozip/go.mod"
+      # It stopped working. This open issue shows the same error I got:
+      # https://github.com/nix-community/gomod2nix/issues/172
+      skip: true
       run: >
         ./scripts/fail-if-files-change.bash
         ./scripts/code-generation/generate-gomod2nix-lock.bash
+    # I'd like to specify a glob so this only runs when a script file changes, but
+    # since lefthook, understandably, doesn't consider deleted files, this task
+    # wouldn't be able to remove dependencies when a script gets deleted. Instead,
+    # I'll just always run it since it takes less than a second.
     script-dependencies:
-      glob: "scripts/**"
       run: >
         ./scripts/fail-if-files-change.bash bash -o pipefail -euc '
         rg --glob "*.bash" "^#!" scripts

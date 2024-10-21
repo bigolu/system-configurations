@@ -35,7 +35,7 @@ preview-switch:
 ''')]
 [group('Host Management')]
 init-home-manager HOST_NAME: && (force-sync "lefthook,secrets")
-  nix run .#homeManager -- switch --flake .#"$1"
+  nix run --inputs-from . home-manager# -- switch --flake .#"$1"
 
   # Home Manager can't run these since they require root privileges so I'll run
   # them here.

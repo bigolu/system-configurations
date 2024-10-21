@@ -42,5 +42,5 @@ runs:
         # Cache everything
         upstream-cache: https://null.com
         use-flakehub: false
-    - run: nix run .#nix-develop-gha -- .#${{ inputs.dev-shell }}
+    - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }}
       shell: bash

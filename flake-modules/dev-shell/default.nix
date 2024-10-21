@@ -13,7 +13,6 @@
     {
       system,
       pkgs,
-      inputs',
       ...
     }:
     let
@@ -196,30 +195,18 @@
       };
 
       outputs = {
-        # So I can pin a version and cache it.
-        devShells.gomod2nix = inputs'.gomod2nix.devShells.default;
-
         # So I can reference nixpkgs, with my overlays applied, from my scripts.
         legacyPackages.nixpkgs = pkgs;
 
-        packages =
-          {
-            # So I can pin a version
-            nix-develop-gha = inputs'.nix-develop-gha.packages.default;
-            homeManager = inputs'.home-manager.packages.default;
-
-            smartPlug = pkgs.writeShellApplication {
-              name = "speakerctl";
-              runtimeInputs = [ pythonWithPackages ];
-              text = ''
-                python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
-              '';
-            };
-          }
-          // optionalAttrs pkgs.stdenv.isDarwin {
-            # So I can pin a version
-            nixDarwin = inputs'.nix-darwin.packages.default;
+        packages = {
+          smartPlug = pkgs.writeShellApplication {
+            name = "speakerctl";
+            runtimeInputs = [ pythonWithPackages ];
+            text = ''
+              python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
+            '';
           };
+        };
 
         devShells = {
           default = makeShell {
