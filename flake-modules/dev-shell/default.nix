@@ -134,6 +134,9 @@
         packages = with pkgs; [
           just
 
+          # This gets called in the justfile
+          coreutils
+
           # For paging the output of `just list`
           less
         ];

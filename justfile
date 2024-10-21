@@ -133,6 +133,18 @@ force-sync TASKS='all':
       LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1"
     fi
 
+[group('Secrets')]
+get_secrets:
+    #!/usr/bin/env bash
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+    doppler run \
+        --mount "$(mktemp --dry-run --suffix '.env')" \
+        --only-secrets GH_TOKEN \
+        -- \
+        bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >.env'
+
 [doc('''
     Check for broken links in the input file(s). This runs periodically in CI so
     you shouldn't ever have to run this.

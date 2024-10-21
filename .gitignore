@@ -3,3 +3,4 @@
 .mypy_cache/
 .DS_Store
 .lua-libraries
+.env
