@@ -49,8 +49,10 @@ jobs:
           # shell-x86_64-linux, so I'm using a glob pattern to match it.
           shell_name="$(ls shell-*)"
 
-          asset_directory="$(mktemp --directory)"
-          shell_path="$asset_directory/assets/$shell_name"
+          artifact_directory="$(mktemp --directory)"
+          asset_directory="$artifact_directory/assets"
+          mkdir "$asset_directory"
+          shell_path="$asset_directory/$shell_name"
           # Dereference the symlink so I can upload the actual executable.
           cp --dereference "$shell_name" "$shell_path"
 
@@ -61,13 +63,13 @@ jobs:
             exit 1
           fi
 
-          sha256sum "$shell_path" > "$asset_directory/checksums/$shell_name.txt"
+          sha256sum "$shell_path" > "$artifact_directory/checksums/$shell_name.txt"
 
-          echo "asset-directory=$asset_directory" >> "$GITHUB_OUTPUT"
+          echo "artifact-directory=$artifact_directory" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
           name: artifacts-${{ matrix.os }}
-          path: ${{ steps.make-assets.outputs.asset-directory }}
+          path: ${{ steps.make-assets.outputs.artifact-directory }}
           retention-days: 1
   make-release:
     needs: make-assets
