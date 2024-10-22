@@ -20,7 +20,8 @@ people who want to manage their systems similarly.
 - [Applying a Configuration](#applying-a-configuration)
   - [Hosts](#hosts)
   - [Steps](#steps)
-- [Running the Home Configuration](#running-the-home-configuration)
+- [Running the Portable Home Configuration](#running-the-portable-home-configuration)
+  - [How it Works](#how-it-works)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -131,19 +132,28 @@ For reference, here are all the hosts, grouped by host manager, in the format
      3. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels,
         Nightfall, and "Mac Mouse Fix" to configure them.
 
-## Running the Home Configuration
+## Running the Portable Home Configuration
 
-You can also run a shell with the home configuration already loaded in it. This
-is helpful when you only need to use the configuration temporarily and not apply
-it, like when you're in a remote host or container. The executable is a
-self-extracting archive (SEA) that contains all the command-line programs I use,
-as well as my config files for them. You can download it from the [releases
-page][releases].
+You can also run a shell with a home configuration already loaded in it. This is
+helpful when you only need to use the configuration temporarily and not apply
+it, like when you're on a remote host or in a container. You can download it
+from the [releases page][releases].
 
-> NOTE: While the SEA doesn't depend on any programs on your computer, it does
-> require that you have a `/tmp` directory. You can read this [GitHub issue
-> comment regarding a "rootless Nix"][rootless-nix] to see why this is needed,
-> as well as learn more about how this works.
+### How it Works
+
+A nix bundler takes a [Home Manager][home-manager] configuration and bundles all
+of its dependencies, and the bundler itself, into a self-extracting archive
+(SEA). When you execute the SEA, it unpacks the dependencies and rewrites any
+paths referenced in a file that start with `/nix/store`. It rewrites these paths
+to a symbolic link that it creates in `/tmp` with the same number of characters
+(e.g. `/tmp/abcde`). It's important that the length of the new path be the same
+as the length of `/nix/store`. This is because binaries usually read these paths
+using offsets and so a longer/shorter path would change these offsets. The
+symbolic link then points to the extracted contents of the SEA which is stored
+in the system's temporary directory. This could also be `/tmp` or the path
+pointed to by the environment variable `$TMPDIR`, if it's set. I found this idea
+in a [GitHub issue comment regarding a "rootless Nix"][rootless-nix] and decided
+to try and build it to learn more about Nix.
 
 [determinate-systems-installer]:
   https://github.com/DeterminateSystems/nix-installer
