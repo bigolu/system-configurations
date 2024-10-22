@@ -63,7 +63,9 @@ jobs:
             exit 1
           fi
 
-          sha256sum "$shell_path" > "$artifact_directory/checksums/$shell_name.txt"
+          checksum_directory="$artifact_directory/checksums"
+          mkdir "$checksum_directory"
+          sha256sum "$shell_path" > "$checksum_directory/$shell_name.txt"
 
           echo "artifact-directory=$artifact_directory" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
