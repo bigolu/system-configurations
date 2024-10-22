@@ -48,6 +48,8 @@ jobs:
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           token: ${{ steps.bot-token.outputs.token }}
+          # For more information on how the branch name, is calculated see:
+          # https://stackoverflow.com/a/71158878
           ref: ${{ github.head_ref || github.ref_name }}
       - uses: ./.github/actions/setup
         with:

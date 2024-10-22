@@ -2,13 +2,16 @@ name: "Check Pull Request"
 on:
   pull_request:
   push:
+    # These branches get merged without a pull request being made.
     branches:
       # SYNC: AUTOMERGE_PREFIX
       - "renovate/branch-automerge/**"
+# Since we're only interested in checking the latest commit to the branch, we'll
+# limit the workflow to running at most once per branch, cancelling older runs when
+# newer ones start.
 concurrency:
-  # Since we're only interested in checking the latest commit to the branch,
-  # we'll limit the workflow to running at most once per branch, cancelling
-  # older runs when newer ones start.
+  # For more information on how the branch name, is calculated see:
+  # https://stackoverflow.com/a/71158878
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 jobs:

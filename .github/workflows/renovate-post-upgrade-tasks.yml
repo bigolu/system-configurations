@@ -11,6 +11,9 @@ on:
 jobs:
   update-gomod2nix:
     # SYNC: RENOVATE_FIXUP_GOLANG AUTOMERGE_PREFIX
+    #
+    # For more information on how the branch name, is calculated see:
+    # https://stackoverflow.com/a/71158878
     if: ${{ startsWith(github.head_ref || github.ref_name, 'renovate/branch-automerge/fixup/golang/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task-runner.yml
     with:
@@ -20,6 +23,9 @@ jobs:
       CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
   fix-envrc:
     # SYNC: RENOVATE_FIXUP_ENVRC AUTOMERGE_PREFIX
+    #
+    # For more information on how the branch name, is calculated see:
+    # https://stackoverflow.com/a/71158878
     if: ${{ startsWith(github.head_ref || github.ref_name, 'renovate/branch-automerge/fixup/envrc/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task-runner.yml
     with:
@@ -29,6 +35,9 @@ jobs:
       CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
   fix-nix-version:
     # SYNC: RENOVATE_FIXUP_NIX_VERSION AUTOMERGE_PREFIX
+    #
+    # For more information on how the branch name, is calculated see:
+    # https://stackoverflow.com/a/71158878
     if: ${{ startsWith(github.head_ref || github.ref_name, 'renovate/branch-automerge/fixup/nix-version/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task-runner.yml
     with:
