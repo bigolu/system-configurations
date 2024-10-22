@@ -255,6 +255,18 @@
               nix-fast-build
             ];
           };
+
+          ciRenovateTaskRunner = makeShell {
+            packages = with pkgs; [
+              gitMinimal
+            ];
+          };
+
+          ciCheckForBrokenLinks = makeShell {
+            packages = with pkgs; [
+              gh
+            ];
+          };
         };
       };
 

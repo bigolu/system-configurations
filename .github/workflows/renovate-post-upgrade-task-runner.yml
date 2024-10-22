@@ -52,7 +52,13 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          dev-shell: ciRenovateTaskRunner
       - run: ${{ inputs.command }}
-      - uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5
-        with:
-          commit_message: ${{ vars.MARKER }} fixup
+      - env:
+          MARKER: ${{ vars.MARKER }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git add --all
+            git commit -m "$MARKER fixup"
+            git push
+          fi
