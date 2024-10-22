@@ -16,7 +16,7 @@ function main {
 
   # SYNC: AUTOMERGE_PREFIX
   readarray -t branches_to_automerge \
-    < <(git branch --remotes --format '%(refname:lstrip=3)' | rg '^renovate/branch-automerge/')
+    < <(git branch --remotes --format '%(refname:lstrip=3)' | rg '^renovate/branch-automerge/fixup/')
 
   branches_to_automerge_without_pr=()
   for branch_to_automerge in "${branches_to_automerge[@]}"; do
