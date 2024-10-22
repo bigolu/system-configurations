@@ -9,9 +9,7 @@ let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) isLinux;
 
-  fish = pkgs.fish.override {
-    usePython = false;
-  };
+  inherit (pkgs) fish;
 
   # "C.UTF-8/UTF-8" is the locale that perl said wasn't supported so I added it here.
   # "en_US.UTF-8/UTF-8" is the default locale so I'm keeping it just in case.
@@ -41,7 +39,7 @@ let
   ];
 
   allOverlays = overlays ++ [
-    (_final: prev: {
+    (_final: _prev: {
       moreutils = makeEmptyPackage "moreutils";
       ast-grep = makeEmptyPackage "ast-grep";
       timg = makeEmptyPackage "timg";
@@ -50,10 +48,6 @@ let
       wordnet = makeEmptyPackage "wordnet";
       diffoscope = makeEmptyPackage "diffoscope";
       gitMinimal = makeEmptyPackage "gitMinimal";
-
-      fish = prev.fish.override {
-        usePython = false;
-      };
     })
   ];
 
