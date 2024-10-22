@@ -32,7 +32,9 @@ function main {
 
   gh alias set get-checks "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.check_runs[]' /repos/$GITHUB_REPOSITORY/commits/\$1/check-runs"
 
-  failure_states=(failure cancelled timed_out action_required)
+  # You shouldn't skip a required check:
+  # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+  failure_states=(failure cancelled timed_out action_required skipped)
 
   remote=origin
 

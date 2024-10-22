@@ -15,63 +15,51 @@ jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   lint:
-    if: ${{ ! startsWith(github.head_ref || github.ref_name, 'renovate/')  }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/setup
+      # I would just put a conditional on the whole job, but since this check is
+      # required, it can't be skipped at the job level[1]. However, individual steps
+      # can be skipped. To avoid having to put a conditional over every step I moved
+      # all the steps into a separate action.
+      #
+      # [1]:
+      # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+      - if: ${{ ! startsWith(github.head_ref || github.ref_name, 'renovate/')  }}
+        uses: ./.github/actions/lint
         with:
-          dev-shell: ciLint
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: |
-          if ! lefthook run --all-files fix-lint; then
-            echo 'DID_FAIL=true' >> "$GITHUB_ENV"
-          fi
-      - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
-        with:
-          tool_name: lint-autofix
-          level: error
-          filter_mode: nofilter
-          reviewdog_flags: "-fail-level=any"
-      - env:
-          # 'lint check' calls reviewdog so it needs a token
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if ! lefthook run --all-files check-lint; then
-            echo 'DID_FAIL=true' >> "$GITHUB_ENV"
-          fi
-      # By waiting until everything has run to fail the job, we'll see all the
-      # errors at once instead of fixing some errors, rerunning the job, and
-      # finding more.
-      - if: ${{ env.DID_FAIL == 'true' }}
-        run: exit 1
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   check-style:
-    if: ${{ ! startsWith(github.head_ref || github.ref_name, 'renovate/')  }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      - uses: ./.github/actions/setup
+      # I would just put a conditional on the whole job, but since this check is
+      # required, it can't be skipped at the job level[1]. However, individual steps
+      # can be skipped. To avoid having to put a conditional over every step I moved
+      # all the steps into a separate action.
+      #
+      # [1]:
+      # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+      - if: ${{ ! startsWith(github.head_ref || github.ref_name, 'renovate/')  }}
+        uses: ./.github/actions/check-style
         with:
-          dev-shell: ciCheckStyle
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: lefthook run format --all-files
-      - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
-        with:
-          tool_name: code-style
-          level: error
-          filter_mode: nofilter
-          reviewdog_flags: "-fail-level=any"
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   ensure-generated-code-is-up-to-date:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
-      # We can't use 'paths:' filters because this a required check so it
-      # has to run for a pull request to be merged. Instead, we skip using a
-      # conditional, this way it still counts as a run.
+      # Ideally, I'd put this job in a separate workflow and use 'paths:' to match
+      # relevant files, but since this check is required, it can't be skipped at the
+      # job or workflow level[1]. However, individual steps can be skipped. To avoid
+      # having to put a conditional over every step I moved all the steps into a
+      # separate action.
+      #
+      # [1]:
+      # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
       - name: Get all codegen-related files that have changed
         id: changed-files-yaml
         uses: tj-actions/changed-files@48d8f15b2aaa3d255ca5af3eba4870f807ce6b3c # v45
@@ -88,16 +76,7 @@ jobs:
               - "flake-modules/**"
               - "flake.nix"
       - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
-        uses: ./.github/actions/setup
+        uses: ./.github/actions/ensure-generated-code-is-up-to-date
         with:
-          dev-shell: ciCodegen
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
-        run: lefthook run --all-files generate || true
-      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
-        uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
-        with:
-          tool_name: code-generation
-          level: error
-          filter_mode: nofilter
-          reviewdog_flags: "-fail-level=any"

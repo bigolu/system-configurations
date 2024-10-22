@@ -1,0 +1,26 @@
+name: Ensure generated code is up to date
+description: Ensure generated code is up to date
+inputs:
+  github-token:
+    description: The name of the devShell to activate
+    required: false
+    default: ci
+  cachix-auth-token:
+    description: An authentication token for Cachix
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - uses: ./.github/actions/setup
+      with:
+        dev-shell: ciCodegen
+        cachix-auth-token: "${{ inputs.cachix-auth-token }}"
+    - run: lefthook run --all-files generate || true
+      shell: bash
+    - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
+      with:
+        tool_name: code-generation
+        level: error
+        filter_mode: nofilter
+        reviewdog_flags: "-fail-level=any"
+        github_token: ${{ inputs.github-token }}
