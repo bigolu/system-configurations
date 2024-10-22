@@ -244,3 +244,5 @@ function diff
         diffoscope --text-color always $argv
     end
 end
+
+set --global --export PYTHONDONTWRITEBYTECODE 1

@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.gh local#nixpkgs.ripgrep local#nixpkgs.gitMinimal local#nixpkgs.coreutils --command bash
+#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.jq local#nixpkgs.gh local#nixpkgs.ripgrep local#nixpkgs.gitMinimal local#nixpkgs.coreutils --command bash
 
 # shellcheck shell=bash
 
@@ -13,6 +13,7 @@ set -o pipefail
 function main {
   readarray -t branches_with_pr \
     < <(gh pr list --json headRefName --jq '.[].headRefName' --repo "$GITHUB_REPOSITORY")
+
   # SYNC: AUTOMERGE_PREFIX
   readarray -t branches_to_automerge \
     < <(git branch --remotes --format '%(refname:lstrip=3)' | rg '^renovate/branch-automerge/')
@@ -24,37 +25,75 @@ function main {
     fi
   done
 
-  gh alias set commit-status "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.state' /repos/$GITHUB_REPOSITORY/commits/\$1/status"
   default_branch="$(git symbolic-ref --short HEAD)"
+
+  gh alias set get-required-check-names "api -H 'Accept: application/vnd.github+json' --jq '.[] | select(.type == \"required_status_checks\") | .parameters.required_status_checks[].context' /repos/$GITHUB_REPOSITORY/rules/branches/$default_branch "
+  readarray -t required_check_names < <(gh get-required-check-names)
+
+  gh alias set get-checks "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.check_runs[]' /repos/$GITHUB_REPOSITORY/commits/\$1/check-runs"
+
+  failure_states=(failure cancelled timed_out action_required)
+
+  remote=origin
 
   for branch in "${branches_to_automerge_without_pr[@]}"; do
     echo $'\n'"Processing branch: $branch"
-    absolute_branch="origin/$branch"
 
-    if [[ "$(gh commit-status "$branch")" = 'failure' ]]; then # Failed check
-      make_pr \
-        "$branch" \
-        'This branch has failing checks. Automerge has been disabled.'
-    elif ! git merge-base --is-ancestor "$default_branch" "$absolute_branch"; then # Out of date
+    absolute_branch="$remote/$branch"
+
+    readarray -t checks < <(gh get-checks "$branch" | jq -c)
+    required_checks=()
+    for check in "${checks[@]}"; do
+      if is_item_in "$(jq '.name' <<<"$check")" "${required_check_names[@]}"; then
+        required_checks=("${required_checks[@]}" "$check")
+      fi
+    done
+
+    if has_failure "${checks[@]}"; then
+      make_pr "$branch" 'This branch has failing checks.'
+    elif ! git merge-base --is-ancestor "$default_branch" "$absolute_branch"; then
+      # Out of date
       if git rebase "$default_branch" "$absolute_branch"; then
         git push "$absolute_branch"
       else
         git rebase --abort
-        make_pr \
-          "$branch" \
-          'This branch has merge conflicts with the default branch. Automerge has been disabled.'
+        make_pr "$branch" 'This branch has merge conflicts with the default branch.'
       fi
+
       git switch "$default_branch"
-    elif [[ "$(gh commit-status "$branch")" = 'success' ]]; then # Checks passed
+    elif all_checks_passed "${checks[@]}"; then
       # newest commits first so take the last
       sha="$(git rev-list --ancestry-path "$default_branch".."$absolute_branch" | tail -1)"
+      message="$(get_commit_message "$sha")"
+
       git merge --squash "$absolute_branch"
-      git commit -m "$(get_commit_message "$sha")"
+      git commit -m "$message"
       git push "$default_branch"
+      git push --delete "$remote" "$branch"
     else # Pending checks
       continue
     fi
   done
+}
+
+function has_failure {
+  for check in "$@"; do
+    if [[ "$(jq '.status' <<<"$check")" = completed ]] && is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"; then
+      return 0
+    fi
+  done
+
+  return 1
+}
+
+function all_checks_passed {
+  for check in "$@"; do
+    if [[ "$(jq '.status' <<<"$check")" != completed ]] || is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"; then
+      return 1
+    fi
+  done
+
+  return 0
 }
 
 function make_pr {
@@ -62,8 +101,8 @@ function make_pr {
     --repo "$GITHUB_REPOSITORY" \
     --head "$1" \
     --base "$default_branch" \
-    --title "$(get_commit_message "origin/$1")" \
-    --body "$2"
+    --title "$(get_commit_message "$remote/$1")" \
+    --body "$2 Automerge has been disabled."
 }
 
 function get_commit_message {
