@@ -1,10 +1,17 @@
 name: "Renovate Post-Upgrade Tasks"
 on:
   pull_request:
+    branches:
+      # SYNC: AUTOMERGE_PREFIX
+      - "renovate/branch-automerge/fixup/**"
+  push:
+    branches:
+      # SYNC: AUTOMERGE_PREFIX
+      - "renovate/branch-automerge/fixup/**"
 jobs:
   update-gomod2nix:
     # SYNC: RENOVATE_FIXUP_GOLANG AUTOMERGE_PREFIX
-    if: ${{ startsWith(github.head_ref, 'renovate/branch-automerge/fixup/golang/')  }}
+    if: ${{ startsWith(github.head_ref || github.ref_name, 'renovate/branch-automerge/fixup/golang/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task-runner.yml
     with:
       command: ./scripts/code-generation/generate-gomod2nix-lock.bash
@@ -13,10 +20,19 @@ jobs:
       CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
   fix-envrc:
     # SYNC: RENOVATE_FIXUP_ENVRC AUTOMERGE_PREFIX
-    if: ${{ startsWith(github.head_ref, 'renovate/branch-automerge/fixup/envrc/')  }}
+    if: ${{ startsWith(github.head_ref || github.ref_name, 'renovate/branch-automerge/fixup/envrc/')  }}
     uses: ./.github/workflows/renovate-post-upgrade-task-runner.yml
     with:
       command: ./scripts/ci/set-nix-direnv-hash.bash
+    secrets:
+      BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}
+  fix-nix-version:
+    # SYNC: RENOVATE_FIXUP_NIX_VERSION AUTOMERGE_PREFIX
+    if: ${{ startsWith(github.head_ref || github.ref_name, 'renovate/branch-automerge/fixup/nix-version/')  }}
+    uses: ./.github/workflows/renovate-post-upgrade-task-runner.yml
+    with:
+      command: ./scripts/sync-nix-version.bash
     secrets:
       BIGOLU_BOT_PRIVATE_KEY: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       CACHIX_AUTH_TOKEN: ${{ secrets.CACHIX_AUTH_TOKEN }}

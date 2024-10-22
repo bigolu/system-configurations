@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.gh local#nixpkgs.ripgrep local#nixpkgs.gitMinimal --command bash
+#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.gh local#nixpkgs.ripgrep local#nixpkgs.gitMinimal local#nixpkgs.coreutils --command bash
 
 # shellcheck shell=bash
 
@@ -13,6 +13,7 @@ set -o pipefail
 function main {
   readarray -t branches_with_pr \
     < <(gh pr list --json headRefName --jq '.[].headRefName' --repo "$GITHUB_REPOSITORY")
+  # SYNC: AUTOMERGE_PREFIX
   readarray -t branches_to_automerge \
     < <(git branch --remotes --format '%(refname:lstrip=3)' | rg '^renovate/branch-automerge/')
 
@@ -23,51 +24,50 @@ function main {
     fi
   done
 
-  for branch_to_automerge_without_pr in "${branches_to_automerge_without_pr[@]}"; do
-    labels=()
-    if ! rg '^renovate/branch-automerge/fixup/' <<<"$branch_to_automerge_without_pr"; then
-      labels=(--label automerge)
-    fi
+  gh alias set commit-status "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.state' /repos/$GITHUB_REPOSITORY/commits/\$1/status"
+  default_branch="$(git symbolic-ref --short HEAD)"
 
-    # TODO: I hardcoded 'origin'
-    gh pr create --repo "$GITHUB_REPOSITORY" --head "$branch_to_automerge_without_pr" --base "$(git symbolic-ref --short HEAD)" --title "$IGNORE_MARKER $(git show -s --format=%B origin/"$branch_to_automerge_without_pr")" --body 'A renovate automergeable update.' "${labels[@]}"
-  done
+  for branch in "${branches_to_automerge_without_pr[@]}"; do
+    echo $'\n'"Processing branch: $branch"
+    absolute_branch="origin/$branch"
 
-  while IFS= read -r pr_number; do
-    echo "Processing PR #$pr_number"
-
-    comment_body=
-    if [[ "$(gh pr checks "$pr_number" --json bucket --jq '.[].bucket' --repo "$GITHUB_REPOSITORY" --required)" =~ 'fail' ]]; then
-      # SYNC: NIX_BRANCH_PREFIX
-      if [[ "$(gh pr view "$pr_number" --json headRefName --jq '.headRefName' --repo "$GITHUB_REPOSITORY")" == renovate/branch-automerge/flake-lock/* ]]; then
-        # Since I track nixpkgs-unstable some failures are expected. Just close
-        # the PR, delete the branch, and hope it passes next time since the lock
-        # will get regenerated.
-        gh pr close "$pr_number" --repo "$GITHUB_REPOSITORY" --delete-branch
-        continue
+    if [[ "$(gh commit-status "$branch")" = 'failure' ]]; then # Failed check
+      make_pr \
+        "$branch" \
+        'This branch has failing checks. Automerge has been disabled.'
+    elif ! git merge-base --is-ancestor "$default_branch" "$absolute_branch"; then # Out of date
+      if git rebase "$default_branch" "$absolute_branch"; then
+        git push "$absolute_branch"
       else
-        echo 'Status checks failed'
-        comment_body='A status check failed so auto-merging has been disabled.'
+        git rebase --abort
+        make_pr \
+          "$branch" \
+          'This branch has merge conflicts with the default branch. Automerge has been disabled.'
       fi
-    elif [[ "$(gh pr view "$pr_number" --json mergeable --jq '.mergeable' --repo "$GITHUB_REPOSITORY")" = CONFLICTING ]]; then
-      echo 'PR is conflicted'
-      comment_body='This PR has a conflict with its base branch so auto-merging has been disabled.'
+      git switch "$default_branch"
+    elif [[ "$(gh commit-status "$branch")" = 'success' ]]; then # Checks passed
+      # newest commits first so take the last
+      sha="$(git rev-list --ancestry-path "$default_branch".."$absolute_branch" | tail -1)"
+      git merge --squash "$absolute_branch"
+      git commit -m "$(get_commit_message "$sha")"
+      git push "$default_branch"
+    else # Pending checks
+      continue
     fi
+  done
+}
 
-    if [[ -n "$comment_body" ]]; then
-      old_title="$(gh pr view "$pr_number" --json title --jq '.title' --repo "$GITHUB_REPOSITORY")"
-      gh pr edit "$pr_number" --repo "$GITHUB_REPOSITORY" \
-        --remove-label automerge \
-        --add-label automerge-failed \
-        --title "[automerge-failed] $old_title"
-      gh pr comment "$pr_number" --repo "$GITHUB_REPOSITORY" \
-        --body "$comment_body"
-    else
-      gh pr update-branch "$pr_number" --repo "$GITHUB_REPOSITORY" --rebase
-      gh pr merge "$pr_number" --repo "$GITHUB_REPOSITORY" --auto --squash --delete-branch
-    fi
-    # SYNC: AUTOMERGE_LABEL
-  done < <(gh pr list --json number --jq '.[].number' --repo "$GITHUB_REPOSITORY" --label automerge)
+function make_pr {
+  gh pr create \
+    --repo "$GITHUB_REPOSITORY" \
+    --head "$1" \
+    --base "$default_branch" \
+    --title "$(get_commit_message "origin/$1")" \
+    --body "$2"
+}
+
+function get_commit_message {
+  git show --no-patch --format=%B "$1"
 }
 
 function is_item_in {

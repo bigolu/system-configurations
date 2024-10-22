@@ -35,11 +35,8 @@
       // update _can_ be a breaking change.
       matchCurrentVersion: "!/^0/",
 
-      // Disable PR creation, so I can make the PR myself without getting a
-      // notification.
-      prCreation: "approval",
-
-      // So my automerger knows to create PRs for these branches.
+      automerge: true,
+      automergeType: "branch",
       // SYNC: AUTOMERGE_PREFIX
       additionalBranchPrefix: "branch-automerge/",
     },
@@ -61,14 +58,9 @@
       matchManagers: ["nix"],
       matchUpdateTypes: ["lockFileMaintenance"],
 
-      // Disable PR creation, so I can make the PR myself without getting a
-      // notification.
-      prCreation: "approval",
-
-      // Add the prefix that marks this as automergeable.
-      // Add another prefix so I can apply special rules for automerging these.
-      // SYNC: NIX_BRANCH_PREFIX AUTOMERGE_PREFIX
-      additionalBranchPrefix: "branch-automerge/flake-lock/",
+      // So I can add commits of my own
+      // SYNC: RENOVATE_FIXUP_NIX_VERSION AUTOMERGE_PREFIX
+      additionalBranchPrefix: "branch-automerge/fixup/nix-version/",
     },
     // By default, indirect Go dependencies aren't updated
     {
@@ -83,8 +75,7 @@
 
     // Don't automerge, it may be wrong:
     // https://docs.renovatebot.com/configuration-options/#vulnerabilityalerts
-    additionalBranchPrefix: "",
-    prCreation: "not-pending",
+    automerge: false,
   },
   customManagers: [
     {

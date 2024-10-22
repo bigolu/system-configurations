@@ -1,20 +1,19 @@
 name: auto-merge
 on:
   workflow_dispatch:
-  # schedule:
-  #   # Since we are using an app token, instead of the default github action
-  #   # token, anything done here can trigger other workflows avoid creating an
-  #   # infinite loop. That shouldn't be a problem here since this runs on a
-  #   # schedule.
-  #   #
-  #   # Once daily at midnight
-  #   - cron: "0 0 * * *"
+  schedule:
+    # Since we are using an app token, instead of the default github action token,
+    # anything done here can trigger other workflows avoid creating an infinite loop.
+    # Though that shouldn't be a problem here since this runs on a schedule.
+    #
+    # Once daily at midnight
+    - cron: "0 0 * * *"
 concurrency:
-  # There's no reason to have multiple runs of this workflow going on at the
-  # same time so we will limit the workflow to running at most once per branch,
-  # cancelling older runs when newer ones start.
-  group: ${{ github.workflow }}-${{ github.ref_name }}
-  cancel-in-progress: true
+  # In the very rare event that another run starts before a previous one finishes,
+  # let the previous one finish. Otherwise, it would just keep processing the first n
+  # branches.
+  group: auto-merge
+  cancel-in-progress: false
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
@@ -34,4 +33,3 @@ jobs:
       - run: ./scripts/ci/auto-merge.bash
         env:
           GH_TOKEN: "${{ steps.bot-token.outputs.token }}"
-          IGNORE_MARKER: ${{ vars.RENOVATE_EMAIL_IGNORE_MARKER }}
