@@ -9,16 +9,11 @@
     pinDigests: true,
   },
   postUpdateOptions: ["gomodTidy", "gomodMassage"],
-  extends: [
-    "config:best-practices",
-    "schedule:weekends",
-    "schedule:automergeWeekends",
-  ],
+  extends: ["config:best-practices"],
   separateMajorMinor: true,
   separateMultipleMajor: true,
   lockFileMaintenance: {
     enabled: true,
-    schedule: ["every weekend"],
   },
   packageRules: [
     {
@@ -57,6 +52,9 @@
     {
       matchManagers: ["nix"],
       matchUpdateTypes: ["lockFileMaintenance"],
+
+      automerge: true,
+      automergeType: "branch",
 
       // So I can add commits of my own
       // SYNC: RENOVATE_FIXUP_NIX_VERSION AUTOMERGE_PREFIX
