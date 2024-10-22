@@ -20,7 +20,7 @@ in
       trusted-substituters = [
         "https://cache.nixos.org"
         "https://nix-community.cachix.org"
-        "https://artifacts.bigo.lu"
+        "https://bigolu.cachix.org"
       ];
 
       trusted-public-keys = [
@@ -28,7 +28,7 @@ in
 
         # SYNC: SYS_CONF_PUBLIC_KEYS
         "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-        "artifacts.bigo.lu-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw="
+        "bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw="
       ];
 
       experimental-features = [
