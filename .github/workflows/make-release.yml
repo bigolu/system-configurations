@@ -86,6 +86,6 @@ jobs:
           path: artifacts
           pattern: artifacts-*
           merge-multiple: true
-      - run: ./scripts/ci/release.bash
+      - run: ./scripts/ci/make-release.bash
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
