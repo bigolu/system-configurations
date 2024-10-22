@@ -31,7 +31,8 @@ function make_release_notes {
   {
     printf '# SHA256 Checksums:\n\n'
     for checksum_file in artifacts/checksums/*; do
-      printf '%s\n' "${checksum_file%.*}"
+      base="$(basename "$checksum_file")"
+      printf '%s\n' "${base%.*}"
       # shellcheck disable=2016
       printf '\n```\n%s\n```\n\n' "$(<"$checksum_file")"
     done
