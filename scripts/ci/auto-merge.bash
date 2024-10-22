@@ -29,6 +29,7 @@ function main {
 
   gh alias set get-required-check-names "api -H 'Accept: application/vnd.github+json' --jq '.[] | select(.type == \"required_status_checks\") | .parameters.required_status_checks[].context' /repos/$GITHUB_REPOSITORY/rules/branches/$default_branch "
   readarray -t required_check_names < <(gh get-required-check-names)
+  echo 'required check names:' "${required_check_names[@]}"
 
   gh alias set get-checks "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.check_runs[]' /repos/$GITHUB_REPOSITORY/commits/\$1/check-runs"
 
@@ -46,13 +47,15 @@ function main {
     for check in "${checks[@]}"; do
       if is_item_in "$(jq '.name' <<<"$check")" "${required_check_names[@]}"; then
         required_checks=("${required_checks[@]}" "$check")
+        jq -r '"check: " + .name + " " + .status + " " + .conclusion' <<<"$check"
       fi
     done
 
     if has_failure "${checks[@]}"; then
+      echo 'has failure'
       make_pr "$branch" 'This branch has failing checks.'
     elif ! git merge-base --is-ancestor "$default_branch" "$absolute_branch"; then
-      # Out of date
+      echo 'out of date'
       if git rebase "$default_branch" "$absolute_branch"; then
         git push "$absolute_branch"
       else
@@ -62,6 +65,7 @@ function main {
 
       git switch "$default_branch"
     elif all_checks_passed "${checks[@]}"; then
+      echo 'all checks passed'
       # newest commits first so take the last
       sha="$(git rev-list --ancestry-path "$default_branch".."$absolute_branch" | tail -1)"
       message="$(get_commit_message "$sha")"
@@ -70,7 +74,8 @@ function main {
       git commit -m "$message"
       git push "$default_branch"
       git push --delete "$remote" "$branch"
-    else # Pending checks
+    else
+      echo 'assuming there are pending checks'
       continue
     fi
   done
