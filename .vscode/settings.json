@@ -61,6 +61,7 @@
     // https://github.com/valentjn/ltex-ls/blob/1193c9959aa87b3d36ca436060447330bf735a9d/src/main/kotlin/org/bsplines/ltexls/parsing/CodeFragmentizer.kt
     "bib",
     "bibtex",
+    "git-commit",
     "html",
     "xhtml",
     "context",
