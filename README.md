@@ -45,23 +45,10 @@ For reference, here are all the hosts, grouped by host manager, in the format
 
 ### Steps
 
-<!--
-  I used to use HTML comments to denote the start and end of the nix version e.g.
-  <!-- START_VERSION>...<!-- END_VERSION>, but when prettier hard-wrapped the line
-  and moved the version to its own line, the version was on its own line in the
-  rendered markdown as well. I tested this with a few other markdown parsers and it
-  seems like content between two comment tags gets its own line. To avoid this, I use
-  an id. Prettier did warn that some renderers would be whitespace-sensitive[1].
-
-  [1]: https://prettier.io/docs/en/options.html#prose-wrap
--->
-
 1. Install Nix using the [Determinate Systems Nix
-   Installer][determinate-systems-installer]. Make sure you install the same
-   version of nix as the one being used in this flake,
-   <code id="nix-version">2.24.8</code>. You can specify a version by doing
-   something like the following (make sure you update the platform used in the
-   URL to match that of your host):
+   Installer][determinate-systems-installer]. After you download it, replace the
+   platform (x86_64) in the URL below with that of your host and then run the
+   command:
 
    > NOTE: The installer may have changed since this was written so make sure
    > everything below is still valid.
@@ -71,9 +58,9 @@ For reference, here are all the hosts, grouped by host manager, in the format
      --nix-package-url https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-x86_64-linux.tar.xz
    ```
 
-2. The following command will start a fish shell within a Nix shell containing
-   the other required programs, set the binary caches, and clone the repository
-   by running:
+2. Run the following command. It will start a fish shell within a Nix shell
+   containing the other required programs, set the binary caches, and clone the
+   repository:
 
    <!-- SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS -->
 

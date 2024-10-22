@@ -196,13 +196,14 @@ generate:
         '
     nix-version:
       glob: "flake.lock"
-      run: >
+      run: |
         ./scripts/fail-if-files-change.bash bash -o pipefail -euc '
-        version="$(nix --version)";
-        version_number="${version##* }";
-        sed -i "s/<code id=\"nix-version\">.*<\/code>/<code id=\"nix-version\">$version_number<\/code>/" README.md;
-        sed -i "s/\/nix-[0-9]*\.[0-9]*\.[0-9]*/\/nix-$version_number/g" README.md;
-        sed -i "s/\/nix-[0-9]*\.[0-9]*\.[0-9]*/\/nix-$version_number/g" .github/actions/setup/action.yml;
+          version="$(nix --version)"
+          version_number="${version##* }"
+          files=(.github/actions/setup/action.yml README.md)
+          for file in "${files[@]}"; do
+            sed -i "s/\/nix-[0-9]*\.[0-9]*\.[0-9]*/\/nix-$version_number/g" "$file"
+          done
         '
     configs:
       glob: "{flake-modules/**,flake.nix}"
