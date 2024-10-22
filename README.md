@@ -85,8 +85,8 @@ For reference, here are all the hosts, grouped by host manager, in the format
        # https://github.com/fish-shell/fish-shell/issues/510
 
        echo "
-         extra-trusted-public-keys = bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-         extra-substituters = https://bigolu.cachix.org https://nix-community.cachix.org
+         extra-trusted-public-keys = artifacts.bigo.lu-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+         extra-substituters = https://artifacts.bigo.lu https://nix-community.cachix.org
        " | sudo tee -a /etc/nix/nix.conf || exit
 
        # Reload the daemon so it picks up the configuration changes.
