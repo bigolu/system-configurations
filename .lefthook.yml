@@ -20,6 +20,8 @@ colors:
   yellow: 3
 
 # I would include summary, but it's too noisy if you nest lefthook invocations.
+#
+# SYNC: LEFTHOOK_OUTPUT
 output:
   - execution_info
 
