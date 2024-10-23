@@ -18,7 +18,7 @@ jobs:
     outputs:
       count: ${{ steps.get-new-commit-count.outputs.count }}
     steps:
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       # SYNC: NEW_COMMITS_SINCE
       - name: Get the number of new commits
         id: get-new-commit-count
@@ -37,7 +37,7 @@ jobs:
         os: [ubuntu-latest, macos-13]
       fail-fast: false
     steps:
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
@@ -77,7 +77,7 @@ jobs:
     needs: make-assets
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"

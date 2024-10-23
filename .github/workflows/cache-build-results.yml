@@ -37,7 +37,7 @@ jobs:
       # fixing one bug only to find another on a different matrix job.
       fail-fast: false
     steps:
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
