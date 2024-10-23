@@ -1,9 +1,6 @@
 name: Ensure generated code is up to date
 description: Ensure generated code is up to date
 inputs:
-  github-token:
-    description: GitHub token
-    required: true
   cachix-auth-token:
     description: Cachix auth token
     required: true
@@ -33,4 +30,3 @@ runs:
         level: error
         filter_mode: nofilter
         reviewdog_flags: "-fail-level=any"
-        github_token: ${{ inputs.github-token }}
