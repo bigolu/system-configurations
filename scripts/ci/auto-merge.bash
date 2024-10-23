@@ -50,7 +50,9 @@ function main {
     for check in "${checks[@]}"; do
       if is_item_in "$(jq '.name' <<<"$check")" "${required_check_names[@]}"; then
         required_checks=("${required_checks[@]}" "$check")
-        jq -r '"check: " + .name + " " + .status + " " + .conclusion' <<<"$check"
+        jq -r '"found required check: " + .name + " " + .status + " " + .conclusion' <<<"$check"
+      else
+        jq -r '"not a required check: " + .name + " " + .status + " " + .conclusion' <<<"$check"
       fi
     done
 
