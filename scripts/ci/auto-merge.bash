@@ -36,7 +36,10 @@ function main {
   failure_states=(failure cancelled timed_out action_required)
 
   remote=origin
-
+  
+  git config user.name 'github-actions[bot]'
+  git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+  
   for branch in "${branches_to_automerge_without_pr[@]}"; do
     echo $'\n'"Processing branch: $branch"
 
@@ -71,7 +74,9 @@ function main {
       message="$(get_commit_message "$sha")"
 
       git merge --squash "$absolute_branch"
-      git commit -m "$message"
+      git commit \
+        --author "$ACTOR <$ACTOR@users.noreply.github.com>" \
+        --message "$message"
       git push "$default_branch"
       git push --delete "$remote" "$branch"
     else

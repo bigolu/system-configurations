@@ -58,9 +58,15 @@ jobs:
       - run: ${{ inputs.command }}
       - env:
           MARKER: ${{ vars.MARKER }}
+          ACTOR: ${{ github.actor }}
         run: |
           if [ -n "$(git status --porcelain)" ]; then
             git add --all
-            git commit -m "$MARKER fixup"
+            git \
+              -c user.name='github-actions[bot]' \
+              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              commit \
+              --message "$MARKER fixup" \
+              --author="$ACTOR <$ACTOR@users.noreply.github.com>"
             git push
           fi

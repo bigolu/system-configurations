@@ -18,18 +18,22 @@ jobs:
   auto-merge:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
-        with:
-          # So I can get all branches
-          fetch-depth: 0
-      - uses: ./.github/actions/setup
-        with:
-          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - id: bot-token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
         with:
           app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
           private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
+        with:
+          # So I can get all branches
+          fetch-depth: 0
+          # So when we commit, it triggers other workflows:
+          # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
+          token: ${{ steps.bot-token.outputs.token }}
+      - uses: ./.github/actions/setup
+        with:
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: ./scripts/ci/auto-merge.bash
         env:
           GH_TOKEN: "${{ steps.bot-token.outputs.token }}"
+          ACTOR: ${{ github.actor }}
