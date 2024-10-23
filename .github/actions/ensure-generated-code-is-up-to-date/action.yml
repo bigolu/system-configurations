@@ -2,11 +2,10 @@ name: Ensure generated code is up to date
 description: Ensure generated code is up to date
 inputs:
   github-token:
-    description: The name of the devShell to activate
-    required: false
-    default: ci
+    description: GitHub token
+    required: true
   cachix-auth-token:
-    description: An authentication token for Cachix
+    description: Cachix auth token
     required: true
 runs:
   using: "composite"
@@ -15,8 +14,16 @@ runs:
       with:
         dev-shell: ciCodegen
         cachix-auth-token: "${{ inputs.cachix-auth-token }}"
-    - run: lefthook run --all-files generate || true
-      shell: bash
+    - shell: bash
+      run: |
+        # This step shouldn't fail because if it does, reviewdog will never run.
+        # By using a conditional, Bash won't fail if this command fails.
+        if ! lefthook run generate --all-files; then
+          # reviewdog only fails if files were changed. That means if lefthook fails, but
+          # doesn't change any files, the job would still pass. By setting this
+          # variable we can communicate a failure even when files don't change.
+          echo 'CODEGEN_FAILED=true' >> "$GITHUB_ENV"
+        fi
     - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
       with:
         tool_name: code-generation
@@ -24,3 +31,6 @@ runs:
         filter_mode: nofilter
         reviewdog_flags: "-fail-level=any"
         github_token: ${{ inputs.github-token }}
+    - if: ${{ env.CODEGEN_FAILED == 'true' }}
+      run: exit 1
+      shell: bash

@@ -2,15 +2,26 @@ name: "Check Pull Request"
 on:
   pull_request:
   push:
-    # These branches get merged without a pull request being made.
+    # These branches get merged without a pull request being made so we need to check
+    # them too.
     branches:
       # SYNC: AUTOMERGE_PREFIX
       - "renovate/branch-automerge/**"
-# Since we're only interested in checking the latest commit to the branch, we'll
+# Since we're only interested in checking the latest commit to the branch, we could
 # limit the workflow to running at most once per branch, cancelling older runs when
-# newer ones start.
+# newer ones start. However, doing so would mean if we push to a branch, a
+# pull_request event and push event would trigger this workflow and one of those
+# workflow runs would be cancelled. This should be fine, but since the jobs in this
+# workflow are required checks they must run. Meaning they can't be skipped as a
+# result of this concurrency setting. Even if the same workflow is triggered once by
+# a push event and once by a pull_request, like with this workflow, the jobs in both
+# of them are considered required checks and they all must run. To get around this,
+# we instead limit the workflow to running once per event per branch. This way, we
+# still only run the on the latest commit, but a required check is never skipped. To
+# skip duplicate runs, we instead use a job.<job_id>.if conditional since skipping
+# required checks from there is ok.
 concurrency:
-  # For more information on how the branch name, is calculated see:
+  # For more information on how the branch name is calculated see:
   # https://stackoverflow.com/a/71158878
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -19,10 +30,10 @@ jobs:
   # branch, don't change it without updating the required checks as well.
   lint:
     # Only run if both of the following are true:
-    #   - This is not a pull request event for a Renovate automerge branch.
-    #     Those are covered by the push event.
-    #   - This is not a Renovate branch. I don't think a Renovate change will
-    #     cause a lint issue.
+    #   - It was not triggered by a pull request event for a Renovate automerge
+    #     branch. Those are covered by the push event.
+    #   - This branch is not a Renovate branch. I don't think a change made by
+    #     Renovate will cause a lint issue.
     #
     # For more information on how the branch name, is calculated see:
     # https://stackoverflow.com/a/71158878
@@ -35,35 +46,43 @@ jobs:
           dev-shell: ciLint
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: |
-          if ! lefthook run --all-files fix-lint; then
-            echo 'DID_FAIL=true' >> "$GITHUB_ENV"
+          # This step shouldn't fail because if it does, reviewdog will never run.
+          # By using a conditional, Bash won't fail if this command fails.
+          if ! lefthook run fix-lint --all-files; then
+            # reviewdog only fails if files were changed. That means if lefthook
+            # fails, but doesn't change any files, the job would still pass. By
+            # setting this variable we can communicate a failure even when files
+            # don't change.
+            echo 'FIX_LINT_FAILED=true' >> "$GITHUB_ENV"
           fi
       - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
         with:
           tool_name: lint-autofix
           level: error
           filter_mode: nofilter
-          reviewdog_flags: "-fail-level=any"
+          # reviewdog should not fail if it finds errors. This way, we can report the
+          # errors in this step and future steps all at once instead of failing the
+          # job here, fixing the reported errors, re-running it, and finding more
+          # errors in future steps.
+          reviewdog_flags: "-fail-level=none"
       - env:
-          # 'lint check' calls reviewdog so it needs a token
+          # lefthook calls reviewdog so it needs a token
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if ! lefthook run --all-files check-lint; then
-            echo 'DID_FAIL=true' >> "$GITHUB_ENV"
-          fi
-      # By waiting until everything has run to fail the job, we'll see all the
-      # errors at once instead of fixing some errors, rerunning the job, and
-      # finding more.
-      - if: ${{ env.DID_FAIL == 'true' }}
+        run: lefthook run check-lint --all-files
+      # I'm making this the last step so we can report all errors in previous steps
+      # before potentially failing the job here. This is to avoid the scenario where
+      # the job fails, reported errors are fixed, the job is re-run, and more errors
+      # are found in future steps.
+      - if: ${{ env.FIX_LINT_FAILED == 'true' }}
         run: exit 1
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   check-style:
-    # Only run if both of the following are true:
-    #   - This is not a pull request event for a Renovate automerge branch.
-    #     Those are covered by the push event.
-    #   - This is not a Renovate branch. I don't think they'll break the
-    #     code style.
+    # Only run this job if both of the following are true:
+    #   - It was not triggered by a pull request event for a Renovate automerge
+    #     branch. Those are covered by the push event.
+    #   - The branch is not a Renovate branch. I don't think a change made by renovate
+    #     would break the code style.
     #
     # For more information on how the branch name, is calculated see:
     # https://stackoverflow.com/a/71158878
@@ -75,30 +94,42 @@ jobs:
         with:
           dev-shell: ciCheckStyle
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: lefthook run format --all-files
+      - run: |
+          # This step shouldn't fail because if it does, reviewdog will never run.
+          # By using a conditional, bash won't fail if this command fails.
+          if ! lefthook run format --all-files; then
+            # reviewdog only fails if files were changed. That means if lefthook
+            # fails, but doesn't change any files, the job would still pass. By
+            # setting this variable we can communicate a failure even when files
+            # don't change.
+            echo 'CHECK_STYLE_FAILED=true' >> "$GITHUB_ENV"
+          fi
       - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
         with:
           tool_name: code-style
           level: error
           filter_mode: nofilter
           reviewdog_flags: "-fail-level=any"
+      - if: ${{ env.CHECK_STYLE_FAILED == 'true' }}
+        run: exit 1
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   ensure-generated-code-is-up-to-date:
-    # Only run if this is not a pull request event for a Renovate automerge branch.
-    # Those are covered by the push event.
+    # Only run this job if it wasn't triggered by a pull request event for a Renovate
+    # automerge branch. Those are covered by the push event.
     if: ${{ ! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
       # Ideally, I'd put this job in a separate workflow and use 'paths:' to match
       # relevant files, but since this check is required, it can't be skipped at the
-      # workflow level[1] (A skip using jobs.<job_id>.if is ok though). However,
-      # individual steps can be skipped. To avoid having to put a conditional over
-      # every step I moved all the steps into a separate action.
+      # workflow level[1]. A skip using jobs.<job_id>.if would be ok, but you can't
+      # use the 'paths:' filter there. Since individual steps are also allowed to be
+      # skipped, I decided to use an action that can tell you if certain files were
+      # changed. To avoid having to put a conditional on every step I moved all the
+      # other steps into a separate action.
       #
-      # [1]:
-      # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+      # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
       - name: Get all codegen-related files that have changed
         id: changed-files-yaml
         uses: tj-actions/changed-files@48d8f15b2aaa3d255ca5af3eba4870f807ce6b3c # v45
