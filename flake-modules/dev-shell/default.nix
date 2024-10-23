@@ -82,6 +82,9 @@
 
           # Runs the formatters
           lefthook
+
+          # Reports a diff in CI
+          reviewdog
         ];
       };
 
@@ -163,6 +166,9 @@
 
           # Runs the generators
           lefthook
+
+          # Reports a diff in CI
+          reviewdog
         ];
       };
 
