@@ -27,34 +27,21 @@ function main {
 
   default_branch="$(git symbolic-ref --short HEAD)"
 
-  gh alias set get-required-check-names "api -H 'Accept: application/vnd.github+json' --jq '.[] | select(.type == \"required_status_checks\") | .parameters.required_status_checks[].context' /repos/$GITHUB_REPOSITORY/rules/branches/$default_branch "
-  readarray -t required_check_names < <(gh get-required-check-names)
-  echo 'required check names:' "${required_check_names[@]}"
-
   gh alias set get-checks "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.check_runs[]' /repos/$GITHUB_REPOSITORY/commits/\$1/check-runs"
 
   failure_states=(failure cancelled timed_out action_required)
 
   remote=origin
-  
+
   git config user.name 'github-actions[bot]'
   git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-  
+
   for branch in "${branches_to_automerge_without_pr[@]}"; do
     echo $'\n'"Processing branch: $branch"
 
     absolute_branch="$remote/$branch"
 
     readarray -t checks < <(gh get-checks "$branch" | jq -c)
-    required_checks=()
-    for check in "${checks[@]}"; do
-      if is_item_in "$(jq '.name' <<<"$check")" "${required_check_names[@]}"; then
-        required_checks=("${required_checks[@]}" "$check")
-        jq -r '"found required check: " + .name + " " + .status + " " + .conclusion' <<<"$check"
-      else
-        jq -r '"not a required check: " + .name + " " + .status + " " + .conclusion' <<<"$check"
-      fi
-    done
 
     if has_failure "${checks[@]}"; then
       echo 'has failure'
