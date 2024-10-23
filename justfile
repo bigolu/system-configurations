@@ -7,7 +7,7 @@ set positional-arguments := true
 [doc('''List all tasks. You can run this whenever you forget something.''')]
 list:
     @just --list --justfile {{ module_file() }} --unsorted --color always \
-        | "${PAGER:-less}"
+        | "${PAGER:-cat}"
 
 [doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
