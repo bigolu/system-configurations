@@ -235,16 +235,7 @@
             ];
           };
 
-          ciLint = makeShell {
-            mergeWith = [
-              linting
-            ];
-            packages = with pkgs; [
-              # Why we need bashInteractive and not just bash:
-              # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
-              bashInteractive
-            ];
-          };
+          ciLint = linting;
 
           ciCheckStyle = formatting;
 

@@ -45,36 +45,28 @@ jobs:
         with:
           dev-shell: ciLint
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: |
-          # This step shouldn't fail because if it does, reviewdog will never run.
-          # By using a conditional, Bash won't fail if this command fails.
-          if ! lefthook run fix-lint --all-files; then
-            # reviewdog only fails if files were changed. That means if lefthook
-            # fails, but doesn't change any files, the job would still pass. By
-            # setting this variable we can communicate a failure even when files
-            # don't change.
-            echo 'FIX_LINT_FAILED=true' >> "$GITHUB_ENV"
-          fi
-      - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
+      - env:
+          # A token is needed to report the errors found by the lint checker.
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: lefthook run check --commands check-lint,fix-lint --all-files
+      # The lint command run in the previous step fails if it finds or fixes any lint
+      # issues. This causes the step that it's run in to fail as well. If that
+      # happens, then by default this step, and all steps after it, wouldn't get run.
+      # That means this step wouldn't be able to report the lint issues that were
+      # fixed.
+      #
+      # We could have used `always()` to ensure this step runs, but that would mean
+      # even if the workflow was cancelled by a user, this step would still run.
+      # Instead, we say only run if the workflow wasn't cancelled. This way, we still
+      # have the ability to cancel all the steps in the workflow while also allowing
+      # this step to run even if previous ones fail.
+      - if: "!cancelled()"
+        uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
         with:
-          tool_name: lint-autofix
+          tool_name: fix-lint
           level: error
           filter_mode: nofilter
-          # reviewdog should not fail if it finds errors. This way, we can report the
-          # errors in this step and future steps all at once instead of failing the
-          # job here, fixing the reported errors, re-running it, and finding more
-          # errors in future steps.
-          reviewdog_flags: "-fail-level=none"
-      - env:
-          # lefthook calls reviewdog so it needs a token
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run check-lint --all-files
-      # I'm making this the last step so we can report all errors in previous steps
-      # before potentially failing the job here. This is to avoid the scenario where
-      # the job fails, reported errors are fixed, the job is re-run, and more errors
-      # are found in future steps.
-      - if: ${{ env.FIX_LINT_FAILED == 'true' }}
-        run: exit 1
+          reviewdog_flags: "-fail-level=any"
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   check-style:
@@ -94,24 +86,24 @@ jobs:
         with:
           dev-shell: ciCheckStyle
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: |
-          # This step shouldn't fail because if it does, reviewdog will never run.
-          # By using a conditional, bash won't fail if this command fails.
-          if ! lefthook run format --all-files; then
-            # reviewdog only fails if files were changed. That means if lefthook
-            # fails, but doesn't change any files, the job would still pass. By
-            # setting this variable we can communicate a failure even when files
-            # don't change.
-            echo 'CHECK_STYLE_FAILED=true' >> "$GITHUB_ENV"
-          fi
-      - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
+      - run: lefthook run format --all-files
+      # The command run in the previous step fails if it formats any code. This
+      # causes the step that it's run in to fail as well. If that happens, then by
+      # default this step, and all steps after it, wouldn't get run. That means this
+      # step wouldn't be able to report the code that got formatted.
+      #
+      # We could have used `always()` to ensure this step runs, but that would mean
+      # even if the workflow was cancelled by a user, this step would still run.
+      # Instead, we say only run if the workflow wasn't cancelled. This way, we still
+      # have the ability to cancel all the steps in the workflow while also allowing
+      # this step to run even if previous ones fail.
+      - if: "!cancelled()"
+        uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
         with:
           tool_name: code-style
           level: error
           filter_mode: nofilter
           reviewdog_flags: "-fail-level=any"
-      - if: ${{ env.CHECK_STYLE_FAILED == 'true' }}
-        run: exit 1
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   ensure-generated-code-is-up-to-date:

@@ -15,22 +15,22 @@ runs:
         dev-shell: ciCodegen
         cachix-auth-token: "${{ inputs.cachix-auth-token }}"
     - shell: bash
-      run: |
-        # This step shouldn't fail because if it does, reviewdog will never run.
-        # By using a conditional, Bash won't fail if this command fails.
-        if ! lefthook run generate --all-files; then
-          # reviewdog only fails if files were changed. That means if lefthook fails, but
-          # doesn't change any files, the job would still pass. By setting this
-          # variable we can communicate a failure even when files don't change.
-          echo 'CODEGEN_FAILED=true' >> "$GITHUB_ENV"
-        fi
-    - uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
+      run: lefthook run generate --all-files
+    # The command run in the previous step fails if it updates any generated code.
+    # This causes the step that it's run in to fail as well. If that happens, then by
+    # default this step, and all steps after it, wouldn't get run. That means this
+    # step wouldn't be able to report the generated code that got updated.
+    #
+    # We could have used `always()` to ensure this step runs, but that would mean
+    # even if the workflow was cancelled by a user, this step would still run.
+    # Instead, we say only run if the workflow wasn't cancelled. This way, we still
+    # have the ability to cancel all the steps in the workflow while also allowing
+    # this step to run even if previous ones fail.
+    - if: "!cancelled()"
+      uses: reviewdog/action-suggester@db4abb16fbaabe386831e5addb7be1485d0d63d3 # v1
       with:
         tool_name: code-generation
         level: error
         filter_mode: nofilter
         reviewdog_flags: "-fail-level=any"
         github_token: ${{ inputs.github-token }}
-    - if: ${{ env.CODEGEN_FAILED == 'true' }}
-      run: exit 1
-      shell: bash
