@@ -55,8 +55,13 @@ jobs:
       # That means this step wouldn't be able to report the lint issues that were
       # fixed.
       #
+      # We could've used something like `<command> || true` to suppress the error,
+      # but if the command failed for a reason besides having found/fixed a lint
+      # issue, we would suppress that error too.
+      #
       # We could have used `always()` to ensure this step runs, but that would mean
       # even if the workflow was cancelled by a user, this step would still run.
+      #
       # Instead, we say only run if the workflow wasn't cancelled. This way, we still
       # have the ability to cancel all the steps in the workflow while also allowing
       # this step to run even if previous ones fail.
@@ -92,8 +97,13 @@ jobs:
       # default this step, and all steps after it, wouldn't get run. That means this
       # step wouldn't be able to report the code that got formatted.
       #
+      # We could've used something like `<command> || true` to suppress the error,
+      # but if the command failed for a reason besides having formatted code, we
+      # would suppress that error too.
+      #
       # We could have used `always()` to ensure this step runs, but that would mean
       # even if the workflow was cancelled by a user, this step would still run.
+      #
       # Instead, we say only run if the workflow wasn't cancelled. This way, we still
       # have the ability to cancel all the steps in the workflow while also allowing
       # this step to run even if previous ones fail.
