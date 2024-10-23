@@ -5,7 +5,7 @@ go 1.22
 toolchain go1.23.2
 
 require (
-	github.com/klauspost/compress v1.17.10 // direct
+	github.com/klauspost/compress v1.17.11 // direct
 	golang.org/x/sync v0.8.0 // direct
 )
 
