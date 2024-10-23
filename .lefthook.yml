@@ -133,7 +133,7 @@ sync:
       only:
         # This means stable nix understands my profile manifest version so I can use
         # it.
-        - run: nix run nixpkgs#nix -- profile list
+        - run: nix run nixpkgs#nix -- profile list 1>/dev/null 2>&1
       run: >
         printf
         '\n\e[34m┃ system-configurations: You should move back to stable nix now.\e(B\e[m\n'
