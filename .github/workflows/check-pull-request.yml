@@ -40,7 +40,7 @@ jobs:
     if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           dev-shell: ciLint
@@ -89,7 +89,7 @@ jobs:
     if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       - uses: ./.github/actions/setup
         with:
           dev-shell: ciCheckStyle
@@ -120,7 +120,7 @@ jobs:
     if: ${{ ! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332 # v4
+      - uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871 # v4
       # Ideally, I'd put this job in a separate workflow and use 'paths:' to match
       # relevant files, but since this check is required, it can't be skipped at the
       # workflow level[1]. A skip using jobs.<job_id>.if would be ok, but you can't
