@@ -95,7 +95,7 @@ jobs:
     if: ${{ ! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')) }}
     runs-on: ubuntu-latest
     outputs:
-      any-changed: ${{ steps.changed-files.outputs.codegen_any_changed }}
+      any-changed: ${{ steps.changed-files.outputs.any_changed }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -107,16 +107,15 @@ jobs:
         uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c # v45
         with:
           # SYNC: GENERATOR_PATTERNS
-          files_yaml: |
-            codegen:
-              - "**/go.mod"
-              - "**neovim/lua/*.lua"
-              - "README.md"
-              - "scripts/**"
-              - ".envrc"
-              - "flake.lock"
-              - "flake-modules/**"
-              - "flake.nix"
+          files: |
+            **/go.mod
+            **neovim/lua/*.lua
+            "README.md"
+            scripts/**
+            .envrc
+            flake.lock
+            flake-modules/**
+            flake.nix
   # Ideally, I'd put this job in a separate workflow and use 'paths:' to match
   # relevant files, but since this job is a required check, it can't be skipped at
   # the workflow level[1]. A skip using jobs.<job_id>.if is allowed, but you can't
