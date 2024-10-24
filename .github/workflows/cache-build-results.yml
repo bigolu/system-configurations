@@ -1,17 +1,17 @@
 name: Cache Build Results
 on:
   push:
-    # Only run when the files changed may impact what we cache. This includes
-    # files that:
-    # - Change the version of packages
-    # - Change the packages used
-    # - Change this action
+    # Only run when the files changed may impact what we cache. This includes files
+    # that:
     paths:
+      # Change this action
       - ".github/workflows/cache-build-results.yml"
       - ".github/actions/setup/**"
+      # Change the packages used
       - "flake.nix"
-      - "flake.lock"
       - "flake-modules/**"
+      # Change the version of packages
+      - "flake.lock"
 concurrency:
   # Since we are only interested in caching packages from the latest commit to
   # the branch, we will limit the workflow to running at most once per branch,
