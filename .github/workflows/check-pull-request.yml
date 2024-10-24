@@ -39,6 +39,9 @@ jobs:
     # https://stackoverflow.com/a/71158878
     if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
@@ -85,6 +88,9 @@ jobs:
     # https://stackoverflow.com/a/71158878
     if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
@@ -121,6 +127,9 @@ jobs:
     # automerge branch. Those are covered by the push event.
     if: ${{ ! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')) }}
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       # Ideally, I'd put this job in a separate workflow and use 'paths:' to match

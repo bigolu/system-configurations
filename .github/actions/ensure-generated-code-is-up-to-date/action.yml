@@ -11,7 +11,7 @@ runs:
       with:
         dev-shell: ciCodegen
         cachix-auth-token: "${{ inputs.cachix-auth-token }}"
-    - shell: bash
+    - shell: ci-bash {0}
       run: lefthook run generate --all-files
     # The command run in the previous step fails if it updates any generated code.
     # This causes the step that it's run in to fail as well. If that happens, then by
@@ -29,7 +29,7 @@ runs:
     # have the ability to cancel all the steps in the workflow while also allowing
     # this step to run even if previous ones fail.
     - if: "!cancelled()"
-      shell: bash
+      shell: ci-bash {0}
       run: |
         git diff |
         ./scripts/reviewdog.bash \

@@ -36,6 +36,9 @@ jobs:
       # This way we can fix the failures on all matrix jobs at once instead of
       # fixing one bug only to find another on a different matrix job.
       fail-fast: false
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup

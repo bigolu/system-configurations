@@ -21,10 +21,16 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       head-commit-message: ${{ steps.commit-message.outputs.HEAD_COMMIT_MESSAGE }}
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+      - uses: ./.github/actions/setup
+        with:
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - id: commit-message
         # multi-line output values require special handling so to avoid that
         # we'll only get the first line:
@@ -37,6 +43,9 @@ jobs:
     # branch wasn't just created:
     if: "! contains(needs.get-commit-message.outputs.head-commit-message, vars.MARKER)"
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - id: bot-token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1

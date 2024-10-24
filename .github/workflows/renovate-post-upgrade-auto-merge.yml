@@ -17,6 +17,9 @@ concurrency:
 jobs:
   auto-merge:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - id: bot-token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1

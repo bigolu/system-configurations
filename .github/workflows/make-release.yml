@@ -17,8 +17,14 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       count: ${{ steps.get-new-commit-count.outputs.count }}
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: ./.github/actions/setup
+        with:
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       # SYNC: NEW_COMMITS_SINCE
       - name: Get the number of new commits
         id: get-new-commit-count
@@ -36,6 +42,9 @@ jobs:
         # that they still on run intel macs
         os: [ubuntu-latest, macos-13]
       fail-fast: false
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
@@ -76,6 +85,9 @@ jobs:
   make-release:
     needs: make-assets
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup

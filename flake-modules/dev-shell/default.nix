@@ -19,6 +19,26 @@
       inherit (lib.attrsets) optionalAttrs;
       makeShell = import ./make-shell { inherit pkgs self; };
 
+      makeCiShell =
+        spec:
+        let
+          ci-bash = pkgs.writeShellApplication {
+            name = "ci-bash";
+            text = ''
+              exec ${pkgs.bash}/bin/bash \
+                --noprofile \
+                --norc \
+                -o errexit \
+                -o nounset \
+                -o pipefail "$@"
+            '';
+          };
+          specWithCiBash = spec // {
+            packages = (spec.packages or [ ]) ++ [ ci-bash ];
+          };
+        in
+        makeShell specWithCiBash;
+
       pythonWithPackages = pkgs.python3.withPackages (
         ps: with ps; [
           pip
@@ -229,37 +249,32 @@
 
           # Have a general shell with common dependencies so I don't have
           # to make a shell for every CI workflow.
-          ci = makeShell {
-            packages = with pkgs; [
-              # Why we need bashInteractive and not just bash:
-              # https://discourse.nixos.org/t/what-is-bashinteractive/37379/2
-              bashInteractive
-              coreutils
-            ];
+          ci = makeCiShell {
+            packages = with pkgs; [ coreutils ];
           };
 
-          ciLint = linting;
-
-          ciCheckStyle = formatting;
-
-          ciCodegen = codeGeneration;
-
-          ciCache = makeShell {
-            packages = with pkgs; [
-              nix-fast-build
-            ];
+          ciLint = makeCiShell {
+            mergeWith = [ linting ];
           };
 
-          ciRenovateTaskRunner = makeShell {
-            packages = with pkgs; [
-              gitMinimal
-            ];
+          ciCheckStyle = makeCiShell {
+            mergeWith = [ formatting ];
           };
 
-          ciCheckForBrokenLinks = makeShell {
-            packages = with pkgs; [
-              gh
-            ];
+          ciCodegen = makeCiShell {
+            mergeWith = [ codeGeneration ];
+          };
+
+          ciCache = makeCiShell {
+            packages = with pkgs; [ nix-fast-build ];
+          };
+
+          ciRenovateTaskRunner = makeCiShell {
+            packages = with pkgs; [ gitMinimal ];
+          };
+
+          ciCheckForBrokenLinks = makeCiShell {
+            packages = with pkgs; [ gh ];
           };
         };
       };
