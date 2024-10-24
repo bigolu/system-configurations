@@ -9,7 +9,8 @@
     pinDigests: true,
   },
   postUpdateOptions: ["gomodTidy", "gomodMassage"],
-  extends: ["config:best-practices"],
+  extends: ["config:best-practices", ":semanticCommitsDisabled"],
+  commitMessagePrefix: "deps:",
   separateMajorMinor: true,
   separateMultipleMajor: true,
   lockFileMaintenance: {
