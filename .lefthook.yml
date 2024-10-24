@@ -439,11 +439,8 @@ check-lint:
         # Don't run in CI since I don't this check to be required. It shouldn't
         # be because there is no easy way to ignore false positives in a commit
         # message e.g. "no qa".
-        #
-        # This variable is set by the GitHub CI runner:
-        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#default-environment-variables
         - run: >
-            [ "$GITHUB_ACTIONS" = true ]
+            [ "$CI" = true ]
       run: |
         bash -o pipefail -euc '
           while read -r commit; do
@@ -456,6 +453,11 @@ check-lint:
           done < <(git rev-list --abbrev-commit --ancestry-path "${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"..HEAD)
           [[ -z "${found_problem:-}" ]]
         '
+    nix-config:
+      skip:
+        - run: '[ "$CI" = true ]'
+      glob: "{flake-modules/**,flake.{lock,nix}}"
+      run: nix config check
 
     # TODO: These tools don't output a format that reviewdog can parse, I should
     # open issues with all of them. In the meantime, I put reviewdog in tee mode
@@ -490,10 +492,3 @@ check-lint:
         taplo lint "$@"
         | ./scripts/reviewdog.bash -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         ' -- {files}
-
-    # local-only checks
-    nix-config:
-      skip:
-        - run: '[ "$GITHUB_ACTIONS" = true ]'
-      glob: "{flake-modules/**,flake.{lock,nix}}"
-      run: nix config check
