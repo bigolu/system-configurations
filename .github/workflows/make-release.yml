@@ -5,12 +5,6 @@ on:
     # Once every 3 months
     # SYNC: NEW_COMMITS_SINCE
     - cron: "0 0 1 */3 *"
-concurrency:
-  # Since we are only interested in publishing packages for the latest commit to
-  # the branch, we will limit the workflow to running at most once per branch,
-  # cancelling older runs when newer ones start.
-  group: ${{ github.workflow }}-${{ github.ref_name }}
-  cancel-in-progress: true
 jobs:
   get-new-commit-count:
     name: Get New Commit Count

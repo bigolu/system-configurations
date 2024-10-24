@@ -8,12 +8,6 @@ on:
     #
     # Once daily at midnight
     - cron: "0 0 * * *"
-concurrency:
-  # In the very rare event that another run starts before a previous one finishes,
-  # let the previous one finish. Otherwise, it would just keep processing the first n
-  # branches.
-  group: auto-merge
-  cancel-in-progress: false
 jobs:
   auto-merge:
     runs-on: ubuntu-latest

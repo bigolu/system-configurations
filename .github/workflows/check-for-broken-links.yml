@@ -4,12 +4,6 @@ on:
   schedule:
     # Once a week
     - cron: "0 0 * * 0"
-concurrency:
-  # Since we are only interested in checking links for the latest commit to
-  # the branch, we will limit the workflow to running at most once per branch,
-  # cancelling older runs when newer ones start.
-  group: ${{ github.workflow }}-${{ github.ref_name }}
-  cancel-in-progress: true
 jobs:
   check-for-broken-links:
     runs-on: ubuntu-latest
