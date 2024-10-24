@@ -1,8 +1,3 @@
-# TODO: Ideally this would a composite action. This way, the action could
-# register post run steps and users would not have to force all of their upgrade
-# task logic into `inputs.command`. They're considering adding it:
-# https://github.com/actions/runner/issues/1478
-
 name: "Renovate Post-Upgrade Task Runner"
 on:
   workflow_call:
