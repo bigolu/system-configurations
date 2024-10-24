@@ -1,11 +1,21 @@
 #!/usr/bin/env nix
 #! nix shell --quiet local#nixpkgs.bash local#nixpkgs.gitMinimal --command bash
 
+# When running locally, I need a way to tell if any of the checks modify files.
+# Checks that may modify files include formatters, code generators, or lint fixers.
+# This way, I can have a pre-push hook abort the push so I can fix up my commits.
+
 # shellcheck shell=bash
 
 set -o errexit
 set -o nounset
 set -o pipefail
+
+# We only need to fail if files change when running locally for the reason given at
+# the top of the file. In other environments, just run the specified command.
+if [[ "${CI:-}" = 'true' ]]; then
+  exec "$@"
+fi
 
 function main {
   diff_before_running="$(diff_including_untracked)"

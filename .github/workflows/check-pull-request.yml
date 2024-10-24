@@ -49,27 +49,9 @@ jobs:
           dev-shell: ciLint
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - env:
-          # A token is needed to report the errors found by the lint checker.
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run check --commands check-lint,fix-lint --all-files
-      # The lint command run in the previous step fails if it finds or fixes any lint
-      # issues. This causes the step that it's run in to fail as well. If that
-      # happens, then by default this step, and all steps after it, wouldn't get run.
-      # That means this step wouldn't be able to report the lint issues that were
-      # fixed.
-      #
-      # We could've used something like `<command> || true` to suppress the error,
-      # but if the command failed for a reason besides having found/fixed a lint
-      # issue, we would suppress that error too.
-      #
-      # We could have used `always()` to ensure this step runs, but that would mean
-      # even if the workflow was cancelled by a user, this step would still run.
-      #
-      # Instead, we say only run if the workflow wasn't cancelled. This way, we still
-      # have the ability to cancel all the steps in the workflow while also allowing
-      # this step to run even if previous ones fail.
-      - if: "!cancelled()"
         run: |
+          lefthook run check --commands check-lint,fix-lint --all-files
           git diff |
           ./scripts/reviewdog.bash \
             -name=fix-lint \
@@ -97,52 +79,27 @@ jobs:
         with:
           dev-shell: ciCheckStyle
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: lefthook run format --all-files
-      # The command run in the previous step fails if it formats any code. This
-      # causes the step that it's run in to fail as well. If that happens, then by
-      # default this step, and all steps after it, wouldn't get run. That means this
-      # step wouldn't be able to report the code that got formatted.
-      #
-      # We could've used something like `<command> || true` to suppress the error,
-      # but if the command failed for a reason besides having formatted code, we
-      # would suppress that error too.
-      #
-      # We could have used `always()` to ensure this step runs, but that would mean
-      # even if the workflow was cancelled by a user, this step would still run.
-      #
-      # Instead, we say only run if the workflow wasn't cancelled. This way, we still
-      # have the ability to cancel all the steps in the workflow while also allowing
-      # this step to run even if previous ones fail.
-      - if: "!cancelled()"
+      - env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          lefthook run format --all-files
           git diff |
           ./scripts/reviewdog.bash \
             -name=code-style \
             -f=diff \
             -f.diff.strip=1
-  # WARNING: This name is used to specify what checks are required to merge a
-  # branch, don't change it without updating the required checks as well.
-  ensure-generated-code-is-up-to-date:
+
+  codegen-changed-files:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
     if: ${{ ! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')) }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: ci-bash {0}
+    outputs:
+      any-changed: ${{ steps.changed-files.outputs.codegen_any_changed }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      # Ideally, I'd put this job in a separate workflow and use 'paths:' to match
-      # relevant files, but since this check is required, it can't be skipped at the
-      # workflow level[1]. A skip using jobs.<job_id>.if would be ok, but you can't
-      # use the 'paths:' filter there. Since individual steps are allowed to be
-      # skipped, I decided to use an action that can tell you if certain files were
-      # changed and skip later steps based on that. To avoid having to put a
-      # conditional on every step I moved all the other steps into a separate action.
-      #
-      # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
-      - name: Get any changed files that would trigger code generation
-        id: changed-files-yaml
+      - name: Get changed files that would trigger code generation
+        id: changed-files
         uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c # v45
         with:
           # SYNC: GENERATOR_PATTERNS
@@ -156,7 +113,36 @@ jobs:
               - "flake.lock"
               - "flake-modules/**"
               - "flake.nix"
-      - if: steps.changed-files-yaml.outputs.codegen_any_changed == 'true'
-        uses: ./.github/actions/ensure-generated-code-is-up-to-date
+  # Ideally, I'd put this job in a separate workflow and use 'paths:' to match
+  # relevant files, but since this job is a required check, it can't be skipped at
+  # the workflow level[1]. A skip using jobs.<job_id>.if is allowed, but you can't
+  # use the 'paths:' filter there. Since I can't use a 'paths:' filter, I decided to
+  # use a separate job with an output that tells me if any relevant files were
+  # changed. This way, I could use that output in my jobs.<job_id>.if condition.
+  #
+  # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+  #
+  # WARNING: This name is used to specify what checks are required to merge a branch,
+  # don't change it without updating the required checks as well.
+  ensure-generated-code-is-up-to-date:
+    needs: codegen-changed-files
+    if: needs.codegen-changed-files.outputs.any-changed == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: ci-bash {0}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: ./.github/actions/setup
         with:
+          dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+      - env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          lefthook run generate --all-files
+          git diff |
+          ./scripts/reviewdog.bash \
+            -name=code-generation \
+            -f=diff \
+            -f.diff.strip=1
