@@ -48,6 +48,7 @@ in
       coreutils-full
       gnused
       runAsAdmin
+      less
     ]
     ++ optionals isLinux [
       trashy
@@ -88,6 +89,7 @@ in
       xdg.configFile =
         {
           "lsd".source = "lsd";
+          "lesskey".source = "less/lesskey";
           "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
           "ssh/bootstrap.sh".source = "ssh/bootstrap.sh";
           "broot" = {

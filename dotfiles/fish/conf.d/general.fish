@@ -5,7 +5,6 @@ end
 abbr --add --global g git
 abbr --add --global x 'chmod +x'
 abbr --add --global du 'du --dereference --human-readable --summarize --apparent-size'
-set --global --export MANOPT --no-hyphenation
 function timg --wraps timg
     set options
     if test "$TERM_PROGRAM" = WezTerm
@@ -35,13 +34,14 @@ if test (uname) = Linux
     abbr --add --position anywhere --global trash 'trash put'
 end
 
-# page
-# lesspipe needs this set for syntax highlighting
-set --global --export LESSOPEN '|lesspipe.sh %s'
-set --global --export PAGER page
-function page --wraps page
-    less $argv | command page
-end
+# less
+set --global --export PAGER less
+# TODO: lesspipe requires this to be set to enable syntax highlighting. I should open
+# an issue to have it read lesskey
+set --global --export LESS -R
+
+# man
+set --global --export MANOPT --no-hyphenation
 
 # Set preferred editor. Programs check either of these variables for the
 # preferred editor so I'll set both.  For more information on the meaning of
