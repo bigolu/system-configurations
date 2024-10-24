@@ -466,6 +466,7 @@ check-lint:
     # the console.
     config-file-validator:
       glob: "*.{editorconfig,json,ini}"
+      # VS Code's configuration files aren't actually JSON files, they're JSONC.
       exclude: ["*.vscode/*.json"]
       # TODO: SARIF support is being added:
       # https://github.com/Boeing/config-file-validator/issues/32
