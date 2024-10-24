@@ -20,7 +20,9 @@
   Push = push --no-verify
   a = add
   d = diff
-  dt = "!git -c diff.external='difft --syntax-highlight off' diff"
+  lp = log -p
+  dt = -c diff.external='difft --syntax-highlight off' diff
+  lpt = -c diff.external='difft --syntax-highlight off' log -p --ext-diff
   d-sub = diff --submodule=diff
   undo = checkout --
   some = add -u
