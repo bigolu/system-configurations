@@ -1,6 +1,5 @@
 name: "Check Pull Request"
 on:
-  workflow_dispatch:
   pull_request:
   push:
     # These branches get merged without a pull request being made so we need to check
