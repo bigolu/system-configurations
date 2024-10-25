@@ -39,6 +39,8 @@ in
       # Don't cache tarballs. This way if I do something like
       # `nix run github:<repo>`, I will always get the up-to-date source
       tarball-ttl = 0;
+
+      sandbox = true;
     };
   };
 
