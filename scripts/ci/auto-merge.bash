@@ -58,14 +58,7 @@ function main {
       git switch "$default_branch"
     elif all_checks_passed "${checks[@]}"; then
       echo 'all checks passed'
-      # newest commits first so take the last
-      sha="$(git rev-list --ancestry-path "$default_branch".."$absolute_branch" | tail -1)"
-      message="$(get_commit_message "$sha")"
-
-      git merge --squash "$absolute_branch"
-      git commit \
-        --author "$ACTOR <$ACTOR@users.noreply.github.com>" \
-        --message "$message"
+      git rebase "$absolute_branch"
       git push "$default_branch"
       git push --delete "$remote" "$branch"
     else

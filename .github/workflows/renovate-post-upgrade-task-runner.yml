@@ -10,12 +10,20 @@ on:
         required: true
       CACHIX_AUTH_TOKEN:
         required: true
+env:
+  GIT_USER: "github-actions[bot]"
+  GIT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
 jobs:
   get-commit-message:
     name: Get Commit Message
     runs-on: ubuntu-latest
     outputs:
-      head-commit-message: ${{ steps.commit-message.outputs.HEAD_COMMIT_MESSAGE }}
+      head-commit-message: ${{ steps.commit-message.outputs.head-commit-message }}
+      # Since you can't access the env context from job.<job_id>.if[1], I'm exposing
+      # the env variable I need to access as an output on this job.
+      #
+      # [1]: https://github.com/github/docs/issues/21927
+      git-user: ${{ env.GIT_USER }}
     defaults:
       run:
         shell: ci-bash {0}
@@ -27,16 +35,18 @@ jobs:
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - id: commit-message
-        # multi-line output values require special handling so to avoid that
-        # we'll only get the first line:
-        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#setting-an-output-parameter
-        run: echo "HEAD_COMMIT_MESSAGE=$(git log --oneline --format=%s --max-count 1)" >> "$GITHUB_OUTPUT"
+        run: |
+          # randomly generated value using `openssl rand -base64 18`
+          delimiter='UPVkbkkuL/htny+vQ2qxsNvc'
+          printf \
+            "head-commit-message<<%s\n%s\n%s\n" \
+            "$delimiter" \
+            "$(git show --no-patch --format=%B)" \
+            "$delimiter" \
+            >>"$GITHUB_OUTPUT"
   renovate-post-upgrade-task-runner:
     needs: get-commit-message
-    # TODO: This will result in a bunch of runs that immediately exit if the
-    # branch wasn't just created. Ideally the job wouldn't even start if the
-    # branch wasn't just created:
-    if: "! contains(needs.get-commit-message.outputs.head-commit-message, vars.MARKER)"
+    if: "! contains(needs.get-commit-message.outputs.head-commit-message, needs.get-commit-message.outputs.git-user)"
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -55,22 +65,24 @@ jobs:
           # For more information on how the branch name, is calculated see:
           # https://stackoverflow.com/a/71158878
           ref: ${{ github.head_ref || github.ref_name }}
+          # Since I'm amending a commit I need the last 2 commits instead of just 1.
+          # Fetching 1 commit would overwrite the whole history.
+          fetch-depth: 2
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
           dev-shell: ciRenovateTaskRunner
-      - run: ${{ inputs.command }}
-      - env:
-          MARKER: ${{ vars.MARKER }}
-          ACTOR: ${{ github.actor }}
-        run: |
+      - run: |
+          ${{ inputs.command }}
           if [ -n "$(git status --porcelain)" ]; then
+            old_message="$(git show --no-patch --format=%B)"
+            new_message="$old_message"$'\n'$'\n'"Co-authored-by: $GIT_USER <$GIT_EMAIL>"
             git add --all
             git \
-              -c user.name='github-actions[bot]' \
-              -c user.email='41898282+github-actions[bot]@users.noreply.github.com' \
+              -c user.name="$GIT_USER" \
+              -c user.email="$GIT_EMAIL" \
               commit \
-              --message "$MARKER fixup" \
-              --author="$ACTOR <$ACTOR@users.noreply.github.com>"
-            git push
+              --amend \
+              --message "$new_message"
+            git push --force
           fi
