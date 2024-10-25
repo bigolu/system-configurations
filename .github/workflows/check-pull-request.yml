@@ -128,9 +128,6 @@ jobs:
   # WARNING: This name is used to specify what checks are required to merge a branch,
   # don't change it without updating the required checks as well.
   ensure-generated-code-is-up-to-date:
-    concurrency:
-      group: test
-      cancel-in-progress: true
     needs: codegen-changed-files
     # By default, if the dependency of a required check fails or is cancelled, the
     # required check is skipped and counted as a successful check[1]. So in addition
