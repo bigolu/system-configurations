@@ -99,13 +99,19 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
-          # For push events, we need to get the last two commits so we can get the
-          # changed files between them.
-          fetch-depth: ${{ github.event.name == 'push' && 2 || 1 }}
+          # For push events, we need to get the whole history so we can get the
+          # changed files between the head of the branch that triggered the push
+          # event and the default branch.
+          fetch-depth: ${{ github.event.name == 'push' && 0 || 1 }}
       - name: Get changed files that would trigger code generation
         id: changed-files
         uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c # v45
         with:
+          # By default, it will only diff the commit pointed to by the current branch
+          # with its parent commit. Instead, I want to diff the current branch with
+          # the default branch. This is because the current branch will get merged
+          # into the default branch so I want all the changes between the two.
+          base_sha: ${{ github.event_name == 'push' && github.event.repository.default_branch || '' }}
           # SYNC: GENERATOR_PATTERNS
           files: |
             **/go.mod
