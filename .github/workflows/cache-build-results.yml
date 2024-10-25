@@ -39,6 +39,8 @@ jobs:
     defaults:
       run:
         shell: ci-bash {0}
+    # TODO: Sometimes this job hangs and the default timeout is too long (6 hours).
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
