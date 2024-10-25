@@ -1,11 +1,5 @@
 # yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
 
-# TODO: The VS Code output panel doesn't interpret escape sequences yet the
-# output file it gives to git hooks is a tty file. To work around this I'm
-# setting no_tty. Though VS Code should address by not providing a tty
-# file. Right now this affects lefthook.
-no_tty: false
-
 # By default lefthook uses true colors (e.g. #FFFFFF), but they may not be
 # readable depending on the terminal background color. Instead I'm using ANSI
 # colors since they come from the terminal's color palette.
@@ -19,8 +13,6 @@ colors:
   red: 1
   yellow: 3
 
-# I would include summary, but it's too noisy if you nest lefthook invocations.
-#
 # SYNC: LEFTHOOK_OUTPUT
 output:
   - execution_info
