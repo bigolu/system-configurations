@@ -5,8 +5,12 @@ set -o nounset
 set -o pipefail
 
 if (($# == 0)); then
-  echo "ERROR: You must provide the number of commits to rebase" >&2
+  echo 'Error: you must provide the number of commits to rebase or the commit to rebase from' >&2
   exit 1
 fi
 
-git rebase -i "HEAD~$1"
+if ((${#1} <= 2)); then
+  git rebase --interactive "HEAD~$1"
+else
+  git rebase --interactive "$1^"
+fi
