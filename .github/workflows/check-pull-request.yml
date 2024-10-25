@@ -148,7 +148,7 @@ jobs:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - if: ${{ contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure') }}
         env:
-          REASON: ${{ contains(needs.*.result, 'cancelled') && 'was cancelled' || '' }}${{ contains(needs.*.result, 'failure') && 'failed' || '' }}
+          REASON: Dependency job ${{ contains(needs.*.result, 'cancelled') && 'was cancelled' || 'failed' }}
         run: |
           echo "Error: Dependency job $REASON"
           exit 1
