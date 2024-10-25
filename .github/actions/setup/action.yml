@@ -26,6 +26,7 @@ runs:
         extra-conf: |
           extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
           extra-substituters = https://nix-community.cachix.org
+          show-trace = true
         # Use the same version of nix as the one used in this flake. Not only is this
         # good for consistency, but it also ensures that the nix installed here will
         # be able to parse my flake registry.json. The version number is updated
@@ -47,7 +48,7 @@ runs:
         # Cache everything
         upstream-cache: https://null.com
         use-flakehub: false
-    - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }}
+    - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }} 1>/dev/null
       # Since this is the step that loads a dev-shell, we don't have one loaded here.
       # So instead of using ci-bash like we usually do, we'll use the system's Bash.
       # I'm not setting the flags I set in ci-bash just in case this version doesn't
