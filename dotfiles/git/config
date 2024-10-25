@@ -68,6 +68,8 @@
   zero-style = "syntax normal"
   map-styles = normal 21 => 0 5, normal 22 => 0 14
   commit-style = "blue"
+  # Don't quit if output is less than one screen
+  pager = "less -+F"
 [color "diff"]
   oldMoved = normal 21
   newMoved = normal 22
