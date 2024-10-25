@@ -239,7 +239,7 @@ function diff-html
 end
 function diff
     if isatty 1
-        diffoscope --text-color always $argv | page
+        diffoscope --text-color always $argv | "$PAGER"
     else
         diffoscope --text-color always $argv
     end
