@@ -48,7 +48,7 @@ runs:
         # Cache everything
         upstream-cache: https://null.com
         use-flakehub: false
-    - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }} 1>/dev/null
+    - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }}
       # Since this is the step that loads a dev-shell, we don't have one loaded here.
       # So instead of using ci-bash like we usually do, we'll use the system's Bash.
       # I'm not setting the flags I set in ci-bash just in case this version doesn't
