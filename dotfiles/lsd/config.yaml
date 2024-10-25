@@ -29,3 +29,5 @@ hyperlink: auto
 symlink-arrow: " "
 
 display: almost-all
+
+header: true
