@@ -93,12 +93,12 @@ function make_pr {
     --repo "$GITHUB_REPOSITORY" \
     --head "$1" \
     --base "$default_branch" \
-    --title "$(get_commit_message "$remote/$1")" \
+    --title "$(get_commit_message_first_line "$remote/$1")" \
     --body "$2 Automerge has been disabled."
 }
 
-function get_commit_message {
-  git show --no-patch --format=%B "$1"
+function get_commit_message_first_line {
+  git log --oneline --format=%s --max-count 1 "$1"
 }
 
 function is_item_in {
