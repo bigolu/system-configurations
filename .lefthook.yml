@@ -285,13 +285,14 @@ fix-lint:
   commands:
     deadnix:
       glob: "*.nix"
-      run: deadnix --fail --quiet --edit {files}
+      run: >
+        ./scripts/fail-if-files-change.bash
+        deadnix --fail --quiet --edit {files}
     ruff:
       glob: "*.py"
-      run: ruff check --fix-only --exit-non-zero-on-fix {files}
-
-    # TODO: These fixers don't fail on change, I should open issues to see if
-    # that can be added.
+      run: >
+        ./scripts/fail-if-files-change.bash
+        ruff check --fix-only --exit-non-zero-on-fix {files}
     statix:
       glob: "*.nix"
       # statix doesn't support passing multiple files yet:
