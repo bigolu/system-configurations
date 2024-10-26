@@ -18,7 +18,7 @@ function nix
         # with ripgrep's output, I'm suppressing the messages.
         #
         # [1]: https://github.com/NixOS/nix/issues/9011
-        command nix flake show 2>/dev/null | rg -v omitted
+        command nix flake show 2>/dev/null | rg -v 'omitted.*all-systems'
     else
         command nix $argv
     end
