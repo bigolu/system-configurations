@@ -56,7 +56,7 @@ For reference, here are all the hosts, grouped by host manager, in the format
 
    ```bash
    ./nix-installer install \
-     --nix-package-url https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-x86_64-linux.tar.xz
+     --nix-package-url https://releases.nixos.org/nix/nix-2.24.9/nix-2.24.9-x86_64-linux.tar.xz
    ```
 
 2. Run the following command. It will start a fish shell within a Nix shell

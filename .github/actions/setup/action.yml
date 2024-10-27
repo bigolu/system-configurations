@@ -31,7 +31,7 @@ runs:
         # good for consistency, but it also ensures that the nix installed here will
         # be able to parse my flake registry.json. The version number is updated
         # automatically, see the lefthook configuration.
-        nix-package-url: https://releases.nixos.org/nix/nix-2.24.8/nix-2.24.8-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
+        nix-package-url: https://releases.nixos.org/nix/nix-2.24.9/nix-2.24.9-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
     # TODO: This cache shouldn't be enabled for packages that only get used in CI,
     # but since I usually hit the rate limit for the GitHub Action cache, I use this
     # as a backup.
