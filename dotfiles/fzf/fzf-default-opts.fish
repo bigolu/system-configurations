@@ -77,7 +77,6 @@ set flags \
     (__flag 'border-label' "$_bigolu_fzf_help_text") \
     (__flag 'border-label-pos' '-3:bottom') \
     (__flag 'ansi') \
-    (__flag 'tabstop' '2') \
     (__flag 'border' 'rounded') \
     (__flag 'wrap') \
     (__flag 'color' \
