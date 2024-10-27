@@ -99,6 +99,7 @@ sync:
       glob: ".lefthook.yml"
       run: lefthook install --force
     host-manager:
+      interactive: true
       priority: 1
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
       run: sudo run-as-admin hostctl-switch
