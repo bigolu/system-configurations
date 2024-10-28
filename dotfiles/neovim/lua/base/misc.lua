@@ -10,6 +10,12 @@ vim.g.mapleader = " "
 vim.keymap.set({ "i" }, "jk", "<Esc>")
 Plug("tpope/vim-repeat")
 
+-- Only use the system's clipboard when neovim is running locally.
+local is_ssh_active = #(os.getenv("SSH_TTY") or "") > 0
+if not is_ssh_active then
+  vim.o.clipboard = "unnamedplus"
+end
+
 -- Prevents inserting two spaces after punctuation on a join (J)
 vim.o.joinspaces = false
 
