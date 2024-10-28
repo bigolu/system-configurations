@@ -280,12 +280,12 @@ fix-lint:
       glob: "*.nix"
       run: >
         ./scripts/fail-if-files-change.bash
-        deadnix --fail --quiet --edit {files}
+        deadnix --quiet --edit {files}
     ruff:
       glob: "*.py"
       run: >
         ./scripts/fail-if-files-change.bash
-        ruff check --fix-only --exit-non-zero-on-fix {files}
+        ruff check --fix-only {files}
     statix:
       glob: "*.nix"
       # statix doesn't support passing multiple files yet:
