@@ -102,6 +102,11 @@ abbr --add --global -- - 'cd -'
 # Don't add the name of the virtual environment to my prompt. This way, I can
 # add it myself using the same formatting as the rest of my prompt.
 set --global --export VIRTUAL_ENV_DISABLE_PROMPT 1
+set xdg_cache "$HOME/.cache"
+if set --export --query XDG_CACHE_HOME
+    set xdg_cache "$XDG_CACHE_HOME"
+end
+set --export PYTHONPYCACHEPREFIX "$xdg_cache/python/bytecode"
 function python --wraps python
     if not type --no-functions --query python
         echo (set_color red)'error'(set_color normal)': python was not found on the PATH' >&2
@@ -244,5 +249,3 @@ function diff
         diffoscope --text-color always $argv
     end
 end
-
-set --global --export PYTHONDONTWRITEBYTECODE 1
