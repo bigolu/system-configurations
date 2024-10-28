@@ -9,13 +9,15 @@ set -o pipefail
 
 reporter=
 if [[ "${CI:-}" = 'true' ]]; then
-  reporter='-reporter=github-check'
+  reporter='github-check'
+  fail_level='none'
 else
-  reporter='-reporter=local'
+  reporter='local'
+  fail_level='any'
 fi
 
 reviewdog \
-  "$reporter" \
+  "-reporter=$reporter" \
   -filter-mode=nofilter \
-  -fail-level=any \
+  "-fail-level=$fail_level" \
   -level=error "$@"
