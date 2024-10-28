@@ -25,6 +25,9 @@ concurrency:
   # https://stackoverflow.com/a/71158878
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
+defaults:
+  run:
+    shell: ci-bash {0}
 jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
@@ -39,9 +42,6 @@ jobs:
     # https://stackoverflow.com/a/71158878
     if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
@@ -76,9 +76,6 @@ jobs:
     # https://stackoverflow.com/a/71158878
     if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
@@ -149,9 +146,6 @@ jobs:
     # [1]: https://github.com/actions/runner/issues/2566
     if: ${{ (contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) || needs.codegen-changed-files.outputs.any-changed == 'true' }}
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup

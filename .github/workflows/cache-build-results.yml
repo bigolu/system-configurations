@@ -12,6 +12,9 @@ on:
       - "flake-modules/**"
       # Change the version of packages
       - "flake.lock"
+defaults:
+  run:
+    shell: ci-bash {0}
 concurrency:
   # Since we are only interested in caching packages from the latest commit to
   # the branch, we will limit the workflow to running at most once per branch,
@@ -36,9 +39,6 @@ jobs:
       # This way we can fix the failures on all matrix jobs at once instead of
       # fixing one bug only to find another on a different matrix job.
       fail-fast: false
-    defaults:
-      run:
-        shell: ci-bash {0}
     # TODO: Sometimes this job hangs and the default timeout is too long (6 hours).
     timeout-minutes: 20
     steps:

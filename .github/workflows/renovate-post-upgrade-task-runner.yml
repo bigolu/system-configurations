@@ -23,6 +23,9 @@ on:
 env:
   GIT_USER: "github-actions[bot]"
   GIT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
+defaults:
+  run:
+    shell: ci-bash {0}
 jobs:
   get-commit-message:
     name: Get Commit Message
@@ -34,9 +37,6 @@ jobs:
       #
       # [1]: https://github.com/github/docs/issues/21927
       git-user: ${{ env.GIT_USER }}
-    defaults:
-      run:
-        shell: ci-bash {0}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
@@ -58,9 +58,6 @@ jobs:
     needs: get-commit-message
     if: "! contains(needs.get-commit-message.outputs.head-commit-message, needs.get-commit-message.outputs.git-user)"
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: ci-bash {0}
     steps:
       - id: bot-token
         uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
