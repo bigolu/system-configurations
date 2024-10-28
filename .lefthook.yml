@@ -303,8 +303,10 @@ fix-lint:
       # The '# {files}' is there because lefthook only applies the glob if you
       # have a 'files' command or you use {files} in your run command:
       # https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
-      run: >
-        cd ./flake-modules/bundler/gozip && go mod tidy # {files}
+      run: |
+        set -o errexit
+        cd ./flake-modules/bundler/gozip
+        ./scripts/fail-if-files-change.bash go mod tidy # {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
