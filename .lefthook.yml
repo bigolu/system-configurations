@@ -340,84 +340,126 @@ check-lint:
       skip: true
       glob: "*.md"
       run: >
-        bash -o pipefail -euc '
-        ltex-cli --server-command-line=ltex-ls "$@"
-        | ./scripts/reviewdog.bash -name=ltex-cli -efm '%f:%l:%c: %m'
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=ltex-cli -efm '%f:%l:%c: %m'
+        :::
+        ltex-cli --server-command-line=ltex-ls {files}
     golangci-lint:
       # TODO: Don't want to address these issues yet
       skip: true
       glob: "*.go"
       run: >
-        bash -o pipefail -euc '
-        golangci-lint run --out-format sarif "$@"
-        | ./scripts/reviewdog.bash -name=golangci-lint -f sarif
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=golangci-lint -f sarif
+        :::
+        golangci-lint run --out-format sarif {files}
     ruff:
       glob: "*.py"
       run: >
-        bash -o pipefail -euc '
-        ruff check --output-format sarif "$@"
-        | ./scripts/reviewdog.bash -name=ruff -f sarif
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=ruff -f sarif
+        :::
+        ruff check --output-format sarif {files}
     fish:
       glob: "*.fish"
       # TODO: Fish doesn't support passing multiple files, I should open an issue.
       run: >
-        parallel fish --no-execute '{}' '2>&1' '|' ./scripts/reviewdog.bash -name=fish -efm '"%f (line %l): %m"' ::: {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=fish -efm '%f (line %l): %m'
+        :::
+        parallel fish --no-execute '{}' ::: {files}
     desktop-file-validate:
       glob: "*.desktop"
       run: >
-        bash -o pipefail -euc '
-        desktop-file-validate "$@"
-        | ./scripts/reviewdog.bash -name=desktop-file-validate -efm "%f: %m"
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=desktop-file-validate -efm '%f: %m'
+        :::
+        desktop-file-validate {files}
     markdownlint-cli2:
       glob: "*.md"
       run: >
-        bash -o pipefail -euc '
-        markdownlint-cli2 "$@"
-        | ./scripts/reviewdog.bash -name=markdownlint-cli2
+        ./scripts/run-through-reviewdog.bash
+        -name=markdownlint-cli2
         -efm "%f:%l:%c: %m"
         -efm "%f:%l:%c %m"
         -efm "%f:%l: %m"
         -efm "%f:%l %m"
-        ' -- {files}
+        :::
+        markdownlint-cli2 {files}
     shellcheck:
       glob: "*.{sh,bash}"
       run: >
-        bash -o pipefail -euc '
-        shellcheck --format checkstyle --color=never "$@"
-        | ./scripts/reviewdog.bash -name=shellcheck -f checkstyle
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=shellcheck -f checkstyle
+        :::
+        shellcheck --format checkstyle --color=never {files}
     yamllint:
       glob: "*.{yaml,yml}"
       run: >
-        bash -o pipefail -euc '
-        yamllint --strict --format parsable "$@"
-        | ./scripts/reviewdog.bash -name=yamllint -efm "%f:%l:%c: [%t%*[a-z]] %m"
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=yamllint -efm '%f:%l:%c: [%t%*[a-z]] %m'
+        :::
+        yamllint --strict --format parsable {files}
     actionlint:
       glob: ".github/workflows/*.{yaml,yml}"
       run: >
-        bash -o pipefail -euc '
-        actionlint -no-color "$@"
-        | ./scripts/reviewdog.bash -name=actionlint -efm "%f:%l:%c: %m"
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=actionlint -efm "%f:%l:%c: %m"
+        :::
+        actionlint -no-color {files}
     statix:
       glob: "*.nix"
       # statix doesn't support passing multiple files yet:
       # https://github.com/nerdypepper/statix/issues/70
       run: >
-        parallel -q -- bash -c 'set -o pipefail; statix check {} -o errfmt
-        | ./scripts/reviewdog.bash -name=statix -efm "%f>%l:%c:%t:%n:%m"' ::: {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=statix -efm '%f>%l:%c:%t:%n:%m'
+        :::
+        parallel statix check {} -o errfmt ::: {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
-        bash -o pipefail -euc '
-        typos --color never --format brief "$@"
-        | ./scripts/reviewdog.bash -name=typos -efm '%f:%l:%c: %m'
-        ' -- {files}
+        ./scripts/run-through-reviewdog.bash
+        -name=typos -efm '%f:%l:%c: %m'
+        :::
+        typos --color never --format brief {files}
+
+    # TODO: These tools don't output a format that reviewdog can parse, I should
+    # open issues with all of them. In the meantime, I put reviewdog in tee mode
+    # so it will just output whatever the tool outputs. Though this means these
+    # errors won't show up as comments on the code in a PR, you'll have to check
+    # the console.
+    config-file-validator:
+      glob: "*.{editorconfig,json,ini}"
+      # VS Code's configuration files aren't actually JSON files, they're JSONC.
+      exclude: ["*.vscode/*.json"]
+      # TODO: SARIF support is being added:
+      # https://github.com/Boeing/config-file-validator/issues/32
+      run: >
+        ./scripts/run-through-reviewdog.bash
+        -name=config-file-validator -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        :::
+        validator -groupby pass-fail {files}
+    renovate:
+      glob: ".github/renovate.json5"
+      run: >
+        ./scripts/run-through-reviewdog.bash
+        -name=renovate -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        :::
+        renovate-config-validator --strict {files}
+    taplo:
+      glob: "*.toml"
+      # This is a generated file
+      exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
+      # Support for GitHub annotation format is being considered. This could be
+      # parsed by reviewdog: https://github.com/tamasfe/taplo/issues/470
+      run: >
+        ./scripts/run-through-reviewdog.bash
+        -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
+        :::
+        taplo lint {files}
+
+    # Local-Only checks
     commit-message-typos:
       skip:
         # Don't run in CI since I don't this check to be required. It shouldn't
@@ -442,38 +484,3 @@ check-lint:
         - run: '[ "$CI" = true ]'
       glob: "{flake-modules/**,flake.{lock,nix}}"
       run: nix config check
-
-    # TODO: These tools don't output a format that reviewdog can parse, I should
-    # open issues with all of them. In the meantime, I put reviewdog in tee mode
-    # so it will just output whatever the tool outputs. Though this means these
-    # errors won't show up as comments on the code in a PR, you'll have to check
-    # the console.
-    config-file-validator:
-      glob: "*.{editorconfig,json,ini}"
-      # VS Code's configuration files aren't actually JSON files, they're JSONC.
-      exclude: ["*.vscode/*.json"]
-      # TODO: SARIF support is being added:
-      # https://github.com/Boeing/config-file-validator/issues/32
-      run: >
-        bash -o pipefail -euc '
-        validator -groupby pass-fail "$@"
-        | ./scripts/reviewdog.bash -name=config-file-validator -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
-        ' -- {files}
-    renovate:
-      glob: ".github/renovate.json5"
-      run: >
-        bash -o pipefail -euc '
-        renovate-config-validator --strict "$@"
-        | ./scripts/reviewdog.bash -name=renovate -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
-        ' -- {files}
-    taplo:
-      glob: "*.toml"
-      # This is a generated file
-      exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
-      # Support for GitHub annotation format is being considered. This could be
-      # parsed by reviewdog: https://github.com/tamasfe/taplo/issues/470
-      run: >
-        bash -o pipefail -euc '
-        taplo lint "$@"
-        | ./scripts/reviewdog.bash -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
-        ' -- {files}
