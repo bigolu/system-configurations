@@ -8,7 +8,6 @@ vim.o.paragraphs = ""
 vim.o.sections = ""
 vim.g.mapleader = " "
 vim.keymap.set({ "i" }, "jk", "<Esc>")
-vim.o.clipboard = "unnamedplus"
 Plug("tpope/vim-repeat")
 
 -- Prevents inserting two spaces after punctuation on a join (J)
