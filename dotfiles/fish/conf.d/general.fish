@@ -39,6 +39,7 @@ set --global --export PAGER less
 # TODO: lesspipe requires this to be set to enable syntax highlighting. I should open
 # an issue to have it read lesskey
 set --global --export LESS -R
+abbr --add --position anywhere --global page less
 
 # man
 set --global --export MANOPT --no-hyphenation
