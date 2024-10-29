@@ -7,7 +7,7 @@
 let
   inherit (pkgs) system;
   inherit (pkgs.stdenv) isLinux;
-  hostName = "guest-host";
+  configName = "guest";
   makeEmptyPackage = packageName: pkgs.runCommand packageName { } ''mkdir -p $out/bin'';
 
   portableOverlay = _final: _prev: {
@@ -59,8 +59,8 @@ let
       nix.enable = false;
     };
 
-  homeConfigurationByHostName = self.lib.home.makeHomeConfigurationByHostName {
-    inherit system hostName;
+  homeConfigurationByName = self.lib.home.makeHomeConfigurationByName {
+    inherit system configName;
     isGui = false;
     overlays = [ portableOverlay ] ++ overlays;
 
@@ -76,4 +76,4 @@ let
     ] ++ modules;
   };
 in
-homeConfigurationByHostName.${hostName}.activationPackage
+homeConfigurationByName.${configName}.activationPackage

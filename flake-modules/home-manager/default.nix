@@ -12,7 +12,7 @@ let
   makeDarwinModules =
     {
       username,
-      hostName,
+      configName,
       homeDirectory,
       repositoryDirectory,
       modules,
@@ -22,7 +22,7 @@ let
       extraSpecialArgs = {
         # SYNC: EXTRA-SPECIAL-ARGS
         inherit
-          hostName
+          configName
           username
           homeDirectory
           repositoryDirectory
@@ -52,10 +52,10 @@ let
       configuration
     ];
 
-  makeHomeConfigurationByHostName =
+  makeHomeConfigurationByName =
     args@{
       system,
-      hostName,
+      configName,
       modules,
       isGui ? true,
       username ? "biggs",
@@ -77,7 +77,7 @@ let
       extraSpecialArgs = {
         # SYNC: EXTRA-SPECIAL-ARGS
         inherit
-          hostName
+          configName
           isGui
           username
           homeDirectory
@@ -89,16 +89,16 @@ let
       };
     in
     {
-      ${hostName} = inputs.home-manager.lib.homeManagerConfiguration {
+      ${configName} = inputs.home-manager.lib.homeManagerConfiguration {
         modules = modules ++ [ baseModule ];
         inherit pkgs extraSpecialArgs;
       };
     };
 
-  hosts = [
+  configs = [
     {
       system = inputs.flake-utils.lib.system.x86_64-linux;
-      hostName = "desktop";
+      configName = "desktop";
       modules = [
         "${moduleBaseDirectory}/profile/application-development.nix"
         "${moduleBaseDirectory}/profile/system-administration.nix"
@@ -106,14 +106,14 @@ let
       ];
     }
   ];
-  homeConfigurationsByHostName = map makeHomeConfigurationByHostName hosts;
+  homeConfigurationsByName = map makeHomeConfigurationByName configs;
 in
 {
   flake = {
     lib.home = {
-      inherit moduleBaseDirectory makeDarwinModules makeHomeConfigurationByHostName;
+      inherit moduleBaseDirectory makeDarwinModules makeHomeConfigurationByName;
     };
 
-    homeConfigurations = self.lib.recursiveMerge homeConfigurationsByHostName;
+    homeConfigurations = self.lib.recursiveMerge homeConfigurationsByName;
   };
 }

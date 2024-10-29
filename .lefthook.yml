@@ -52,9 +52,9 @@ post-checkout:
         exit 0
 
 sync:
-  # So we can see the output of dev-shell and host-manager. It can take a while so
-  # it's nice to see what it's doing. Plus some of these tasks print messages I want
-  # to see.
+  # So we can see the output of dev-shell and system. It can take a while so it's
+  # nice to see what it's doing. Plus some of these tasks print messages I want to
+  # see.
   follow: true
   # Add '|| true' so lefthook doesn't exit with code 1
   files: >
@@ -98,11 +98,11 @@ sync:
       skip: true
       glob: ".lefthook.yml"
       run: lefthook install --force
-    host-manager:
+    system:
       interactive: true
       priority: 1
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
-      run: sudo run-as-admin hostctl-switch
+      run: sudo run-as-admin system-config-apply
 
     # These should run last so their messages aren't lost in the output of other
     # commands.
@@ -180,10 +180,10 @@ generate:
     nix-version:
       glob: "flake.lock"
       run: ./scripts/fail-if-files-change.bash ./scripts/sync-nix-version.bash
-    configs:
+    system-configs:
       glob: "{flake-modules/**,flake.nix}"
       run: |
-        ./scripts/fail-if-files-change.bash perl -0777 -i -pe "s{<!-- START_CONFIGURATIONS -->.*<!-- END_CONFIGURATIONS -->}{<!-- START_CONFIGURATIONS -->$(./scripts/get-host-configurations.bash)
+        ./scripts/fail-if-files-change.bash perl -0777 -i -pe "s{<!-- START_CONFIGURATIONS -->.*<!-- END_CONFIGURATIONS -->}{<!-- START_CONFIGURATIONS -->$(./scripts/get-system-configurations.bash)
 
         <!-- END_CONFIGURATIONS -->}igs" README.md
 

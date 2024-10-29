@@ -7,7 +7,7 @@
 }:
 let
   inherit (specialArgs)
-    hostName
+    configName
     username
     homeDirectory
     isHomeManagerRunningAsASubmodule
@@ -16,12 +16,12 @@ let
   inherit (pkgs.stdenv) isLinux;
 
   # Scripts for switching generations and upgrading flake inputs.
-  hostctl-switch = pkgs.writeShellApplication {
-    name = "hostctl-switch";
+  system-config-apply = pkgs.writeShellApplication {
+    name = "system-config-apply";
     runtimeInputs = with pkgs; [ nix-output-monitor ];
     text = ''
       cd "${config.repository.directory}"
-      ${config.home.profileDirectory}/bin/home-manager switch --flake "${config.repository.directory}#${hostName}" "''$@" |& nom
+      ${config.home.profileDirectory}/bin/home-manager switch --flake "${config.repository.directory}#${configName}" "''$@" |& nom
 
       # TODO: You shouldn't manage the system from home-manager. Ideally, I'd use
       # something like system-manager[1], but I don't think it works with
@@ -59,8 +59,8 @@ let
     '';
   };
 
-  hostctl-preview-switch = pkgs.writeShellApplication {
-    name = "hostctl-preview-switch";
+  system-config-preview = pkgs.writeShellApplication {
+    name = "system-config-preview";
     runtimeInputs = with pkgs; [
       coreutils
       gnugrep
@@ -71,7 +71,7 @@ let
 
       oldGenerationPath="$(${config.home.profileDirectory}/bin/home-manager generations | head -1 | grep -E --only-matching '/nix.*$')"
 
-      newGenerationPath="$(nix build --no-link --print-out-paths .#homeConfigurations.${hostName}.activationPackage)"
+      newGenerationPath="$(nix build --no-link --print-out-paths .#homeConfigurations.${configName}.activationPackage)"
 
       cyan='\033[1;0m'
       printf "%bPrinting switch preview...\n" "$cyan"
@@ -79,8 +79,8 @@ let
     '';
   };
 
-  hostctl-upgrade = pkgs.writeShellApplication {
-    name = "hostctl-upgrade";
+  system-config-pull = pkgs.writeShellApplication {
+    name = "system-config-pull";
     runtimeInputs = with pkgs; [
       coreutils
       gitMinimal
@@ -89,9 +89,9 @@ let
       nix
     ];
     text = ''
-      trap 'echo "Upgrade failed, run \"just upgrade\" to try again."' ERR
+      trap 'echo "Pull failed, run \"just pull\" to try again."' ERR
 
-      # TODO: So `just` has access to `hostctl-switch`, not a great solution
+      # TODO: So `just` has access to `system-config-apply`, not a great solution
       PATH="${config.home.profileDirectory}/bin:$PATH"
       cd "${config.repository.directory}"
 
@@ -103,7 +103,7 @@ let
           echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
 
           if [ -n "$(git status --porcelain)" ]; then
-              git stash --include-untracked --message 'Stashed for upgrade'
+              git stash --include-untracked --message 'Stashed for system pull'
           fi
 
           direnv allow
@@ -111,7 +111,7 @@ let
           direnv exec "$PWD" git pull
           direnv exec "$PWD" just sync
       else
-          # Something probably went wrong so we're trying to upgrade again even
+          # Something probably went wrong so we're trying to pull again even
           # though there's nothing to pull. In which case, just sync.
           direnv allow
           direnv exec "$PWD" nix-direnv-reload
@@ -120,17 +120,17 @@ let
     '';
   };
 
-  update-check = pkgs.writeShellApplication {
-    name = "update-check";
+  remote-changes-check = pkgs.writeShellApplication {
+    name = "remote-changes-check";
     runtimeInputs = with pkgs; [
       coreutils
       gitMinimal
       libnotify
     ];
     text = ''
-      log="$(mktemp --tmpdir 'home_manager_update_XXXXX')"
+      log="$(mktemp --tmpdir 'home_manager_XXXXX')"
       exec 2>"$log" 1>"$log"
-      trap 'notify-send --app-name "Home Manager" "Update check failed :( Check the logs in $log"' ERR
+      trap 'notify-send --app-name "Home Manager" "The check for changes failed :( Check the logs in $log"' ERR
 
       cd "${config.repository.directory}"
 
@@ -140,7 +140,7 @@ let
         # working.
         #
         # TODO: With `--wait`, `notify-send` only exits if the x button is
-        # clicked. I assume that I want to upgrade if I click the x button
+        # clicked. I assume that I want to pull if I click the x button
         # within one hour. Using `timeout` I can kill `notify-send` once one
         # hour passes.  This behavior isn't correct based on the `notify-send`
         # manpage, not sure if the bug is with `notify-send` or my desktop
@@ -148,11 +148,11 @@ let
         timeout_exit_code=124
         set +o errexit
         timeout 1h notify-send --wait --app-name 'Home Manager' \
-          'Updates are available. To update, click the "x" button now or after the notification has been dismissed.'
+          'There are changes on the remote. To pull, click the "x" button now or after the notification has been dismissed.'
         exit_code=$?
         set -o errexit
         if (( exit_code != timeout_exit_code )); then
-          flatpak run org.wezfurlong.wezterm --config 'default_prog={[[${hostctl-upgrade}/bin/hostctl-upgrade]]}' --config 'exit_behavior=[[Hold]]'
+          flatpak run org.wezfurlong.wezterm --config 'default_prog={[[${system-config-pull}/bin/system-config-pull]]}' --config 'exit_behavior=[[Hold]]'
         fi
       fi
     '';
@@ -183,8 +183,9 @@ lib.mkMerge [
     };
   }
 
-  # These are all things that don't need to be done when home manager is being run as a submodule inside of
-  # another host manager, like nix-darwin. They don't need to be done because the outer host manager will do them.
+  # These are all things that don't need to be done when home manager is being run as
+  # a submodule inside of another system manager, like nix-darwin. They don't need to
+  # be done because the outer system manager will do them.
   (optionalAttrs (!isHomeManagerRunningAsASubmodule) {
     home = {
       # Home Manager needs a bit of information about you and the
@@ -192,9 +193,9 @@ lib.mkMerge [
       inherit username homeDirectory;
 
       packages = [
-        hostctl-preview-switch
-        hostctl-switch
-        hostctl-upgrade
+        system-config-preview
+        system-config-apply
+        system-config-pull
       ];
 
       # Show me what changed everytime I switch generations e.g. version updates or added/removed files.
@@ -230,13 +231,13 @@ lib.mkMerge [
               ExecStart = "${config.home.profileDirectory}/bin/home-manager expire-generations '-180 days'";
             };
           };
-          home-manager-update-check = {
+          home-manager-change-check = {
             Unit = {
-              Description = "Check for home-manager updates";
+              Description = "Check for home-manager changes on the remote";
             };
             Service = {
               Type = "oneshot";
-              ExecStart = "${update-check}/bin/update-check";
+              ExecStart = "${remote-changes-check}/bin/remote-changes-check";
             };
           };
         };
@@ -254,9 +255,9 @@ lib.mkMerge [
               WantedBy = [ "timers.target" ];
             };
           };
-          home-manager-update-check = {
+          home-manager-change-check = {
             Unit = {
-              Description = "Check for home-manager updates";
+              Description = "Check for home-manager changes on the remote";
             };
             Timer = {
               OnCalendar = "daily";

@@ -4,10 +4,10 @@
   ...
 }:
 let
-  makeDarwinConfigurationByHostName =
+  makeDarwinConfigurationByName =
     {
       system,
-      hostName,
+      configName,
       modules,
       homeModules,
       username ? "biggs",
@@ -18,7 +18,7 @@ let
       homeManagerSubmodules = self.lib.home.makeDarwinModules {
         inherit
           username
-          hostName
+          configName
           homeDirectory
           repositoryDirectory
           ;
@@ -34,7 +34,7 @@ let
         modules = modules ++ homeManagerSubmodules;
         specialArgs = {
           inherit
-            hostName
+            configName
             username
             homeDirectory
             repositoryDirectory
@@ -45,13 +45,13 @@ let
       };
     in
     {
-      ${hostName} = darwinConfiguration;
+      ${configName} = darwinConfiguration;
     };
 
-  hosts = [
+  configs = [
     {
       system = inputs.flake-utils.lib.system.x86_64-darwin;
-      hostName = "bigmac";
+      configName = "bigmac";
       modules = [
         ./modules/profile/base.nix
       ];
@@ -62,10 +62,10 @@ let
       ];
     }
   ];
-  darwinConfigurationsByHostName = map makeDarwinConfigurationByHostName hosts;
+  darwinConfigurationsByName = map makeDarwinConfigurationByName configs;
 in
 {
   flake = {
-    darwinConfigurations = self.lib.recursiveMerge darwinConfigurationsByHostName;
+    darwinConfigurations = self.lib.recursiveMerge darwinConfigurationsByName;
   };
 }

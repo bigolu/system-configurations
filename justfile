@@ -10,33 +10,45 @@ list:
         | "${PAGER:-cat}"
 
 [doc('''
+    Initialize a system. You only need to run this when you first clone the
+    repository.
+
+    Arguments:
+        MANAGER: The name of the system manager to use.
+        CONFIGURATION: The name of the configuration to apply.
+''')]
+[group('System Management')]
+initialize MANAGER CONFIGURATION: && (force-sync "lefthook")
+  #!/usr/bin/env bash
+  if [[ "$1" = 'home-manager' ]]; then
+    just home-manager "$2"
+  elif [[ "$1" = 'nix-darwin' ]]; then
+    just nix-darwin "$2"
+  else
+    echo "Unknown system manager: $1" >&2
+    exit 1
+  fi
+
+[doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
     changes so no need to run manually.
 ''')]
-[group('Host Management')]
-upgrade:
-    hostctl-upgrade
+[group('System Management')]
+pull:
+    system-config-pull
 
 [doc('''
-    Show a preview of what changes would be made to the host if you were to
-    switch to a new configuration. This will not actually switch to the new
-    configuration.
+    Show a preview of what changes would be made to the system if you were to
+    apply with the configuration.
 ''')]
-[group('Host Management')]
-preview-switch:
-    hostctl-preview-switch
+[group('System Management')]
+preview:
+    system-config-preview
 
-[doc('''
-    Apply the first generation of a Home Manager configuration. You only need to
-    run this when you first clone the repository.
-
-    Arguments:
-        HOST_NAME: The name of the host configuration to apply.
-''')]
-[group('Host Management')]
-init-home-manager HOST_NAME: && (force-sync "lefthook,secrets")
+[private]
+[group('System Management')]
+home-manager NAME:
   nix run --inputs-from . home-manager# -- switch --flake .#"$1"
-
   # Home Manager can't run these since they require root privileges so I'll run
   # them here.
   ./dotfiles/nix/set-locale-variable.bash
@@ -47,16 +59,10 @@ init-home-manager HOST_NAME: && (force-sync "lefthook,secrets")
   ./dotfiles/keyd/install.bash
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
 
-[doc('''
-    Apply the first generation of a nix-darwin configuration. You only need to
-    run this when you first clone the repository.
-
-    Arguments:
-        HOST_NAME: The name of the host configuration to apply.
-''')]
-[group('Host Management')]
-init-nix-darwin HOST_NAME: && (force-sync "lefthook,secrets")
-    ./scripts/init-nix-darwin.bash "$@"
+[private]
+[group('System Management')]
+nix-darwin NAME:
+  ./scripts/init-nix-darwin.bash "$1"
 
 [doc('''
     Create a bundle for the specified package (e.g. .#shell) using the

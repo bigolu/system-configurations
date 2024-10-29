@@ -6,14 +6,14 @@
 }:
 let
   inherit (specialArgs)
-    hostName
+    configName
     homeDirectory
     username
     repositoryDirectory
     ;
 
-  hostctl-preview-switch = pkgs.writeShellApplication {
-    name = "hostctl-preview-switch";
+  system-config-preview = pkgs.writeShellApplication {
+    name = "system-config-preview";
     runtimeInputs = with pkgs; [
       nix
       coreutils
@@ -23,7 +23,7 @@ let
 
       oldGenerationPath="$(readlink --canonicalize ${config.system.profile})"
 
-      newGenerationPath="$(nix build --no-link --print-out-paths .#darwinConfigurations.${hostName}.system)"
+      newGenerationPath="$(nix build --no-link --print-out-paths .#darwinConfigurations.${configName}.system)"
 
       cyan='\033[1;0m'
       printf "%bPrinting switch preview...\n" "$cyan"
@@ -31,8 +31,8 @@ let
     '';
   };
 
-  hostctl-switch = pkgs.writeShellApplication {
-    name = "hostctl-switch";
+  system-config-apply = pkgs.writeShellApplication {
+    name = "system-config-apply";
     runtimeInputs = with pkgs; [
       nix
       nix-output-monitor
@@ -43,7 +43,7 @@ let
 
       oldGenerationPath="$(readlink --canonicalize ${config.system.profile})"
 
-      ${config.system.profile}/sw/bin/darwin-rebuild switch --flake "${repositoryDirectory}#${hostName}" "$@" |& nom
+      ${config.system.profile}/sw/bin/darwin-rebuild switch --flake "${repositoryDirectory}#${configName}" "$@" |& nom
 
       newGenerationPath="$(readlink --canonicalize ${config.system.profile})"
 
@@ -53,8 +53,8 @@ let
     '';
   };
 
-  hostctl-upgrade = pkgs.writeShellApplication {
-    name = "hostctl-upgrade";
+  system-config-pull = pkgs.writeShellApplication {
+    name = "system-config-pull";
     runtimeInputs = with pkgs; [
       coreutils
       gitMinimal
@@ -63,9 +63,9 @@ let
       nix
     ];
     text = ''
-      trap 'echo "Upgrade failed, run \"just upgrade\" to try again."' ERR
+      trap 'echo "Pull failed, run \"just pull\" to try again."' ERR
 
-      # TODO: So `just` has access to `hostctl-switch`, not a great solution
+      # TODO: So `just` has access to `system-config-apply`, not a great solution
       PATH="${config.system.profile}/sw/bin:$PATH"
       cd "${repositoryDirectory}"
 
@@ -77,7 +77,7 @@ let
           echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
 
           if [ -n "$(git status --porcelain)" ]; then
-              git stash --include-untracked --message 'Stashed for upgrade'
+              git stash --include-untracked --message 'Stashed for system pull'
           fi
 
           direnv allow
@@ -85,7 +85,7 @@ let
           direnv exec "$PWD" git pull
           direnv exec "$PWD" just sync
       else
-          # Something probably went wrong so we're trying to upgrade again even
+          # Something probably went wrong so we're trying to pull again even
           # though there's nothing to pull. In which case, just sync.
           direnv allow
           direnv exec "$PWD" nix-direnv-reload
@@ -103,23 +103,23 @@ let
     '';
   };
 
-  update-check = pkgs.writeShellApplication {
-    name = "update-check";
+  remote-changes-check = pkgs.writeShellApplication {
+    name = "remote-changes-check";
     runtimeInputs = with pkgs; [
       coreutils
       gitMinimal
       terminal-notifier
     ];
     text = ''
-      log="$(mktemp --tmpdir 'nix_darwin_update_XXXXX')"
+      log="$(mktemp --tmpdir 'nix_darwin_XXXXX')"
       exec 2>"$log" 1>"$log"
-      trap 'terminal-notifier -title "Nix Darwin" -message "Update check failed :( Check the logs in $log"' ERR
+      trap 'terminal-notifier -title "Nix Darwin" -message "The check for changes failed :( Check the logs in $log"' ERR
 
       cd "${repositoryDirectory}"
 
       git fetch
       if [ -n "$(git log 'HEAD..@{u}' --oneline)" ]; then
-        terminal-notifier -title "Nix Darwin" -message "Updates are available, click here to update." -execute '/usr/local/bin/wezterm --config "default_prog={[[${hostctl-upgrade}/bin/hostctl-upgrade]]}" --config "exit_behavior=[[Hold]]"'
+        terminal-notifier -title "Nix Darwin" -message "There are changes on the remote, click here to pull." -execute '/usr/local/bin/wezterm --config "default_prog={[[${system-config-pull}/bin/system-config-pull]]}" --config "exit_behavior=[[Hold]]"'
       fi
     '';
   };
@@ -133,9 +133,9 @@ in
 
   environment = {
     systemPackages = [
-      hostctl-preview-switch
-      hostctl-switch
-      hostctl-upgrade
+      system-config-preview
+      system-config-apply
+      system-config-pull
     ];
   };
 
@@ -143,7 +143,7 @@ in
     stateVersion = 4;
   };
 
-  launchd.user.agents.nix-darwin-update-check = {
+  launchd.user.agents.nix-darwin-change-check = {
     serviceConfig.RunAtLoad = false;
 
     serviceConfig.StartCalendarInterval = [
@@ -155,6 +155,6 @@ in
       { Hour = 20; }
     ];
 
-    command = ''${update-check}/bin/update-check'';
+    command = ''${remote-changes-check}/bin/remote-changes-check'';
   };
 }

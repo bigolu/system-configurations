@@ -18,7 +18,7 @@ people who want to manage their systems similarly.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Applying a Configuration](#applying-a-configuration)
-  - [Hosts](#hosts)
+  - [Configs](#configs)
   - [Steps](#steps)
 - [Running the Portable Home Configuration](#running-the-portable-home-configuration)
   - [How it Works](#how-it-works)
@@ -27,10 +27,10 @@ people who want to manage their systems similarly.
 
 ## Applying a Configuration
 
-### Hosts
+### Configs
 
-For reference, here are all the hosts, grouped by host manager, in the format
-"\<host_name> / \<platform>":
+For reference, here are all the configs, grouped by system manager, in the
+format "\<config_name> / \<platform>":
 
 <!-- START_CONFIGURATIONS -->
 
@@ -48,7 +48,7 @@ For reference, here are all the hosts, grouped by host manager, in the format
 
 1. Install Nix using the [Determinate Systems Nix
    Installer][determinate-systems-installer]. After you download it, replace the
-   platform (x86_64) in the URL below with that of your host and then run the
+   platform (x86_64) in the URL below with that of your system and then run the
    command:
 
    > NOTE: The installer may have changed since this was written so make sure
@@ -97,8 +97,8 @@ For reference, here are all the hosts, grouped by host manager, in the format
    - Linux
 
      1. Apply a Home Manager configuration by running
-        `just init-home-manager <host_name>` where `<host_name>` is any
-        compatible host from the [host list](#hosts).
+        `just initialize home-manager <config_name>` where `<config_name>` is
+        any compatible config from the [config list](#configs).
 
      2. Install and start [`keyd`][keyd]
 
@@ -108,8 +108,8 @@ For reference, here are all the hosts, grouped by host manager, in the format
    - macOS
 
      1. Apply a nix-darwin configuration by running
-        `just init-nix-darwin <host_name>` where `<host_name>` is any compatible
-        host from the [host list](#hosts).
+        `just initialize nix-darwin <config_name>` where `<config_name>` is any
+        compatible config from the [config list](#configs).
 
      2. Keyboard:
 

@@ -2,7 +2,7 @@
 # Source: https://github.com/renovatebot/renovate/issues/29721
 # fix: https://github.com/renovatebot/renovate/pull/31921
 {
-  description = "Host configurations";
+  description = "System configurations";
 
   outputs =
     inputs@{
