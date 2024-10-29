@@ -81,8 +81,8 @@ set flags \
     (__flag 'wrap') \
     (__flag 'color' \
         '16' \
-        'fg+:-1:regular:underline' \
-        'bg+:-1' \
+        'current-fg:-1:regular:underline' \
+        'current-bg:-1' \
         'info:8' \
         'gutter:-1' \
         'pointer:6:bold' \
