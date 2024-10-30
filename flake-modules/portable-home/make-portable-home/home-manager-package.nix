@@ -83,12 +83,6 @@ let
     overlays = [ portableOverlay ] ++ overlays;
     isHomeManagerRunningAsASubmodule = true;
 
-    # I want to remove the systemd dependency, but there is no option for
-    # that. Instead, I set the user to root since Home Manager won't include
-    # systemd if the user is root. see:
-    # https://github.com/nix-community/home-manager/blob/master/modules/systemd.nix
-    username = "root";
-
     modules = [
       "${self.lib.home.moduleBaseDirectory}/profile/system-administration.nix"
       portableModule
