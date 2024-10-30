@@ -52,7 +52,7 @@ let
       configuration
     ];
 
-  makeHomeConfigurationByName =
+  makeHomeConfiguration =
     args@{
       system,
       configName,
@@ -89,11 +89,9 @@ let
         inherit (self.lib) root;
       };
     in
-    {
-      ${configName} = inputs.home-manager.lib.homeManagerConfiguration {
-        modules = modules ++ [ baseModule ];
-        inherit pkgs extraSpecialArgs;
-      };
+    inputs.home-manager.lib.homeManagerConfiguration {
+      modules = modules ++ [ baseModule ];
+      inherit pkgs extraSpecialArgs;
     };
 
   configs = [
@@ -107,14 +105,20 @@ let
       ];
     }
   ];
-  homeConfigurationsByName = map makeHomeConfigurationByName configs;
+
+  homeConfigurationsByName = builtins.listToAttrs (
+    map (config: {
+      name = config.configName;
+      value = makeHomeConfiguration config;
+    }) configs
+  );
 in
 {
   flake = {
     lib.home = {
-      inherit moduleBaseDirectory makeDarwinModules makeHomeConfigurationByName;
+      inherit moduleBaseDirectory makeDarwinModules makeHomeConfiguration;
     };
 
-    homeConfigurations = self.lib.recursiveMerge homeConfigurationsByName;
+    homeConfigurations = homeConfigurationsByName;
   };
 }

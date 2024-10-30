@@ -1,13 +1,10 @@
 {
   pkgs,
   self,
-  modules ? [ ],
-  overlays ? [ ],
 }:
 let
   inherit (pkgs) system;
   inherit (pkgs.stdenv) isLinux;
-  configName = "guest";
   makeEmptyPackage = packageName: pkgs.runCommand packageName { } ''mkdir -p $out/bin'';
 
   portableOverlay = _final: _prev: {
@@ -77,16 +74,17 @@ let
       nix.enable = false;
     };
 
-  homeConfigurationByName = self.lib.home.makeHomeConfigurationByName {
-    inherit system configName;
+  homeConfiguration = self.lib.home.makeHomeConfiguration {
+    inherit system;
+    configName = "guest";
     isGui = false;
-    overlays = [ portableOverlay ] ++ overlays;
+    overlays = [ portableOverlay ];
     isHomeManagerRunningAsASubmodule = true;
 
     modules = [
       "${self.lib.home.moduleBaseDirectory}/profile/system-administration.nix"
       portableModule
-    ] ++ modules;
+    ];
   };
 in
-homeConfigurationByName.${configName}.activationPackage
+homeConfiguration.activationPackage
