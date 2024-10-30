@@ -9,8 +9,6 @@ let
   inherit (pkgs) lib;
   inherit (pkgs.stdenv) isLinux;
 
-  inherit (pkgs) fish;
-
   # "C.UTF-8/UTF-8" is the locale that perl said wasn't supported so I added it here.
   # "en_US.UTF-8/UTF-8" is the default locale so I'm keeping it just in case.
   locales = pkgs.glibcLocales.override {
@@ -21,44 +19,16 @@ let
     ];
   };
 
-  makeEmptyPackage = packageName: pkgs.runCommand packageName { } ''mkdir -p $out/bin'';
-
-  allModules = modules ++ [
-    (
-      { lib, ... }:
-      {
-        xdg = {
-          dataFile = {
-            "nvim/site/parser" = lib.mkForce {
-              source = makeEmptyPackage "parsers";
-            };
-          };
-        };
-      }
-    )
-  ];
-
-  allOverlays = overlays ++ [
-    (_final: _prev: {
-      moreutils = makeEmptyPackage "moreutils";
-      ast-grep = makeEmptyPackage "ast-grep";
-      timg = makeEmptyPackage "timg";
-      ripgrep-all = makeEmptyPackage "ripgrep-all";
-      lesspipe = makeEmptyPackage "lesspipe";
-      wordnet = makeEmptyPackage "wordnet";
-      diffoscope = makeEmptyPackage "diffoscope";
-      gitMinimal = makeEmptyPackage "gitMinimal";
-      difftastic = makeEmptyPackage "difftastic";
-    })
-  ];
-
   portableHome =
     let
       bashPath = "${pkgs.bash}/bin/bash";
       activationPackage = import ./home-manager-package.nix {
-        inherit pkgs self;
-        modules = allModules;
-        overlays = allOverlays;
+        inherit
+          pkgs
+          self
+          overlays
+          modules
+          ;
       };
       localeArchive =
         if isLinux then
@@ -104,10 +74,10 @@ let
     in
     (pkgs.writeScriptBin name ''
       #!${bashPath}
-              BASH_PATH=${bashPath}
-              ACTIVATION_PACKAGE=${lib.escapeShellArg "${activationPackage}"}
-              ${localeArchive}
-              source ${bootstrap}/bin/bootstrap
+      BASH_PATH=${bashPath}
+      ACTIVATION_PACKAGE=${activationPackage}
+      ${localeArchive}
+      source ${bootstrap}/bin/bootstrap
     '')
     // {
       meta.mainProgram = name;

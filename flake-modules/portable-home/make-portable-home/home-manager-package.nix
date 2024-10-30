@@ -12,6 +12,15 @@ let
 
   portableOverlay = _final: _prev: {
     comma = makeEmptyPackage "stub-comma";
+    moreutils = makeEmptyPackage "moreutils";
+    ast-grep = makeEmptyPackage "ast-grep";
+    timg = makeEmptyPackage "timg";
+    ripgrep-all = makeEmptyPackage "ripgrep-all";
+    lesspipe = makeEmptyPackage "lesspipe";
+    wordnet = makeEmptyPackage "wordnet";
+    diffoscope = makeEmptyPackage "diffoscope";
+    gitMinimal = makeEmptyPackage "gitMinimal";
+    difftastic = makeEmptyPackage "difftastic";
   };
 
   portableModule =
@@ -57,6 +66,10 @@ let
 
         dataFile = {
           "fzf/fzf-history.txt".source = pkgs.writeText "fzf-history.txt" "";
+
+          "nvim/site/parser" = lib.mkForce {
+            source = makeEmptyPackage "parsers";
+          };
         };
       };
 
