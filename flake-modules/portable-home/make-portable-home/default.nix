@@ -48,6 +48,7 @@ let
       wordnet = makeEmptyPackage "wordnet";
       diffoscope = makeEmptyPackage "diffoscope";
       gitMinimal = makeEmptyPackage "gitMinimal";
+      difftastic = makeEmptyPackage "difftastic";
     })
   ];
 

@@ -45,6 +45,11 @@ let
           source = makeEmptyPackage "stub-spoon";
           recursive = false;
         };
+
+        # Since I'm running Home Manager in "submodule mode", I have to set these or
+        # else it won't build.
+        username = "guest";
+        homeDirectory = "/no/home/directory";
       };
 
       xdg = {
@@ -63,6 +68,7 @@ let
     inherit system configName;
     isGui = false;
     overlays = [ portableOverlay ] ++ overlays;
+    isHomeManagerRunningAsASubmodule = true;
 
     # I want to remove the systemd dependency, but there is no option for
     # that. Instead, I set the user to root since Home Manager won't include

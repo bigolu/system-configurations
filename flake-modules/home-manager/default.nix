@@ -60,6 +60,7 @@ let
       isGui ? true,
       username ? "biggs",
       overlays ? [ ],
+      isHomeManagerRunningAsASubmodule ? false,
     }:
     let
       pkgs = import inputs.nixpkgs {
@@ -82,8 +83,8 @@ let
           username
           homeDirectory
           repositoryDirectory
+          isHomeManagerRunningAsASubmodule
           ;
-        isHomeManagerRunningAsASubmodule = false;
         flakeInputs = inputs;
         inherit (self.lib) root;
       };
