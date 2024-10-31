@@ -66,7 +66,7 @@ format "\<config_name> / \<platform>":
    <!-- SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS -->
 
    ```bash
-   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#gitMinimal \
+   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#coreutils nixpkgs#gitMinimal \
      --command fish --init-command '
        # Fish does not have a way to exit whenever a command fails so I am
        # manually adding `|| exit`.

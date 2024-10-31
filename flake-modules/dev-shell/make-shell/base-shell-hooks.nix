@@ -13,6 +13,7 @@ let
     }
 
     function symlink {
+      ${pkgs.coreutils}/bin/mkdir --parents "$(${pkgs.coreutils}/bin/dirname "$2")"
       ${pkgs.coreutils}/bin/ln --symbolic --force --no-dereference "$1" "$2"
     }
   '';

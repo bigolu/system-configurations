@@ -115,21 +115,15 @@
             packages = [ pkgs.efm-langserver ];
           };
 
-          luaLs =
-            let
-              luaLibraries = pkgs.runCommand "lua-libraries" { } ''
-                mkdir "$out"
-                cd "$out"
-                ln -s ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} ./plugins
-                ln -s ${inputs.neodev-nvim}/types/nightly ./neodev
-                ln -s ${pkgs.neovim}/share/nvim/runtime ./nvim-runtime
-              '';
-            in
-            makeShell {
-              shellHook = ''
-                symlink ${luaLibraries} '.lua-libraries'
-              '';
-            };
+          luaLs = makeShell {
+            shellHook = ''
+              # SYNC: LUA_LIBRARY_PREFIX
+              prefix='.lua-libraries'
+              symlink ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} "$prefix/plugins"
+              symlink ${inputs.neodev-nvim}/types/nightly "$prefix/neodev"
+              symlink ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+            '';
+          };
 
           nixd = makeShell {
             packages = [ pkgs.nixd ];

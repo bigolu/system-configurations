@@ -4,10 +4,7 @@
     "unusedLocalExclude": ["_*"]
   },
   "workspace": {
-    "library": [
-      ".lua-libraries",
-      "/Users/biggs/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
-    ],
+    "library": [".lua-libraries"],
     "checkThirdParty": "Disable"
   },
   "runtime": {
