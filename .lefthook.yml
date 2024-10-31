@@ -186,6 +186,11 @@ generate:
         ./scripts/fail-if-files-change.bash perl -0777 -i -pe "s{<!-- START_CONFIGURATIONS -->.*<!-- END_CONFIGURATIONS -->}{<!-- START_CONFIGURATIONS -->$(./scripts/get-system-configurations.bash)
 
         <!-- END_CONFIGURATIONS -->}igs" README.md
+    flake-lock:
+      glob: "flake.nix"
+      run: >
+        ./scripts/fail-if-files-change.bash
+        nix flake lock
 
 format:
   files: |
@@ -322,11 +327,6 @@ fix-lint:
       run: >
         ./scripts/fail-if-files-change.bash
         mac2unix --allow-chown --add-eol {files}
-    flake-lock:
-      glob: "flake.nix"
-      run: >
-        ./scripts/fail-if-files-change.bash
-        nix flake lock
 
 check-lint:
   files: |
