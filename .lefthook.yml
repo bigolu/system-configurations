@@ -340,7 +340,7 @@ check-lint:
       skip: true
       glob: "*.md"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=ltex-cli -efm '%f:%l:%c: %m'
         :::
         ltex-cli --server-command-line=ltex-ls {files}
@@ -349,14 +349,14 @@ check-lint:
       skip: true
       glob: "*.go"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=golangci-lint -f sarif
         :::
         golangci-lint run --out-format sarif {files}
     ruff:
       glob: "*.py"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=ruff -f sarif
         :::
         ruff check --output-format sarif {files}
@@ -364,21 +364,21 @@ check-lint:
       glob: "*.fish"
       # TODO: Fish doesn't support passing multiple files, I should open an issue.
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=fish -efm '%f (line %l): %m'
         :::
         parallel fish --no-execute '{}' ::: {files}
     desktop-file-validate:
       glob: "*.desktop"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=desktop-file-validate -efm '%f: %m'
         :::
         desktop-file-validate {files}
     markdownlint-cli2:
       glob: "*.md"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=markdownlint-cli2
         -efm "%f:%l:%c: %m"
         -efm "%f:%l:%c %m"
@@ -389,21 +389,21 @@ check-lint:
     shellcheck:
       glob: "*.{sh,bash}"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=shellcheck -f checkstyle
         :::
         shellcheck --format checkstyle --color=never {files}
     yamllint:
       glob: "*.{yaml,yml}"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=yamllint -efm '%f:%l:%c: [%t%*[a-z]] %m'
         :::
         yamllint --strict --format parsable {files}
     actionlint:
       glob: ".github/workflows/*.{yaml,yml}"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=actionlint -efm "%f:%l:%c: %m"
         :::
         actionlint -no-color {files}
@@ -412,14 +412,14 @@ check-lint:
       # statix doesn't support passing multiple files yet:
       # https://github.com/nerdypepper/statix/issues/69
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=statix -efm '%f>%l:%c:%t:%n:%m'
         :::
         parallel statix check {} -o errfmt ::: {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=typos -efm '%f:%l:%c: %m'
         :::
         typos --color never --format brief {files}
@@ -436,14 +436,14 @@ check-lint:
       # TODO: SARIF support is being added:
       # https://github.com/Boeing/config-file-validator/issues/32
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=config-file-validator -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         :::
         validator -groupby pass-fail {files}
     renovate:
       glob: ".github/renovate.json5"
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=renovate -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         :::
         renovate-config-validator --strict {files}
@@ -454,7 +454,7 @@ check-lint:
       # Support for GitHub annotation format is being considered. This could be
       # parsed by reviewdog: https://github.com/tamasfe/taplo/issues/470
       run: >
-        ./scripts/run-through-reviewdog.bash
+        ./scripts/reviewdog-run-linter.bash
         -name=taplo -efm "_REVIEWDOG_DO_NOT_MATCH" -tee
         :::
         taplo lint {files}
