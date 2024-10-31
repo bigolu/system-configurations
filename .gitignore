@@ -2,5 +2,5 @@
 .direnv/
 .mypy_cache/
 .DS_Store
-.lua-libraries
+.lua-libraries/
 secrets.env
