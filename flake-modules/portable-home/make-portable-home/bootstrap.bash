@@ -62,14 +62,14 @@ function add_directory_to_path {
     # for the kernel to recognize them so it must come directly after the
     # opening quote of the script.
     case "$program_basename" in
-    env)
-      # TODO: Wrapping this caused an infinite loop so I'll copy it instead. I
-      # guess the interpreter I was using in the shebang was calling env
-      # somehow.
-      cp -L "$program" "$new_directory/env"
-      ;;
-    fish)
-      printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
+      env)
+        # TODO: Wrapping this caused an infinite loop so I'll copy it instead. I
+        # guess the interpreter I was using in the shebang was calling env
+        # somehow.
+        cp -L "$program" "$new_directory/env"
+        ;;
+      fish)
+        printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
 # I unexport the XDG Base directories so host programs pick up the host's XDG directories.
 XDG_CONFIG_HOME=$xdg_config_directory \
 XDG_DATA_HOME=$xdg_data_directory \
@@ -84,9 +84,9 @@ exec $program \
   --init-command 'set --unexport XDG_RUNTIME_DIR' \
   --init-command 'set --unexport XDG_CACHE_HOME' \
   \"\$@\""
-      ;;
-    *)
-      printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
+        ;;
+      *)
+        printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
 XDG_CONFIG_HOME=$xdg_config_directory \
 XDG_DATA_HOME=$xdg_data_directory \
 XDG_STATE_HOME=$xdg_state_directory \
@@ -94,7 +94,7 @@ XDG_RUNTIME_DIR=$xdg_runtime_directory \
 XDG_CACHE_HOME=$xdg_cache_directory \
 BIGOLU_IN_PORTABLE_HOME=1 \
 exec $program \"\$@\""
-      ;;
+        ;;
     esac
 
     chmod +x "$new_directory/$program_basename"

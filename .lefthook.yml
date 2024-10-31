@@ -219,7 +219,7 @@ format:
       glob: "*.{envrc,sh,bash}"
       run: >
         ./scripts/fail-if-files-change.bash
-        shfmt --write {files}
+        shfmt --binary-next-line --case-indent --indent 2 --write {files}
     fish_indent:
       glob: "*.fish"
       run: >

@@ -19,8 +19,8 @@ function main {
   if [[ "$files" = 'all' ]]; then
     "${lefthook_command[@]}" --all-files
   elif [[ "$files" = 'diff-from-default' ]]; then
-    get_files_that_differ_from_default_branch |
-      "${lefthook_command[@]}" --files-from-stdin
+    get_files_that_differ_from_default_branch \
+      | "${lefthook_command[@]}" --files-from-stdin
   else
     echo "Error: invalid file set '$files'" >&2
     exit 1
