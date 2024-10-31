@@ -50,7 +50,7 @@ runs:
         use-flakehub: false
     - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }}
       # Since this is the step that loads a dev-shell, we don't have one loaded here.
-      # So instead of using ci-bash like we usually do, we'll use the system's Bash.
-      # I'm not setting the flags I set in ci-bash just in case this version doesn't
-      # support them.
-      shell: bash {0}
+      # So instead of using ci-bash like we usually do, we'll use the following shell
+      # which will run: bash --noprofile --norc -eo pipefail {0}. On Windows, it
+      # will use Git Bash.
+      shell: bash
