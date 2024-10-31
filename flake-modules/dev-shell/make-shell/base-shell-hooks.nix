@@ -3,11 +3,7 @@ let
   helperFunctionsHook = ''
     function add_lines_to_nix_config {
       for line in "$@"; do
-      # TODO: Ensure it ends in a newline so nix-develop-gha works properly.
-      # nix-develop-gha needs a trailing newline because of the way multi-line
-      # environment variables are set in GitHub Actions. Ideally, it would add the
-      # newline if it wasn't present.
-      NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"$'\n'
+        NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"
       done
       export NIX_CONFIG
     }
