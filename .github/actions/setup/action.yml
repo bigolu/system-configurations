@@ -20,10 +20,13 @@ runs:
     # https://github.com/renovatebot/renovate/issues/28016
     - uses: DeterminateSystems/nix-installer-action@main
       with:
-        # SYNC: SYS_CONF_PUBLIC_KEYS
+        # SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS
         # ^ With the exception of Cachix, since the Cachix action adds the
         # subsituter.
-        extra-conf: extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+        extra-conf: |
+          extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+          extra-substituters = https://nix-community.cachix.org
+          show-trace = true
         # Use the same version of nix as the one used in this flake. Not only is this
         # good for consistency, but it also ensures that the nix installed here will
         # be able to parse my flake registry.json. The version number is updated
@@ -45,6 +48,9 @@ runs:
         # Cache everything
         upstream-cache: https://null.com
         use-flakehub: false
-    - uses: HatsuneMiku3939/direnv-action@v1
-      env:
-        NIX_DEV_SHELL: ${{ inputs.dev-shell }}
+    - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }}
+      # Since this is the step that loads a dev-shell, we don't have one loaded here.
+      # So instead of using ci-bash like we usually do, we'll use the following shell
+      # which will run: bash --noprofile --norc -eo pipefail {0}. On Windows, it
+      # will use Git Bash.
+      shell: bash
