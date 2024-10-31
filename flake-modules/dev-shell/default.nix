@@ -25,7 +25,7 @@
           ci-bash = pkgs.writeShellApplication {
             name = "ci-bash";
             text = ''
-              exec ${pkgs.bash}/bin/bash \
+              exec ${pkgs.bashInteractive}/bin/bash \
                 --noprofile \
                 --norc \
                 -o errexit \
@@ -191,7 +191,7 @@
           # These get called in the lefthook config
           gitMinimal
           just
-          bash
+          bashInteractive
           runAsAdmin
           # for uname
           coreutils
