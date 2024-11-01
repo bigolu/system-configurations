@@ -1,4 +1,4 @@
-local ThingsThatShouldNotBeGarbageCollected = {}
+local GarbageCollectorRoot = {}
 
 local function execute(executable, arguments, callback)
   -- I'm using hs.task because os.execute was really slow[1].
@@ -37,7 +37,7 @@ local function listen(speakerctl_path)
   end
 
   local watcher = hs.caffeinate.watcher
-  ThingsThatShouldNotBeGarbageCollected.watcher = watcher
+  GarbageCollectorRoot.watcher = watcher
     .new(function(event)
       if not is_laptop_docked() then
         return
@@ -85,4 +85,4 @@ get_command_output("/usr/bin/env", {
   [[command -v speakerctl]],
 }, listen)
 
-return ThingsThatShouldNotBeGarbageCollected
+return GarbageCollectorRoot
