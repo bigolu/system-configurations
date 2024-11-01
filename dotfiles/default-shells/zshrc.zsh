@@ -8,7 +8,7 @@
 #
 # [1]: https://github.com/microsoft/vscode/issues/163186
 # [2]: https://code.visualstudio.com/docs/supporting/FAQ#_resolving-shell-environment-fails
-if ! (( ${+VSCODE_RESOLVING_ENVIRONMENT} )); then
+if ! (( ${+VSCODE_RESOLVING_ENVIRONMENT} )) && ! (( ${+HAMMERSPOON_RESOLVING_ENVIRONMENT} )); then
   # If the current shell isn't fish, exec into fish
   if [ "$(basename "$SHELL")" != 'fish' ]; then
     SHELL="$(command -v fish)" exec fish

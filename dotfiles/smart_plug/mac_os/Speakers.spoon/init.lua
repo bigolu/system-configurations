@@ -1,9 +1,9 @@
-local M = {}
+local ThingsThatShouldNotBeGarbageCollected = {}
 
 local function execute(executable, arguments, callback)
-  -- I'm using hs.task because os.execute was really slow. For more on why
-  -- os.execute was slow see here:
-  -- https://github.com/Hammerspoon/hammerspoon/issues/2570
+  -- I'm using hs.task because os.execute was really slow[1].
+  --
+  -- [1]: https://github.com/Hammerspoon/hammerspoon/issues/2570
   return hs.task.new(executable, callback, arguments):start()
 end
 
@@ -37,8 +37,7 @@ local function listen(speakerctl_path)
   end
 
   local watcher = hs.caffeinate.watcher
-  -- Assigning the watcher to M so it doesn't get garbage collected.
-  M.watcher = watcher
+  ThingsThatShouldNotBeGarbageCollected.watcher = watcher
     .new(function(event)
       if not is_laptop_docked() then
         return
@@ -75,14 +74,15 @@ local function listen(speakerctl_path)
   end
 end
 
--- Using a login shell to make sure Nix's login shell configuration runs so I
+-- Using an interactive-login shell to make sure Nix's shell configuration runs so I
 -- can find `speakerctl`.
---
----@diagnostic disable-next-line: unused-local
-get_command_output(
+get_command_output("/usr/bin/env", {
+  "HAMMERSPOON_RESOLVING_ENVIRONMENT=1",
   os.getenv("SHELL"),
-  { "-l", "-c", [[command -v speakerctl]] },
-  listen
-)
+  "-l",
+  "-i",
+  "-c",
+  [[command -v speakerctl]],
+}, listen)
 
-return M
+return ThingsThatShouldNotBeGarbageCollected
