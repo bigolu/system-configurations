@@ -148,12 +148,22 @@ let
       exit $exit_code
     '';
   };
+
+  myFonts = final.symlinkJoin {
+    name = "my-fonts";
+    paths = with final; [
+      hack-font
+      monaspace
+      (nerdfonts.override { fonts = [ "NerdFontsSymbolsOnly" ]; })
+    ];
+  };
 in
 {
   inherit
+    runAsAdmin
+    myFonts
     # I'm renaming this to avoid rebuilds.
     myTerminfoDatabase
-    runAsAdmin
     ;
 
   neovim = nightlyNeovimWithDependencies;
