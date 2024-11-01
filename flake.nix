@@ -81,10 +81,6 @@
         nixpkgs.follows = "nixpkgs";
       };
     };
-    nix-xdg = {
-      url = "github:infinisil/nix-xdg";
-      flake = false;
-    };
     gomod2nix = {
       url = "github:nix-community/gomod2nix";
       inputs = {

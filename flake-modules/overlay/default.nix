@@ -8,7 +8,6 @@ args@{
       lib.trivial.pipe
         [
           ./plugins
-          ./xdg.nix
           ./missing-packages.nix
           ./meta-packages.nix
           ./partial-packages.nix

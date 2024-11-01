@@ -83,7 +83,7 @@ end
 function grep-widget --description 'Search by line, recursively, from current directory'
     __grep_widget \
         'pattern: ' \
-        "rg --hidden --column --line-number --no-heading --color=always --smart-case --follow -- {q} $__directory_placeholder"
+        "rg --no-config --hidden --column --line-number --no-heading --color=always --smart-case --follow -- {q} $__directory_placeholder"
 end
 mybind --no-focus \cg grep-widget
 

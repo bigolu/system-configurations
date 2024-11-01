@@ -250,3 +250,7 @@ function diff
         diffoscope --text-color always $argv
     end
 end
+
+# ripgrep
+set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HOME/.config")
+set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
