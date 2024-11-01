@@ -16,22 +16,15 @@ jobs:
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
           dev-shell: ciCheckForBrokenLinks
-      - id: bot-token
-        uses: actions/create-github-app-token@5d869da34e18e7287c1daad50e0b8ea0f506ce69 # v1
-        with:
-          app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
-          private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - name: Link Checker
         id: lychee
         uses: lycheeverse/lychee-action@7cd0af4c74a61395d455af97419279d86aafaede # v2
         with:
-          # To avoid being rate-limited by GitHub
-          token: "${{ steps.bot-token.outputs.token }}"
           args: "--verbose --no-progress ."
-      - if: env.lychee_exit_code != 0
+          # To avoid being rate-limited by GitHub
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - if: steps.lychee.outputs.exit_code != 0
         run: |
           gh issue create \
             --title 'Link Checker Report' \
-            --body-file ./lychee/out.md \
-            --label report \
-            --label 'automated issue'
+            --body-file ./lychee/out.md

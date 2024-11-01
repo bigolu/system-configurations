@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # See if remote url end in '.git'
 if git config --get remote.origin.url | grep -P '\.git$' >/dev/null; then

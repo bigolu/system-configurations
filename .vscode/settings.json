@@ -10,7 +10,6 @@
   // a lot reloads and probably make VS Code lag.
   "direnv.watchForChanges": false,
 
-  // Configure efm-langserver
   "glspc.documentFilters": [{ "pattern": "**" }],
   "glspc.serverCommand": "efm-langserver",
   "glspc.serverCommandArguments": ["-c", ".efm-langserver.yaml"],
@@ -20,8 +19,9 @@
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
     "nixd": {
-      // Why I need this:
-      // https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
+      // Ideally, I could scope these options by platform[1].
+      //
+      // [1]: https://github.com/microsoft/vscode/issues/5595
       "options": {
         "bigmac": {
           "expr": "(builtins.getFlake (toString ./.)).darwinConfigurations.bigmac.options",
@@ -38,17 +38,6 @@
       },
     },
   },
-
-  // I prefer Jedi since it's FOSS
-  "python.languageServer": "Jedi",
-
-  // It's faster. The readme says it defaults to true, but it doesn't seem to.
-  "mypy-type-checker.preferDaemon": true,
-
-  // To be consistent with the version of mypy we use locally and in CI
-  "mypy-type-checker.path": ["mypy"],
-
-  "mypy-type-checker.reportingScope": "workspace",
 
   // So the editor doesn't lag
   "go.lintFlags": ["--fast"],
@@ -83,4 +72,14 @@
     ".envrc": "shellscript",
     "*.json5": "json5",
   },
+
+  // Python
+  ////////////////////////////////////////
+  // I prefer Jedi since it's FOSS
+  "python.languageServer": "Jedi",
+  // It's faster. The readme says it defaults to true, but it doesn't seem to.
+  "mypy-type-checker.preferDaemon": true,
+  // To be consistent with the version of mypy we use locally and in CI
+  "mypy-type-checker.path": ["mypy"],
+  "mypy-type-checker.reportingScope": "workspace",
 }

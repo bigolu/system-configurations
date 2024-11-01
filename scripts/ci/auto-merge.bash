@@ -4,8 +4,10 @@
 # shellcheck shell=bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # TODO: Add debug mode that just logs what it would do, triggered by lack of
 # github environment variable being set. This way I can test locally.

@@ -1,7 +1,6 @@
-# TODO: Ideally this would a composite action. This way, the action could
-# register post run steps and users would not have to force all of their upgrade
-# task logic into `inputs.command`. They're considering adding it:
-# https://github.com/actions/runner/issues/1478
+# TODO: Ideally this would be an action. This way, the action could register post run
+# steps and users would not have to force all of their upgrade task logic into
+# `inputs.command`.
 #
 # If this were an action, then this would run first and the tasks would depend on it.
 # This way if a task was already run on the branch, this action could output
@@ -21,6 +20,9 @@ on:
       CACHIX_AUTH_TOKEN:
         required: true
 env:
+  # The is the user information for the GitHub Actions bot[1].
+  #
+  # [1]: https://github.com/orgs/community/discussions/26560#discussioncomment-3252339
   GIT_USER: "github-actions[bot]"
   GIT_EMAIL: "41898282+github-actions[bot]@users.noreply.github.com"
 defaults:

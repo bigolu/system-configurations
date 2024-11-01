@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # I tried to run this command in home-manager, but it failed with exit code 2
 # which, according to the manpage, means it couldn't find a file. I think this

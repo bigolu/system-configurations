@@ -27,10 +27,6 @@ runs:
           extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
           extra-substituters = https://nix-community.cachix.org
           show-trace = true
-        # Use the same version of nix as the one used in this flake. Not only is this
-        # good for consistency, but it also ensures that the nix installed here will
-        # be able to parse my flake registry.json. The version number is updated
-        # automatically, see the lefthook configuration.
         nix-package-url: https://releases.nixos.org/nix/nix-2.24.9/nix-2.24.9-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
     # TODO: This cache shouldn't be enabled for packages that only get used in CI,
     # but since I usually hit the rate limit for the GitHub Action cache, I use this
@@ -45,12 +41,13 @@ runs:
       # https://github.com/renovatebot/renovate/issues/28016
       uses: DeterminateSystems/magic-nix-cache-action@main
       with:
-        # Cache everything
-        upstream-cache: https://null.com
+        # Since I want to cache everything, I set this to a URL that doesn't belong
+        # to any of my substituters.
+        upstream-cache: https://example.com
         use-flakehub: false
     - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }}
-      # Since this is the step that loads a dev-shell, we don't have one loaded here.
-      # So instead of using ci-bash like we usually do, we'll use the following shell
-      # which will run: bash --noprofile --norc -eo pipefail {0}. On Windows, it
-      # will use Git Bash.
+      # Since this is the step that loads a dev-shell, there isn't one loaded here.
+      # So instead of using ci-bash like I usually do, I'll use "bash". When the
+      # value is "bash", GitHub Actions will run:
+      #   bash --noprofile --norc -eo pipefail {0}
       shell: bash

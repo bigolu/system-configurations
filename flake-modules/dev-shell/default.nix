@@ -259,7 +259,7 @@
             mergeWith = [ codeGeneration ];
           };
 
-          ciCache = makeCiShell {
+          ciCachePackages = makeCiShell {
             packages = with pkgs; [ nix-fast-build ];
           };
 

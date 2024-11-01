@@ -3,8 +3,8 @@ _final: prev:
 let
   fishPluginRepositoryPrefix = "fish-plugin-";
   fishPluginBuilder =
-    _ignored: repositorySourceCode: _ignored:
-    repositorySourceCode;
+    repositoryName: repositorySourceCode: _ignored:
+    repositorySourceCode // { pname = repositoryName; };
   newFishPlugins = makePluginPackages fishPluginRepositoryPrefix fishPluginBuilder;
   fishPlugins = prev.fishPlugins // newFishPlugins;
 in

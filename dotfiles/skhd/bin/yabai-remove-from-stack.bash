@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # argument one should be a direction: east, west, north, south
 (($# > 0))

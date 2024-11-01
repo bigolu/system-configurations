@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+set -o errexit
+shopt -s inherit_errexit
+set -o nounset
+set -o pipefail
+shopt -s nullglob
+
 # For more on how the file printing from vim works:
 # https://vi.stackexchange.com/questions/23198/vim-ex-mode-write-to-stdout
 #

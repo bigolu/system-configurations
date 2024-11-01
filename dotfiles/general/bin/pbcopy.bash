@@ -3,7 +3,11 @@
 # This command copies the text from stdin to the clipboard using OSC 52. With this you can even copy text from
 # an SSH shell to the host computer's clipboard.
 
-set -eu
+set -o errexit
+shopt -s inherit_errexit
+set -o nounset
+set -o pipefail
+shopt -s nullglob
 
 # If we are SSH'd into a remote machine then use the host terminal.
 if [[ -n "${SSH_TTY-}" ]]; then

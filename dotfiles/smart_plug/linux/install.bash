@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # source:
 # https://stackoverflow.com/questions/4774054/reliable-way-for-a-bash-script-to-get-the-full-path-to-itself

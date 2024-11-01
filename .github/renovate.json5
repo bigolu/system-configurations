@@ -28,26 +28,23 @@
       ],
 
       // Don't auto-merge if the major version is 0, in which case a minor/patch
-      // update _can_ be a breaking change.
+      // update may be a breaking change.
       matchCurrentVersion: "!/^0/",
 
       automerge: true,
       automergeType: "branch",
-      // SYNC: AUTOMERGE_PREFIX
       additionalBranchPrefix: "branch-automerge/",
     },
     {
       matchManagers: ["gomod"],
 
       // So I can add commits of my own
-      // SYNC: RENOVATE_FIXUP_GOLANG AUTOMERGE_PREFIX
       additionalBranchPrefix: "branch-automerge/fixup/golang/",
     },
     {
       matchDepNames: ["nix-community/nix-direnv"],
 
       // So I can add commits of my own
-      // SYNC: RENOVATE_FIXUP_ENVRC AUTOMERGE_PREFIX
       additionalBranchPrefix: "branch-automerge/fixup/envrc/",
     },
     {
@@ -58,7 +55,6 @@
       automergeType: "branch",
 
       // So I can add commits of my own
-      // SYNC: RENOVATE_FIXUP_NIX_VERSION AUTOMERGE_PREFIX
       additionalBranchPrefix: "branch-automerge/fixup/nix-version/",
     },
     // By default, indirect Go dependencies aren't updated

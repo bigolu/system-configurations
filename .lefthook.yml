@@ -298,8 +298,9 @@ fix-lint:
       # https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
       run: |
         set -o errexit
+        fail_if_files_change="$PWD/scripts/fail-if-files-change.bash"
         cd ./flake-modules/bundler/gozip
-        ./scripts/fail-if-files-change.bash go mod tidy # {files}
+        "$fail_if_files_change" go mod tidy # {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >

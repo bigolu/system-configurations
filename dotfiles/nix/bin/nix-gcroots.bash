@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 function main {
   gcroots_directory='/nix/var/nix/gcroots'
@@ -16,25 +18,21 @@ function main {
   per_user_roots_directory="$gcroots_directory/per-user"
   # If the glob doesn't match anything, don't iterate at all, instead of
   # iterating one with the pattern.
-  shopt -s nullglob
   for user_roots_directory in "$per_user_roots_directory"/*; do
     user="$(basename "$user_roots_directory")"
     printf '\e[1m\e[4mRoots for user "%s" (%s):\e(B\e[m\n' "$user" "$user_roots_directory"
     print_roots_for_directory "$user_roots_directory"
   done
-  shopt -u nullglob
 
   # User profile roots
   per_user_profile_roots_directory="$gcroots_directory/profiles/per-user"
   # If the glob doesn't match anything, don't iterate at all, instead of
   # iterating one with the pattern.
-  shopt -s nullglob
   for user_profile_roots_directory in "$per_user_profile_roots_directory"/*; do
     user="$(basename "$user_profile_roots_directory")"
     printf '\e[1m\e[4mRoots for user profile "%s" (%s):\e(B\e[m\n' "$user" "$user_profile_roots_directory"
     print_roots_for_directory "$user_profile_roots_directory"
   done
-  shopt -u nullglob
 }
 
 function get_symlink_chain {

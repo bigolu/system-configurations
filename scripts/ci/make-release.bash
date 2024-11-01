@@ -1,24 +1,27 @@
 #!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.gh --command bash
+#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.coreutils local#nixpkgs.gh --command bash
 
 # shellcheck shell=bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
+
+tag='latest'
 
 function main {
-  tag='latest'
-  delete_old_release "$tag"
-  make_new_release "$tag"
+  delete_old_release
+  make_new_release
 }
 
 function delete_old_release {
-  gh release delete "$1" --yes --cleanup-tag
+  gh release delete "$tag" --yes --cleanup-tag
 }
 
 function make_new_release {
-  gh release create "$1" \
+  gh release create "$tag" \
     --latest \
     --notes-file "$(make_release_notes)" \
     --title "$(date +'%Y.%m.%d')" \

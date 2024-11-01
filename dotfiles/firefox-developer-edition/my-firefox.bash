@@ -3,8 +3,10 @@
 # If Firefox Developer Edition is open, use that instead of normal firefox.
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 devedition_executable_name='firefox-devedition'
 regular_executable_name='firefox'

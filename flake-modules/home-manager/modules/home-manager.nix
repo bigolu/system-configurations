@@ -21,17 +21,22 @@ let
     runtimeInputs = with pkgs; [ nix-output-monitor ];
     text = ''
       cd "${config.repository.directory}"
-      ${config.home.profileDirectory}/bin/home-manager switch --flake "${config.repository.directory}#${configName}" "''$@" |& nom
+      ${config.home.profileDirectory}/bin/home-manager \
+        switch \
+        --flake "${config.repository.directory}#${configName}" \
+        "$@" \
+        |& nom
 
       # TODO: You shouldn't manage the system from home-manager. Ideally, I'd use
       # something like system-manager[1], but I don't think it works with
       # home-manager yet[2].
       #
-      # [1]: https://github.com/numtide/system-manager
-      # [2]: https://github.com/numtide/system-manager/issues/109
-      echo >&2 "[bigolu] Syncing nix-darwin's nix/cacert version with the system..."
       # Use --set-home to avoid sudo's warning that current user doesn't own the home
       # directory.
+      #
+      # [1]: https://github.com/numtide/system-manager
+      # [2]: https://github.com/numtide/system-manager/issues/109
+
       PATH="${
         pkgs.lib.makeBinPath (
           with pkgs;
@@ -41,15 +46,21 @@ let
           ]
         )
       }:$PATH"
+
+      echo >&2 "[bigolu] Syncing nix-darwin's nix/cacert version with the system..."
+
       desired_store_paths=(${config.nix.package} ${pkgs.cacert})
       store_path_diff="$(comm -3 <(sudo --set-home nix profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) <(printf '%s\n' "''${desired_store_paths[@]}" | sort))"
       if [[ -n "$store_path_diff" ]]; then
         sudo --set-home nix profile remove --all
         sudo --set-home nix profile install "''${desired_store_paths[@]}"
 
-        # Restart the daemon so we use the daemon from the version of nix we just installed
+        # Restart the daemon so we use the daemon from the version of nix we just
+        # installed
         systemctl restart nix-daemon.service
-        # To avoid having root directly manipulate the store, explicitly set the daemon.
+
+        # To avoid having root directly manipulate the store, explicitly set the
+        # daemon.
         # Source: https://docs.lix.systems/manual/lix/stable/installation/multi-user.html#multi-user-mode
         while ! nix-store --store daemon -q --hash ${pkgs.stdenv.shell} &>/dev/null; do
           echo "waiting for nix-daemon" >&2

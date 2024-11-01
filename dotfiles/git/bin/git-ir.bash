@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 if (($# == 0)); then
   choice="$(git log --oneline | fzf-zoom --prompt 'Choose a commit to rebase from: ' --preview 'git show --patch {1} | delta')"

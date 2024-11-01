@@ -1,7 +1,6 @@
 { pkgs, ... }:
 {
   imports = [
-    ../direnv.nix
     ../firefox-developer-edition.nix
     ../git.nix
     ../wezterm.nix
@@ -10,6 +9,7 @@
   home.packages = with pkgs; [
     cloudflared
     doppler
+    direnv
   ];
 
   repository.symlink = {
@@ -26,6 +26,7 @@
           # I'm linking recursively because ipython makes files in this directory
           recursive = true;
         };
+        "direnv/direnv.toml".source = "direnv/direnv.toml";
       };
     };
   };

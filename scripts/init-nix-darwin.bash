@@ -4,8 +4,10 @@
 # shellcheck shell=bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 if ! [[ -x /usr/local/bin/brew ]]; then
   # Install homebrew. Source: https://brew.sh/

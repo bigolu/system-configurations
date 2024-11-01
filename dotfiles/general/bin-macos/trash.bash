@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # I can remove this when trashy gets support for macOS, which is blocked by an issue
 # with the library they use for accessing the trash:

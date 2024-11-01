@@ -4,8 +4,10 @@
 # shellcheck shell=bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # TODO: The following vs code bash debugger extension does not support bash_rematch:
 # https://github.com/rogalmic/vscode-bash-debug/issues/183

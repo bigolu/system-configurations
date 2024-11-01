@@ -1,4 +1,5 @@
 # This module has the configuration that I always want applied.
+
 {
   pkgs,
   config,
@@ -6,13 +7,18 @@
   specialArgs,
   ...
 }:
+let
+  isLinuxGui = specialArgs.isGui && pkgs.stdenv.isLinux;
+  inherit (lib.attrsets) optionalAttrs;
+  inherit (pkgs.stdenv) isDarwin isLinux;
+  inherit (specialArgs) repositoryDirectory root;
+in
 {
   imports = [
     ../default-shells.nix
     ../fish.nix
     ../nix.nix
     ../neovim.nix
-    ../general.nix
     ../utility
     ../home-manager.nix
     ../fonts.nix
@@ -20,25 +26,23 @@
     specialArgs.flakeInputs.nix-flatpak.homeManagerModules.nix-flatpak
   ];
 
-  home.packages =
-    with pkgs;
-    [
-      # for my shebang scripts
-      bashInteractive
-    ]
-    ++ lib.lists.optionals (specialArgs.isGui && pkgs.stdenv.isLinux) [
-      # TODO: Only doing this because Pop!_OS doesn't come with it by default, but
-      # I think it should
-      wl-clipboard
-    ];
+  home = {
+    packages =
+      with pkgs;
+      [
+        # For my shebang scripts
+        bashInteractive
+      ]
+      ++ lib.lists.optionals isLinuxGui [
+        # TODO: Only doing this because Pop!_OS doesn't come with it by default, but
+        # I think it should
+        wl-clipboard
+      ];
 
-  services.flatpak.enable = pkgs.stdenv.isLinux && specialArgs.isGui;
-
-  # TODO: Flatpak didn't read the overrides when the files were symlinks to the
-  # Nix store so I'm making copies instead.
-  home.activation.flatpakOverrides = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-    if (pkgs.stdenv.isLinux && specialArgs.isGui) then
-      ''
+    # TODO: Flatpak didn't read the overrides when the files were symlinks to the
+    # Nix store so I'm making copies instead.
+    activation.flatpakOverrides = lib.hm.dag.entryAfter [ "writeBoundary" ] (
+      lib.optionalString isLinuxGui ''
         target=${lib.escapeShellArg "${config.xdg.dataHome}/flatpak/overrides/"}
         mkdir -p "$target"
         cp --no-preserve=mode --dereference ${
@@ -50,7 +54,48 @@
           )
         }/* "$target"
       ''
-    else
-      ""
-  );
+    );
+
+    file = optionalAttrs isDarwin {
+      ".hammerspoon/Spoons/EmmyLua.spoon" = {
+        source = "${specialArgs.flakeInputs.spoons}/Source/EmmyLua.spoon";
+        # I'm not symlinking the whole directory because EmmyLua is going to generate
+        # lua-language-server annotations in there.
+        recursive = true;
+      };
+    };
+  };
+
+  services.flatpak.enable = isLinuxGui;
+
+  # When switching generations, stop obsolete services and start ones that are wanted
+  # by active units.
+  systemd = optionalAttrs isLinux {
+    user.startServices = "sd-switch";
+  };
+
+  repository = {
+    directory = repositoryDirectory;
+    directoryPath = root;
+
+    symlink = {
+      baseDirectory = "${repositoryDirectory}/dotfiles";
+
+      xdg = {
+        executable =
+          {
+            "general" = {
+              source = "general/bin";
+              recursive = true;
+            };
+          }
+          // lib.optionalAttrs isDarwin {
+            "general macOS" = {
+              source = "general/bin-macos";
+              recursive = true;
+            };
+          };
+      };
+    };
+  };
 }

@@ -4,8 +4,10 @@
 # shellcheck shell=bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # shellcheck disable=SC2016
 # The dollar signs are for ast-grep

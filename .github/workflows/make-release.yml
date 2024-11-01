@@ -22,57 +22,35 @@ jobs:
       # SYNC: NEW_COMMITS_SINCE
       - name: Get the number of new commits
         id: get-new-commit-count
-        run: echo "count=$(git log --oneline --since '3 months ago' | wc -l)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo \
+            "count=$(git log --oneline --since '3 months ago' | wc -l)" \
+            >> "$GITHUB_OUTPUT"
   make-assets:
     name: Make Assets
     needs: get-new-commit-count
-    if: |
-      github.ref_name == github.event.repository.default_branch &&
-      (needs.get-new-commit-count.outputs.count > 0 || github.event_name == 'workflow_dispatch')
+    if: >
+      github.ref_name == github.event.repository.default_branch
+      && (needs.get-new-commit-count.outputs.count > 0 || github.event_name == 'workflow_dispatch')
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        # macos-latest uses M1 so I'll just use the most recent version of macOS
-        # that they still on run intel macs
-        os: [ubuntu-latest, macos-13]
-      fail-fast: false
+        os:
+          - ubuntu-latest
+          # GitHub Actions runs macos-latest on Apple silicon so instead I'll use the
+          # most recent version of macOS that they still run on Intel.
+          - macos-13
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - id: make-assets
-        run: |
-          nix bundle --show-trace --bundler .# .#shell
-
-          # The symlink's names will look like 'shell-<platform>', e.g.
-          # shell-x86_64-linux, so I'm using a glob pattern to match it.
-          shell_name="$(ls shell-*)"
-
-          artifact_directory="$(mktemp --directory)"
-          asset_directory="$artifact_directory/assets"
-          mkdir "$asset_directory"
-          shell_path="$asset_directory/$shell_name"
-          # Dereference the symlink so I can upload the actual executable.
-          cp --dereference "$shell_name" "$shell_path"
-
-          size="$(du -m "$shell_path" | cut -f1)"
-          max_size=250
-          if (( size > max_size )); then
-            echo "Shell is too big: $size MB. Max size: $max_size"
-            exit 1
-          fi
-
-          checksum_directory="$artifact_directory/checksums"
-          mkdir "$checksum_directory"
-          shasum -a 256 "$shell_path" | cut -d ' ' -f 1 > "$checksum_directory/$shell_name.txt"
-
-          echo "artifact-directory=$artifact_directory" >> "$GITHUB_OUTPUT"
+        run: ./scripts/ci/make-assets.bash
       - uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4
         with:
           name: artifacts-${{ matrix.os }}
           path: ${{ steps.make-assets.outputs.artifact-directory }}
-          retention-days: 1
   make-release:
     needs: make-assets
     runs-on: ubuntu-latest

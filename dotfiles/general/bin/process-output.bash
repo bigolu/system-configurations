@@ -4,8 +4,10 @@
 # On macOS you have to disable dtrace SIP restriction with `csrutil enable --without dtrace`
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 if (($# == 0)); then
   echo "Invalid usage. Correct usage: $(basename "$0") <pid>" >&2

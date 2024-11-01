@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # Lets me starts a nix shell with python and the specified python packages.
 # Example: `pynix requests marshmallow`

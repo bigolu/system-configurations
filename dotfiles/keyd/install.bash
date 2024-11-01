@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-# Exit the script if any command returns a non-zero exit code.
 set -o errexit
-# Exit the script if an undefined variable is referenced.
+shopt -s inherit_errexit
 set -o nounset
+set -o pipefail
+shopt -s nullglob
 
 # source: https://stackoverflow.com/a/4774063
 script_directory="$(

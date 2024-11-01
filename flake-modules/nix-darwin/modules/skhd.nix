@@ -19,6 +19,7 @@
               yabai
               fish
               jq
+              bashInteractive
             ];
           };
           skhdBin = lib.fileset.toSource {
@@ -31,7 +32,9 @@
           paths = [ pkgs.skhd ];
           buildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
-            wrapProgram $out/bin/skhd --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg skhdBin}
+            wrapProgram $out/bin/skhd \
+              --prefix PATH : ${dependencies}/bin \
+              --prefix PATH : ${skhdBin}
           '';
         };
     };

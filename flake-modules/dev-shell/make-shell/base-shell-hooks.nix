@@ -3,18 +3,23 @@ let
   helperFunctionsHook = ''
     function add_lines_to_nix_config {
       for line in "$@"; do
-      # TODO: Ensure it ends in a newline so nix-develop-gha works properly.
-      # nix-develop-gha needs a trailing newline because of the way multi-line
-      # environment variables are set in GitHub Actions. Ideally, it would add the
-      # newline if it wasn't present.
-      NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"$'\n'
+        # TODO: Ensure it ends in a newline so nix-develop-gha works properly.
+        # nix-develop-gha needs a trailing newline because of the way multi-line
+        # environment variables are set in GitHub Actions. Ideally, it would add the
+        # newline if it wasn't present.
+        NIX_CONFIG="''${NIX_CONFIG:-}"$'\n'"$line"$'\n'
       done
       export NIX_CONFIG
     }
 
     function symlink {
-      ${pkgs.coreutils}/bin/mkdir --parents "$(${pkgs.coreutils}/bin/dirname "$2")"
-      ${pkgs.coreutils}/bin/ln --symbolic --force --no-dereference "$1" "$2"
+      OLD_PATH="$PATH"
+      PATH="${pkgs.lib.makeBinPath (with pkgs; [ coreutils ])}:$PATH"
+
+      mkdir --parents "$(dirname "$2")"
+      ln --symbolic --force --no-dereference "$1" "$2"
+      
+      PATH="$OLD_PATH"
     }
   '';
 

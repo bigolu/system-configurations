@@ -1,25 +1,34 @@
 name: "Check Pull Request"
 on:
+  # Ideally, I would add a branch filter here to ignore the branches that are already
+  # matched by the push event below. Or if a label filter was allowed, I could add a
+  # label to the pull requests opened for the branches below and filter on that.
+  # Instead, I use a job.<job_id>.if condition.
   pull_request:
   push:
-    # These branches get merged without a pull request being made so we need to check
+    # These branches get merged without a pull request being made so I need to check
     # them too.
     branches:
       # SYNC: AUTOMERGE_PREFIX
       - "renovate/branch-automerge/**"
-# Since we're only interested in checking the latest commit to the branch, we could
-# limit the workflow to running at most once per branch, cancelling older runs when
-# newer ones start. However, doing so would mean if we push to a branch, a
-# pull_request event and push event would trigger this workflow and one of those
-# workflow runs would be cancelled. This should be fine, but since the jobs in this
-# workflow are required checks they must run. Meaning they can't be skipped as a
-# result of this concurrency setting. Even if the same workflow is triggered once by
-# a push event and once by a pull_request, like with this workflow, the jobs in both
-# of them are considered required checks and they all must run. To get around this,
-# we instead limit the workflow to running once per event per branch. This way, we
-# still only run the on the latest commit, but a required check is never skipped. To
-# skip duplicate runs, we instead use a job.<job_id>.if conditional since skipping
-# required checks from there is ok.
+# I'm only interested in checking the latest commit to a branch. That means if a
+# commit is pushed and a new check starts before an older one finishes, I want to
+# cancel the older one.
+#
+# However, if a pull request is opened for a Renovate automerge branch, which happens
+# if a check on that branch fails, then pushing to that branch would result in two
+# checks getting started: one for the push event and one for the pull_request event.
+# The one that starts first would get cancelled when the second one starts.
+#
+# I'm fine with one of them being cancelled since I know that this workflow does the
+# same thing regardless of what event triggers it. The problem is GitHub doesn't know
+# that, so it requires any required checks _per event_ to run. This means I can't
+# cancel a workflow run the way I described in the previous section.
+#
+# To get around this, I instead limit the workflow to running once _per event_ per
+# branch. This way, I still only run the on the latest commit, but a required check
+# is never skipped. To skip duplicate runs, I instead use a job.<job_id>.if
+# conditional.
 concurrency:
   # For more information on how the branch name is calculated see:
   # https://stackoverflow.com/a/71158878
@@ -38,9 +47,11 @@ jobs:
     #   - This branch is not a Renovate branch. I don't think a change made by
     #     Renovate will cause a lint issue.
     #
-    # For more information on how the branch name, is calculated see:
+    # For more information on how the branch name is calculated see:
     # https://stackoverflow.com/a/71158878
-    if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
+    if: >
+      (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')))
+      && (! startsWith(github.head_ref || github.ref_name, 'renovate/'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -50,29 +61,12 @@ jobs:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          ./scripts/reviewdog-run-fixer.bash
-          -name=fix-lint
-          :::
-          lefthook run fix-lint --all-files
-      # If the previous step fixes any lint issues it will fail, so pull requests
-      # can't be merged. If that happens, then by default this step, and all steps
-      # after it, won't get run. I want this step to run even if the last run fails
-      # so all lint issues get reported at once. Instead of only reporting lint
-      # issues that can be automatically fixed in the previous step and having to
-      # re-run the job to get the lint issues from this step.
-      #
-      # I could have used `always()` to ensure this step runs, but that would mean
-      # even if the workflow was cancelled by a user, this step would still run.
-      #
-      # With this conditional, the job will always run, as long the workflow wasn't
-      # cancelled in the GitHub Actions UI. This way, I still have the ability to
-      # cancel the workflow while also allowing this step to run even if the previous
-      # one fails.
-      - if: "!cancelled()"
-        env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run check-lint --all-files
+        run: |
+          lefthook run check-lint --all-files
+          ./scripts/reviewdog-run-fixer.bash \
+            -name=fix-lint \
+            ::: \
+            lefthook run fix-lint --all-files
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   check-style:
@@ -82,9 +76,11 @@ jobs:
     #   - The branch is not a Renovate branch. I don't think a change made by renovate
     #     would break the code style.
     #
-    # For more information on how the branch name, is calculated see:
+    # For more information on how the branch name is calculated see:
     # https://stackoverflow.com/a/71158878
-    if: ${{ (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))) && (! startsWith(github.head_ref || github.ref_name, 'renovate/')) }}
+    if: >
+      (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')))
+      && (! startsWith(github.head_ref || github.ref_name, 'renovate/'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -103,14 +99,14 @@ jobs:
   codegen-changed-files:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
-    if: ${{ ! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')) }}
+    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
     runs-on: ubuntu-latest
     outputs:
       any-changed: ${{ steps.changed-files.outputs.any_changed }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
-          # For push events, we need to get the whole history so we can get the
+          # For push events, I need to get the whole history so I can get the
           # changed files between the head of the branch that triggered the push
           # event and the default branch.
           fetch-depth: ${{ github.event.name == 'push' && 0 || 1 }}
@@ -118,10 +114,11 @@ jobs:
         id: changed-files
         uses: tj-actions/changed-files@c3a1bb2c992d77180ae65be6ae6c166cf40f857c # v45
         with:
-          # By default, it will only diff the commit pointed to by the current branch
-          # with its parent commit. Instead, I want to diff the current branch with
-          # the default branch. This is because the current branch will get merged
-          # into the default branch so I want all the changes between the two.
+          # By default, on a push event, it will only diff the commit pointed to by
+          # the current branch with its parent commit. Instead, I want to diff the
+          # current branch with the default branch. This is because the current
+          # branch will get merged into the default branch so I want all the changes
+          # between the two.
           base_sha: ${{ github.event_name == 'push' && github.event.repository.default_branch || '' }}
           # SYNC: GENERATOR_PATTERNS
           files: |
@@ -133,12 +130,12 @@ jobs:
             flake.lock
             flake-modules/**
             flake.nix
-  # Ideally, I'd put this job in a separate workflow and use 'paths:' to match
-  # relevant files, but since this job is a required check, it can't be skipped at
-  # the workflow level[1]. A skip using jobs.<job_id>.if is allowed, but you can't
-  # use the 'paths:' filter there. Since I can't use a 'paths:' filter, I decided to
-  # use a separate job with an output that tells me if any relevant files were
-  # changed. This way, I could use that output in my jobs.<job_id>.if condition.
+  # Ideally, I'd put this job in a separate workflow and use
+  # 'on.<push|pull_request>.paths' to match relevant files, but since this job is a
+  # required check, it can't be skipped at the workflow level[1]. A skip using
+  # jobs.<job_id>.if is allowed, but you can't use a path filter there. Instead, I
+  # decided to use a separate job with an output that tells me if any relevant files
+  # were changed. This way, I could use that output in my jobs.<job_id>.if condition.
   #
   # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
   #
@@ -148,11 +145,14 @@ jobs:
     needs: codegen-changed-files
     # By default, if the dependency of a required check fails or is cancelled, the
     # required check is skipped and counted as a successful check[1]. So in addition
-    # to checking if a relevant file was changed, I also need to check to see if a
-    # dependency failed or was cancelled. If it was, I'll fail this job as well.
+    # to checking if a relevant file was changed, I also need to see if a dependency
+    # failed or was cancelled. If it was, I'll fail this job.
     #
-    # [1]: https://github.com/actions/runner/issues/2566
-    if: ${{ (contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure')) || needs.codegen-changed-files.outputs.any-changed == 'true' }}
+    # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
+    if: >
+      contains(needs.*.result, 'cancelled')
+      || contains(needs.*.result, 'failure')
+      || needs.codegen-changed-files.outputs.any-changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -160,7 +160,9 @@ jobs:
         with:
           dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - if: ${{ contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'failure') }}
+      - if: >
+          contains(needs.*.result, 'cancelled')
+          || contains(needs.*.result, 'failure')
         env:
           REASON: ${{ contains(needs.*.result, 'cancelled') && 'was cancelled' || 'failed' }}
         run: |

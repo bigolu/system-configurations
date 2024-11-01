@@ -1,0 +1,62 @@
+name: Cache Packages
+on:
+  push:
+    # Only run when the files changed may impact what gets cached. This includes
+    # files that:
+    paths:
+      # Change this action
+      - ".github/workflows/cache-build-results.yml"
+      - ".github/actions/setup/**"
+      # Change the packages used
+      - "flake.nix"
+      - "flake-modules/**"
+      # Change the versions of the packages
+      - "flake.lock"
+defaults:
+  run:
+    shell: ci-bash {0}
+# Since I am only interested in caching packages from the latest commit to the
+# branch, I will limit the workflow to running at most once per branch, cancelling
+# older runs when newer ones start.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  cache-packages:
+    # I would use `on.push.branches-ignore`, but you can't reference context
+    # variables from there and I don't want to hardcode the default branch. The
+    # drawback of this method is that the workflow will start on every push and
+    # immediately cancel if the branch isn't the default branch. These cancelled runs
+    # will add some noise to the actions dashboard.
+    if: github.ref_name == github.event.repository.default_branch
+    # TODO: Sometimes this job hangs and the default timeout is too long (6 hours).
+    timeout-minutes: 20
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          # GitHub Actions runs macos-latest on Apple silicon so instead I'll use the
+          # most recent version of macOS that they still run on Intel.
+          - macos-13
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - uses: ./.github/actions/setup
+        with:
+          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
+          dev-shell: ciCachePackages
+          # nix-fast-build will only build packages that aren't available in any
+          # substituters. I don't wan't Magic Nix Cache (MNC) to be considered since
+          # it's only accessible in GitHub Actions. Ideally, I could use MNC, but
+          # still build a package if MNC is the only substituter that has it.
+          #
+          # There's an open issue for adding the --skip-cached functionality to
+          # nix[1].
+          #
+          # [1]: https://github.com/NixOS/nix/issues/3946
+          use-magic-nix-cache: "false"
+      - run: |
+          nix-fast-build \
+            --no-nom \
+            --skip-cached \
+            --flake ".#legacyPackages.$(nix eval --raw --impure --expr 'builtins.currentSystem').cache"

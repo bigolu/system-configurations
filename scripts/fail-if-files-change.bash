@@ -8,8 +8,10 @@
 # shellcheck shell=bash
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 # We only need to fail if files change when running locally for the reason given at
 # the top of the file. In other environments, just run the specified command.

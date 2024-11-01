@@ -8,8 +8,10 @@
 # issue: https://github.com/NixOS/nix/issues/7107
 
 set -o errexit
+shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
+shopt -s nullglob
 
 function main {
   # To find the real nix just take the next nix binary on the $PATH after
