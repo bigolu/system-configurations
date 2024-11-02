@@ -22,11 +22,11 @@ command_tokens=()
 seen_delimiter=
 for argument in "$@"; do
   if [[ "$seen_delimiter" = 1 ]]; then
-    command_tokens=("${command_tokens[@]}" "$argument")
+    command_tokens+=("$argument")
   elif [[ "$argument" = ':::' ]]; then
     seen_delimiter=1
   else
-    reviewdog_flags=("${reviewdog_flags[@]}" "$argument")
+    reviewdog_flags+=("$argument")
   fi
 done
 
