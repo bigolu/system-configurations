@@ -93,8 +93,11 @@ sync:
       run: bash dotfiles/nix/nix-fix/install-nix-fix.bash
     lefthook:
       priority: 1
-      # TODO: No need for this yet since lefthook syncs hooks automatically, I
-      # should ask them to make this optional.
+      # TODO: No need for this yet since lefthook syncs hooks automatically. There's
+      # an issue for disabling this behavior[1]. I want it disabled because I don't
+      # necessarily want to run the hooks of another branch.
+      #
+      # [1]: https://github.com/evilmartians/lefthook/issues/840
       skip: true
       glob: ".lefthook.yml"
       run: lefthook install --force
