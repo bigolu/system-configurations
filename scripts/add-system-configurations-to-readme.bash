@@ -15,7 +15,7 @@ function main {
     # Add a character to the end of the output to preserve trailing newlines.
     printf x
   )"
-  configs=${configs::-1}
+  configs="${configs::-1}"
 
   perl -0777 -w -i -pe "s{(<!-- START_CONFIGURATIONS -->).*(<!-- END_CONFIGURATIONS -->)}{\$1$configs\$2}igs" README.md
 }

@@ -15,7 +15,7 @@ function main {
 
   lefthook_command=(lefthook run check)
   if [[ "$groups" != 'all' ]]; then
-    lefthook_command=("${lefthook_command[@]}" --commands "$groups")
+    lefthook_command+=(--commands "$groups")
   fi
 
   if [[ "$files" = 'all' ]]; then

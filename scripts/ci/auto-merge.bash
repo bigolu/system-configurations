@@ -23,7 +23,7 @@ function main {
   branches_to_automerge_without_pr=()
   for branch_to_automerge in "${branches_to_automerge[@]}"; do
     if ! is_item_in "$branch_to_automerge" "${branches_with_pr[@]}"; then
-      branches_to_automerge_without_pr=("${branches_to_automerge_without_pr[@]}" "$branch_to_automerge")
+      branches_to_automerge_without_pr+=("$branch_to_automerge")
     fi
   done
 

@@ -36,7 +36,7 @@ function main {
     file="${file//\"/\\\"}"
     file="the POSIX file \"$file\""
 
-    extant_files=("${extant_files[@]}" "$file")
+    extant_files+=("$file")
   done
 
   if ((${#extant_files[@]} > 0)); then

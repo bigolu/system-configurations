@@ -42,7 +42,7 @@ function get_symlink_chain {
   chase_output=("${chase_output[@]:1}")
   # Remove the last line since it's essentially a duplicate of the line before
   # it, the terminal file
-  chase_output=("${chase_output[@]::((${#chase_output[@]} - 1))}")
+  unset 'chase_output[-1]'
 
   # The lines have the form '-> <path>' so I'm removing the first 3 characters to get the <path>.
   readarray -t chase_output_only_filenames < <(printf '%s\n' "${chase_output[@]}" | cut -c 4-)
@@ -68,7 +68,7 @@ function print_roots_for_directory {
   roots=()
   for root in "${potential_roots[@]}"; do
     if [[ -e "$root" ]]; then
-      roots=("${roots[@]}" "$root")
+      roots+=("$root")
     fi
   done
   if ((${#roots[@]} == 0)); then
@@ -76,7 +76,7 @@ function print_roots_for_directory {
   else
     chains=()
     for root in "${roots[@]}"; do
-      chains=("${chains[@]}" "$(get_symlink_chain "$root")")
+      chains+=("$(get_symlink_chain "$root")")
     done
     if [[ -n "${NIX_GCROOTS_INCLUDE_SIZE:-}" ]]; then
       # sort by size, descending

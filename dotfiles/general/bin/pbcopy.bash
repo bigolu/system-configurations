@@ -63,7 +63,7 @@ input="$(
   cat
   printf x
 )"
-input=${input::-1}
+input="${input::-1}"
 
 inputlen=$(printf '%s' "$input" | wc -c)
 
