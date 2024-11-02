@@ -124,21 +124,22 @@ local groups = {
   ---@diagnostic disable-next-line: redundant-parameter
   status_line_mode = { ctermfg = 15, reverse = true, bold = true }, -- Status line of current window
   StatusLine = { ctermfg = 15, reverse = true }, -- Status line of current window
+  StatusLineNormal = { ctermbg = "NONE", ctermfg = 7, nocombine = true },
   ---@diagnostic disable-next-line: undefined-field
   StatusLineFill = { ctermbg = 15, ctermfg = 15 },
   StatusLineSeparator = { ctermfg = 0, bold = true },
-  StatusLineErrorText = { ctermfg = 1 },
-  StatusLineWarningText = { ctermfg = 3 },
+  StatusLineErrorText = { ctermfg = 1, nocombine = true },
+  StatusLineWarningText = { ctermfg = 3, nocombine = true },
   StatusLineStandoutText = "StatusLineWarningText",
-  StatusLineInfoText = { ctermfg = 4 },
-  StatusLineHintText = { ctermfg = 5 },
+  StatusLineInfoText = { ctermfg = 4, nocombine = true },
+  StatusLineHintText = { ctermfg = 5, nocombine = true },
   StatusLineMappingHintText = { ctermfg = 15, reverse = true, bold = true },
   StatusLineNC = "StatusLine", -- Status lines of not-current windows. Note: If this is equal to "StatusLine" Vim will use "^^^" in the status line of the current window.
-  StatusLineRecordingIndicator = { ctermfg = 1 },
+  StatusLineRecordingIndicator = { ctermfg = 1, nocombine = true },
   StatusLineShowcmd = "StatusLine",
-  StatusLineDebugIndicator = { ctermfg = 2 },
+  StatusLineDebugIndicator = { ctermfg = 2, nocombine = true },
   ---@diagnostic disable-next-line: undefined-field
-  StatusLinePowerlineOuter = { ctermfg = 15 },
+  StatusLinePowerlineOuter = { ctermfg = 15, nocombine = true },
   StatusLinePowerlineInner = { ctermfg = 15, reverse = true },
   -- }}}
 

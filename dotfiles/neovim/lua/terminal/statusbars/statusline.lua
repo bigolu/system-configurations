@@ -220,7 +220,7 @@ function StatusLine()
   local reg_recording = nil
   local recording_register = vim.fn.reg_recording()
   if recording_register ~= "" then
-    reg_recording = "%#StatusLineRecordingIndicator# %#Normal#REC@"
+    reg_recording = "%#StatusLineRecordingIndicator# %#StatusLineNormal#REC@"
       .. recording_register
   end
 
