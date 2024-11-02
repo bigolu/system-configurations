@@ -61,12 +61,7 @@ jobs:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          lefthook run check-lint --all-files
-          ./scripts/reviewdog-run-fixer.bash \
-            -name=fix-lint \
-            ::: \
-            lefthook run fix-lint --all-files
+        run: lefthook run check --commands check-lint,fix-lint --all-files
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   check-style:
@@ -90,11 +85,7 @@ jobs:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          ./scripts/reviewdog-run-fixer.bash
-          -name=code-style
-          :::
-          lefthook run format --all-files
+        run: lefthook run format --all-files
 
   codegen-changed-files:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
@@ -170,8 +161,4 @@ jobs:
           exit 1
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          ./scripts/reviewdog-run-fixer.bash
-          -name=code-generation
-          :::
-          lefthook run generate --all-files
+        run: lefthook run generate --all-files

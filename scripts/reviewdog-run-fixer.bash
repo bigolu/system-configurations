@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.coreutils --command bash
+#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.coreutils local#nixpkgs.gitMinimal --command bash
 
 # shellcheck shell=bash
 
@@ -16,6 +16,7 @@ script_directory="$(
   pwd -P
 )"
 reviewdog="$script_directory/reviewdog.bash"
+fail_if_files_change="$script_directory/fail-if-files-change.bash"
 
 reviewdog_flags=()
 command_tokens=()
@@ -30,6 +31,17 @@ for argument in "$@"; do
   fi
 done
 
-"${command_tokens[@]}"
-git diff \
-  | "$reviewdog" -f=diff -f.diff.strip=1 "${reviewdog_flags[@]}"
+if [[ "${CI:-}" = 'true' ]]; then
+  "${command_tokens[@]}"
+
+  if [ -n "$(git status --porcelain)" ]; then
+    git diff \
+      | "$reviewdog" -f=diff -f.diff.strip=1 "${reviewdog_flags[@]}"
+    # Remove changes. I could drop the stash as well, but in the very unlikely event
+    # that the CI variable is set when this script is run locally, I don't want to
+    # permanently delete any changes.
+    git stash --include-untracked
+  fi
+else
+  "$fail_if_files_change" "${command_tokens[@]}"
+fi

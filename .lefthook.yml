@@ -153,12 +153,16 @@ generate:
     readme-table-of-contents:
       glob: README.md
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=readme-table-of-contents
+        :::
         doctoc README.md --github
     neovim-plugin-list:
       glob: "*neovim/lua/*.lua"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=neovim-plugin-list
+        :::
         ./scripts/code-generation/generate-neovim-plugin-list.bash
     gomod2nix-lock:
       glob: "*gozip/go.mod"
@@ -166,7 +170,9 @@ generate:
       # https://github.com/nix-community/gomod2nix/issues/172
       skip: true
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=gomod2nix-lock
+        :::
         ./scripts/code-generation/generate-gomod2nix-lock.bash
     # I'd like to specify a glob so this only runs when a script file changes, but
     # since lefthook, understandably, doesn't consider deleted files, this task
@@ -174,7 +180,10 @@ generate:
     # I'll just always run it since it takes less than a second.
     script-dependencies:
       run: >
-        ./scripts/fail-if-files-change.bash bash -o pipefail -euc '
+        ./scripts/reviewdog-run-fixer.bash
+        -name=script-dependencies
+        :::
+        bash -o pipefail -euc '
         rg --glob "*.bash" "^#!" scripts
         | rg --only-matching --replace '\''$1'\'' "local#nixpkgs\.([^ ]*)"
         | sort --unique
@@ -182,16 +191,24 @@ generate:
         '
     nix-version:
       glob: "flake.lock"
-      run: ./scripts/fail-if-files-change.bash ./scripts/sync-nix-version.bash
+      run: >
+        ./scripts/reviewdog-run-fixer.bash
+        -name=nix-version
+        :::
+        ./scripts/sync-nix-version.bash
     system-configs:
       glob: "{flake-modules/**,flake.nix}"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=system-configs
+        :::
         ./scripts/add-system-configurations-to-readme.bash
     flake-lock:
       glob: "flake.nix"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=flake-lock
+        :::
         nix flake lock
 
 format:
@@ -203,7 +220,9 @@ format:
       glob: "*.toml"
       exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=taplo
+        :::
         taplo format {files}
     prettier:
       glob: "*.{md,js,json,json{5,c},yml,yaml}"
@@ -213,29 +232,39 @@ format:
       # TODO: Get prettier to not log unchanged files:
       # https://github.com/prettier/prettier/issues/2611
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=prettier
+        :::
         prettier --write {files}
     # VS Code's configuration files end in .json, but they are actually jsonc
     # files.
     prettier-vscode:
       glob: "*.vscode/*.json"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=prettier-vscode
+        :::
         prettier --parser jsonc --write {files}
     shfmt:
       glob: "*.{envrc,sh,bash}"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=shfmt
+        :::
         shfmt --binary-next-line --case-indent --indent 2 --write {files}
     fish_indent:
       glob: "*.fish"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=fish_indent
+        :::
         fish_indent --write {files}
     nixfmt:
       glob: "*.nix"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=nixfmt
+        :::
         nixfmt {files}
     just:
       # TODO: just's builtin formatter currently removes/rearranges comments. Until
@@ -243,27 +272,37 @@ format:
       skip: true
       glob: "justfile"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=just
+        :::
         just --unstable --fmt --justfile {files}
     stylua:
       glob: "*.lua"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=stylua
+        :::
         stylua {files}
     gofmt:
       glob: "*.go"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=gofmt
+        :::
         gofmt -w {files}
     ruff-format:
       glob: "*.py"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=ruff-format
+        :::
         ruff format {files}
     ruff-format-sort-imports:
       glob: "*.py"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=ruff-format-sort-imports
+        :::
         ruff check --select I --fix-only {files}
 
 fix-lint:
@@ -274,39 +313,49 @@ fix-lint:
     deadnix:
       glob: "*.nix"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=deadnix
+        :::
         deadnix --quiet --edit {files}
     ruff:
       glob: "*.py"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=ruff
+        :::
         ruff check --fix-only {files}
     statix:
       glob: "*.nix"
       # statix doesn't support passing multiple files yet:
       # https://github.com/nerdypepper/statix/issues/69
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=statix
+        :::
         parallel statix fix ::: {files}
     markdownlint-cli2:
       glob: "*.md"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=markdownlint-cli2
+        :::
         markdownlint-cli2 --fix {files}
     go-mod-tidy:
       glob: "*gozip/go.{mod,sum}"
       # The '# {files}' is there because lefthook only applies the glob if you
       # have a 'files' command or you use {files} in your run command:
       # https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
-      run: |
-        set -o errexit
-        fail_if_files_change="$PWD/scripts/fail-if-files-change.bash"
-        cd ./flake-modules/bundler/gozip
-        "$fail_if_files_change" go mod tidy # {files}
+      run: >
+        ./scripts/reviewdog-run-fixer.bash
+        -name=go-mod-tidy
+        :::
+        bash -euc 'cd ./flake-modules/bundler/gozip && go mod tidy' # {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=typos
+        :::
         typos --write-changes --format silent {files}
     # TODO: This always writes to the file, even if no changes are made. This
     # causes unnecessary direnv reloads.
@@ -317,7 +366,9 @@ fix-lint:
         # This file is generated
         - "dotfiles/cosmic/v1-shortcuts"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=dos2unix
+        :::
         dos2unix --allow-chown --add-eol {files}
     # TODO: This always writes to the file, even if no changes are made. This
     # causes unnecessary direnv reloads.
@@ -328,7 +379,9 @@ fix-lint:
         # This file is generated
         - "dotfiles/cosmic/v1-shortcuts"
       run: >
-        ./scripts/fail-if-files-change.bash
+        ./scripts/reviewdog-run-fixer.bash
+        -name=mac2unix
+        :::
         mac2unix --allow-chown --add-eol {files}
 
 check-lint:
