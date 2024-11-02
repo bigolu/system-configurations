@@ -59,10 +59,10 @@ fi
 # Command substitution removes trailing newlines, but I want to keep them. To do so, I add a
 # character to the end of the input, this way any trailing newlines will no longer be trailing. Then
 # I remove the extra character by getting a substring that excludes the last character.
-input=$(
+input="$(
   cat
   printf x
-)
+)"
 input=${input::-1}
 
 inputlen=$(printf '%s' "$input" | wc -c)

@@ -175,8 +175,6 @@
           doctoc
           ripgrep
           coreutils
-          gnused
-          perl
 
           # Runs the generators
           lefthook
