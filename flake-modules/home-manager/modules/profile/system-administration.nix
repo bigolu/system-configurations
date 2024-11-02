@@ -24,7 +24,7 @@ in
       ijq
       lsd
       moreutils
-      xdgWrappers.ripgrep
+      ripgrep
       tealdeer
       viddy
       zoxide
