@@ -19,6 +19,7 @@ function main {
   fi
 
   extant_files=()
+  did_any_files_not_exist=
   for file in "$@"; do
     # -e considers broken symlinks to be nonexistent, but I don't, since the
     # broken symlink file _does_ exist, even if its target doesn't. -L will
@@ -26,6 +27,7 @@ function main {
     # that check.
     if [[ ! -e "$file" && ! -L "$file" ]]; then
       printf '%s: "%s" does not exist\n' "$name" "$file"
+      did_any_files_not_exist=1
       continue
     fi
 
@@ -45,8 +47,11 @@ function main {
       "tell app \"Finder\" to move {$extant_files_joined_by_comma} to trash"
   fi
 
-  # Return success if all files existed
-  ((${#extant_files[@]} == $#))
+  if [[ "$did_any_files_not_exist" = 1 ]]; then
+    exit 1
+  else
+    exit 0
+  fi
 }
 
 # source: https://stackoverflow.com/a/17841619
