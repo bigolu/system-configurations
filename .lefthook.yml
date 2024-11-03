@@ -361,9 +361,7 @@ fix-lint:
     # causes unnecessary direnv reloads.
     dos2unix:
       exclude:
-        # It modified this file, but I'm not confident that won't break anything.
-        - "dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/en.lproj/InfoPlist.strings"
-        # This file is generated
+        # This file doesn't end in a newline, but it's generated so that's fine.
         - "dotfiles/cosmic/v1-shortcuts"
       run: >
         ./scripts/reviewdog-run-fixer.bash
@@ -374,9 +372,7 @@ fix-lint:
     # causes unnecessary direnv reloads.
     mac2unix:
       exclude:
-        # It modified this file, but I'm not confident that won't break anything.
-        - "dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/en.lproj/InfoPlist.strings"
-        # This file is generated
+        # This file doesn't end in a newline, but it's generated so that's fine.
         - "dotfiles/cosmic/v1-shortcuts"
       run: >
         ./scripts/reviewdog-run-fixer.bash
