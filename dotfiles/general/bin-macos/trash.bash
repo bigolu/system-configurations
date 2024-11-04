@@ -47,7 +47,7 @@ function main {
       "tell app \"Finder\" to move {$extant_files_joined_by_comma} to trash"
   fi
 
-  if [[ "$did_any_files_not_exist" = 1 ]]; then
+  if [[ "$did_any_files_not_exist" ]]; then
     exit 1
   else
     exit 0
