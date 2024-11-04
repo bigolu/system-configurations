@@ -20,6 +20,11 @@ output:
 pre-push:
   commands:
     check:
+      # TODO: {push_files} will always be the diff between the current branch and
+      # main, but you may be merging into another branch like develop. When this
+      # issue is resolved[1] I should explicitly set the branch.
+      #
+      # [1]: https://github.com/evilmartians/lefthook/issues/785
       run: printf '%s\0' {push_files} | lefthook run check --files-from-stdin
 
 post-merge:
