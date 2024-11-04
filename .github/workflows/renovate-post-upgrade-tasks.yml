@@ -30,7 +30,7 @@ jobs:
               path='./scripts/ci/set-nix-direnv-hash.bash'
               ;;
             renovate/branch-automerge/fixup/nix-version/*)
-              path='./scripts/sync-nix-version.bash'
+              path='./scripts/code-generation/sync-nix-version.bash'
               ;;
             *)
               echo "Unknown fixup branch: $BRANCH_NAME" >&2

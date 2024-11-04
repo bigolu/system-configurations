@@ -202,12 +202,12 @@ generate:
       glob: "flake.lock"
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=nix-version --
-        ./scripts/sync-nix-version.bash
+        ./scripts/code-generation/sync-nix-version.bash
     system-configs:
       glob: "{flake-modules/**,flake.nix}"
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=system-configs --
-        ./scripts/add-system-configurations-to-readme.bash
+        ./scripts/code-generation/add-system-configurations-to-readme.bash
     flake-lock:
       glob: "flake.nix"
       run: >
