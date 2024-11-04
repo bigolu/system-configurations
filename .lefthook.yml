@@ -106,6 +106,18 @@ sync:
       priority: 1
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
       run: sudo run-as-admin system-config-apply
+    hammerspoon-annotations:
+      priority: 1
+      run: |
+        bash -o pipefail -euc '
+          hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+          if [[ -e "$hammerspoon_annotations" ]]; then
+            # SYNC: LUA_LIBRARY_PREFIX
+            destination='.lua-libraries/hammerspoon-annotations'
+            mkdir --parents "$(dirname "$destination")"
+            ln --symbolic --force --no-dereference "$hammerspoon_annotations" "$destination"
+          fi
+        '
 
     # These should run last so their messages aren't lost in the output of other
     # commands.
