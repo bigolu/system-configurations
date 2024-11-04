@@ -28,13 +28,6 @@ runs:
           extra-substituters = https://nix-community.cachix.org
           show-trace = true
         nix-package-url: https://releases.nixos.org/nix/nix-2.24.9/nix-2.24.9-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
-    # TODO: This cache shouldn't be enabled for packages that only get used in CI,
-    # but since I usually hit the rate limit for the GitHub Action cache, I use this
-    # as a backup.
-    - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
-      with:
-        name: bigolu
-        authToken: "${{ inputs.cachix-auth-token }}"
     - if: inputs.use-magic-nix-cache == 'true'
       # TODO: Renovate won't manage this action's version until the following is
       # resolved:
