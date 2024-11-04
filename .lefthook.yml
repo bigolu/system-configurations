@@ -536,7 +536,7 @@ check-lint:
           while read -r commit; do
             echo "Checking commit $commit ($(git show --no-patch --format=%s "$commit"))..."
             echo "----------------------------------------"
-            if ! git show -s --format=%B "$commit" | ./scripts/reviewdog-run-linter.bash -name=typos -efm "%f:%l:%c: %m" ::: typos --color never --format brief --no-check-filenames -; then
+            if ! git show --no-patch --format=%B "$commit" | ./scripts/reviewdog-run-linter.bash -name=typos -efm "%f:%l:%c: %m" ::: typos --color never --format brief --no-check-filenames -; then
               found_problem=1
             fi
             echo
