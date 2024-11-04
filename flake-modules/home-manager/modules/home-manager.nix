@@ -110,10 +110,10 @@ let
       rm -f ~/.local/state/nvim/undo/*
 
       git fetch
-      if [ -n "$(git log 'HEAD..@{u}' --oneline)" ]; then
+      if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
           echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
 
-          if [ -n "$(git status --porcelain)" ]; then
+          if [[ -n "$(git status --porcelain)" ]]; then
               git stash --include-untracked --message 'Stashed for system pull'
           fi
 
@@ -146,7 +146,7 @@ let
       cd "${config.repository.directory}"
 
       git fetch
-      if [ -n "$(git log 'HEAD..@{u}' --oneline)" ]; then
+      if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
         # TODO: I want to use action buttons on the notification, but it isn't
         # working.
         #
@@ -213,7 +213,7 @@ lib.mkMerge [
       activation = {
         printGenerationDiff = lib.hm.dag.entryAnywhere ''
           # On the first activation, there won't be an old generation.
-          if [ -n "''${oldGenPath+set}" ] ; then
+          if [[ -n "''${oldGenPath+set}" ]] ; then
             nix store diff-closures $oldGenPath $newGenPath
           fi
         '';

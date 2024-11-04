@@ -73,10 +73,10 @@ let
       rm -f ~/.local/state/nvim/undo/*
 
       git fetch
-      if [ -n "$(git log 'HEAD..@{u}' --oneline)" ]; then
+      if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
           echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
 
-          if [ -n "$(git status --porcelain)" ]; then
+          if [[ -n "$(git status --porcelain)" ]]; then
               git stash --include-untracked --message 'Stashed for system pull'
           fi
 
@@ -118,7 +118,7 @@ let
       cd "${repositoryDirectory}"
 
       git fetch
-      if [ -n "$(git log 'HEAD..@{u}' --oneline)" ]; then
+      if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
         terminal-notifier -title "Nix Darwin" -message "There are changes on the remote, click here to pull." -execute '/usr/local/bin/wezterm --config "default_prog={[[${system-config-pull}/bin/system-config-pull]]}" --config "exit_behavior=[[Hold]]"'
       fi
     '';
