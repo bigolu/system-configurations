@@ -99,11 +99,15 @@ function diff_including_untracked {
 }
 
 function track_files {
-  git add --intent-to-add -- "$@"
+  if (($# > 0)); then
+    git add --intent-to-add -- "$@"
+  fi
 }
 
 function untrack_files {
-  git reset --quiet -- "$@"
+  if (($# > 0)); then
+    git reset --quiet -- "$@"
+  fi
 }
 
 main "$@"
