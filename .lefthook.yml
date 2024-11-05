@@ -131,7 +131,7 @@ sync:
       glob: "dotfiles/fish/conf.d/**.fish"
       run: >
         printf
-        '\n\e[34m┃ system-configurations: Files related to fish have changed, run `r`.\e(B\e[m\n'
+        '\n\e[34m┃ system-configurations: Files related to fish have changed, run `r`.\e[0m\n'
     system-nix-config:
       priority: 2
       glob: "flake-modules/nix-darwin/modules/nix.nix"
@@ -139,7 +139,7 @@ sync:
         - run: uname | grep -q Linux
       run: >
         printf
-        '\n\e[34m┃ system-configurations: The system Nix config in nix-darwin has changed, make sure this system's Nix config is still in sync with it.\e(B\e[m\n'
+        "\n\e[34m┃ system-configurations: The system Nix config in nix-darwin has changed, make sure this system's Nix config is still in sync with it.\e[0m\n"
 
 check:
   files: |
