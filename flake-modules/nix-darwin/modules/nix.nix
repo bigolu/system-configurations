@@ -136,7 +136,11 @@ in
       )
     }:$PATH"
     desired_store_paths=(${config.nix.package} ${pkgs.cacert})
-    store_path_diff="$(comm -3 <(sudo --set-home nix profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) <(printf '%s\n' "''${desired_store_paths[@]}" | sort))"
+    store_path_diff="$(
+      comm -3 \
+      <(sudo --set-home nix profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
+      <(printf '%s\n' "''${desired_store_paths[@]}" | sort)
+    )"
     if [[ -n "$store_path_diff" ]]; then
       sudo --set-home nix profile remove --all
       sudo --set-home nix profile install "''${desired_store_paths[@]}"
