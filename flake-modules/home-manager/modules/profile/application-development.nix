@@ -1,4 +1,9 @@
-{ pkgs, ... }:
+{
+  pkgs,
+  lib,
+  specialArgs,
+  ...
+}:
 {
   imports = [
     ../firefox-developer-edition.nix
@@ -27,6 +32,11 @@
           recursive = true;
         };
         "direnv/direnv.toml".source = "direnv/direnv.toml";
+      };
+
+      dataFile = lib.optionalAttrs (pkgs.stdenv.isLinux && specialArgs.isGui) {
+        "applications/code.desktop".source = "vscode/code.desktop";
+        "applications/code-url-handler.desktop".source = "vscode/code-url-handler.desktop";
       };
     };
   };
