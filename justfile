@@ -139,10 +139,16 @@ force-sync TASKS='all':
     set -o errexit
     set -o nounset
     set -o pipefail
+    # TODO: According to the documentation, the values here should extend the values
+    # specified in the configuration file, but it seems like only the values
+    # here are being used. I should make a smaller test case and possibly open an
+    # issue. For now, I'll duplicate the values from the config file in here.
+    #
+    # SYNC: LEFTHOOK_OUTPUT
     if [[ "$1" = 'all' ]]; then
-      LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force
+      LEFTHOOK_OUTPUT='execution_out,execution_info' lefthook run sync --force
     else
-      LEFTHOOK_OUTPUT='execution_out' lefthook run sync --force --commands "$1"
+      LEFTHOOK_OUTPUT='execution_out,execution_info' lefthook run sync --force --commands "$1"
     fi
 
 [group('Secrets')]
