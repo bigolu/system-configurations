@@ -149,11 +149,8 @@ set -g direnv_fish_mode disable_arrow # trigger direnv at prompt only
 #
 # Clear SHELL because my config for the OS default shell only launches fish if the current
 # shell isn't fish.
-#
-# Make vscode run natively in Wayland, as opposed to using xwayland. This way the font
-# won't be blurry on HiDPI screens.
 function code --wraps code
-    SHELL= command code --enable-features=UseOzonePlatform --ozone-platform=wayland $argv
+    SHELL= command code $argv
 end
 
 # ulimit
