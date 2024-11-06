@@ -57,16 +57,16 @@ let
         desired_store_paths=(${config.nix.package} ${pkgs.cacert})
         store_path_diff="$(
           comm -3 \
-          <(sudo ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
+          <(sudo --set-home ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
           <(printf '%s\n' "''${desired_store_paths[@]}" | sort)
         )"
         if [[ -n "$store_path_diff" ]]; then
-          sudo ${nix} profile remove --all
-          sudo ${nix} profile install "''${desired_store_paths[@]}"
+          sudo --set-home ${nix} profile remove --all
+          sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
 
           # Restart the daemon so we use the daemon from the version of nix we just
           # installed
-          sudo ${lib.getExe nix-daemon-reload}
+          sudo --set-home ${lib.getExe nix-daemon-reload}
           while ! nix-store -q --hash ${pkgs.stdenv.shell} &>/dev/null; do
             echo "waiting for nix-daemon" >&2
             sleep 0.5
