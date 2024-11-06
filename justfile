@@ -116,9 +116,9 @@ sync:
     LEFTHOOK_OUTPUT='execution_out,execution_info' lefthook run sync
 
 [doc('''
-    This is the same as the sync recipe above, except that it forces all tasks specified
-    to run, regardless of what files have changed. If no tasks are provided, then
-    all of them are run.
+    This is the same as the sync recipe above, except that it forces all tasks
+    specified to run, regardless of what files have changed. If no tasks are
+    provided, then all of them are run.
 
     For a list of available tasks, see .lefthook.yml.
 
