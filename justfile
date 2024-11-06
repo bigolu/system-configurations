@@ -50,6 +50,7 @@ preview:
 home-manager NAME:
   nix run --inputs-from . home-manager# -- switch --flake .#"$1"
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
+  echo 'Consider syncing COSMIC settings by running `just cosmic-sync system`'
 
 [private]
 [group('System Management')]
@@ -142,6 +143,10 @@ force-sync TASKS='all':
     else
       LEFTHOOK_OUTPUT='execution_out,execution_info' lefthook run sync --force --commands "$1"
     fi
+
+[group('Syncing')]
+cosmic-sync DESTINATION:
+    ./dotfiles/cosmic/sync.bash "$1"
 
 [group('Secrets')]
 get_secrets:

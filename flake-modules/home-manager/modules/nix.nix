@@ -40,7 +40,7 @@ let
     syncNixVersionWithSystem =
       let
         # The path set by sudo on Pop!_OS doesn't include nix
-        nix = lib.getExe config.nix.package;
+        nix = lib.getExe pkgs.nix;
       in
       lib.hm.dag.entryAnywhere ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
@@ -54,7 +54,7 @@ let
           )
         }:$PATH:/usr/bin"
 
-        desired_store_paths=(${config.nix.package} ${pkgs.cacert})
+        desired_store_paths=(${pkgs.nix} ${pkgs.cacert})
         store_path_diff="$(
           comm -3 \
           <(sudo --set-home ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
@@ -191,7 +191,7 @@ in
         nix-diff
         nix-search-cli
       ]
-      ++ optionals isLinux [
+      ++ lib.optionals isLinux [
         # for breakpointHook:
         # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
         cntr

@@ -5,4 +5,5 @@ dotfiles/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
 .vscode/ltex.hiddenFalsePositives.en-US.txt
 flake-modules/bundler/gozip/gomod2nix.toml
 COPYING.txt
+dotfiles/cosmic/config/
 

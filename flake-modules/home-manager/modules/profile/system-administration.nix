@@ -48,6 +48,7 @@ in
       gnused
       runAsAdmin
       less
+      rsync
     ]
     ++ optionals isLinux [
       trashy

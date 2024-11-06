@@ -53,15 +53,6 @@ let
   };
 
   linux = lib.mkIf (isGui && isLinux) {
-    repository.symlink = {
-      xdg = {
-        configFile = {
-          # TODO: When COSMIC writes to this file it replaces the symlink with a regular copy :(
-          "cosmic/com.system76.CosmicSettings.Shortcuts/v1/custom".source = "cosmic/v1-shortcuts";
-        };
-      };
-    };
-
     home.activation = {
       installKeyd = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
