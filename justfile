@@ -156,19 +156,6 @@ get_secrets:
         bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >.env'
 
 [doc('''
-    Check for broken links in the input file(s). This runs periodically in CI so
-    you shouldn't ever have to run this.
-
-    Arguments:
-        FILES: The files to check. These can be: files (e.g. `myfile.txt`), directories
-               (e.g. `myDirectory`), remote files (e.g. `https://mysite.com/myfile.txt`),
-               or a single `-` which will check any text from stdin.
-''')]
-[group('Debugging')]
-check-links *FILES:
-    lychee "$@"
-
-[doc('''
     Run `nix build` in debug mode.
 
     Arguments:
