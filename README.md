@@ -100,9 +100,6 @@ format "\<config_name> / \<platform>":
         `just initialize home-manager <config_name>` where `<config_name>` is
         any compatible config from the [config list](#configs).
 
-     2. Apply the Firefox `about:config` changes in
-        `dotfiles/firefox-developer-edition/about-config-changes.txt`
-
    - macOS
 
      1. Apply a nix-darwin configuration by running

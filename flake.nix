@@ -146,10 +146,6 @@
       url = "github:j-hui/fidget.nvim";
       flake = false;
     };
-    vim-plugin-firenvim = {
-      url = "github:glacambre/firenvim";
-      flake = false;
-    };
     vim-plugin-lazy-lsp-nvim = {
       url = "github:dundalek/lazy-lsp.nvim";
       flake = false;

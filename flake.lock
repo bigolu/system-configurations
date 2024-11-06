@@ -534,7 +534,6 @@
         "vim-plugin-dial-nvim": "vim-plugin-dial-nvim",
         "vim-plugin-direnv-vim": "vim-plugin-direnv-vim",
         "vim-plugin-fidget-nvim": "vim-plugin-fidget-nvim",
-        "vim-plugin-firenvim": "vim-plugin-firenvim",
         "vim-plugin-lazy-lsp-nvim": "vim-plugin-lazy-lsp-nvim",
         "vim-plugin-mini-nvim": "vim-plugin-mini-nvim",
         "vim-plugin-nvim-autopairs": "vim-plugin-nvim-autopairs",
@@ -729,22 +728,6 @@
       "original": {
         "owner": "j-hui",
         "repo": "fidget.nvim",
-        "type": "github"
-      }
-    },
-    "vim-plugin-firenvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1727248536,
-        "narHash": "sha256-2l2lFqHMwwKWnRreTGaM5B1ih/iSfi5zsQq7am93hYU=",
-        "owner": "glacambre",
-        "repo": "firenvim",
-        "rev": "64f9389b88c8b0c7667d45c171a5f25c42d852fb",
-        "type": "github"
-      },
-      "original": {
-        "owner": "glacambre",
-        "repo": "firenvim",
         "type": "github"
       }
     },
