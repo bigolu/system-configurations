@@ -244,7 +244,7 @@ local function make_config()
 
     -- TODO: I want this to be the same as macOS, but the font gets cut off when I
     -- try.
-    config.line_height = 1.4
+    config.line_height = 1.25
 
     -- TODO: I want this to be the same as macOS, but the underline doesn't show
     -- up when I try.
