@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+_: {
   security = {
     # extend sudo timeout to 30 minutes from the default 5 because sometimes it
     # times out in the middle of a rebuild.
@@ -7,12 +6,6 @@
       Defaults        timestamp_timeout=30
     '';
     pam.enableSudoTouchIdAuth = true;
-  };
-
-  environment.etc = {
-    "sudoers.d/10-run-as-admin".text = ''
-      %admin ALL=(ALL:ALL) NOPASSWD: ${pkgs.runAsAdmin}/bin/run-as-admin
-    '';
   };
 
   system = {

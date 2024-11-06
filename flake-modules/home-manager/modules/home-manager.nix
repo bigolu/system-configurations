@@ -26,47 +26,6 @@ let
         --flake "${config.repository.directory}#${configName}" \
         "$@" \
         |& nom
-
-      # TODO: You shouldn't manage the system from home-manager. Ideally, I'd use
-      # something like system-manager[1], but I don't think it works with
-      # home-manager yet[2].
-      #
-      # Use --set-home to avoid sudo's warning that current user doesn't own the home
-      # directory.
-      #
-      # [1]: https://github.com/numtide/system-manager
-      # [2]: https://github.com/numtide/system-manager/issues/109
-
-      PATH="${
-        pkgs.lib.makeBinPath (
-          with pkgs;
-          [
-            coreutils
-            jq
-          ]
-        )
-      }:$PATH"
-
-      echo >&2 "[bigolu] Syncing nix-darwin's nix/cacert version with the system..."
-
-      desired_store_paths=(${config.nix.package} ${pkgs.cacert})
-      store_path_diff="$(comm -3 <(sudo --set-home nix profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) <(printf '%s\n' "''${desired_store_paths[@]}" | sort))"
-      if [[ -n "$store_path_diff" ]]; then
-        sudo --set-home nix profile remove --all
-        sudo --set-home nix profile install "''${desired_store_paths[@]}"
-
-        # Restart the daemon so we use the daemon from the version of nix we just
-        # installed
-        systemctl restart nix-daemon.service
-
-        # To avoid having root directly manipulate the store, explicitly set the
-        # daemon.
-        # Source: https://docs.lix.systems/manual/lix/stable/installation/multi-user.html#multi-user-mode
-        while ! nix-store --store daemon -q --hash ${pkgs.stdenv.shell} &>/dev/null; do
-          echo "waiting for nix-daemon" >&2
-          sleep 0.5
-        done
-      fi
     '';
   };
 
@@ -80,9 +39,16 @@ let
     text = ''
       cd "${config.repository.directory}"
 
-      oldGenerationPath="$(${config.home.profileDirectory}/bin/home-manager generations | head -1 | grep -E --only-matching '/nix.*$')"
+      oldGenerationPath="$(
+        ${config.home.profileDirectory}/bin/home-manager generations \
+          | head -1 \
+          | grep -E --only-matching '/nix.*$'
+      )"
 
-      newGenerationPath="$(nix build --no-link --print-out-paths .#homeConfigurations.${configName}.activationPackage)"
+      newGenerationPath="$(
+        nix build --no-link --print-out-paths \
+          .#homeConfigurations.${configName}.activationPackage
+      )"
 
       cyan='\033[1;0m'
       printf "%bPrinting switch preview...\n" "$cyan"
@@ -163,7 +129,9 @@ let
         exit_code=$?
         set -o errexit
         if (( exit_code != timeout_exit_code )); then
-          flatpak run org.wezfurlong.wezterm --config 'default_prog={[[${system-config-pull}/bin/system-config-pull]]}' --config 'exit_behavior=[[Hold]]'
+          flatpak run org.wezfurlong.wezterm \
+            --config 'default_prog={[[${system-config-pull}/bin/system-config-pull]]}' \
+            --config 'exit_behavior=[[Hold]]'
         fi
       fi
     '';
@@ -171,15 +139,15 @@ let
 in
 lib.mkMerge [
   {
-    # The `man` in nixpkgs is only intended to be used for NixOS, it doesn't work properly on
-    # other OS's so I'm disabling it.
+    # The `man` in nixpkgs is only intended to be used for NixOS, it doesn't work
+    # properly on other OS's so I'm disabling it.
     #
     # home-manager issue: https://github.com/nix-community/home-manager/issues/432
     programs.man.enable = false;
 
     home = {
-      # Since I'm not using the nixpkgs man, I have any packages I install their man outputs so my
-      # system's `man` can find them.
+      # Since I'm not using the nixpkgs man, I have any packages I install their man
+      # outputs so my system's `man` can find them.
       extraOutputsToInstall = [ "man" ];
 
       # This value determines the Home Manager release that your
@@ -209,7 +177,8 @@ lib.mkMerge [
         system-config-pull
       ];
 
-      # Show me what changed everytime I switch generations e.g. version updates or added/removed files.
+      # Show me what changed everytime I switch generations e.g. version updates or
+      # added/removed files.
       activation = {
         printGenerationDiff = lib.hm.dag.entryAnywhere ''
           # On the first activation, there won't be an old generation.
@@ -225,9 +194,11 @@ lib.mkMerge [
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
 
-    # Don't notify me of news updates when I switch generation. Ideally, I'd disable news altogether since I don't
-    # read it:
-    # issue: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
+    # Don't notify me of news updates when I switch generation. Ideally, I'd disable
+    # news altogether since I don't read it. There's an issue open for making this an
+    # option[1].
+    #
+    # [1]: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
     news.display = "silent";
 
     systemd = optionalAttrs isLinux {

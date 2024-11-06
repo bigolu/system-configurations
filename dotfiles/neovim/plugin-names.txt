@@ -1,6 +1,5 @@
 bullets.vim
 CamelCaseMotion
-conform.nvim
 dial.nvim
 direnv.vim
 fidget.nvim

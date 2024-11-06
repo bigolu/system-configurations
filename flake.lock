@@ -531,7 +531,6 @@
         "vim-plugin-Navigator-nvim": "vim-plugin-Navigator-nvim",
         "vim-plugin-SchemaStore-nvim": "vim-plugin-SchemaStore-nvim",
         "vim-plugin-bullets-vim": "vim-plugin-bullets-vim",
-        "vim-plugin-conform-nvim": "vim-plugin-conform-nvim",
         "vim-plugin-dial-nvim": "vim-plugin-dial-nvim",
         "vim-plugin-direnv-vim": "vim-plugin-direnv-vim",
         "vim-plugin-fidget-nvim": "vim-plugin-fidget-nvim",
@@ -682,22 +681,6 @@
       "original": {
         "owner": "bullets-vim",
         "repo": "bullets.vim",
-        "type": "github"
-      }
-    },
-    "vim-plugin-conform-nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1730567196,
-        "narHash": "sha256-fvQrRGrvzK9b4MIQCdFxaFhu8ytL9S9b23x39FTGLOc=",
-        "owner": "stevearc",
-        "repo": "conform.nvim",
-        "rev": "d28ccf945374edd9f1c34a82f6c22261dbd8ab98",
-        "type": "github"
-      },
-      "original": {
-        "owner": "stevearc",
-        "repo": "conform.nvim",
         "type": "github"
       }
     },

@@ -8,9 +8,9 @@
   ...
 }:
 let
-  isLinuxGui = specialArgs.isGui && pkgs.stdenv.isLinux;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isDarwin isLinux;
+  isLinuxGui = specialArgs.isGui && isLinux;
   inherit (specialArgs) repositoryDirectory root;
 in
 {
@@ -39,22 +39,42 @@ in
         wl-clipboard
       ];
 
-    # TODO: Flatpak didn't read the overrides when the files were symlinks to the
-    # Nix store so I'm making copies instead.
-    activation.flatpakOverrides = lib.hm.dag.entryAfter [ "writeBoundary" ] (
-      lib.optionalString isLinuxGui ''
-        target=${lib.escapeShellArg "${config.xdg.dataHome}/flatpak/overrides/"}
-        mkdir -p "$target"
-        cp --no-preserve=mode --dereference ${
-          lib.escapeShellArg (
-            lib.fileset.toSource {
-              root = specialArgs.root + "/dotfiles/flatpak/overrides";
-              fileset = specialArgs.root + "/dotfiles/flatpak/overrides";
-            }
-          )
-        }/* "$target"
-      ''
-    );
+    activation =
+      {
+        addRunAsAdminToSudoers =
+          let
+            sudoersFile =
+              let
+                group = if isLinux then "sudo" else "admin";
+              in
+              pkgs.writeText "10-run-as-admin" ''
+                %${group} ALL=(ALL:ALL) NOPASSWD: ${pkgs.runAsAdmin}/bin/run-as-admin
+              '';
+          in
+          lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+            # Add /usr/bin so scripts can access system programs like sudo/apt
+            PATH="$PATH:/usr/bin"
+
+            sudo ln --symbolic --force --no-dereference \
+              ${sudoersFile} /etc/sudoers.d/10-run-as-admin
+          '';
+      }
+      // optionalAttrs isLinuxGui {
+        # TODO: Flatpak didn't read the overrides when the files were symlinks to the
+        # Nix store so I'm making copies instead.
+        flatpakOverrides = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          target=${lib.escapeShellArg "${config.xdg.dataHome}/flatpak/overrides/"}
+          mkdir -p "$target"
+          cp --no-preserve=mode --dereference ${
+            lib.escapeShellArg (
+              lib.fileset.toSource {
+                root = specialArgs.root + "/dotfiles/flatpak/overrides";
+                fileset = specialArgs.root + "/dotfiles/flatpak/overrides";
+              }
+            )
+          }/* "$target"
+        '';
+      };
 
     file = optionalAttrs isDarwin {
       ".hammerspoon/Spoons/EmmyLua.spoon" = {

@@ -100,9 +100,7 @@ format "\<config_name> / \<platform>":
         `just initialize home-manager <config_name>` where `<config_name>` is
         any compatible config from the [config list](#configs).
 
-     2. Install and start [`keyd`][keyd]
-
-     3. Apply the Firefox `about:config` changes in
+     2. Apply the Firefox `about:config` changes in
         `dotfiles/firefox-developer-edition/about-config-changes.txt`
 
    - macOS
@@ -160,5 +158,4 @@ to try and build it to learn more about Nix.
 [home-manager]: https://github.com/nix-community/home-manager
 [nix-darwin]: https://github.com/LnL7/nix-darwin
 [rootless-nix]: https://github.com/NixOS/nix/issues/1971#issue-304578884
-[keyd]: https://github.com/rvaiya/keyd
 [releases]: https://github.com/bigolu/system-configurations/releases/latest

@@ -213,15 +213,23 @@
         # So I can reference nixpkgs, with my overlays applied, from my scripts.
         legacyPackages.nixpkgs = pkgs;
 
-        packages = {
-          smartPlug = pkgs.writeShellApplication {
-            name = "speakerctl";
-            runtimeInputs = [ pythonWithPackages ];
-            text = ''
-              python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
-            '';
+        packages =
+          let
+            exeName = "speakerctl";
+          in
+          {
+            smartPlug =
+              (pkgs.writeShellApplication {
+                name = exeName;
+                runtimeInputs = [ pythonWithPackages ];
+                text = ''
+                  python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
+                '';
+              })
+              // {
+                meta.mainProgram = exeName;
+              };
           };
-        };
 
         devShells = {
           default = makeShell {

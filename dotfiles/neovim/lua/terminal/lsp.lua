@@ -406,9 +406,6 @@ Plug("neovim/nvim-lspconfig", {
 
 Plug("b0o/SchemaStore.nvim")
 
--- TODO: Maybe take the conform.nvim approach where I expect all LSPs to be
--- installed and I just specify priorities for each LSP. The fallback for every
--- file type will be lazy-lsp.
 if vim.fn.executable("nix") == 1 then
   Plug("dundalek/lazy-lsp.nvim", {
     config = function()

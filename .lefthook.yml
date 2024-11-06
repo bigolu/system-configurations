@@ -89,13 +89,6 @@ sync:
         touch flake.nix
         && nix-direnv-reload
         && just direnv-reminder
-    nix-fix:
-      priority: 1
-      glob: "dotfiles/nix/nix-fix/**"
-      # Must be interactive since the user will be prompted for their password,
-      # for sudo.
-      interactive: true
-      run: bash dotfiles/nix/nix-fix/install-nix-fix.bash
     lefthook:
       priority: 1
       # TODO: No need for this yet since lefthook syncs hooks automatically. There's
@@ -110,7 +103,8 @@ sync:
       interactive: true
       priority: 1
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
-      run: sudo run-as-admin system-config-apply
+      # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
+      run: sudo "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
     hammerspoon-annotations:
       priority: 1
       run: |
@@ -132,14 +126,6 @@ sync:
       run: >
         printf
         '\n\e[34m┃ system-configurations: Files related to fish have changed, run `r`.\e[0m\n'
-    system-nix-config:
-      priority: 2
-      glob: "flake-modules/nix-darwin/modules/nix.nix"
-      only:
-        - run: uname | grep -q Linux
-      run: >
-        printf
-        "\n\e[34m┃ system-configurations: The system Nix config in nix-darwin has changed, make sure this system's Nix config is still in sync with it.\e[0m\n"
 
 check:
   files: |

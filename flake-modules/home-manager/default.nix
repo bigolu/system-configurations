@@ -23,10 +23,10 @@ let
         # SYNC: EXTRA-SPECIAL-ARGS
         inherit
           configName
-          username
           homeDirectory
-          repositoryDirectory
           isGui
+          repositoryDirectory
+          username
           ;
         isHomeManagerRunningAsASubmodule = true;
         flakeInputs = inputs;
@@ -79,11 +79,11 @@ let
         # SYNC: EXTRA-SPECIAL-ARGS
         inherit
           configName
-          isGui
-          username
           homeDirectory
-          repositoryDirectory
+          isGui
           isHomeManagerRunningAsASubmodule
+          repositoryDirectory
+          username
           ;
         flakeInputs = inputs;
         inherit (self.lib) root;

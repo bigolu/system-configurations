@@ -27,16 +27,7 @@ let
         paths = with final; [
           # to format comments
           par
-
-          # For the conform.nvim formatters 'trim_whitespace' and
-          # 'squeeze_blanks' which require awk and cat respectively
-          gawk
-          coreutils-full
         ];
-      };
-      neovimBin = fs.toSource {
-        root = self.lib.root + "/dotfiles/neovim/bin";
-        fileset = self.lib.root + "/dotfiles/neovim/bin";
       };
       generalBin = fs.toSource {
         root = self.lib.root + "/dotfiles/general/bin";
@@ -71,12 +62,11 @@ let
         # to start using par, but aren't familiar with how par works so
         # until I learn more, I'll use this value.
         #
-        # I'm adding general/bin for: conform, trash, pbcopy
+        # I'm adding general/bin for: trash, pbcopy
         wrapProgram $out/bin/nvim \
           --set TERMINFO_DIRS '${myTerminfoDatabase}/share/terminfo' \
           --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
           --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} \
-          --prefix PATH : ${lib.escapeShellArg neovimBin} \
           --prefix PATH : ${lib.escapeShellArg generalBin} ${lib.strings.optionalString isDarwin "--prefix PATH : ${generalMacosBin}"} ${lib.strings.optionalString isLinux "--prefix PATH : ${neovimLinuxBin}"}
       '';
     };
@@ -110,18 +100,6 @@ let
     name = "run-as-admin";
     runtimeInputs = with final; [ coreutils ];
     text = ''
-      # WARNING: Don't copy this unless you understand the consequences. On a
-      # multi-user machine this is probably a bad idea. I'm assuming that on a
-      # personal, single-user, machine, this won't leave me any more vulnerable in
-      # practice. Considering most of the sensitive stuff in my home directory
-      # anyway[2]. You may be wondering why I have a sudo password at all. While it
-      # won't help from a security standpoint, I do like having it as a confirmation
-      # whenever I'm about to do something that operates on the system. This way if I
-      # accidentally run something that modifies the system, when I only mean to
-      # modify the user, I get a password prompt and that lets me know I'm probably
-      # doing something wrong and save me from having to reinstall if that command
-      # would have corrupted/removed anything.
-      #
       # I want to run `darwin-rebuild switch` and only input my password once, but
       # homebrew, rightly, invalidates the sudo cache before it runs[1] so I have to
       # input my password again for subsequent steps in the rebuild. This script
@@ -130,16 +108,26 @@ let
       # launched this script, i.e. SUDO_USER, and not root.
       #
       # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
-      # [2]: https://xkcd.com/1200/
+
+      if [[ "$1" == '--path' ]]; then
+        PATH="$2:$PATH"
+        shift 2
+      fi
 
       temp="$(mktemp)"
-      printf '%%admin		ALL = (ALL) NOPASSWD: ALL\n' > "$temp"
+      if uname | grep -q Linux; then
+        group='sudo'
+      else
+        group='admin'
+      fi
+      printf "%%$group		ALL = (ALL) NOPASSWD: ALL\n" > "$temp"
 
       sudo chown --reference /etc/sudoers "$temp"
       sudo mv "$temp" /etc/sudoers.d/temp-config
 
       set +o errexit
-      sudo -u "$SUDO_USER" "$@"
+      # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
+      sudo -u "$SUDO_USER" "$(which env)" "PATH=$PATH" "$@"
       exit_code=$?
       set -o errexit
 

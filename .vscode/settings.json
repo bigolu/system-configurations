@@ -82,4 +82,6 @@
   // To be consistent with the version of mypy we use locally and in CI
   "mypy-type-checker.path": ["mypy"],
   "mypy-type-checker.reportingScope": "workspace",
+
+  "editor.rulers": [85],
 }

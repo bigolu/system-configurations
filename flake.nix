@@ -134,10 +134,6 @@
       url = "github:bkad/CamelCaseMotion";
       flake = false;
     };
-    vim-plugin-conform-nvim = {
-      url = "github:stevearc/conform.nvim";
-      flake = false;
-    };
     vim-plugin-dial-nvim = {
       url = "github:monaqa/dial.nvim";
       flake = false;
