@@ -104,7 +104,7 @@ sync:
       priority: 1
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
-      run: sudo "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
+      run: sudo -- "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
     hammerspoon-annotations:
       priority: 1
       run: |

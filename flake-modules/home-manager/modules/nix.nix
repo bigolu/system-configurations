@@ -26,7 +26,8 @@ let
   activationScripts = {
     setLocale = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
-      PATH="$PATH:/usr/bin"
+      # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+      PATH="$PATH:/usr/bin:/bin"
 
       path=/etc/profile.d/bigolu-nix-locale-variable.sh
       if [[ ! -e "$path" ]]; then
@@ -43,7 +44,8 @@ let
         nix = lib.getExe pkgs.nix;
       in
       lib.hm.dag.entryAnywhere ''
-        # Add /usr/bin so scripts can access system programs like sudo/apt
+        # Add /usr/bin so scripts can access system programs like sudo/apt.
+        # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
         PATH="${
           pkgs.lib.makeBinPath (
             with pkgs;
@@ -52,7 +54,7 @@ let
               jq
             ]
           )
-        }:$PATH:/usr/bin"
+        }:$PATH:/usr/bin:/bin"
 
         desired_store_paths=(${pkgs.nix} ${pkgs.cacert})
         store_path_diff="$(
@@ -76,7 +78,8 @@ let
 
     installNixPathFix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
-      PATH="$PATH:/usr/bin"
+      # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+      PATH="$PATH:/usr/bin:/bin"
 
       script_name=zz-nix-fix.fish
 
@@ -135,7 +138,8 @@ let
       in
       lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
-        PATH="$PATH:/usr/bin"
+        # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+        PATH="$PATH:/usr/bin:/bin"
 
         source=${nixConf}
         destination=/etc/nix/nix.conf
@@ -152,7 +156,8 @@ let
 
     installNixGarbageCollectionService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
-      PATH="$PATH:/usr/bin"
+      # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+      PATH="$PATH:/usr/bin:/bin"
 
       service_name='nix-garbage-collection.service'
       if ! systemctl list-unit-files "$service_name" 1>/dev/null 2>&1; then

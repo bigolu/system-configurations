@@ -53,7 +53,8 @@ in
           in
           lib.hm.dag.entryAfter [ "writeBoundary" ] ''
             # Add /usr/bin so scripts can access system programs like sudo/apt
-            PATH="$PATH:/usr/bin"
+            # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+            PATH="$PATH:/usr/bin:/bin"
 
             sudo ln --symbolic --force --no-dereference \
               ${sudoersFile} /etc/sudoers.d/10-run-as-admin

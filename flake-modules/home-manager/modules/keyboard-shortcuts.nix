@@ -56,7 +56,8 @@ let
     home.activation = {
       installKeyd = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
-        PATH="$PATH:/usr/bin"
+        # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+        PATH="$PATH:/usr/bin:/bin"
 
         if ! type -P keyd 1>/dev/null; then
           # The readme[1] links to this unofficial PPA[2].
@@ -81,7 +82,8 @@ let
 
       setKeyboardToMacMode = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
-        PATH="$PATH:/usr/bin"
+        # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+        PATH="$PATH:/usr/bin:/bin"
 
         # source: https://unix.stackexchange.com/questions/121395/on-an-apple-keyboard-under-linux-how-do-i-make-the-function-keys-work-without-t
         #
