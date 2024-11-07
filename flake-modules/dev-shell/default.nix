@@ -47,6 +47,7 @@
           ipython
           platformdirs
           psutil
+          types-psutil
           mypy
         ]
       );
