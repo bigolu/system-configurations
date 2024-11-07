@@ -28,6 +28,7 @@ function main {
   done
 
   default_branch="$(git symbolic-ref --short HEAD)"
+  echo "default branch: $default_branch"
 
   gh alias set get-checks "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.check_runs[]' /repos/$GITHUB_REPOSITORY/commits/\$1/check-runs"
 

@@ -22,6 +22,10 @@ jobs:
           # So when we commit, it triggers other workflows:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           token: ${{ steps.bot-token.outputs.token }}
+          # By default, the commit that triggered the workflow will be checked out.
+          # Instead, I want to check out the default branch so the auto-merge script
+          # can push changes to it.
+          ref: github.event.repository.default_branch
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
