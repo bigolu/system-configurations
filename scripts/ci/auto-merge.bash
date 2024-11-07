@@ -73,7 +73,10 @@ function main {
 
 function has_failure {
   for check in "$@"; do
-    if [[ "$(jq '.status' <<<"$check")" = completed ]] && is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"; then
+    if
+      [[ "$(jq '.status' <<<"$check")" = completed ]] \
+        && is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"
+    then
       return 0
     fi
   done
@@ -83,7 +86,10 @@ function has_failure {
 
 function all_checks_passed {
   for check in "$@"; do
-    if [[ "$(jq '.status' <<<"$check")" != completed ]] || is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"; then
+    if
+      [[ "$(jq '.status' <<<"$check")" != completed ]] \
+        || is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"
+    then
       return 1
     fi
   done
