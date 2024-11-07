@@ -156,11 +156,11 @@ function process-widget --description 'Manage processes'
     # regex.
     if test (uname) = Linux
         set reload_command 'ps -e --format user,pid,ppid,nice=NICE,start_time,etime,command --sort=-start_time'
-        set preview_command 'ps --pid {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree --hide-threads --long --show-pids --unicode --show-parents --arguments {2} | GREP_COLORS="ms=00;36" grep --color=always --extended-regexp --regexp "[^└|─]+,$(echo {2})( .*|\$)" --regexp "^"'
+        set preview_command 'ps --pid {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree --hide-threads --long --show-pids --unicode --show-parents --arguments {2} | grep --color=always --extended-regexp --regexp "[^└|─]+,$(echo {2})( .*|\$)" --regexp "^"'
         set environment_flag e
     else
         set reload_command 'ps -e -o user,pid,ppid,nice=NICE,start,etime,command'
-        set preview_command 'ps -p {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree -w -g 3 -p {2} | GREP_COLORS="ms=00;36" grep --color=always --extended-regexp --regexp " 0*$(echo {2}) $(echo {1}) .*" --regexp "^"'
+        set preview_command 'ps -p {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree -w -g 3 -p {2} | grep --color=always --extended-regexp --regexp " 0*$(echo {2}) $(echo {1}) .*" --regexp "^"'
         set environment_flag -E
     end
     # TODO: The `string match` isn't perfect: if a variable's value
