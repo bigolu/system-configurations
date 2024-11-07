@@ -5,9 +5,7 @@
 # colors since they come from the terminal's color palette.
 # TODO: They should change this.
 colors:
-  # My terminal's light theme uses a shade of red as cyan so I'll use blue here
-  # to make it easier to distinguish from errors.
-  cyan: 4
+  cyan: 6
   gray: 8
   green: 2
   red: 1
