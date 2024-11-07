@@ -313,18 +313,12 @@ fix-lint:
     # TODO: This always writes to the file, even if no changes are made. This
     # causes unnecessary direnv reloads.
     dos2unix:
-      exclude:
-        # This file doesn't end in a newline, but it's generated so that's fine.
-        - "dotfiles/cosmic/v1-shortcuts"
       run: >
         ./scripts/run-check-with-reviewdog.bash --
         dos2unix --allow-chown --add-eol {files}
     # TODO: This always writes to the file, even if no changes are made. This
     # causes unnecessary direnv reloads.
     mac2unix:
-      exclude:
-        # This file doesn't end in a newline, but it's generated so that's fine.
-        - "dotfiles/cosmic/v1-shortcuts"
       run: >
         ./scripts/run-check-with-reviewdog.bash --
         mac2unix --allow-chown --add-eol {files}
