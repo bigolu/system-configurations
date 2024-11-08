@@ -55,38 +55,19 @@ post-checkout:
         exit 0
 
 sync:
-  # So we can see the output of dev-shell and system. It can take a while so it's
-  # nice to see what it's doing. Plus some of these tasks print messages I want to
-  # see.
+  # So we can see the output of the direnv and system tasks. They can take a while so
+  # if their output doesn't show it looks like the task is hanging.
   follow: true
-  # Add '|| true' so lefthook doesn't exit with code 1
-  files: >
-    [ -f .git/sync-point-1.txt -a -f .git/sync-point-2.txt ]
-    && git diff-tree -r --name-only --no-commit-id
-    "$(cat .git/sync-point-1.txt)" "$(cat .git/sync-point-2.txt)"
-    || true
+  files: |
+    if [ -f .git/sync-point-1.txt -a -f .git/sync-point-2.txt ]; then
+      git diff-tree -r --name-only --no-commit-id \
+        "$(cat .git/sync-point-1.txt)" "$(cat .git/sync-point-2.txt)"
+    fi
   commands:
     direnv:
       priority: 1
-      glob: ".envrc"
-      run: just reload
-    # Synchronize nix-direnv with the Nix devShell and reload the direnv
-    # environment. nix-direnv is a direnv library that builds our Nix devShell and
-    # makes all the packages within it available on the $PATH. Since building the
-    # devShell can take a while, nix-direnv won't do it automatically. Instead,
-    # it will only build the devShell when it's explicitly told to do
-    # so, otherwise it just uses the last devShell it built. This task will tell
-    # nix-direnv to rebuild the devShell and reload the direnv environment.
-    dev-shell:
-      priority: 1
-      glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix}"
-      # touch flake.nix to force nix-direnv to reload.
-      # TODO: See if they can add an option to force because I don't want to
-      # enumerate every file that can affect the dev shell.
-      run: >
-        touch flake.nix
-        && nix-direnv-reload
-        && just direnv-reminder
+      glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix},.envrc"
+      run: touch "$DIRENV_RELOAD_FILE" && nix-direnv-reload
     lefthook:
       priority: 1
       # TODO: No need for this yet since lefthook syncs hooks automatically. There's

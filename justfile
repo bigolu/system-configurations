@@ -170,11 +170,3 @@ get_secrets:
 [group('Debugging')]
 debug PACKAGE:
     nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$1"
-
-[private]
-direnv-reminder:
-    printf "\n\e[34m┃ system-configurations: Don't forget to reload direnv inside your editor as well.\e(B\e[m\n"
-
-[private]
-reload: && direnv-reminder
-    direnv reload

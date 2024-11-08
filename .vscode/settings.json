@@ -4,10 +4,12 @@
   // well.
   "direnv.restart.automatic": true,
 
-  // Don't reload the direnv environment when .envrc changes. When direnv
-  // reloads, it also reloads all extensions so they can pick up the environment
-  // changes. If someone were to edit the .envrc with autosave on it would trigger
-  // a lot reloads and probably make VS Code lag.
+  // Why I don't want the direnv extension to automatically reload:
+  //   - Sometimes a watched file changes, but I don't want to reload. Like when
+  //     doing a git checkout or interactive rebase.
+  //   - When the direnv extension reloads, it also reloads all extensions so they
+  //     can pick up the environment changes. If you edit the .envrc with autosave
+  //     on it triggers a lot reloads and make VS Code lag.
   "direnv.watchForChanges": false,
 
   "glspc.documentFilters": [{ "pattern": "**" }],
