@@ -53,7 +53,7 @@ function main {
       echo 'out of date'
       git switch "$branch"
       if git rebase "$default_branch"; then
-        git push "$branch"
+        git push
       else
         git rebase --abort
         make_pr "$branch" 'This branch has merge conflicts with the default branch.'
