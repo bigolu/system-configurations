@@ -87,7 +87,7 @@ bundle PACKAGE:
 ''')]
 [group('Checks')]
 check GROUPS='all':
-    ./scripts/check.bash "$1" 'diff-from-default'
+    ./scripts/check.bash "$1"
 
 [doc('''
     This is the same as the check task above, except that it runs on all files.
@@ -96,7 +96,7 @@ check GROUPS='all':
 ''')]
 [group('Checks')]
 check-all GROUPS='all':
-    ./scripts/check.bash "$1" 'all'
+    ./scripts/check.bash "$1" --all-files
 
 [doc('''
     Run various tasks to synchronize your environment with the state of the code.

@@ -99,9 +99,12 @@ sync:
       run: fish -c fish-reload
 
 check:
+  # This will get all the files that differ from the default branch.
   files: |
-    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
-    exit 1
+    # I'm using merge-base in case the current branch is behind the default branch.
+    git diff --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"
+    # Untracked files
+    git ls-files --others --exclude-standard
   commands:
     generate:
       priority: 1
