@@ -91,7 +91,9 @@ sync:
       priority: 1
       # TODO: No need for this yet since lefthook syncs hooks automatically. There's
       # an issue for disabling this behavior[1]. I want it disabled because I don't
-      # necessarily want to run the hooks of another branch.
+      # necessarily want to run the hooks of another branch. For example, when I
+      # create a new hook and want to test it on another branch, but then it installs
+      # the hooks of the other branch.
       #
       # [1]: https://github.com/evilmartians/lefthook/issues/840
       skip: true
