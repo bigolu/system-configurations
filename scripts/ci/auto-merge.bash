@@ -53,7 +53,7 @@ function main {
       echo 'out of date'
       git switch "$branch"
       if git rebase "$default_branch"; then
-        git push
+        git push --force-with-lease --force-if-includes
       else
         git rebase --abort
         make_pr "$branch" 'This branch has merge conflicts with the default branch.'
@@ -62,8 +62,8 @@ function main {
       git switch "$default_branch"
     elif all_checks_passed "${checks[@]}"; then
       echo 'all checks passed'
-      git rebase "$absolute_branch"
-      git push "$default_branch"
+      git rebase "$branch"
+      git push
       git push --delete "$remote" "$branch"
     else
       echo 'assuming there are pending checks'
