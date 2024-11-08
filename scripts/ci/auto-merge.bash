@@ -42,14 +42,12 @@ function main {
   for branch in "${branches_to_automerge_without_pr[@]}"; do
     echo $'\n'"Processing branch: $branch"
 
-    absolute_branch="$remote/$branch"
-
     readarray -t checks < <(gh get-checks "$branch" | jq -c)
 
     if has_failure "${checks[@]}"; then
       echo 'has failure'
       make_pr "$branch" 'This branch has failing checks.'
-    elif ! git merge-base --is-ancestor "$default_branch" "$absolute_branch"; then
+    elif ! git merge-base --is-ancestor "$default_branch" "$branch"; then
       echo 'out of date'
       git switch "$branch"
       if git rebase "$default_branch"; then
