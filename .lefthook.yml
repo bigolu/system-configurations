@@ -28,31 +28,30 @@ pre-push:
 post-merge:
   commands:
     mark-sync-point:
-      run: >
+      run: |
         printf ORIG_HEAD >.git/sync-point-1.txt
-        && printf HEAD >.git/sync-point-2.txt
+        printf HEAD >.git/sync-point-2.txt
 
 post-rewrite:
   commands:
     mark-sync-point:
       only: rebase
-      run: >
+      run: |
         printf ORIG_HEAD >.git/sync-point-1.txt
-        && printf HEAD >.git/sync-point-2.txt
+        printf HEAD >.git/sync-point-2.txt
 
 post-checkout:
   commands:
     mark-sync-point:
-      # The conditional checks that this isn't a file checkout.
-      #
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands, or add new skip/only conditions e.g. 'file' and 'branch'. Then
       # I could remove this conditional.
-      run: >
-        [ {3} != '0' ]
-        && printf {1} >.git/sync-point-1.txt
-        && printf {2} >.git/sync-point-2.txt;
-        exit 0
+      run: |
+        # Ensure this isn't a file checkout.
+        if [ {3} != '0' ]; then
+          printf {1} >.git/sync-point-1.txt
+          printf {2} >.git/sync-point-2.txt
+        fi
 
 sync:
   # So we can see the output of the direnv and system tasks. They can take a while so
