@@ -41,17 +41,9 @@ jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   lint:
-    # Only run if both of the following are true:
-    #   - It was not triggered by a pull request event for a Renovate automerge
-    #     branch. Those are covered by the push event.
-    #   - This branch is not a Renovate branch. I don't think a change made by
-    #     Renovate will cause a lint issue.
-    #
-    # For more information on how the branch name is calculated see:
-    # https://stackoverflow.com/a/71158878
-    if: >
-      (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')))
-      && (! startsWith(github.head_ref || github.ref_name, 'renovate/'))
+    # Only run this job if it wasn't triggered by a pull request event for a Renovate
+    # automerge branch. Those are covered by the push event.
+    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -65,17 +57,9 @@ jobs:
   # WARNING: This name is used to specify what checks are required to merge a
   # branch, don't change it without updating the required checks as well.
   check-style:
-    # Only run this job if both of the following are true:
-    #   - It was not triggered by a pull request event for a Renovate automerge
-    #     branch. Those are covered by the push event.
-    #   - The branch is not a Renovate branch. I don't think a change made by renovate
-    #     would break the code style.
-    #
-    # For more information on how the branch name is calculated see:
-    # https://stackoverflow.com/a/71158878
-    if: >
-      (! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/')))
-      && (! startsWith(github.head_ref || github.ref_name, 'renovate/'))
+    # Only run this job if it wasn't triggered by a pull request event for a Renovate
+    # automerge branch. Those are covered by the push event.
+    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
