@@ -47,7 +47,10 @@ function main {
     if has_failure "${checks[@]}"; then
       echo 'has failure'
       make_pr "$branch" 'This branch has failing checks.'
-    elif ! git merge-base --is-ancestor "$default_branch" "$branch"; then
+    # TODO: If I remove $remote in $remote/$branch, then I get the following error,
+    # but I don't understand why:
+    # fatal: Not a valid object name <$branch>
+    elif ! git merge-base --is-ancestor "$default_branch" "$remote/$branch"; then
       echo 'out of date'
       git switch "$branch"
       if git rebase "$default_branch"; then
