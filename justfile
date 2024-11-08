@@ -139,9 +139,11 @@ force-sync TASKS='all':
     #
     # SYNC: LEFTHOOK_OUTPUT
     if [[ "$1" = 'all' ]]; then
-      LEFTHOOK_OUTPUT='execution_out,execution_info' lefthook run sync --force
+      LEFTHOOK_OUTPUT='execution_out,execution_info' \
+        lefthook run sync --force
     else
-      LEFTHOOK_OUTPUT='execution_out,execution_info' lefthook run sync --force --commands "$1"
+      LEFTHOOK_OUTPUT='execution_out,execution_info' \
+        lefthook run sync --force --commands "$1"
     fi
 
 [group('Syncing')]
