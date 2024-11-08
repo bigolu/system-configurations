@@ -356,7 +356,7 @@ check-lint:
       glob: "*.fish"
       # TODO: Fish doesn't support passing multiple files, I should open an issue.
       run: >
-        ./scripts/run-check-with-reviewdog.bash -efm '%f (line %l): %m' --
+        ./scripts/run-check-with-reviewdog.bash -name=fish -efm '%f (line %l): %m' --
         parallel fish --no-execute '{}' ::: {files}
     desktop-file-validate:
       glob: "*.desktop"
