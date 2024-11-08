@@ -53,6 +53,9 @@ function main {
       echo 'out of date'
       git switch "$branch"
       if git rebase "$default_branch"; then
+        # A safer force push[1].
+        #
+        # [1]: https://stackoverflow.com/questions/65837109/when-should-i-use-git-push-force-if-includes
         git push --force-with-lease --force-if-includes
       else
         git rebase --abort
