@@ -53,7 +53,7 @@ function main {
     fi
   done
   if [[ ! "$did_set_reviewdog_name_flag" ]]; then
-    reviewdog_flags+=("-name" "${check_command[1]}")
+    reviewdog_flags+=("-name" "${check_command[0]}")
   fi
 
   if [[ "$did_set_reviewdog_error_format_flag" ]]; then
