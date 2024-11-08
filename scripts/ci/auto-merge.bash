@@ -29,7 +29,6 @@ function main {
 
   default_branch="$(git symbolic-ref --short HEAD)"
   echo "default branch: $default_branch"
-  git switch "$default_branch"
 
   gh alias set get-checks "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.check_runs[]' /repos/$GITHUB_REPOSITORY/commits/\$1/check-runs"
 
@@ -52,8 +51,9 @@ function main {
       make_pr "$branch" 'This branch has failing checks.'
     elif ! git merge-base --is-ancestor "$default_branch" "$absolute_branch"; then
       echo 'out of date'
-      if git rebase "$default_branch" "$absolute_branch"; then
-        git push "$absolute_branch"
+      git switch "$branch"
+      if git rebase "$default_branch"; then
+        git push "$branch"
       else
         git rebase --abort
         make_pr "$branch" 'This branch has merge conflicts with the default branch.'
