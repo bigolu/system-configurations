@@ -65,11 +65,9 @@ sync:
     fi
   commands:
     direnv:
-      priority: 1
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix},.envrc"
       run: touch "$DIRENV_RELOAD_FILE" && nix-direnv-reload
     lefthook:
-      priority: 1
       # TODO: No need for this yet since lefthook syncs hooks automatically. There's
       # an issue for disabling this behavior[1]. I want it disabled because I don't
       # necessarily want to run the hooks of another branch. For example, when I
@@ -82,12 +80,10 @@ sync:
       run: lefthook install --force
     system:
       interactive: true
-      priority: 1
       glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       run: sudo -- "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
     hammerspoon-annotations:
-      priority: 1
       run: |
         bash -o pipefail -euc '
           hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
@@ -98,15 +94,9 @@ sync:
             ln --symbolic --force --no-dereference "$hammerspoon_annotations" "$destination"
           fi
         '
-
-    # These should run last so their messages aren't lost in the output of other
-    # commands.
     fish:
-      priority: 2
       glob: "dotfiles/fish/conf.d/**.fish"
-      run: >
-        printf
-        '\n\e[34m┃ system-configurations: Files related to fish have changed, run `r`.\e[0m\n'
+      run: fish -c fish-reload
 
 check:
   files: |

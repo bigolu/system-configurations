@@ -292,7 +292,10 @@ function _reload_fish --on-variable _fish_reload_indicator
         return
     end
 
-    clear
+    # TODO: This will leave the old prompt on the screen. I think this happens
+    # because exec is being called from a handler. When I call exec from the
+    # commandline, the prompt is properly redrawn. I should file an issue to see if
+    # this is expected.
     exec fish
 end
 
