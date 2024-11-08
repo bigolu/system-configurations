@@ -2,7 +2,11 @@
 {
   homebrew = {
     enable = true;
-    onActivation.cleanup = "zap";
+
+    onActivation = {
+      cleanup = "zap";
+      extraFlags = [ "--quiet" ];
+    };
 
     casks = [
       "wezterm@nightly"
