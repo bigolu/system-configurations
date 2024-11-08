@@ -272,9 +272,14 @@ fix-lint:
         markdownlint-cli2 --fix {files}
     go-mod-tidy:
       glob: "*gozip/go.{mod,sum}"
-      # The '# {files}' is there because lefthook only applies the glob if you
-      # have a 'files' command or you use {files} in your run command:
-      # https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+      # The comment containing '{files}' is there because lefthook only applies the
+      # glob if you have a 'files' command or you use {files} in your run command[1].
+      # If this command were under the pre-commit and pre-push groups, the glob would
+      # get applied, but apparently this behavior was confusing for users so the
+      # author doesn't want to use the same behavior for other groups[2].
+      #
+      # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+      # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=go-mod-tidy --
         bash -euc 'cd ./flake-modules/bundler/gozip && go mod tidy' # {files}
