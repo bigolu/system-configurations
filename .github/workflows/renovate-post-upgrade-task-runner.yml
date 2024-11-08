@@ -93,5 +93,8 @@ jobs:
               commit \
               --amend \
               --message "$new_message"
-            git push --force
+            # A safer force push[1].
+            #
+            # [1]: https://stackoverflow.com/questions/65837109/when-should-i-use-git-push-force-if-includes
+            git push --force-with-lease --force-if-includes
           fi
