@@ -81,9 +81,6 @@
           # https://github.com/redhat-developer/yaml-language-server/issues/535
           yamllint
 
-          # This reports the errors
-          reviewdog
-
           # Runs the linters
           lefthook
         ];
@@ -103,9 +100,6 @@
 
           # Runs the formatters
           lefthook
-
-          # Reports a diff in CI
-          reviewdog
         ];
       };
 
@@ -179,9 +173,6 @@
 
           # Runs the generators
           lefthook
-
-          # Reports a diff in CI
-          reviewdog
         ];
       };
 
