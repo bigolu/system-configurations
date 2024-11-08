@@ -24,6 +24,12 @@ shopt -s nullglob
 function main {
   reporter=
   if [[ "${CI:-}" = 'true' ]]; then
+    # TODO: Due to a bug in GitHub Actions, the checks reported by reviewdog get
+    # associated with the wrong workflow[1]. This discussion seems to be tracking the
+    # issue[2].
+    #
+    # [1]: https://github.com/reviewdog/reviewdog/issues/403
+    # [2]: https://github.com/orgs/community/discussions/24616
     reporter='github-check'
   else
     reporter='local'
