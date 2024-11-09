@@ -1,13 +1,5 @@
 _: {
-  security = {
-    # extend sudo timeout to 30 minutes from the default 5 because sometimes it
-    # times out in the middle of a rebuild.
-    sudo.extraConfig = ''
-      Defaults        timestamp_timeout=30
-      Defaults        env_keep += "TERMINFO"
-    '';
-    pam.enableSudoTouchIdAuth = true;
-  };
+  security.pam.enableSudoTouchIdAuth = true;
 
   system = {
     # TODO: This option is marked internal

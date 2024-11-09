@@ -58,9 +58,6 @@ begin
     set --global --export VISUAL "$(command -v $editor[1]) $editor[2..]"
     set --global --export EDITOR $VISUAL
 end
-if test (uname) = Darwin
-    abbr --add --global -- sudoedit 'sudo --edit'
-end
 abbr --add --global -- vim nvim
 
 # Change the color grep uses for highlighting matches to magenta
@@ -257,3 +254,15 @@ end
 # ripgrep
 set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HOME/.config")
 set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
+
+# sudo
+abbr --add --global admin 'sudo (which run-as-admin) sudo'
+if test (uname) = Darwin
+    abbr --add --global -- sudoedit 'sudo --edit'
+end
+
+# This way when I use sudo the terminfo can still be found
+set TERMINFO "$HOME/.terminfo"
+if test -d "$TERMINFO"
+    set --export TERMINFO "$TERMINFO"
+end

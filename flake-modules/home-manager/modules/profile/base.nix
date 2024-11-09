@@ -47,8 +47,10 @@ in
               let
                 group = if isLinux then "sudo" else "admin";
               in
-              pkgs.writeText "10-run-as-admin" ''
+              pkgs.writeText "10-bigolu" ''
                 %${group} ALL=(ALL:ALL) NOPASSWD: ${pkgs.runAsAdmin}/bin/run-as-admin
+                Defaults  env_keep += "TERMINFO"
+                Defaults  timestamp_timeout=30
               '';
           in
           lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -57,7 +59,7 @@ in
             PATH="$PATH:/usr/bin:/bin"
 
             sudo ln --symbolic --force --no-dereference \
-              ${sudoersFile} /etc/sudoers.d/10-run-as-admin
+              ${sudoersFile} /etc/sudoers.d/10-bigolu
           '';
       }
       // optionalAttrs isLinuxGui {
