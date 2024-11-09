@@ -414,19 +414,17 @@ if vim.fn.executable("nix") == 1 then
 
         excluded_servers = {
           "pylyzer",
-          "ruff_lsp",
           "jedi_language_server",
           "basedpyright",
           "pylsp",
-          "rnix",
           "nixd",
           "quick_lint_js",
           "denols",
 
-          -- Warnings were being printed when these servers were included, even
-          -- though I wasn't using them.
-          "also",
-          "bazelrc-lsp",
+          -- Deprecated. Remove this when lazy-lsp excludes these:
+          -- https://github.com/dundalek/lazy-lsp.nvim/issues/56
+          "bufls",
+          "ruff_lsp",
         },
 
         -- TODO: consider contributing some these settings to nvim-lspconfig
