@@ -4,7 +4,6 @@
 # an SSH shell to the host computer's clipboard.
 
 set -o errexit
-shopt -s inherit_errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
