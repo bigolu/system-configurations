@@ -160,7 +160,9 @@ function process-widget --description 'Manage processes'
         set environment_flag e
     else
         set reload_command 'ps -e -o user,pid,ppid,nice=NICE,start,etime,command'
-        set preview_command 'ps -p {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree -w -g 3 -p {2} | grep --color=always --extended-regexp --regexp " 0*$(echo {2}) $(echo {1}) .*" --regexp "^"'
+        # Using '-o pid' because without it I get the error:
+        # time: requires entitlement
+        set preview_command 'ps -p {2} -o pid >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree -w -g 3 -p {2} | grep --color=always --extended-regexp --regexp " 0*$(echo {2}) $(echo {1}) .*" --regexp "^"'
         set environment_flag -E
     end
     # TODO: The `string match` isn't perfect: if a variable's value
