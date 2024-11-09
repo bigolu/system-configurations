@@ -11,6 +11,7 @@ let
     username
     homeDirectory
     isHomeManagerRunningAsASubmodule
+    root
     ;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isLinux;
@@ -51,8 +52,14 @@ let
       )"
 
       cyan='\033[1;0m'
-      printf "%bPrinting switch preview...\n" "$cyan"
-      nix store diff-closures "''$oldGenerationPath" "''$newGenerationPath"
+      printf "%bPrinting preview...\n" "$cyan"
+      nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
+      ${
+        lib.fileset.toSource {
+          root = root + "/dotfiles/nix/bin";
+          fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+        }
+      }/nix-closure-size-diff.bash "$oldGenerationPath" "$newGenerationPath"
     '';
   };
 
@@ -184,6 +191,12 @@ lib.mkMerge [
           # On the first activation, there won't be an old generation.
           if [[ -n "''${oldGenPath+set}" ]] ; then
             nix store diff-closures $oldGenPath $newGenPath
+            ${
+              lib.fileset.toSource {
+                root = root + "/dotfiles/nix/bin";
+                fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+              }
+            }/nix-closure-size-diff.bash $oldGenPath $newGenPath
           fi
         '';
       };

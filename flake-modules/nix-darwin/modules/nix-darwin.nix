@@ -2,6 +2,7 @@
   config,
   specialArgs,
   pkgs,
+  lib,
   ...
 }:
 let
@@ -10,6 +11,7 @@ let
     homeDirectory
     username
     repositoryDirectory
+    root
     ;
 
   system-config-preview = pkgs.writeShellApplication {
@@ -22,12 +24,17 @@ let
       cd "${repositoryDirectory}"
 
       oldGenerationPath="$(readlink --canonicalize ${config.system.profile})"
-
       newGenerationPath="$(nix build --no-link --print-out-paths .#darwinConfigurations.${configName}.system)"
 
       cyan='\033[1;0m'
-      printf "%bPrinting switch preview...\n" "$cyan"
+      printf "%bPrinting preview...\n" "$cyan"
       nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
+      ${
+        lib.fileset.toSource {
+          root = root + "/dotfiles/nix/bin";
+          fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+        }
+      }/nix-closure-size-diff.bash "$oldGenerationPath" "$newGenerationPath"
     '';
   };
 
@@ -40,16 +47,10 @@ let
     ];
     text = ''
       cd "${repositoryDirectory}"
-
-      oldGenerationPath="$(readlink --canonicalize ${config.system.profile})"
-
-      ${config.system.profile}/sw/bin/darwin-rebuild switch --flake "${repositoryDirectory}#${configName}" "$@" |& nom
-
-      newGenerationPath="$(readlink --canonicalize ${config.system.profile})"
-
-      cyan='\033[1;0m'
-      printf "%bPrinting generation diff...\n" "$cyan"
-      nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
+      ${config.system.profile}/sw/bin/darwin-rebuild switch \
+        --flake "${repositoryDirectory}#${configName}" \
+        "$@" \
+        |& nom
     '';
   };
 
@@ -141,6 +142,20 @@ in
 
   system = {
     stateVersion = 4;
+
+    activationScripts.postActivation.text = ''
+      if [[ -e /run/current-system ]]; then
+        cyan='\033[1;0m'
+        printf "%b[bigolu] Printing generation diff...\n" "$cyan"
+        nix store diff-closures /run/current-system "$systemConfig"
+        ${
+          lib.fileset.toSource {
+            root = root + "/dotfiles/nix/bin";
+            fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+          }
+        }/nix-closure-size-diff.bash /run/current-system "$systemConfig"
+      fi
+    '';
   };
 
   launchd.user.agents.nix-darwin-change-check = {

@@ -4,6 +4,7 @@ _: {
     # times out in the middle of a rebuild.
     sudo.extraConfig = ''
       Defaults        timestamp_timeout=30
+      Defaults        env_keep += "TERMINFO"
     '';
     pam.enableSudoTouchIdAuth = true;
   };

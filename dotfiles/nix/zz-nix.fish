@@ -25,5 +25,6 @@ function nix
 end
 
 function nix-store-size
-    numfmt --to=iec-i --suffix=B --format="%9.2f" (nix path-info --json --all | jq 'map(.narSize) | add')
+    set store_size_bytes (nix path-info --json --all | jq 'map(.narSize) | add')
+    numfmt --to=iec-i --suffix=B --format="%9.2f" -- $store_size_bytes
 end

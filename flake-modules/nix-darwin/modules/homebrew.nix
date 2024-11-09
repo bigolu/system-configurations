@@ -32,8 +32,7 @@
     };
   };
 
-  # TODO:
-  # https://github.com/LnL7/nix-darwin/issues/663
+  # TODO: https://github.com/LnL7/nix-darwin/issues/663
   system.activationScripts.postActivation.text = ''
     # Hammerspoon won't have any of my nix profile /bin directories on its path so
     # below I'm copying the programs it needs into a directory that is on its $PATH.
