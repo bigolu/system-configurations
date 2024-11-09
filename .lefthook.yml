@@ -107,18 +107,50 @@ check:
   commands:
     generate:
       priority: 1
-      run: printf '%s\0' {files} | lefthook run generate --files-from-stdin
+      run: |
+        # This won't be necessary when lefthook gets support for nested groups:
+        # https://github.com/evilmartians/lefthook/issues/132
+        if [ "$CI" = true ]; then
+          ci_flags=(--no-tty)
+        else
+          ci_flags=()
+        fi
+        printf '%s\0' {files} | lefthook run generate --files-from-stdin "${ci_flags[@]}"
     fix-lint:
       priority: 2
-      run: printf '%s\0' {files} | lefthook run fix-lint --files-from-stdin
+      run: |
+        # This won't be necessary when lefthook gets support for nested groups:
+        # https://github.com/evilmartians/lefthook/issues/132
+        if [ "$CI" = true ]; then
+          ci_flags=(--no-tty)
+        else
+          ci_flags=()
+        fi
+        printf '%s\0' {files} | lefthook run fix-lint --files-from-stdin "${ci_flags[@]}"
     # Run formatting after lint fixes because sometimes a lint fix produces code
     # that doesn't comply with the formatting.
     format:
       priority: 3
-      run: printf '%s\0' {files} | lefthook run format --files-from-stdin
+      run: |
+        # This won't be necessary when lefthook gets support for nested groups:
+        # https://github.com/evilmartians/lefthook/issues/132
+        if [ "$CI" = true ]; then
+          ci_flags=(--no-tty)
+        else
+          ci_flags=()
+        fi
+        printf '%s\0' {files} | lefthook run format --files-from-stdin "${ci_flags[@]}"
     check-lint:
       priority: 4
-      run: printf '%s\0' {files} | lefthook run check-lint --files-from-stdin
+      run: |
+        # This won't be necessary when lefthook gets support for nested groups:
+        # https://github.com/evilmartians/lefthook/issues/132
+        if [ "$CI" = true ]; then
+          ci_flags=(--no-tty)
+        else
+          ci_flags=()
+        fi
+        printf '%s\0' {files} | lefthook run check-lint --files-from-stdin "${ci_flags[@]}"
 
 generate:
   files: |
