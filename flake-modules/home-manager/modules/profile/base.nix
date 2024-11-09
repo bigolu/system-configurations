@@ -50,6 +50,7 @@ in
               pkgs.writeText "10-bigolu" ''
                 %${group} ALL=(ALL:ALL) NOPASSWD: ${pkgs.runAsAdmin}/bin/run-as-admin
                 Defaults  env_keep += "TERMINFO"
+                Defaults  env_keep += "PATH"
                 Defaults  timestamp_timeout=30
               '';
           in
