@@ -1,4 +1,4 @@
-name: auto-merge
+name: Renovate Post-Upgrade Task Auto Merger
 on:
   workflow_dispatch:
   schedule:

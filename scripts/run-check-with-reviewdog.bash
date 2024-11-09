@@ -26,11 +26,13 @@ function main {
   if [[ "${CI:-}" = 'true' ]]; then
     # TODO: Due to a bug in GitHub Actions, the checks reported by reviewdog get
     # associated with the wrong workflow[1]. This discussion seems to be tracking the
-    # issue[2].
+    # issue[2]. In the meantime, I'll use the annotations reporter which was made
+    # specifically to work around this issue[3].
     #
     # [1]: https://github.com/reviewdog/reviewdog/issues/403
     # [2]: https://github.com/orgs/community/discussions/24616
-    reporter='github-check'
+    # [3]: https://github.com/reviewdog/reviewdog/pull/1623
+    reporter='github-pr-annotations'
   else
     reporter='local'
   fi

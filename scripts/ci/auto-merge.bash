@@ -9,9 +9,6 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 
-# TODO: Add debug mode that just logs what it would do, triggered by lack of
-# github environment variable being set. This way I can test locally.
-
 function main {
   readarray -t branches_with_pr \
     < <(gh pr list --json headRefName --jq '.[].headRefName' --repo "$GITHUB_REPOSITORY")
@@ -30,8 +27,6 @@ function main {
   default_branch="$(git symbolic-ref --short HEAD)"
   echo "default branch: $default_branch"
 
-  gh alias set get-checks "api -H 'Accept: application/vnd.github+json' -H 'X-GitHub-Api-Version: 2022-11-28' --jq '.check_runs[]' /repos/$GITHUB_REPOSITORY/commits/\$1/check-runs"
-
   failure_states=(failure cancelled timed_out action_required)
 
   remote=origin
@@ -39,10 +34,12 @@ function main {
   git config user.name 'github-actions[bot]'
   git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
+  readarray -t required_check_names < <(get_required_check_names)
+
   for branch in "${branches_to_automerge_without_pr[@]}"; do
     echo $'\n'"Processing branch: $branch"
 
-    readarray -t checks < <(gh get-checks "$branch" | jq -c)
+    readarray -t checks < <(get_checks "$branch")
 
     if has_failure "${checks[@]}"; then
       echo 'has failure'
@@ -64,7 +61,7 @@ function main {
       fi
 
       git switch "$default_branch"
-    elif all_checks_passed "${checks[@]}"; then
+    elif all_required_checks_passed "${checks[@]}"; then
       echo 'all checks passed'
       git rebase "$branch"
       git push
@@ -89,8 +86,12 @@ function has_failure {
   return 1
 }
 
-function all_checks_passed {
+function all_required_checks_passed {
   for check in "$@"; do
+    if ! is_item_in "$(jq '.name' <<<"$check")" "${required_check_names[@]}"; then
+      continue
+    fi
+
     if
       [[ "$(jq '.status' <<<"$check")" != completed ]] \
         || is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"
@@ -100,6 +101,22 @@ function all_checks_passed {
   done
 
   return 0
+}
+
+function get_required_check_names {
+  gh api \
+    -H "Accept: application/vnd.github+json" \
+    --jq '.[] | select(.type == "required_status_checks") | .parameters.required_status_checks[].context' \
+    "/repos/$GITHUB_REPOSITORY/rules/branches/$default_branch"
+}
+
+function get_checks {
+  gh api \
+    -H 'Accept: application/vnd.github+json' \
+    -H 'X-GitHub-Api-Version: 2022-11-28' \
+    --jq '.check_runs[]' \
+    "/repos/$GITHUB_REPOSITORY/commits/$1/check-runs" \
+    | jq --compact-output
 }
 
 function make_pr {
