@@ -44,6 +44,8 @@ let
     ]
     ++ optionals (shellHook != null) [ shellHook ];
 
+  # There's work being done that would bring a lot of improvements to Nix shells:
+  # https://github.com/NixOS/nixpkgs/pull/330822
   shell = pkgs.mkShellNoCC {
     packages = mergedPackages;
     shellHook = concatStringsSep "\n" mergedShellHooks;
