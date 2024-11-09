@@ -27,7 +27,7 @@ runs:
           extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
           extra-substituters = https://nix-community.cachix.org
           show-trace = true
-        nix-package-url: https://releases.nixos.org/nix/nix-2.24.9/nix-2.24.9-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
+        nix-package-url: https://releases.nixos.org/nix/nix-2.24.10/nix-2.24.10-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
     # TODO: This cache shouldn't be enabled for packages that only get used in CI,
     # but since I usually hit the rate limit for the GitHub Action cache, I use this
     # as a backup.

@@ -56,7 +56,7 @@ format "\<config_name> / \<platform>":
 
    ```bash
    ./nix-installer install \
-     --nix-package-url https://releases.nixos.org/nix/nix-2.24.9/nix-2.24.9-x86_64-linux.tar.xz
+     --nix-package-url https://releases.nixos.org/nix/nix-2.24.10/nix-2.24.10-x86_64-linux.tar.xz
    ```
 
 2. Run the following command. It will start a fish shell within a Nix shell
