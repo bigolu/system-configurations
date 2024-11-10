@@ -64,6 +64,9 @@ sync:
     fi
   commands:
     direnv:
+      glob: ".envrc"
+      run: touch "$DIRENV_RELOAD_FILE"
+    nix-direnv:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix},.envrc"
       run: touch "$DIRENV_RELOAD_FILE" && nix-direnv-reload
     lefthook:
