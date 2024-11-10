@@ -256,7 +256,7 @@ set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HO
 set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
 
 # sudo
-abbr --add --global admin 'sudo -- (which run-as-admin)'
+abbr --add --global admin 'sudo -- (which run-as-admin) sudo'
 if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
 end
