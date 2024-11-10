@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# I tried to make the config files symlinks, but COSMIC replaces them with regular
-# files when I change a setting. Instead, I'll just occasionally sync.
-
 # shellcheck shell=bash
 
 set -o errexit
