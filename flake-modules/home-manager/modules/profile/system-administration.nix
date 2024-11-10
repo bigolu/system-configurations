@@ -42,7 +42,7 @@ in
       partialPackages.ps
       ast-grep
       lesspipe
-      diffoscope
+      diffoscopeMinimal
       bat
       coreutils-full
       gnused
