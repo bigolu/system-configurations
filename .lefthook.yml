@@ -23,7 +23,53 @@ pre-push:
       # issue is resolved[1] I should explicitly set the branch.
       #
       # [1]: https://github.com/evilmartians/lefthook/issues/785
-      run: printf '%s\0' {push_files} | lefthook run check --files-from-stdin
+      run: |
+        set -o errexit
+        set -o nounset
+        set -o pipefail
+
+        function main {
+          # I need the pre-push hook to fail if files change, for example because
+          # code got formatted. This failure will cause the push to abort which gives
+          # me a chance to fix up my commits. Linters don't modify files, but that's
+          # ok because they already fail if they find problems.
+          printf '%s\0' {push_files} \
+            | fail_if_files_change lefthook run check --files-from-stdin
+        }
+
+        function fail_if_files_change {
+          diff_before_running="$(diff_including_untracked)"
+          "$@"
+          diff_after_running="$(diff_including_untracked)"
+
+          if [ "$diff_before_running" != "$diff_after_running" ]; then
+            return 1
+          else
+            return 0
+          fi
+        }
+
+        function diff_including_untracked {
+          readarray -d '' initially_untracked_files \
+            < <(git ls-files -z --others --exclude-standard)
+          track_files "${initially_untracked_files[@]}"
+          git diff
+          untrack_files "${initially_untracked_files[@]}"
+        }
+
+        function track_files {
+          if (($# > 0)); then
+            git add --intent-to-add -- "$@"
+          fi
+        }
+
+        function untrack_files {
+          if (($# > 0)); then
+            git reset --quiet -- "$@"
+          fi
+        }
+
+        main
 
 post-merge:
   commands:
