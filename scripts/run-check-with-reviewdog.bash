@@ -35,20 +35,24 @@ function run_check {
   if did_set_reviewdog_error_format_flag; then
     "${check_command[@]}" | reviewdog "${reviewdog_flags[@]}"
   else
-    "${check_command[@]}"
-    if [[ "${CI:-}" = 'true' ]] && has_uncommitted_changes; then
-      git diff \
-        | reviewdog -f=diff "${reviewdog_flags[@]}"
-      # Remove changes in case another check runs after this one. I could drop the
-      # stash as well, but in the event that this code accidentally runs when the
-      # script is run locally, I don't want to permanently delete any changes.
-      git stash --include-untracked
+    if [[ "${CI:-}" = 'true' ]]; then
+      "${check_command[@]}"
+
+      if [[ -n "$(git status --porcelain)" ]]; then
+        git diff \
+          | reviewdog -f=diff -f.diff.strip=1 "${reviewdog_flags[@]}"
+        # Remove changes in case another check runs after this one. I could drop the
+        # stash as well, but in the event that this code accidentally runs when the
+        # script is run locally, I don't want to permanently delete any changes.
+        git stash --include-untracked
+      fi
+    else
+      # When running locally, I need a fix command to fail if files change. This
+      # failure will cause the pre-push hook to abort the push so I can fix up my
+      # commits.
+      fail_if_files_change "${check_command[@]}"
     fi
   fi
-}
-
-function has_uncommitted_changes {
-  [[ -n "$(git status --porcelain)" ]]
 }
 
 function did_set_reviewdog_error_format_flag {
@@ -94,6 +98,37 @@ function parse_arguments {
 
   if [[ ! "$did_set_reviewdog_name_flag" ]]; then
     reviewdog_flags+=("-name" "${check_command[0]}")
+  fi
+}
+
+function fail_if_files_change {
+  diff_before_running="$(diff_including_untracked)"
+  "$@"
+  diff_after_running="$(diff_including_untracked)"
+
+  if [[ "$diff_before_running" != "$diff_after_running" ]]; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+function diff_including_untracked {
+  readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
+  track_files "${untracked_files[@]}"
+  git diff
+  untrack_files "${untracked_files[@]}"
+}
+
+function track_files {
+  if (($# > 0)); then
+    git add --intent-to-add -- "$@"
+  fi
+}
+
+function untrack_files {
+  if (($# > 0)); then
+    git reset --quiet -- "$@"
   fi
 }
 
