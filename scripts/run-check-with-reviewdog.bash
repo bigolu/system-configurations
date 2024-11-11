@@ -38,7 +38,7 @@ function run_check {
     if [[ "${CI:-}" = 'true' ]]; then
       "${check_command[@]}"
 
-      if [[ -n "$(git status --porcelain)" ]]; then
+      if has_uncommitted_changes; then
         git diff \
           | reviewdog -f=diff -f.diff.strip=1 "${reviewdog_flags[@]}"
         # Remove changes in case another check runs after this one. I could drop the
@@ -53,6 +53,10 @@ function run_check {
       fail_if_files_change "${check_command[@]}"
     fi
   fi
+}
+
+function has_uncommitted_changes {
+  [[ -n "$(git status --porcelain)" ]]
 }
 
 function did_set_reviewdog_error_format_flag {
