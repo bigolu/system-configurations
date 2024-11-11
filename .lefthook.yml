@@ -390,7 +390,7 @@ check-lint:
       glob: "*.{sh,bash}"
       run: >
         ./scripts/run-check-with-reviewdog.bash -f checkstyle --
-        shellcheck --format checkstyle --color=never {files}
+        shellcheck --format checkstyle {files}
     yamllint:
       glob: "*.{yaml,yml}"
       run: >
@@ -400,7 +400,7 @@ check-lint:
       glob: ".github/workflows/*.{yaml,yml}"
       run: >
         ./scripts/run-check-with-reviewdog.bash -efm "%f:%l:%c: %m" --
-        actionlint -no-color {files}
+        actionlint {files}
     statix:
       glob: "*.nix"
       # statix doesn't support passing multiple files yet:
@@ -413,7 +413,7 @@ check-lint:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
         ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
-        typos --color never --format brief {files}
+        typos --format brief {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should open
     # issues with all of them. In the meantime, I put reviewdog in tee mode so it
@@ -469,7 +469,7 @@ check-lint:
             echo '─────────────────────────────────────────'
 
             commit_full_message="$(git show --no-patch --format=%B "$commit")"
-            if ! echo "$commit_full_message" | typos --color never --format brief -; then
+            if ! echo "$commit_full_message" | typos --format brief -; then
               found_problem=1
             fi
             echo
