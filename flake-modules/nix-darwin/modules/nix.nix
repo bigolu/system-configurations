@@ -2,6 +2,7 @@
   config,
   specialArgs,
   pkgs,
+  lib,
   ...
 }:
 let
@@ -46,43 +47,45 @@ in
       }
     ];
 
-    command = pkgs.writeShellApplication {
-      name = "gc";
-      runtimeInputs = with pkgs; [
-        config.nix.package
-        coreutils
-        terminal-notifier
-      ];
-      text = ''
-        log="$(mktemp --tmpdir 'nix_garbage_collection_XXXXX')"
-        exec 2>"$log" 1>"$log"
-        trap 'terminal-notifier -title "Nix Darwin" -message "Garbage collection failed :( Check the logs in $log"' ERR
+    command = lib.getExe (
+      pkgs.writeShellApplication {
+        name = "gc";
+        runtimeInputs = with pkgs; [
+          config.nix.package
+          coreutils
+          terminal-notifier
+        ];
+        text = ''
+          log="$(mktemp --tmpdir 'nix_garbage_collection_XXXXX')"
+          exec 2>"$log" 1>"$log"
+          trap 'terminal-notifier -title "Nix Darwin" -message "Garbage collection failed :( Check the logs in $log"' ERR
 
-        last_gc_file='/nix/last-gc.txt'
-        if [[ -e "$last_gc_file" ]]; then
-          last_gc="$(<"$last_gc_file")"
-        else
-          last_gc=
-        fi
-        now="$(date '+%y%m')"
-        # This to ensure it runs at most once in a day. To learn why I can't
-        # just schedule it to run once in a day, check the comment where the schedule
-        # is defined.
-        if [[ "$last_gc" == "$now" ]]; then
-          exit
-        fi
+          last_gc_file='/nix/last-gc.txt'
+          if [[ -e "$last_gc_file" ]]; then
+            last_gc="$(<"$last_gc_file")"
+          else
+            last_gc=
+          fi
+          now="$(date '+%y%m')"
+          # This to ensure it runs at most once in a day. To learn why I can't
+          # just schedule it to run once in a day, check the comment where the schedule
+          # is defined.
+          if [[ "$last_gc" == "$now" ]]; then
+            exit
+          fi
 
-        # nix-darwin
-        nix-env --profile /nix/var/nix/profiles/system --delete-generations old
-        nix-env --profile /nix/var/nix/profiles/default --delete-generations old
-        nix-env --profile ${homeDirectory}/.local/state/nix/profiles/home-manager --delete-generations old
-        nix-env --profile ${homeDirectory}/.local/state/nix/profiles/profile --delete-generations old
+          # nix-darwin
+          nix-env --profile /nix/var/nix/profiles/system --delete-generations old
+          nix-env --profile /nix/var/nix/profiles/default --delete-generations old
+          nix-env --profile ${homeDirectory}/.local/state/nix/profiles/home-manager --delete-generations old
+          nix-env --profile ${homeDirectory}/.local/state/nix/profiles/profile --delete-generations old
 
-        nix-collect-garbage --delete-older-than 30d
+          nix-collect-garbage --delete-older-than 30d
 
-        printf '%s' "$now" >"$last_gc_file"
-      '';
-    };
+          printf '%s' "$now" >"$last_gc_file"
+        '';
+      }
+    );
   };
 
   # Workaround for doing the first `darwin-rebuild switch`. Since nix-darwin only
