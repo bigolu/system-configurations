@@ -86,8 +86,17 @@ bundle PACKAGE:
                 Example: `just check format,generate`
 ''')]
 [group('Checks')]
-check GROUPS='all':
-    ./scripts/check.bash "$1"
+check GROUPS='':
+    #!/usr/bin/env bash
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    lefthook_arguments=()
+    if [[ -n "$1" ]]; then
+      lefthook_arguments+=(--commands "$1")
+    fi
+    lefthook run check "${lefthook_arguments[@]}"
 
 [doc('''
     This is the same as the check task above, except that it runs on all files.
@@ -95,8 +104,17 @@ check GROUPS='all':
     work. For example, changing the configuration file for a linter.
 ''')]
 [group('Checks')]
-check-all GROUPS='all':
-    ./scripts/check.bash "$1" --all-files
+check-all GROUPS='':
+    #!/usr/bin/env bash
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    lefthook_arguments=(--all-files)
+    if [[ -n "$1" ]]; then
+      lefthook_arguments+=(--commands "$1")
+    fi
+    lefthook run check "${lefthook_arguments[@]}"
 
 [doc('''
     Run various tasks to synchronize your environment with the state of the code.
@@ -127,24 +145,25 @@ sync:
                Example: `just sync-force direnv,dev-shell`
 ''')]
 [group('Syncing')]
-force-sync TASKS='all':
+force-sync TASKS='':
     #!/usr/bin/env bash
     set -o errexit
     set -o nounset
     set -o pipefail
+
+    lefthook_arguments=(--force)
+    if [[ -n "$1" ]]; then
+      lefthook_arguments+=(--commands "$1")
+    fi
+
     # TODO: According to the documentation, the values here should extend the values
     # specified in the configuration file, but it seems like only the values
     # here are being used. I should make a smaller test case and possibly open an
     # issue. For now, I'll duplicate the values from the config file in here.
     #
     # SYNC: LEFTHOOK_OUTPUT
-    if [[ "$1" = 'all' ]]; then
-      LEFTHOOK_OUTPUT='execution_out,execution_info' \
-        lefthook run sync --force
-    else
-      LEFTHOOK_OUTPUT='execution_out,execution_info' \
-        lefthook run sync --force --commands "$1"
-    fi
+    LEFTHOOK_OUTPUT='execution_out,execution_info' \
+      lefthook run sync "${lefthook_arguments[@]}"
 
 [group('Syncing')]
 cosmic-sync DESTINATION:
