@@ -50,6 +50,9 @@ function run_check {
       # When running locally, I need a fix command to fail if files change. This
       # failure will cause the pre-push hook to abort the push so I can fix up my
       # commits.
+      #
+      # It's also useful to have fix commands fail locally so I can see _which_ tasks
+      # made changes.
       fail_if_files_change "${check_command[@]}"
     fi
   fi
