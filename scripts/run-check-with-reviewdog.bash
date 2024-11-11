@@ -13,8 +13,6 @@
 # If reviewdog_flags does not contain the name flag, -name, then the first token in
 # check_command will be used.
 
-# shellcheck shell=bash
-
 set -o errexit
 set -o nounset
 set -o pipefail

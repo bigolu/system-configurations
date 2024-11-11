@@ -1,8 +1,6 @@
 #!/usr/bin/env nix
 #! nix shell --quiet local#nixpkgs.bash local#nixpkgs.jq local#nixpkgs.gh local#nixpkgs.ripgrep local#nixpkgs.gitMinimal local#nixpkgs.coreutils --command bash
 
-# shellcheck shell=bash
-
 set -o errexit
 set -o nounset
 set -o pipefail

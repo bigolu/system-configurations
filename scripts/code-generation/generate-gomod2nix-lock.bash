@@ -1,8 +1,6 @@
 #!/usr/bin/env nix
 #! nix shell --quiet local#nixpkgs.bash --command bash
 
-# shellcheck shell=bash
-
 set -o errexit
 set -o nounset
 set -o pipefail
