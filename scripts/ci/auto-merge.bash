@@ -62,7 +62,10 @@ function main {
       git switch "$default_branch"
     elif all_required_checks_passed "${checks[@]}"; then
       echo 'all checks passed'
-      git rebase "$branch"
+      # TODO: If I remove $remote in $remote/$branch, then I get the following error,
+      # but I don't understand why:
+      # fatal: invalid upstream <$branch>
+      git rebase "$remote/$branch"
       git push
       git push --delete "$remote" "$branch"
     else
