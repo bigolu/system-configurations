@@ -14,10 +14,8 @@ function main {
   size_after=$(get_closure_size "$2")
   size_diff=$((size_after - size_before))
 
+  message=
   if ((size_diff != 0)); then
-    echo "Before: $(human_size "$size_before")"
-    echo "After:  $(human_size "$size_after")"
-
     if ((size_diff < 0)); then
       color="$green"
       sign=''
@@ -25,10 +23,12 @@ function main {
       color="$red"
       sign='+'
     fi
-    printf 'Diff: %b%s%s%b\n' "$color" "$sign" "$(human_size $size_diff)" "$reset"
+    message="$(human_size "$size_before") → $(human_size "$size_after"), $color$sign$(human_size $size_diff)$reset"
   else
-    echo "Closure size is exactly the same"
+    message='Closure size is exactly the same'
   fi
+
+  printf 'Total Size: %b\n' "$message"
 }
 
 function human_size {
