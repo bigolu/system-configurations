@@ -6,7 +6,12 @@ set -o pipefail
 shopt -s nullglob
 
 if (($# == 0)); then
-  choice="$(git log --oneline | fzf-zoom --prompt 'Choose a commit to rebase from: ' --preview 'git show --patch {1} | delta')"
+  choice="$(
+    git log "$(git merge-base origin/HEAD HEAD)"..HEAD --oneline \
+      | fzf-zoom \
+        --prompt 'Choose a commit to rebase from: ' \
+        --preview 'git show --patch {1} | delta'
+  )"
   hash="$(cut -d ' ' -f 1 <<<"$choice")"
   git rebase --interactive "$hash^"
 elif ((${#1} <= 2)); then
