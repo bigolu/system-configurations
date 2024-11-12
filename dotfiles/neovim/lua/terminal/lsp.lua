@@ -396,8 +396,6 @@ Plug("lvim-tech/nvim-lightbulb", {
 
 Plug("neovim/nvim-lspconfig", {
   config = function()
-    require("lspconfig.ui.windows").default_options.border =
-      { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
     vim.api.nvim_create_user_command("LspServerConfigurations", function()
       vim.cmd.Help("lspconfig-all")
     end, {})
