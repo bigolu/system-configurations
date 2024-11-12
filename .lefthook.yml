@@ -363,7 +363,7 @@ check-lint:
     ruff:
       glob: "*.py"
       run: >
-        ./scripts/run-check-with-reviewdog.bash --
+        ./scripts/run-check-with-reviewdog.bash -f sarif --
         ruff check --output-format sarif {files}
     fish:
       glob: "*.fish"
