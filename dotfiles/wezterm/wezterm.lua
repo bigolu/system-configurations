@@ -219,7 +219,7 @@ local function make_config()
   -- configuration file from their sandbox so for now I'll hardcode a font.
   --
   -- issue: https://github.com/flatpak/flatpak/issues/1563
-  config.font = font_with_icon_fallbacks("Fira Code")
+  config.font = font_with_icon_fallbacks("Fira Mono")
   config.font_rules = {
     {
       intensity = "Normal",

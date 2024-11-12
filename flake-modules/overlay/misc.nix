@@ -142,7 +142,7 @@ let
     paths = with final; [
       monaspace
       (nerdfonts.override { fonts = [ "NerdFontsSymbolsOnly" ]; })
-      fira-code
+      fira-mono
     ];
   };
 in
