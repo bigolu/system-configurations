@@ -418,11 +418,6 @@ if vim.fn.executable("nix") == 1 then
           "nixd",
           "quick_lint_js",
           "denols",
-
-          -- Deprecated. Remove this when lazy-lsp excludes these:
-          -- https://github.com/dundalek/lazy-lsp.nvim/issues/56
-          "bufls",
-          "ruff_lsp",
         },
 
         -- TODO: consider contributing some these settings to nvim-lspconfig
