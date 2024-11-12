@@ -77,6 +77,7 @@ in
           # nix-darwin
           nix-env --profile /nix/var/nix/profiles/system --delete-generations old
           nix-env --profile /nix/var/nix/profiles/default --delete-generations old
+          nix-env --profile /nix/var/nix/profiles/per-user/root/profile --delete-generations old
           nix-env --profile ${homeDirectory}/.local/state/nix/profiles/home-manager --delete-generations old
           nix-env --profile ${homeDirectory}/.local/state/nix/profiles/profile --delete-generations old
 

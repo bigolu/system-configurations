@@ -49,6 +49,7 @@ in
       runAsAdmin
       less
       rsync
+      gawkInteractive
     ]
     ++ optionals isLinux [
       trashy
