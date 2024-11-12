@@ -12,7 +12,7 @@ local function merge_to_left(t1, t2)
 end
 
 local function font_with_icon_fallbacks(font)
-  return wezterm.font_with_fallback({ font, "SymbolsNerdFontMono" })
+  return wezterm.font_with_fallback({ font, "Symbols Nerd Font Mono" })
 end
 
 local function register_color_scheme(name, colors, config)
@@ -219,7 +219,7 @@ local function make_config()
   -- configuration file from their sandbox so for now I'll hardcode a font.
   --
   -- issue: https://github.com/flatpak/flatpak/issues/1563
-  config.font = font_with_icon_fallbacks("Hack")
+  config.font = font_with_icon_fallbacks("Fira Code")
   config.font_rules = {
     {
       intensity = "Normal",
