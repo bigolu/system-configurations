@@ -29,8 +29,9 @@ class SmartPlugController(object):
         await self._plug.turn_on()
 
     def is_on(self) -> bool:
-        # This function does return a bool, but they're using a 'type: ignore' on the
-        # property so mypy can't tell.
+        # TODO: This function does return a bool, but they're using a 'type: ignore'
+        # on the property so type checkers can't verify the type. I should open an
+        # issue.
         return cast(bool, self._plug.is_on)
 
     async def _get_plug(self) -> SmartPlug:
@@ -80,17 +81,12 @@ class SmartPlugController(object):
     # then try discovery using all the addresses that are marked as broadcast
     # addresses until I find a Kasa device.
     async def _discover_devices(self) -> dict[str, SmartDevice]:
-        # return the first non-empty map of devices
+        devices_per_broadcast_address = [
+            await self._discover_devices_for_broadcast_address(address)
+            for address in self._get_broadcast_addresses()
+        ]
         return next(
-            filter(
-                bool,
-                await asyncio.gather(
-                    *[
-                        self._discover_devices_for_broadcast_address(address)
-                        for address in self._get_broadcast_addresses()
-                    ]
-                ),
-            ),
+            filter(bool, devices_per_broadcast_address),
             cast(dict[str, SmartDevice], {}),
         )
 
