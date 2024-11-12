@@ -81,19 +81,12 @@ class SmartPlugController(object):
     # then try discovery using all the addresses that are marked as broadcast
     # addresses until I find a Kasa device.
     async def _discover_devices(self) -> dict[str, SmartDevice]:
-        devices_per_broadcast_address = [
-            await self._discover_devices_for_broadcast_address(address)
-            for address in self._get_broadcast_addresses()
-        ]
-        return next(
-            filter(bool, devices_per_broadcast_address),
-            cast(dict[str, SmartDevice], {}),
-        )
+        for broadcast_address in self._get_broadcast_addresses():
+            devices = await Discover.discover(target=broadcast_address)
+            if devices:
+                return devices
 
-    async def _discover_devices_for_broadcast_address(
-        self, broadcast_address: str
-    ) -> dict[str, SmartDevice]:
-        return await Discover.discover(target=broadcast_address)
+        return {}
 
     def _get_broadcast_addresses(self) -> set[str]:
         return {
