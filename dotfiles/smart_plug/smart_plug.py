@@ -54,7 +54,7 @@ class SmartPlugController(object):
             try:
                 await plug.update()
                 return plug
-            except (KasaException, TimeoutError) as _:
+            except (KasaException, TimeoutError):
                 return None
 
         return None
