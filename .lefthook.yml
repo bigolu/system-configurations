@@ -240,7 +240,7 @@ format:
       glob: "*.{envrc,sh,bash}"
       run: >
         ./scripts/run-check-with-reviewdog.bash --
-        shfmt --binary-next-line --case-indent --indent 2 --write {files}
+        shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}
     fish_indent:
       glob: "*.fish"
       run: >

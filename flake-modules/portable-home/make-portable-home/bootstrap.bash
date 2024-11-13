@@ -35,7 +35,7 @@ xdg_cache_directory="$(make_directory_in_prefix 'cache')"
 # Nix store isn't writable we copy the directories into temporary ones.
 activation_package_config_directory="$ACTIVATION_PACKAGE/home-files/.config"
 activation_package_data_directory="$ACTIVATION_PACKAGE/home-files/.local/share"
-if ! [[ -w "$ACTIVATION_PACKAGE" ]]; then
+if ! [[ -w $ACTIVATION_PACKAGE ]]; then
   xdg_config_directory="$(make_directory_in_prefix config)"
   xdg_data_directory="$(make_directory_in_prefix data)"
   cp --no-preserve=mode --recursive --dereference \

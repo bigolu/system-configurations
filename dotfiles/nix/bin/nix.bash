@@ -18,11 +18,11 @@ function main {
   # eventually we'll reach the real nix.
   readarray -t nix_commands < <(which -a nix)
   this_nix_index="$(index_of "$0" "${nix_commands[@]}")"
-  if [[ -z "$this_nix_index" ]]; then
+  if [[ -z $this_nix_index ]]; then
     abort
   fi
-  real_nix="${nix_commands[(($this_nix_index + 1))]}"
-  if [[ -z "$real_nix" ]]; then
+  real_nix="${nix_commands[this_nix_index + 1]}"
+  if [[ -z $real_nix ]]; then
     abort
   fi
 
@@ -42,13 +42,13 @@ function maybe_warn {
 
     parent_directory="$current_directory/.."
     # This will happen when hit the root directory '/'
-    if [[ "$current_directory" -ef "$parent_directory" ]]; then
+    if [[ $current_directory -ef $parent_directory ]]; then
       break
     fi
     current_directory="$parent_directory"
   done
 
-  if [[ -z "$found_flake" ]]; then
+  if [[ -z $found_flake ]]; then
     return
   fi
 
@@ -75,7 +75,7 @@ function index_of {
   shift
   list=("$@")
   for i in "${!list[@]}"; do
-    if [[ "${list[$i]}" = "${target}" ]]; then
+    if [[ ${list[$i]} == "${target}" ]]; then
       echo "${i}"
       return
     fi

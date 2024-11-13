@@ -35,7 +35,7 @@ function run_check {
   if did_set_reviewdog_error_format_flag; then
     "${check_command[@]}" | reviewdog "${reviewdog_flags[@]}"
   else
-    if [[ "${CI:-}" = 'true' ]]; then
+    if [[ ${CI:-} == 'true' ]]; then
       "${check_command[@]}"
 
       if has_uncommitted_changes; then
@@ -64,7 +64,7 @@ function has_uncommitted_changes {
 
 function did_set_reviewdog_error_format_flag {
   for flag in "${reviewdog_flags[@]}"; do
-    if [[ "$flag" =~ ^-(f|efm)(=|$) ]]; then
+    if [[ $flag =~ ^-(f|efm)(=|$) ]]; then
       return 0
     fi
   done
@@ -73,7 +73,7 @@ function did_set_reviewdog_error_format_flag {
 }
 
 function set_reviewdog_reporter {
-  if [[ "${CI:-}" = 'true' ]]; then
+  if [[ ${CI:-} == 'true' ]]; then
     # TODO: Due to a bug in GitHub Actions, the checks reported by reviewdog get
     # associated with the wrong workflow[1]. This discussion seems to be tracking the
     # issue[2]. In the meantime, I'll use the annotations reporter which was made
@@ -93,17 +93,17 @@ function parse_arguments {
   for argument in "$@"; do
     if [[ "$did_reach_end_of_reviewdog_flags" ]]; then
       check_command+=("$argument")
-    elif [[ "$argument" = '--' ]]; then
+    elif [[ $argument == '--' ]]; then
       did_reach_end_of_reviewdog_flags=1
     else
       reviewdog_flags+=("$argument")
-      if [[ "$argument" =~ ^-name(=|$) ]]; then
+      if [[ $argument =~ ^-name(=|$) ]]; then
         did_set_reviewdog_name_flag=1
       fi
     fi
   done
 
-  if [[ ! "$did_set_reviewdog_name_flag" ]]; then
+  if [[ ! $did_set_reviewdog_name_flag ]]; then
     reviewdog_flags+=("-name" "${check_command[0]}")
   fi
 }
@@ -113,7 +113,7 @@ function fail_if_files_change {
   "$@"
   diff_after_running="$(diff_including_untracked)"
 
-  if [[ "$diff_before_running" != "$diff_after_running" ]]; then
+  if [[ $diff_before_running != "$diff_after_running" ]]; then
     return 1
   else
     return 0

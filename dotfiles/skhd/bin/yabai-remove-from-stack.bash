@@ -9,7 +9,7 @@ shopt -s nullglob
 (($# > 0))
 
 OTHER_STACKED_WINDOW_ID="$(printf %s "$(yabai -m query --windows --window stack.prev 2>/dev/null || yabai -m query --windows --window stack.next 2>/dev/null)" | jq --raw-output '.id')"
-if [[ -z "${OTHER_STACKED_WINDOW_ID:-}" ]]; then
+if [[ -z ${OTHER_STACKED_WINDOW_ID:-} ]]; then
   exit 1
 fi
 

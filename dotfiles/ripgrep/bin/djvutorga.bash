@@ -33,7 +33,7 @@ remove_non_pages() {
   file=-1
   while IFS= read -r -d $'\x0c' file_text; do
     file=$((file + 1))
-    [[ "${file_to_page[$file]}" == '' ]] && continue
+    [[ ${file_to_page[$file]} == '' ]] && continue
     echo "$file_text"$'\x0c'
   done
 }

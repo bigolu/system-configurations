@@ -9,14 +9,14 @@ shopt -s nullglob
 readarray -t roots \
   < <(sudo -- "$(which run-as-admin)" sudo nix-store --gc --print-roots)
 
-if [[ -n "${NIX_GCROOTS_INCLUDE_SIZE:-}" ]]; then
+if [[ -n ${NIX_GCROOTS_INCLUDE_SIZE:-} ]]; then
   roots_with_size=()
 
   for index in "${!roots[@]}"; do
     root="${roots[$index]}"
 
     # The root is a process. Ignore these since there's usually a ton of them.
-    if [[ "$root" =~ ^{ ]]; then
+    if [[ $root =~ ^{ ]]; then
       continue
     fi
 

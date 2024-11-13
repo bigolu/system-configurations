@@ -17,15 +17,15 @@ function main {
     last_window_id="$(yabai -m query --windows --window stack.last | jq --raw-output '.id')"
 
     # window is first in the stack
-    if [[ "$current_window_id" = "$first_window_id" ]]; then
-      if [[ "$direction" = up ]]; then
+    if [[ $current_window_id == "$first_window_id" ]]; then
+      if [[ $direction == up ]]; then
         window_move "$direction"
       else
         stack_move "$direction"
       fi
     # window is last in the stack.
-    elif [[ "$current_window_id" = "$last_window_id" ]]; then
-      if [[ "$direction" = down ]]; then
+    elif [[ $current_window_id == "$last_window_id" ]]; then
+      if [[ $direction == down ]]; then
         window_move "$direction"
       else
         stack_move "$direction"
@@ -39,7 +39,7 @@ function main {
 
 function stack_move {
   direction="$1"
-  if [[ "$direction" = down ]]; then
+  if [[ $direction == down ]]; then
     # If there's no next window in the stack, wrap around.
     yabai -m window --focus stack.next || yabai -m window --focus stack.first
   else
@@ -50,7 +50,7 @@ function stack_move {
 
 function window_move {
   direction="$1"
-  if [[ "$direction" = down ]]; then
+  if [[ $direction == down ]]; then
     yabai -m window --focus south
   else
     yabai -m window --focus north

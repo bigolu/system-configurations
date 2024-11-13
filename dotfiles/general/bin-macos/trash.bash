@@ -24,7 +24,7 @@ function main {
     # broken symlink file _does_ exist, even if its target doesn't. -L will
     # return true for any symlinks, including broken ones, so I include
     # that check.
-    if [[ ! -e "$file" && ! -L "$file" ]]; then
+    if [[ ! -e $file && ! -L $file ]]; then
       printf '%s: "%s" does not exist\n' "$name" "$file"
       did_any_files_not_exist=1
       continue

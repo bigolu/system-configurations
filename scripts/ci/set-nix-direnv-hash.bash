@@ -12,7 +12,7 @@ shopt -s nullglob
 nix_direnv_url_pattern='https://raw.githubusercontent.com/nix-community/nix-direnv/.*/direnvrc'
 original_envrc="$(<.envrc)"
 regex=".*(${nix_direnv_url_pattern}).*"
-if ! [[ "$original_envrc" =~ $regex ]]; then
+if ! [[ $original_envrc =~ $regex ]]; then
   echo 'Error: Could not find the nix-direnv URL' >&2
   exit 1
 fi
@@ -27,7 +27,7 @@ nix_direnv_hash=$'[^\'"]+'
 everything_before_nix_direnv_hash=".*source_url${separator}+${quote}${nix_direnv_url_pattern}${quote}${separator}+${quote}"
 everything_after_nix_direnv_hash="${quote}.*"
 replacement_regex="($everything_before_nix_direnv_hash)${nix_direnv_hash}($everything_after_nix_direnv_hash)"
-if ! [[ "$original_envrc" =~ $replacement_regex ]]; then
+if ! [[ $original_envrc =~ $replacement_regex ]]; then
   echo 'Error: Could not find the nix-direnv hash' >&2
   exit 1
 fi

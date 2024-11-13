@@ -27,7 +27,7 @@ function main {
     "$(format_hint_section 'Preview Window' 'ctrl+s: show selected entries' 'ctrl+p: toggle preview visibility' 'ctrl+r: refresh preview' 'ctrl+k/j: scroll preview window up/down one line' 'ctrl+w: toggle line wrap' 'ctrl+o: toggle preview window orientation')"
     "$(format_hint_section 'Search Syntax' \''<query>: exact match' '^<query>: prefix match' '<query>$: suffix match' '!<query>: inverse exact match' '!^<query>: inverse prefix exact match' '!<query>$: inverse suffix exact match' '<query1> <query2>: match all queries' '<query1> | <query2>: match any query')"
   )
-  if [[ -n "${FZF_HINTS:-}" ]]; then
+  if [[ -n ${FZF_HINTS:-} ]]; then
     widget_specific_hints="$(echo -e "$FZF_HINTS")"
     hint_sections=("$(format_hint_section 'Widget-Specific' "$widget_specific_hints")" "${hint_sections[@]}")
   fi

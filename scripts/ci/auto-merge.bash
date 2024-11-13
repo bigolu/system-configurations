@@ -76,7 +76,7 @@ function main {
 function has_failure {
   for check in "$@"; do
     if
-      [[ "$(jq '.status' <<<"$check")" = completed ]] \
+      [[ "$(jq '.status' <<<"$check")" == completed ]] \
         && is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"
     then
       return 0
@@ -138,7 +138,7 @@ function is_item_in {
 
   local item
   for item in "$@"; do
-    if [[ "$item" == "$target" ]]; then
+    if [[ $item == "$target" ]]; then
       return 0
     fi
   done

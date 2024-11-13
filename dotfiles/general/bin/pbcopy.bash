@@ -9,7 +9,7 @@ set -o pipefail
 shopt -s nullglob
 
 # If we are SSH'd into a remote machine then use the host terminal.
-if [[ -n "${SSH_TTY-}" ]]; then
+if [[ -n ${SSH_TTY-} ]]; then
   target_tty="$SSH_TTY"
 # This conditional checks if this process is connected to a terminal.
 # source: https://stackoverflow.com/a/69088164
@@ -36,15 +36,15 @@ else
     reached_wrapper=''
     real_pbcopy=''
     while read -r command; do
-      if [[ "$my_pbcopy" = "$command" ]]; then
+      if [[ $my_pbcopy == "$command" ]]; then
         reached_wrapper=1
-      elif [[ -n "$reached_wrapper" ]]; then
+      elif [[ -n $reached_wrapper ]]; then
         real_pbcopy="$command"
         break
       fi
     done < <(which -a pbcopy)
 
-    if [[ -n "$real_pbcopy" ]]; then
+    if [[ -n $real_pbcopy ]]; then
       exec "$real_pbcopy"
     else
       echo "Error: Can't find the system pbcopy" 1>&2
@@ -73,7 +73,7 @@ inputlen=$(printf '%s' "$input" | wc -c)
 maxlen=74994
 
 # warn if exceeds maxlen
-if [[ "$inputlen" -gt "$maxlen" ]]; then
+if [[ $inputlen -gt $maxlen ]]; then
   printf "input is %d bytes too long" "$((inputlen - maxlen))" >&2
 fi
 
