@@ -139,6 +139,7 @@ let
 
   myFonts = final.symlinkJoin {
     name = "my-fonts";
+    version = self.lib.formatDate self.lastModifiedDate;
     paths = with final; [
       monaspace
       (nerdfonts.override { fonts = [ "NerdFontsSymbolsOnly" ]; })

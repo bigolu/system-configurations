@@ -1,5 +1,6 @@
 args@{
   inputs,
+  self,
   lib,
   ...
 }:
@@ -36,15 +37,7 @@ let
           buildPackage =
             repositoryName: repositorySourceCode:
             let
-              # YYYYMMDDHHMMSS -> YYYY-MM-DD
-              formatDate =
-                date:
-                let
-                  yearMonthDayStrings = builtins.match "(....)(..)(..).*" date;
-                in
-                lib.concatStringsSep "-" yearMonthDayStrings;
-
-              date = formatDate repositorySourceCode.lastModifiedDate;
+              date = self.lib.formatDate repositorySourceCode.lastModifiedDate;
             in
             builder repositoryName repositorySourceCode date;
         in

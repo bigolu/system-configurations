@@ -17,62 +17,72 @@
 
   config = {
     flake = {
-      # This applies `nixpkgs.lib.recursiveUpdate` to a list of sets, instead of
-      # just two.
-      lib.recursiveMerge = sets: lib.lists.foldr lib.recursiveUpdate { } sets;
+      lib = {
+        # This applies `nixpkgs.lib.recursiveUpdate` to a list of sets, instead of
+        # just two.
+        recursiveMerge = sets: lib.lists.foldr lib.recursiveUpdate { } sets;
 
-      lib.systemNixSettings =
-        { pkgs }:
-        {
-          allowed-users = [ "*" ];
+        # YYYYMMDDHHMMSS -> YYYY-MM-DD
+        formatDate =
+          date:
+          let
+            yearMonthDayStrings = builtins.match "(....)(..)(..).*" date;
+          in
+          lib.concatStringsSep "-" yearMonthDayStrings;
 
-          # Doesn't work on macOS
-          auto-optimise-store = pkgs.stdenv.isLinux;
+        systemNixSettings =
+          { pkgs }:
+          {
+            allowed-users = [ "*" ];
 
-          build-users-group = "nixbld";
+            # Doesn't work on macOS
+            auto-optimise-store = pkgs.stdenv.isLinux;
 
-          builders = null;
+            build-users-group = "nixbld";
 
-          cores = 0;
+            builders = null;
 
-          max-jobs = "auto";
+            cores = 0;
 
-          extra-sandbox-paths = [ ];
+            max-jobs = "auto";
 
-          require-sigs = true;
+            extra-sandbox-paths = [ ];
 
-          # Doesn't work on macOS
-          sandbox = pkgs.stdenv.isLinux;
+            require-sigs = true;
 
-          sandbox-fallback = false;
+            # Doesn't work on macOS
+            sandbox = pkgs.stdenv.isLinux;
 
-          trusted-users = [
-            "root"
-          ];
+            sandbox-fallback = false;
 
-          trusted-substituters = [
-            "https://cache.nixos.org"
-            "https://nix-community.cachix.org"
-            "https://bigolu.cachix.org"
-          ];
+            trusted-users = [
+              "root"
+            ];
 
-          trusted-public-keys = [
-            "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+            trusted-substituters = [
+              "https://cache.nixos.org"
+              "https://nix-community.cachix.org"
+              "https://bigolu.cachix.org"
+            ];
 
-            # SYNC: SYS_CONF_PUBLIC_KEYS
-            "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-            "bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw="
-          ];
+            trusted-public-keys = [
+              "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
 
-          experimental-features = [
-            "nix-command"
-            "flakes"
-          ];
+              # SYNC: SYS_CONF_PUBLIC_KEYS
+              "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+              "bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw="
+            ];
 
-          # Don't cache tarballs. This way if I do something like
-          # `nix run github:<repo>`, I will always get the up-to-date source
-          tarball-ttl = 0;
-        };
+            experimental-features = [
+              "nix-command"
+              "flakes"
+            ];
+
+            # Don't cache tarballs. This way if I do something like
+            # `nix run github:<repo>`, I will always get the up-to-date source
+            tarball-ttl = 0;
+          };
+      };
     };
   };
 }
