@@ -199,6 +199,9 @@
         packages = [
           pythonWithPackages
         ];
+        shellHook = ''
+          export VIRTUAL_ENV=${pythonWithPackages}
+        '';
       };
 
       outputs = {
