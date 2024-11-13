@@ -94,17 +94,22 @@ class SmartPlugController(object):
 
 
 async def main() -> None:
+    if len(sys.argv) == 1:
+        print("Error: no plug name given", file=sys.stderr)
+        sys.exit(2)
+    plug_name = sys.argv[1]
+
+    plug_controller = SmartPlugController()
     try:
-        plug_controller = SmartPlugController()
-        await plug_controller.set_plug(plug_alias="plug")
+        await plug_controller.set_plug(plug_alias=plug_name)
     except Exception:
         sys.exit(2)
 
-    if len(sys.argv) == 1:
+    if len(sys.argv) == 2:
         sys.exit(0 if plug_controller.is_on() else 1)
-    elif sys.argv[1] == "on":
+    elif sys.argv[2] == "on":
         await plug_controller.turn_on()
-    elif sys.argv[1] == "off":
+    elif sys.argv[2] == "off":
         await plug_controller.turn_off()
 
 

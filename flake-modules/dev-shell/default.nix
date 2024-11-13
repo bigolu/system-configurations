@@ -195,7 +195,7 @@
         packages = with pkgs; [ script-dependencies ];
       };
 
-      smartPlug = makeShell {
+      plugctl = makeShell {
         packages = [
           pythonWithPackages
         ];
@@ -210,19 +210,33 @@
 
         packages =
           let
-            exeName = "speakerctl";
-          in
-          {
-            smartPlug =
-              (pkgs.writeShellApplication {
+            plugctl =
+              let
+                exeName = "plugctl";
+              in
+              pkgs.writeShellApplication {
                 name = exeName;
                 runtimeInputs = [ pythonWithPackages ];
+                meta.mainProgram = exeName;
                 text = ''
                   python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
                 '';
-              })
-              // {
+              };
+          in
+          {
+            inherit plugctl;
+
+            speakerctl =
+              let
+                exeName = "speakerctl";
+              in
+              pkgs.writeShellApplication {
+                name = exeName;
+                runtimeInputs = [ plugctl ];
                 meta.mainProgram = exeName;
+                text = ''
+                  plugctl plug "$@"
+                '';
               };
           };
 
@@ -238,7 +252,7 @@
               versionControl
               languages
               scriptDependencies
-              smartPlug
+              plugctl
             ];
           };
 

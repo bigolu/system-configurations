@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (specialArgs.flakeInputs.self.packages.${pkgs.system}) smartPlug;
+  inherit (specialArgs.flakeInputs.self.packages.${pkgs.system}) speakerctl;
 in
 lib.attrsets.optionalAttrs specialArgs.isGui {
   repository.symlink.home.file = lib.attrsets.optionalAttrs pkgs.stdenv.isDarwin {
@@ -14,7 +14,7 @@ lib.attrsets.optionalAttrs specialArgs.isGui {
   };
 
   home = {
-    packages = [ smartPlug ];
+    packages = [ speakerctl ];
 
     activation = lib.optionalAttrs pkgs.stdenv.isLinux {
       installSpeakerService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -26,7 +26,7 @@ lib.attrsets.optionalAttrs specialArgs.isGui {
         if [[ ! -e "$speakerctl_path" ]]; then
           sudo mkdir -p "$(dirname "$speakerctl_path")"
           sudo ln --symbolic --force --no-dereference \
-            ${lib.getExe smartPlug} \
+            ${lib.getExe speakerctl} \
             "$speakerctl_path"
         fi
 

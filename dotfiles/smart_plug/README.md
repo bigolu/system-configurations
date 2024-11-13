@@ -25,18 +25,19 @@ project do it for me.
   repository for installation instructions.
 - Direnv to manage the development environment. You can install this with nix by
   running `nix profile install nixpkgs#direnv`.
-- A Kasa smart plug with the alias 'plug'
+- A Kasa smart plug
 
-## Run
+## Usage
 
-- Run `python smart_plug.py on/off` in this directory. If you don't pass an
-  argument, it exits with `0` if the plug is on, `1` if it's off, and `2` if
-  there was an error.
+- You can run it with
+  `nix run github:bigolu/system-configurations#plugctl -- <plug_name> [on|off]`.
+  If you don't pass `on|off`, it exits with `0` if the plug is on, `1` if it's
+  off, and `2` if there was an error.
 
 ## Development
 
-- Direnv will automatically set up the development environment when you enter
-  this directory and remove when you leave.
+- Enter the repository directory and run `direnv allow; nix-direnv-reload`. That
+  will load all the dependencies.
 
 ## Resources
 
