@@ -198,7 +198,7 @@ get_secrets:
         --mount "$(mktemp --dry-run --suffix '.env')" \
         --only-secrets GH_TOKEN \
         -- \
-        bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >.env'
+        bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >secrets.env'
 
 [doc('''
     Run `nix build` in debug mode.
