@@ -23,15 +23,19 @@ list:
 [group('System Management')]
 [no-exit-message]
 initialize MANAGER CONFIGURATION: && (force-sync "lefthook")
-  #!/usr/bin/env bash
-  if [[ "$1" = 'home-manager' ]]; then
-    just home-manager "$2"
-  elif [[ "$1" = 'nix-darwin' ]]; then
-    just nix-darwin "$2"
-  else
-    echo "Unknown system manager: $1" >&2
-    exit 1
-  fi
+    #!/usr/bin/env bash
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    if [[ "$1" = 'home-manager' ]]; then
+      just home-manager "$2"
+    elif [[ "$1" = 'nix-darwin' ]]; then
+      just nix-darwin "$2"
+    else
+      echo "Unknown system manager: $1" >&2
+      exit 1
+    fi
 
 [doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
