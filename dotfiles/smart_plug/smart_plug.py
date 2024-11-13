@@ -4,7 +4,8 @@ from typing import Optional
 
 import psutil
 from diskcache import Cache
-from kasa import Discover, SmartDevice, SmartDeviceException, SmartPlug
+from kasa import Device, Discover, KasaException
+from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
 
@@ -13,7 +14,7 @@ class SmartPlugController(object):
     _cache = Cache(user_cache_dir("my-speakers"))
 
     _plug_alias: str
-    _plug: SmartPlug
+    _plug: IotPlug
 
     def __init__(self) -> None:
         super().__init__()
@@ -34,7 +35,7 @@ class SmartPlugController(object):
         # issue.
         return cast(bool, self._plug.is_on)
 
-    async def _get_plug(self) -> SmartPlug:
+    async def _get_plug(self) -> IotPlug:
         plug = await self._get_plug_from_cache()
         if plug is not None:
             return plug
@@ -45,29 +46,24 @@ class SmartPlugController(object):
 
         raise Exception(f"Unable to find a plug with this alias: {self._plug_alias}")
 
-    async def _get_plug_from_cache(self) -> Optional[SmartPlug]:
+    async def _get_plug_from_cache(self) -> Optional[IotPlug]:
         if self._plug_alias in SmartPlugController._cache:
             ip_address = cast(str, SmartPlugController._cache[self._plug_alias])
             assert isinstance(ip_address, str)
-            plug = SmartPlug(ip_address)
+            plug = IotPlug(ip_address)
             try:
-                # Creating a SmartPlug instance successfully does not necessarily
-                # mean that there is a smart plug at that ip address since requests
-                # won't be made to the plug until you call a method on the SmartPlug.
-                # To make sure there's still a smart plug at this ip address I'm
-                # calling SmartPlug.update().
                 await plug.update()
                 return plug
-            except (SmartDeviceException, TimeoutError) as _:
+            except (KasaException, TimeoutError) as _:
                 return None
 
         return None
 
-    async def _find_plug(self) -> Optional[SmartPlug]:
+    async def _find_plug(self) -> Optional[IotPlug]:
         for ip_address, device in (await self._discover_devices()).items():
             if device.alias == self._plug_alias and device.is_plug:
-                self._add_plug_address_to_cache(ip_address)
-                return cast(SmartPlug, device)
+                SmartPlugController._cache[self._plug_alias] = ip_address
+                return cast(IotPlug, device)
 
         return None
 
@@ -80,7 +76,7 @@ class SmartPlugController(object):
     # using psutil which gives me all addresses assigned to each NIC on my machine. I
     # then try discovery using all the addresses that are marked as broadcast
     # addresses until I find a Kasa device.
-    async def _discover_devices(self) -> dict[str, SmartDevice]:
+    async def _discover_devices(self) -> dict[str, Device]:
         for broadcast_address in self._get_broadcast_addresses():
             devices = await Discover.discover(target=broadcast_address)
             if devices:
@@ -95,9 +91,6 @@ class SmartPlugController(object):
             for address in addresses
             if address.broadcast is not None
         }
-
-    def _add_plug_address_to_cache(self, ip_address: str) -> None:
-        SmartPlugController._cache[self._plug_alias] = ip_address
 
 
 async def main() -> None:
