@@ -15,7 +15,7 @@ let
     ripgrep-all = makeEmptyPackage "ripgrep-all";
     lesspipe = makeEmptyPackage "lesspipe";
     wordnet = makeEmptyPackage "wordnet";
-    diffoscope = makeEmptyPackage "diffoscope";
+    diffoscopeMinimal = makeEmptyPackage "diffoscope";
     gitMinimal = makeEmptyPackage "gitMinimal";
     difftastic = makeEmptyPackage "difftastic";
   };

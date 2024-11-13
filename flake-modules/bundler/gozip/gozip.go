@@ -23,7 +23,6 @@ import (
 
 	"github.com/deepakjois/gousbdrivedetector"
 	"github.com/klauspost/compress/zstd"
-	"github.com/mattn/go-isatty"
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/sync/errgroup"
 	"golang.org/x/sync/semaphore"
@@ -34,7 +33,7 @@ var currentBar *progressbar.ProgressBar = nil
 
 var writer = func() io.Writer {
 	writer := os.Stderr
-	if isatty.IsTerminal(writer.Fd()) && len(os.Getenv("NIX_ROOTLESS_BUNDLER_QUIET")) == 0 {
+	if term.IsTerminal(int(writer.Fd())) && len(os.Getenv("NIX_ROOTLESS_BUNDLER_QUIET")) == 0 {
 		return writer
 	}
 
