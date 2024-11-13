@@ -189,11 +189,12 @@ cosmic-sync DESTINATION:
 
 [group('Secrets')]
 [no-exit-message]
-get_secrets:
+get-secrets:
     #!/usr/bin/env bash
     set -o errexit
     set -o nounset
     set -o pipefail
+
     doppler run \
         --mount "$(mktemp --dry-run --suffix '.env')" \
         --only-secrets GH_TOKEN \
