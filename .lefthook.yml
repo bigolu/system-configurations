@@ -410,10 +410,12 @@ check-lint:
         -name=statix -efm '%f>%l:%c:%t:%n:%m' --
         parallel statix check {} -o errfmt ::: {files}
     typos:
-      glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
+      glob: "{.envrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}}"
+      # TODO: Colors should be automatically disabled if stdout isn't a TTY, but
+      # that isn't happening.
       run: >
         ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
-        typos --format brief {files}
+        typos --color never --format brief {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should open
     # issues with all of them. In the meantime, I put reviewdog in tee mode so it
