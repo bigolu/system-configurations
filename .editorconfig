@@ -2,9 +2,13 @@
 root = true
 
 [*]
+charset = utf-8
 end_of_line = lf
 indent_style = space
 indent_size = 2
 
 [*.{fish,py,justfile}]
 indent_size = 4
+
+[{go.mod,go.sum,*.go}]
+indent_style = tab
