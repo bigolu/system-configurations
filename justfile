@@ -4,7 +4,10 @@ set shell := ["bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # https://github.com/casey/just/issues/647#issuecomment-1404056424
 set positional-arguments := true
 
+set quiet
+
 [doc('''List all tasks. You can run this whenever you forget something.''')]
+[no-exit-message]
 list:
     @just --list --justfile {{ module_file() }} --unsorted --color always \
         | "${PAGER:-cat}"
@@ -18,6 +21,7 @@ list:
         CONFIGURATION: The name of the configuration to apply.
 ''')]
 [group('System Management')]
+[no-exit-message]
 initialize MANAGER CONFIGURATION: && (force-sync "lefthook")
   #!/usr/bin/env bash
   if [[ "$1" = 'home-manager' ]]; then
@@ -34,6 +38,7 @@ initialize MANAGER CONFIGURATION: && (force-sync "lefthook")
     changes so no need to run manually.
 ''')]
 [group('System Management')]
+[no-exit-message]
 pull:
     system-config-pull
 
@@ -42,11 +47,13 @@ pull:
     apply with the configuration.
 ''')]
 [group('System Management')]
+[no-exit-message]
 preview:
     system-config-preview
 
 [private]
 [group('System Management')]
+[no-exit-message]
 home-manager NAME:
   nix run --inputs-from . home-manager# -- switch --flake .#"$1"
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
@@ -54,6 +61,7 @@ home-manager NAME:
 
 [private]
 [group('System Management')]
+[no-exit-message]
 nix-darwin NAME:
   ./scripts/init-nix-darwin.bash "$1"
 
@@ -63,6 +71,7 @@ nix-darwin NAME:
     releasing a new version of the shell.
 ''')]
 [group('Nix')]
+[no-exit-message]
 bundle PACKAGE:
   nix bundle --bundler .# "$1"
 
@@ -86,6 +95,7 @@ bundle PACKAGE:
                 Example: `just check format,generate`
 ''')]
 [group('Checks')]
+[no-exit-message]
 check GROUPS='':
     #!/usr/bin/env bash
     set -o errexit
@@ -104,6 +114,7 @@ check GROUPS='':
     work. For example, changing the configuration file for a linter.
 ''')]
 [group('Checks')]
+[no-exit-message]
 check-all GROUPS='':
     #!/usr/bin/env bash
     set -o errexit
@@ -124,6 +135,7 @@ check-all GROUPS='':
     For a list of available tasks, see .lefthook.yml.
 ''')]
 [group('Syncing')]
+[no-exit-message]
 sync:
     # TODO: According to the documentation, the values here should extend the values
     # specified in the configuration file, but it seems like only the values
@@ -145,6 +157,7 @@ sync:
                Example: `just sync-force direnv,dev-shell`
 ''')]
 [group('Syncing')]
+[no-exit-message]
 force-sync TASKS='':
     #!/usr/bin/env bash
     set -o errexit
@@ -166,10 +179,12 @@ force-sync TASKS='':
       lefthook run sync "${lefthook_arguments[@]}"
 
 [group('Syncing')]
+[no-exit-message]
 cosmic-sync DESTINATION:
     ./dotfiles/cosmic/sync.bash "$1"
 
 [group('Secrets')]
+[no-exit-message]
 get_secrets:
     #!/usr/bin/env bash
     set -o errexit
@@ -189,5 +204,6 @@ get_secrets:
                  Example: just debug .#darwinConfigurations.bigmac.system
 ''')]
 [group('Debugging')]
+[no-exit-message]
 debug PACKAGE:
     nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$1"
