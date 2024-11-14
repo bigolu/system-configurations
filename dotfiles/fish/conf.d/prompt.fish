@@ -64,18 +64,7 @@ function fish_prompt --description 'Print the prompt'
             set context (string shorten --max $max_length $context)
         end
 
-        set context (format_context $context)
-
-        # if not set --query contexts[1]
-        #     set --append contexts $context
-        #     # I take the minimum of the number of columns and 120 to prevent the prompt from going
-        #     # past 120 chars The `+ 1` accounts for the character that gets prepended to a line by
-        #     # `make_line`
-        # else if test (math (string length --visible $contexts[-1]$context) + 1) -le (math "min(120, $COLUMNS)")
-        #     set contexts[-1] $contexts[-1]$context
-        # else
-        set --append contexts $context
-        # end
+        set --append contexts (format_context $context)
     end
 
     set prompt_lines
