@@ -450,5 +450,12 @@ function _ls_after_directory_change --on-variable PWD
     end
 
     echo -e "\n$(set_color brblack)┃ fish: Current directory contents$(set_color normal)"
-    ls
+    # TODO: When lsd supports forcing grid mode, I can use this:
+    # https://github.com/lsd-rs/lsd/issues/526
+    # ls | ifne -n echo '<empty>'
+    if test -n "$(ls --almost-all)"
+        ls
+    else
+        echo '<empty>'
+    end
 end
