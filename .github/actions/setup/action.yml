@@ -45,7 +45,7 @@ runs:
         # to any of my substituters.
         upstream-cache: https://example.com
         use-flakehub: false
-    - run: nix run --inputs-from . nix-develop-gha# -- .#${{ inputs.dev-shell }}
+    - run: nix run .#nixDevelopGha -- .#${{ inputs.dev-shell }}
       # Since this is the step that loads a dev-shell, there isn't one loaded here.
       # So instead of using ci-bash like I usually do, I'll use "bash". When the
       # value is "bash", GitHub Actions will run:

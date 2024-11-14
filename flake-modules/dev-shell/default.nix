@@ -13,6 +13,7 @@
     {
       system,
       pkgs,
+      inputs',
       ...
     }:
     let
@@ -205,8 +206,22 @@
       };
 
       outputs = {
-        # So I can reference nixpkgs, with my overlays applied, from my scripts.
-        legacyPackages.nixpkgs = pkgs;
+        legacyPackages =
+          {
+            # So I can reference nixpkgs, with my overlays applied, from my scripts.
+            nixpkgs = pkgs;
+
+            # TODO: These are the outputs that I use from my flake inputs. Ideally, I'd
+            # use `nix run/develop --inputs-from . <flake_input>#<output> ...`, but
+            # when I do that, any of the 'follows' that I set on the flake input are
+            # not used. I should see if this behavior is intended.
+            gomod2nix = inputs'.gomod2nix.devShells.default;
+            nixDevelopGha = inputs'.nix-develop-gha.packages.default;
+            homeManager = inputs'.home-manager.packages.default;
+          }
+          // optionalAttrs pkgs.stdenv.isDarwin {
+            nixDarwin = inputs'.nix-darwin.packages.default;
+          };
 
         packages =
           let

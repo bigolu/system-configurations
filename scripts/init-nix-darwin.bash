@@ -17,6 +17,6 @@ hash_file='flake-modules/nix-darwin/nix-conf-hash.txt'
 # information in the comment where this file is read.
 shasum -a 256 /etc/nix/nix.conf | cut -d ' ' -f 1 >"$hash_file"
 
-nix run --inputs-from . nix-darwin# -- switch --flake .#"$1"
+nix run .#nixDarwin -- switch --flake .#"$1"
 
 git checkout -- "$hash_file"
