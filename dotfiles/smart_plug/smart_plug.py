@@ -67,15 +67,13 @@ class SmartPlugController(object):
 
         return None
 
-    # TODO: Kasa's discovery fails when I'm connected to a VPN. I don't completely
-    # understand why, but I know that it has something to do with the broadcast
-    # address that they use, 255.255.255.255. I'm guessing this is because that IP is
-    # supposed to be an alias for 'this network' which will mean that of the VPN
-    # network when I'm connected to it and not that of my actual wifi/ethernet
-    # network. To get around this, I look for the correct broadcast address myself
-    # using psutil which gives me all addresses assigned to each NIC on my machine. I
-    # then try discovery using all the addresses that are marked as broadcast
-    # addresses until I find a Kasa device.
+    # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because the
+    # default broadcast address (255.255.255.255) is an alias for 'this network'
+    # which will mean that of the VPN network when I'm connected to it and not that
+    # of my actual wifi/ethernet network. To get around this, I look for the correct
+    # broadcast address myself using psutil which gives me all addresses assigned to
+    # each NIC on my machine. I then try discovery using all the addresses that are
+    # marked as broadcast addresses until I find a Kasa device.
     async def _discover_devices(self) -> dict[str, Device]:
         for broadcast_address in self._get_broadcast_addresses():
             devices = await Discover.discover(target=broadcast_address)

@@ -377,11 +377,9 @@ function _status_context
     set last_status $argv[1]
     set last_pipestatus $argv[2..]
 
-    # If there aren't any non-zero exit codes in the last $pipestatus and the
-    # last $status is 0, then that means everything succeeded and I won't print
-    # anything
-    if not string match --quiet --invert 0 $last_pipestatus
-        and test $last_status -eq 0
+    # If there aren't any non-zero exit codes in the last $pipestatus or $status,
+    # then that means everything succeeded so I won't print anything.
+    if not string match --quiet --invert 0 $last_pipestatus $last_status
         return
     end
 
@@ -426,29 +424,13 @@ function color_for_exit_code --argument-names exit_code
 end
 
 function _nix_context
-    if not set --query IN_NIX_SHELL
-        and not set --query IN_NIX_RUN
-        return
+    if set --query --export IN_NIX_SHELL IN_NIX_RUN
+        printf nix
     end
-
-    set packages ( \
-        # Each package is separated by a space.
-        string split --no-empty ' ' "$ANY_NIX_SHELL_PKGS" \
-        # Packages may have dots, e.g. 'vimPlugins.vim-abolish', in which case I
-        # take the segment after the last dot, 'vim-abolish'.
-        | xargs -I PACKAGE fish -c "string split --fields (count (string split '.' 'PACKAGE')) '.' 'PACKAGE'" \
-    )
-    if test -n "$packages"
-        set packages ": $packages"
-    end
-
-    printf "nix$packages"
 end
 
 function _broot_context
-    if not set --query IN_BROOT
-        return
+    if set --query --export IN_BROOT
+        printf "broot: active"
     end
-
-    printf "broot: active"
 end
