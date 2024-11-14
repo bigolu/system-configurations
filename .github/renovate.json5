@@ -63,18 +63,6 @@
       matchDepTypes: ["indirect"],
       enabled: true,
     },
-
-    // TODO: Disable Go updates since gomod2nix isn't working:
-    // https://github.com/nix-community/gomod2nix/issues/172
-    {
-      matchManagers: ["gomod"],
-      enabled: false,
-    },
-    {
-      matchManagers: ["gomod"],
-      matchDepTypes: ["indirect"],
-      enabled: false,
-    },
   ],
   osvVulnerabilityAlerts: true,
   vulnerabilityAlerts: {

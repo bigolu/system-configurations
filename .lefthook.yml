@@ -173,9 +173,6 @@ generate:
         ./scripts/code-generation/generate-neovim-plugin-list.bash
     gomod2nix-lock:
       glob: "*gozip/go.mod"
-      # It stopped working. This open issue shows the same error I got:
-      # https://github.com/nix-community/gomod2nix/issues/172
-      skip: true
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=gomod2nix-lock --
         ./scripts/code-generation/generate-gomod2nix-lock.bash
