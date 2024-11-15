@@ -114,7 +114,9 @@ def parse_args() -> Namespace:
             super().__init__(prog, width=80)
 
     parser = ArgumentParser(
-        description="Control a Kasa smart plug.", formatter_class=MaxWidthHelpFormatter
+        prog="plugctl",
+        description="Control a Kasa smart plug.",
+        formatter_class=MaxWidthHelpFormatter,
     )
 
     parser.add_argument("alias", help="The plug's name")
