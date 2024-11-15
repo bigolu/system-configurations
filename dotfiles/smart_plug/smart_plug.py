@@ -11,6 +11,16 @@ from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
 
+"""
+    Command-line tool for controlling a Kasa smart plug. The kasa library used here
+    also has a CLI, but this one has two additional features:
+        - Support for discovering devices when connected to a VPN without having to
+          explicitly set a broadcast address.
+        - Caching the IP address for a device
+
+    TODO: Consider upstreaming these features
+"""
+
 
 class SmartPlugController(object):
     _cache = Cache(user_cache_dir("plugctl"))
