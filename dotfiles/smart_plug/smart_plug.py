@@ -1,5 +1,7 @@
+import argparse
 import asyncio
 import sys
+from argparse import ArgumentParser, Namespace
 from typing import Optional, TypeGuard
 
 import psutil
@@ -103,25 +105,44 @@ class SmartPlugController(object):
         }
 
 
+def parse_args() -> Namespace:
+    class MaxWidthHelpFormatter(argparse.HelpFormatter):
+        def __init__(self, prog: str) -> None:
+            super().__init__(prog, width=80)
+
+    parser = ArgumentParser(
+        description="Control a Kasa smart plug.", formatter_class=MaxWidthHelpFormatter
+    )
+
+    parser.add_argument("alias", help="The plug's name")
+    parser.add_argument(
+        "command",
+        nargs="?",
+        choices=["status", "on", "off"],
+        default="status",
+        help="The action to perform on the plug. The default is status. status exits with 0 if the plug is on and 1 if it's off",
+    )
+
+    return parser.parse_args()
+
+
 async def main() -> None:
-    if len(sys.argv) == 1:
-        print("Error: no plug alias given", file=sys.stderr)
-        sys.exit(2)
-    plug_alias = sys.argv[1]
+    args = parse_args()
 
     plug_controller = SmartPlugController()
-    try:
-        await plug_controller.connect(plug_alias)
-    except Exception:
-        sys.exit(2)
+    await plug_controller.connect(args.alias)
 
-    if len(sys.argv) == 2:
-        sys.exit(0 if await plug_controller.is_on() else 1)
-    elif sys.argv[2] == "on":
-        await plug_controller.turn_on()
-    elif sys.argv[2] == "off":
-        await plug_controller.turn_off()
+    match args.command:
+        case "status":
+            sys.exit(0 if await plug_controller.is_on() else 1)
+        case "on":
+            await plug_controller.turn_on()
+        case "off":
+            await plug_controller.turn_off()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except Exception:
+        sys.exit(2)

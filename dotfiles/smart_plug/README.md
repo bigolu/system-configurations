@@ -30,9 +30,7 @@ project do it for me.
 ## Usage
 
 - You can run it with
-  `nix run github:bigolu/system-configurations#plugctl -- <plug_name> [on|off]`.
-  If you don't pass `on|off`, it exits with `0` if the plug is on, `1` if it's
-  off, and `2` if there was an error.
+  `nix run github:bigolu/system-configurations#plugctl -- --help`.
 
 ## Development
 
