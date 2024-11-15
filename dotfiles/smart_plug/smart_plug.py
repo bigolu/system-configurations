@@ -13,7 +13,7 @@ from typing_extensions import cast
 
 
 class SmartPlugController(object):
-    _cache = Cache(user_cache_dir("my-speakers"))
+    _cache = Cache(user_cache_dir("plugctl"))
 
     _plug: Optional[IotPlug]
 
