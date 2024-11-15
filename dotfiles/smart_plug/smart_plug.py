@@ -27,9 +27,6 @@ class SmartPlugController(object):
 
     _plug: Optional[IotPlug]
 
-    def __init__(self) -> None:
-        super().__init__()
-
     async def connect(self, alias: str) -> None:
         self._plug = await self._discover_plug(alias)
         if self._plug is None:
@@ -79,14 +76,18 @@ class SmartPlugController(object):
         ip_address = SmartPlugController._cache[alias]
         assert isinstance(ip_address, str)
 
-        plug = IotPlug(ip_address)
         try:
-            await plug.update()
+            # TODO: This returns a Device, but I think it should return an IotPlug.
+            device = await IotPlug.connect(host=ip_address)
         except (KasaException, TimeoutError):
             del self._cache[alias]
             return None
 
-        return plug
+        if self._is_plug(device):
+            return device
+        else:
+            del self._cache[alias]
+            return None
 
     # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because the
     # default broadcast address (255.255.255.255) is an alias for 'this network'
