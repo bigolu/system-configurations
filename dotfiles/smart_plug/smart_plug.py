@@ -111,7 +111,7 @@ class SmartPlugController(object):
 def parse_args() -> Namespace:
     class MaxWidthHelpFormatter(argparse.HelpFormatter):
         def __init__(self, prog: str) -> None:
-            super().__init__(prog, width=80)
+            super().__init__(prog, width=100)
 
     parser = ArgumentParser(
         prog="plugctl",
