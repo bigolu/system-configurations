@@ -6,7 +6,7 @@ from typing import Optional, TypeGuard
 
 import psutil
 from diskcache import Cache
-from kasa import Device, Discover, KasaException
+from kasa import Device, DeviceType, Discover, KasaException
 from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
@@ -53,11 +53,14 @@ class SmartPlugController(object):
             return plug
 
         for ip_address, device in (await self._discover_devices()).items():
-            if device.alias == alias and device.is_plug:
+            if device.alias == alias and self._is_plug(device):
                 SmartPlugController._cache[alias] = ip_address
-                return cast(IotPlug, device)
+                return device
 
         return None
+
+    def _is_plug(self, device: Device) -> TypeGuard[IotPlug]:
+        return device.device_type is DeviceType.Plug
 
     async def _get_plug_from_cache(self, alias: str) -> Optional[IotPlug]:
         if alias not in SmartPlugController._cache:
