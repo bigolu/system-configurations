@@ -53,7 +53,20 @@
         ]
       );
 
+      plugctl = makeShell {
+        packages = [
+          pythonWithPackages
+        ];
+        shellHook = ''
+          export VIRTUAL_ENV=${pythonWithPackages}
+        '';
+      };
+
       linting = makeShell {
+        mergeWith = [
+          plugctl
+        ];
+
         packages = with pkgs; [
           actionlint
           deadnix
@@ -72,7 +85,6 @@
           go # for 'go mod tidy'
           typos
           dos2unix
-          mypy
 
           # These aren't linters, but they get called as part of certain linting
           # commands.
@@ -196,15 +208,6 @@
 
       scriptDependencies = makeShell {
         packages = with pkgs; [ script-dependencies ];
-      };
-
-      plugctl = makeShell {
-        packages = [
-          pythonWithPackages
-        ];
-        shellHook = ''
-          export VIRTUAL_ENV=${pythonWithPackages}
-        '';
       };
 
       outputs = {
