@@ -197,12 +197,12 @@ function StatusLine()
     fileformat = " CRLF"
   end
   if fileformat ~= nil then
-    fileformat = "%#StatusLineStandoutText#" .. fileformat
+    fileformat = "%#StatusLine#" .. fileformat
   end
 
   local fileencoding = nil
   if #vim.o.fileencoding > 0 and vim.o.fileencoding ~= "utf-8" then
-    fileencoding = "%#StatusLineStandoutText#"
+    fileencoding = "%#StatusLine#"
       .. string.upper(vim.o.fileencoding)
   end
 
@@ -234,7 +234,7 @@ function StatusLine()
   local maximized = nil
   if IsMaximized then
     local indicator = " "
-    maximized = "%#StatusLineStandoutText#" .. indicator
+    maximized = "%#StatusLine#" .. indicator
   end
 
   local diagnostic_count = {
@@ -316,14 +316,7 @@ function StatusLine()
     mixed_line_endings = "%#StatusLineErrorText#[ mixed line-endings]"
   end
 
-  local is_luasnip_loaded, luasnip = pcall(require, "luasnip")
-  if is_luasnip_loaded and luasnip.get_active_snip() ~= nil then
-    return make_mapping_statusline({
-      { mods = { "C" }, key = "h", description = "Last node" },
-      { mods = { "C" }, key = "l", description = "Next node or expand" },
-      { mods = { "C" }, key = "c", description = "Select choice" },
-    })
-  elseif IsInsideDiagnosticFloat or IsInsideLspHoverOrSignatureHelp then
+  if IsInsideDiagnosticFloat or IsInsideLspHoverOrSignatureHelp then
     return make_mapping_statusline({
       { key = "q", description = "Close float" },
     })

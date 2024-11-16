@@ -190,7 +190,6 @@ local groups = {
   Ignore = { ctermfg = 0 }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
   Todo = { ctermfg = 3, bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
   VirtColumn = "NonText",
-  LuaSnipInlayHint = { bold = true, italic = true, ctermfg = 3 },
   QuickfixPreview = { ctermfg = 3, reverse = true, nocombine = true },
   MiniOperatorsExchangeFrom = "Visual",
 
