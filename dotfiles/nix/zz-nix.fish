@@ -10,7 +10,7 @@ function nix
     if test (count $argv) -eq 1 -a "$argv[1]" = repl
         set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HOME/.config")
         command nix $argv --file "$xdg_config/nix/repl-startup.nix"
-    else if test (count $argv) -eq 2 -a "$argv[1]" = flake -a "$argv[2]" = show
+    else if test (count $argv) -ge 2 -a "$argv[1]" = flake -a "$argv[2]" = show
         # There's an open issue for omitting more information from `flake show`, but
         # this workaround was suggested in the meantime[1].
         #
@@ -18,7 +18,7 @@ function nix
         # with ripgrep's output, I'm suppressing the messages.
         #
         # [1]: https://github.com/NixOS/nix/issues/9011
-        command nix flake show 2>/dev/null | rg -v 'omitted.*all-systems'
+        command nix $argv 2>/dev/null | rg -v 'omitted.*all-systems'
     else
         command nix $argv
     end

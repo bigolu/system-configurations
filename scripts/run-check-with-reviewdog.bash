@@ -6,11 +6,11 @@
 # [this_script] [reviewdog_flags]... -- [check_command]...
 #
 # If reviewdog_flags does not contain an error format flag, -f or -efm, then it's
-# assumed that the check_command will modify files. For example, a linter would set
-# the error format, but a formatter wouldn't. In this case, the git diff, if any,
-# will be reported.
+# assumed that the check_command will not be _reporting_ errors and instead will
+# _fix_ them. For example, a linter would set the error format, but a formatter
+# wouldn't. In this case, the git diff, if any, will be reported by reviewdog.
 #
-# If reviewdog_flags does not contain the name flag, -name, then the first token in
+# If reviewdog_flags does not contain the name flag, -name, then the first string in
 # check_command will be used.
 
 set -o errexit
@@ -26,8 +26,8 @@ function main {
   )
   check_command=()
 
-  set_reviewdog_reporter
   parse_arguments "$@"
+  set_reviewdog_reporter_flag
   run_check
 }
 
@@ -72,7 +72,7 @@ function did_set_reviewdog_error_format_flag {
   return 1
 }
 
-function set_reviewdog_reporter {
+function set_reviewdog_reporter_flag {
   if [[ ${CI:-} == 'true' ]]; then
     # TODO: Due to a bug in GitHub Actions, the checks reported by reviewdog get
     # associated with the wrong workflow[1]. This discussion seems to be tracking the

@@ -72,6 +72,7 @@
           go # for 'go mod tidy'
           typos
           dos2unix
+          mypy
 
           # These aren't linters, but they get called as part of certain linting
           # commands.
@@ -186,6 +187,7 @@
           runAsAdmin
           # for uname
           coreutils
+          nix-output-monitor
 
           # Runs the sync tasks
           lefthook

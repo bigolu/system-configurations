@@ -202,8 +202,7 @@ function StatusLine()
 
   local fileencoding = nil
   if #vim.o.fileencoding > 0 and vim.o.fileencoding ~= "utf-8" then
-    fileencoding = "%#StatusLine#"
-      .. string.upper(vim.o.fileencoding)
+    fileencoding = "%#StatusLine#" .. string.upper(vim.o.fileencoding)
   end
 
   local filetype = nil

@@ -68,7 +68,7 @@ sync:
       run: direnv reload
     nix-direnv:
       glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix},.envrc"
-      run: nix-direnv-reload
+      run: touch flake.nix && nix-direnv-reload |& nom
     lefthook:
       # TODO: No need for this yet since lefthook syncs hooks automatically. There's
       # an issue for disabling this behavior[1]. I want it disabled because I don't
