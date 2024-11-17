@@ -21,9 +21,11 @@ from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
 
+NAME = "plugctl"
+
 
 class SmartPlugController(object):
-    _cache = Cache(user_cache_dir("plugctl"))
+    _cache = Cache(user_cache_dir(NAME))
 
     _plug: Optional[IotPlug]
 
@@ -125,7 +127,7 @@ def parse_args() -> Namespace:
             super().__init__(prog, width=100)
 
     parser = ArgumentParser(
-        prog="plugctl",
+        prog=NAME,
         description="Control a Kasa smart plug.",
         formatter_class=MaxWidthHelpFormatter,
     )
