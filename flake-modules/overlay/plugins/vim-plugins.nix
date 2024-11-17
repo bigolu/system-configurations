@@ -8,7 +8,7 @@ let
   vimPluginBuilder =
     repositoryName: repositorySourceCode: date:
     if builtins.hasAttr repositoryName prev.vimPlugins then
-      (builtins.getAttr repositoryName prev.vimPlugins).overrideAttrs (_old: {
+      prev.vimPlugins.${repositoryName}.overrideAttrs (_old: {
         name = "${repositoryName}-${date}";
         version = date;
         src = repositorySourceCode;
@@ -48,15 +48,12 @@ let
       map (
         pluginName:
         let
-          getPackageForPlugin = builtins.getAttr pluginName;
           formattedPluginName = replaceDotsWithDashes pluginName;
           package =
             if builtins.hasAttr pluginName final.vimPlugins then
-              getPackageForPlugin final.vimPlugins
+              final.vimPlugins.${pluginName}
             else if builtins.hasAttr formattedPluginName final.vimPlugins then
-              (builtins.getAttr "overrideAttrs" (builtins.getAttr formattedPluginName final.vimPlugins)) (_old: {
-                pname = pluginName;
-              })
+              final.vimPlugins.${formattedPluginName}
             else
               abort "Failed to find vim plugin: ${pluginName}";
         in
