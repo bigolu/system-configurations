@@ -58,7 +58,9 @@
           pythonWithPackages
         ];
         shellHook = ''
-          export VIRTUAL_ENV=${pythonWithPackages}
+          # Python without packages is also put on the PATH so I need to make sure
+          # the one with packages comes first.
+          PATH="${pythonWithPackages}/bin:$PATH"
         '';
       };
 
@@ -126,11 +128,13 @@
 
           luaLs = makeShell {
             shellHook = ''
-              # SYNC: LUA_LIBRARY_PREFIX
               prefix='.lua-libraries'
-              symlink ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} "$prefix/plugins"
-              symlink ${inputs.neodev-nvim}/types/nightly "$prefix/neodev"
-              symlink ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+              mkdir -p "$prefix"
+              ln --force --no-dereference --symbolic \
+                --target-directory "$prefix" \
+                ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} \
+                ${inputs.neodev-nvim}/types/nightly \
+                ${pkgs.neovim}/share/nvim/runtime
             '';
           };
 
@@ -153,6 +157,14 @@
             go
             taplo
           ];
+          shellHook = ''
+            # Link python to a stable location so I don't have to update the python
+            # path in VS Code when the nix store path for python changes.
+            direnv_directory='.direnv'
+            mkdir -p "$direnv_directory"
+            ln --force --no-dereference --symbolic \
+              ${pythonWithPackages} "$direnv_directory/python"
+          '';
         };
 
       taskRunner = makeShell {

@@ -11,16 +11,6 @@ let
       done
       export NIX_CONFIG
     }
-
-    function symlink {
-      OLD_PATH="$PATH"
-      PATH="${pkgs.lib.makeBinPath (with pkgs; [ coreutils ])}:$PATH"
-
-      mkdir --parents "$(dirname "$2")"
-      ln --symbolic --force --no-dereference "$1" "$2"
-      
-      PATH="$OLD_PATH"
-    }
   '';
 
   registryHook =
