@@ -59,13 +59,13 @@ local groups = {
   -- Uncomment and edit if you want more specific syntax highlighting.
   Comment = { ctermfg = 8, italic = true }, -- Any comment
 
-  Statement = { ctermfg = 4 }, -- (*) Any statement
-  Conditional = "Statement", --   if, then, else, endif, switch, etc.
-  Repeat = "Statement", --   for, do, while, etc.
-  Label = "Statement", --   case, default, etc.
+  Statement = { ctermfg = 7 }, -- (*) Any statement
+  Conditional = { ctermfg = 7, bold = true }, --   if, then, else, endif, switch, etc.
+  Repeat = "Conditional", --   for, do, while, etc.
+  Label = "Conditional", --   case, default, etc.
   Operator = "Statement", --   "sizeof", "+", "*", etc.
-  Keyword = "Statement", --   any other keyword
-  Exception = "Statement", --   try, catch, throw
+  Keyword = "Conditional", --   any other keyword
+  Exception = "Conditional", --   try, catch, throw
 
   Identifier = "Normal", -- (*) Any variable name
   Function = "Identifier", --   Function name (also: methods for classes)
@@ -133,7 +133,6 @@ local groups = {
   StatusLineStandoutText = "StatusLineWarningText",
   StatusLineInfoText = { ctermfg = 4, nocombine = true },
   StatusLineHintText = { ctermfg = 5, nocombine = true },
-  StatusLineMappingHintText = { ctermfg = 15, reverse = true, bold = true },
   StatusLineNC = "StatusLine", -- Status lines of not-current windows. Note: If this is equal to "StatusLine" Vim will use "^^^" in the status line of the current window.
   StatusLineRecordingIndicator = { ctermfg = 1, nocombine = true },
   StatusLineShowcmd = "StatusLine",
@@ -228,7 +227,7 @@ local groups = {
   MiniJump2dSpotAhead = "MiniJump2dSpot",
   MiniJump2dDim = { ctermfg = 8 },
   Clear = "Normal",
-  MiniCursorword = { bold = true },
+  MiniCursorword = { ctermfg = 6 },
   -- }}}
 
   QuickFixLine = "Normal", -- Current |quickfix| item in the quickfix window. Combined with |hl-CursorLine| when the cursor is there.
@@ -238,7 +237,7 @@ local groups = {
   qfLineNr = "qfFileName",
   QuickfixBorderNotCurrent = "Ignore",
   QuickfixTitleNotCurrent = "Normal",
-  MatchParen = { bold = true, ctermfg = 5 }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
+  MatchParen = { ctermfg = 6, bold = true }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
 
   -- Tree-Sitter {{{
   --

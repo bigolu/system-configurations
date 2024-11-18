@@ -185,10 +185,13 @@ Plug("andymass/vim-matchup")
 vim.g.matchup_transmute_enabled = 1
 -- Don't display off-screen matches in my statusline or a popup window
 vim.g.matchup_matchparen_offscreen = {}
+-- These two highlight the surroundings that the cursor is currently contained within
+vim.g.matchup_matchparen_deferred = 1
+vim.g.matchup_matchparen_hi_surround_always = 1
 vim.keymap.set({ "n", "x" }, ";", "%", { remap = true })
 vim.keymap.set({ "n", "x" }, "g;", "g%", { remap = true })
-vim.keymap.set({ "n", "x" }, "];", ";", { remap = true })
-vim.keymap.set({ "n", "x" }, "[;", "g;", { remap = true })
+vim.keymap.set({ "n", "x" }, "];", "]%", { remap = true })
+vim.keymap.set({ "n", "x" }, "[;", "[%", { remap = true })
 
 Plug("bkad/CamelCaseMotion")
 vim.g.camelcasemotion_key = ","
