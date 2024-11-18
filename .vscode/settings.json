@@ -77,9 +77,7 @@
 
   // Python
   ////////////////////////////////////////
-  // I prefer Jedi since it's FOSS
   "python.languageServer": "Jedi",
-  // It's faster. The readme says it defaults to true, but it doesn't seem to.
   "mypy-type-checker.preferDaemon": true,
   "mypy-type-checker.reportingScope": "workspace",
   "mypy-type-checker.importStrategy": "fromEnvironment",
