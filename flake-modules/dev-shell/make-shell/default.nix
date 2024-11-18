@@ -31,7 +31,7 @@ let
 
   mergedShellHooks =
     let
-      baseShellHooks = import ./base-shell-hooks.nix { inherit pkgs self; };
+      registryShellHook = import ./registry-shell-hook.nix { inherit pkgs self; };
 
       shellHooksFromShellsToMergeWith = pipe mergeWith [
         (map (shell: shell._shellHooks))
@@ -39,7 +39,7 @@ let
       ];
     in
     concatListsAndDeduplicate [
-      baseShellHooks
+      [ registryShellHook ]
       shellHooksFromShellsToMergeWith
     ]
     ++ optionals (shellHook != null) [ shellHook ];
