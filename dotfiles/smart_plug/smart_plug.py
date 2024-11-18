@@ -138,7 +138,10 @@ def parse_args() -> Namespace:
         nargs="?",
         choices=["status", "on", "off"],
         default="status",
-        help="The action to perform on the plug. The default is status. status exits with 0 if the plug is on and 1 if it's off",
+        help="""
+            The action to perform on the plug. The default is status. status exits
+            with 0 if the plug is on and 1 if it's off.
+        """,
     )
 
     return parser.parse_args()
