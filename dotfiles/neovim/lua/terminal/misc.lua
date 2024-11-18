@@ -66,14 +66,6 @@ function OpenUrlUnderCursor(is_mouse_click)
       open(url)
     end
   end)()
-
-  if is_mouse_click then
-    -- If we are in am LSP hover, jump back to previous window. This way I can click a link in a
-    -- documentation/diagnostic float and stay in the editing window.
-    if IsInsideLspHoverOrSignatureHelp then
-      vim.cmd.wincmd("p")
-    end
-  end
 end
 vim.keymap.set("n", "U", OpenUrlUnderCursor, { desc = "Open link [url]" })
 vim.keymap.set(
