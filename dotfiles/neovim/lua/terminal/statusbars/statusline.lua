@@ -156,35 +156,6 @@ local function make_statusline(left_items, right_items, left_sep, right_sep)
 
   return statusline
 end
-
-local function make_mapping_statusline(mappings)
-  local function make_mapping_string(mapping)
-    local key_combination = mapping.key:gsub("<CR>", "󰌑 ")
-    if mapping.mods ~= nil then
-      local mods = vim
-        .iter(mapping.mods)
-        :map(function(mod)
-          mod = ({
-            C = "󰘴",
-            M = "󰘵",
-          })[mod]
-          return mod .. " "
-        end)
-        :join("")
-      key_combination = mods .. key_combination
-    end
-    return string.format(
-      "%%#StatusLineMappingHintText#%s%%#StatusLine# %s",
-      key_combination,
-      mapping.description
-    )
-  end
-  local maps = vim.iter(mappings):map(make_mapping_string):totable()
-  table.insert(maps, 1, "%#StatusLine#%=")
-  table.insert(maps, "%=")
-
-  return make_statusline(nil, maps, nil, "  %=  ")
-end
 -- }}}
 
 function StatusLine()
@@ -315,36 +286,18 @@ function StatusLine()
     mixed_line_endings = "%#StatusLineErrorText#[ mixed line-endings]"
   end
 
-  if IsInsideDiagnosticFloat or IsInsideLspHoverOrSignatureHelp then
-    return make_mapping_statusline({
-      { key = "q", description = "Close float" },
-    })
-  elseif IsDiagnosticFloatOpen then
-    return make_mapping_statusline({
-      { key = "L", description = "Enter float" },
-    })
-  elseif IsLspHoverOpen then
-    return make_mapping_statusline({
-      { key = "K", description = "Enter float" },
-    })
-  elseif IsSignatureHelpOpen then
-    return make_mapping_statusline({
-      { mods = { "C" }, key = "k", description = "Enter float" },
-    })
-  else
-    return make_statusline({
-      readonly,
-      diagnostics,
-      mixed_indentation_indicator,
-      mixed_line_endings,
-      reg_recording,
-    }, {
-      maximized,
-      lsp_info,
-      filetype,
-      fileformat,
-      fileencoding,
-      position,
-    })
-  end
+  return make_statusline({
+    readonly,
+    diagnostics,
+    mixed_indentation_indicator,
+    mixed_line_endings,
+    reg_recording,
+  }, {
+    maximized,
+    lsp_info,
+    filetype,
+    fileformat,
+    fileencoding,
+    position,
+  })
 end

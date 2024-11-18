@@ -1,6 +1,19 @@
 local methods = vim.lsp.protocol.Methods
 local autocmd_group = vim.api.nvim_create_augroup("bigolu/lsp", {})
 
+-- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
+local original_open_floating_preview = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {}
+  opts.border = opts.border
+    or { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+  opts.focusable = opts.focusable or true
+  opts.max_height = opts.max_height or math.floor(vim.o.lines * 0.35)
+  opts.max_width = opts.max_width or math.floor(vim.o.columns * 0.65)
+
+  return original_open_floating_preview(contents, syntax, opts, ...)
+end
+
 vim.diagnostic.config({
   signs = false,
   virtual_text = {
@@ -13,7 +26,6 @@ vim.diagnostic.config({
   float = {
     source = true,
     focusable = true,
-    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
     format = function(diagnostic)
       local result = diagnostic.message
 
@@ -26,49 +38,6 @@ vim.diagnostic.config({
     end,
   },
 })
-
-local original_diagnostic_open_float = vim.diagnostic.open_float
-vim.diagnostic.open_float = function(...)
-  local _, winid = original_diagnostic_open_float(...)
-  if winid == nil then
-    return
-  end
-
-  vim.api.nvim_set_option_value(
-    "winhighlight",
-    "NormalFloat:CmpDocumentationNormal,FloatBorder:CmpDocumentationBorder,CursorLine:NormalFloat",
-    { win = winid }
-  )
-
-  IsDiagnosticFloatOpen = true
-  vim.cmd.redrawstatus()
-
-  vim.api.nvim_create_autocmd("WinClosed", {
-    pattern = tostring(winid),
-    once = true,
-    callback = function()
-      IsDiagnosticFloatOpen = false
-      vim.cmd.redrawstatus()
-    end,
-  })
-
-  vim.api.nvim_create_autocmd("WinEnter", {
-    callback = function()
-      if vim.api.nvim_get_current_win() == winid then
-        IsInsideDiagnosticFloat = true
-        vim.cmd.redrawstatus()
-        vim.api.nvim_create_autocmd("WinLeave", {
-          group = autocmd_group,
-          once = true,
-          callback = function()
-            IsInsideDiagnosticFloat = false
-            vim.cmd.redrawstatus()
-          end,
-        })
-      end
-    end,
-  })
-end
 
 vim.keymap.set(
   "n",
@@ -128,83 +97,6 @@ vim.lsp.handlers[methods.window_showMessage] = function(_, request, context)
 
   vim.notify(message, level)
 end
-local function enhanced_float_handler(handler, on_open, on_close)
-  return function(err, result, ctx, config)
-    local bufnr, win_id = handler(
-      err,
-      result,
-      ctx,
-      vim.tbl_deep_extend("force", config or {}, {
-        -- TODO: ask if this option could accept a function instead so it can
-        -- respond to window resizes
-        max_height = math.floor(vim.o.lines * 0.35),
-        max_width = math.floor(vim.o.columns * 0.65),
-        focusable = true,
-        border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
-      })
-    )
-    if not bufnr or not win_id then
-      return
-    end
-
-    vim.api.nvim_set_option_value("concealcursor", "nvic", { win = win_id })
-    vim.api.nvim_set_option_value(
-      "winhighlight",
-      "NormalFloat:CmpDocumentationNormal,FloatBorder:CmpDocumentationBorder,CursorLine:NormalFloat",
-      { win = win_id }
-    )
-
-    on_open()
-    vim.api.nvim_create_autocmd("WinClosed", {
-      pattern = tostring(win_id),
-      once = true,
-      group = autocmd_group,
-      callback = function()
-        on_close()
-      end,
-    })
-
-    vim.api.nvim_create_autocmd("WinEnter", {
-      group = autocmd_group,
-      callback = function()
-        if vim.api.nvim_get_current_win() == win_id then
-          IsInsideLspHoverOrSignatureHelp = true
-          vim.cmd.redrawstatus()
-          vim.api.nvim_create_autocmd("WinLeave", {
-            group = autocmd_group,
-            once = true,
-            callback = function()
-              IsInsideLspHoverOrSignatureHelp = false
-              vim.cmd.redrawstatus()
-            end,
-          })
-        end
-      end,
-    })
-  end
-end
-vim.lsp.handlers[methods.textDocument_hover] = enhanced_float_handler(
-  vim.lsp.handlers.hover,
-  function()
-    IsLspHoverOpen = true
-    vim.cmd.redrawstatus()
-  end,
-  function()
-    IsLspHoverOpen = false
-    vim.cmd.redrawstatus()
-  end
-)
-vim.lsp.handlers[methods.textDocument_signatureHelp] = enhanced_float_handler(
-  vim.lsp.handlers.signature_help,
-  function()
-    IsSignatureHelpOpen = true
-    vim.cmd.redrawstatus()
-  end,
-  function()
-    IsSignatureHelpOpen = false
-    vim.cmd.redrawstatus()
-  end
-)
 
 -- Should be idempotent since it may be called multiple times for the same
 -- buffer. For example, it could get called again if a server registers
