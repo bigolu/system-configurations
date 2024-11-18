@@ -413,6 +413,19 @@ check-lint:
       run: >
         ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
         typos --color never --format brief {files}
+    mypy:
+      glob: "dotfiles/smart_plug/*.py"
+      # The comment containing '{files}' is there because lefthook only applies the
+      # glob if you have a 'files' command or you use {files} in your run command[1].
+      # If this command were under the pre-commit and pre-push groups, the glob would
+      # get applied, but apparently this behavior was confusing for users so the
+      # author doesn't want to use the same behavior for other groups[2].
+      #
+      # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+      # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
+      run: >
+        ./scripts/run-check-with-reviewdog.bash -f mypy --
+        mypy dotfiles/smart_plug # {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should open
     # issues with all of them. In the meantime, I put reviewdog in tee mode so it
@@ -447,19 +460,6 @@ check-lint:
         ./scripts/run-check-with-reviewdog.bash
         -efm "_REVIEWDOG_DO_NOT_MATCH" -tee --
         taplo lint {files}
-    mypy:
-      glob: "dotfiles/smart_plug/*.py"
-      # The comment containing '{files}' is there because lefthook only applies the
-      # glob if you have a 'files' command or you use {files} in your run command[1].
-      # If this command were under the pre-commit and pre-push groups, the glob would
-      # get applied, but apparently this behavior was confusing for users so the
-      # author doesn't want to use the same behavior for other groups[2].
-      #
-      # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
-      # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
-      run: >
-        ./scripts/run-check-with-reviewdog.bash -f mypy --
-        mypy dotfiles/smart_plug # {files}
 
     # Local-Only checks
     commit-message-typos:
