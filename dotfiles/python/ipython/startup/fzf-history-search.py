@@ -18,6 +18,10 @@ from typing import Any, Callable, Generator, Tuple
 
 import IPython
 
+sqlite3.register_converter(
+    "timestamp", lambda timestamp: datetime.datetime.fromisoformat(timestamp.decode())
+)
+
 # This startup file is also used by `jupyter console`, which doesn't use prompt
 # toolkit, and may fail importing it.
 try:
