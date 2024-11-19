@@ -57,6 +57,7 @@ in
       catp
       partialPackages.pstree
       cntr
+      strace
     ]
     ++ optionals isDarwin [
       pstree

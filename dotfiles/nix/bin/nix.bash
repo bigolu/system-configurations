@@ -13,6 +13,18 @@ set -o pipefail
 shopt -s nullglob
 
 function main {
+  # Since I wrap and exec my scripts in portable home, I won't find this program on
+  # the PATH, it's wrapper will be, so just get the last nix.
+  if [[ -n ${BIGOLU_IN_PORTABLE_HOME+set} ]]; then
+    nix_count=$(which -a nix | wc -l)
+    if (( nix_count > 1)); then
+      exec "$(which -a nix | tail -1)" "$@"
+    else
+      echo 'bigolu-nix-wrapper: Unable to find the real nix' >&2
+      exit 127
+    fi
+  fi
+
   # To find the real nix just take the next nix binary on the $PATH after
   # this one. This way if there are other wrappers they can do the same and
   # eventually we'll reach the real nix.

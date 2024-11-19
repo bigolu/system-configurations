@@ -158,12 +158,21 @@ function process-widget --description 'Manage processes'
         set reload_command 'ps -e --format user,pid,ppid,nice=NICE,start_time,etime,command --sort=-start_time'
         set preview_command 'ps --pid {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree --hide-threads --long --show-pids --unicode --show-parents --arguments {2} | grep --color=always --extended-regexp --regexp "[^└|─]+,$(echo {2})( .*|\$)" --regexp "^"'
         set environment_flag e
+        set trace_command 'eval "$(if test (ps -o user= -p {2}) = root && not fish_is_root_user; echo "sudo -v; sudo "; end)""strace --summary --absolute-timestamps --attach={2}"'
     else
         set reload_command 'ps -e -o user,pid,ppid,nice=NICE,start,etime,command'
         # Using '-o pid' because without it I get the error:
         # time: requires entitlement
         set preview_command 'ps -p {2} -o pid >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree -w -g 3 -p {2} | grep --color=always --extended-regexp --regexp " 0*$(echo {2}) $(echo {1}) .*" --regexp "^"'
         set environment_flag -E
+        # TODO: Since dtruss doesn't exit upon receiving SIGPIPE, after I exit the
+        # fzf viewer for the dtruss output, I have to hit ctrl-c again to get dtruss
+        # to exit. I guess this is unavoidable since dtruss is a bash script and bash
+        # is single threaded so it can't handle SIGPIPE until dtrace exits. I'd use
+        # dtrace directly, which does respond to SIGPIPE, but getting it to print
+        # system calls and all their arguments isn't trivial so I'd rather let dtruss
+        # do it.
+        set trace_command 'sudo -v; sudo -- dtruss -a -p {2}'
     end
     # TODO: The `string match` isn't perfect: if a variable's value
     # includes something that matches the environment variable name pattern
@@ -174,11 +183,11 @@ function process-widget --description 'Manage processes'
 
     if not set choice ( \
         FZF_DEFAULT_COMMAND="$reload_command" \
-        FZF_HINTS='ctrl+alt+r: refresh process list\nctrl+alt+o: view process output\nctrl+alt+e: view environment variables (at the time the process was launched)' \
+        FZF_HINTS='ctrl+alt+r: refresh process list\nctrl+alt+o: view process output\nctrl+alt+e: view environment variables (at the time the process was launched)\nctrl+alt+t: trace process system calls' \
         fzf \
             # only search on PID, PPID, and the command
             --nth '2,3,7..' \
-            --bind "ctrl-alt-o:execute@process-output {2} 1>/dev/tty 2>&1 </dev/tty@,ctrl-alt-r:reload@$reload_command@+first,ctrl-alt-e:execute@$environment_command@" \
+            --bind "ctrl-alt-o:execute@process-output {2} 1>/dev/tty 2>&1 </dev/tty@,ctrl-alt-r:reload@$reload_command@+first,ctrl-alt-e:execute@$environment_command@,ctrl-alt-t:execute@$trace_command 2>&1 | fzf --no-preview@" \
             --header-lines=1 \
             --prompt 'processes: ' \
             --preview "$preview_command" \
