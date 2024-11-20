@@ -1,6 +1,6 @@
 #! /usr/bin/env cached-nix-shell
-#! nix-shell -i shebang-runner
-#! nix-shell --packages shebang-runner coreutils reviewdog gitMinimal b3sum
+#! nix-shell -i nix-shell-interpreter
+#! nix-shell --packages nix-shell-interpreter coreutils reviewdog gitMinimal b3sum
 # ^ WARNING: Dependencies must be in this format to get parsed properly and added to
 # dependencies.txt
 

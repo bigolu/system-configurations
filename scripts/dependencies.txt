@@ -7,7 +7,7 @@ gh
 gitMinimal
 gnused
 jq
+nix-shell-interpreter
 perl
 reviewdog
 ripgrep
-shebang-runner

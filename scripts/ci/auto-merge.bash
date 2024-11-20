@@ -1,6 +1,6 @@
 #! /usr/bin/env cached-nix-shell
-#! nix-shell -i shebang-runner
-#! nix-shell --packages shebang-runner jq gh ripgrep gitMinimal coreutils
+#! nix-shell -i nix-shell-interpreter
+#! nix-shell --packages nix-shell-interpreter jq gh ripgrep gitMinimal coreutils
 # ^ WARNING: Dependencies must be in this format to get parsed properly and added to
 # dependencies.txt
 

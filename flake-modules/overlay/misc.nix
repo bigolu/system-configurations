@@ -172,8 +172,8 @@ in
     )
   ];
 
-  shebang-runner = final.writeShellApplication {
-    name = "shebang-runner";
+  nix-shell-interpreter = final.writeShellApplication {
+    name = "nix-shell-interpreter";
 
     # So I don't have to specify bash as a dependency separately
     runtimeInputs = with final; [ bash ];
@@ -184,15 +184,15 @@ in
       # nix-shell so when I execute the shell again, the temporary directory will not
       # exist which will break any programs that try to access it. To get around
       # this, I use this script as my shebang interpreter and then I unset the
-      # variables. Maybe once the nix development environment logic is separated from
-      # making a build debugging logic, this won't be an issue anymore[1]. Otherwise,
-      # I should see if cached-nix-shell could allow users to specify variables that
-      # shouldn't get cached.
+      # variables. I'm thinking that once nix development environments are no longer
+      # made from build-debugging environments, this won't be an issue anymore[1].
+      # Otherwise, I should see if cached-nix-shell could allow users to specify
+      # variables that shouldn't get cached.
       #
       # [1]: https://github.com/NixOS/nixpkgs/pull/330822
       unset TMPDIR TEMPDIR TMP TEMP
 
-      exec ${final.bash}/bin/bash "$@"
+      exec bash "$@"
     '';
   };
 }

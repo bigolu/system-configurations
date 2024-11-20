@@ -158,6 +158,8 @@ function process-widget --description 'Manage processes'
         set reload_command 'ps -e --format user,pid,ppid,nice=NICE,start_time,etime,command --sort=-start_time'
         set preview_command 'ps --pid {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree --hide-threads --long --show-pids --unicode --show-parents --arguments {2} | grep --color=always --extended-regexp --regexp "[^└|─]+,$(echo {2})( .*|\$)" --regexp "^"'
         set environment_flag e
+        # Use 'sudo -v' so I'm not prompted for my password while strace is running,
+        # since it will be running at the same time as fzf in a pipeline.
         set trace_command 'eval "$(if test (ps -o user= -p {2}) = root && not fish_is_root_user; echo "sudo -v; sudo "; end)""strace --summary --absolute-timestamps --attach={2}"'
     else
         set reload_command 'ps -e -o user,pid,ppid,nice=NICE,start,etime,command'
@@ -171,7 +173,10 @@ function process-widget --description 'Manage processes'
         # is single threaded so it can't handle SIGPIPE until dtrace exits. I'd use
         # dtrace directly, which does respond to SIGPIPE, but getting it to print
         # system calls and all their arguments isn't trivial so I'd rather let dtruss
-        # do it.
+        # do that.
+        #
+        # Use 'sudo -v' so I'm not prompted for my password while dtruss is running,
+        # since it will be running at the same time as fzf in a pipeline.
         set trace_command 'sudo -v; sudo -- dtruss -a -p {2}'
     end
     # TODO: The `string match` isn't perfect: if a variable's value
@@ -298,8 +303,7 @@ function history-widget --description 'Search history'
         FZF_DEFAULT_COMMAND="history --null" \
         fzf-zoom  \
         --prompt 'history: ' \
-        --preview-window "4" \
-        --preview='printf %s\n {+} | bat --language fish --style plain --color always' \
+        --no-preview \
         --scheme history \
         --no-hscroll \
         --read0 \

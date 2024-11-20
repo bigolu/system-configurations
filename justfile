@@ -22,7 +22,7 @@ list:
 ''')]
 [group('System Management')]
 [no-exit-message]
-initialize MANAGER CONFIGURATION: && (force-sync "lefthook")
+initialize MANAGER CONFIGURATION: && force-sync
     #!/usr/bin/env bash
     set -o errexit
     set -o nounset
