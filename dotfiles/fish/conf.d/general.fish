@@ -159,7 +159,9 @@ ulimit -Sn 10000
 # comma
 function , --wraps ,
     # The `--with-nth` to remove the '.out' extension from the entries.
-    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name (string sub --end -4 {})' --delimiter '.' --with-nth '..-5'" COMMA_PICKER=fzf command , $argv
+    #
+    # Set NIX_PATH to empty string so flakes are used.
+    NIX_PATH='' FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name (string sub --end -4 {})' --delimiter '.' --with-nth '..-5'" COMMA_PICKER=fzf command , $argv
 end
 
 # touch

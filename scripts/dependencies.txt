@@ -1,5 +1,5 @@
 ast-grep
-bash
+b3sum
 coreutils
 curl
 direnv
@@ -10,3 +10,4 @@ jq
 perl
 reviewdog
 ripgrep
+shebang-runner

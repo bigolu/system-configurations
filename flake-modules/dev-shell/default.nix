@@ -18,7 +18,10 @@
     }:
     let
       inherit (lib.attrsets) optionalAttrs;
-      makeShell = import ./make-shell { inherit pkgs self; };
+      makeShell = import ./make-shell.nix {
+        inherit pkgs;
+        inherit (self.lib) root;
+      };
 
       makeCiShell =
         spec:
@@ -125,37 +128,15 @@
             mergeWith = [ linting ];
             packages = [ pkgs.efm-langserver ];
           };
-
-          luaLs = makeShell {
-            shellHook = ''
-              prefix='.lua-libraries'
-              mkdir -p "$prefix"
-              ln --force --no-dereference --symbolic \
-                --target-directory "$prefix" \
-                ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} \
-                ${inputs.neodev-nvim}/types/nightly \
-                ${pkgs.neovim}/share/nvim/runtime
-            '';
-          };
-
-          nixd = makeShell {
-            packages = [ pkgs.nixd ];
-            # Why I need this:
-            # https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#default-configuration--who-needs-configuration
-            shellHook = ''
-              export NIX_PATH='nixpkgs='${lib.escapeShellArg inputs.nixpkgs}
-            '';
-          };
         in
         makeShell {
           mergeWith = [
-            luaLs
             efmLs
-            nixd
           ];
           packages = with pkgs; [
             go
             taplo
+            nixd
           ];
           shellHook = ''
             # Link python to a stable location so I don't have to update the python
@@ -164,6 +145,15 @@
             mkdir -p "$direnv_directory"
             ln --force --no-dereference --symbolic \
               ${pythonWithPackages} "$direnv_directory/python"
+
+            # For lua-ls
+            prefix='.lua-libraries'
+            mkdir -p "$prefix"
+            ln --force --no-dereference --symbolic \
+              --target-directory "$prefix" \
+              ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} \
+              ${inputs.neodev-nvim}/types/nightly \
+              ${pkgs.neovim}/share/nvim/runtime
           '';
         };
 
@@ -219,15 +209,15 @@
       };
 
       scriptDependencies = makeShell {
-        packages = with pkgs; [ script-dependencies ];
+        packages = with pkgs; [
+          script-dependencies
+          cached-nix-shell
+        ];
       };
 
       outputs = {
         legacyPackages =
           {
-            # So I can reference nixpkgs, with my overlays applied, from my scripts.
-            nixpkgs = pkgs;
-
             # TODO: These are the outputs that I use from my flake inputs. Ideally, I'd
             # use `nix run/develop --inputs-from . <flake_input>#<output> ...`, but
             # when I do that, any of the 'follows' that I set on the flake input are

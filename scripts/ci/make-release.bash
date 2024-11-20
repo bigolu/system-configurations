@@ -1,5 +1,8 @@
-#!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.coreutils local#nixpkgs.gh --command bash
+#! /usr/bin/env cached-nix-shell
+#! nix-shell -i shebang-runner
+#! nix-shell --packages shebang-runner coreutils gh
+# ^ WARNING: Dependencies must be in this format to get parsed properly and added to
+# dependencies.txt
 
 set -o errexit
 set -o nounset

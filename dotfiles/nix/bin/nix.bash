@@ -17,7 +17,7 @@ function main {
   # the PATH, it's wrapper will be, so just get the last nix.
   if [[ -n ${BIGOLU_IN_PORTABLE_HOME+set} ]]; then
     nix_count=$(which -a nix | wc -l)
-    if (( nix_count > 1)); then
+    if ((nix_count > 1)); then
       exec "$(which -a nix | tail -1)" "$@"
     else
       echo 'bigolu-nix-wrapper: Unable to find the real nix' >&2

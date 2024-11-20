@@ -1,5 +1,8 @@
-#!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.perl --command bash
+#! /usr/bin/env cached-nix-shell
+#! nix-shell -i shebang-runner
+#! nix-shell --packages shebang-runner perl
+# ^ WARNING: Dependencies must be in this format to get parsed properly and added to
+# dependencies.txt
 
 set -o errexit
 set -o nounset
@@ -14,21 +17,43 @@ function main {
   )"
   configs="${configs::-1}"
 
-  perl -0777 -w -i -pe "s{(<!-- START_CONFIGURATIONS -->).*(<!-- END_CONFIGURATIONS -->)}{\$1$configs\$2}igs" README.md
+  perl -0777 -w -i -pe \
+    "s{(<!-- START_CONFIGURATIONS -->).*(<!-- END_CONFIGURATIONS -->)}{\$1$configs\$2}igs" \
+    README.md
 }
 
 function get_configs {
-  echo
+  nix eval --raw --impure --expr "
+    let
+      flake = import ./default.nix;
 
-  printf '\n%s\n' '- Home Manager'
-  # shellcheck disable=2016
-  nix eval --raw --impure --expr 'let x = import ./default.nix; in (builtins.concatStringsSep "\n" (map (name: "\n  - ${name} / ${x.outputs.homeConfigurations.${name}.activationPackage.system}") (builtins.attrNames x.outputs.homeConfigurations))) + "\n"'
+      makeListItems = platformFetcher: configNames: let
+        makeListItem = name:
+          ''\ \ - \${name} / \${platformFetcher name}'';
+      in
+        builtins.concatStringsSep ''\n'' (map makeListItem configNames);
 
-  printf '\n%s\n' '- nix-darwin'
-  # shellcheck disable=2016
-  nix eval --raw --impure --expr 'let x = import ./default.nix; in (builtins.concatStringsSep "\n" (map (name: "\n  - ${name} / ${x.outputs.darwinConfigurations.${name}.system.system}") (builtins.attrNames x.outputs.darwinConfigurations))) + "\n"'
+      homeManagerConfigNames = builtins.attrNames flake.outputs.homeConfigurations;
+      homeManagerPlatformFetcher = name:
+        flake.outputs.homeConfigurations.\${name}.activationPackage.system;
 
-  echo
+      nixDarwinConfigNames = builtins.attrNames flake.outputs.darwinConfigurations;
+      nixDarwinPlatformFetcher = name:
+        flake.outputs.darwinConfigurations.\${name}.system.system;
+    in
+      ''
+
+
+        - Home Manager
+
+        \${makeListItems homeManagerPlatformFetcher homeManagerConfigNames}
+
+        - nix-darwin
+
+        \${makeListItems nixDarwinPlatformFetcher nixDarwinConfigNames}
+
+      ''
+  "
 }
 
 main

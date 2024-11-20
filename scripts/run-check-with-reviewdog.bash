@@ -1,5 +1,8 @@
-#!/usr/bin/env nix
-#! nix shell --quiet local#nixpkgs.bash local#nixpkgs.coreutils local#nixpkgs.reviewdog --command bash
+#! /usr/bin/env cached-nix-shell
+#! nix-shell -i shebang-runner
+#! nix-shell --packages shebang-runner coreutils reviewdog gitMinimal b3sum
+# ^ WARNING: Dependencies must be in this format to get parsed properly and added to
+# dependencies.txt
 
 # Usage:
 #
@@ -121,21 +124,15 @@ function fail_if_files_change {
 }
 
 function diff_including_untracked {
-  readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
-  track_files "${untracked_files[@]}"
   git diff
-  untrack_files "${untracked_files[@]}"
+
+  readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
+  hash "${untracked_files[@]}"
 }
 
-function track_files {
+function hash {
   if (($# > 0)); then
-    git add --intent-to-add -- "$@"
-  fi
-}
-
-function untrack_files {
-  if (($# > 0)); then
-    git reset --quiet -- "$@"
+    cat "$@" | b3sum
   fi
 }
 

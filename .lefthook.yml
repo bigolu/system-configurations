@@ -184,8 +184,8 @@ generate:
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=script-dependencies --
         bash -o pipefail -euc '
-        rg --glob "*.bash" "^#!" scripts
-        | rg --only-matching --replace '\''$1'\'' "local#nixpkgs\.([^ ]*)"
+        rg --no-filename  --no-config --glob "*.bash" "^#! nix-shell (--packages|-i) (?P<packages>.*)" --replace "\$packages" scripts
+        | rg --no-config --only-matching "[^\s]+"
         | sort --unique
         > scripts/dependencies.txt
         '
