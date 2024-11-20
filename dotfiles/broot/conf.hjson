@@ -1,5 +1,5 @@
 # Show hidden and git-ignored files
-default_flags: hi
+default_flags: h
 
 # Mark the selected line with a triangle
 show_selection_mark: true
@@ -11,6 +11,8 @@ quit_on_last_cancel: true
 
 # Max file size for content search
 content_search_max_file_size: 10MB
+
+enable_kitty_keyboard: true
 
 modal: true
 
