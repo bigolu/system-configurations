@@ -20,12 +20,16 @@ let
 
   mergedPackages =
     let
+      essentialPackages = with pkgs; [
+        cached-nix-shell
+      ];
       packagesFromShellsToMergeWith = pipe mergeWith [
         (map (shell: shell._packages))
         concatLists
       ];
     in
     concatListsAndDeduplicate [
+      essentialPackages
       packagesFromShellsToMergeWith
       packages
     ];

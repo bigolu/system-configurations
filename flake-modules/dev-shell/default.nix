@@ -211,7 +211,6 @@
       scriptDependencies = makeShell {
         packages = with pkgs; [
           script-dependencies
-          cached-nix-shell
         ];
       };
 
