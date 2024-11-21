@@ -23,8 +23,8 @@
             ];
           };
           skhdBin = lib.fileset.toSource {
-            root = specialArgs.root + "/dotfiles/skhd/bin";
-            fileset = specialArgs.root + "/dotfiles/skhd/bin";
+            root = specialArgs.root + /dotfiles/skhd/bin;
+            fileset = specialArgs.root + /dotfiles/skhd/bin;
           };
         in
         pkgs.symlinkJoin {

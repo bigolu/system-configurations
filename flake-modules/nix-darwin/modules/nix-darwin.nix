@@ -31,8 +31,8 @@ let
       nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
       ${
         lib.fileset.toSource {
-          root = root + "/dotfiles/nix/bin";
-          fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+          root = root + /dotfiles/nix/bin;
+          fileset = root + /dotfiles/nix/bin/nix-closure-size-diff.bash;
         }
       }/nix-closure-size-diff.bash "$oldGenerationPath" "$newGenerationPath"
     '';
@@ -150,8 +150,8 @@ in
         nix store diff-closures /run/current-system "$systemConfig"
         ${
           lib.fileset.toSource {
-            root = root + "/dotfiles/nix/bin";
-            fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+            root = root + /dotfiles/nix/bin;
+            fileset = root + /dotfiles/nix/bin/nix-closure-size-diff.bash;
           }
         }/nix-closure-size-diff.bash /run/current-system "$systemConfig"
       fi

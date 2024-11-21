@@ -30,18 +30,18 @@ let
         ];
       };
       generalBin = fs.toSource {
-        root = self.lib.root + "/dotfiles/general/bin";
-        fileset = self.lib.root + "/dotfiles/general/bin";
+        root = self.lib.root + /dotfiles/general/bin;
+        fileset = self.lib.root + /dotfiles/general/bin;
       };
       generalMacosBin = fs.toSource {
-        root = self.lib.root + "/dotfiles/general/bin-macos";
-        fileset = self.lib.root + "/dotfiles/general/bin-macos";
+        root = self.lib.root + /dotfiles/general/bin-macos;
+        fileset = self.lib.root + /dotfiles/general/bin-macos;
       };
       neovimLinuxBin =
         let
           src = fs.toSource {
-            root = self.lib.root + "/dotfiles/neovim/linux-bin";
-            fileset = self.lib.root + "/dotfiles/neovim/linux-bin";
+            root = self.lib.root + /dotfiles/neovim/linux-bin;
+            fileset = self.lib.root + /dotfiles/neovim/linux-bin;
           };
         in
         final.runCommand "neovim-linux-bin" { } ''
@@ -83,8 +83,8 @@ let
         ];
       };
       ripgrepBin = fs.toSource {
-        root = self.lib.root + "/dotfiles/ripgrep/bin";
-        fileset = self.lib.root + "/dotfiles/ripgrep/bin";
+        root = self.lib.root + /dotfiles/ripgrep/bin;
+        fileset = self.lib.root + /dotfiles/ripgrep/bin;
       };
     in
     final.symlinkJoin {
@@ -158,7 +158,7 @@ in
   neovim = nightlyNeovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
 
-  script-dependencies = lib.trivial.pipe (self.lib.root + "/scripts/dependencies.txt") [
+  script-dependencies = lib.trivial.pipe (self.lib.root + /scripts/dependencies.txt) [
     builtins.readFile
     (lib.strings.splitString "\n")
     (builtins.filter (line: line != ""))

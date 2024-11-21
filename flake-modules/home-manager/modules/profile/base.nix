@@ -72,8 +72,8 @@ in
           cp --no-preserve=mode --dereference ${
             lib.escapeShellArg (
               lib.fileset.toSource {
-                root = specialArgs.root + "/dotfiles/flatpak/overrides";
-                fileset = specialArgs.root + "/dotfiles/flatpak/overrides";
+                root = specialArgs.root + /dotfiles/flatpak/overrides;
+                fileset = specialArgs.root + /dotfiles/flatpak/overrides;
               }
             )
           }/* "$target"

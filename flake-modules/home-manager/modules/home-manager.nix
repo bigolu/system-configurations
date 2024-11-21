@@ -56,8 +56,8 @@ let
       nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
       ${
         lib.fileset.toSource {
-          root = root + "/dotfiles/nix/bin";
-          fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+          root = root + /dotfiles/nix/bin;
+          fileset = root + /dotfiles/nix/bin/nix-closure-size-diff.bash;
         }
       }/nix-closure-size-diff.bash "$oldGenerationPath" "$newGenerationPath"
     '';
@@ -193,8 +193,8 @@ lib.mkMerge [
             nix store diff-closures $oldGenPath $newGenPath
             ${
               lib.fileset.toSource {
-                root = root + "/dotfiles/nix/bin";
-                fileset = root + "/dotfiles/nix/bin/nix-closure-size-diff.bash";
+                root = root + /dotfiles/nix/bin;
+                fileset = root + /dotfiles/nix/bin/nix-closure-size-diff.bash;
               }
             }/nix-closure-size-diff.bash $oldGenPath $newGenPath
           fi
