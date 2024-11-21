@@ -12,7 +12,7 @@ import argparse
 import asyncio
 import sys
 from argparse import ArgumentParser, Namespace
-from typing import Optional, TypeGuard
+from typing import Optional, Self, TypeGuard
 
 import psutil
 from diskcache import Cache
@@ -24,15 +24,16 @@ from typing_extensions import cast
 NAME = "plugctl"
 
 
-class SmartPlugController(object):
+class KasaPlug(object):
     _cache = Cache(user_cache_dir(NAME))
 
     _plug: Optional[IotPlug]
 
-    async def connect(self, alias: str) -> None:
-        self._plug = await self._discover_plug(alias)
-        if self._plug is None:
-            raise Exception(f"Unable to find a plug with alias: {alias}")
+    @classmethod
+    async def connect(cls, alias: str) -> Self:
+        plug = cls()
+        await plug._connect(alias)
+        return plug
 
     async def turn_off(self) -> None:
         assert self._is_plug_present(self._plug)
@@ -50,6 +51,11 @@ class SmartPlugController(object):
         # issue.
         return cast(bool, self._plug.is_on)
 
+    async def _connect(self, alias: str) -> None:
+        self._plug = await self._discover_plug(alias)
+        if self._plug is None:
+            raise Exception(f"Unable to find a plug with alias: {alias}")
+
     def _is_plug_present(self, plug: Optional[IotPlug]) -> TypeGuard[IotPlug]:
         if plug is not None:
             return True
@@ -63,7 +69,7 @@ class SmartPlugController(object):
 
         for ip_address, device in (await self._discover_devices()).items():
             if device.alias == alias and self._is_plug(device):
-                SmartPlugController._cache[alias] = ip_address
+                KasaPlug._cache[alias] = ip_address
                 return device
 
         return None
@@ -72,10 +78,10 @@ class SmartPlugController(object):
         return device.device_type is DeviceType.Plug
 
     async def _get_plug_from_cache(self, alias: str) -> Optional[IotPlug]:
-        if alias not in SmartPlugController._cache:
+        if alias not in KasaPlug._cache:
             return None
 
-        ip_address = SmartPlugController._cache[alias]
+        ip_address = KasaPlug._cache[alias]
         assert isinstance(ip_address, str)
 
         try:
@@ -149,17 +155,14 @@ def parse_args() -> Namespace:
 
 async def main() -> None:
     args = parse_args()
-
-    plug_controller = SmartPlugController()
-    await plug_controller.connect(args.alias)
-
+    plug = await KasaPlug.connect(args.alias)
     match args.command:
         case "status":
-            sys.exit(0 if await plug_controller.is_on() else 1)
+            sys.exit(0 if await plug.is_on() else 1)
         case "on":
-            await plug_controller.turn_on()
+            await plug.turn_on()
         case "off":
-            await plug_controller.turn_off()
+            await plug.turn_off()
 
 
 if __name__ == "__main__":
