@@ -71,7 +71,8 @@ function add_directory_to_path {
         ;;
       fish)
         printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
-# I unexport the XDG Base directories so host programs pick up the host's XDG directories.
+# I unexport the XDG Base directories so host programs pick up the host's XDG
+# directories.
 XDG_CONFIG_HOME=$xdg_config_directory \
 XDG_DATA_HOME=$xdg_data_directory \
 XDG_STATE_HOME=$xdg_state_directory \
@@ -106,6 +107,8 @@ exec $program \"\$@\""
 
 add_directory_to_path "$ACTIVATION_PACKAGE/home-path/bin" 'bin'
 add_directory_to_path "$ACTIVATION_PACKAGE/home-files/.local/bin" 'bin-local'
+
+export XDG_DATA_DIRS="${XDG_DATA_DIRS+${XDG_DATA_DIRS}:}$ACTIVATION_PACKAGE/home-path/share"
 
 # Set fish as the default shell
 shell="$(which fish)"
