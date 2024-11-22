@@ -61,6 +61,7 @@ name:
   .rustup: "  "
   .rvm: " "
   .shellcheckrc: "  "
+  .sqlite_history: "  "
   .ssh: " "
   .trash: " "
   .vim: " "

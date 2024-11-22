@@ -1,4 +1,4 @@
-# I use point nix-path.nixpkgs to this file so my nix-shell shebang scripts can use
+# I point nix-path.nixpkgs to this file so my nix-shell shebang scripts can use
 # the same version of nixpkgs as my flake, and have my overlays applied.
 args:
 let

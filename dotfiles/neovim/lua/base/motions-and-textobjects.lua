@@ -190,8 +190,8 @@ vim.g.matchup_matchparen_deferred = 1
 vim.g.matchup_matchparen_hi_surround_always = 1
 vim.keymap.set({ "n", "x" }, ";", "%", { remap = true })
 vim.keymap.set({ "n", "x" }, "g;", "g%", { remap = true })
-vim.keymap.set({ "n", "x" }, "];", "]%", { remap = true })
-vim.keymap.set({ "n", "x" }, "[;", "[%", { remap = true })
+vim.keymap.set({ "n", "x" }, "];", ";", { remap = true })
+vim.keymap.set({ "n", "x" }, "[;", "g;", { remap = true })
 
 Plug("bkad/CamelCaseMotion")
 vim.g.camelcasemotion_key = ","
