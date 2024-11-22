@@ -1,9 +1,17 @@
-# I point nix-path.nixpkgs to this file so my nix-shell shebang scripts can use
-# the same version of nixpkgs as my flake, and have my overlays applied.
-args:
+# I add this file to the NIX_PATH as 'nixpkgs' so my nix-shell shebang scripts
+# can use the same version of nixpkgs as my flake, with my overlay applied.
+originalArgs:
 let
   flake = import ./default.nix;
-  inherit (flake.lib) overlay;
-  inherit (flake.inputs) nixpkgs;
+
+  originalArgsWithFlakeOverlay =
+    let
+      originalOverlaysWithFlakeOverlay =
+        let
+          originalOverlays = originalArgs.overlays or [ ];
+        in
+        originalOverlays ++ [ flake.lib.overlay ];
+    in
+    originalArgs // { overlays = originalOverlaysWithFlakeOverlay; };
 in
-import nixpkgs (args // { overlays = args.overlays or [ ] ++ [ overlay ]; })
+import flake.inputs.nixpkgs originalArgsWithFlakeOverlay
