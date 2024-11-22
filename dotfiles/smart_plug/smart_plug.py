@@ -10,8 +10,10 @@ TODO: Consider upstreaming these features
 
 import argparse
 import asyncio
+import operator
 import sys
 from argparse import ArgumentParser, Namespace
+from functools import reduce
 from typing import Optional, Self, TypeGuard
 
 import psutil
@@ -97,26 +99,26 @@ class KasaPlug(object):
             del self._cache[alias]
             return None
 
-    # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because the
-    # default broadcast address (255.255.255.255) is an alias for 'this network'
-    # which will mean that of the VPN network when I'm connected to it and not that
-    # of my actual wifi/ethernet network. To get around this, I look for the correct
-    # broadcast address myself using psutil which gives me all addresses assigned to
-    # each NIC on my machine. I then try discovery using all the addresses that are
-    # marked as broadcast addresses until I find a Kasa device.
     async def _discover_devices(self) -> dict[str, Device]:
-        devices_per_broadcast_address = await asyncio.gather(
-            *[
-                Discover.discover(target=address)
-                for address in self._get_broadcast_addresses()
-            ]
-        )
+        # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because
+        # the default broadcast address (255.255.255.255) is an alias for 'this
+        # network' which will mean that of the VPN network when I'm connected to it
+        # and not that of my actual wifi/ethernet network. To get around this, I run
+        # discovery on all the broadcast addresses found on my machine.
+        return self._merge_dicts(await self._discover_devices_per_broadcast_address())
 
-        for devices in devices_per_broadcast_address:
-            if devices:
-                return devices
+    def _merge_dicts[KeyT, ValueT](
+        self, dicts: list[dict[KeyT, ValueT]]
+    ) -> dict[KeyT, ValueT]:
+        return reduce(operator.or_, dicts, {})
 
-        return {}
+    async def _discover_devices_per_broadcast_address(self) -> list[dict[str, Device]]:
+        discovery_awaitables_per_broadcast_address = [
+            Discover.discover(target=address)
+            for address in self._get_broadcast_addresses()
+        ]
+
+        return await asyncio.gather(*discovery_awaitables_per_broadcast_address)
 
     def _get_broadcast_addresses(self) -> set[str]:
         return {
