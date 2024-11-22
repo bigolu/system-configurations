@@ -14,11 +14,11 @@ import operator
 import sys
 from argparse import ArgumentParser, Namespace
 from functools import reduce
-from typing import Optional, Self, TypeGuard
+from typing import Optional, Self
 
 import psutil
 from diskcache import Cache
-from kasa import Device, DeviceType, Discover, KasaException
+from kasa import Device, Discover, KasaException
 from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
@@ -26,10 +26,10 @@ from typing_extensions import cast
 NAME = "plugctl"
 
 
-class KasaPlug(object):
+class KasaPlug:
     _cache = Cache(user_cache_dir(NAME))
 
-    _plug: Optional[IotPlug]
+    _plug: IotPlug
 
     @classmethod
     async def connect(cls, alias: str) -> Self:
@@ -38,15 +38,12 @@ class KasaPlug(object):
         return plug
 
     async def turn_off(self) -> None:
-        assert self._is_plug_present(self._plug)
         await self._plug.turn_off()
 
     async def turn_on(self) -> None:
-        assert self._is_plug_present(self._plug)
         await self._plug.turn_on()
 
     async def is_on(self) -> bool:
-        assert self._is_plug_present(self._plug)
         await self._plug.update()
         # TODO: This function does return a bool, but they're using a 'type: ignore'
         # on the property so type checkers can't verify the type. I should open an
@@ -54,15 +51,11 @@ class KasaPlug(object):
         return cast(bool, self._plug.is_on)
 
     async def _connect(self, alias: str) -> None:
-        self._plug = await self._discover_plug(alias)
-        if self._plug is None:
-            raise Exception(f"Unable to find a plug with alias: {alias}")
-
-    def _is_plug_present(self, plug: Optional[IotPlug]) -> TypeGuard[IotPlug]:
+        plug = await self._discover_plug(alias)
         if plug is not None:
-            return True
+            self._plug = plug
         else:
-            raise Exception("You need to be connected to a plug to call this method")
+            raise Exception(f"Unable to find a plug with alias: {alias}")
 
     async def _discover_plug(self, alias: str) -> Optional[IotPlug]:
         plug = await self._get_plug_from_cache(alias)
@@ -70,14 +63,11 @@ class KasaPlug(object):
             return plug
 
         for ip_address, device in (await self._discover_devices()).items():
-            if device.alias == alias and self._is_plug(device):
+            if device.alias == alias and isinstance(device, IotPlug):
                 KasaPlug._cache[alias] = ip_address
                 return device
 
         return None
-
-    def _is_plug(self, device: Device) -> TypeGuard[IotPlug]:
-        return device.device_type is DeviceType.Plug
 
     async def _get_plug_from_cache(self, alias: str) -> Optional[IotPlug]:
         if alias not in KasaPlug._cache:
@@ -93,7 +83,7 @@ class KasaPlug(object):
             del self._cache[alias]
             return None
 
-        if self._is_plug(device):
+        if isinstance(device, IotPlug):
             return device
         else:
             del self._cache[alias]
@@ -105,25 +95,24 @@ class KasaPlug(object):
         # network' which will mean that of the VPN network when I'm connected to it
         # and not that of my actual wifi/ethernet network. To get around this, I run
         # discovery on all the broadcast addresses found on my machine.
-        return self._merge_dicts(await self._discover_devices_per_broadcast_address())
-
-    def _merge_dicts[KeyT, ValueT](
-        self, dicts: list[dict[KeyT, ValueT]]
-    ) -> dict[KeyT, ValueT]:
-        return reduce(operator.or_, dicts, {})
-
-    async def _discover_devices_per_broadcast_address(self) -> list[dict[str, Device]]:
         discovery_awaitables_per_broadcast_address = [
             Discover.discover(target=address)
             for address in self._get_broadcast_addresses()
         ]
+        devices_per_broadcast_address = await asyncio.gather(
+            *discovery_awaitables_per_broadcast_address
+        )
+        merged_devices: dict[str, Device] = reduce(
+            operator.or_, devices_per_broadcast_address, {}
+        )
 
-        return await asyncio.gather(*discovery_awaitables_per_broadcast_address)
+        return merged_devices
 
     def _get_broadcast_addresses(self) -> set[str]:
+        ip_addresses_per_network_card = psutil.net_if_addrs().values()
         return {
             address.broadcast
-            for addresses in psutil.net_if_addrs().values()
+            for addresses in ip_addresses_per_network_card
             for address in addresses
             if address.broadcast is not None
         }
