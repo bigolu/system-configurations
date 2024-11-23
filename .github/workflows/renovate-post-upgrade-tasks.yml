@@ -82,7 +82,7 @@ jobs:
       - run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             old_message="$(git show --no-patch --format=%B)"
-            new_message="$old_message"$'\n'$'\n'"Co-authored-by: $GIT_USER <$GIT_EMAIL>"
+            new_message="$old_message"$'\n\n'"Co-authored-by: $GIT_USER <$GIT_EMAIL>"
             git add --all
             git \
               -c user.name="$GIT_USER" \
