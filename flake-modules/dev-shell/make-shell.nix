@@ -62,12 +62,11 @@ let
               };
             in
             ''
-              # You may be wondering why I'm not just using $PWD instead of a
-              # fileset. cached-nix-shell traces the files accessed during the
-              # nix-shell invocation so it knows when to invalidate the cache. When I
-              # use PWD, a lot of files unrelated to nix, like <REPO>/.git/index,
-              # become part of the trace, resulting in a lot of unnecessary cache
-              # invalidations.
+              # You may be wondering why I'm using a fileset instead of just using
+              # $PWD. cached-nix-shell traces the files accessed during the nix-shell
+              # invocation so it knows when to invalidate the cache. When I use $PWD,
+              # a lot of files unrelated to nix, like <REPO>/.git/index, become part
+              # of the trace, resulting in a lot of unnecessary cache invalidations.
               export NIX_PATH="nixpkgs=${packages}/nixpkgs.nix''${NIX_PATH+:}''${NIX_PATH:-}"
             '';
         in
