@@ -2,7 +2,7 @@ vim.g.colors_name = "ansi"
 
 local groups = {
   -- modes {{{
-  Normal = { ctermbg = "NONE", ctermfg = "NONE" },
+  Normal = { ctermbg = "NONE", ctermfg = 7 },
   Visual = { ctermfg = 3, reverse = true },
   VisualNOS = "Normal", -- Visual mode selection when vim is "Not Owning the Selection".
   -- }}}
@@ -342,6 +342,7 @@ local groups = {
   ["@tag.builtin"] = "Normal",
   ["@tag.attribute"] = "Tag",
   ["@tag.delimiter"] = "Delimiter",
+  ["@attribute.builtin.python"] = "Normal",
   -- }}}
 
   -- vim-signify {{{
