@@ -1,5 +1,5 @@
 """
-Command-line tool for controlling a Kasa smart plug. The kasa library used here
+Command-Line tool for controlling a Kasa smart plug. The kasa library used here
 also has a CLI, but this one has two additional features:
     - Support for discovering devices when connected to a VPN without having to
       explicitly set a broadcast address.
@@ -23,11 +23,12 @@ from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
 
-NAME = "plugctl"
+CLI_NAME = "plugctl"
 
 
 class KasaPlug:
-    _cache = Cache(user_cache_dir(NAME))
+    # Key: plug alias, Value: IP address
+    _ip_address_cache = Cache(user_cache_dir(CLI_NAME))
 
     _plug: IotPlug
 
@@ -62,31 +63,35 @@ class KasaPlug:
         if plug is not None:
             return plug
 
-        for ip_address, device in (await self._discover_devices()).items():
+        devices_by_ip_address = await self._discover_devices()
+        for ip_address, device in devices_by_ip_address.items():
             if device.alias == alias and isinstance(device, IotPlug):
-                KasaPlug._cache[alias] = ip_address
+                self._add_plug_to_cache(device)
                 return device
 
         return None
 
+    def _add_plug_to_cache(self, plug: IotPlug) -> None:
+        KasaPlug._ip_address_cache[plug.alias] = plug.host
+
     async def _get_plug_from_cache(self, alias: str) -> Optional[IotPlug]:
-        if alias not in KasaPlug._cache:
+        if alias not in KasaPlug._ip_address_cache:
             return None
 
-        ip_address = KasaPlug._cache[alias]
+        ip_address = KasaPlug._ip_address_cache[alias]
         assert isinstance(ip_address, str)
 
         try:
             # TODO: This returns a Device, but I think it should return an IotPlug.
             device = await IotPlug.connect(host=ip_address)
         except (KasaException, TimeoutError):
-            del self._cache[alias]
+            del self._ip_address_cache[alias]
             return None
 
         if isinstance(device, IotPlug):
             return device
         else:
-            del self._cache[alias]
+            del self._ip_address_cache[alias]
             return None
 
     async def _discover_devices(self) -> dict[str, Device]:
@@ -124,7 +129,7 @@ def parse_args() -> Namespace:
             super().__init__(prog, width=100)
 
     parser = ArgumentParser(
-        prog=NAME,
+        prog=CLI_NAME,
         description="Control a Kasa smart plug.",
         formatter_class=MaxWidthHelpFormatter,
     )
@@ -149,7 +154,8 @@ async def main() -> None:
     plug = await KasaPlug.connect(args.alias)
     match args.command:
         case "status":
-            sys.exit(0 if await plug.is_on() else 1)
+            exit_code = 0 if await plug.is_on() else 1
+            sys.exit(exit_code)
         case "on":
             await plug.turn_on()
         case "off":
