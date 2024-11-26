@@ -867,12 +867,6 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 }
 
 func SelfExtractAndRunNixEntrypoint() (exitCode int, err error) {
-	NextStep(
-		-1,
-		"Initializing",
-		progressbar.OptionSpinnerType(14),
-	)
-
 	extractedArchivePath, cachePath, err := ExtractArchiveAndRewritePaths()
 	if err != nil {
 		return -1, err
