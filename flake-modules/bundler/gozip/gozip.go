@@ -32,9 +32,8 @@ import (
 var currentBar *progressbar.ProgressBar = nil
 
 var writer = func() io.Writer {
-	writer := os.Stderr
-	if term.IsTerminal(int(writer.Fd())) && len(os.Getenv("NIX_ROOTLESS_BUNDLER_QUIET")) == 0 {
-		return writer
+	if term.IsTerminal(int(os.Stderr.Fd())) && len(os.Getenv("NIX_ROOTLESS_BUNDLER_QUIET")) == 0 {
+		return os.Stderr
 	}
 
 	return io.Discard
