@@ -1,8 +1,6 @@
 #! /usr/bin/env cached-nix-shell
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter ast-grep jq coreutils gnused
-# ^ WARNING: Dependencies must be in this format to get parsed properly and added to
-# dependencies.txt
 
 set -o errexit
 set -o nounset
