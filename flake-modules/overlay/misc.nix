@@ -66,8 +66,10 @@ let
         wrapProgram $out/bin/nvim \
           --set TERMINFO_DIRS '${myTerminfoDatabase}/share/terminfo' \
           --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
-          --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} \
-          --prefix PATH : ${lib.escapeShellArg generalBin} ${lib.strings.optionalString isDarwin "--prefix PATH : ${generalMacosBin}"} ${lib.strings.optionalString isLinux "--prefix PATH : ${neovimLinuxBin}"}
+          --prefix PATH : ${dependencies}/bin \
+          --prefix PATH : ${generalBin} \
+          ${lib.strings.optionalString isDarwin "--prefix PATH : ${generalMacosBin}"} \
+          ${lib.strings.optionalString isLinux "--prefix PATH : ${neovimLinuxBin}"}
       '';
     };
 
@@ -92,7 +94,9 @@ let
       paths = [ prev.ripgrep-all ];
       buildInputs = [ final.makeWrapper ];
       postBuild = ''
-        wrapProgram $out/bin/rga --prefix PATH : ${lib.escapeShellArg "${dependencies}/bin"} --prefix PATH : ${lib.escapeShellArg ripgrepBin}
+        wrapProgram $out/bin/rga \
+          --prefix PATH : ${dependencies}/bin \
+          --prefix PATH : ${ripgrepBin}
       '';
     };
 
