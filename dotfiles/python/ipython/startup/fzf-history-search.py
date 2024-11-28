@@ -227,7 +227,7 @@ def _get_history_from_connection(con) -> Generator[HistoryEntry, None, None]:
         session_to_start_time[session] = start_time
     query = """
     SELECT session, source_raw FROM (
-        SELECT session, source_raw, rowid FROM history ORDER BY rowid DESC
+        SELECT session, source_raw, rowid FROM history GROUP BY source_raw ORDER BY rowid DESC
     )
     """
     for session, source_raw in con.execute(query):
