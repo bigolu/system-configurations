@@ -218,21 +218,14 @@ format:
         taplo format {files}
     prettier:
       glob: "*.{md,js,json,json{5,c},yml,yaml}"
-      # VS Code's configuration files end in .json, so prettier will format
-      # them using the json parser, but they are actually jsonc files.
+      # VS Code formats its settings files automatically when you change a setting
+      # through its UI.
       exclude: ["*.vscode/*.json"]
       # TODO: Get prettier to not log unchanged files:
       # https://github.com/prettier/prettier/issues/2611
       run: >
         ./scripts/run-check-with-reviewdog.bash --
         prettier --write {files}
-    # VS Code's configuration files end in .json, but they are actually jsonc
-    # files.
-    prettier-vscode:
-      glob: "*.vscode/*.json"
-      run: >
-        ./scripts/run-check-with-reviewdog.bash -name=prettier-vscode --
-        prettier --parser jsonc --write {files}
     shfmt:
       glob: "*.{envrc,sh,bash}"
       run: >
@@ -436,7 +429,7 @@ check-lint:
     # can't tell when the tool outputs errors.
     config-file-validator:
       glob: "*.{editorconfig,json,ini}"
-      # VS Code's configuration files aren't actually JSON files, they're JSONC.
+      # VS Code's configuration files end in .json, but they're actually jsonc files.
       exclude: ["*.vscode/*.json"]
       # TODO: SARIF support is being added:
       # https://github.com/Boeing/config-file-validator/issues/32
