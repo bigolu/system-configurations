@@ -83,5 +83,7 @@
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "python.defaultInterpreterPath": ".direnv/python/bin/python",
 
-  "editor.rulers": [85],
+  "editor.rulers": [
+    85
+  ],
 }
