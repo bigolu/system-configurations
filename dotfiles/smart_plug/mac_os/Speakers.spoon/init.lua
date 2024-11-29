@@ -1,4 +1,4 @@
-local GarbageCollectorRoot = {}
+local garbage_collector_roots = {}
 
 local function execute(executable, arguments, callback)
   -- I'm using hs.task because os.execute was really slow[1].
@@ -36,35 +36,35 @@ local function listen(speakerctl_path)
     return exit_code == 0
   end
 
-  local watcher = hs.caffeinate.watcher
-  GarbageCollectorRoot.watcher = watcher
-    .new(function(event)
-      if not is_laptop_docked() then
-        return
-      end
+  local hs_watcher = hs.caffeinate.watcher
+  local watcher = hs_watcher.new(function(event)
+    if not is_laptop_docked() then
+      return
+    end
 
-      if
-        hs.fnutils.contains({
-          watcher.screensDidLock,
-          watcher.screensaverDidStart,
-          watcher.screensDidSleep,
-          watcher.systemWillPowerOff,
-          watcher.systemWillSleep,
-        }, event)
-      then
-        turn_off()
-      elseif
-        hs.fnutils.contains({
-          watcher.screensDidUnlock,
-          watcher.screensaverDidStop,
-          watcher.screensDidWake,
-          watcher.systemDidWake,
-        }, event)
-      then
-        turn_on()
-      end
-    end)
-    :start()
+    if
+      hs.fnutils.contains({
+        hs_watcher.screensDidLock,
+        hs_watcher.screensaverDidStart,
+        hs_watcher.screensDidSleep,
+        hs_watcher.systemWillPowerOff,
+        hs_watcher.systemWillSleep,
+      }, event)
+    then
+      turn_off()
+    elseif
+      hs.fnutils.contains({
+        hs_watcher.screensDidUnlock,
+        hs_watcher.screensaverDidStop,
+        hs_watcher.screensDidWake,
+        hs_watcher.systemDidWake,
+      }, event)
+    then
+      turn_on()
+    end
+  end)
+  watcher:start()
+  table.insert(garbage_collector_roots, watcher)
 
   -- If the computer is docked before I turn it on, then hammerspoon won't start
   -- until I've already logged in so the speakers won't turn on. To get around
@@ -85,4 +85,4 @@ get_command_output("/usr/bin/env", {
   [[command -v speakerctl]],
 }, listen)
 
-return GarbageCollectorRoot
+return garbage_collector_roots
