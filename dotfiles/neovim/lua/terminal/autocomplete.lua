@@ -1,6 +1,6 @@
 vim.o.complete = ".,w,b,u"
 vim.o.pumheight = 6
-vim.o.completeopt = "menu,popup,fuzzy,noselect"
+vim.o.completeopt = "menu,menuone,popup,fuzzy,noselect"
 
 -- Should be idempotent since it may be called multiple times for the same
 -- buffer. For example, it could get called again if a server registers
@@ -63,6 +63,10 @@ keymap("<Tab>", function()
     -- Select next entry
     feedkeys("<C-n>")
   elseif is_cursor_preceded_by_nonblank_character() then
+    -- TODO: A definition of get_clients in mini.nvim is being used by linters
+    -- instead of the one from the neovim runtime. Since it has a different signature
+    -- than the real one, linters think I'm calling it incorrectly.
+    ---@diagnostic disable-next-line: redundant-parameter
     local is_any_lsp_server_running = next(vim.lsp.get_clients({ bufnr = 0 }))
     if is_any_lsp_server_running then
       vim.lsp.completion.trigger()

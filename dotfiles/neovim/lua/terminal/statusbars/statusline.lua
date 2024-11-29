@@ -196,6 +196,10 @@ function StatusLine()
 
   local lsp_info = nil
   local language_server_count_for_current_buffer =
+    -- TODO: A definition of get_clients in mini.nvim is being used by linters
+    -- instead of the one from the neovim runtime. Since it has a different signature
+    -- than the real one, linters think I'm calling it incorrectly.
+    ---@diagnostic disable-next-line: redundant-parameter
     #vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
   if language_server_count_for_current_buffer > 0 then
     lsp_info = "%#StatusLine# " .. language_server_count_for_current_buffer
