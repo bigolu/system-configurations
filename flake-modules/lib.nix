@@ -31,6 +31,9 @@
       {
         allowed-users = [ "*" ];
 
+        # https://github.com/NixOS/nix/issues/4442
+        always-allow-substitutes = true;
+
         # Doesn't work on macOS
         auto-optimise-store = pkgs.stdenv.isLinux;
 
@@ -39,6 +42,9 @@
         builders = null;
 
         cores = 0;
+
+        # Double the default size (64MiB -> 124MiB) since I kept hitting it
+        download-buffer-size = 134217728;
 
         max-jobs = "auto";
 
