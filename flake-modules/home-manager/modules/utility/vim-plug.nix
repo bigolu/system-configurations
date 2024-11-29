@@ -28,6 +28,13 @@ in
       }
     '';
 
-    "nvim/site/parser".source = "${pkgs.vimPlugins.treesitter-parsers}/parser";
+    "nvim/site/parser".source =
+      let
+        allTreesitterParsers = pkgs.symlinkJoin {
+          name = "all-treesitter-parsers";
+          paths = pkgs.vimPlugins.nvim-treesitter.withAllGrammars.dependencies;
+        };
+      in
+      "${allTreesitterParsers}/parser";
   };
 }

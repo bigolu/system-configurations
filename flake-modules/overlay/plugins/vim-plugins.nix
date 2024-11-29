@@ -3,39 +3,26 @@ final: prev:
 let
   inherit (final) lib;
 
-  vimPluginRepositoryPrefix = "vim-plugin-";
+  vimPluginsFromFlake =
+    let
+      vimPluginRepositoryPrefix = "vim-plugin-";
 
-  vimPluginBuilder =
-    repositoryName: repositorySourceCode: date:
-    if builtins.hasAttr repositoryName prev.vimPlugins then
-      prev.vimPlugins.${repositoryName}.overrideAttrs (_old: {
-        name = "${repositoryName}-${date}";
-        version = date;
-        src = repositorySourceCode;
-      })
-    else
-      prev.vimUtils.buildVimPlugin {
-        pname = repositoryName;
-        version = date;
-        src = repositorySourceCode;
-      };
-
-  newVimPlugins = makePluginPackages vimPluginRepositoryPrefix vimPluginBuilder;
-
-  treesitter-parsers = final.symlinkJoin {
-    name = "treesitter-parsers";
-    paths = newVimPlugins.nvim-treesitter.withAllGrammars.dependencies;
-  };
-
-  vimPlugins =
-    prev.vimPlugins
-    // newVimPlugins
-    // {
-      inherit treesitter-parsers;
-      # remove treesitter parser plugins because they were ending up in my
-      # 'plugged' directory
-      nvim-treesitter = newVimPlugins.nvim-treesitter.withPlugins (_: [ ]);
-    };
+      vimPluginBuilder =
+        repositoryName: repositorySourceCode: date:
+        if builtins.hasAttr repositoryName prev.vimPlugins then
+          prev.vimPlugins.${repositoryName}.overrideAttrs (_old: {
+            name = "${repositoryName}-${date}";
+            version = date;
+            src = repositorySourceCode;
+          })
+        else
+          prev.vimUtils.buildVimPlugin {
+            pname = repositoryName;
+            version = date;
+            src = repositorySourceCode;
+          };
+    in
+    makePluginPackages vimPluginRepositoryPrefix vimPluginBuilder;
 
   myVimPlugins =
     let
@@ -65,5 +52,6 @@ let
     );
 in
 {
-  inherit vimPlugins myVimPlugins;
+  inherit myVimPlugins;
+  vimPlugins = prev.vimPlugins // vimPluginsFromFlake;
 }
