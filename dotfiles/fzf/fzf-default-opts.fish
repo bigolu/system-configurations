@@ -2,9 +2,11 @@
 # the shell is non-interactive so I can call the fish functions defined here
 # from fzf bindings.
 
+set --local accent_color cyan
+
 set --local xdg_data (test -n "$XDG_DATA_HOME" && echo "$XDG_DATA_HOME" || echo "$HOME/.local/share")
 
-set _bigolu_fzf_help_text " $(set_color blue)ctrl+h$(set_color normal) show help page "
+set _bigolu_fzf_help_text " $(set_color $accent_color)ctrl+h$(set_color normal) show help page "
 
 function __flag
     set name $argv[1]
@@ -33,7 +35,7 @@ end
 
 function _bigolu_fzf_preview_toggle --argument-names name keybind preview
     if not string match --quiet --regex -- ".*$name.*go back.*" "$FZF_BORDER_LABEL"
-        echo "preview($preview)+preview-top+change-border-label@ $name ($(set_color blue)$keybind$(set_color normal) to go back) @"
+        echo "preview($preview)+preview-top+change-border-label@ $name ($(set_color $accent_color)$keybind$(set_color normal) to go back) @"
     else
         echo "refresh-preview+change-border-label@$_bigolu_fzf_help_text@"
     end
@@ -92,8 +94,8 @@ set flags \
         'marker:6:bold' \
         'header:8' \
         'spinner:yellow' \
-        'hl:blue' \
-        'hl+:regular:blue:underline' \
+        "hl:$accent_color" \
+        "hl+:regular:$accent_color:underline" \
         'scrollbar:8:dim' \
         'preview-scrollbar:8:dim' \
     ) \

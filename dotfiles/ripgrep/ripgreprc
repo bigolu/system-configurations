@@ -1,10 +1,10 @@
 --no-heading
 --smart-case
 --colors=match:none
---colors=match:fg:blue
+--colors=match:fg:cyan
 --colors=path:none
---colors=path:fg:blue
+--colors=path:fg:cyan
 --colors=line:none
---colors=line:fg:blue
+--colors=line:fg:cyan
 --colors=column:none
---colors=column:fg:blue
+--colors=column:fg:cyan
