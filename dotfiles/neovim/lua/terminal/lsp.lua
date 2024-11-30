@@ -43,7 +43,7 @@ function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
     or { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
   opts.focusable = opts.focusable or true
   opts.max_height = opts.max_height or math.floor(vim.o.lines * 0.35)
-  opts.max_width = opts.max_width or math.floor(vim.o.columns * 0.65)
+  opts.max_width = math.min(80, math.floor(vim.o.columns * 0.65))
 
   return original_open_floating_preview(contents, syntax, opts, ...)
 end
