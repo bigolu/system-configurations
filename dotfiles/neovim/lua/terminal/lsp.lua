@@ -1,6 +1,40 @@
 local methods = vim.lsp.protocol.Methods
 local autocmd_group = vim.api.nvim_create_augroup("bigolu/lsp", {})
 
+vim.keymap.set(
+  "n",
+  "<S-l>",
+  vim.diagnostic.open_float,
+  { desc = "Diagnostic modal [lint,problem]" }
+)
+vim.keymap.set(
+  "n",
+  "[l",
+  vim.diagnostic.goto_prev,
+  { desc = "Previous diagnostic [last,lint,problem]" }
+)
+vim.keymap.set(
+  "n",
+  "]l",
+  vim.diagnostic.goto_next,
+  { desc = "Next diagnostic [lint,problem]" }
+)
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Declaration" })
+vim.keymap.set("n", "gn", vim.lsp.buf.rename, { desc = "Rename variable" })
+vim.keymap.set(
+  { "n", "v" },
+  "ga",
+  vim.lsp.buf.code_action,
+  { desc = "Code actions" }
+)
+vim.keymap.set("n", [[\d]], function()
+  vim.diagnostic.reset(nil, vim.api.nvim_get_current_buf())
+end, { desc = "Toggle diagnostics for buffer" })
+vim.keymap.set("n", [[\i]], function()
+  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), { bufnr = 0 })
+end, { desc = "Toggle inlay hints" })
+vim.keymap.set("n", "gl", vim.lsp.codelens.run, { desc = "Run code lens" })
+
 -- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
 function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
@@ -39,33 +73,6 @@ vim.diagnostic.config({
   },
 })
 
-vim.keymap.set(
-  "n",
-  "<S-l>",
-  vim.diagnostic.open_float,
-  { desc = "Diagnostic modal [lint,problem]" }
-)
-vim.keymap.set(
-  "n",
-  "[l",
-  vim.diagnostic.goto_prev,
-  { desc = "Previous diagnostic [last,lint,problem]" }
-)
-vim.keymap.set(
-  "n",
-  "]l",
-  vim.diagnostic.goto_next,
-  { desc = "Next diagnostic [lint,problem]" }
-)
-vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Declaration" })
-vim.keymap.set("n", "gn", vim.lsp.buf.rename, { desc = "Rename variable" })
-vim.keymap.set(
-  { "n", "v" },
-  "ga",
-  vim.lsp.buf.code_action,
-  { desc = "Code actions" }
-)
-
 -- Hide all semantic highlights
 vim.api.nvim_create_autocmd("ColorScheme", {
   group = autocmd_group,
@@ -98,106 +105,21 @@ vim.lsp.handlers[methods.window_showMessage] = function(_, request, context)
   vim.notify(message, level)
 end
 
--- Should be idempotent since it may be called multiple times for the same
--- buffer. For example, it could get called again if a server registers
--- another capability dynamically.
-local code_lens_refresh_autocmd_ids_by_buffer = {}
-local on_attach = function(client, buffer_number)
-  local keymap_opts = { silent = true, buffer = buffer_number }
-  local function buffer_keymap(mode, lhs, rhs, opts)
-    vim.keymap.set(
-      mode,
-      lhs,
-      rhs,
-      vim.tbl_deep_extend("force", keymap_opts, opts or {})
-    )
-  end
-
-  if client.supports_method(methods.textDocument_inlayHint) then
-    local function toggle_inlay_hints()
-      vim.lsp.inlay_hint.enable(
-        not vim.lsp.inlay_hint.is_enabled(),
-        { bufnr = 0 }
-      )
-    end
-    buffer_keymap(
-      "n",
-      [[\i]],
-      toggle_inlay_hints,
-      { desc = "Toggle inlay hints" }
-    )
-  end
-
-  if client.supports_method(methods.textDocument_codeLens) then
-    local function create_refresh_autocmd()
-      local refresh_autocmd_id =
-        code_lens_refresh_autocmd_ids_by_buffer[buffer_number]
-      if refresh_autocmd_id ~= -1 then
-        vim.notify(
-          "Not creating another code lens refresh autocmd since it doesn't look like the old one was removed. The id of the old one is: "
-            .. refresh_autocmd_id,
-          vim.log.levels.ERROR
-        )
-        return
-      end
-      code_lens_refresh_autocmd_ids_by_buffer[buffer_number] = vim.api.nvim_create_autocmd(
-        { "CursorHold", "InsertLeave" },
-        {
-          desc = "code lens refresh",
-          callback = function()
-            vim.lsp.codelens.refresh({ bufnr = buffer_number })
-          end,
-          buffer = buffer_number,
-        }
-      )
-    end
-
-    local function delete_refresh_autocmd()
-      local refresh_autocmd_id =
-        code_lens_refresh_autocmd_ids_by_buffer[buffer_number]
-      if refresh_autocmd_id == -1 then
-        vim.notify(
-          "Unable to to remove the code lens refresh autocmd because it's id was not found",
-          vim.log.levels.ERROR
-        )
-        return
-      end
-      vim.api.nvim_del_autocmd(refresh_autocmd_id)
-      code_lens_refresh_autocmd_ids_by_buffer[buffer_number] = -1
-    end
-
-    if code_lens_refresh_autocmd_ids_by_buffer[buffer_number] == nil then
-      code_lens_refresh_autocmd_ids_by_buffer[buffer_number] = -1
-      create_refresh_autocmd()
-    end
-
-    buffer_keymap("n", "gl", vim.lsp.codelens.run, { desc = "Run code lens" })
-    buffer_keymap("n", [[\l]], function()
-      local refresh_autocmd_id =
-        code_lens_refresh_autocmd_ids_by_buffer[buffer_number]
-      local is_refresh_autocmd_active = refresh_autocmd_id ~= -1
-      if is_refresh_autocmd_active then
-        delete_refresh_autocmd()
-        vim.lsp.codelens.clear(client.id, buffer_number)
-      else
-        create_refresh_autocmd()
-      end
-    end, { desc = "Toggle code lenses" })
-  end
-
-  -- Quick way to disable diagnostic for a buffer
-  buffer_keymap("n", [[\d]], function()
-    vim.diagnostic.reset(nil, buffer_number)
-  end, { desc = "Toggle diagnostics for buffer" })
-end
-
+-- Fire a single event for when a server first starts _and_ when it registers a
+-- capability dynamically. This should be simpler once this issue is resolved:
+--
+-- https://github.com/neovim/neovim/issues/24229
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
-    on_attach(vim.lsp.get_client_by_id(args.data.client_id), args.buf)
+    vim.api.nvim_exec_autocmds("User", {
+      pattern = "LspAttach",
+      data = {
+        client = vim.lsp.get_client_by_id(args.data.client_id),
+        buffer = args.buf,
+      },
+    })
   end,
 })
--- When a server registers a capability dynamically, call on_attach again
--- for the buffers attached to it.
 local original_register_capability =
   vim.lsp.handlers[methods.client_registerCapability]
 vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
@@ -206,12 +128,84 @@ vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
   local client = vim.lsp.get_client_by_id(ctx.client_id)
   if client then
     vim.iter(vim.lsp.get_buffers_by_client_id(client.id)):each(function(buf)
-      on_attach(client, buf)
+      vim.api.nvim_exec_autocmds("User", {
+        pattern = "LspAttach",
+        data = {
+          client = client,
+          buffer = buf,
+        },
+      })
     end)
   end
 
   return unpack(original_return_value)
 end
+
+-- codelens utils
+local code_lens_refresh_autocmd_ids_by_buffer = {}
+local function create_refresh_autocmd(buffer)
+  local refresh_autocmd_id = code_lens_refresh_autocmd_ids_by_buffer[buffer]
+  if refresh_autocmd_id ~= -1 then
+    vim.notify(
+      "Not creating another code lens refresh autocmd since it doesn't look like the old one was removed. The id of the old one is: "
+        .. refresh_autocmd_id,
+      vim.log.levels.ERROR
+    )
+    return
+  end
+  code_lens_refresh_autocmd_ids_by_buffer[buffer] = vim.api.nvim_create_autocmd(
+    { "CursorHold", "InsertLeave" },
+    {
+      desc = "code lens refresh",
+      callback = function()
+        vim.lsp.codelens.refresh({ bufnr = buffer })
+      end,
+      buffer = buffer,
+    }
+  )
+end
+local function delete_refresh_autocmd(buffer)
+  local refresh_autocmd_id = code_lens_refresh_autocmd_ids_by_buffer[buffer]
+  if refresh_autocmd_id == -1 then
+    vim.notify(
+      "Unable to to remove the code lens refresh autocmd because its id was not found",
+      vim.log.levels.ERROR
+    )
+    return
+  end
+  vim.api.nvim_del_autocmd(refresh_autocmd_id)
+  code_lens_refresh_autocmd_ids_by_buffer[buffer] = -1
+end
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LspAttach",
+
+  -- Should be idempotent since it may be called multiple times for the same buffer
+  -- if a server registers a capability dynamically.
+  callback = function(context)
+    local client = context.data.client
+    local buffer = context.data.buffer
+
+    if client.supports_method(methods.textDocument_codeLens) then
+      if code_lens_refresh_autocmd_ids_by_buffer[buffer] == nil then
+        code_lens_refresh_autocmd_ids_by_buffer[buffer] = -1
+        create_refresh_autocmd(buffer)
+      end
+
+      vim.keymap.set("n", [[\l]], function()
+        local refresh_autocmd_id =
+          code_lens_refresh_autocmd_ids_by_buffer[buffer]
+        local is_refresh_autocmd_active = refresh_autocmd_id ~= -1
+        if is_refresh_autocmd_active then
+          delete_refresh_autocmd(buffer)
+          vim.lsp.codelens.clear(client.id, buffer)
+        else
+          create_refresh_autocmd(buffer)
+        end
+      end, { desc = "Toggle code lenses" })
+    end
+  end,
+})
 
 Plug("lvim-tech/nvim-lightbulb", {
   config = function()
@@ -227,16 +221,11 @@ Plug("lvim-tech/nvim-lightbulb", {
   end,
 })
 
-Plug("neovim/nvim-lspconfig", {
-  config = function()
-    vim.api.nvim_create_user_command("LspServerConfigurations", function()
-      vim.cmd.Help("lspconfig-all")
-    end, {})
-  end,
-})
+Plug("neovim/nvim-lspconfig")
 
 Plug("b0o/SchemaStore.nvim")
 
+-- An error is printed if nix isn't available
 if vim.fn.executable("nix") == 1 then
   Plug("dundalek/lazy-lsp.nvim", {
     config = function()
@@ -248,15 +237,11 @@ if vim.fn.executable("nix") == 1 then
           "jedi_language_server",
           "basedpyright",
           "pylsp",
-          "nixd",
+          "nil_ls",
           "quick_lint_js",
           "denols",
         },
 
-        -- TODO: consider contributing some these settings to nvim-lspconfig
-        --
-        -- The JSON/YAML configuration came from here:
-        -- https://www.arthurkoziel.com/json-schemas-in-neovim/
         configs = {
           jsonls = {
             settings = {
@@ -287,8 +272,8 @@ if vim.fn.executable("nix") == 1 then
       -- buffers that were opened before it was configured. This way I can load
       -- nvim-lsp-config asynchronously.
       --
-      -- Set the filetype of all the currently open buffers to trigger a 'FileType' event for each
-      -- buffer. This will trigger lsp attach
+      -- Set the filetype of all the currently open buffers to trigger a 'FileType'
+      -- event for each buffer. This will trigger lsp attach
       vim.iter(vim.api.nvim_list_bufs()):each(function(buf)
         vim.bo[buf].filetype = vim.bo[buf].filetype
       end)
