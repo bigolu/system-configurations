@@ -202,7 +202,7 @@ vim.api.nvim_create_autocmd("User", {
         else
           create_refresh_autocmd(buffer)
         end
-      end, { desc = "Toggle code lenses" })
+      end, { desc = "Toggle code lenses", buffer = buffer })
     end
   end,
 })
@@ -229,18 +229,30 @@ Plug("b0o/SchemaStore.nvim")
 if vim.fn.executable("nix") == 1 then
   Plug("dundalek/lazy-lsp.nvim", {
     config = function()
+      local excluded_servers = {
+        "pylyzer",
+        "jedi_language_server",
+        "basedpyright",
+        "pylsp",
+        "nil_ls",
+        "quick_lint_js",
+      }
+      -- TODO: See if it makes sense to upstream this to nvim-lspconfig. Some of
+      -- these files are optional so it wouldn't make sense to upstream those.
+      local maybe_excluded_severs = {
+        denols = { "deno.json", "deno.jsonc" },
+        tailwindcss = { "tailwind.config.js" },
+      }
+      for name, files in pairs(maybe_excluded_severs) do
+        if not next(vim.fs.find(files, { upward = true })) then
+          table.insert(excluded_servers, name)
+        end
+      end
+
       require("lazy-lsp").setup({
         prefer_local = true,
 
-        excluded_servers = {
-          "pylyzer",
-          "jedi_language_server",
-          "basedpyright",
-          "pylsp",
-          "nil_ls",
-          "quick_lint_js",
-          "denols",
-        },
+        excluded_servers = excluded_servers,
 
         configs = {
           jsonls = {
