@@ -30,6 +30,8 @@ ffi.cdef([[
   int compute_foldcolumn(win_T *wp, int col);
   int win_col_off(win_T *wp);
 ]])
+-- This should be much simpler when this issue is resolved:
+-- https://github.com/neovim/neovim/issues/21740
 local function get_fold_section()
   local wp =
     ffi.C.find_window_by_handle(vim.g.statusline_winid, ffi.new("Error"))
@@ -88,22 +90,7 @@ function StatusColumn()
   end
   local border_section = border_highlight .. border_char
 
-  local line_number_section = nil
-  if not ShowLineNumbers then
-    line_number_section = ""
-  else
-    local last_line_digit_count =
-      #tostring(vim.fn.line("$", vim.g.statusline_winid))
-    if is_virtual_line() or is_wrapped_line() then
-      line_number_section = string.rep(" ", last_line_digit_count)
-    else
-      local line_number = tostring(vim.v.lnum)
-      local line_number_padding =
-        string.rep(" ", last_line_digit_count - #line_number)
-      line_number_section = line_number_padding .. line_number
-    end
-  end
-
+  local line_number_section = "%l"
   local fold_section = get_fold_section()
   local sign_section = "%s"
   local align_right = "%="

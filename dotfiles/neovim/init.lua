@@ -6,7 +6,7 @@
 --
 -- Since Nix sets the modification time of all files to the epoch, the cache
 -- isn't invalidated properly.
-vim.loader.disable()
+vim.loader.enable(false)
 
 -- Every time we enter a buffer, reset the fold options. This avoids the issue
 -- where you set a foldmethod maybe because the attached LSP server supports

@@ -157,6 +157,7 @@ local groups = {
   LspInlayHint = { bold = true, italic = true, ctermfg = 15 },
   LspCodeLens = "LspInlayHint", -- Used to color the virtual text of the codelens. See |nvim_buf_set_extmark()|.
   LspCodeLensSeparator = { bold = true, italic = true, ctermfg = 8 }, -- Used to color the separator between two or more code lens.
+  LspReferenceTarget = { ctermfg = "NONE", ctermbg = "NONE" },
   -- }}}
 
   Conceal = { ctermfg = 8 }, -- Placeholder characters substituted for concealed text (see 'conceallevel')

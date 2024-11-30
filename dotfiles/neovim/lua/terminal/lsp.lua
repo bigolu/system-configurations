@@ -113,14 +113,6 @@ local on_attach = function(client, buffer_number)
     )
   end
 
-  local isKeywordprgOverridable = vim.bo[buffer_number].filetype ~= "vim"
-  if
-    client.supports_method(methods.textDocument_hover)
-    and isKeywordprgOverridable
-  then
-    buffer_keymap("n", "K", vim.lsp.buf.hover)
-  end
-
   if client.supports_method(methods.textDocument_inlayHint) then
     local function toggle_inlay_hints()
       vim.lsp.inlay_hint.enable(
@@ -133,15 +125,6 @@ local on_attach = function(client, buffer_number)
       [[\i]],
       toggle_inlay_hints,
       { desc = "Toggle inlay hints" }
-    )
-  end
-
-  if client.supports_method(methods.textDocument_signatureHelp) then
-    buffer_keymap(
-      "i",
-      "<C-k>",
-      vim.lsp.buf.signature_help,
-      { desc = "Signature help" }
     )
   end
 
@@ -202,59 +185,17 @@ local on_attach = function(client, buffer_number)
     end, { desc = "Toggle code lenses" })
   end
 
-  -- TODO: I try just calling diagnostic.reset in here, but it
-  -- didn't work. It has to be called after the handler for
-  -- textDocument_(publishD|d)iagnostic runs so in here we just queue up
-  -- the bufs to disable.
-  local is_buffer_outside_workspace = not vim.startswith(
-    vim.api.nvim_buf_get_name(buffer_number),
-    client.config.root_dir or vim.loop.cwd() or ""
-  )
-  if is_buffer_outside_workspace then
-    vim.diagnostic.reset(nil, buffer_number)
-    table.insert(BufsToDisableDiagnosticOnDiagnostic, buffer_number)
-    table.insert(BufsToDisableDiagnosticOnPublishDiagnostic, buffer_number)
-  end
-
   -- Quick way to disable diagnostic for a buffer
   buffer_keymap("n", [[\d]], function()
     vim.diagnostic.reset(nil, buffer_number)
   end, { desc = "Toggle diagnostics for buffer" })
 end
+
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     on_attach(vim.lsp.get_client_by_id(args.data.client_id), args.buf)
   end,
 })
--- TODO: Would be better if I could get the buffer the these diagnostics
--- were for from the context, but it's not in there.
-BufsToDisableDiagnosticOnPublishDiagnostic = {}
-local original_publish_diagnostics_handler =
-  vim.lsp.handlers[methods.textDocument_publishDiagnostics]
-vim.lsp.handlers[methods.textDocument_publishDiagnostics] = function(...)
-  local toreturn = { original_publish_diagnostics_handler(...) }
-
-  vim.iter(BufsToDisableDiagnosticOnPublishDiagnostic):each(function(b)
-    vim.diagnostic.reset(nil, b)
-  end)
-  BufsToDisableDiagnosticOnPublishDiagnostic = {}
-
-  return unpack(toreturn)
-end
-BufsToDisableDiagnosticOnDiagnostic = {}
-local original_diagnostic_handler =
-  vim.lsp.handlers[methods.textDocument_diagnostic]
-vim.lsp.handlers[methods.textDocument_diagnostic] = function(...)
-  local toreturn = { original_diagnostic_handler(...) }
-
-  vim.iter(BufsToDisableDiagnosticOnDiagnostic):each(function(b)
-    vim.diagnostic.reset(nil, b)
-  end)
-  BufsToDisableDiagnosticOnDiagnostic = {}
-
-  return unpack(toreturn)
-end
-
 -- When a server registers a capability dynamically, call on_attach again
 -- for the buffers attached to it.
 local original_register_capability =

@@ -285,9 +285,7 @@ vim.keymap.set(
   { silent = true, desc = "Toggle whitespace indicator" }
 )
 vim.keymap.set("n", [[\n]], function()
-  ShowLineNumbers = not ShowLineNumbers
-  -- So the statuscolumns in all windows redraw
-  vim.cmd.redraw({ bang = true })
+  vim.o.number = not vim.o.number
 end, { silent = true, desc = "Toggle line numbers" })
 
 -- Terminal {{{
