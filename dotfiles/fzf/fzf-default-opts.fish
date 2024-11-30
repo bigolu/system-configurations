@@ -2,7 +2,7 @@
 # the shell is non-interactive so I can call the fish functions defined here
 # from fzf bindings.
 
-set --local accent_color cyan
+set accent_color cyan
 
 set --local xdg_data (test -n "$XDG_DATA_HOME" && echo "$XDG_DATA_HOME" || echo "$HOME/.local/share")
 

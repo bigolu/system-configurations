@@ -4,5 +4,5 @@
 --colors=path:none
 --colors=path:style:underline
 --colors=line:none
---colors=line:fg:magenta
+--colors=line:fg:8
 --colors=column:none

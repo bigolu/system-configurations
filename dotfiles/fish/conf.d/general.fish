@@ -61,7 +61,7 @@ end
 abbr --add --global -- vim nvim
 
 # Change the color grep uses for highlighting matches to magenta
-set --global --export GREP_COLORS 'ms=00;35'
+set --global --export GREP_COLORS 'ms=00;36'
 
 # ls
 # use the long format
