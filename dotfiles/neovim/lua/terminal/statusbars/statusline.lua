@@ -4,7 +4,7 @@ vim.o.laststatus = 3
 vim.o.statusline = "%!v:lua.StatusLine()"
 
 -- statusline helpers {{{
-local function get_mode_indicator()
+local function get_mode_indicator_and_length()
   local normal = "NORMAL"
   local operator_pending = "OPERATOR-PENDING"
   local visual = "VISUAL"
@@ -73,88 +73,60 @@ local function get_mode_indicator()
   return mode_indicator, 5 + #mode
 end
 
-local function filter_out_nils(list)
-  local result = {}
-
-  local keys = {}
-  for key, value in pairs(list) do
-    if value ~= nil then
-      table.insert(keys, key)
-    end
-  end
-  table.sort(keys)
-
-  for _, key in ipairs(keys) do
-    table.insert(result, list[key])
-  end
-
-  return result
+local function collect_to_list(acc, _index, item)
+  table.insert(acc, item)
+  return acc
 end
 
-local function make_statusline(left_items, right_items, left_sep, right_sep)
-  local showcmd = "%#StatusLineShowcmd#%S"
-
-  left_sep = left_sep or " ∙ "
-  right_sep = right_sep or "  "
-
-  local has_one_side = false
-  if left_items == nil then
-    left_items = {}
-    has_one_side = true
-  elseif right_items == nil then
-    right_items = {}
-    has_one_side = true
-  end
-  local statusline_separator = has_one_side and ""
-    or "%#StatusLineFill# %=" .. showcmd .. "%#StatusLineFill#%= "
-
-  left_items = filter_out_nils(left_items)
-  right_items = filter_out_nils(right_items)
-  local mode_indicator, mode_length = get_mode_indicator()
+local function make_statusline(left_items, right_items)
+  local mode_indicator, mode_length = get_mode_indicator_and_length()
+  local item_separator = "  "
 
   local space_remaining = vim.o.columns - (mode_length + 2)
-  local function has_space(index, item, sep_length)
+  local function has_space(index, item)
     local length = #item:gsub("%%#.-#", ""):gsub("%%=", "")
     space_remaining = space_remaining - length
     if index > 1 then
-      space_remaining = space_remaining - sep_length
+      space_remaining = space_remaining - #item_separator
     end
     return (space_remaining >= 0) or length == 0
   end
-  local function make_table(acc, _, item)
-    table.insert(acc, item)
-    return acc
+  local function filter_items(items)
+    return vim
+      -- iter() filters out nil values
+      .iter(items)
+      :enumerate()
+      :filter(has_space)
+      :fold({}, collect_to_list)
   end
-  left_items = vim
-    .iter(ipairs(left_items))
-    :filter(function(index, item)
-      return has_space(index, item, #left_sep)
-    end)
-    :fold({}, make_table)
-  right_items = vim
-    .iter(ipairs(right_items))
-    :filter(function(index, item)
-      return has_space(index, item, #right_sep)
-    end)
-    :fold({}, make_table)
 
+  left_items = filter_items(left_items)
   local left_side = mode_indicator
     .. (#left_items > 0 and " %#StatusLinePowerlineInner#%#StatusLinePowerlineOuter#" or "")
-    .. table.concat(left_items, "%#StatusLineSeparator#" .. left_sep)
+    .. table.concat(left_items, "%#StatusLineSeparator#" .. item_separator)
     .. (#left_items > 0 and "%#StatusLinePowerlineInner#" or " ")
 
-  local right_side = table.concat(right_items, right_sep)
+  right_items = filter_items(right_items)
+  local right_side_padding = "%#StatusLine# "
+  local right_side = table.concat(right_items, item_separator)
+    .. right_side_padding
+    .. "%#StatusLinePowerlineOuter#"
 
-  local padding = "%#StatusLine# "
+  local showcmd = "%#StatusLineShowcmd#%S"
+  local statusline_separator = "%#StatusLineFill# %="
+    .. showcmd
+    .. "%#StatusLineFill#%= "
 
-  local statusline = left_side
-    .. statusline_separator
-    .. right_side
-    .. padding
-    .. "%#StatusLinePowerlineOuter#"
-    .. ""
+  return left_side .. statusline_separator .. right_side
+end
 
-  return statusline
+local function is_pattern_in_buffer(pattern)
+  -- PERF
+  if vim.fn.line("$") < 300 then
+    return vim.fn.search(pattern, "nw", 0, 50) > 0
+  else
+    return false
+  end
 end
 -- }}}
 
@@ -211,61 +183,35 @@ function StatusLine()
     maximized = "%#StatusLine#" .. indicator
   end
 
-  local diagnostic_count = {
-    warning = vim.diagnostic.count(
-      nil,
-      { severity = vim.diagnostic.severity.WARN }
-    )[vim.diagnostic.severity.WARN] or 0,
-    error = vim.diagnostic.count(
-      nil,
-      { severity = vim.diagnostic.severity.ERROR }
-    )[vim.diagnostic.severity.ERROR] or 0,
-    info = vim.diagnostic.count(
-      nil,
-      { severity = vim.diagnostic.severity.INFO }
-    )[vim.diagnostic.severity.INFO] or 0,
-    hint = vim.diagnostic.count(
-      nil,
-      { severity = vim.diagnostic.severity.HINT }
-    )[vim.diagnostic.severity.HINT] or 0,
+  local diagnostic_data = {
+    {
+      severity = vim.diagnostic.severity.HINT,
+      icon = "%#StatusLineHintText# ",
+    },
+    {
+      severity = vim.diagnostic.severity.INFO,
+      icon = "%#StatusLineInfoText# ",
+    },
+    {
+      severity = vim.diagnostic.severity.WARN,
+      icon = "%#StatusLineWarningText# ",
+    },
+    {
+      severity = vim.diagnostic.severity.ERROR,
+      icon = "%#StatusLineErrorText# ",
+    },
   }
   local diagnostic_list = {}
-  local error_count = diagnostic_count.error
-  if error_count > 0 then
-    local icon = " "
-    local error = "%#StatusLineErrorText#" .. icon .. error_count
-    table.insert(diagnostic_list, error)
-  end
-  local warning_count = diagnostic_count.warning
-  if warning_count > 0 then
-    local icon = " "
-    local warning = "%#StatusLineWarningText#" .. icon .. warning_count
-    table.insert(diagnostic_list, warning)
-  end
-  local info_count = diagnostic_count.info
-  if info_count > 0 then
-    local icon = " "
-    local info = "%#StatusLineInfoText#" .. icon .. info_count
-    table.insert(diagnostic_list, info)
-  end
-  local hint_count = diagnostic_count.hint
-  if hint_count > 0 then
-    local icon = " "
-    local hint = "%#StatusLineHintText#" .. icon .. hint_count
-    table.insert(diagnostic_list, hint)
+  for _, datum in ipairs(diagnostic_data) do
+    local count = vim.diagnostic.count(nil, { severity = datum.severity })[datum.severity]
+      or 0
+    if count > 0 then
+      table.insert(diagnostic_list, datum.icon .. count)
+    end
   end
   local diagnostics = nil
   if #diagnostic_list > 0 then
     diagnostics = table.concat(diagnostic_list, " ")
-  end
-
-  local function is_pattern_in_buffer(pattern)
-    -- PERF
-    if vim.fn.line("$") < 300 then
-      return vim.fn.search(pattern, "nw", 0, 50) > 0
-    else
-      return false
-    end
   end
 
   local mixed_indentation_indicator = nil

@@ -146,7 +146,7 @@ let
     version = self.lib.formatDate self.lastModifiedDate;
     paths = with final; [
       monaspace
-      (nerdfonts.override { fonts = [ "NerdFontsSymbolsOnly" ]; })
+      nerd-fonts.symbols-only
       fira-mono
     ];
   };

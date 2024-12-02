@@ -274,7 +274,6 @@ function file-widget --description 'Search files'
 end
 mybind --no-focus \cf file-widget
 
-# use ctrl+d for directory search instead of default alt+c
 function directory-widget --description 'Search directories'
     set dir (__widgets_get_directory_from_current_token)
     set prompt (__widgets_format_directory_for_prompt $dir)

@@ -84,28 +84,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
   end,
 })
 
--- Handle server messages with vim.notify()
--- request's type is documented here:
--- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#window_showMessageRequest
-vim.lsp.handlers[methods.window_showMessage] = function(_, request, context)
-  local title = "LSP"
-  local client = vim.lsp.get_client_by_id(context.client_id)
-  if client ~= nil then
-    title = title .. " | " .. client.name
-  end
-  local message = title .. "\n" .. request.message
-
-  local level = vim.log.levels[({
-    "ERROR",
-    "WARN",
-    "INFO",
-    "DEBUG",
-  })[request.type]]
-
-  vim.notify(message, level)
-end
-
--- Fire a single event for when a server first starts _and_ when it registers a
+-- TODO: Fire a single event for when a server first starts _and_ when it registers a
 -- capability dynamically. This should be simpler once this issue is resolved:
 --
 -- https://github.com/neovim/neovim/issues/24229
@@ -207,13 +186,15 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
-Plug("lvim-tech/nvim-lightbulb", {
+-- TODO: ruff's language server fails because this plugin doesn't pass a 'range'
+-- field.
+Plug("kosayoda/nvim-lightbulb", {
   config = function()
     require("nvim-lightbulb").setup({
       autocmd = { enabled = true },
-      -- Giving it a higher priority than diagnostics
-      sign = {
-        priority = 15,
+      sign = { enabled = false },
+      virtual_text = {
+        enabled = true,
         text = "",
         hl = "CodeActionSign",
       },

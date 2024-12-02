@@ -32,7 +32,7 @@ ffi.cdef([[
 ]])
 -- This should be much simpler when this issue is resolved:
 -- https://github.com/neovim/neovim/issues/21740
-local function get_fold_section()
+local function get_fold_sign()
   local wp =
     ffi.C.find_window_by_handle(vim.g.statusline_winid, ffi.new("Error"))
   local foldinfo = ffi.C.fold_info(wp, vim.v.lnum)
@@ -59,48 +59,12 @@ local function get_fold_section()
 end
 
 function StatusColumn()
-  local buffer = vim.api.nvim_win_get_buf(vim.g.statusline_winid)
-  local border_highlight = "%#NonText#"
-  local gitHighlights = {
-    SignifyAdd = "SignifyAdd",
-    SignifyRemoveFirstLine = "SignifyDelete",
-    SignifyDelete = "SignifyDelete",
-    SignifyDeleteMore = "SignifyDelete",
-    SignifyChange = "SignifyChange",
-  }
-  -- There will be one item at most in this list since I supplied a buffer
-  -- number.
-  local signsPerBuffer = vim.fn.sign_getplaced(
-    buffer,
-    { lnum = vim.v.lnum, group = "" }
-  ) or {}
-  if next(signsPerBuffer) ~= nil then
-    for _, sign in ipairs(signsPerBuffer[1].signs) do
-      local name = sign.name
-      local highlight = gitHighlights[name]
-      if highlight ~= nil then
-        border_highlight = "%#" .. highlight .. "#"
-        break
-      end
-    end
-  end
-  local border_char = vim.v.virtnum > 0 and "┋" or "┃"
-  if border_highlight == "%#NonText#" then
-    border_char = " "
-  end
-  local border_section = border_highlight .. border_char
+  local line_number = "%l"
+  local git_sign = "%s"
+  local fold_sign = get_fold_sign()
 
-  local line_number_section = "%l"
-  local fold_section = get_fold_section()
-  local sign_section = "%s"
-  local align_right = "%="
-
-  return align_right
-    .. line_number_section
-    .. border_section
-    .. sign_section
-    .. fold_section
+  return line_number .. git_sign .. fold_sign
 end
 
 vim.o.statuscolumn = "%!v:lua.StatusColumn()"
-vim.o.signcolumn = "yes:2"
+vim.o.signcolumn = "yes:1"

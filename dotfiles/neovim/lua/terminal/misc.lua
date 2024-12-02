@@ -5,15 +5,11 @@ vim.o.jumpoptions = "stack"
 vim.o.mousemoveevent = true
 vim.o.concealcursor = "nc"
 
+-- center the current line
+vim.o.scrolloff = 100
+
 -- Gets rid of the press enter prompt when accessing a file over a network
 vim.g.netrw_silent = 1
-
--- TODO: Avoid weird flickering issue, should report this
-vim.api.nvim_create_autocmd("CursorHold", {
-  callback = function()
-    vim.o.scrolloff = vim.fn.line(".") == 1 and 0 or 100
-  end,
-})
 
 -- open links with browser {{{
 --
@@ -111,6 +107,7 @@ end, {
   nargs = 1,
 })
 
+-- SYNC: git-rebase-overrides
 vim.keymap.set("", "<C-x>", function()
   vim.cmd([[
     confirm qall
@@ -278,12 +275,9 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
   end,
 })
 
-vim.keymap.set(
-  "n",
-  [[\ ]],
-  "<Cmd>set list!<CR>",
-  { silent = true, desc = "Toggle whitespace indicator" }
-)
+vim.keymap.set("n", [[\ ]], function()
+  vim.o.list = not vim.o.list
+end, { silent = true, desc = "Toggle whitespace indicator" })
 vim.keymap.set("n", [[\n]], function()
   vim.o.number = not vim.o.number
 end, { silent = true, desc = "Toggle line numbers" })

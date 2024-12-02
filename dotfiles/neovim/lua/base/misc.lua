@@ -213,11 +213,8 @@ vim.g.loaded_perl_provider = 0
 -- filetype detection is enabled. File type detection is turned on in plug_end()
 -- so this function gets called at `PlugEndPost`, which is right after
 -- plug_end() is called.
-local vim_default_overrides_group_id =
-  vim.api.nvim_create_augroup("VimDefaultOverrides", {})
 vim.api.nvim_create_autocmd("User", {
   pattern = "PlugEndPost",
-  group = vim_default_overrides_group_id,
   callback = function()
     vim.api.nvim_create_autocmd("FileType", {
       callback = function()
@@ -237,7 +234,6 @@ vim.api.nvim_create_autocmd("User", {
           vim.bo.textwidth = 80
         end
       end,
-      group = vim_default_overrides_group_id,
     })
 
     if IsRunningInTerminal then
@@ -247,7 +243,25 @@ vim.api.nvim_create_autocmd("User", {
         callback = function()
           vim.opt_local.keywordprg = ":Help"
         end,
-        group = vim_default_overrides_group_id,
+      })
+
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = "gitrebase",
+        callback = function()
+          -- SYNC: git-rebase-overrides
+          vim.keymap.set("n", "<C-x>", function()
+            vim.cmd([[
+              confirm qall
+            ]])
+          end, {
+            desc = "Quit [exit,close]",
+            buffer = true,
+          })
+          vim.keymap.set({ "n" }, "<C-a>", "^", {
+            desc = "First non-blank of line [start]",
+            buffer = true,
+          })
+        end,
       })
     end
   end,

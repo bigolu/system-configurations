@@ -2,7 +2,7 @@
 Description=Collect garbage in the Nix store
 
 [Timer]
-OnCalendar=monthly
+OnCalendar=weekly
 Persistent=true
 
 [Install]

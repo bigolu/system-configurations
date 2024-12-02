@@ -19,28 +19,28 @@ local groups = {
   Error = { undercurl = true, ctermfg = 1 }, -- Any erroneous construct
   Warning = { undercurl = true, ctermfg = 3 }, -- (I added this)
   NvimInternalError = { ctermfg = 1 },
-  -- See :h diagnostic-highlights, some groups may not be listed, submit a PR fix to lush-template!
-  --
   DiagnosticError = { ctermfg = 1 }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticWarn = { ctermfg = 3 }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticInfo = { ctermfg = 4 }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
-  DiagnosticHint = { ctermfg = 5 }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
+  DiagnosticHint = { ctermfg = 4 }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticOk = { ctermfg = 2 }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticVirtualTextError = { bold = true, italic = true, ctermfg = 1 }, -- Used for "Error" diagnostic virtual text.
   DiagnosticVirtualTextWarn = { bold = true, italic = true, ctermfg = 3 }, -- Used for "Warn" diagnostic virtual text.
   DiagnosticVirtualTextInfo = { bold = true, italic = true, ctermfg = 4 }, -- Used for "Info" diagnostic virtual text.
-  DiagnosticVirtualTextHint = { bold = true, italic = true, ctermfg = 5 }, -- Used for "Hint" diagnostic virtual text.
+  DiagnosticVirtualTextHint = { bold = true, italic = true, ctermfg = 4 }, -- Used for "Hint" diagnostic virtual text.
   DiagnosticVirtualTextOk = { bold = true, italic = true, ctermfg = 2 }, -- Used for "Ok" diagnostic virtual text.
   DiagnosticUnderlineError = "Error", -- Used to underline "Error" diagnostics.
   DiagnosticUnderlineWarn = "Warning", -- Used to underline "Warn" diagnostics.
   DiagnosticUnderlineInfo = { ctermfg = 4, undercurl = true }, -- Used to underline "Info" diagnostics.
-  DiagnosticUnderlineHint = { ctermfg = 5, undercurl = true }, -- Used to underline "Hint" diagnostics.
+  DiagnosticUnderlineHint = { ctermfg = 4, undercurl = true }, -- Used to underline "Hint" diagnostics.
   DiagnosticUnderlineOk = { ctermfg = 2, undercurl = true }, -- Used to underline "Ok" diagnostics.
   DiagnosticFloatingError = "DiagnosticError", -- Used to color "Error" diagnostic messages in diagnostics float. See |vim.diagnostic.open_float()|
   DiagnosticFloatingWarn = "DiagnosticWarn", -- Used to color "Warn" diagnostic messages in diagnostics float.
   DiagnosticFloatingInfo = "DiagnosticInfo", -- Used to color "Info" diagnostic messages in diagnostics float.
   DiagnosticFloatingHint = "DiagnosticHint", -- Used to color "Hint" diagnostic messages in diagnostics float.
   DiagnosticFloatingOk = "DiagnosticOk", -- Used to color "Ok" diagnostic messages in diagnostics float.
+
+  DiagnosticUnnecessary = {ctermfg = 8},
   -- }}}
 
   -- float {{{
@@ -50,16 +50,11 @@ local groups = {
   -- }}}
 
   -- syntax groups {{{
-  -- Common vim syntax groups used for all kinds of code and markup.
-  -- Commented-out groups should chain up to their preferred (*) group
-  -- by default.
-  --
-  -- See :h group-name
-  --
-  -- Uncomment and edit if you want more specific syntax highlighting.
   Comment = { ctermfg = 8, italic = true }, -- Any comment
 
   Statement = { ctermfg = 7 }, -- (*) Any statement
+  -- Have to use 7 instead of "NONE" because when one language is embedded in
+  -- another, like bash code in a github action yaml, the string color was being used
   Conditional = { ctermfg = 7, bold = true }, --   if, then, else, endif, switch, etc.
   Repeat = "Conditional", --   for, do, while, etc.
   Label = "Conditional", --   case, default, etc.
@@ -70,7 +65,7 @@ local groups = {
   Identifier = "Normal", -- (*) Any variable name
   Function = "Identifier", --   Function name (also: methods for classes)
 
-  Special = { ctermfg = 3 }, -- (*) Any special symbol
+  Special = "Normal", -- (*) Any special symbol
   SpecialChar = "Special", --   Special character in a constant
   Tag = "Identifier", --   You can use CTRL-] on this
   Delimiter = "Identifier", --   Character that needs attention
@@ -90,7 +85,7 @@ local groups = {
   Typedef = "Type", --   A typedef
 
   Constant = "Identifier", -- (*) Any constant
-  String = { ctermfg = 2 }, --   A string constant: "this is a string"
+  String = { ctermfg = 6 }, --   A string constant: "this is a string"
   Character = "String", --   A character constant: 'c', '\n'
   Number = "Identifier", --   A number constant: 234, 0xff
   Boolean = "Identifier", --   A boolean constant: TRUE, false
@@ -116,92 +111,32 @@ local groups = {
   -- cursorline {{{
   CursorLine = { underline = true }, -- Screen-line at the cursor, when 'cursorline' is set. Low-priority if foreground (ctermfg OR guifg) is not set.
   CursorLineNr = { bold = true }, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
-  -- CursorLineFold { }, -- Like FoldColumn when 'cursorline' is set for the cursor line
-  -- CursorLineSign { }, -- Like SignColumn when 'cursorline' is set for the cursor line
   -- }}}
 
   -- statusline {{{
-  ---@diagnostic disable-next-line: redundant-parameter
   status_line_mode = { ctermfg = 15, reverse = true, bold = true }, -- Status line of current window
   StatusLine = { ctermfg = 15, reverse = true }, -- Status line of current window
   StatusLineNormal = { ctermbg = "NONE", ctermfg = 7, nocombine = true },
-  ---@diagnostic disable-next-line: undefined-field
   StatusLineFill = { ctermbg = 15, ctermfg = 15 },
   StatusLineSeparator = { ctermfg = 0, bold = true },
   StatusLineErrorText = { ctermfg = 1, nocombine = true },
   StatusLineWarningText = { ctermfg = 3, nocombine = true },
   StatusLineStandoutText = "StatusLineWarningText",
   StatusLineInfoText = { ctermfg = 4, nocombine = true },
-  StatusLineHintText = { ctermfg = 5, nocombine = true },
+  StatusLineHintText = { ctermfg = 4, nocombine = true },
   StatusLineNC = "StatusLine", -- Status lines of not-current windows. Note: If this is equal to "StatusLine" Vim will use "^^^" in the status line of the current window.
   StatusLineRecordingIndicator = { ctermfg = 1, nocombine = true },
   StatusLineShowcmd = "StatusLine",
-  StatusLineDebugIndicator = { ctermfg = 2, nocombine = true },
-  ---@diagnostic disable-next-line: undefined-field
   StatusLinePowerlineOuter = { ctermfg = 15, nocombine = true },
   StatusLinePowerlineInner = { ctermfg = 15, reverse = true },
   -- }}}
 
   -- LSP {{{
-  -- These groups are for the native LSP client and diagnostic system. Some
-  -- other LSP clients may use these groups, or use their own. Consult your
-  -- LSP client's documentation.
-
-  -- See :h lsp-highlight, some groups may not be listed, submit a PR fix to lush-template!
-  --
-  -- LspReferenceText            { } , -- Used for highlighting "text" references
-  -- LspReferenceRead            { } , -- Used for highlighting "read" references
-  -- LspReferenceWrite           { } , -- Used for highlighting "write" references
-  -- LspSignatureActiveParameter { } , -- Used to highlight the active parameter in the signature help. See |vim.lsp.handlers.signature_help()|.
   LspInfoBorder = "FloatBorder",
   LspInlayHint = { bold = true, italic = true, ctermfg = 15 },
   LspCodeLens = "LspInlayHint", -- Used to color the virtual text of the codelens. See |nvim_buf_set_extmark()|.
   LspCodeLensSeparator = { bold = true, italic = true, ctermfg = 8 }, -- Used to color the separator between two or more code lens.
   LspReferenceTarget = { ctermfg = "NONE", ctermbg = "NONE" },
-  -- }}}
-
-  Conceal = { ctermfg = 8 }, -- Placeholder characters substituted for concealed text (see 'conceallevel')
-  Directory = { ctermfg = 4 }, -- Directory names (and other special names in listings)
-  EndOfBuffer = "Normal", -- Filler lines (~) after the end of the buffer. By default, this is highlighted like |hl-NonText|.
-  Folded = { bold = true, italic = true }, -- Line used for closed folds
-  FoldColumn = { ctermfg = 8 }, -- 'foldcolumn'
-  TreesitterContext = { bold = true, italic = true }, -- Line used for closed folds
-  SignColumn = "Normal", -- Column where |signs| are displayed
-  Substitute = "Search", -- |:substitute| replacement text highlighting
-  ModeMsg = "Normal", -- 'showmode' message (e.g., "-- INSERT -- ")
-  MsgArea = "StatusLine", -- Area for messages and cmdline
-  MsgSeparator = "Normal", -- Separator for scrolled messages, `msgsep` flag of 'display'
-  MoreMsg = "Normal", -- |more-prompt|
-  NonText = { ctermfg = 15 }, -- '@' at the end of the window, characters from 'showbreak' and other characters that do not really exist in the text (e.g., ">" displayed when a double-wide character doesn't fit at the end of the line). See also |hl-EndOfBuffer|.
-  Question = "Normal", -- |hit-enter| prompt and yes/no questions
-  SpellBad = "Error", -- Word that is not recognized by the spellchecker. |spell| Combined with the highlighting used otherwise.
-  SpellCap = "Warning", -- Word that should start with a capital. |spell| Combined with the highlighting used otherwise.
-  Title = "Normal", -- Titles for output from ":set all", ":autocmd" etc.
-  Whitespace = { ctermfg = 15 }, -- "nbsp", "space", "tab" and "trail" in 'listchars'
-  WinSeparator = { ctermfg = 8 }, -- Separator between window splits. Inherits from |hl-VertSplit| by default, which it will replace eventually.
-  ColorColumn = "WinSeparator",
-  GitBlameVirtualText = { bold = true, italic = true, ctermfg = 8 },
-  WhichKeyFloat = "Normal", -- Normal text in floating windows.
-  WhichKeyBorder = { ctermfg = 8 }, -- Border of floating windows.
-  CodeActionSign = { ctermfg = 3 },
-  NullLsInfoBorder = "FloatBorder",
-  WidgetFill = { ctermfg = 0 },
-  Underlined = { underline = true }, -- Text that stands out, HTML links
-  Ignore = { ctermfg = 0 }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
-  Todo = { ctermfg = 3, bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
-  VirtColumn = "NonText",
-  QuickfixPreview = { ctermfg = 3, reverse = true, nocombine = true },
-  MiniOperatorsExchangeFrom = "Visual",
-
-  -- nvim-cmp {{{
-  CmpNormal = { ctermbg = 15, ctermfg = 0 },
-  CmpItemKind = "CmpNormal",
-  CmpItemMenu = "CmpItemKind",
-  CmpDocumentationNormal = "Normal",
-  CmpDocumentationBorder = { ctermfg = 15 },
-  CmpItemAbbrMatch = { bold = true },
-  CmpItemAbbrMatchFuzzy = "CmpItemAbbrMatch",
-  CmpCursorLine = { ctermbg = 6, ctermfg = 0 },
   -- }}}
 
   -- pmenu (autocomplete) {{{
@@ -215,47 +150,7 @@ local groups = {
   PmenuThumb = { ctermbg = 7 }, -- Popup menu: Thumb of the scrollbar.
   -- }}}
 
-  -- fidget.nvim {{{
-  FidgetNormal = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 8 },
-  FidgetAccent = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 7 },
-  FidgetIcon = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 5 },
-  -- }}}
-
-  -- mini.nvim {{{
-  MiniIndentscopeSymbol = { ctermfg = 15 },
-  MiniJump2dSpot = { ctermfg = 3 },
-  MiniJump2dSpotUnique = "MiniJump2dSpot",
-  MiniJump2dSpotAhead = "MiniJump2dSpot",
-  MiniJump2dDim = { ctermfg = 8 },
-  Clear = "Normal",
-  MiniCursorword = { ctermfg = 6 },
-  -- }}}
-
-  QuickFixLine = "Normal", -- Current |quickfix| item in the quickfix window. Combined with |hl-CursorLine| when the cursor is there.
-  QuickFixEntryUnderline = { underline = true, nocombine = true },
-  QuickfixFold = { bold = true },
-  qfFileName = "Normal",
-  qfLineNr = "qfFileName",
-  QuickfixBorderNotCurrent = "Ignore",
-  QuickfixTitleNotCurrent = "Normal",
-  MatchParen = { ctermfg = 6, bold = true }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
-
   -- Tree-Sitter {{{
-  --
-  -- See :h treesitter-highlight-groups, some groups may not be listed,
-  -- submit a PR fix to lush-template!
-  --
-  -- Tree-Sitter groups are defined with an "@" symbol, which must be
-  -- specially handled to be valid lua code, we do this via the special
-  -- sym function. The following are all valid ways to call the sym function,
-  -- for more details see https://www.lua.org/pil/5.html
-  --
-  -- sym("@text.literal")
-  -- sym('@text.literal')
-  -- sym"@text.literal"
-  -- sym'@text.literal'
-  --
-  -- For more information see https://github.com/rktjmp/lush.nvim/issues/109
   ["@attribute"] = "Statement", -- attribute annotations (e.g. Python decorators)
   ["@comment.documentation"] = "Comment",
   ["@comment.error"] = { italic = true, ctermfg = 1, bold = true },
@@ -272,7 +167,7 @@ local groups = {
   ["@keyword.conditional.ternary"] = "Keyword",
   ["@keyword.coroutine"] = "Keyword",
   ["@keyword.debug"] = "Keyword",
-  ["@keyword.directive"] = "Keyword",
+  ["@keyword.directive"] = "Statement",
   ["@keyword.directive.define"] = "Keyword",
   ["@keyword.exception"] = "Keyword",
   ["@keyword.function"] = "Keyword",
@@ -316,6 +211,7 @@ local groups = {
   ["@string.special.symbol"] = "Statement",
   ["@string.special.url"] = "Underlined",
   ["@string.special.url.comment"] = { italic = true, underline = true },
+  ["@string.documentation.python"] = "Comment",
   ["@character"] = "Character", -- Character
   ["@character.special"] = "SpecialChar", -- SpecialChar
   ["@number"] = "Number", -- Number
@@ -346,19 +242,74 @@ local groups = {
   ["@attribute.builtin.python"] = "Normal",
   -- }}}
 
+  -- misc. {{{
+  Conceal = { ctermfg = 8 }, -- Placeholder characters substituted for concealed text (see 'conceallevel')
+  Directory = { ctermfg = 4 }, -- Directory names (and other special names in listings)
+  EndOfBuffer = "Normal", -- Filler lines (~) after the end of the buffer. By default, this is highlighted like |hl-NonText|.
+  Folded = { bold = true, italic = true }, -- Line used for closed folds
+  FoldColumn = { ctermfg = 8 }, -- 'foldcolumn'
+  SignColumn = "Normal", -- Column where |signs| are displayed
+  Substitute = "Search", -- |:substitute| replacement text highlighting
+  ModeMsg = "Normal", -- 'showmode' message (e.g., "-- INSERT -- ")
+  MsgArea = "StatusLine", -- Area for messages and cmdline
+  MsgSeparator = "Normal", -- Separator for scrolled messages, `msgsep` flag of 'display'
+  MoreMsg = "Normal", -- |more-prompt|
+  NonText = { ctermfg = 15 }, -- '@' at the end of the window, characters from 'showbreak' and other characters that do not really exist in the text (e.g., ">" displayed when a double-wide character doesn't fit at the end of the line). See also |hl-EndOfBuffer|.
+  Question = "Normal", -- |hit-enter| prompt and yes/no questions
+  SpellBad = "Error", -- Word that is not recognized by the spellchecker. |spell| Combined with the highlighting used otherwise.
+  SpellCap = "Warning", -- Word that should start with a capital. |spell| Combined with the highlighting used otherwise.
+  Title = "Normal", -- Titles for output from ":set all", ":autocmd" etc.
+  Whitespace = { ctermfg = 15 }, -- "nbsp", "space", "tab" and "trail" in 'listchars'
+  WinSeparator = { ctermfg = 8 }, -- Separator between window splits. Inherits from |hl-VertSplit| by default, which it will replace eventually.
+  CodeActionSign = { ctermfg = 3 },
+  Underlined = { underline = true }, -- Text that stands out, HTML links
+  Ignore = { ctermfg = 0 }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
+  Todo = { ctermfg = 3, bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
+  -- }}}
+
+  -- nvim-treesitter-context {{{
+  TreesitterContext = { bold = true, italic = true }, -- Line used for closed folds
+  -- }}}
+
+  -- vim-matchup {{{
+  MatchParen = { ctermfg = 6, }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
+  MatchWord = { ctermfg = "NONE", underline = true },
+  -- }}}
+
+  -- nvim-cmp {{{
+  CmpNormal = { ctermbg = 15, ctermfg = 0 },
+  CmpItemKind = "CmpNormal",
+  CmpItemMenu = "CmpItemKind",
+  CmpDocumentationNormal = "Normal",
+  CmpDocumentationBorder = { ctermfg = 15 },
+  CmpItemAbbrMatch = { bold = true },
+  CmpItemAbbrMatchFuzzy = "CmpItemAbbrMatch",
+  CmpCursorLine = { ctermbg = 6, ctermfg = 0 },
+  -- }}}
+
+  -- fidget.nvim {{{
+  FidgetNormal = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 8 },
+  FidgetAccent = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 7 },
+  FidgetIcon = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 5 },
+  -- }}}
+
+  -- mini.nvim {{{
+  MiniIndentscopeSymbol = { ctermfg = 15 },
+  MiniJump2dSpot = { ctermfg = 3 },
+  MiniJump2dSpotUnique = "MiniJump2dSpot",
+  MiniJump2dSpotAhead = "MiniJump2dSpot",
+  MiniJump2dDim = { ctermfg = 8 },
+  Clear = "Normal",
+  MiniCursorword = { underline = true },
+  MiniOperatorsExchangeFrom = "Visual",
+  -- }}}
+
   -- vim-signify {{{
-  SignifyAdd = { ctermfg = 2 },
-  SignifyDelete = { ctermfg = 1 },
-  SignifyChange = { ctermfg = 3 },
-  -- I'm setting all of these so that the signify signs will be added to the sign column, but
-  -- NOT be visible. I don't want them to be visible because I already change the color of my
-  -- statuscolumn border to indicate git changes. I want them to be added to the sign column so I
-  -- know where to color my statuscolumn border.
-  SignifySignAdd = "Ignore",
-  SignifySignChange = "Ignore",
-  SignifySignChangeDelete = "Ignore",
-  SignifySignDelete = "Ignore",
-  SignifySignDeleteFirstLine = "Ignore",
+  SignifySignAdd = { ctermfg = 2 },
+  SignifySignChange = { ctermfg = 3 },
+  SignifySignChangeDelete = "SignifySignChange",
+  SignifySignDelete = { ctermfg = 1 },
+  SignifySignDeleteFirstLine = "SignifySignDelete",
   -- }}}
 }
 

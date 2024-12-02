@@ -87,6 +87,7 @@ vim.keymap.set(
   { remap = true, desc = "Start of paragraph" }
 )
 
+-- SYNC: git-rebase-overrides
 -- Move to beginning and end of line
 vim.keymap.set({ "n" }, "<C-a>", "^", {
   desc = "First non-blank of line [start]",
@@ -190,8 +191,9 @@ vim.g.matchup_matchparen_deferred = 1
 vim.g.matchup_matchparen_hi_surround_always = 1
 vim.keymap.set({ "n", "x" }, ";", "%", { remap = true })
 vim.keymap.set({ "n", "x" }, "g;", "g%", { remap = true })
-vim.keymap.set({ "n", "x" }, "];", ";", { remap = true })
-vim.keymap.set({ "n", "x" }, "[;", "g;", { remap = true })
+vim.keymap.set({ "n", "x" }, "];", "]%", { remap = true })
+vim.keymap.set({ "n", "x" }, "[;", "[%", { remap = true })
+vim.keymap.set({ "n", "x" }, "z;", "z%", { remap = true })
 
 Plug("bkad/CamelCaseMotion")
 vim.g.camelcasemotion_key = ","

@@ -9,8 +9,10 @@ if (($# == 0)); then
   choice="$(
     git log "$(git merge-base origin/HEAD HEAD)"..HEAD --oneline \
       | fzf-zoom \
+        --no-sort \
         --prompt 'Choose a commit to rebase from: ' \
-        --preview 'git show --patch {1} | delta'
+        --preview 'git show --patch {1} | delta' \
+        --preview-window '60%'
   )"
   hash="$(cut -d ' ' -f 1 <<<"$choice")"
   git rebase --interactive "$hash^"

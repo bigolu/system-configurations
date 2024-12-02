@@ -22,27 +22,27 @@ in
     serviceConfig.RunAtLoad = false;
 
     serviceConfig.StartCalendarInterval = [
-      # Run GC once a month. Since timers that go off when the computer is off never
+      # Run GC once a week. Since timers that go off when the computer is off never
       # run, I try to give it more chances to run.
       # source: https://superuser.com/a/546353
       {
-        Day = 1;
+        Weekday = 1;
         Hour = 10;
       }
       {
-        Day = 1;
+        Weekday = 1;
         Hour = 12;
       }
       {
-        Day = 1;
+        Weekday = 1;
         Hour = 16;
       }
       {
-        Day = 1;
+        Weekday = 1;
         Hour = 18;
       }
       {
-        Day = 1;
+        Weekday = 1;
         Hour = 20;
       }
     ];
@@ -66,7 +66,7 @@ in
           else
             last_gc=
           fi
-          now="$(date '+%y%m')"
+          now="$(date '+%y%m%d')"
           # This to ensure it runs at most once in a day. To learn why I can't
           # just schedule it to run once in a day, check the comment where the schedule
           # is defined.
@@ -81,7 +81,7 @@ in
           nix-env --profile ${homeDirectory}/.local/state/nix/profiles/home-manager --delete-generations old
           nix-env --profile ${homeDirectory}/.local/state/nix/profiles/profile --delete-generations old
 
-          nix-collect-garbage --delete-older-than 30d
+          nix-collect-garbage --delete-old
 
           printf '%s' "$now" >"$last_gc_file"
         '';
