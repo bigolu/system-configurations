@@ -2,8 +2,6 @@
 
 Plug("echasnovski/mini.nvim", {
   config = function()
-    local mini_group_id = vim.api.nvim_create_augroup("MyMiniNvim", {})
-
     --- ai {{{
     local ai = require("mini.ai")
     local spec_treesitter = ai.gen_spec.treesitter
@@ -165,7 +163,6 @@ Plug("echasnovski/mini.nvim", {
             },
           }
         end,
-        group = mini_group_id,
       })
       vim.api.nvim_create_autocmd("FileType", {
         pattern = { "man", "help" },
@@ -173,7 +170,6 @@ Plug("echasnovski/mini.nvim", {
           vim.b.miniindentscope_disable = true
           vim.b.miniindentscope_disable_permanent = true
         end,
-        group = mini_group_id,
       })
       -- TODO: I want to disable this per window, but mini only supports disabling per buffer
       vim.api.nvim_create_autocmd("BufEnter", {
@@ -182,13 +178,11 @@ Plug("echasnovski/mini.nvim", {
             vim.b.miniindentscope_disable = false
           end
         end,
-        group = mini_group_id,
       })
       vim.api.nvim_create_autocmd("BufLeave", {
         callback = function()
           vim.b.miniindentscope_disable = true
         end,
-        group = mini_group_id,
       })
     end
     -- }}}
@@ -264,7 +258,6 @@ Plug("echasnovski/mini.nvim", {
         if not IsMaximized then
           vim.api.nvim_create_autocmd("WinEnter", {
             once = true,
-            group = mini_group_id,
             callback = function()
               vim.o.winhighlight = "NormalFloat:Normal"
             end,
@@ -285,7 +278,6 @@ Plug("echasnovski/mini.nvim", {
             vim.api.nvim_win_get_cursor(0)
           vim.api.nvim_create_autocmd("WinEnter", {
             once = true,
-            group = mini_group_id,
             callback = function()
               vim.api.nvim_win_set_cursor(0, maximized_window_cursor_position)
             end,
@@ -353,7 +345,6 @@ Plug("echasnovski/mini.nvim", {
 
       -- Don't highlight keywords
       vim.api.nvim_create_autocmd("CursorMoved", {
-        group = mini_group_id,
         callback = function()
           if vim.b.minicursorword_disable_permanent then
             return
@@ -375,13 +366,11 @@ Plug("echasnovski/mini.nvim", {
 
       -- Don't highlight in inactive windows
       vim.api.nvim_create_autocmd("WinLeave", {
-        group = mini_group_id,
         callback = function()
           disable_cursorword()
         end,
       })
       vim.api.nvim_create_autocmd("WinEnter", {
-        group = mini_group_id,
         callback = function()
           enable_cursorword()
         end,

@@ -75,13 +75,11 @@ vim.keymap.set(
 -- persist undo history to disk
 vim.o.undofile = true
 
-local general_group_id = vim.api.nvim_create_augroup("General", {})
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "sh",
   callback = function()
     vim.opt_local.keywordprg = "man"
   end,
-  group = general_group_id,
 })
 -- Get help buffers to open in the current window. Source: https://stackoverflow.com/a/26431632
 --
@@ -212,7 +210,6 @@ timer:start(
 vim.api.nvim_create_autocmd(
   { "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "VimResume" },
   {
-    group = vim.api.nvim_create_augroup("Autosave", {}),
     callback = function()
       -- you can't run checktime in the commandline
       if vim.fn.getcmdwintype() ~= "" then

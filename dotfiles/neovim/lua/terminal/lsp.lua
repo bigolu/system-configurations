@@ -1,5 +1,4 @@
 local methods = vim.lsp.protocol.Methods
-local autocmd_group = vim.api.nvim_create_augroup("bigolu/lsp", {})
 
 vim.keymap.set(
   "n",
@@ -75,7 +74,6 @@ vim.diagnostic.config({
 
 -- Hide all semantic highlights
 vim.api.nvim_create_autocmd("ColorScheme", {
-  group = autocmd_group,
   callback = function()
     local highlights = vim.fn.getcompletion("@lsp", "highlight") or {}
     for _, group in ipairs(highlights) do

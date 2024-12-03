@@ -40,7 +40,7 @@ local groups = {
   DiagnosticFloatingHint = "DiagnosticHint", -- Used to color "Hint" diagnostic messages in diagnostics float.
   DiagnosticFloatingOk = "DiagnosticOk", -- Used to color "Ok" diagnostic messages in diagnostics float.
 
-  DiagnosticUnnecessary = {ctermfg = 8},
+  DiagnosticUnnecessary = { ctermfg = 8 },
   -- }}}
 
   -- float {{{
@@ -272,7 +272,7 @@ local groups = {
   -- }}}
 
   -- vim-matchup {{{
-  MatchParen = { ctermfg = 6, }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
+  MatchParen = { ctermfg = 6 }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
   MatchWord = { ctermfg = "NONE", underline = true },
   -- }}}
 

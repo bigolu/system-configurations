@@ -137,7 +137,6 @@ vim.api.nvim_create_autocmd("User", {
       )
     end
   end,
-  group = vim.api.nvim_create_augroup("InstallMissingPlugins", {}),
 })
 
 return M

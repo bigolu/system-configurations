@@ -846,15 +846,15 @@
     "vim-plugin-nvim-treesitter-endwise": {
       "flake": false,
       "locked": {
-        "lastModified": 1714489952,
-        "narHash": "sha256-bmKTQbFhDZ/mvgFg+pGY+0ygXzhSckoS/ByWSKFvpWc=",
-        "owner": "RRethy",
+        "lastModified": 1727953280,
+        "narHash": "sha256-vjDVU3lApLi0Qu6JqjBfAsVifTDPcVEhenjwQF1XjLE=",
+        "owner": "metiulekm",
         "repo": "nvim-treesitter-endwise",
-        "rev": "8b34305ffc28bd75a22f5a0a9928ee726a85c9a6",
+        "rev": "ad5ab41122a0b84f27101f1b5e6e55a681f84b2f",
         "type": "github"
       },
       "original": {
-        "owner": "RRethy",
+        "owner": "metiulekm",
         "repo": "nvim-treesitter-endwise",
         "type": "github"
       }

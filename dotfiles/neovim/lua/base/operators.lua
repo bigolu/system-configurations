@@ -17,7 +17,6 @@ vim.api.nvim_create_autocmd("BufNew", {
   callback = function()
     vim.bo.textwidth = utilities.get_max_line_length()
   end,
-  group = vim.api.nvim_create_augroup("Set textwidth", {}),
 })
 
 local function get_commentstrings()
@@ -266,7 +265,6 @@ Plug("Wansmer/treesj", {
     -- fallback to splitjoin.vim for unsupported languages
     local langs = require("treesj.langs")["presets"]
     vim.api.nvim_create_autocmd({ "FileType" }, {
-      group = vim.api.nvim_create_augroup("bigolu/treesj", {}),
       callback = function()
         if langs[vim.bo.filetype] then
           vim.keymap.set(

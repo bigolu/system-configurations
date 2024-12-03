@@ -67,8 +67,6 @@ vim.keymap.set({ "x", "n" }, "@", function()
   vim.o.lazyredraw = false
 end)
 
-local fast_macro_group_id = vim.api.nvim_create_augroup("FastMacro", {})
-
 vim.api.nvim_create_autocmd("RecordingEnter", {
   callback = function()
     if _G.fast_macro_events == nil then
@@ -87,13 +85,11 @@ vim.api.nvim_create_autocmd("RecordingEnter", {
     vim.g.old_eventignore = vim.o.eventignore
     vim.o.eventignore = _G.fast_macro_events
   end,
-  group = fast_macro_group_id,
 })
 
 vim.api.nvim_create_autocmd("RecordingLeave", {
   callback = function()
     vim.o.eventignore = vim.g.old_eventignore
   end,
-  group = fast_macro_group_id,
 })
 -- }}}
