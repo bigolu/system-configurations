@@ -65,7 +65,7 @@
             chmod 777 entrypoint
             cp --dereference "$(${pkgs.which}/bin/which gozip)" $out
             chmod +w $out
-            gozip -internalCreate $out ./*
+            gozip -create $out ./*
           '';
         };
 

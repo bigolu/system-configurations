@@ -43,6 +43,11 @@ var writer = func() io.Writer {
 // it here so I don't have to get it twice
 var archiveCount int = 0
 
+var boundary = func() []byte {
+	hash := sha512.Sum512([]byte("boundary"))
+	return hash[:]
+}()
+
 func NextStep(count int, name string, options ...progressbar.Option) *progressbar.ProgressBar {
 	EndProgress()
 	description := fmt.Sprintf("[cyan]%s[reset]...", name)
@@ -103,10 +108,6 @@ func EndProgress() {
 	}
 }
 
-func generateBoundary() []byte {
-	h := sha512.Sum512([]byte("boundary"))
-	return h[:]
-}
 func Zip(destinationPath string, filesToZip []string) (err error) {
 	destinationFile, err := os.OpenFile(destinationPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
@@ -123,7 +124,7 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 	if err != nil {
 		return err
 	}
-	_, err = destinationFile.Write(generateBoundary())
+	_, err = destinationFile.Write(boundary)
 	if err != nil {
 		log.Fatal("writing boundary to output file:", err)
 	}
@@ -234,22 +235,34 @@ func cleanupAndDie(dir string, v ...interface{}) {
 	log.Fatal(v...)
 }
 
-func SeekToTar(file os.File) os.File {
-	buf, err := os.ReadFile(file.Name())
+func GetBoundaryOffset(fileName string) int {
+	fileBytes, err := os.ReadFile(fileName)
 	if err != nil {
-		log.Fatal("reading itself:", err)
+		log.Fatal("reading file:", err)
 	}
 
-	boundary := generateBoundary()
-	bdyOff := bytes.Index(buf, boundary)
+	return bytes.Index(fileBytes, boundary)
+}
 
-	if bdyOff == -1 {
+func HasBoundary(fileName string) bool {
+	boundaryOffset := GetBoundaryOffset(fileName)
+
+	if boundaryOffset == -1 {
+		return false
+	} else {
+		return true
+	}
+}
+
+func SeekToTar(file os.File) os.File {
+	boundaryOffset := GetBoundaryOffset(file.Name())
+	if boundaryOffset == -1 {
 		log.Fatal("no boundary")
 	}
 
-	payloadOff := bdyOff + len(boundary)
+	payloadOffset := boundaryOffset + len(boundary)
 
-	_, err = file.Seek(int64(payloadOff), io.SeekStart)
+	_, err := file.Seek(int64(payloadOffset), io.SeekStart)
 	if err != nil {
 		log.Fatal("seeking to start of payload:", err)
 	}

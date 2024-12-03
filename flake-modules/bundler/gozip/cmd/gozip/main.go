@@ -10,32 +10,26 @@ import (
 	"github.com/sanderhahn/gozip"
 )
 
-func IsAnyInternalFlagPassed(flagSet *flag.FlagSet) bool {
-	found := false
-	flagSet.Visit(func(f *flag.Flag) {
-		if f.Name == "internalCreate" || f.Name == "internalList" || f.Name == "internalExtract" {
-			found = true
-		}
-	})
-	return found
-}
-
 func main() {
-	flagSet := flag.NewFlagSet("", flag.ContinueOnError)
-	flagSet.SetOutput(io.Discard)
-	var list, extract, create bool
-	flagSet.BoolVar(&create, "internalCreate", false, "create zip (arguments: zipfile [files...])")
-	flagSet.BoolVar(&list, "internalList", false, "list zip (arguments: zipfile)")
-	flagSet.BoolVar(&extract, "internalExtract", false, "extract zip (arguments: zipfile [destination]")
-	flagSet.Parse(os.Args[1:])
-
-	if !IsAnyInternalFlagPassed(flagSet) {
+	executablePath, err := os.Executable()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if gozip.HasBoundary(executablePath) {
 		exitCode, err := gozip.SelfExtractAndRunNixEntrypoint()
 		if err != nil {
 			log.Fatal(err)
 		}
 		os.Exit(exitCode)
 	}
+
+	flagSet := flag.NewFlagSet("", flag.ContinueOnError)
+	flagSet.SetOutput(io.Discard)
+	var list, extract, create bool
+	flagSet.BoolVar(&create, "create", false, "create zip (arguments: zipfile [files...])")
+	flagSet.BoolVar(&list, "list", false, "list zip (arguments: zipfile)")
+	flagSet.BoolVar(&extract, "extract", false, "extract zip (arguments: zipfile [destination]")
+	flagSet.Parse(os.Args[1:])
 
 	args := flagSet.Args()
 	argc := len(args)
