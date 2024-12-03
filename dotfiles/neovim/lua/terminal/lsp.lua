@@ -33,6 +33,8 @@ vim.keymap.set("n", [[\i]], function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), { bufnr = 0 })
 end, { desc = "Toggle inlay hints" })
 vim.keymap.set("n", "gl", vim.lsp.codelens.run, { desc = "Run code lens" })
+-- TODO: This gets set automatically, but it wasn't being set when bashls starts
+vim.keymap.set("n", "K", vim.lsp.buf.hover)
 
 -- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
