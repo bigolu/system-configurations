@@ -105,13 +105,22 @@ end, {
   nargs = 1,
 })
 
--- SYNC: git-rebase-overrides
-vim.keymap.set("", "<C-x>", function()
-  vim.cmd([[
-    confirm qall
-  ]])
-end, {
-  desc = "Quit [exit,close]",
+local function c_x(buffer)
+  vim.keymap.set("", "<C-x>", function()
+    vim.cmd([[
+      confirm qall
+    ]])
+  end, {
+    desc = "Quit [exit,close]",
+    buffer = buffer,
+  })
+end
+c_x()
+vim.api.nvim_create_autocmd("User", {
+  pattern = "FileTypeOverride_gitrebase",
+  callback = function()
+    c_x(true)
+  end,
 })
 
 -- suspend vim
@@ -349,3 +358,11 @@ vim.keymap.set("n", "<C-q>", function()
 
   vim.cmd.close()
 end, { silent = true, desc = "Close pane [split,window]" })
+
+vim.api.nvim_create_autocmd("User", {
+  pattern = "FileTypeOverride_vim",
+  callback = function()
+    -- Use vim help pages for `keywordprg` in vim files
+    vim.opt_local.keywordprg = ":Help"
+  end,
+})

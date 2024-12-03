@@ -218,51 +218,32 @@ vim.api.nvim_create_autocmd("User", {
   callback = function()
     vim.api.nvim_create_autocmd("FileType", {
       callback = function()
-        -- Don't automatically hard-wrap text
-        vim.bo.wrapmargin = 0
-        -- r: Automatically insert the current comment leader after hitting
-        --   <Enter> in Insert mode.
-        -- o: Automatically insert the current comment leader after hitting o/O
-        --   in normal mode.
-        -- /: Don't auto insert a comment leader if the comment is next to a
-        --   statement.
-        -- j: Remove comment leader when joining lines
-        vim.bo.formatoptions = "ro/j"
-
-        if vim.o.filetype == "gitcommit" then
-          vim.bo.formatoptions = vim.bo.formatoptions .. "t"
-          vim.bo.textwidth = 80
-        end
+        vim.api.nvim_exec_autocmds(
+          "User",
+          { pattern = "FileTypeOverride_" .. vim.o.filetype }
+        )
       end,
     })
+  end,
+})
 
-    if IsRunningInTerminal then
-      -- Use vim help pages for `keywordprg` in vim files
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "vim",
-        callback = function()
-          vim.opt_local.keywordprg = ":Help"
-        end,
-      })
+vim.api.nvim_create_autocmd("User", {
+  pattern = "FileTypeOverride_*",
+  callback = function()
+    -- Don't automatically hard-wrap text
+    vim.bo.wrapmargin = 0
+    -- r: Automatically insert the current comment leader after hitting
+    --   <Enter> in Insert mode.
+    -- o: Automatically insert the current comment leader after hitting o/O
+    --   in normal mode.
+    -- /: Don't auto insert a comment leader if the comment is next to a
+    --   statement.
+    -- j: Remove comment leader when joining lines
+    vim.bo.formatoptions = "ro/j"
 
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern = "gitrebase",
-        callback = function()
-          -- SYNC: git-rebase-overrides
-          vim.keymap.set("n", "<C-x>", function()
-            vim.cmd([[
-              confirm qall
-            ]])
-          end, {
-            desc = "Quit [exit,close]",
-            buffer = true,
-          })
-          vim.keymap.set({ "n" }, "<C-a>", "^", {
-            desc = "First non-blank of line [start]",
-            buffer = true,
-          })
-        end,
-      })
+    if vim.o.filetype == "gitcommit" then
+      vim.bo.formatoptions = vim.bo.formatoptions .. "t"
+      vim.bo.textwidth = 80
     end
   end,
 })

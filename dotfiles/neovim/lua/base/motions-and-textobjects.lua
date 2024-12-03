@@ -87,11 +87,7 @@ vim.keymap.set(
   { remap = true, desc = "Start of paragraph" }
 )
 
--- SYNC: git-rebase-overrides
 -- Move to beginning and end of line
-vim.keymap.set({ "n" }, "<C-a>", "^", {
-  desc = "First non-blank of line [start]",
-})
 vim.keymap.set({ "n" }, "<C-e>", "$", {
   desc = "End of line",
 })
@@ -100,6 +96,19 @@ vim.keymap.set({ "i" }, "<C-a>", "<ESC>^i", {
 })
 vim.keymap.set({ "i" }, "<C-e>", "<ESC>$a", {
   desc = "End of line",
+})
+local function c_a(buffer)
+  vim.keymap.set({ "n" }, "<C-a>", "^", {
+    desc = "First non-blank of line [start]",
+    buffer = buffer,
+  })
+end
+c_a()
+vim.api.nvim_create_autocmd("User", {
+  pattern = "FileTypeOverride_gitrebase",
+  callback = function()
+    c_a(true)
+  end,
 })
 
 -- Move to next/last long line, m for max
