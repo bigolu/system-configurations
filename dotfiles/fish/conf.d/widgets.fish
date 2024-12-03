@@ -41,7 +41,8 @@ set __directory_placeholder '{bigolu_dir}'
 function __grep_widget --argument-names title grep_command
     set dir (__widgets_get_directory_from_current_token)
 
-    set grep_command (string replace --all $__directory_placeholder (string escape --no-quoted --style script -- $dir) $grep_command)
+    set escaped_dir (string escape --no-quoted --style script -- $dir)
+    set grep_command (string replace --all $__directory_placeholder $escaped_dir $grep_command)
 
     set prompt_directory ''
     if test $dir != '.'
@@ -237,23 +238,23 @@ function file-widget --description 'Search files'
     set prompt (__widgets_format_directory_for_prompt $dir)
 
     set preview_command '
-  if file --brief --mime-type {} | grep -q -i image
-    if test "$TERM_PROGRAM" = WezTerm
-        # TODO: timg should use iterm2 image mode for WezTerm
-        #
-        # TODO: switch to kitty when wezterm gets support:
-        # https://github.com/wez/wezterm/issues/986
-        timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-    else if set --export --names | string match --quiet  --regex \'^VSCODE_.*\'
-        # TODO: timg should use iterm2 image mode for vscode
-        timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-    else
-        timg --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-    end
-  else
-    bat --style=\'header-filename\' --color always --paging=never --terminal-width (math $FZF_PREVIEW_COLUMNS - 2) {}
-  end
-  '
+        if file --brief --mime-type {} | grep -q -i image
+            if test "$TERM_PROGRAM" = WezTerm
+                # TODO: timg should use iterm2 image mode for WezTerm
+                #
+                # TODO: switch to kitty when wezterm gets support:
+                # https://github.com/wez/wezterm/issues/986
+                timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
+            else if set --export --names | string match --quiet  --regex \'^VSCODE_.*\'
+                # TODO: timg should use iterm2 image mode for vscode
+                timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
+            else
+                timg --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
+            end
+        else
+            bat --style=\'header-filename\' --color always --paging=never --terminal-width (math $FZF_PREVIEW_COLUMNS - 2) {}
+        end
+    '
 
     if not set choices ( \
         FZF_HINTS='alt+e: edit in neovim' \
