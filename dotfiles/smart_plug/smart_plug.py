@@ -85,13 +85,13 @@ class KasaPlug:
             # TODO: This returns a Device, but I think it should return an IotPlug.
             device = await IotPlug.connect(host=ip_address)
         except (KasaException, TimeoutError):
-            del self._ip_address_cache[alias]
+            del KasaPlug._ip_address_cache[alias]
             return None
 
         if isinstance(device, IotPlug):
             return device
         else:
-            del self._ip_address_cache[alias]
+            del KasaPlug._ip_address_cache[alias]
             return None
 
     async def _discover_devices(self) -> dict[str, Device]:
