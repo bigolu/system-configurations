@@ -22,9 +22,14 @@ in
     serviceConfig.RunAtLoad = false;
 
     serviceConfig.StartCalendarInterval = [
-      # Run GC once a week. Since timers that go off when the computer is off never
-      # run, I try to give it more chances to run.
-      # source: https://superuser.com/a/546353
+      # Run GC once a week. Since timers that go off when the computer is off
+      # never run[1], I try to give it more chances to run.
+      #
+      # TODO: It would be better if I ran this in the background and checked
+      # every second to see if it should do garbage collection. This way I don't
+      # have to rely on the computer being on during one of the times below.
+      #
+      # [1]: https://superuser.com/a/546353
       {
         Weekday = 1;
         Hour = 10;
