@@ -119,10 +119,6 @@
 
     # vim
     ########################################
-    neodev-nvim = {
-      url = "github:folke/neodev.nvim";
-      flake = false;
-    };
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
     };

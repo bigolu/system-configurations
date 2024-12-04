@@ -153,10 +153,9 @@
             prefix='.lua-libraries'
             mkdir -p "$prefix"
             ln --force --no-dereference --symbolic \
-              --target-directory "$prefix" \
-              ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} \
-              ${inputs.neodev-nvim}/types/nightly \
-              ${pkgs.neovim}/share/nvim/runtime
+              ${pkgs.linkFarm "plugins" pkgs.myVimPlugins} "$prefix/neovim-plugins"
+            ln --force --no-dereference --symbolic \
+              ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
           '';
         };
 
