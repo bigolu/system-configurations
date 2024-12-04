@@ -23,5 +23,5 @@ schema = 3
     version = "v0.28.0"
     hash = "sha256-kzSlDo5FKsQU9cLefIt2dueGUfz9XuEW+mGSGlPATGc="
   [mod."golang.org/x/term"]
-    version = "v0.26.0"
-    hash = "sha256-WswEQdriq1dI9CSPsL7j4qr1KFGiWU5oGssvyq/LJXw="
+    version = "v0.27.0"
+    hash = "sha256-cb5p/yOlVL7dbkxugUVfqESTVpZ2LtrUWPnx9yue3r0="
