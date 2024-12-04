@@ -38,8 +38,6 @@ defaults:
   run:
     shell: ci-bash {0}
 jobs:
-  # WARNING: This name is used to specify what checks are required to merge a
-  # branch, don't change it without updating the required checks as well.
   lint:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
@@ -54,8 +52,6 @@ jobs:
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: lefthook run --no-tty check --commands check-lint,fix-lint --all-files
-  # WARNING: This name is used to specify what checks are required to merge a
-  # branch, don't change it without updating the required checks as well.
   check-style:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
@@ -113,9 +109,6 @@ jobs:
   # were changed. This way, I could use that output in my jobs.<job_id>.if condition.
   #
   # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
-  #
-  # WARNING: This name is used to specify what checks are required to merge a branch,
-  # don't change it without updating the required checks as well.
   ensure-generated-code-is-up-to-date:
     needs: codegen-changed-files
     # By default, if the dependency of a required check fails or is cancelled, the
