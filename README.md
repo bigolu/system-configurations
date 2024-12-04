@@ -148,7 +148,7 @@ symbolic link then points to the extracted contents of the SEA which is stored
 in the system's temporary directory. This could also be `/tmp` or the path
 pointed to by the environment variable `$TMPDIR`, if it's set. I found this idea
 in a [GitHub issue comment regarding a "rootless Nix"][rootless-nix] and decided
-to try and build it to learn more about Nix.
+to build it to learn more about Nix.
 
 [determinate-systems-installer]:
   https://github.com/DeterminateSystems/nix-installer
