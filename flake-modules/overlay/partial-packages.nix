@@ -36,6 +36,10 @@ let
   ];
 
   look = filterPrograms final.util-linux [ "look" ];
+
+  # I'm doing this because moreutils also has a program called parallel which
+  # conflicts with GNU parallel.
+  isutf8 = filterPrograms final.moreutils [ "isutf8" ];
 in
 {
   partialPackages =
@@ -45,6 +49,7 @@ in
         xargs
         ps
         look
+        isutf8
         ;
     }
     // optionalAttrs isLinux {

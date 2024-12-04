@@ -419,6 +419,14 @@ check-lint:
       run: >
         ./scripts/run-check-with-reviewdog.bash -f mypy --
         mypy dotfiles/smart_plug # {files}
+    isutf8:
+      exclude:
+        # Apparently, this file isn't valid UTF-8, but macOS generated it so I won't
+        # change it.
+        - dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/U.S. copy.icns
+      run: >
+        ./scripts/run-check-with-reviewdog.bash -efm '%f: %m' --
+        isutf8 {files}
 
     # TODO: These tools don't output a format that reviewdog can parse, I should open
     # issues with all of them. In the meantime, I put reviewdog in tee mode so it

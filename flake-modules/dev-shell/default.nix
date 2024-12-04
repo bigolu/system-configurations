@@ -77,28 +77,31 @@
           deadnix
           fish
           lychee
-          renovate # for renovate-config-validator
+          # for renovate-config-validator
+          renovate
           shellcheck
           statix
-          ltex-ls # for ltex-cli
+          # for ltex-cli
+          ltex-ls
           markdownlint-cli2
           desktop-file-utils
           golangci-lint
           config-file-validator
           taplo
           ruff
-          go # for 'go mod tidy'
+          # for 'go mod tidy'
+          go
           typos
           dos2unix
+          partialPackages.isutf8
+          # TODO: If the YAML language server gets a CLI I should use that instead:
+          # https://github.com/redhat-developer/yaml-language-server/issues/535
+          yamllint
 
           # These aren't linters, but they get called as part of certain linting
           # commands.
           gitMinimal
           parallel
-
-          # TODO: If the YAML language server gets a CLI I should use that instead:
-          # https://github.com/redhat-developer/yaml-language-server/issues/535
-          yamllint
 
           # Runs the linters
           lefthook
