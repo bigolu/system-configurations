@@ -4,7 +4,7 @@ vim.o.laststatus = 3
 vim.o.statusline = "%!v:lua.StatusLine()"
 
 -- statusline helpers {{{
-local function get_mode_indicator_and_length()
+local function get_mode_indicator()
   local normal = "NORMAL"
   local operator_pending = "OPERATOR-PENDING"
   local visual = "VISUAL"
@@ -64,13 +64,8 @@ local function get_mode_indicator_and_length()
   if mode == nil then
     mode = "?"
   end
-  local mode_indicator = "%#StatusLinePowerlineOuter#"
-    .. ""
-    .. "%#status_line_mode#"
-    .. " "
-    .. mode
 
-  return mode_indicator, 5 + #mode
+  return "%#StatusLinePowerlineOuter#" .. "%#status_line_mode# " .. mode
 end
 
 local function collect_to_list(acc, _index, item)
@@ -79,17 +74,39 @@ local function collect_to_list(acc, _index, item)
 end
 
 local function make_statusline(left_items, right_items)
-  local mode_indicator, mode_length = get_mode_indicator_and_length()
-  local item_separator = "  "
+  local mode_indicator = get_mode_indicator()
+  local mode_indicator_length =
+    vim.api.nvim_eval_statusline(mode_indicator, {}).width
 
-  local space_remaining = vim.o.columns - (mode_length + 2)
+  local item_separator = "  "
+  local item_separator_length = #item_separator
+
+  local showcmd = "%#StatusLineShowcmd#%S"
+  local statusline_separator = "%#StatusLineFill# %="
+    .. showcmd
+    .. "%#StatusLineFill#%= "
+  -- I need to remove the aligners from the statusline separator because they affect
+  -- the width.
+  local statusline_separator_length =
+    vim.api.nvim_eval_statusline(statusline_separator:gsub("%%=", ""), {}).width
+
+  local right_side_padding = "%#StatusLine# %#StatusLinePowerlineOuter#"
+  local right_side_padding_length =
+    vim.api.nvim_eval_statusline(right_side_padding, {}).width
+
+  local space_remaining = vim.o.columns
+    - (
+      mode_indicator_length
+      + statusline_separator_length
+      + right_side_padding_length
+    )
   local function has_space(index, item)
-    local length = #item:gsub("%%#.-#", ""):gsub("%%=", "")
+    local length = vim.api.nvim_eval_statusline(item, {}).width
     space_remaining = space_remaining - length
     if index > 1 then
-      space_remaining = space_remaining - #item_separator
+      space_remaining = space_remaining - item_separator_length
     end
-    return (space_remaining >= 0) or length == 0
+    return space_remaining >= 0
   end
   local function filter_items(items)
     return vim
@@ -101,21 +118,15 @@ local function make_statusline(left_items, right_items)
   end
 
   left_items = filter_items(left_items)
+  -- TODO: I'm not accounting for the length of these strings in space_remaining
   local left_side = mode_indicator
     .. (#left_items > 0 and " %#StatusLinePowerlineInner#%#StatusLinePowerlineOuter#" or "")
     .. table.concat(left_items, "%#StatusLineSeparator#" .. item_separator)
     .. (#left_items > 0 and "%#StatusLinePowerlineInner#" or " ")
 
   right_items = filter_items(right_items)
-  local right_side_padding = "%#StatusLine# "
   local right_side = table.concat(right_items, item_separator)
     .. right_side_padding
-    .. "%#StatusLinePowerlineOuter#"
-
-  local showcmd = "%#StatusLineShowcmd#%S"
-  local statusline_separator = "%#StatusLineFill# %="
-    .. showcmd
-    .. "%#StatusLineFill#%= "
 
   return left_side .. statusline_separator .. right_side
 end
@@ -131,6 +142,8 @@ end
 -- }}}
 
 function StatusLine()
+  local basename = "%t"
+
   local position = "%#StatusLine#" .. "%03l:%03c"
 
   local fileformat = nil
@@ -249,5 +262,6 @@ function StatusLine()
     fileformat,
     fileencoding,
     position,
+    basename,
   })
 end
