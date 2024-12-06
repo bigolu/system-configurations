@@ -34,9 +34,15 @@ class KasaPlug:
 
     @classmethod
     async def connect(cls, alias: str) -> Self:
-        plug = cls()
-        await plug._connect(alias)
-        return plug
+        instance = cls()
+
+        plug = await instance._discover_plug(alias)
+        if plug is not None:
+            instance._plug = plug
+        else:
+            raise Exception(f"Unable to find a plug with alias: {alias}")
+
+        return instance
 
     async def turn_off(self) -> None:
         await self._plug.turn_off()
@@ -50,13 +56,6 @@ class KasaPlug:
         # on the property so type checkers can't verify the type. I should open an
         # issue.
         return cast(bool, self._plug.is_on)
-
-    async def _connect(self, alias: str) -> None:
-        plug = await self._discover_plug(alias)
-        if plug is not None:
-            self._plug = plug
-        else:
-            raise Exception(f"Unable to find a plug with alias: {alias}")
 
     async def _discover_plug(self, alias: str) -> Optional[IotPlug]:
         plug = await self._get_plug_from_cache(alias)
