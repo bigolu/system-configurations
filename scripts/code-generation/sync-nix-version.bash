@@ -7,7 +7,6 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 
-# shellcheck disable=2016
 version="$(
   nix eval \
     --raw --impure --expr \
