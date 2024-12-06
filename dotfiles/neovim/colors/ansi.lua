@@ -46,7 +46,7 @@ local groups = {
   -- float {{{
   NormalFloat = "Normal", -- Normal text in floating windows.
   FloatBorder = { ctermfg = 8 }, -- Border of floating windows.
-  FloatTitle = { ctermfg = 6, bold = true }, -- Title of floating windows.
+  FloatTitle = { ctermfg = 14, bold = true }, -- Title of floating windows.
   -- }}}
 
   -- syntax groups {{{
@@ -85,7 +85,7 @@ local groups = {
   Typedef = "Type", --   A typedef
 
   Constant = "Identifier", -- (*) Any constant
-  String = { ctermfg = 6 }, --   A string constant: "this is a string"
+  String = { ctermfg = 14 }, --   A string constant: "this is a string"
   Character = "String", --   A character constant: 'c', '\n'
   Number = "Identifier", --   A number constant: 234, 0xff
   Boolean = "Identifier", --   A boolean constant: TRUE, false
@@ -272,8 +272,8 @@ local groups = {
   -- }}}
 
   -- vim-matchup {{{
-  MatchParen = { ctermfg = 6 }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
-  MatchWord = { ctermfg = "NONE", underline = true },
+  MatchParen = { ctermfg = 14, bold = true }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
+  MatchWord = "Identifier",
   -- }}}
 
   -- nvim-cmp {{{
@@ -284,7 +284,7 @@ local groups = {
   CmpDocumentationBorder = { ctermfg = 15 },
   CmpItemAbbrMatch = { bold = true },
   CmpItemAbbrMatchFuzzy = "CmpItemAbbrMatch",
-  CmpCursorLine = { ctermbg = 6, ctermfg = 0 },
+  CmpCursorLine = { ctermbg = 14, ctermfg = 0 },
   -- }}}
 
   -- fidget.nvim {{{
