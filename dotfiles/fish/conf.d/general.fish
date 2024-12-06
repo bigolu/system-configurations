@@ -218,7 +218,7 @@ function watch --wraps watch
     viddy --disable_auto_save $argv
 end
 # watch
-abbr --add --global watch 'watch --no-title --differences --interval 1s'
+abbr --add --global watch 'watch --no-title --differences --interval 1s --exec'
 
 function sh --wraps yash
     if type --query yash
