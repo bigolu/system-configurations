@@ -5,20 +5,34 @@
 let
   inherit (pkgs) system;
   inherit (pkgs.stdenv) isLinux;
-  makeEmptyPackage = packageName: pkgs.runCommand packageName { } ''mkdir -p $out/bin'';
+  # When I called nix-tree with the portable home, I got a warning that calling
+  # lib.getExe on a package that doesn't have a meta.mainProgram is deprecated. The
+  # package that was lib.getExe was called with is nix.
+  makeEmptyPackage =
+    packageName: pkgs.runCommand packageName { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
 
-  portableOverlay = _final: _prev: {
-    comma = makeEmptyPackage "stub-comma";
-    moreutils = makeEmptyPackage "moreutils";
-    ast-grep = makeEmptyPackage "ast-grep";
-    timg = makeEmptyPackage "timg";
-    ripgrep-all = makeEmptyPackage "ripgrep-all";
-    lesspipe = makeEmptyPackage "lesspipe";
-    wordnet = makeEmptyPackage "wordnet";
-    diffoscopeMinimal = makeEmptyPackage "diffoscope";
-    gitMinimal = makeEmptyPackage "gitMinimal";
-    difftastic = makeEmptyPackage "difftastic";
-  };
+  portableOverlay =
+    _final: _prev:
+    let
+      makeNameValuePair = packageName: {
+        name = packageName;
+        value = makeEmptyPackage packageName;
+      };
+      nameValuePairs = map makeNameValuePair [
+        "comma"
+        "moreutils"
+        "ast-grep"
+        "timg"
+        "ripgrep-all"
+        "lesspipe"
+        "wordnet"
+        "diffoscopeMinimal"
+        "gitMinimal"
+        "difftastic"
+        "nix"
+      ];
+    in
+    builtins.listToAttrs nameValuePairs;
 
   portableModule =
     { lib, ... }:
