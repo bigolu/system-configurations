@@ -207,7 +207,7 @@ local groups = {
   ["@string.regexp"] = "String",
   ["@string.escape"] = "Statement", -- SpecialChar
   ["@string.special"] = "Statement", -- SpecialChar
-  ["@string.special.path"] = "String",
+  ["@string.special.path"] = "Normal",
   ["@string.special.symbol"] = "Statement",
   ["@string.special.url"] = "Underlined",
   ["@string.special.url.comment"] = { italic = true, underline = true },
