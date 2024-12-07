@@ -71,28 +71,22 @@
 
       defaultBundler =
         let
-          basename = p: pkgs.lib.lists.last (builtins.split "/" p);
-
           program =
-            drv:
+            derivation:
             let
-              # Use same auto-detect that <https://github.com/NixOS/bundlers>
-              # uses. This isn't 100% accurate and might pick the wrong name
-              # (e.g. nixpkgs#mesa-demos), so we do an additional check to
-              # make sure the target exists
-              main =
-                if drv ? meta && drv.meta ? mainProgram then
-                  drv.meta.mainProgram
-                else
-                  (builtins.parseDrvName (builtins.unsafeDiscardStringContext drv.name)).name;
-              mainPath = "${drv}/bin/${main}";
+              assumedMainProgramBaseName =
+                let
+                  packageDisplayName = derivation.meta.name or derivation.pname or derivation.name;
+                  assumption = lib.getName derivation;
+                in
+                lib.warn "rootless-bundler: Package ${packageDisplayName} does not have the meta.mainProgram attribute. Assuming you want '${assumption}'." assumption;
 
-              # builtins.pathExists mainPath doesn't work consistently (e.g.
-              # for symlinks), but this does
-              mainPathExists = builtins.hasAttr main (builtins.readDir "${drv}/bin");
+              mainProgramBaseName = derivation.meta.mainProgram or assumedMainProgramBaseName;
+              mainProgramPath = lib.getExe' derivation mainProgramBaseName;
+              mainProgramExists = builtins.pathExists mainProgramPath;
             in
-            assert pkgs.lib.assertMsg mainPathExists "main program ${mainPath} does not exist";
-            mainPath;
+            assert pkgs.lib.assertMsg mainProgramExists "Main program ${mainProgramPath} does not exist";
+            mainProgramPath;
 
           handler = {
             app =
@@ -100,8 +94,9 @@
               makeExecutable {
                 derivation = drv.program;
                 entrypoint = drv.program;
-                name = basename drv.program;
+                name = builtins.baseNameOf drv.program;
               };
+
             derivation =
               drv:
               makeExecutable {
@@ -110,6 +105,7 @@
                 inherit (drv) name;
               };
           };
+
           known-types = builtins.concatStringsSep ", " (builtins.attrNames handler);
         in
         drv:
