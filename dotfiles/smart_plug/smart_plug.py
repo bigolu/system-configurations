@@ -18,7 +18,8 @@ from typing import Optional, Self
 
 import psutil
 from diskcache import Cache
-from kasa import Device, Discover, KasaException
+from kasa import Discover, KasaException
+from kasa.discover import DeviceDict
 from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
@@ -35,12 +36,7 @@ class KasaPlug:
     @classmethod
     async def connect(cls, alias: str) -> Self:
         instance = cls()
-
-        plug = await instance._discover_plug(alias)
-        if plug is not None:
-            instance._plug = plug
-        else:
-            raise Exception(f"Unable to find a plug with alias: {alias}")
+        instance._plug = await instance._find_plug(alias)
 
         return instance
 
@@ -57,43 +53,47 @@ class KasaPlug:
         # issue.
         return cast(bool, self._plug.is_on)
 
-    async def _discover_plug(self, alias: str) -> Optional[IotPlug]:
-        plug = await self._get_plug_from_cache(alias)
+    @classmethod
+    async def _find_plug(cls, alias: str) -> IotPlug:
+        plug = await cls._get_plug_from_cache(alias)
         if plug is not None:
             return plug
 
-        devices_by_ip_address = await self._discover_devices()
+        devices_by_ip_address = await cls._discover_devices()
         for ip_address, device in devices_by_ip_address.items():
             if device.alias == alias and isinstance(device, IotPlug):
-                self._add_plug_to_cache(device)
+                cls._add_plug_to_cache(device)
                 return device
 
-        return None
+        raise Exception(f"Unable to find a plug with alias: {alias}")
 
-    def _add_plug_to_cache(self, plug: IotPlug) -> None:
-        KasaPlug._ip_address_cache[plug.alias] = plug.host
+    @classmethod
+    def _add_plug_to_cache(cls, plug: IotPlug) -> None:
+        cls._ip_address_cache[plug.alias] = plug.host
 
-    async def _get_plug_from_cache(self, alias: str) -> Optional[IotPlug]:
-        if alias not in KasaPlug._ip_address_cache:
+    @classmethod
+    async def _get_plug_from_cache(cls, alias: str) -> Optional[IotPlug]:
+        if alias not in cls._ip_address_cache:
             return None
 
-        ip_address = KasaPlug._ip_address_cache[alias]
+        ip_address = cls._ip_address_cache[alias]
         assert isinstance(ip_address, str)
 
         try:
             # TODO: This returns a Device, but I think it should return an IotPlug.
             device = await IotPlug.connect(host=ip_address)
         except (KasaException, TimeoutError):
-            del KasaPlug._ip_address_cache[alias]
+            del cls._ip_address_cache[alias]
             return None
 
         if isinstance(device, IotPlug):
             return device
         else:
-            del KasaPlug._ip_address_cache[alias]
+            del cls._ip_address_cache[alias]
             return None
 
-    async def _discover_devices(self) -> dict[str, Device]:
+    @classmethod
+    async def _discover_devices(cls) -> DeviceDict:
         # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because
         # the default broadcast address (255.255.255.255) is an alias for 'this
         # network' which will mean that of the VPN network when I'm connected to it
@@ -101,18 +101,19 @@ class KasaPlug:
         # discovery on all the broadcast addresses found on my machine.
         discovery_awaitables_per_broadcast_address = [
             Discover.discover(target=address)
-            for address in self._get_broadcast_addresses()
+            for address in cls._get_broadcast_addresses()
         ]
         devices_per_broadcast_address = await asyncio.gather(
             *discovery_awaitables_per_broadcast_address
         )
-        merged_devices: dict[str, Device] = reduce(
+        merged_devices: DeviceDict = reduce(
             operator.or_, devices_per_broadcast_address, {}
         )
 
         return merged_devices
 
-    def _get_broadcast_addresses(self) -> set[str]:
+    @classmethod
+    def _get_broadcast_addresses(cls) -> set[str]:
         ip_addresses_per_network_card = psutil.net_if_addrs().values()
         return {
             address.broadcast
