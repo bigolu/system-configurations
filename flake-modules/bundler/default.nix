@@ -1,20 +1,27 @@
 {
+  flake-parts-lib,
   inputs,
+  lib,
   ...
 }:
-{
-  imports = [
-    # I defined this in a separate file to avoid an infinite recursion. The function
-    # used in option.nix to make the bundler option returns a set with the keys
-    # `config` and `option`.  The set returned here would also have a `config` key,
-    # for the perSystem. To combine the two, I would use my helper function
-    # `self.lib.recursiveMerge`. It needs to be recursive since they both share a
-    # config key. I get an infinite recursion because the output of the call to
-    # self.lib.recursiveMerge would affect the value of self.
-    ./option.nix
-  ];
-
-  perSystem =
+let
+  bundlerOption =
+    let
+      inherit (flake-parts-lib) mkTransposedPerSystemModule;
+      inherit (lib) mkOption types;
+    in
+    mkTransposedPerSystemModule {
+      name = "bundlers";
+      option = mkOption {
+        type = types.anything;
+        default = { };
+      };
+      file = ./default.nix;
+    };
+in
+bundlerOption
+// {
+  config.perSystem =
     {
       lib,
       system,
@@ -122,6 +129,7 @@
         x86_64-linux
         x86_64-darwin
       ];
+
       isSupportedSystem = builtins.elem system supportedSystems;
     in
     optionalAttrs isSupportedSystem bundlerOutput;

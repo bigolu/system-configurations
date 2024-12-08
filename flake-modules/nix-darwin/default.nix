@@ -4,7 +4,7 @@
   ...
 }:
 let
-  makeDarwinConfigurationByName =
+  makeDarwinConfiguration =
     {
       system,
       configName,
@@ -29,23 +29,20 @@ let
         inherit system;
         overlays = [ self.lib.overlay ];
       };
-      darwinConfiguration = inputs.nix-darwin.lib.darwinSystem {
-        inherit pkgs;
-        modules = modules ++ homeManagerSubmodules;
-        specialArgs = {
-          inherit
-            configName
-            username
-            homeDirectory
-            repositoryDirectory
-            ;
-          flakeInputs = inputs;
-          inherit (self.lib) root;
-        };
-      };
     in
-    {
-      ${configName} = darwinConfiguration;
+    inputs.nix-darwin.lib.darwinSystem {
+      inherit pkgs;
+      modules = modules ++ homeManagerSubmodules;
+      specialArgs = {
+        inherit
+          configName
+          username
+          homeDirectory
+          repositoryDirectory
+          ;
+        flakeInputs = inputs;
+        inherit (self.lib) root;
+      };
     };
 
   configs = [
@@ -62,10 +59,16 @@ let
       ];
     }
   ];
-  darwinConfigurationsByName = map makeDarwinConfigurationByName configs;
+
+  darwinConfigurationsByName = builtins.listToAttrs (
+    map (config: {
+      name = config.configName;
+      value = makeDarwinConfiguration config;
+    }) configs
+  );
 in
 {
   flake = {
-    darwinConfigurations = self.lib.recursiveMerge darwinConfigurationsByName;
+    darwinConfigurations = darwinConfigurationsByName;
   };
 }

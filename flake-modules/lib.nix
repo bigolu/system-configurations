@@ -14,10 +14,6 @@
   };
 
   config.flake.lib = {
-    # This applies `nixpkgs.lib.recursiveUpdate` to a list of sets, instead of just
-    # two.
-    recursiveMerge = sets: lib.lists.foldr lib.recursiveUpdate { } sets;
-
     # YYYYMMDDHHMMSS -> YYYY-MM-DD
     formatDate =
       date:
