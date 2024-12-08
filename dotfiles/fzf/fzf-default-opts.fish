@@ -11,10 +11,12 @@ set _bigolu_fzf_help_text " $(set_color $accent_color)ctrl+h$(set_color normal) 
 function __flag
     set name $argv[1]
     set values $argv[2..]
+
     if test (count $values) -gt 0
-        printf '--%s=\'%s\'' $name (string join -- ',' $values)
+        set joined_values (string join -- ',' $values)
+        echo "--$name='$joined_values'"
     else
-        printf '--%s' $name
+        echo "--$name"
     end
 end
 
