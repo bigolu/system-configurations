@@ -107,10 +107,10 @@ in
       home.file = {
         "${
           if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"
-        }/tealdeer/config.toml".source = "tealdeer/config.toml";
-        "${
-          if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"
-        }/viddy.toml".source = "viddy/viddy.toml";
+        }/tealdeer/config.toml".source =
+          "tealdeer/config.toml";
+        "${if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"}/viddy.toml".source =
+          "viddy/viddy.toml";
       };
     };
   };
