@@ -97,6 +97,7 @@ name:
   crypttab: "  "
   custom.el: "  "
   desktop: " "
+  dist: " "
   doc: " "
   docker-compose.yml: "  "
   dockerfile: "  "
