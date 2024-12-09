@@ -147,7 +147,7 @@ local groups = {
   PmenuExtra = "PmenuKind", -- Popup menu: Normal item "extra text"
   PmenuExtraSel = "PmenuKindSel", -- Popup menu: Selected item "extra text"
   PmenuSbar = "Pmenu", -- Popup menu: Scrollbar.
-  PmenuThumb = { ctermbg = 7 }, -- Popup menu: Thumb of the scrollbar.
+  PmenuThumb = "PmenuSbar", -- Popup menu: Thumb of the scrollbar.
   -- }}}
 
   -- Tree-Sitter {{{
