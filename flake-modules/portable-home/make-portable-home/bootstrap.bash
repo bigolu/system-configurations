@@ -119,5 +119,8 @@ if [[ -t 2 ]]; then
   printf '\33[2K\r'
 fi
 
+# Compile my custom themes for bat
+bat cache --build 1>/dev/null 2>&1
+
 # WARNING: don't exec so our cleanup function can run
 "$SHELL" "$@"

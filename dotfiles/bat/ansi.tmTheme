@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <!--
+        The colors in this theme are encoded as #RRGGBBAA where:
+        * If AA is 00, then RR is an ANSI palette number from 00 to 07.
+        * If AA is 01, the terminal's default fg/bg color is used.
+        -->
+        <key>author</key>
+        <string>Template: Chris Kempson, Scheme: Mitchell Kember</string>
+        <key>name</key>
+        <string>ANSI</string>
+        <key>colorSpaceName</key>
+        <string>sRGB</string>
+        <key>settings</key>
+        <array>
+            <dict>
+                <key>settings</key>
+                <dict>
+                    <key>background</key>
+                    <string>#00000001</string>
+                    <key>foreground</key>
+                    <string>#00000001</string>
+                    <!--
+                    Explicitly set the gutter color since bat falls back to a
+                    hardcoded DEFAULT_GUTTER_COLOR otherwise.
+                    -->
+                    <key>gutter</key>
+                    <string>#00000001</string>
+                    <key>gutterForeground</key>
+                    <string>#00000001</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Comments</string>
+                <key>scope</key>
+                <string>comment, punctuation.definition.comment</string>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#08000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Keywords</string>
+                <key>scope</key>
+                <string>keyword, variable.language.special.shell variable.parameter.positional, storage.type.function, storage.type.class, storage.type.tsx, storage.modifier.async, source.css punctuation.definition.keyword, source.css punctuation.definition.keyword, keyword.operator.logical.python</string>
+                <key>settings</key>
+                <dict>
+                    <key>fontStyle</key>
+                    <string>bold</string>
+                    <key>foreground</key>
+                    <string>#00000001</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Strings</string>
+                <key>scope</key>
+                <string>string</string>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#0e000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
+                <string>Overrides</string>
+                <key>scope</key>
+                <!--
+                TODO: I only want to remove color from JSON property names, but
+                that scope isn't available[1] so I'll remove all colors.
+
+                [1]: https://github.com/sublimehq/Packages/blob/master/JSON/JSON.sublime-syntax
+                -->
+                <string>entity.name.tag.yaml, source.ini keyword, source.yaml punctuation, string.unquoted, keyword.operator, source.json string, source.shell variable, source.shell punctuation.definition.variable.shell</string>
+                <key>settings</key>
+                <dict>
+                    <key>fontStyle</key>
+                    <string></string>
+                    <key>foreground</key>
+                    <string>#00000001</string>
+                </dict>
+            </dict>
+        </array>
+        <key>uuid</key>
+        <string>uuid</string>
+    </dict>
+</plist>

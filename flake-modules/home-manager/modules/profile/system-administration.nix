@@ -92,6 +92,7 @@ in
             recursive = true;
           };
           "bat/config".source = "bat/config";
+          "bat/themes/ansi.tmTheme".source = "bat/ansi.tmTheme";
         }
         // optionalAttrs isLinux {
           "pipr/pipr.toml".source = "pipr/pipr.toml";
@@ -113,4 +114,8 @@ in
       };
     };
   };
+
+  home.activation.batSetup = lib.hm.dag.entryAfter [
+    "linkGeneration"
+  ] "bat cache --build 1>/dev/null 2>&1";
 }
