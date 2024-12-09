@@ -16,8 +16,8 @@ function _add_async_prompt_function --argument-names async_function_name loading
     # `$async_function_name` to be named `$async_function_name`_loading_indicator
     set correct_loading_indicator_function_name $async_function_name'_loading_indicator'
     if test $loading_indicator_function_name != $correct_loading_indicator_function_name
-        function $correct_loading_indicator_function_name
-            eval $loading_indicator_function_name
+        function $correct_loading_indicator_function_name --inherit-variable loading_indicator_function_name
+            $loading_indicator_function_name
         end
     end
 end
