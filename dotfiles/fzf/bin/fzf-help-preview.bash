@@ -15,9 +15,9 @@ shopt -s nullglob
 # FZF_HINTS='ctrl+a: additional binding' fzf --preview fzf-help-preview
 
 function main {
-  hint_sections=(
+  default_hint_sections=(
     "$(
-      format_hint_section \
+      make_hint_section \
         'Navigation' \
         'shift+tab/tab: move up/down' \
         'alt+enter: select multiple items' \
@@ -26,13 +26,13 @@ function main {
     )"
 
     "$(
-      format_hint_section \
+      make_hint_section \
         'History' \
         'ctrl+[/]: go to previous/next entry in history'
     )"
 
     "$(
-      format_hint_section \
+      make_hint_section \
         'Preview Window' \
         'ctrl+s: show selected entries' \
         'ctrl+p: toggle preview visibility' \
@@ -43,7 +43,7 @@ function main {
     )"
 
     "$(
-      format_hint_section \
+      make_hint_section \
         'Search Syntax' \
         \''<query>: exact match' \
         '^<query>: prefix match' \
@@ -58,20 +58,25 @@ function main {
 
   if [[ -n ${FZF_HINTS:-} ]]; then
     readarray -t widget_specific_hints < <(echo -e "$FZF_HINTS")
+    widget_specific_hint_section="$(make_hint_section 'Widget-Specific' "${widget_specific_hints[@]}")"
+
     hint_sections=(
-      "$(format_hint_section 'Widget-Specific' "${widget_specific_hints[@]}")"
-      "${hint_sections[@]}"
+      "$widget_specific_hint_section"
+      "${default_hint_sections[@]}"
     )
+  else
+    hint_sections=("${default_hint_sections[@]}")
   fi
 
-  printf '%s\n\n' "${hint_sections[@]}"
+  join $'\n\n' "${hint_sections[@]}"
 }
 
-function format_hint_section {
+function make_hint_section {
   section_name="$1"
-  shift
-  readarray -t hints < <(printf '%s\n' "$@" | grep --color=always -E '(^.*:)')
-  echo -e '\e[1m'"$section_name"$'\n'"$(join $'\n' "${hints[@]}")"
+  hints=("${@:1}")
+
+  highlighted_hints="$(printf '%s\n' "${hints[@]}" | grep --color=always -E '(^.*:)')"
+  echo -e "\e[1m$section_name"$'\n'"$highlighted_hints"
 }
 
 # source: https://stackoverflow.com/a/17841619
