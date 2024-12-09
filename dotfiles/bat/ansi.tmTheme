@@ -93,7 +93,8 @@
                 <string>
                     entity.name.tag.yaml,
                     source.ini keyword,
-                    source.yaml punctuation,
+                    source.yaml punctuation.definition.anchor,
+                    keyword.control.flow.block-scalar,
                     string.unquoted,
                     keyword.operator,
                     source.json string,
