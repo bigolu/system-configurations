@@ -20,11 +20,7 @@ set -o pipefail
 shopt -s nullglob
 
 function main {
-  reviewdog_flags=(
-    -filter-mode=nofilter
-    -fail-level=any
-    -level=error
-  )
+  reviewdog_flags=(-filter-mode=nofilter)
   check_command=()
 
   parse_arguments "$@"
@@ -34,7 +30,7 @@ function main {
 
 function run_check {
   if did_set_reviewdog_error_format_flag; then
-    "${check_command[@]}" | reviewdog "${reviewdog_flags[@]}"
+    "${check_command[@]}" | reviewdog -fail-level=any "${reviewdog_flags[@]}"
   else
     if [[ ${CI:-} == 'true' ]]; then
       "${check_command[@]}"
@@ -42,10 +38,13 @@ function run_check {
       if has_uncommitted_changes; then
         git diff \
           | reviewdog -f=diff -f.diff.strip=1 "${reviewdog_flags[@]}"
+
         # Remove changes in case another check runs after this one. I could drop the
         # stash as well, but in the event that this code accidentally runs when the
         # script is run locally, I don't want to permanently delete any changes.
         git stash --include-untracked
+
+        exit 1
       fi
     else
       # When running locally, I need a fix command to fail if files change. This
