@@ -33,6 +33,8 @@ function main {
   git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
   readarray -t required_check_names < <(get_required_check_names)
+  echo 'required check names'
+  printf '%s\n' "${required_check_names[@]}"
 
   for branch in "${branches_to_automerge_without_pr[@]}"; do
     echo $'\n'"Processing branch: $branch"
@@ -89,6 +91,8 @@ function has_failure {
 
 function all_required_checks_passed {
   for check in "$@"; do
+    echo "Check: $(jq '.name' <<<"$check") $(jq '.status' <<<"$check") $(jq '.conclusion' <<<"$check")"
+
     if ! is_item_in "$(jq '.name' <<<"$check")" "${required_check_names[@]}"; then
       continue
     fi
