@@ -117,5 +117,5 @@ in
 
   home.activation.batSetup = lib.hm.dag.entryAfter [
     "linkGeneration"
-  ] "bat cache --build 1>/dev/null 2>&1";
+  ] "${lib.getExe pkgs.bat} cache --build 1>/dev/null 2>&1";
 }
