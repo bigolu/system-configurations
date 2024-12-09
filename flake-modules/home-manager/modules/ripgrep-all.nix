@@ -12,7 +12,8 @@
     home.file = {
       "${
         if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"
-      }/ripgrep-all/config.jsonc".source = "ripgrep/config.jsonc";
+      }/ripgrep-all/config.jsonc".source =
+        "ripgrep/config.jsonc";
     };
   };
 }

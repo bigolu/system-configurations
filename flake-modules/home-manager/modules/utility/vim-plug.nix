@@ -20,11 +20,9 @@ in
 
     "nvim/site/lua/nix-plugins.lua".text = ''
       return {
-        ${
-          lib.strings.concatMapStringsSep "\n" (
-            name: ''["${name}"] = "${builtins.getAttr name pkgs.myVimPlugins}",''
-          ) (builtins.attrNames pkgs.myVimPlugins)
-        }
+        ${lib.strings.concatMapStringsSep "\n" (
+          name: ''["${name}"] = "${builtins.getAttr name pkgs.myVimPlugins}",''
+        ) (builtins.attrNames pkgs.myVimPlugins)}
       }
     '';
 
