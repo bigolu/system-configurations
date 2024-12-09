@@ -36,7 +36,10 @@
                 <key>name</key>
                 <string>Comments</string>
                 <key>scope</key>
-                <string>comment, punctuation.definition.comment</string>
+                <string>
+                    comment,
+                    punctuation.definition.comment
+                </string>
                 <key>settings</key>
                 <dict>
                     <key>foreground</key>
@@ -47,7 +50,17 @@
                 <key>name</key>
                 <string>Keywords</string>
                 <key>scope</key>
-                <string>keyword, variable.language.special.shell variable.parameter.positional, storage.type.function, storage.type.class, storage.type.tsx, storage.modifier.async, source.css punctuation.definition.keyword, source.css punctuation.definition.keyword, keyword.operator.logical.python</string>
+                <string>
+                    keyword,
+                    variable.language.special.shell variable.parameter.positional,
+                    storage.type.function,
+                    storage.type.class,
+                    storage.type.tsx,
+                    storage.modifier.async,
+                    source.css punctuation.definition.keyword,
+                    source.css punctuation.definition.keyword,
+                    keyword.operator.logical.python
+                </string>
                 <key>settings</key>
                 <dict>
                     <key>fontStyle</key>
@@ -77,7 +90,16 @@
 
                 [1]: https://github.com/sublimehq/Packages/blob/master/JSON/JSON.sublime-syntax
                 -->
-                <string>entity.name.tag.yaml, source.ini keyword, source.yaml punctuation, string.unquoted, keyword.operator, source.json string, source.shell variable, source.shell punctuation.definition.variable.shell</string>
+                <string>
+                    entity.name.tag.yaml,
+                    source.ini keyword,
+                    source.yaml punctuation,
+                    string.unquoted,
+                    keyword.operator,
+                    source.json string,
+                    source.shell variable,
+                    source.shell punctuation.definition.variable.shell
+                </string>
                 <key>settings</key>
                 <dict>
                     <key>fontStyle</key>
