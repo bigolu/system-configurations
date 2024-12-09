@@ -33,8 +33,6 @@ function main {
   git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
 
   readarray -t required_check_names < <(get_required_check_names)
-  echo 'required check names'
-  printf '%s\n' "${required_check_names[@]}"
 
   for branch in "${branches_to_automerge_without_pr[@]}"; do
     echo $'\n'"Processing branch: $branch"
@@ -79,8 +77,8 @@ function main {
 function has_failure {
   for check in "$@"; do
     if
-      [[ "$(jq '.status' <<<"$check")" == completed ]] \
-        && is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"
+      [[ "$(get "$check" 'status')" == completed ]] \
+        && is_item_in "$(get "$check" 'conclusion')" "${failure_states[@]}"
     then
       return 0
     fi
@@ -91,21 +89,26 @@ function has_failure {
 
 function all_required_checks_passed {
   for check in "$@"; do
-    echo "Check: $(jq '.name' <<<"$check") $(jq '.status' <<<"$check") $(jq '.conclusion' <<<"$check")"
-
-    if ! is_item_in "$(jq '.name' <<<"$check")" "${required_check_names[@]}"; then
+    if ! is_item_in "$(get "$check" 'name')" "${required_check_names[@]}"; then
       continue
     fi
 
     if
-      [[ "$(jq '.status' <<<"$check")" != completed ]] \
-        || is_item_in "$(jq '.conclusion' <<<"$check")" "${failure_states[@]}"
+      [[ "$(get "$check" 'status')" != completed ]] \
+        || is_item_in "$(get "$check" 'conclusion')" "${failure_states[@]}"
     then
       return 1
     fi
   done
 
   return 0
+}
+
+function get {
+  json="$1"
+  property="$2"
+
+  jq --raw-output ".$property" <<<"$json"
 }
 
 function get_required_check_names {
