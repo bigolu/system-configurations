@@ -67,7 +67,7 @@ sync:
       glob: ".envrc"
       run: direnv reload
     nix-direnv:
-      glob: "flake{.nix,.lock,-modules/{dev-shell/,lib,overlay/}**.nix},.envrc"
+      glob: "{.envrc,flake.{nix,lock},flake-modules/{{dev-shell,overlay}/*.nix,lib.nix}}"
       run: touch flake.nix && nix-direnv-reload |& nom
     lefthook:
       # TODO: No need for this yet since lefthook syncs hooks automatically. There's
@@ -82,7 +82,7 @@ sync:
       run: lefthook install --force
     system:
       interactive: true
-      glob: "{{dotfiles,flake-modules}/**,flake.{lock,nix}}"
+      glob: "{{dotfiles,flake-modules}/*,flake.{lock,nix}}"
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       run: sudo -- "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
     hammerspoon-annotations:
@@ -97,7 +97,7 @@ sync:
           fi
         '
     fish:
-      glob: "dotfiles/fish/conf.d/**.fish"
+      glob: "dotfiles/fish/conf.d/*.fish"
       run: fish -c fish-reload
 
 check:
@@ -195,7 +195,7 @@ generate:
         ./scripts/run-check-with-reviewdog.bash -name=nix-version --
         ./scripts/code-generation/sync-nix-version.bash
     system-configs:
-      glob: "{flake-modules/**,flake.nix}"
+      glob: "{flake-modules/*,flake.nix}"
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=system-configs --
         ./scripts/code-generation/add-system-configurations-to-readme.bash
@@ -492,5 +492,5 @@ check-lint:
     nix-config:
       skip:
         - run: '[ "$CI" = true ]'
-      glob: "{flake-modules/**,flake.{lock,nix}}"
+      glob: "{flake-modules/*,flake.{lock,nix}}"
       run: nix config check
