@@ -160,7 +160,12 @@ ulimit -Sn 10000
 function , --wraps ,
     # The `--with-nth` to remove the '.out' extension from the entries.
     #
-    # Set NIX_PATH to empty string so flakes are used.
+    # TODO: Set NIX_PATH to empty string so flakes are used. I did this because comma
+    # did not work with the nixpkgs entry that I put on the path for one of my
+    # projects, system-configurations. This is probably because I didn't point
+    # nixpkgs to the actual nixpkgs repo, but a file that exposed the same interface
+    # as the default.nix in the nixpkgs repo. I should see if comma can be patched to
+    # support my nixpkgs NIX_PATH entry and then I can remove this.
     NIX_PATH='' FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name (string sub --end -4 {})' --delimiter '.' --with-nth '..-5'" COMMA_PICKER=fzf command , $argv
 end
 
