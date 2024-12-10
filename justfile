@@ -125,11 +125,16 @@ check-all GROUPS='':
     set -o nounset
     set -o pipefail
 
-    lefthook_arguments=(--all-files)
+    lefthook_arguments=(--files-from-stdin)
     if [[ -n "$1" ]]; then
       lefthook_arguments+=(--commands "$1")
     fi
-    lefthook run check "${lefthook_arguments[@]}"
+
+    {
+      git ls-files -z
+      # untracked files
+      git ls-files -z --others --exclude-standard
+    } | lefthook run check "${lefthook_arguments[@]}"
 
 [doc('''
     Run various tasks to synchronize your environment with the state of the code.
