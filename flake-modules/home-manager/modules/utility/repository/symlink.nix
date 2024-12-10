@@ -1,6 +1,9 @@
 # This module makes it easy to create symlinks to a file in your Home Manager
 # flake. This way you can edit a file and have the changes applied instantly
 # without having to switch generations.
+#
+# TODO: I wouldn't need this if Home Manager did what is suggested here:
+# https://github.com/nix-community/home-manager/issues/3032
 {
   config,
   lib,

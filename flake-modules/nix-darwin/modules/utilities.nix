@@ -57,7 +57,7 @@ in
     in
     {
       system.activationScripts.postActivation.text = ''
-        echo >&2 '[bigolu] Configuring login shell for nix-darwin...'
+        printf '\e[36m┃ [bigolu] Configuring login shell for nix-darwin ❯\e(B\e[m\n' >&2
         ${nixDarwinScript}
       '';
 

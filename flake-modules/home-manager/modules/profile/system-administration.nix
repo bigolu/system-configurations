@@ -91,7 +91,7 @@ in
             # places.
             recursive = true;
           };
-          "bat/config".source = "bat/config";
+          "bat/config".source = "bat/config.txt";
           "bat/themes/ansi.tmTheme".source = "bat/ansi.tmTheme";
         }
         // optionalAttrs isLinux {

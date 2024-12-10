@@ -26,8 +26,7 @@ let
       oldGenerationPath="$(readlink --canonicalize ${config.system.profile})"
       newGenerationPath="$(nix build --no-link --print-out-paths .#darwinConfigurations.${configName}.system)"
 
-      cyan='\033[1;0m'
-      printf "%bPrinting preview...\n" "$cyan"
+      printf 'Printing preview...\n'
       nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
       ${
         lib.fileset.toSource {
@@ -145,8 +144,7 @@ in
 
     activationScripts.postActivation.text = ''
       if [[ -e /run/current-system ]]; then
-        cyan='\033[1;0m'
-        printf "%b[bigolu] Printing generation diff...\n" "$cyan"
+        printf '\e[36m┃ [bigolu] Printing generation diff ❯\e(B\e[m\n' >&2
         nix store diff-closures /run/current-system "$systemConfig"
         ${
           lib.fileset.toSource {
