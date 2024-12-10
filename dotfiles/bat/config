@@ -1,2 +1,3 @@
---theme="ansi"
+--theme='ansi'
 --map-syntax='.envrc:Bourne Again Shell (bash)'
+--italic-text='always'
