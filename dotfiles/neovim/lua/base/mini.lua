@@ -338,8 +338,6 @@ Plug("echasnovski/mini.nvim", {
         vim.opt_local.winhighlight:append(cursorword_highlight_name .. ":Clear")
       end
       local function enable_cursorword()
-        -- TODO: When removing the highlight I can only provide the from highlight, but in vimscript
-        -- I can provide both e.g. `set winhighlight-=From:To`
         vim.opt_local.winhighlight:remove(cursorword_highlight_name)
       end
 
@@ -374,25 +372,6 @@ Plug("echasnovski/mini.nvim", {
         callback = function()
           enable_cursorword()
         end,
-      })
-    end
-    -- }}}
-
-    -- trailspace {{{
-    if IsRunningInTerminal then
-      local trailspace = require("mini.trailspace")
-      trailspace.setup()
-      vim.api.nvim_create_user_command("TrimTrailingWhitespace", function()
-        trailspace.trim()
-      end, {})
-    end
-    -- }}}
-
-    -- bufremove {{{
-    if IsRunningInTerminal then
-      require("mini.bufremove").setup({
-        set_vim_settings = false,
-        silent = true,
       })
     end
     -- }}}
