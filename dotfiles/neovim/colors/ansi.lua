@@ -133,7 +133,7 @@ local groups = {
 
   -- LSP {{{
   LspInfoBorder = "FloatBorder",
-  LspInlayHint = { bold = true, italic = true, ctermfg = 15 },
+  LspInlayHint = { italic = true, ctermfg = 15 },
   LspCodeLens = "LspInlayHint", -- Used to color the virtual text of the codelens. See |nvim_buf_set_extmark()|.
   LspCodeLensSeparator = { bold = true, italic = true, ctermfg = 8 }, -- Used to color the separator between two or more code lens.
   LspReferenceTarget = { ctermfg = "NONE", ctermbg = "NONE" },
@@ -288,9 +288,9 @@ local groups = {
   -- }}}
 
   -- fidget.nvim {{{
-  FidgetNormal = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 8 },
-  FidgetAccent = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 7 },
-  FidgetIcon = { bold = true, italic = true, ctermbg = "NONE", ctermfg = 5 },
+  FidgetNormal = { italic = true, ctermbg = "NONE", ctermfg = 8 },
+  FidgetAccent = { italic = true, ctermbg = "NONE", ctermfg = 7 },
+  FidgetIcon = { italic = true, ctermbg = "NONE", ctermfg = 5 },
   -- }}}
 
   -- mini.nvim {{{
