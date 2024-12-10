@@ -28,10 +28,7 @@ let
   };
 
   localeArchive =
-    if isLinux then
-      "export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive"
-    else
-      "";
+    if isLinux then "export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive" else "";
 
   bootstrap = pkgs.resholve.mkDerivation {
     pname = "bootstrap";

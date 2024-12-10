@@ -1,5 +1,4 @@
 ast-grep
-b3sum
 coreutils
 curl
 direnv

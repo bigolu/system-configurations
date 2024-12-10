@@ -157,7 +157,6 @@ vim.keymap.set({ "n", "i", "x" }, "<C-z>", "<Cmd>suspend<CR>", {
   desc = "Suspend [background]",
 })
 
-
 vim.keymap.set("n", "<BS>", "<C-^>", {
   desc = "Last window",
 })
