@@ -1,6 +1,6 @@
 #! /usr/bin/env cached-nix-shell
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils reviewdog gitMinimal b3sum
+#! nix-shell --packages nix-shell-interpreter coreutils reviewdog gitMinimal
 
 # Usage:
 #
@@ -36,7 +36,7 @@ function run_check {
       "${check_command[@]}"
 
       if has_uncommitted_changes; then
-        git diff \
+        diff_including_untracked \
           | reviewdog -f=diff -f.diff.strip=1 "${reviewdog_flags[@]}"
 
         # Remove changes in case another check runs after this one. I could drop the
@@ -121,15 +121,21 @@ function fail_if_files_change {
 }
 
 function diff_including_untracked {
-  git diff
-
   readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
-  hash "${untracked_files[@]}"
+  track_files "${untracked_files[@]}"
+  git diff
+  untrack_files "${untracked_files[@]}"
 }
 
-function hash {
+function track_files {
   if (($# > 0)); then
-    cat "$@" | b3sum
+    git add --intent-to-add -- "$@"
+  fi
+}
+
+function untrack_files {
+  if (($# > 0)); then
+    git reset --quiet -- "$@"
   fi
 }
 
