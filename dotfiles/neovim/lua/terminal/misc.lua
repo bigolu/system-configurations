@@ -1,5 +1,112 @@
 -- vim:foldmethod=marker
 
+-- To get the vim help pages for vim-plug itself, you need to add it as a plugin
+Plug("junegunn/vim-plug")
+
+Plug("j-hui/fidget.nvim", {
+  config = function()
+    local fidget = require("fidget")
+    fidget.setup({
+      progress = {
+        ignore_done_already = true,
+        suppress_on_insert = true,
+        ignore = { "null-ls" },
+        display = {
+          render_limit = 1,
+          done_ttl = 0.1,
+          done_icon = "󰄬",
+          done_style = "FidgetNormal",
+          progress_style = "FidgetAccent",
+          group_style = "FidgetAccent",
+          icon_style = "FidgetIcon",
+          progress_icon = { "dots" },
+        },
+      },
+      notification = {
+        view = {
+          group_separator = "─────",
+        },
+        window = {
+          normal_hl = "FidgetNormal",
+          winblend = 0,
+          zindex = 1,
+          max_width = 40,
+        },
+      },
+    })
+    vim.notify = fidget.notify
+  end,
+})
+
+-- Add icons to the gutter to represent version control changes (e.g. new lines,
+-- modified lines, etc.)
+Plug("mhinz/vim-signify", {
+  config = function()
+    -- Make `[c` and `]c` wrap around. Taken from here:
+    -- https://github.com/mhinz/vim-signify/issues/239#issuecomment-305499283
+    vim.cmd([[
+        function! s:signify_hunk_next(count) abort
+          let oldpos = getcurpos()
+          silent! call sy#jump#next_hunk(a:count)
+          if getcurpos() == oldpos
+            silent! call sy#jump#prev_hunk(9999)
+          endif
+        endfunction
+
+        function! s:signify_hunk_prev(count) abort
+          let oldpos = getcurpos()
+          silent! call sy#jump#prev_hunk(a:count)
+          if getcurpos() == oldpos
+            silent! call sy#jump#next_hunk(9999)
+          endif
+        endfunction
+
+        nnoremap <silent> <expr> <plug>(sy-hunk-next) &diff
+              \ ? ']c'
+              \ : ":\<c-u>call <sid>signify_hunk_next(v:count1)\<cr>"
+        nnoremap <silent> <expr> <plug>(sy-hunk-prev) &diff
+              \ ? '[c'
+              \ : ":\<c-u>call <sid>signify_hunk_prev(v:count1)\<cr>"
+
+        nmap ]c <plug>(sy-hunk-next)
+        nmap [c <plug>(sy-hunk-prev)
+    ]])
+  end,
+})
+vim.g.signify_priority = 1
+vim.g.signify_sign_show_count = 0
+local signify_sign = "┃"
+vim.g.signify_sign_add = signify_sign
+vim.g.signify_sign_delete = signify_sign
+vim.g.signify_sign_delete_first_line = signify_sign
+vim.g.signify_sign_change = signify_sign
+vim.g.signify_sign_change_delete = signify_sign
+
+-- Get help buffers to open in the current window. Source: https://stackoverflow.com/a/26431632
+--
+-- TODO: comment on the source to add the edge cases I found.
+vim.api.nvim_create_user_command("Help", function(context)
+  vim.cmd.enew()
+  local new_buffer = vim.fn.bufnr()
+  vim.bo.buftype = "help"
+  vim.cmd.help(context.args)
+
+  -- If the help buffer was already open, vim will just jump to it so in that case we should close the new buffer we made.
+  local not_in_new_buffer = new_buffer ~= vim.fn.bufnr()
+  if not_in_new_buffer then
+    vim.cmd.bwipeout(new_buffer)
+    return
+  end
+
+  vim.bo.buflisted = true
+  -- some help pages have the filetype "text" so I'll change that
+  vim.bo.filetype = "help"
+end, {
+  complete = "help",
+  nargs = 1,
+})
+
+-- Settings {{{
 vim.o.mouse = "a"
 vim.o.jumpoptions = "stack"
 vim.o.mousemoveevent = true
@@ -10,6 +117,94 @@ vim.o.scrolloff = 100
 
 -- Gets rid of the press enter prompt when accessing a file over a network
 vim.g.netrw_silent = 1
+
+-- persist undo history to disk
+vim.o.undofile = true
+
+-- Plugins expect this to be POSIX compliant and my $SHELL is fish.
+vim.o.shell = "sh"
+
+vim.o.ttimeout = true
+vim.o.ttimeoutlen = 50
+
+vim.o.scroll = 1
+vim.o.smoothscroll = true
+
+vim.o.shortmess = "ltToOFs"
+-- }}}
+
+-- Mappings {{{
+local function c_x(buffer)
+  vim.keymap.set("", "<C-x>", function()
+    vim.cmd([[
+      confirm qall
+    ]])
+  end, {
+    desc = "Quit [exit,close]",
+    buffer = buffer,
+  })
+end
+c_x()
+vim.api.nvim_create_autocmd("User", {
+  pattern = "FileTypeOverride_gitrebase",
+  callback = function()
+    c_x(true)
+  end,
+})
+
+-- suspend vim
+vim.keymap.set({ "n", "i", "x" }, "<C-z>", "<Cmd>suspend<CR>", {
+  desc = "Suspend [background]",
+})
+
+
+vim.keymap.set("n", "<BS>", "<C-^>", {
+  desc = "Last window",
+})
+
+-- To have separate mappings for <Tab> and <C-i> you have to map both. Since I
+-- want the default behavior for <C-i> I just map it to itself. Source:
+-- https://neovim.io/doc/user/motion.html#jump-motions
+vim.keymap.set({ "n" }, "<C-i>", "<C-i>")
+
+vim.keymap.set("n", [[\ ]], function()
+  vim.o.list = not vim.o.list
+end, { silent = true, desc = "Toggle whitespace indicator" })
+vim.keymap.set("n", [[\n]], function()
+  vim.o.number = not vim.o.number
+end, { silent = true, desc = "Toggle line numbers" })
+
+vim.keymap.set("n", "<C-q>", function()
+  local tab_count = vim.fn.tabpagenr("$")
+
+  local function is_not_float(window)
+    return vim.api.nvim_win_get_config(window).relative == ""
+  end
+  local window_count = #vim.tbl_filter(is_not_float, vim.api.nvim_list_wins())
+
+  -- If this is the last tab and window, exit vim
+  local is_last_window = window_count == 1
+  if tab_count == 1 and is_last_window then
+    local is_linked_to_file = #vim.api.nvim_buf_get_name(
+      vim.api.nvim_get_current_buf()
+    ) > 0
+    -- Only `confirm` if the buffer is linked to a file
+    if is_linked_to_file then
+      vim.cmd([[
+        confirm qall
+      ]])
+    else
+      -- add '!' to ignore unsaved changes
+      vim.cmd([[
+        qall!
+      ]])
+    end
+    return
+  end
+
+  vim.cmd.close()
+end, { silent = true, desc = "Close pane [split,window]" })
+-- }}}
 
 -- open links with browser {{{
 --
@@ -71,81 +266,6 @@ vim.keymap.set(
   "<LeftMouse><Cmd>lua OpenUrlUnderCursor(true)<CR>"
 )
 -- }}}
-
--- persist undo history to disk
-vim.o.undofile = true
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = "sh",
-  callback = function()
-    vim.opt_local.keywordprg = "man"
-  end,
-})
--- Get help buffers to open in the current window. Source: https://stackoverflow.com/a/26431632
---
--- TODO: comment on the source to add the edge cases I found.
-vim.api.nvim_create_user_command("Help", function(context)
-  vim.cmd.enew()
-  local new_buffer = vim.fn.bufnr()
-  vim.bo.buftype = "help"
-  vim.cmd.help(context.args)
-
-  -- If the help buffer was already open, vim will just jump to it so in that case we should close the new buffer we made.
-  local not_in_new_buffer = new_buffer ~= vim.fn.bufnr()
-  if not_in_new_buffer then
-    vim.cmd.bwipeout(new_buffer)
-    return
-  end
-
-  vim.bo.buflisted = true
-  -- some help pages have the filetype "text" so I'll change that
-  vim.bo.filetype = "help"
-end, {
-  complete = "help",
-  nargs = 1,
-})
-
-local function c_x(buffer)
-  vim.keymap.set("", "<C-x>", function()
-    vim.cmd([[
-      confirm qall
-    ]])
-  end, {
-    desc = "Quit [exit,close]",
-    buffer = buffer,
-  })
-end
-c_x()
-vim.api.nvim_create_autocmd("User", {
-  pattern = "FileTypeOverride_gitrebase",
-  callback = function()
-    c_x(true)
-  end,
-})
-
--- suspend vim
-vim.keymap.set({ "n", "i", "x" }, "<C-z>", "<Cmd>suspend<CR>", {
-  desc = "Suspend [background]",
-})
-
-vim.o.shell = "sh"
-
-vim.keymap.set("n", "<BS>", "<C-^>", {
-  desc = "Last window",
-})
-
-vim.o.ttimeout = true
-vim.o.ttimeoutlen = 50
-
-vim.o.scroll = 1
-vim.o.smoothscroll = true
-
-vim.o.shortmess = "ltToOFs"
-
--- To have separate mappings for <Tab> and <C-i> you have to map both. Since I
--- want the default behavior for <C-i> I just map it to itself. Source:
--- https://neovim.io/doc/user/motion.html#jump-motions
-vim.keymap.set({ "n" }, "<C-i>", "<C-i>")
 
 -- Autosave {{{
 --
@@ -251,6 +371,7 @@ vim.o.wildmode = "longest:full,full"
 vim.o.wildoptions = "pum,fuzzy"
 vim.o.cmdheight = 0
 vim.o.showcmdloc = "statusline"
+
 vim.keymap.set("c", "<C-a>", "<C-b>", { remap = true })
 vim.keymap.set({ "ca" }, "lua", function()
   if vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == "lua" then
@@ -266,7 +387,6 @@ vim.keymap.set({ "ca" }, "h", function()
     return "h"
   end
 end, { expr = true })
--- }}}
 
 vim.api.nvim_create_autocmd("CmdlineEnter", {
   pattern = [=[[/\?]]=],
@@ -280,13 +400,7 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
     vim.o.hlsearch = false
   end,
 })
-
-vim.keymap.set("n", [[\ ]], function()
-  vim.o.list = not vim.o.list
-end, { silent = true, desc = "Toggle whitespace indicator" })
-vim.keymap.set("n", [[\n]], function()
-  vim.o.number = not vim.o.number
-end, { silent = true, desc = "Toggle line numbers" })
+-- }}}
 
 -- Terminal {{{
 vim.keymap.set("t", "jk", [[<C-\><C-n>]])
@@ -324,45 +438,3 @@ vim.api.nvim_create_autocmd("BufWinLeave", {
   end,
 })
 -- }}}
-
--- To get the vim help pages for vim-plug itself, you need to add it as a plugin
-Plug("junegunn/vim-plug")
-
-vim.keymap.set("n", "<C-q>", function()
-  local tab_count = vim.fn.tabpagenr("$")
-
-  local function is_not_float(window)
-    return vim.api.nvim_win_get_config(window).relative == ""
-  end
-  local window_count = #vim.tbl_filter(is_not_float, vim.api.nvim_list_wins())
-
-  -- If this is the last tab and window, exit vim
-  local is_last_window = window_count == 1
-  if tab_count == 1 and is_last_window then
-    local is_linked_to_file = #vim.api.nvim_buf_get_name(
-      vim.api.nvim_get_current_buf()
-    ) > 0
-    -- Only `confirm` if the buffer is linked to a file
-    if is_linked_to_file then
-      vim.cmd([[
-        confirm qall
-      ]])
-    else
-      -- add '!' to ignore unsaved changes
-      vim.cmd([[
-        qall!
-      ]])
-    end
-    return
-  end
-
-  vim.cmd.close()
-end, { silent = true, desc = "Close pane [split,window]" })
-
-vim.api.nvim_create_autocmd("User", {
-  pattern = "FileTypeOverride_vim",
-  callback = function()
-    -- Use vim help pages for `keywordprg` in vim files
-    vim.opt_local.keywordprg = ":Help"
-  end,
-})
