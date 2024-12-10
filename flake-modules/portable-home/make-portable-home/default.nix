@@ -29,7 +29,7 @@ let
 
   localeArchive =
     if isLinux then
-      "export LOCALE_ARCHIVE=${lib.escapeShellArg "${locales}/lib/locale/locale-archive"}"
+      "export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive"
     else
       "";
 
@@ -51,7 +51,6 @@ let
         interpreter = "${pkgs.bash}/bin/bash";
         inputs = with pkgs; [
           coreutils-full
-          fish
           which
         ];
         execer = [
@@ -64,6 +63,9 @@ let
         ];
         keep = {
           "$SHELL" = true;
+        };
+        fake = {
+          external = [ "bat" ];
         };
       };
     };

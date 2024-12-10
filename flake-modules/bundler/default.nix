@@ -19,8 +19,7 @@ let
       file = ./default.nix;
     };
 in
-bundlerOption
-// {
+lib.recursiveUpdate bundlerOption {
   config.perSystem =
     {
       lib,
