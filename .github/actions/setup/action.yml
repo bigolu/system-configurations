@@ -6,8 +6,10 @@ inputs:
     required: false
     default: ci
   cachix-auth-token:
-    description: An authentication token for Cachix
-    required: true
+    description: >
+      An authentication token for Cachix. Only necessary for pushing to the cache.
+    required: false
+    default: ""
   use-magic-nix-cache:
     description: Use Magic Nix Cache
     required: false
@@ -39,6 +41,7 @@ runs:
       with:
         name: bigolu
         authToken: "${{ inputs.cachix-auth-token }}"
+        skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
     - if: inputs.use-magic-nix-cache == 'true'
       # TODO: Renovate won't manage this action's version until the following is
       # resolved:

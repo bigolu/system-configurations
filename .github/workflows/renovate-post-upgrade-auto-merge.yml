@@ -23,8 +23,6 @@ jobs:
           # https://github.com/stefanzweifel/git-auto-commit-action?tab=readme-ov-file#commits-made-by-this-action-do-not-trigger-new-workflow-runs
           token: ${{ steps.bot-token.outputs.token }}
       - uses: ./.github/actions/setup
-        with:
-          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - run: ./scripts/ci/auto-merge.bash
         env:
           GH_TOKEN: "${{ steps.bot-token.outputs.token }}"
