@@ -183,7 +183,7 @@ generate:
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=script-dependencies --
         bash -o pipefail -euc '
-        rg --no-filename  --no-config --glob "*.bash" "^#! nix-shell (--packages|-i|-p) (?P<packages>.*)" --replace "\$packages" scripts
+        rg --no-filename  --no-config --glob "*.bash" "^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)]\"" --replace "\$packages" scripts
         | rg --no-config --only-matching "[^\s]+"
         | sort --unique
         > scripts/dependencies.txt

@@ -1,6 +1,7 @@
 #! /usr/bin/env cached-nix-shell
+#! nix-shell --keep NIXPKGS
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils
+#! nix-shell --packages "with (import (builtins.getEnv \"NIXPKGS\") {}); [nix-shell-interpreter coreutils]"
 
 set -o errexit
 set -o nounset

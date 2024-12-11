@@ -159,10 +159,7 @@ ulimit -Sn 10000
 # comma
 function , --wraps ,
     # `--with-nth` removes the '.out' extension from the entries.
-    #
-    # Clear NIX_PATH to force comma to use flakes. This way when I set nixpkgs in my
-    # project, it won't try to build an index for it.
-    NIX_PATH='' FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name (string sub --end -4 {})' --delimiter '.' --with-nth '..-5'" COMMA_PICKER=fzf command , $argv
+    FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name (string sub --end -4 {})' --delimiter '.' --with-nth '..-5'" COMMA_PICKER=fzf command , $argv
 end
 
 # touch
