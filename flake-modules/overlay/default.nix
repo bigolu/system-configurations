@@ -1,20 +1,21 @@
-args@{
+context@{
   lib,
   ...
 }:
+let
+  overlayModules = [
+    ./plugins
+    ./missing-packages.nix
+    ./partial-packages.nix
+    ./misc.nix
+  ];
+
+  callOverlayModule = overlayModule: import overlayModule context;
+  overlays = map callOverlayModule overlayModules;
+  composedOverlays = lib.composeManyExtensions overlays;
+in
 {
   flake = {
-    lib.overlay =
-      lib.trivial.pipe
-        [
-          ./plugins
-          ./missing-packages.nix
-          ./partial-packages.nix
-          ./misc.nix
-        ]
-        [
-          (map (path: import path args))
-          lib.composeManyExtensions
-        ];
+    lib.overlay = composedOverlays;
   };
 }
