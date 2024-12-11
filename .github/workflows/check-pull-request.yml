@@ -38,7 +38,7 @@ defaults:
   run:
     shell: ci-bash {0}
 jobs:
-  lint:
+  check-pull-request:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
     if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
@@ -47,36 +47,8 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         with:
-          dev-shell: ciLint
+          dev-shell: ciCheckPullRequest
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run --no-tty check --commands check-lint,fix-lint --all-files
-  check-style:
-    # Only run this job if it wasn't triggered by a pull request event for a Renovate
-    # automerge branch. Those are covered by the push event.
-    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - uses: ./.github/actions/setup
-        with:
-          dev-shell: ciCheckStyle
-          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run --no-tty format --all-files
-  ensure-generated-code-is-up-to-date:
-    # Only run this job if it wasn't triggered by a pull request event for a Renovate
-    # automerge branch. Those are covered by the push event.
-    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - uses: ./.github/actions/setup
-        with:
-          dev-shell: ciCodegen
-          cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run --no-tty generate --all-files
+        run: lefthook run check --all-files --no-tty

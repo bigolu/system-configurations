@@ -285,16 +285,12 @@
             packages = with pkgs; [ coreutils ];
           };
 
-          ciLint = makeCiShell {
-            mergeWith = [ linting ];
-          };
-
-          ciCheckStyle = makeCiShell {
-            mergeWith = [ formatting ];
-          };
-
-          ciCodegen = makeCiShell {
-            mergeWith = [ codeGeneration ];
+          ciCheckPullRequest = makeCiShell {
+            mergeWith = [
+              linting
+              formatting
+              codeGeneration
+            ];
           };
 
           ciCachePackages = makeCiShell {
