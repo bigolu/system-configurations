@@ -165,7 +165,9 @@ function , --wraps ,
     # projects, system-configurations. This is probably because I didn't point
     # nixpkgs to the actual nixpkgs repo, but a file that exposed the same interface
     # as the default.nix in the nixpkgs repo. I should see if comma can be patched to
-    # support my nixpkgs NIX_PATH entry and then I can remove this.
+    # support my nixpkgs NIX_PATH entry and then I can remove this. I think all comma
+    # would need to do is use nix-shell when using channels instead of always using
+    # "nix shell" like it currently does because when I use nix-shell it works.
     NIX_PATH='' FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name (string sub --end -4 {})' --delimiter '.' --with-nth '..-5'" COMMA_PICKER=fzf command , $argv
 end
 
