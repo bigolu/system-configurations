@@ -43,7 +43,7 @@ function run_check {
         # Remove changes in case another check runs after this one. I could drop the
         # stash as well, but in the event that this code accidentally runs when the
         # script is run locally, I don't want to permanently delete any changes.
-        git stash --include-untracked
+        git stash --include-untracked 1>/dev/null
 
         exit 1
       fi
