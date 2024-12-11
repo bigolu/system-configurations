@@ -5,7 +5,11 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 
+x=3
+
 if [[ $1 == 'repo' ]]; then
+  
+  
   rsync --recursive ~/.config/cosmic/ dotfiles/cosmic/config/
 elif [[ $1 == 'system' ]]; then
   rsync --recursive dotfiles/cosmic/config/ ~/.config/cosmic/
