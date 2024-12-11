@@ -66,61 +66,10 @@ jobs:
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: lefthook run --no-tty format --all-files
-
-  codegen-changed-files:
+  ensure-generated-code-is-up-to-date:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
     if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
-    runs-on: ubuntu-latest
-    outputs:
-      any-changed: ${{ steps.changed-files.outputs.any_modified }}
-    steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          # For push events, I need to get the whole history so I can get the
-          # changed files between the head of the branch that triggered the push
-          # event and the default branch.
-          fetch-depth: ${{ github.event.name == 'push' && 0 || 1 }}
-      - name: Get changed files that would trigger code generation
-        id: changed-files
-        uses: tj-actions/changed-files@bab30c2299617f6615ec02a68b9a40d10bd21366 # v45
-        with:
-          # By default, on a push event, it will only diff the commit pointed to by
-          # the current branch with its parent commit. Instead, I want to diff the
-          # current branch with the default branch. This is because the current
-          # branch will get merged into the default branch so I want all the changes
-          # between the two.
-          base_sha: ${{ github.event_name == 'push' && github.event.repository.default_branch || '' }}
-          # SYNC: GENERATOR_PATTERNS
-          files: |
-            **/go.mod
-            **neovim/lua/*.lua
-            "README.md"
-            scripts/**
-            .envrc
-            flake.lock
-            flake-modules/**
-            flake.nix
-  # Ideally, I'd put this job in a separate workflow and use
-  # 'on.<push|pull_request>.paths' to match relevant files, but since this job is a
-  # required check, it can't be skipped at the workflow level[1]. A skip using
-  # jobs.<job_id>.if is allowed, but you can't use a path filter there. Instead, I
-  # decided to use a separate job with an output that tells me if any relevant files
-  # were changed. This way, I could use that output in my jobs.<job_id>.if condition.
-  #
-  # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
-  ensure-generated-code-is-up-to-date:
-    needs: codegen-changed-files
-    # By default, if the dependency of a required check fails or is cancelled, the
-    # required check is skipped and counted as a successful check[1]. So in addition
-    # to checking if a relevant file was changed, I also need to see if a dependency
-    # failed or was cancelled. If it was, I'll fail this job.
-    #
-    # [1]: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/troubleshooting-required-status-checks#handling-skipped-but-required-checks
-    if: >
-      contains(needs.*.result, 'cancelled')
-      || contains(needs.*.result, 'failure')
-      || needs.codegen-changed-files.outputs.any-changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
@@ -128,14 +77,6 @@ jobs:
         with:
           dev-shell: ciCodegen
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - if: >
-          contains(needs.*.result, 'cancelled')
-          || contains(needs.*.result, 'failure')
-        env:
-          REASON: ${{ contains(needs.*.result, 'cancelled') && 'was cancelled' || 'failed' }}
-        run: |
-          echo "Error: Dependency job $REASON"
-          exit 1
       - env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: lefthook run --no-tty generate --all-files
