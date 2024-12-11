@@ -7,10 +7,13 @@ end
 
 function nix
     # If I'm running the repl, use my startup file.
-    if test (count $argv) -eq 1 -a "$argv[1]" = repl
+    #
+    # I'm using && instead of -a because sometimes the argument that follows it
+    # starts with a '-' and then fish mistakes it for a test operator.
+    if test (count $argv) -eq 1 && test "$argv[1]" = repl
         set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HOME/.config")
         command nix $argv --file "$xdg_config/nix/repl-startup.nix"
-    else if test (count $argv) -ge 2 -a "$argv[1]" = flake -a "$argv[2]" = show
+    else if test (count $argv) -ge 2 && test "$argv[1]" = flake && test "$argv[2]" = show
         # There's an open issue for omitting more information from `flake show`, but
         # this workaround was suggested in the meantime[1].
         #

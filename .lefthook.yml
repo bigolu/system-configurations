@@ -89,9 +89,8 @@ sync:
       run: |
         bash -o pipefail -euc '
           hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
-          if [[ -e "$hammerspoon_annotations" ]]; then
-            # SYNC: LUA_LIBRARY_PREFIX
-            destination='.lua-libraries/hammerspoon-annotations'
+          destination='.lua-libraries/hammerspoon-annotations'
+          if [[ -e $hammerspoon_annotations && ! -e $destination ]]; then
             mkdir --parents "$(dirname "$destination")"
             ln --symbolic --force --no-dereference "$hammerspoon_annotations" "$destination"
           fi
