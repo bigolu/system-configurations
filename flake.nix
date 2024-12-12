@@ -8,7 +8,6 @@
     inputs@{
       flake-parts,
       flake-utils,
-      nixpkgs,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } (
@@ -34,10 +33,24 @@
           x86_64-darwin
         ];
 
+        # - For nixd[1]
+        # - So nix code outside of this flake can access the package set used within
+        #   it, for consistency. For example, scripts with a nix-shell shebang. See
+        #   packages.nix for how it gets accessed.
+        #
+        # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
+        debug = true;
+
         perSystem =
           { system, ... }:
           {
-            _module.args.pkgs = import nixpkgs {
+            # - For the convenience of having my overlays already applied wherever
+            #   I access pkgs.
+            # - To avoid instantiating nixpkgs multiple times, which would lead to
+            #   higher memory consumption and slower evaluation[1].
+            #
+            # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
+            _module.args.pkgs = import inputs.nixpkgs {
               inherit system;
               overlays = [ self.lib.overlay ];
             };

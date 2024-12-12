@@ -50,7 +50,7 @@ let
                 "flake.nix"
                 "flake.lock"
                 "default.nix"
-                "nixpkgs.nix"
+                "packages.nix"
                 "flake-modules"
               ];
 
@@ -67,7 +67,7 @@ let
               # invocation so it knows when to invalidate the cache. When I use $PWD,
               # a lot of files unrelated to nix, like <REPO>/.git/index, become part
               # of the trace, resulting in a lot of unnecessary cache invalidations.
-              export NIXPKGS=${packages}/nixpkgs.nix
+              export PACKAGES=${packages}/packages.nix
             '';
         in
         [ nixPathShellHook ];

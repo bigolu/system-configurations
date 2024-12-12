@@ -5,10 +5,6 @@
   ...
 }:
 {
-  # For nixd:
-  # https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
-  debug = true;
-
   perSystem =
     {
       system,

@@ -51,8 +51,7 @@ runs:
       run: |
         # The runner already has Bash, but the version of that Bash may not have all
         # of the features that get used in the .envrc.
-        NIXPKGS="$PWD/nixpkgs.nix" nix profile install --impure \
-          --expr 'import (builtins.getEnv "NIXPKGS") {}' \
+        nix profile install --impure --expr 'import ./packages.nix' \
           bashInteractive direnv
 
         direnv allow .
