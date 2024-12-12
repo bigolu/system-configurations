@@ -5,8 +5,7 @@ on:
     # files that:
     paths:
       # Change this action
-      - ".github/workflows/cache-build-results.yml"
-      - ".github/actions/setup/**"
+      - ".github/**"
       - ".envrc"
       # Change the packages used
       - "flake.nix"
