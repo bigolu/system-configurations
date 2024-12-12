@@ -45,10 +45,10 @@ jobs:
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
           dev-shell: ciCachePackages
-          # nix-fast-build will only build packages that aren't available in any
-          # substituters. I don't wan't Magic Nix Cache (MNC) to be considered since
-          # it's only accessible in GitHub Actions. Ideally, I could use MNC, but
-          # still build a package if MNC is the only substituter that has it.
+          # TODO: nix-fast-build will only build packages that aren't available in
+          # any substituters. I don't wan't Magic Nix Cache (MNC) to be considered
+          # since it's only accessible in GitHub Actions. Ideally, I could use MNC,
+          # but still build a package if MNC is the only substituter that has it.
           #
           # There's an open issue for adding the --skip-cached functionality to
           # nix[1].

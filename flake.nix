@@ -93,10 +93,6 @@
     flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
     flake-utils.url = "github:numtide/flake-utils";
     flake-parts.url = "github:hercules-ci/flake-parts";
-    nix-develop-gha = {
-      url = "github:nicknovitski/nix-develop";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
 
     # fish
     ########################################

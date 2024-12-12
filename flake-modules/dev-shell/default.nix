@@ -224,7 +224,6 @@
         legacyPackages =
           {
             gomod2nix = inputs'.gomod2nix.devShells.default;
-            nixDevelopGha = inputs'.nix-develop-gha.packages.default;
             homeManager = inputs'.home-manager.packages.default;
           }
           // optionalAttrs pkgs.stdenv.isDarwin {

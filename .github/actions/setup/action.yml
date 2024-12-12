@@ -1,5 +1,5 @@
 name: Setup
-description: Install Nix, configure the cache(s), and load a devShell.
+description: Install Nix, configure the cache(s), and load direnv.
 inputs:
   dev-shell:
     description: The name of the devShell to activate
@@ -21,22 +21,11 @@ runs:
     # resolved:
     # https://github.com/renovatebot/renovate/issues/28016
     - uses: DeterminateSystems/nix-installer-action@main
-      with:
-        # SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS
-        # ^ With the exception of Cachix, since the Cachix action adds the
-        # subsituter.
-        #
-        # Double the default size (64MiB -> 124MiB) since I kept hitting it
-        extra-conf: |
-          download-buffer-size = 134217728
-          extra-trusted-public-keys = nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-          extra-trusted-substituters = https://nix-community.cachix.org
-          extra-substituters = https://nix-community.cachix.org
-          show-trace = true
-        nix-package-url: https://releases.nixos.org/nix/nix-2.24.10/nix-2.24.10-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
-    # TODO: This cache shouldn't be enabled for packages that only get used in CI,
-    # but since I usually hit the rate limit for the GitHub Action cache, I use this
-    # as a backup.
+    # TODO: Ideally, I would only read from the GitHub Actions cache in CI since it
+    # will be the closest cache to the workflow runners. However, since the packages
+    # from my flake that I want to cache aren't pushed to the GitHub Action cache, I
+    # read those packages from this cache. The reason I can't push those packages to
+    # Github Actions as well is explained in the package-caching workflow.
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:
         name: bigolu
@@ -52,9 +41,15 @@ runs:
         # to any of my substituters.
         upstream-cache: https://example.com
         use-flakehub: false
-    - run: nix run .#nixDevelopGha -- .#${{ inputs.dev-shell }}
-      # Since this is the step that loads a dev-shell, there isn't one loaded here.
-      # So instead of using ci-bash like I usually do, I'll use "bash". When the
-      # value is "bash", GitHub Actions will run:
-      #   bash --noprofile --norc -eo pipefail {0}
-      shell: bash
+    # Since this is the step that loads a dev-shell, there isn't one loaded here. So
+    # instead of using ci-bash like I usually do, I'll use "bash". When the value is
+    # "bash", GitHub Actions will run:
+    # bash --noprofile --norc -eo pipefail {0}
+    - shell: bash
+      env:
+        DEV_SHELL: ${{ inputs.dev-shell }}
+      run: |
+        NIXPKGS="$PWD/nixpkgs.nix" nix profile install --impure \
+          --expr 'import (builtins.getEnv "NIXPKGS") {}' \
+          bashInteractive direnv
+        direnv allow . && direnv export gha >> "$GITHUB_ENV"

@@ -378,26 +378,6 @@
         "type": "github"
       }
     },
-    "nix-develop-gha": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1731386965,
-        "narHash": "sha256-hRK8E/lyhIrOgOHb5tjKvmoRGZpS491khFUGVyuj8fA=",
-        "owner": "nicknovitski",
-        "repo": "nix-develop",
-        "rev": "9be7cfb4b10451d3390a75dc18ad0465bed4932a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nicknovitski",
-        "repo": "nix-develop",
-        "type": "github"
-      }
-    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1733228754,
@@ -503,7 +483,6 @@
         "home-manager": "home-manager",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nix-darwin": "nix-darwin",
-        "nix-develop-gha": "nix-develop-gha",
         "nix-flatpak": "nix-flatpak",
         "nix-index-database": "nix-index-database",
         "nixpkgs": "nixpkgs_2",
