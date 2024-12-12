@@ -60,8 +60,8 @@ format "\<config_name> / \<platform>":
    ```
 
 2. Run the following command. It will start a fish shell within a Nix shell
-   containing the other required programs, set the binary caches, and clone the
-   repository:
+   containing the other required programs, set the binary caches, clone the
+   repository, and load the local development environment:
 
    <!-- SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS -->
 
@@ -111,7 +111,7 @@ format "\<config_name> / \<platform>":
         - Set the keyboard input source to 'Others → (No Accent Keys)'.
 
         <!--
-          I can automate shortcuts when this issue gets resolved:
+          TODO: I can automate shortcuts when this issue gets resolved:
           https://github.com/LnL7/nix-darwin/issues/185
         -->
 

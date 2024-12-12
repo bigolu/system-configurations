@@ -56,7 +56,7 @@
         ]
       );
 
-      plugctl = makeShell {
+      plugctlShell = makeShell {
         packages = [
           pythonWithPackages
         ];
@@ -67,9 +67,37 @@
         '';
       };
 
+      plugctlPackage =
+        let
+          exeName = "plugctl";
+        in
+        pkgs.writeShellApplication {
+          name = exeName;
+          runtimeInputs = [ pythonWithPackages ];
+          meta.mainProgram = exeName;
+          text = ''
+            python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
+          '';
+        };
+
+      speakerctl =
+        let
+          exeName = "speakerctl";
+        in
+        pkgs.writeShellApplication {
+          name = exeName;
+          runtimeInputs = [ plugctlPackage ];
+          meta.mainProgram = exeName;
+          text = ''
+            plugctl plug "$@"
+          '';
+        };
+
       linting = makeShell {
         mergeWith = [
-          plugctl
+          # For mypy. Also for the python libraries used by plugctl so mypy can
+          # factor in their types as well.
+          plugctlShell
         ];
 
         packages = with pkgs; [
@@ -216,6 +244,21 @@
         ];
       };
 
+      local = makeShell {
+        mergeWith = [
+          vsCode
+          linting
+          formatting
+          codeGeneration
+          sync
+          taskRunner
+          versionControl
+          languages
+          scriptDependencies
+          plugctlShell
+        ];
+      };
+
       outputs = {
         # TODO: These are the outputs that I use from my flake inputs. Ideally, I'd
         # use `nix run/develop --inputs-from . <flake_input>#<output> ...`, but when
@@ -230,53 +273,14 @@
             nixDarwin = inputs'.nix-darwin.packages.default;
           };
 
-        packages =
-          let
-            plugctl =
-              let
-                exeName = "plugctl";
-              in
-              pkgs.writeShellApplication {
-                name = exeName;
-                runtimeInputs = [ pythonWithPackages ];
-                meta.mainProgram = exeName;
-                text = ''
-                  python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
-                '';
-              };
-          in
-          {
-            inherit plugctl;
-
-            speakerctl =
-              let
-                exeName = "speakerctl";
-              in
-              pkgs.writeShellApplication {
-                name = exeName;
-                runtimeInputs = [ plugctl ];
-                meta.mainProgram = exeName;
-                text = ''
-                  plugctl plug "$@"
-                '';
-              };
-          };
+        packages = {
+          plugctl = plugctlPackage;
+          inherit speakerctl;
+        };
 
         devShells = {
-          default = makeShell {
-            mergeWith = [
-              vsCode
-              linting
-              formatting
-              codeGeneration
-              sync
-              taskRunner
-              versionControl
-              languages
-              scriptDependencies
-              plugctl
-            ];
-          };
+          inherit local;
+          default = local;
 
           # Have a general shell with common dependencies so I don't have
           # to make a shell for every CI workflow.

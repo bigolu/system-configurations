@@ -90,9 +90,12 @@
 
     # Flake
     ########################################
-    flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
+    flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/*.tar.gz";
     flake-utils.url = "github:numtide/flake-utils";
-    flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-parts = {
+      url = "github:hercules-ci/flake-parts";
+      inputs.nixpkgs-lib.follows = "nixpkgs";
+    };
 
     # fish
     ########################################
@@ -115,6 +118,9 @@
 
     # vim
     ########################################
+    # I'm intentionally not using `inputs.nixpkgs.follows` because if I did, then the
+    # neovim created by this flake would be different from the one that they cache
+    # and then I'd have to build it.
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
     };

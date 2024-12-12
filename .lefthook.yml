@@ -70,14 +70,14 @@ sync:
       glob: "{.envrc,flake.{nix,lock},flake-modules/{{dev-shell,overlay}/*.nix,lib.nix}}"
       run: touch flake.nix && nix-direnv-reload |& nom
     lefthook:
-      # TODO: No need for this yet since lefthook syncs hooks automatically. There's
+      # TODO: Currently, this is only needed on the first sync that's done after
+      # cloning the repo. This is because lefthook syncs hooks automatically. There's
       # an issue for disabling this behavior[1]. I want it disabled because I don't
-      # necessarily want to run the hooks of another branch. For example, when I
-      # create a new hook and want to test it on another branch, but then it installs
-      # the hooks of the other branch.
+      # always want to run the hooks of another branch. For example, when I create a
+      # new hook and want to test it on another branch, but then it installs the
+      # hooks of the other branch.
       #
       # [1]: https://github.com/evilmartians/lefthook/issues/840
-      skip: true
       glob: ".lefthook.yml"
       run: lefthook install --force
     system:
@@ -158,7 +158,6 @@ generate:
   files: |
     echo "Error: Only use this with --files-from-stdin or --all-files" >&2
     exit 1
-  # SYNC: GENERATOR_PATTERNS
   commands:
     readme-table-of-contents:
       glob: README.md
