@@ -49,7 +49,13 @@ runs:
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
+        # The runner already has Bash, but the version of that Bash may not have all
+        # of the features that get used in the .envrc.
         NIXPKGS="$PWD/nixpkgs.nix" nix profile install --impure \
           --expr 'import (builtins.getEnv "NIXPKGS") {}' \
           bashInteractive direnv
-        direnv allow . && direnv export gha >> "$GITHUB_ENV"
+
+        direnv allow .
+        direnv export gha >> "$GITHUB_ENV"
+        # GitHub Actions handles the PATH differently
+        direnv exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
