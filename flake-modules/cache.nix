@@ -5,10 +5,10 @@ _: {
   perSystem =
     {
       lib,
-      self',
+      pkgs,
       ...
     }:
     {
-      legacyPackages.cache = lib.recurseIntoAttrs { inherit (self'.legacyPackages) gomod2nix; };
+      legacyPackages.cache = lib.recurseIntoAttrs { inherit (pkgs) gomod2nix; };
     };
 }

@@ -5,6 +5,7 @@ direnv
 gh
 gitMinimal
 gnused
+gomod2nix
 jq
 nix-shell-interpreter
 perl

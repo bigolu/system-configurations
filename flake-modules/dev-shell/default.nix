@@ -262,7 +262,6 @@
         # I should see if this behavior is intended.
         legacyPackages =
           {
-            gomod2nix = inputs'.gomod2nix.devShells.default;
             homeManager = inputs'.home-manager.packages.default;
           }
           // optionalAttrs pkgs.stdenv.isDarwin {
