@@ -5,10 +5,10 @@
 # - For compatibility with projects that prefer not to use flakes.
 # - For compatibility with projects that can't use flakes because they're using a
 #   version of Nix before v2.4.
-# - To avoid copying the flake to the store, which happens whenever you use
-#   `builtins.getFlake`.
+# - It's faster than builtins.getFlake, though I think this will help[2].
 #
 # [1]: https://github.com/edolstra/flake-compat
+# [2]: https://github.com/NixOS/nix/issues/3121
 (import (
   let
     lock = builtins.fromJSON (builtins.readFile ./flake.lock);
