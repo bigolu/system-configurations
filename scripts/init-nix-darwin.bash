@@ -1,7 +1,7 @@
 #! /usr/bin/env cached-nix-shell
 #! nix-shell --keep PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"PACKAGES\")); [nix-shell-interpreter curl coreutils perl]"
+#! nix-shell --packages "with (import (builtins.getEnv \"PACKAGES\")); [nix-shell-interpreter curl coreutils perl darwin-rebuild nix-output-monitor]"
 
 set -o errexit
 set -o nounset
@@ -19,6 +19,6 @@ hash_file='flake-modules/nix-darwin/nix-conf-hash.txt'
 # information in the comment where this file is read.
 shasum -a 256 /etc/nix/nix.conf | cut -d ' ' -f 1 >"$hash_file"
 
-nix run .#nixDarwin -- switch --flake .#"$1"
+darwin-rebuild switch --flake .#"$1" |& nom
 
 git checkout -- "$hash_file"

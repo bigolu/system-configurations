@@ -9,7 +9,6 @@
     {
       system,
       pkgs,
-      inputs',
       ...
     }:
     let
@@ -256,18 +255,6 @@
       };
 
       outputs = {
-        # TODO: These are the outputs that I use from my flake inputs. Ideally, I'd
-        # use `nix run/develop --inputs-from . <flake_input>#<output> ...`, but when
-        # I do that, any of the 'follows' that I set on the flake input are not used.
-        # I should see if this behavior is intended.
-        legacyPackages =
-          {
-            homeManager = inputs'.home-manager.packages.default;
-          }
-          // optionalAttrs pkgs.stdenv.isDarwin {
-            nixDarwin = inputs'.nix-darwin.packages.default;
-          };
-
         packages = {
           plugctl = plugctlPackage;
           inherit speakerctl;

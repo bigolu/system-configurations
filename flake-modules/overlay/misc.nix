@@ -159,6 +159,8 @@ in
     myTerminfoDatabase
     ;
 
+  inherit (inputs.home-manager.packages.${final.system}) home-manager;
+
   neovim = nightlyNeovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
 

@@ -54,8 +54,9 @@
             _module.args.pkgs = import inputs.nixpkgs {
               inherit system;
               overlays = [
-                self.lib.overlay
+                inputs.nix-darwin.overlays.default
                 inputs.gomod2nix.overlays.default
+                self.lib.overlay
               ];
             };
           };
