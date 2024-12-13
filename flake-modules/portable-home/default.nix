@@ -1,18 +1,13 @@
 {
   inputs,
+  self,
   ...
 }:
 {
   perSystem =
-    perSystemContext@{
+    {
       lib,
       system,
-      # TODO: If I don't explicitly put pkgs here, it doesn't get included when I
-      # pass `perSystemContext` to another function. Deadnix tries to to remove it
-      # since it's unused so the pragma below prevents that. I should confirm that
-      # this behavior is intended.
-      #
-      # deadnix: skip
       pkgs,
       ...
     }:
@@ -30,7 +25,14 @@
 
       portableHomeOutputs = {
         packages = {
-          shell = import ./make-portable-home perSystemContext;
+          shell = import ./make-portable-home {
+            inherit
+              inputs
+              pkgs
+              self
+              system
+              ;
+          };
         };
       };
     in

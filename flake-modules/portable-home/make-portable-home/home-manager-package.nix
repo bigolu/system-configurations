@@ -1,7 +1,7 @@
 {
-  self,
   inputs,
   pkgs,
+  self,
   system,
   ...
 }:
@@ -97,7 +97,6 @@ let
     };
 
   homeConfiguration = self.lib.home.makeHomeConfiguration portablePkgs {
-    inherit system;
     configName = "guest";
     isGui = false;
     isHomeManagerRunningAsASubmodule = true;
