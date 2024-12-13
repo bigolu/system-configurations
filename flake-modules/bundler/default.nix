@@ -37,13 +37,7 @@ lib.recursiveUpdate bundlerOption {
         }:
         let
           nameWithArch = "${name}-${system}";
-          goPkgs = import inputs.nixpkgs {
-            inherit system;
-            overlays = [
-              inputs.gomod2nix.overlays.default
-            ];
-          };
-          gozip = goPkgs.buildGoApplication {
+          gozip = pkgs.buildGoApplication {
             pname = "gozip";
             version = "0.1";
             src = ./gozip;
