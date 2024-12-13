@@ -197,7 +197,7 @@ function tunnel --description 'Connect my cloudflare tunnel to the specified por
         return 1
     end
     doppler run \
-        --mount ~/.cloudflared/a52a24f6-92ee-4dc5-b537-24bad84b7b1f.json \
+        --mount ~/.cloudflared/2c881c12-5fd8-4f5e-a2f4-f692af8abffa.json \
         --mount-template (echo '{{.CLOUDFLARED_TUNNEL}}' | psub) \
         --mount-max-reads 1 -- \
         cloudflared tunnel run --url "http://localhost:$port"
