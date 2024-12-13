@@ -28,9 +28,9 @@ function get_configs {
 
       makeListItems = platformFetcher: configs: let
         makeListItem = name:
-          ''\ \ - \${name} / \${platformFetcher configs.\${name}}'';
+          \"  - \${name} / \${platformFetcher configs.\${name}}\";
       in
-        builtins.concatStringsSep ''\n'' (map makeListItem (builtins.attrNames configs));
+        builtins.concatStringsSep \"\n\" (map makeListItem (builtins.attrNames configs));
 
       getConfigsForAllPlatforms = key: let
         legacyPackagesPerPlatform = builtins.attrValues flake.outputs.legacyPackages;
