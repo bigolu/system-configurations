@@ -1,6 +1,3 @@
-# This output makes it easy to build all the packages that I want to cache in my
-# cloud-hosted Nix package cache. I build this package from CI and cache everything
-# that gets added to the Nix store as a result of building it.
 _: {
   perSystem =
     {
@@ -9,6 +6,8 @@ _: {
       ...
     }:
     {
+      # This output is used in CI by nix-fast-build to build everything that I want
+      # cached. Once it's done building, I push the nix store to my cache.
       legacyPackages.cache = lib.recurseIntoAttrs { inherit (pkgs) gomod2nix; };
     };
 }
