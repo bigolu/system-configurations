@@ -1,6 +1,6 @@
-{
+perSystemContext@{
   pkgs,
-  self,
+  ...
 }:
 let
   inherit (pkgs) lib;
@@ -20,12 +20,7 @@ let
 
   bashPath = "${pkgs.bash}/bin/bash";
 
-  activationPackage = import ./home-manager-package.nix {
-    inherit
-      pkgs
-      self
-      ;
-  };
+  activationPackage = import ./home-manager-package.nix perSystemContext;
 
   localeArchive =
     if isLinux then "export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive" else "";

@@ -34,9 +34,10 @@
         ];
 
         # - For nixd[1]
-        # - So nix code outside of this flake can access the package set used within
-        #   it, for consistency. For example, scripts with a nix-shell shebang. See
-        #   packages.nix for how it gets accessed.
+        # - I also make use of this in various places. For example, scripts with a
+        #   nix-shell shebang use this so they can use the same package set that's
+        #   used in the flake. See packages.nix for an example of how it gets
+        #   accessed.
         #
         # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
         debug = true;

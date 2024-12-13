@@ -4,11 +4,6 @@
   ...
 }:
 let
-  moduleBaseDirectory = ./modules;
-
-  # This is the module that I always include.
-  baseModule = "${moduleBaseDirectory}/profile/base.nix";
-
   makeDarwinModules =
     {
       username,
@@ -53,20 +48,15 @@ let
     ];
 
   makeHomeConfiguration =
+    pkgs:
     args@{
-      system,
       configName,
       modules,
       isGui ? true,
       username ? "biggs",
-      overlays ? [ ],
       isHomeManagerRunningAsASubmodule ? false,
     }:
     let
-      pkgs = import inputs.nixpkgs {
-        inherit system;
-        overlays = [ self.lib.overlay ] ++ overlays;
-      };
       homePrefix = if pkgs.stdenv.isLinux then "/home" else "/Users";
       homeDirectory =
         if builtins.hasAttr "homeDirectory" args then args.homeDirectory else "${homePrefix}/${username}";
@@ -94,31 +84,48 @@ let
       inherit pkgs extraSpecialArgs;
     };
 
-  configs = [
-    {
-      system = inputs.flake-utils.lib.system.x86_64-linux;
-      configName = "desktop";
-      modules = [
-        "${moduleBaseDirectory}/profile/application-development.nix"
-        "${moduleBaseDirectory}/profile/system-administration.nix"
-        "${moduleBaseDirectory}/profile/personal.nix"
-      ];
-    }
-  ];
+  moduleBaseDirectory = ./modules;
 
-  homeConfigurationsByName = builtins.listToAttrs (
-    map (config: {
-      name = config.configName;
-      value = makeHomeConfiguration config;
-    }) configs
-  );
+  # This is the module that I always include.
+  baseModule = "${moduleBaseDirectory}/profile/base.nix";
 in
 {
   flake = {
     lib.home = {
       inherit moduleBaseDirectory makeDarwinModules makeHomeConfiguration;
     };
-
-    homeConfigurations = homeConfigurationsByName;
   };
+
+  perSystem =
+    {
+      pkgs,
+      system,
+      lib,
+      ...
+    }:
+    let
+      configSpecs = [
+        {
+          system = inputs.flake-utils.lib.system.x86_64-linux;
+          configName = "desktop";
+          modules = [
+            "${moduleBaseDirectory}/profile/application-development.nix"
+            "${moduleBaseDirectory}/profile/system-administration.nix"
+            "${moduleBaseDirectory}/profile/personal.nix"
+          ];
+        }
+      ];
+
+      configSpecsForCurrentSystem = builtins.filter (config: system == config.system) configSpecs;
+
+      configsForCurrentSystem = builtins.listToAttrs (
+        map (config: {
+          name = config.configName;
+          value = makeHomeConfiguration pkgs (builtins.removeAttrs config [ "system" ]);
+        }) configSpecsForCurrentSystem
+      );
+    in
+    lib.optionalAttrs (configsForCurrentSystem != { }) {
+      legacyPackages.homeConfigurations = configsForCurrentSystem;
+    };
 }

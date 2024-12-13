@@ -1,16 +1,17 @@
 {
-  pkgs,
   self,
+  inputs,
+  pkgs,
+  system,
+  ...
 }:
 let
-  inherit (pkgs) system;
   inherit (pkgs.stdenv) isLinux;
   # When I called nix-tree with the portable home, I got a warning that calling
   # lib.getExe on a package that doesn't have a meta.mainProgram is deprecated. The
   # package that was lib.getExe was called with is nix.
   makeEmptyPackage =
     packageName: pkgs.runCommand packageName { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
-
   portableOverlay =
     _final: _prev:
     let
@@ -33,6 +34,14 @@ let
       ];
     in
     builtins.listToAttrs nameValuePairs;
+
+  portablePkgs = import inputs.nixpkgs {
+    inherit system;
+    overlays = [
+      self.lib.overlay
+      portableOverlay
+    ];
+  };
 
   portableModule =
     { lib, ... }:
@@ -88,11 +97,10 @@ let
       nix.enable = false;
     };
 
-  homeConfiguration = self.lib.home.makeHomeConfiguration {
+  homeConfiguration = self.lib.home.makeHomeConfiguration portablePkgs {
     inherit system;
     configName = "guest";
     isGui = false;
-    overlays = [ portableOverlay ];
     isHomeManagerRunningAsASubmodule = true;
 
     modules = [
