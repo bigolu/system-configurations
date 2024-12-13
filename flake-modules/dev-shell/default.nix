@@ -31,8 +31,7 @@ in
         final.writeShellApplication {
           name = exeName;
           runtimeInputs = [
-            makePythonWithPackages
-            final
+            (makePythonWithPackages final)
           ];
           meta.mainProgram = exeName;
           text = ''
