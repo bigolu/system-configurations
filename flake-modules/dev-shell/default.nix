@@ -4,7 +4,57 @@
   self,
   ...
 }:
+let
+  # TODO: Use a python package manager like uv
+  makePythonWithPackages =
+    pkgs:
+    pkgs.python3.withPackages (
+      ps: with ps; [
+        pip
+        python-kasa
+        diskcache
+        ipython
+        platformdirs
+        psutil
+        types-psutil
+        mypy
+      ]
+    );
+in
 {
+  flake = {
+    lib.overlays.plugctl = final: _prev: {
+      plugctl =
+        let
+          exeName = "plugctl";
+        in
+        final.writeShellApplication {
+          name = exeName;
+          runtimeInputs = [
+            makePythonWithPackages
+            final
+          ];
+          meta.mainProgram = exeName;
+          text = ''
+            python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
+          '';
+        };
+
+      speakerctl =
+        let
+          exeName = "speakerctl";
+        in
+        final.writeShellApplication {
+          name = exeName;
+          runtimeInputs = [ final.plugctl ];
+          meta.mainProgram = exeName;
+          text = ''
+            plugctl plug "$@"
+          '';
+        };
+    };
+  };
+
   perSystem =
     {
       system,
@@ -38,20 +88,9 @@
         in
         makeShell specWithCiBash;
 
-      pythonWithPackages = pkgs.python3.withPackages (
-        ps: with ps; [
-          pip
-          python-kasa
-          diskcache
-          ipython
-          platformdirs
-          psutil
-          types-psutil
-          mypy
-        ]
-      );
+      pythonWithPackages = makePythonWithPackages pkgs;
 
-      plugctlShell = makeShell {
+      plugctl = makeShell {
         packages = [
           pythonWithPackages
         ];
@@ -62,37 +101,11 @@
         '';
       };
 
-      plugctlPackage =
-        let
-          exeName = "plugctl";
-        in
-        pkgs.writeShellApplication {
-          name = exeName;
-          runtimeInputs = [ pythonWithPackages ];
-          meta.mainProgram = exeName;
-          text = ''
-            python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
-          '';
-        };
-
-      speakerctl =
-        let
-          exeName = "speakerctl";
-        in
-        pkgs.writeShellApplication {
-          name = exeName;
-          runtimeInputs = [ plugctlPackage ];
-          meta.mainProgram = exeName;
-          text = ''
-            plugctl plug "$@"
-          '';
-        };
-
       linting = makeShell {
         mergeWith = [
           # For mypy. Also for the python libraries used by plugctl so mypy can
           # factor in their types as well.
-          plugctlShell
+          plugctl
         ];
 
         packages = with pkgs; [
@@ -250,14 +263,13 @@
           versionControl
           languages
           scriptDependencies
-          plugctlShell
+          plugctl
         ];
       };
 
       outputs = {
         packages = {
-          plugctl = plugctlPackage;
-          inherit speakerctl;
+          inherit plugctl;
         };
 
         devShells = {

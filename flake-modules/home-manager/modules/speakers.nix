@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (specialArgs.flakeInputs.self.packages.${pkgs.system}) speakerctl;
+  inherit (pkgs) speakerctl;
 in
 lib.attrsets.optionalAttrs specialArgs.isGui {
   repository.symlink.home.file = lib.attrsets.optionalAttrs pkgs.stdenv.isDarwin {

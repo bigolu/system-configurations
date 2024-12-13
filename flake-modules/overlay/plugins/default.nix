@@ -49,12 +49,15 @@ let
       buildPackagesFromRepositories
     ];
 in
-lib.trivial.pipe
-  [
-    ./fish-plugins.nix
-    ./vim-plugins.nix
-  ]
-  [
-    (map (path: import path (args // { inherit makePluginPackages; })))
-    lib.composeManyExtensions
-  ]
+{
+  flake.lib.overlays.plugins =
+    lib.trivial.pipe
+      [
+        ./fish-plugins.nix
+        ./vim-plugins.nix
+      ]
+      [
+        (map (path: import path (args // { inherit makePluginPackages; })))
+        lib.composeManyExtensions
+      ];
+}

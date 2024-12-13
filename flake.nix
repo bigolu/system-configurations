@@ -53,11 +53,7 @@
             # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
             _module.args.pkgs = import inputs.nixpkgs {
               inherit system;
-              overlays = [
-                inputs.nix-darwin.overlays.default
-                inputs.gomod2nix.overlays.default
-                self.lib.overlay
-              ];
+              overlays = builtins.attrValues self.lib.overlays;
             };
           };
       }

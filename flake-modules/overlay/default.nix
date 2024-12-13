@@ -1,21 +1,14 @@
-context@{
-  lib,
-  ...
-}:
-let
-  overlayModules = [
+{ inputs, ... }:
+{
+  imports = [
     ./plugins
     ./missing-packages.nix
     ./partial-packages.nix
     ./misc.nix
   ];
 
-  callOverlayModule = overlayModule: import overlayModule context;
-  overlays = map callOverlayModule overlayModules;
-  composedOverlays = lib.composeManyExtensions overlays;
-in
-{
-  flake = {
-    lib.overlay = composedOverlays;
+  flake.lib.overlays = {
+    nix-darwin = inputs.nix-darwin.overlays.default;
+    gomod2nix = inputs.gomod2nix.overlays.default;
   };
 }

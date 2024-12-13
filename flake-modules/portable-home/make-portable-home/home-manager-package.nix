@@ -37,8 +37,7 @@ let
 
   portablePkgs = import inputs.nixpkgs {
     inherit system;
-    overlays = [
-      self.lib.overlay
+    overlays = (builtins.attrValues self.lib.overlays) ++ [
       portableOverlay
     ];
   };
