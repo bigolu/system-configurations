@@ -25,7 +25,7 @@ runs:
     # will be the closest cache to the workflow runners. However, since the packages
     # from my flake that I want to cache aren't pushed to the GitHub Action cache, I
     # read those packages from this cache. The reason I can't push those packages to
-    # Github Actions as well is explained in the package-caching workflow.
+    # Github Actions is explained in the package-caching workflow.
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:
         name: bigolu
@@ -49,8 +49,13 @@ runs:
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        # The runner already has Bash, but the version of that Bash may not have all
-        # of the features that get used in the .envrc.
+        # I'm installing another Bash because the Bash on the runner may not support
+        # all of the features used in the .envrc. In particular, macOS comes with a
+        # very old version[1]. This also makes the workflow more reproducible, and
+        # consistent across operating systems, since we're using the version of Bash
+        # pinned in the repository commit that we have checked out.
+        #
+        # [1]: https://apple.stackexchange.com/a/238281
         nix profile install --impure --expr 'import ./packages.nix' \
           bashInteractive direnv
 
