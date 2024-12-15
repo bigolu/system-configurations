@@ -4,12 +4,13 @@ on:
     # Only run when the files changed may impact what gets cached. This includes
     # files that:
     paths:
-      # Change this action
+      # Change this action or ones that it calls
       - ".github/**"
       - ".envrc"
+      - "default.nix"
       # Change the packages used
       - "flake.nix"
-      - "flake-modules/**"
+      - "nix/**"
       # Change the versions of the packages
       - "flake.lock"
 defaults:
@@ -56,7 +57,8 @@ jobs:
           # [1]: https://github.com/NixOS/nix/issues/3946
           use-magic-nix-cache: "false"
       - run: |
+          current_system="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
           nix-fast-build \
             --no-nom \
             --skip-cached \
-            --flake ".#legacyPackages.$(nix eval --raw --impure --expr 'builtins.currentSystem').cache"
+            --flake ".#allSystems.${current_system}.allModuleArgs.pkgs.packagesToCache"

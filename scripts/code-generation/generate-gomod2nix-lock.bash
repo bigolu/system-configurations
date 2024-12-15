@@ -8,6 +8,6 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 
-cd ./flake-modules/bundler/gozip
+cd ./gozip
 
 gomod2nix generate

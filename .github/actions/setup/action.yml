@@ -56,7 +56,7 @@ runs:
         # pinned in the repository commit that we have checked out.
         #
         # [1]: https://apple.stackexchange.com/a/238281
-        nix profile install --impure --expr 'import ./packages.nix' \
+        nix profile install --impure --expr 'import ./nix/packages.nix' \
           bashInteractive direnv
 
         direnv allow .

@@ -67,7 +67,7 @@ sync:
       glob: ".envrc"
       run: direnv reload
     nix-direnv:
-      glob: "{.envrc,flake.{nix,lock},flake-modules/{{dev-shell,overlay}/*.nix,lib.nix}}"
+      glob: "{.envrc,flake.{nix,lock},nix/*}"
       run: touch flake.nix && nix-direnv-reload |& nom
     lefthook:
       # TODO: Currently, this is only needed on the first sync that's done after
@@ -170,7 +170,7 @@ generate:
         ./scripts/run-check-with-reviewdog.bash -name=neovim-plugin-list --
         ./scripts/code-generation/generate-neovim-plugin-list.bash
     gomod2nix-lock:
-      glob: "*gozip/go.mod"
+      glob: "gozip/go.mod"
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=gomod2nix-lock --
         ./scripts/code-generation/generate-gomod2nix-lock.bash
@@ -193,7 +193,7 @@ generate:
         ./scripts/run-check-with-reviewdog.bash -name=nix-version --
         ./scripts/code-generation/sync-nix-version.bash
     system-configs:
-      glob: "{flake-modules/*,flake.nix}"
+      glob: "{nix/*,flake.nix}"
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=system-configs --
         ./scripts/code-generation/add-system-configurations-to-readme.bash
@@ -210,7 +210,7 @@ format:
   commands:
     taplo:
       glob: "*.toml"
-      exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
+      exclude: [gozip/gomod2nix.toml]
       run: >
         ./scripts/run-check-with-reviewdog.bash --
         taplo format {files}
@@ -296,7 +296,7 @@ fix-lint:
         ./scripts/run-check-with-reviewdog.bash --
         markdownlint-cli2 --fix {files}
     go-mod-tidy:
-      glob: "*gozip/go.{mod,sum}"
+      glob: "gozip/go.{mod,sum}"
       # The comment containing '{files}' is there because lefthook only applies the
       # glob if you have a 'files' command or you use {files} in your run command[1].
       # If this command were under the pre-commit and pre-push groups, the glob would
@@ -307,7 +307,7 @@ fix-lint:
       # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=go-mod-tidy --
-        bash -euc 'cd ./flake-modules/bundler/gozip && go mod tidy' # {files}
+        bash -euc 'cd gozip && go mod tidy' # {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
@@ -452,7 +452,7 @@ check-lint:
     taplo:
       glob: "*.toml"
       # This is a generated file
-      exclude: [flake-modules/bundler/gozip/gomod2nix.toml]
+      exclude: [gozip/gomod2nix.toml]
       # Support for GitHub annotation format is being considered. This could be
       # parsed by reviewdog: https://github.com/tamasfe/taplo/issues/470
       run: >
@@ -490,5 +490,5 @@ check-lint:
     nix-config:
       skip:
         - run: '[ "$CI" = true ]'
-      glob: "{flake-modules/*,flake.{lock,nix}}"
+      glob: "{nix/*,flake.{lock,nix}}"
       run: nix config check

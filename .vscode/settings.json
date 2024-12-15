@@ -26,16 +26,16 @@
       // [1]: https://github.com/microsoft/vscode/issues/5595
       "options": {
         "bigmac": {
-          "expr": "(builtins.getFlake (toString ./.)).darwinConfigurations.bigmac.options",
+          "expr": "(import ./default.nix).darwinConfigurations.bigmac.options",
         },
         "desktop": {
-          "expr": "(builtins.getFlake (toString ./.)).homeConfigurations.desktop.options",
+          "expr": "(import ./default.nix).homeConfigurations.desktop.options",
         },
         "flake-parts": {
-          "expr": "(builtins.getFlake (toString ./.)).debug.options",
+          "expr": "(import ./default.nix).debug.options",
         },
         "flake-parts-per-system": {
-          "expr": "(builtins.getFlake (toString ./.)).currentSystem.options",
+          "expr": "(import ./default.nix).currentSystem.options",
         },
       },
     },

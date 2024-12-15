@@ -10,23 +10,23 @@
       flake-utils,
       ...
     }:
-    flake-parts.lib.mkFlake { inherit inputs; } (
-      { self, ... }:
+    flake-parts.lib.mkFlake
       {
+        inherit inputs;
+        # This is the recommended way to provide internal utilities to flake
+        # modules[1].
+        #
+        # [1]: https://github.com/hercules-ci/flake-parts/discussions/234#discussioncomment-9950293
+        specialArgs.utils = import ./nix/utils.nix inputs;
+      }
+      (_: {
         imports = [
-          ./flake-modules/cache.nix
-          ./flake-modules/nix-darwin
-          ./flake-modules/overlay
-          ./flake-modules/portable-home
-          ./flake-modules/bundler
-          ./flake-modules/home-manager
-          ./flake-modules/lib.nix
-          ./flake-modules/dev-shell
+          ./nix/flake-modules/dev-shells
+          ./nix/flake-modules/packages
+          ./nix/flake-modules/bundlers.nix
+          ./nix/flake-modules/home-configurations
+          ./nix/flake-modules/darwin-configurations
         ];
-
-        flake = {
-          lib.root = ./.;
-        };
 
         systems = with flake-utils.lib.system; [
           x86_64-linux
@@ -45,19 +45,22 @@
         perSystem =
           { system, ... }:
           {
-            # - For the convenience of having my overlays already applied wherever
-            #   I access pkgs.
+            # - For the convenience of having my overlay already applied wherever I
+            #   access pkgs.
             # - To avoid instantiating nixpkgs multiple times, which would lead to
             #   higher memory consumption and slower evaluation[1].
             #
             # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
             _module.args.pkgs = import inputs.nixpkgs {
               inherit system;
-              overlays = builtins.attrValues self.lib.overlays;
+              overlays = [
+                inputs.gomod2nix.overlays.default
+                inputs.nix-darwin.overlays.default
+                (import ./nix/overlay inputs)
+              ];
             };
           };
-      }
-    );
+      });
 
   inputs = {
     stackline = {

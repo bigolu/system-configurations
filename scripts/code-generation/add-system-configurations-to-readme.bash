@@ -26,25 +26,19 @@ function get_configs {
     let
       flake = import ./default.nix;
 
-      makeListItems = platformFetcher: configs: let
+      makeListItems = platformFetcher: configNames: let
         makeListItem = name:
-          \"  - \${name} / \${platformFetcher configs.\${name}}\";
+          \"  - \${name} / \${platformFetcher name}\";
       in
-        builtins.concatStringsSep \"\n\" (map makeListItem (builtins.attrNames configs));
+        builtins.concatStringsSep \"\n\" (map makeListItem configNames);
 
-      getConfigsForAllPlatforms = key: let
-        legacyPackagesPerPlatform = builtins.attrValues flake.outputs.legacyPackages;
-      in
-        builtins.foldl'
-        (acc: configs: acc // configs)
-        {}
-        (map (lp: lp.\${key} or {}) legacyPackagesPerPlatform);
+      homeManagerConfigNames = builtins.attrNames flake.outputs.homeConfigurations;
+      homeManagerPlatformFetcher = name:
+        flake.outputs.homeConfigurations.\${name}.activationPackage.system;
 
-      homeManagerConfigNames = getConfigsForAllPlatforms \"homeConfigurations\";
-      homeManagerPlatformFetcher = config: config.activationPackage.system;
-
-      nixDarwinConfigNames = getConfigsForAllPlatforms \"darwinConfigurations\";
-      nixDarwinPlatformFetcher = config: config.system.system;
+      nixDarwinConfigNames = builtins.attrNames flake.outputs.darwinConfigurations;
+      nixDarwinPlatformFetcher = name:
+        flake.outputs.darwinConfigurations.\${name}.system.system;
     in
       ''
 

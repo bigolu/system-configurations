@@ -13,7 +13,7 @@ if ! [[ -x /usr/local/bin/brew ]]; then
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-hash_file='flake-modules/nix-darwin/nix-conf-hash.txt'
+hash_file='nix/flake-modules/darwin-configurations/nix-conf-hash.txt'
 
 # Tell nix-darwin the hash of my nix.conf so it can overwrite it. You can find more
 # information in the comment where this file is read.

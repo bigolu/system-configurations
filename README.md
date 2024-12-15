@@ -37,6 +37,8 @@ format "\<config_name> / \<platform>":
 - Home Manager
 
   - desktop / x86_64-linux
+  - portable-home-x86_64-darwin / x86_64-darwin
+  - portable-home-x86_64-linux / x86_64-linux
 
 - nix-darwin
 
@@ -54,41 +56,30 @@ format "\<config_name> / \<platform>":
    > NOTE: The installer may have changed since this was written so make sure
    > everything below is still valid.
 
+   <!-- SYNC: NIX_INITIAL_SETTINGS -->
+
    ```bash
    ./nix-installer install \
-     --nix-package-url https://releases.nixos.org/nix/nix-2.24.10/nix-2.24.10-x86_64-linux.tar.xz
+     --nix-package-url https://releases.nixos.org/nix/nix-2.24.10/nix-2.24.10-x86_64-linux.tar.xz \
+     --extra-conf "extra-trusted-users = $(whoami)"
    ```
 
 2. Run the following command. It will start a fish shell within a Nix shell
-   containing the other required programs, set the binary caches, clone the
-   repository, and load the local development environment:
-
-   <!-- SYNC: SYS_CONF_PUBLIC_KEYS SYS_CONF_SUBS -->
+   containing the other required programs, clone the repository, and load the
+   local development environment:
 
    ```bash
-   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#coreutils nixpkgs#gitMinimal \
+   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#bashInteractive nixpkgs#gitMinimal \
      --command fish --init-command '
        # Fish does not have a way to exit whenever a command fails so I am
        # manually adding `|| exit`.
        # https://github.com/fish-shell/fish-shell/issues/510
 
-       echo "
-         extra-trusted-public-keys = bigolu.cachix.org-1:AJELdgYsv4CX7rJkuGu5HuVaOHcqlOgR07ZJfihVTIw= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-         extra-substituters = https://bigolu.cachix.org https://nix-community.cachix.org
-       " | sudo tee -a /etc/nix/nix.conf || exit
-
-       # Reload the daemon so it picks up the configuration changes.
-       if uname | grep -q Linux
-         systemctl restart nix-daemon.service || exit
-       else
-         sudo launchctl kickstart -k system/org.nixos.nix-daemon || exit
-       end
-
        direnv hook fish | source || exit
        git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations || exit
        cd ~/code/system-configurations || exit
-       direnv allow || exit
-       direnv exec "$PWD" nix-direnv-reload || exit
+       direnv allow . || exit
+       direnv exec . nix-direnv-reload || exit
      '
    ```
 

@@ -59,7 +59,7 @@ preview:
 [group('System Management')]
 [no-exit-message]
 home-manager NAME:
-  nix run --impure --expr 'import ./packages.nix' home-manager -- \
+  nix run --impure --expr 'import (builtins.getEnv "PACKAGES")' home-manager -- \
     switch --flake .#"$1"
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
   echo 'Consider syncing COSMIC settings by running `just cosmic-sync system`'
