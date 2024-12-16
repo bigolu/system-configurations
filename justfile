@@ -201,6 +201,7 @@ get-secrets:
     set -o nounset
     set -o pipefail
 
+    # Need a GitHub token for the gh CLI
     doppler run \
         --mount "$(mktemp --dry-run --suffix '.env')" \
         --only-secrets GH_TOKEN \
