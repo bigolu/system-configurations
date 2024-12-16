@@ -96,15 +96,6 @@ let
       fi
     '';
 
-    reloadNixDaemon = lib.hm.dag.entryAfter [ "linkGeneration" ] ''
-      # Restart the daemon so it picks up any changes in the nix.conf
-      sudo --set-home ${lib.getExe nix-daemon-reload}
-      while ! nix-store -q --hash ${pkgs.stdenv.shell} &>/dev/null; do
-        echo "waiting for nix-daemon" >&2
-        sleep 0.5
-      done
-    '';
-
     installNixGarbageCollectionService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
       # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
@@ -156,7 +147,7 @@ in
     activation =
       with activationScripts;
       {
-        inherit syncNixVersionWithSystem installNixPathFix reloadNixDaemon;
+        inherit syncNixVersionWithSystem installNixPathFix;
       }
       // lib.optionalAttrs isLinux {
         inherit setLocale installNixGarbageCollectionService;
