@@ -6,13 +6,15 @@
   lib,
   specialArgs,
   inputs,
+  utils,
   ...
 }:
 let
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isDarwin isLinux;
   isLinuxGui = specialArgs.isGui && isLinux;
-  inherit (specialArgs) repositoryDirectory projectRoot;
+  inherit (specialArgs) repositoryDirectory;
+  inherit (utils) projectRoot;
 in
 {
   imports = [
@@ -73,8 +75,8 @@ in
           cp --no-preserve=mode --dereference ${
             lib.escapeShellArg (
               lib.fileset.toSource {
-                root = specialArgs.projectRoot + /dotfiles/flatpak/overrides;
-                fileset = specialArgs.projectRoot + /dotfiles/flatpak/overrides;
+                root = projectRoot + /dotfiles/flatpak/overrides;
+                fileset = projectRoot + /dotfiles/flatpak/overrides;
               }
             )
           }/* "$target"

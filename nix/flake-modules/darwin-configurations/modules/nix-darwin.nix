@@ -3,6 +3,7 @@
   specialArgs,
   pkgs,
   lib,
+  utils,
   ...
 }:
 let
@@ -11,8 +12,9 @@ let
     homeDirectory
     username
     repositoryDirectory
-    projectRoot
     ;
+  inherit (utils) projectRoot;
+  
 
   system-config-preview = pkgs.writeShellApplication {
     name = "system-config-preview";

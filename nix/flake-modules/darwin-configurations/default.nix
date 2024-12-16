@@ -5,7 +5,6 @@
   ...
 }:
 let
-  inherit (utils) projectRoot;
   homeManagerBaseModule = utils.homeManager.baseModule;
   homeManagerModuleRoot = utils.homeManager.moduleRoot;
 
@@ -28,7 +27,6 @@ let
           repositoryDirectory
           username
           utils
-          projectRoot
           inputs
           ;
         isHomeManagerRunningAsASubmodule = true;
@@ -87,7 +85,6 @@ let
             homeDirectory
             repositoryDirectory
             utils
-            projectRoot
             inputs
             ;
         };

@@ -3,6 +3,7 @@
   lib,
   pkgs,
   specialArgs,
+  utils,
   ...
 }:
 let
@@ -11,8 +12,8 @@ let
     username
     homeDirectory
     isHomeManagerRunningAsASubmodule
-    projectRoot
     ;
+  inherit (utils) projectRoot;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isLinux;
 

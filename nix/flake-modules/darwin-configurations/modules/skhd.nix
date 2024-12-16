@@ -1,7 +1,7 @@
 {
   pkgs,
   lib,
-  specialArgs,
+  utils,
   ...
 }:
 {
@@ -23,8 +23,8 @@
             ];
           };
           skhdBin = lib.fileset.toSource {
-            root = specialArgs.projectRoot + /dotfiles/skhd/bin;
-            fileset = specialArgs.projectRoot + /dotfiles/skhd/bin;
+            root = utils.projectRoot + /dotfiles/skhd/bin;
+            fileset = utils.projectRoot + /dotfiles/skhd/bin;
           };
         in
         pkgs.symlinkJoin {

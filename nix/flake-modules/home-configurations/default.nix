@@ -130,7 +130,6 @@ let
                 utils
                 inputs
                 ;
-              inherit (utils) projectRoot;
             };
 
           in
