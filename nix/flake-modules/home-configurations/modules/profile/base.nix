@@ -5,6 +5,7 @@
   config,
   lib,
   specialArgs,
+  inputs,
   ...
 }:
 let
@@ -23,7 +24,7 @@ in
     ../home-manager.nix
     ../fonts.nix
     ../keyboard-shortcuts.nix
-    specialArgs.flakeInputs.nix-flatpak.homeManagerModules.nix-flatpak
+    inputs.nix-flatpak.homeManagerModules.nix-flatpak
   ];
 
   home = {
@@ -82,7 +83,7 @@ in
 
     file = optionalAttrs isDarwin {
       ".hammerspoon/Spoons/EmmyLua.spoon" = {
-        source = "${specialArgs.flakeInputs.spoons}/Source/EmmyLua.spoon";
+        source = "${inputs.spoons}/Source/EmmyLua.spoon";
         # I'm not symlinking the whole directory because EmmyLua is going to generate
         # lua-language-server annotations in there.
         recursive = true;

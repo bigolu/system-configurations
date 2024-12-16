@@ -1,13 +1,11 @@
 {
   pkgs,
-  specialArgs,
+  inputs,
   lib,
   config,
   ...
 }:
 let
-  inherit (specialArgs) flakeInputs;
-
   inherit (pkgs.stdenv) isLinux;
 
   # TODO: Won't be needed if the daemon auto-reloads:
@@ -131,7 +129,7 @@ let
 in
 {
   imports = [
-    flakeInputs.nix-index-database.hmModules.nix-index
+    inputs.nix-index-database.hmModules.nix-index
   ];
 
   # Don't make a command_not_found handler
@@ -183,10 +181,10 @@ in
     registry = {
       # Use the nixpkgs in this flake in the system flake registry. By default, it
       # pulls the latest version of nixpkgs-unstable.
-      nixpkgs.flake = flakeInputs.nixpkgs;
+      nixpkgs.flake = inputs.nixpkgs;
 
       # In case something is broken on unstable
-      nixpkgs-stable.flake = flakeInputs.nixpkgs-stable;
+      nixpkgs-stable.flake = inputs.nixpkgs-stable;
     };
 
     settings = {

@@ -29,9 +29,9 @@ let
           username
           utils
           projectRoot
+          inputs
           ;
         isHomeManagerRunningAsASubmodule = true;
-        flakeInputs = inputs;
       };
     in
     [
@@ -88,8 +88,8 @@ let
             repositoryDirectory
             utils
             projectRoot
+            inputs
             ;
-          flakeInputs = inputs;
         };
       }
     );

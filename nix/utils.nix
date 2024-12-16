@@ -17,7 +17,7 @@ let
     let
       recurseIntoAttrs = lib.recurseIntoAttrs { };
     in
-    lib.filterAttrs (k: v: !builtins.hasAttr k recurseIntoAttrs) set;
+    lib.filterAttrs (k: _v: !builtins.hasAttr k recurseIntoAttrs) set;
 
   homeManager =
     let

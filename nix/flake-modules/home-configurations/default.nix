@@ -128,8 +128,8 @@ let
                 repositoryDirectory
                 username
                 utils
+                inputs
                 ;
-              flakeInputs = inputs;
               inherit (utils) projectRoot;
             };
 

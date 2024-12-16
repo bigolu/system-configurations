@@ -3,16 +3,17 @@
   pkgs,
   specialArgs,
   config,
+  inputs,
   ...
 }:
 let
-  inherit (specialArgs) isGui flakeInputs;
+  inherit (specialArgs) isGui;
   inherit (pkgs.stdenv) isDarwin isLinux;
 
   stacklineWithoutConfig = pkgs.stdenv.mkDerivation {
     pname = "mystackline";
     version = "0.1";
-    src = flakeInputs.stackline;
+    src = inputs.stackline;
     installPhase = ''
       mkdir -p $out
       cp -r $src/* $out/
