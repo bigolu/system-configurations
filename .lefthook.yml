@@ -153,6 +153,29 @@ check:
           ci_flags=()
         fi
         printf '%s\0' {files} | lefthook run check-lint --files-from-stdin "${ci_flags[@]}"
+    test:
+      priority: 5
+      run: |
+        # This won't be necessary when lefthook gets support for nested groups:
+        # https://github.com/evilmartians/lefthook/issues/132
+        if [ "$CI" = true ]; then
+          ci_flags=(--no-tty)
+        else
+          ci_flags=()
+        fi
+        printf '%s\0' {files} | lefthook run test --files-from-stdin "${ci_flags[@]}"
+
+test:
+  files: |
+    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
+    exit 1
+  commands:
+    flake:
+      skip:
+        # This would take a long time to run in GitHub Actions since it would have to
+        # download all the dependencies. Instead Garnix will run these checks.
+        - run: '[ "$CI" = true ]'
+      run: nix flake check
 
 generate:
   files: |

@@ -21,6 +21,7 @@
       }
       (_: {
         imports = [
+          ./nix/flake-modules/checks
           ./nix/flake-modules/dev-shells
           ./nix/flake-modules/packages
           ./nix/flake-modules/bundlers.nix
