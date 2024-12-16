@@ -176,6 +176,11 @@ test:
         # download all the dependencies. Instead Garnix will run these checks.
         - run: '[ "$CI" = true ]'
       run: nix flake check
+    nix-config:
+      skip:
+        - run: '[ "$CI" = true ]'
+      glob: "{nix/*,flake.{lock,nix}}"
+      run: nix config check
 
 generate:
   files: |
@@ -448,6 +453,32 @@ check-lint:
       run: >
         ./scripts/run-check-with-reviewdog.bash -efm '%f: %m' --
         isutf8 {files}
+    commit-message-typos:
+      skip:
+        # Don't run in CI since this check isn't required. It isn't required because
+        # there's no easy way to ignore false positives in a commit message e.g. "no
+        # qa".
+        - run: >
+            [ "$CI" = true ]
+      run: |
+        bash -o pipefail -euc '
+          base_ref="${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"
+          readarray -t commits_to_check \
+            < <(git rev-list --abbrev-commit --ancestry-path "$base_ref"..HEAD)
+          found_problem=
+          for commit in "${commits_to_check[@]}"; do
+            commit_message_subject="$(git show --no-patch --format=%s "$commit")"
+            echo "Checking commit $commit ($commit_message_subject)..."
+            echo '─────────────────────────────────────────'
+
+            commit_full_message="$(git show --no-patch --format=%B "$commit")"
+            if ! echo "$commit_full_message" | typos --format brief -; then
+              found_problem=1
+            fi
+            echo
+          done
+          [[ ! "$found_problem" ]]
+        '
 
     # TODO: These tools don't output a format that reviewdog can parse, I should open
     # issues with all of them. In the meantime, I put reviewdog in tee mode so it
@@ -482,36 +513,3 @@ check-lint:
         ./scripts/run-check-with-reviewdog.bash
         -efm "_REVIEWDOG_DO_NOT_MATCH" -tee --
         taplo lint {files}
-
-    # Local-Only checks
-    commit-message-typos:
-      skip:
-        # Don't run in CI since I don't this check to be required. It shouldn't
-        # be because there is no easy way to ignore false positives in a commit
-        # message e.g. "no qa".
-        - run: >
-            [ "$CI" = true ]
-      run: |
-        bash -o pipefail -euc '
-          base_ref="${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"
-          readarray -t commits_to_check \
-            < <(git rev-list --abbrev-commit --ancestry-path "$base_ref"..HEAD)
-          found_problem=
-          for commit in "${commits_to_check[@]}"; do
-            commit_message_subject="$(git show --no-patch --format=%s "$commit")"
-            echo "Checking commit $commit ($commit_message_subject)..."
-            echo '─────────────────────────────────────────'
-
-            commit_full_message="$(git show --no-patch --format=%B "$commit")"
-            if ! echo "$commit_full_message" | typos --format brief -; then
-              found_problem=1
-            fi
-            echo
-          done
-          [[ ! "$found_problem" ]]
-        '
-    nix-config:
-      skip:
-        - run: '[ "$CI" = true ]'
-      glob: "{nix/*,flake.{lock,nix}}"
-      run: nix config check
