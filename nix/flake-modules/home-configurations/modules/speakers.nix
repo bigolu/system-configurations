@@ -1,14 +1,14 @@
 {
   lib,
   pkgs,
-  specialArgs,
+  isGui,
   config,
   ...
 }:
 let
   inherit (pkgs) speakerctl;
 in
-lib.attrsets.optionalAttrs specialArgs.isGui {
+lib.attrsets.optionalAttrs isGui {
   repository.symlink.home.file = lib.attrsets.optionalAttrs pkgs.stdenv.isDarwin {
     ".hammerspoon/Spoons/Speakers.spoon".source = "smart_plug/mac_os/Speakers.spoon";
   };

@@ -1,20 +1,16 @@
 {
   config,
-  specialArgs,
   pkgs,
   lib,
   utils,
+  configName,
+  homeDirectory,
+  username,
+  repositoryDirectory,
   ...
 }:
 let
-  inherit (specialArgs)
-    configName
-    homeDirectory
-    username
-    repositoryDirectory
-    ;
   inherit (utils) projectRoot;
-  
 
   system-config-preview = pkgs.writeShellApplication {
     name = "system-config-preview";

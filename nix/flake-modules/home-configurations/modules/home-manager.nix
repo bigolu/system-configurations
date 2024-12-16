@@ -2,17 +2,14 @@
   config,
   lib,
   pkgs,
-  specialArgs,
+  configName,
+  username,
+  homeDirectory,
+  isHomeManagerRunningAsASubmodule,
   utils,
   ...
 }:
 let
-  inherit (specialArgs)
-    configName
-    username
-    homeDirectory
-    isHomeManagerRunningAsASubmodule
-    ;
   inherit (utils) projectRoot;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isLinux;

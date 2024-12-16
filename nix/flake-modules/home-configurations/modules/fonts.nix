@@ -2,11 +2,10 @@
   config,
   lib,
   pkgs,
-  specialArgs,
+  isGui,
   ...
 }:
 let
-  inherit (specialArgs) isGui;
   inherit (pkgs.stdenv) isLinux;
 in
 lib.mkMerge [

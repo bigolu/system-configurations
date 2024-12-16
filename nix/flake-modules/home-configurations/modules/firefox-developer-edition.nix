@@ -1,12 +1,11 @@
 {
   lib,
   pkgs,
-  specialArgs,
   config,
+  isGui,
   ...
 }:
 let
-  inherit (specialArgs) isGui;
   inherit (pkgs.stdenv) isLinux isDarwin;
 
   linux = lib.mkIf (isGui && isLinux) {

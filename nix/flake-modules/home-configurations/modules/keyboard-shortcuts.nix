@@ -1,13 +1,12 @@
 {
   lib,
   pkgs,
-  specialArgs,
+  isGui,
   config,
   inputs,
   ...
 }:
 let
-  inherit (specialArgs) isGui;
   inherit (pkgs.stdenv) isDarwin isLinux;
 
   stacklineWithoutConfig = pkgs.stdenv.mkDerivation {

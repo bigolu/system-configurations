@@ -1,11 +1,10 @@
 {
   lib,
   pkgs,
-  specialArgs,
+  isGui,
   ...
 }:
 let
-  inherit (specialArgs) isGui;
   inherit (lib.attrsets) optionalAttrs;
   isLinuxGui = pkgs.stdenv.isLinux && isGui;
 in

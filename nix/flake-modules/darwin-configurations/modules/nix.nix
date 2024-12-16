@@ -1,13 +1,10 @@
 {
   config,
-  specialArgs,
   pkgs,
   lib,
+  homeDirectory,
   ...
 }:
-let
-  inherit (specialArgs) homeDirectory;
-in
 {
   nix = {
     useDaemon = true;

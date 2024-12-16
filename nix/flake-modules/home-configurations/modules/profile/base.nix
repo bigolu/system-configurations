@@ -4,7 +4,8 @@
   pkgs,
   config,
   lib,
-  specialArgs,
+  isGui,
+  repositoryDirectory,
   inputs,
   utils,
   ...
@@ -12,8 +13,7 @@
 let
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs.stdenv) isDarwin isLinux;
-  isLinuxGui = specialArgs.isGui && isLinux;
-  inherit (specialArgs) repositoryDirectory;
+  isLinuxGui = isGui && isLinux;
   inherit (utils) projectRoot;
 in
 {
