@@ -94,8 +94,8 @@ let
       nix.enable = false;
     };
 
-  makeHomeConfigurations =
-    args@{
+  makeOutputsForSpec =
+    spec@{
       systems,
       overlay ? null,
       configName,
@@ -104,18 +104,21 @@ let
       username ? "biggs",
       isHomeManagerRunningAsASubmodule ? false,
     }:
-    builtins.listToAttrs (
-      map (
+    let
+      getOutputNameForSystem =
+        system: if (builtins.length systems) == 1 then configName else "${configName}-${system}";
+
+      makeConfigForSystem =
         system:
         withSystem system (
           { pkgs, ... }:
           let
             homePrefix = if pkgs.stdenv.isLinux then "/home" else "/Users";
             homeDirectory =
-              if builtins.hasAttr "homeDirectory" args then args.homeDirectory else "${homePrefix}/${username}";
+              if builtins.hasAttr "homeDirectory" spec then spec.homeDirectory else "${homePrefix}/${username}";
             repositoryDirectory =
-              if builtins.hasAttr "repositoryDirectory" args then
-                args.repositoryDirectory
+              if builtins.hasAttr "repositoryDirectory" spec then
+                spec.repositoryDirectory
               else
                 "${homeDirectory}/code/system-configurations";
             # SYNC: SPECIAL-ARGS
@@ -131,31 +134,34 @@ let
                 inputs
                 ;
             };
-
           in
-          {
-            name = if (builtins.length systems) == 1 then configName else "${configName}-${system}";
-            value = inputs.home-manager.lib.homeManagerConfiguration {
-              modules = modules ++ [ baseModule ];
-              inherit extraSpecialArgs;
-              pkgs = if overlay == null then pkgs else pkgs.extend overlay;
-            };
+          inputs.home-manager.lib.homeManagerConfiguration {
+            modules = modules ++ [ baseModule ];
+            inherit extraSpecialArgs;
+            pkgs = if overlay == null then pkgs else pkgs.extend overlay;
           }
-        )
-      ) systems
-    );
+        );
+    in
+    lib.pipe systems [
+      (map (system: lib.nameValuePair (getOutputNameForSystem system) (makeConfigForSystem system)))
+      builtins.listToAttrs
+    ];
 
   makeOutputs =
     configSpecs:
     let
-      names = builtins.attrNames configSpecs;
-      configsByName = lib.foldl (acc: next: acc // next) { } (
-        map (name: makeHomeConfigurations (configSpecs.${name} // { configName = name; })) names
-      );
+      outputsByName = lib.pipe configSpecs [
+        builtins.attrNames
+        (map (configName: makeOutputsForSpec (configSpecs.${configName} // { inherit configName; })))
+        utils.mergeAttrsList
+      ];
     in
+    # The 'flake' and 'homeConfigurations' keys need to be static to avoid infinite
+    # recursion
     {
-      flake.homeConfigurations = configsByName;
+      flake.homeConfigurations = outputsByName;
     };
+
 in
 makeOutputs {
   desktop = {
@@ -172,12 +178,12 @@ makeOutputs {
       x86_64-linux
       x86_64-darwin
     ];
-    overlay = portableOverlay;
-    isGui = false;
-    isHomeManagerRunningAsASubmodule = true;
     modules = [
       "${moduleRoot}/profile/system-administration.nix"
       portableModule
     ];
+    overlay = portableOverlay;
+    isGui = false;
+    isHomeManagerRunningAsASubmodule = true;
   };
 }

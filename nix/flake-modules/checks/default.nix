@@ -1,4 +1,9 @@
-{ lib, self, ... }:
+{
+  lib,
+  self,
+  utils,
+  ...
+}:
 {
   perSystem =
     {
@@ -22,14 +27,19 @@
 
       filterPackagesForCurrentSystem = filterAttrs (_name: package: package.system == system);
 
-      createBundlerCheck =
-        name: bundler: pkgs.runCommand "bundler-check-${name}" { } "${bundler pkgs.hello} > $out ";
+      bundlerChecks =
+        let
+          bundlerPrefix = "bundler";
 
-      bundlerChecks = pipe self'.bundlers [
-        removeDefaultOutput
-        (mapAttrs createBundlerCheck)
-        (prefixAttrNames "bundler")
-      ];
+          rootlessBundlerName = "rootless";
+          rootlessBundler = self'.bundlers.${rootlessBundlerName};
+          rootlessBundlerCheck =
+            pkgs.runCommand "check-${bundlerPrefix}-${rootlessBundlerName}" { }
+              "${rootlessBundler pkgs.hello} > $out ";
+        in
+        prefixAttrNames bundlerPrefix {
+          ${rootlessBundlerName} = rootlessBundlerCheck;
+        };
 
       darwinChecks = pipe self.darwinConfigurations [
         (mapAttrs (_name: config: config.system))
@@ -54,7 +64,7 @@
       ];
     in
     {
-      checks = lib.foldl (accumulator: next: accumulator // next) { } [
+      checks = utils.mergeAttrsList [
         bundlerChecks
         darwinChecks
         devShellChecks

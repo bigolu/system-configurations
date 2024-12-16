@@ -68,7 +68,7 @@ lib.recursiveUpdate bundlerOption {
           '';
         };
 
-      rootless-bundler =
+      rootlessBundler =
         let
           program =
             derivation:
@@ -114,7 +114,7 @@ lib.recursiveUpdate bundlerOption {
         handler.${drv.type} drv;
     in
     {
-      bundlers.default = rootless-bundler;
-      bundlers.rootless-bundler = rootless-bundler;
+      bundlers.default = rootlessBundler;
+      bundlers.rootless = rootlessBundler;
     };
 }

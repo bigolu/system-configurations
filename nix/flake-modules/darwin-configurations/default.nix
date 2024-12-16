@@ -94,12 +94,12 @@ let
   makeOutputs =
     configSpecs:
     let
-      configsByName = builtins.mapAttrs (
+      outputsByName = builtins.mapAttrs (
         configName: configSpec: makeDarwinConfiguration (configSpec // { inherit configName; })
       ) configSpecs;
     in
     {
-      flake.darwinConfigurations = configsByName;
+      flake.darwinConfigurations = outputsByName;
     };
 in
 makeOutputs {
