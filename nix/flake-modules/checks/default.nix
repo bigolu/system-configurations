@@ -13,6 +13,7 @@
       ...
     }:
     let
+      inherit (builtins) getAttr;
       inherit (lib)
         mapAttrs
         mapAttrs'
@@ -42,7 +43,7 @@
         };
 
       darwinChecks = pipe self.darwinConfigurations [
-        (mapAttrs (_name: config: config.system))
+        (mapAttrs (_name: getAttr "system"))
         filterPackagesForCurrentSystem
         (prefixAttrNames "darwin")
       ];
@@ -53,7 +54,7 @@
       ];
 
       homeChecks = pipe self.homeConfigurations [
-        (mapAttrs (_name: config: config.activationPackage))
+        (mapAttrs (_name: getAttr "activationPackage"))
         filterPackagesForCurrentSystem
         (prefixAttrNames "home")
       ];

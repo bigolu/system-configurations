@@ -6,7 +6,10 @@
   ...
 }:
 let
+  inherit (utils) mergeAttrsList;
   inherit (utils.homeManager) moduleRoot baseModule;
+  inherit (builtins) attrValues mapAttrs listToAttrs;
+  inherit (lib) pipe mergeAttrs nameValuePair;
 
   makeEmptyPackage =
     pkgs: packageName:
@@ -17,12 +20,8 @@ let
   # package that was lib.getExe was called with is nix.
   portableOverlay =
     final: _prev:
-    let
-      makeNameValuePair = packageName: {
-        name = packageName;
-        value = makeEmptyPackage final packageName;
-      };
-      nameValuePairs = map makeNameValuePair [
+    pipe
+      [
         "comma"
         "moreutils"
         "ast-grep"
@@ -34,9 +33,11 @@ let
         "gitMinimal"
         "difftastic"
         "nix"
+      ]
+      [
+        (map (packageName: nameValuePair packageName (makeEmptyPackage final packageName)))
+        listToAttrs
       ];
-    in
-    builtins.listToAttrs nameValuePairs;
 
   portableModule =
     { lib, pkgs, ... }:
@@ -142,25 +143,21 @@ let
           }
         );
     in
-    lib.pipe systems [
-      (map (system: lib.nameValuePair (getOutputNameForSystem system) (makeConfigForSystem system)))
+    pipe systems [
+      (map (system: nameValuePair (getOutputNameForSystem system) (makeConfigForSystem system)))
       builtins.listToAttrs
     ];
 
-  makeOutputs =
-    configSpecs:
-    let
-      outputsByName = lib.pipe configSpecs [
-        builtins.attrNames
-        (map (configName: makeOutputsForSpec (configSpecs.${configName} // { inherit configName; })))
-        utils.mergeAttrsList
-      ];
-    in
+  makeOutputs = configSpecs: {
     # The 'flake' and 'homeConfigurations' keys need to be static to avoid infinite
     # recursion
-    {
-      flake.homeConfigurations = outputsByName;
-    };
+    flake.homeConfigurations = pipe configSpecs [
+      (mapAttrs (configName: mergeAttrs { inherit configName; }))
+      attrValues
+      (map makeOutputsForSpec)
+      mergeAttrsList
+    ];
+  };
 
 in
 makeOutputs {

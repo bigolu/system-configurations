@@ -2,9 +2,12 @@
   inputs,
   utils,
   withSystem,
+  lib,
   ...
 }:
 let
+  inherit (builtins) mapAttrs;
+  inherit (lib) pipe mergeAttrs;
   homeManagerBaseModule = utils.homeManager.baseModule;
   homeManagerModuleRoot = utils.homeManager.moduleRoot;
 
@@ -91,16 +94,14 @@ let
       }
     );
 
-  makeOutputs =
-    configSpecs:
-    let
-      outputsByName = builtins.mapAttrs (
-        configName: configSpec: makeDarwinConfiguration (configSpec // { inherit configName; })
-      ) configSpecs;
-    in
-    {
-      flake.darwinConfigurations = outputsByName;
-    };
+  makeOutputs = configSpecs: {
+    # The 'flake' and 'darwinConfigurations' keys need to be static to avoid infinite
+    # recursion
+    flake.darwinConfigurations = pipe configSpecs [
+      (mapAttrs (configName: mergeAttrs { inherit configName; }))
+      (mapAttrs (_configName: makeDarwinConfiguration))
+    ];
+  };
 in
 makeOutputs {
   bigmac = {
