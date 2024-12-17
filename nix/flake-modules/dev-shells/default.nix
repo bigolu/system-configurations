@@ -58,7 +58,6 @@
           actionlint
           deadnix
           fish
-          lychee
           # for renovate-config-validator
           renovate
           shellcheck
@@ -239,8 +238,12 @@
           packages = with pkgs; [ nix-fast-build ];
         };
 
-        ciRenovateTaskRunner = makeCiShell {
-          packages = with pkgs; [ gitMinimal ];
+        ciRenovate = makeCiShell {
+          packages = with pkgs; [ renovate ];
+          shellHook = ''
+            export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
+            export LOG_LEVEL='debug'
+          '';
         };
 
         ciCheckForBrokenLinks = makeCiShell {

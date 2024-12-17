@@ -9,7 +9,6 @@ on:
     # These branches get merged without a pull request being made so I need to check
     # them too.
     branches:
-      # SYNC: AUTOMERGE_PREFIX
       - "renovate/branch-automerge/**"
 # I'm only interested in checking the latest commit to a branch. That means if a
 # commit is pushed and a new check starts before an older one finishes, I want to

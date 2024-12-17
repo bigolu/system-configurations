@@ -208,10 +208,7 @@ in
 
   nix-shell-interpreter = final.writeShellApplication {
     name = "nix-shell-interpreter";
-
-    # So I don't have to specify bash as a dependency separately
     runtimeInputs = with final; [ bash ];
-
     text = ''
       # TODO: nix-shell sets the temporary directory environment variables. This
       # is a problem because cached-nix-shell caches the environment variables

@@ -21,6 +21,10 @@
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
     "nixd": {
+      "nixpkgs": {
+        "expr": "import (builtins.getEnv \"PACKAGES\")",
+      },
+
       // Ideally, I could scope these options by platform[1].
       //
       // [1]: https://github.com/microsoft/vscode/issues/5595

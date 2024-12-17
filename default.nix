@@ -5,7 +5,8 @@
 # - For compatibility with projects that prefer not to use flakes.
 # - For compatibility with projects that can't use flakes because they're using a
 #   version of Nix before v2.4.
-# - It's faster than builtins.getFlake, though I think this will help[2].
+# - It's faster than builtins.getFlake. Though I think when this issue is
+#   resolved[2], getFlake will be just as fast.
 #
 # [1]: https://github.com/edolstra/flake-compat
 # [2]: https://github.com/NixOS/nix/issues/3121

@@ -38,14 +38,18 @@
     {
       matchManagers: ["gomod"],
 
-      // So I can add commits of my own
-      additionalBranchPrefix: "branch-automerge/fixup/golang/",
+      // This setting is only allowed on self-hosted Renovate instances
+      postUpgradeTasks: {
+        commands: ["./scripts/code-generation/generate-gomod2nix-lock.bash"],
+      },
     },
     {
       matchDepNames: ["nix-community/nix-direnv"],
 
-      // So I can add commits of my own
-      additionalBranchPrefix: "branch-automerge/fixup/envrc/",
+      // This setting is only allowed on self-hosted Renovate instances
+      postUpgradeTasks: {
+        commands: ["./scripts/ci/set-nix-direnv-hash.bash"],
+      },
     },
     {
       matchManagers: ["nix"],
@@ -54,8 +58,10 @@
       automerge: true,
       automergeType: "branch",
 
-      // So I can add commits of my own
-      additionalBranchPrefix: "branch-automerge/fixup/nix-version/",
+      // This setting is only allowed on self-hosted Renovate instances
+      postUpgradeTasks: {
+        commands: ["./scripts/code-generation/sync-nix-version.bash"],
+      },
     },
     // By default, indirect Go dependencies aren't updated
     {

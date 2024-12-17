@@ -12,4 +12,3 @@ nix-output-monitor
 nix-shell-interpreter
 perl
 reviewdog
-ripgrep

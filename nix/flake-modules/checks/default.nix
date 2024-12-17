@@ -24,7 +24,7 @@
 
       removeDefaultOutput = set: builtins.removeAttrs set [ "default" ];
 
-      prefixAttrNames = prefix: mapAttrs' (name: value: nameValuePair "${prefix}-${name}" value);
+      prefixAttrNames = prefix: mapAttrs' (name: nameValuePair "${prefix}-${name}");
 
       filterPackagesForCurrentSystem = filterAttrs (_name: package: package.system == system);
 

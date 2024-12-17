@@ -1,6 +1,7 @@
 inputs:
 let
   inherit (inputs.nixpkgs) lib;
+  inherit (builtins) removeAttrs attrNames;
 
   projectRoot = ../.;
 
@@ -12,12 +13,7 @@ let
     in
     lib.concatStringsSep "-" yearMonthDayStrings;
 
-  removeRecurseIntoAttrs =
-    set:
-    let
-      recurseIntoAttrs = lib.recurseIntoAttrs { };
-    in
-    lib.filterAttrs (k: _v: !builtins.hasAttr k recurseIntoAttrs) set;
+  removeRecurseIntoAttrs = set: removeAttrs set (attrNames (lib.recurseIntoAttrs { }));
 
   mergeAttrsList = lib.foldl lib.mergeAttrs { };
 
