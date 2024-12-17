@@ -147,13 +147,10 @@ check-all GROUPS='':
 [group('Syncing')]
 [no-exit-message]
 sync:
-    # TODO: According to the documentation, the values here should extend the values
-    # specified in the configuration file, but it seems like only the values
-    # here are being used. I should make a smaller test case and possibly open an
-    # issue. For now, I'll duplicate the values from the config file in here.
-    #
-    # SYNC: LEFTHOOK_OUTPUT
-    LEFTHOOK_OUTPUT='execution_out,execution_info' lefthook run sync
+    # TODO: The sync group has 'follows' enabled so I need to execution_out or else
+    # nothing will show. I should open an issue for allowing output to be configured
+    # per group, the same way 'follows' is.
+    LEFTHOOK_OUTPUT='execution_out' lefthook run sync
 
 [doc('''
     This is the same as the sync recipe above, except that it forces all tasks
@@ -179,14 +176,10 @@ force-sync TASKS='':
       lefthook_arguments+=(--commands "$1")
     fi
 
-    # TODO: According to the documentation, the values here should extend the values
-    # specified in the configuration file, but it seems like only the values
-    # here are being used. I should make a smaller test case and possibly open an
-    # issue. For now, I'll duplicate the values from the config file in here.
-    #
-    # SYNC: LEFTHOOK_OUTPUT
-    LEFTHOOK_OUTPUT='execution_out,execution_info' \
-      lefthook run sync "${lefthook_arguments[@]}"
+    # TODO: The sync group has 'follows' enabled so I need to execution_out or else
+    # nothing will show. I should open an issue for allowing output to be configured
+    # per group, the same way 'follows' is.
+    LEFTHOOK_OUTPUT='execution_out' lefthook run sync "${lefthook_arguments[@]}"
 
 [group('Syncing')]
 [no-exit-message]
