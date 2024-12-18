@@ -22,11 +22,12 @@
       (_: {
         imports = [
           ./nix/flake-modules/checks
-          ./nix/flake-modules/dev-shells
+          ./nix/flake-modules/dev-shells.nix
           ./nix/flake-modules/packages
           ./nix/flake-modules/bundlers.nix
           ./nix/flake-modules/home-configurations
           ./nix/flake-modules/darwin-configurations
+          ./nix/flake-modules/lib.nix
         ];
 
         systems = with flake-utils.lib.system; [

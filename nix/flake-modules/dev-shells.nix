@@ -1,5 +1,7 @@
 {
   utils,
+  lib,
+  self,
   ...
 }:
 {
@@ -9,13 +11,59 @@
       ...
     }:
     let
-      makeShell = import ./make-shell.nix {
-        inherit pkgs;
-        inherit (utils) projectRoot;
-      };
+      inherit (utils) projectRoot;
+      inherit (lib) fileset;
+
+      makeShell =
+        args@{
+          inputsFrom ? [ ],
+          ...
+        }:
+        let
+          mkShellUnique = self.lib.mkShellUnique pkgs.mkShellNoCC;
+
+          setPackagesPathHook =
+            let
+              relativePathStrings = [
+                "flake.nix"
+                "flake.lock"
+                "default.nix"
+                "nix"
+              ];
+
+              absolutePaths = map (path: projectRoot + "/${path}") relativePathStrings;
+
+              packages = fileset.toSource {
+                root = projectRoot;
+                fileset = fileset.unions absolutePaths;
+              };
+            in
+            ''
+              # I reference packages.nix in several places so rather than hardcode
+              # its path in all those places, I'll put its path in an environment
+              # variable.
+              #
+              # You may be wondering why I'm using a fileset instead of just using
+              # $PWD/nix/packages.nix. cached-nix-shell traces the files accessed
+              # during the nix-shell invocation so it knows when to invalidate the
+              # cache. When I use $PWD, a lot of files unrelated to nix, like
+              # $PWD/.git/index, become part of the trace, resulting in much more
+              # cache invalidations.
+              export PACKAGES=${packages}/nix/packages.nix
+            '';
+
+          essentials = mkShellUnique {
+            packages = with pkgs; [ cached-nix-shell ];
+            shellHook = setPackagesPathHook;
+          };
+        in
+        mkShellUnique (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
 
       makeCiShell =
-        spec:
+        args@{
+          packages ? [ ],
+          ...
+        }:
         let
           ci-bash = pkgs.writeShellApplication {
             name = "ci-bash";
@@ -28,27 +76,24 @@
                 -o pipefail "$@"
             '';
           };
-          specWithCiBash = spec // {
-            packages = (spec.packages or [ ]) ++ [ ci-bash ];
-          };
         in
-        makeShell specWithCiBash;
+        makeShell (args // { packages = packages ++ [ ci-bash ]; });
 
-      plugctlPython = import ../../plugctl-python.nix pkgs;
+      plugctlPython = import ../plugctl-python.nix pkgs;
 
       plugctl = makeShell {
         packages = [
           plugctlPython
         ];
         shellHook = ''
-          # Python without packages is also put on the PATH so I need to make sure
-          # the one with packages comes first.
+          # Regular python, i.e. the one without plugctl's packages, is also put on
+          # the PATH so I need to make sure the one for plugctl comes first.
           PATH="${plugctlPython}/bin:$PATH"
         '';
       };
 
       linting = makeShell {
-        mergeWith = [
+        inputsFrom = [
           # For mypy. Also for the python libraries used by plugctl so mypy can
           # factor in their types as well.
           plugctl
@@ -112,12 +157,12 @@
           plugins = pkgs.linkFarm "plugins" (utils.removeRecurseIntoAttrs pkgs.myVimPlugins);
 
           efmLs = makeShell {
-            mergeWith = [ linting ];
+            inputsFrom = [ linting ];
             packages = [ pkgs.efm-langserver ];
           };
         in
         makeShell {
-          mergeWith = [
+          inputsFrom = [
             efmLs
           ];
           packages = with pkgs; [
@@ -201,7 +246,7 @@
       };
 
       local = makeShell {
-        mergeWith = [
+        inputsFrom = [
           vsCode
           linting
           formatting
@@ -227,7 +272,7 @@
         };
 
         ciCheckPullRequest = makeCiShell {
-          mergeWith = [
+          inputsFrom = [
             linting
             formatting
             codeGeneration
