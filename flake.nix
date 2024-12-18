@@ -19,50 +19,54 @@
         # [1]: https://github.com/hercules-ci/flake-parts/discussions/234#discussioncomment-9950293
         specialArgs.utils = import ./nix/utils.nix inputs;
       }
-      (_: {
-        imports = [
-          ./nix/flake-modules/checks
-          ./nix/flake-modules/dev-shells.nix
-          ./nix/flake-modules/packages
-          ./nix/flake-modules/bundlers.nix
-          ./nix/flake-modules/home-configurations
-          ./nix/flake-modules/darwin-configurations
-          ./nix/flake-modules/lib.nix
-        ];
+      (
+        { self, ... }:
+        {
+          imports = [
+            ./nix/flake-modules/checks
+            ./nix/flake-modules/dev-shells.nix
+            ./nix/flake-modules/packages
+            ./nix/flake-modules/bundlers.nix
+            ./nix/flake-modules/home-configurations
+            ./nix/flake-modules/darwin-configurations
+            ./nix/flake-modules/lib.nix
+            ./nix/flake-modules/overlays.nix
+          ];
 
-        systems = with flake-utils.lib.system; [
-          x86_64-linux
-          x86_64-darwin
-        ];
+          systems = with flake-utils.lib.system; [
+            x86_64-linux
+            x86_64-darwin
+          ];
 
-        # - For nixd[1]
-        # - To get access to the flake's package set, i.e. the `pkgs` argument passed
-        #   to perSystem[2], from outside the flake. See packages.nix for an example
-        #   of how it gets accessed.
-        #
-        # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
-        # [2]: https://flake.parts/module-arguments.html?highlight=pkgs#pkgs
-        debug = true;
+          # - For nixd[1]
+          # - To get access to the flake's package set, i.e. the `pkgs` argument passed
+          #   to perSystem[2], from outside the flake. See packages.nix for an example
+          #   of how it gets accessed.
+          #
+          # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
+          # [2]: https://flake.parts/module-arguments.html?highlight=pkgs#pkgs
+          debug = true;
 
-        perSystem =
-          { system, ... }:
-          {
-            # - For the convenience of having my overlay already applied wherever I
-            #   access pkgs.
-            # - To avoid instantiating nixpkgs multiple times, which would lead to
-            #   higher memory consumption and slower evaluation[1].
-            #
-            # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-            _module.args.pkgs = import inputs.nixpkgs {
-              inherit system;
-              overlays = [
-                inputs.gomod2nix.overlays.default
-                inputs.nix-darwin.overlays.default
-                (import ./nix/overlay inputs)
-              ];
+          perSystem =
+            { system, ... }:
+            {
+              # - For the convenience of having my overlay already applied wherever I
+              #   access pkgs.
+              # - To avoid instantiating nixpkgs multiple times, which would lead to
+              #   higher memory consumption and slower evaluation[1].
+              #
+              # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
+              _module.args.pkgs = import inputs.nixpkgs {
+                inherit system;
+                overlays = [
+                  inputs.gomod2nix.overlays.default
+                  inputs.nix-darwin.overlays.default
+                  (import ./nix/overlays/private inputs)
+                ] ++ (builtins.attrValues self.overlays);
+              };
             };
-          };
-      });
+        }
+      );
 
   inputs = {
     stackline = {

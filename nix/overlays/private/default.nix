@@ -1,7 +1,7 @@
 inputs: final: prev:
 let
   inherit (inputs.nixpkgs) lib;
-  utils = import ../utils.nix inputs;
+  utils = import ../../utils.nix inputs;
 
   composedOverlays =
     lib.trivial.pipe
