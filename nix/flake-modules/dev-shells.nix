@@ -246,6 +246,7 @@
       };
 
       local = makeShell {
+        name = "local";
         inputsFrom = [
           vsCode
           linting
@@ -265,13 +266,15 @@
         inherit local;
         default = local;
 
-        # Have a general shell with common dependencies so I don't have
-        # to make a shell for every CI workflow.
-        ci = makeCiShell {
+        # Have a default shell with common dependencies so I don't have to make a
+        # shell for every CI workflow.
+        ci-default = makeCiShell {
+          name = "ci-default";
           packages = with pkgs; [ coreutils ];
         };
 
-        ciCheckPullRequest = makeCiShell {
+        ci-check-pull-request = makeCiShell {
+          name = "ci-check-pull-request";
           inputsFrom = [
             linting
             formatting
@@ -279,11 +282,13 @@
           ];
         };
 
-        ciCachePackages = makeCiShell {
+        ci-cache-packages = makeCiShell {
+          name = "ci-cache-packages";
           packages = with pkgs; [ nix-fast-build ];
         };
 
-        ciRenovate = makeCiShell {
+        ci-renovate = makeCiShell {
+          name = "ci-renovate";
           packages = with pkgs; [ renovate ];
           shellHook = ''
             export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
@@ -291,7 +296,8 @@
           '';
         };
 
-        ciCheckForBrokenLinks = makeCiShell {
+        ci-check-for-broken-links = makeCiShell {
+          name = "ci-check-for-broken-links";
           packages = with pkgs; [ gh ];
         };
       };

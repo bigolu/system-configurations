@@ -4,7 +4,7 @@ inputs:
   dev-shell:
     description: The name of the devShell to activate
     required: false
-    default: ci
+    default: ci-default
   cachix-auth-token:
     description: >
       An authentication token for Cachix. Only necessary for pushing to the cache.
