@@ -14,7 +14,7 @@
       inherit (utils) projectRoot;
       inherit (lib) fileset pipe init;
       inherit (lib.strings) splitString;
-      inherit (builtins) readFile filter;
+      inherit (builtins) readFile;
 
       makeShell =
         args@{
@@ -102,6 +102,7 @@
         ];
 
         packages = with pkgs; [
+          # These get called in the lefthook config
           actionlint
           deadnix
           fish
@@ -126,8 +127,8 @@
           # https://github.com/redhat-developer/yaml-language-server/issues/535
           yamllint
 
-          # These aren't linters, but they get called as part of certain linting
-          # commands.
+          # These aren't linters, but they also get called in lefthook as part of
+          # certain linting commands.
           gitMinimal
           parallel
 
@@ -138,6 +139,7 @@
 
       formatting = makeShell {
         packages = with pkgs; [
+          # These get called in the lefthook config
           nixfmt-rfc-style
           nodePackages.prettier
           shfmt
@@ -217,8 +219,6 @@
         packages = with pkgs; [
           # These get called in the lefthook config
           doctoc
-          ripgrep
-          coreutils
 
           # Runs the generators
           lefthook
@@ -229,11 +229,7 @@
         packages = with pkgs; [
           # These get called in the lefthook config
           gitMinimal
-          just
-          bashInteractive
           runAsAdmin
-          # for uname
-          coreutils
           nix-output-monitor
 
           # Runs the sync tasks
@@ -241,45 +237,41 @@
         ];
       };
 
-      scriptDependencies =
-        let
-          dependencies =
-            pipe
-              (pkgs.runCommand "extract-script-dependencies-from-shebangs"
-                {
-                  nativeBuildInputs = with pkgs; [
-                    ripgrep
-                    coreutils
-                  ];
-                }
-                ''
-                  # Each line printed contains the dependencies for a single script
-                  # separated by a ' ' e.g. 'dep1 dep2 ...'
-                  rg \
-                    --no-filename \
-                    --glob '*.bash' \
-                    '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)]"' \
-                    --replace '$packages' \
-                    ${projectRoot + /scripts} |
+      scriptDependencies = makeShell {
+        packages =
+          pipe
+            (pkgs.runCommand "extract-script-dependencies-from-shebangs"
+              {
+                nativeBuildInputs = with pkgs; [
+                  ripgrep
+                  coreutils
+                ];
+              }
+              ''
+                # Each line printed contains the dependencies for a single script
+                # separated by a ' ' e.g. 'dep1 dep2 dep3'
+                rg \
+                  --no-filename \
+                  --glob '*.bash' \
+                  '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)]"' \
+                  --replace '$packages' \
+                  ${projectRoot + /scripts} |
 
-                  # Flattens the output of the previous command i.e. prints one
-                  # dependency per line
-                  rg --only-matching '[^\s]+' |
+                # Flattens the output of the previous command i.e. prints _one_
+                # dependency per line
+                rg --only-matching '[^\s]+' |
 
-                  sort --unique > $out
-                ''
-              )
-              [
-                readFile
-                (splitString "\n")
-                # The file ends in a newline so the last line will be empty
-                init
-                (map (name: pkgs.${name}))
-              ];
-        in
-        makeShell {
-          packages = dependencies;
-        };
+                sort --unique > $out
+              ''
+            )
+            [
+              readFile
+              (splitString "\n")
+              # The file ends in a newline so the last line will be empty
+              init
+              (map (dependencyName: pkgs.${dependencyName}))
+            ];
+      };
 
       local = makeShell {
         name = "local";
