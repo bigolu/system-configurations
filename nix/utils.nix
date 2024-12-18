@@ -15,8 +15,6 @@ let
 
   removeRecurseIntoAttrs = set: removeAttrs set (attrNames (lib.recurseIntoAttrs { }));
 
-  mergeAttrsList = lib.foldl lib.mergeAttrs { };
-
   homeManager =
     let
       moduleRoot = ./flake-modules/home-configurations/modules;
@@ -32,7 +30,6 @@ in
     projectRoot
     formatDate
     removeRecurseIntoAttrs
-    mergeAttrsList
     homeManager
     ;
 }

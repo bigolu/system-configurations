@@ -6,10 +6,14 @@
   ...
 }:
 let
-  inherit (utils) mergeAttrsList;
   inherit (utils.homeManager) moduleRoot baseModule;
   inherit (builtins) attrValues mapAttrs listToAttrs;
-  inherit (lib) pipe mergeAttrs nameValuePair;
+  inherit (lib)
+    pipe
+    mergeAttrs
+    nameValuePair
+    mergeAttrsList
+    ;
 
   makeEmptyPackage =
     pkgs: packageName:

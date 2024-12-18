@@ -1,7 +1,6 @@
 {
   lib,
   self,
-  utils,
   ...
 }:
 {
@@ -20,6 +19,7 @@
         nameValuePair
         filterAttrs
         pipe
+        mergeAttrsList
         ;
 
       removeDefaultOutput = set: builtins.removeAttrs set [ "default" ];
@@ -65,7 +65,7 @@
       ];
     in
     {
-      checks = utils.mergeAttrsList [
+      checks = mergeAttrsList [
         bundlerChecks
         darwinChecks
         devShellChecks
