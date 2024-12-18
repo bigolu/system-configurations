@@ -12,7 +12,9 @@
     }:
     let
       inherit (utils) projectRoot;
-      inherit (lib) fileset;
+      inherit (lib) fileset pipe init;
+      inherit (lib.strings) splitString;
+      inherit (builtins) readFile filter;
 
       makeShell =
         args@{
@@ -239,11 +241,45 @@
         ];
       };
 
-      scriptDependencies = makeShell {
-        packages = with pkgs; [
-          script-dependencies
-        ];
-      };
+      scriptDependencies =
+        let
+          dependencies =
+            pipe
+              (pkgs.runCommand "extract-script-dependencies-from-shebangs"
+                {
+                  nativeBuildInputs = with pkgs; [
+                    ripgrep
+                    coreutils
+                  ];
+                }
+                ''
+                  # Each line printed contains the dependencies for a single script
+                  # separated by a ' ' e.g. 'dep1 dep2 ...'
+                  rg \
+                    --no-filename \
+                    --glob '*.bash' \
+                    '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)]"' \
+                    --replace '$packages' \
+                    ${projectRoot + /scripts} |
+
+                  # Flattens the output of the previous command i.e. prints one
+                  # dependency per line
+                  rg --only-matching '[^\s]+' |
+
+                  sort --unique > $out
+                ''
+              )
+              [
+                readFile
+                (splitString "\n")
+                # The file ends in a newline so the last line will be empty
+                init
+                (map (name: pkgs.${name}))
+              ];
+        in
+        makeShell {
+          packages = dependencies;
+        };
 
       local = makeShell {
         name = "local";

@@ -66,7 +66,9 @@ sync:
       glob: ".envrc"
       run: direnv reload
     nix-direnv:
-      glob: "{.envrc,flake.{nix,lock},nix/*}"
+      # The scripts directory is included so script dependencies can be recalculated
+      # and loaded in the dev shell.
+      glob: "{.envrc,flake.{nix,lock},nix/*,scripts/*}"
       run: touch flake.nix && nix-direnv-reload |& nom
     lefthook:
       # TODO: Currently, this is only needed on the first sync that's done after
@@ -201,19 +203,6 @@ generate:
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=gomod2nix-lock --
         ./scripts/code-generation/generate-gomod2nix-lock.bash
-    # I'd like to specify a glob so this only runs when a script file changes, but
-    # since lefthook, understandably, doesn't consider deleted files, this task
-    # wouldn't be able to remove dependencies when a script gets deleted. Instead,
-    # I'll just always run it since it takes less than a second.
-    script-dependencies:
-      run: >
-        ./scripts/run-check-with-reviewdog.bash -name=script-dependencies --
-        bash -o pipefail -euc '
-        rg --no-filename  --no-config --glob "*.bash" "^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)]\"" --replace "\$packages" scripts
-        | rg --no-config --only-matching "[^\s]+"
-        | sort --unique
-        > scripts/dependencies.txt
-        '
     nix-version:
       glob: "flake.lock"
       run: >

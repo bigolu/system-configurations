@@ -1,6 +1,6 @@
 _: {
   flake.overlays.misc =
-    final: prev:
+    final: _prev:
     let
       inherit (final.lib) getExe;
     in
@@ -11,7 +11,7 @@ _: {
           interpreter,
         }:
         final.writeShellApplication {
-          name = name;
+          inherit name;
           runtimeInputs = [ interpreter ];
           text = ''
             # TODO: nix-shell sets the temporary directory environment variables.

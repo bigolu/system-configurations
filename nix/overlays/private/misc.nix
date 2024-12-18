@@ -192,18 +192,4 @@ in
     plugctl
     speakerctl
     ;
-
-  script-dependencies = lib.trivial.pipe (projectRoot + /scripts/dependencies.txt) [
-    builtins.readFile
-    (lib.strings.splitString "\n")
-    (builtins.filter (line: line != ""))
-    (names: map (name: final.${name}) names)
-    (
-      deps:
-      final.symlinkJoin {
-        name = "script-dependencies";
-        paths = deps;
-      }
-    )
-  ];
 }
