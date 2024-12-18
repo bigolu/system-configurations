@@ -121,11 +121,11 @@
           # for 'go mod tidy'
           go
           typos
-          dos2unix
           partialPackages.isutf8
           # TODO: If the YAML language server gets a CLI I should use that instead:
           # https://github.com/redhat-developer/yaml-language-server/issues/535
           yamllint
+          editorconfig-checker
 
           # These aren't linters, but they also get called in lefthook as part of
           # certain linting commands.

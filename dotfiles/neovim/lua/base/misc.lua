@@ -9,6 +9,9 @@ vim.o.sections = ""
 vim.g.mapleader = " "
 vim.keymap.set({ "i" }, "jk", "<Esc>")
 Plug("tpope/vim-repeat")
+-- I use autosave so if trim_trailing_whitespace is enabled, it makes it very hard to
+-- type.
+vim.g.editorconfig = false
 
 -- Only use the system's clipboard when neovim is running locally.
 local is_ssh_active = #(os.getenv("SSH_TTY") or "") > 0

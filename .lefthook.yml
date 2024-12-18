@@ -329,18 +329,6 @@ fix-lint:
       run: >
         ./scripts/run-check-with-reviewdog.bash --
         typos --write-changes --format silent {files}
-    # TODO: This always writes to the file, even if no changes are made. This
-    # causes unnecessary direnv reloads.
-    dos2unix:
-      run: >
-        ./scripts/run-check-with-reviewdog.bash --
-        dos2unix --allow-chown --add-eol {files}
-    # TODO: This always writes to the file, even if no changes are made. This
-    # causes unnecessary direnv reloads.
-    mac2unix:
-      run: >
-        ./scripts/run-check-with-reviewdog.bash --
-        mac2unix --allow-chown --add-eol {files}
 
 check-lint:
   files: |
@@ -441,6 +429,13 @@ check-lint:
       run: >
         ./scripts/run-check-with-reviewdog.bash -efm '%f: %m' --
         isutf8 {files}
+    editorconfig-checker:
+      # I'm disabling the indentation size check because it applies to comments as
+      # well and I don't want it to. I could add inline directives to disable it for
+      # comments, but that would be cumbersome.
+      run: >
+        ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
+        editorconfig-checker -no-color -format gcc --disable-indent-size {files}
     commit-message-typos:
       skip:
         # Don't run in CI since this check isn't required. It isn't required because
