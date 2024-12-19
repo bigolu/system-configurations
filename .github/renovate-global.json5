@@ -14,7 +14,7 @@
   // running as a GitHub app.
   //
   // [1]: https://docs.renovatebot.com/modules/platform/github/#running-as-a-github-app
-  repositories: ["system-configurations"],
+  repositories: ["bigolu/system-configurations"],
   username: "bigolu-renovate[bot]",
   gitAuthor: "bigolu Renovate Bot <179542175+bigolu-renovate[bot]@users.noreply.github.com>",
 
