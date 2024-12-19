@@ -57,6 +57,13 @@ tools:
     lint-severity: 2
     lint-formats:
       - "%f:%l:%c: %m"
+  editorconfig-checker: &editorconfig-checker
+    lint-after-open: true
+    lint-command: editorconfig-checker -no-color -format gcc --disable-indent-size ${INPUT}
+    lint-source: editorconfig-checker
+    lint-stdin: false
+    lint-formats:
+      - "%f:%l:%c: %m"
 
 version: 2
 root-markers:
@@ -75,3 +82,4 @@ languages:
   =:
     - <<: *desktop-file-validate
     - <<: *typos
+    - <<: *editorconfig-checker
