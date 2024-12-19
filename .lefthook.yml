@@ -252,9 +252,11 @@ format:
         fish_indent --write {files}
     nixfmt:
       glob: "*.nix"
+      # TODO: --verify confirms that the formatted code parses the same as the input
+      # code.
       run: >
         ./scripts/run-check-with-reviewdog.bash --
-        nixfmt {files}
+        nixfmt --verify {files}
     just:
       # TODO: just's builtin formatter currently removes/rearranges comments. Until
       # this is fixed I'll disable it: https://github.com/casey/just/issues/862.
