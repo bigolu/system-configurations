@@ -1,6 +1,8 @@
 name: Cache Packages
 on:
   push:
+    branches:
+      - master
     # Only run when the files changed may impact what gets cached. This includes
     # files that:
     paths:
@@ -24,12 +26,6 @@ concurrency:
   cancel-in-progress: true
 jobs:
   cache-packages:
-    # I would use `on.push.branches-ignore`, but you can't reference context
-    # variables from there and I don't want to hardcode the default branch. The
-    # drawback of this method is that the workflow will start on every push and
-    # immediately cancel if the branch isn't the default branch. These cancelled runs
-    # will add some noise to the actions dashboard.
-    if: github.ref_name == github.event.repository.default_branch
     # TODO: Sometimes this job hangs and the default timeout is too long (6 hours).
     timeout-minutes: 20
     runs-on: ${{ matrix.os }}
