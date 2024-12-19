@@ -6,15 +6,17 @@ shopt -s nullglob
 # Inputs, via shell (i.e. unexported) variables:
 # ACTIVATION_PACKAGE
 # BASH_PATH
+# INIT_SNIPPET (optional)
+# USER_SHELL
 
 if [[ -t 2 ]]; then
   printf 'Bootstrapping portable home...'
 fi
 
-prefix_directory="$(mktemp --tmpdir --directory 'bigolu_portable_home_XXXXX')"
+prefix_directory="$(mktemp --tmpdir --directory 'home_shell_XXXXX')"
 
 # So we know where to find the prefix
-export BIGOLU_PORTABLE_HOME_PREFIX="$prefix_directory"
+export PORTABLE_HOME_PREFIX="$prefix_directory"
 
 # Clean up temporary directories when the shell exits
 trap 'rm -rf "$prefix_directory"' SIGTERM ERR EXIT
@@ -64,7 +66,7 @@ function add_directory_to_path {
     # opening quote of the script.
     case "$program_basename" in
       env)
-        # TODO: Wrapping this caused an infinite loop so I'll copy it instead. I
+        # Wrapping this caused an infinite loop so I'll copy it instead. I
         # guess the interpreter I was using in the shebang was calling env
         # somehow.
         cp -L "$program" "$new_directory/env"
@@ -73,6 +75,8 @@ function add_directory_to_path {
         printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
 # I unexport the XDG Base directories so host programs pick up the host's XDG
 # directories.
+#
+# TODO: Do this for more shells
 XDG_CONFIG_HOME=$xdg_config_directory \
 XDG_DATA_HOME=$xdg_data_directory \
 XDG_STATE_HOME=$xdg_state_directory \
@@ -110,17 +114,17 @@ add_directory_to_path "$ACTIVATION_PACKAGE/home-files/.local/bin" 'bin-local'
 
 export XDG_DATA_DIRS="${XDG_DATA_DIRS+${XDG_DATA_DIRS}:}$ACTIVATION_PACKAGE/home-path/share"
 
-# Set fish as the default shell
-shell="$(which fish)"
-export SHELL="$shell"
-
 # Clear the message we printed earlier
 if [[ -t 2 ]]; then
   printf '\33[2K\r'
 fi
 
-# Compile my custom themes for bat
-bat cache --build 1>/dev/null 2>&1
+shell="$(which "$USER_SHELL")"
+export SHELL="$shell"
+
+if [[ -n ${INIT_SNIPPET:-} ]]; then
+  eval "$INIT_SNIPPET"
+fi
 
 # WARNING: don't exec so our cleanup function can run
 "$SHELL" "$@"

@@ -1,10 +1,13 @@
-_: {
-  flake.overlays.misc =
-    final: _prev:
+_:
+let
+  miscOverlay =
+    final: prev:
     let
       inherit (final.lib) getExe;
     in
     {
+      makePortableShell = import ./make-portable-shell final prev;
+
       makeNixShellInterpreterWithoutTmp =
         {
           name ? "nix-shell-interpreter",
@@ -32,4 +35,8 @@ _: {
           '';
         };
     };
+in
+{
+  flake.overlays.default = miscOverlay;
+  flake.overlays.misc = miscOverlay;
 }
