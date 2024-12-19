@@ -170,6 +170,7 @@ test:
   files: |
     echo "Error: Only use this with --files-from-stdin or --all-files" >&2
     exit 1
+  parallel: true
   commands:
     flake:
       skip:
@@ -479,14 +480,10 @@ check-lint:
           done
           [[ ! "$found_problem" ]]
         '
-
     # TODO: These tools don't output a format that reviewdog can parse, I should open
     # issues with all of them. In the meantime, I put reviewdog in tee mode so it
     # will just output whatever the tool outputs. Though this means these errors
-    # won't show up as comments on the code in a PR, you'll have to check the
-    # console. It also means the lint commands need to exit with a non-zero code if
-    # they find lint issues. Normally, reviewdog would do that, but it can't since it
-    # can't tell when the tool outputs errors.
+    # won't show up in the pull request UI so you'd have to check the console.
     renovate-config-validator:
       glob: ".github/{renovate,renovate-global}.json5"
       run: >
