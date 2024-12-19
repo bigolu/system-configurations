@@ -36,7 +36,7 @@ let
     config.perSystem =
       { pkgs, ... }:
       let
-        makeExecutable =
+        makeRootlessProgram =
           {
             derivation,
             entrypoint,
@@ -105,7 +105,7 @@ let
             handler = {
               app =
                 drv:
-                makeExecutable {
+                makeRootlessProgram {
                   derivation = drv.program;
                   entrypoint = drv.program;
                   name = baseNameOf drv.program;
@@ -113,7 +113,7 @@ let
 
               derivation =
                 drv:
-                makeExecutable {
+                makeRootlessProgram {
                   derivation = drv;
                   entrypoint = getMainProgram drv;
                   name = drv.meta.name or drv.pname or drv.name;
