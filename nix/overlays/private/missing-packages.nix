@@ -23,16 +23,16 @@ let
 
   config-file-validator = final.stdenv.mkDerivation {
     pname = "config-file-validator";
-    version = "1.7.1";
+    version = "1.8.0";
     src = prev.fetchzip {
-      url = "https://github.com/Boeing/config-file-validator/releases/download/v1.7.1/validator-v1.7.1-${
+      url = "https://github.com/Boeing/config-file-validator/releases/download/v1.8.0/validator-v1.8.0-${
         if isLinux then "linux" else "darwin"
       }-amd64.tar.gz";
       sha256 =
         if isLinux then
-          "sha256-0GE2CBi4JPgDtt2ifYI6QeZ/cGz0lDgyTIT28tCC5Kk="
+          "sha256-3cxk+gC0V54VwrIyGFHmIs4TD8IqqixnPDbs+XTG0CU="
         else
-          "sha256-Bj84jL1YwBbgDM2Z9G1uIXo/YtDkOjrFe+atwXsISGE=";
+          "sha256-QxNAbdzX5cBMj+Hu1tMSD1em69Xl/CyDBnrQz3DUNUs=";
       stripRoot = false;
     };
     installPhase = ''

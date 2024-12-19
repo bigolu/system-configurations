@@ -436,6 +436,21 @@ check-lint:
       run: >
         ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
         editorconfig-checker -no-color -format gcc --disable-indent-size {files}
+    # TODO: It supports SARIF, but it prints output for files that succeed. I should
+    # ask if an option can be added to omit files that don't have issues.
+    config-file-validator:
+      glob: "*.{editorconfig,json,ini}"
+      # VS Code's configuration files end in .json, but they're actually jsonc files.
+      exclude: ["*.vscode/*.json"]
+      run: >
+        ./scripts/run-check-with-reviewdog.bash
+        -name=config-file-validator
+        -efm '%A    × %f'
+        -efm '%Z        error: Error at line %l column %c: %m'
+        -efm '%A    × %f'
+        -efm '%Z        error: %m'
+        --
+        validator -groupby pass-fail {files}
     commit-message-typos:
       skip:
         # Don't run in CI since this check isn't required. It isn't required because
@@ -470,18 +485,8 @@ check-lint:
     # console. It also means the lint commands need to exit with a non-zero code if
     # they find lint issues. Normally, reviewdog would do that, but it can't since it
     # can't tell when the tool outputs errors.
-    config-file-validator:
-      glob: "*.{editorconfig,json,ini}"
-      # VS Code's configuration files end in .json, but they're actually jsonc files.
-      exclude: ["*.vscode/*.json"]
-      # TODO: SARIF support is being added:
-      # https://github.com/Boeing/config-file-validator/issues/32
-      run: >
-        ./scripts/run-check-with-reviewdog.bash
-        -name=config-file-validator -efm "_REVIEWDOG_DO_NOT_MATCH" -tee --
-        validator -groupby pass-fail {files}
     renovate-config-validator:
-      glob: ".github/renovate.json5"
+      glob: ".github/{renovate,renovate-global}.json5"
       run: >
         ./scripts/run-check-with-reviewdog.bash
         -efm "_REVIEWDOG_DO_NOT_MATCH" -tee --
