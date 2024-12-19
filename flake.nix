@@ -29,7 +29,6 @@
             ./nix/flake-modules/bundlers.nix
             ./nix/flake-modules/home-configurations
             ./nix/flake-modules/darwin-configurations
-            ./nix/flake-modules/lib.nix
             ./nix/flake-modules/overlays
             ./nix/flake-modules/public-flake-modules
           ];

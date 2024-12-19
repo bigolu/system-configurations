@@ -1,7 +1,6 @@
 {
   utils,
   lib,
-  self,
   ...
 }:
 {
@@ -21,11 +20,11 @@
       inherit (builtins) readFile;
       inherit (pkgs)
         mkShellNoCC
+        mkShellUniqueWrapper
         writeShellApplication
         linkFarm
         runCommand
         ;
-      inherit (self.lib) mkShellUniqueWrapper;
 
       makeShell =
         args@{
@@ -33,7 +32,7 @@
           ...
         }:
         let
-          mkShellUnique = mkShellUniqueWrapper mkShellNoCC;
+          mkShellUniqueNoCC = mkShellUniqueWrapper mkShellNoCC;
 
           setPackagesPathHook =
             let
@@ -65,12 +64,12 @@
               export PACKAGES=${packages}/nix/packages.nix
             '';
 
-          essentials = mkShellUnique {
+          essentials = mkShellUniqueNoCC {
             packages = with pkgs; [ cached-nix-shell ];
             shellHook = setPackagesPathHook;
           };
         in
-        mkShellUnique (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
+        mkShellUniqueNoCC (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
 
       makeCiShell =
         args@{
