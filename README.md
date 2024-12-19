@@ -37,8 +37,6 @@ format "\<config_name> / \<platform>":
 - Home Manager
 
   - desktop / x86_64-linux
-  - portable-home-x86_64-darwin / x86_64-darwin
-  - portable-home-x86_64-linux / x86_64-linux
 
 - nix-darwin
 
