@@ -45,16 +45,16 @@ let
         scripts = [ "bin/bootstrap" ];
         interpreter = bashPath;
         inputs = with final; [
-          coreutils-full
+          coreutils
           which
         ];
         execer = [
-          "cannot:${final.coreutils-full}/bin/mktemp"
-          "cannot:${final.coreutils-full}/bin/mkdir"
-          "cannot:${final.coreutils-full}/bin/basename"
-          "cannot:${final.coreutils-full}/bin/ln"
-          "cannot:${final.coreutils-full}/bin/chmod"
-          "cannot:${final.coreutils-full}/bin/cp"
+          "cannot:${final.coreutils}/bin/mktemp"
+          "cannot:${final.coreutils}/bin/mkdir"
+          "cannot:${final.coreutils}/bin/basename"
+          "cannot:${final.coreutils}/bin/ln"
+          "cannot:${final.coreutils}/bin/chmod"
+          "cannot:${final.coreutils}/bin/cp"
         ];
         keep = {
           "$SHELL" = true;

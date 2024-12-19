@@ -49,7 +49,7 @@ in
       lesspipe
       diffoscopeMinimal
       bat
-      coreutils-full
+      coreutils
       gnused
       runAsAdmin
       less
