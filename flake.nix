@@ -31,6 +31,7 @@
             ./nix/flake-modules/darwin-configurations
             ./nix/flake-modules/lib.nix
             ./nix/flake-modules/overlays.nix
+            ./nix/flake-modules/public-flake-modules
           ];
 
           systems = with flake-utils.lib.system; [
