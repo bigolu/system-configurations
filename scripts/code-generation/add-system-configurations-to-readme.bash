@@ -32,7 +32,9 @@ function get_configs {
       in
         builtins.concatStringsSep \"\n\" (map makeListItem configNames);
 
-      homeManagerConfigNames = builtins.filter (name: !flake.inputs.nixpkgs.lib.hasPrefix \"portable-home\" name) (builtins.attrNames flake.outputs.homeConfigurations);
+      homeManagerConfigNames = builtins.filter
+        (name: !flake.inputs.nixpkgs.lib.hasPrefix \"portable-home\" name)
+        (builtins.attrNames flake.outputs.homeConfigurations);
       homeManagerPlatformFetcher = name:
         flake.outputs.homeConfigurations.\${name}.activationPackage.system;
 
