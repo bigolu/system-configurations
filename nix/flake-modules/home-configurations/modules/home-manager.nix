@@ -11,11 +11,13 @@
 }:
 let
   inherit (utils) projectRoot;
+  inherit (lib) fileset mkMerge hm;
   inherit (lib.attrsets) optionalAttrs;
+  inherit (pkgs) writeShellApplication;
   inherit (pkgs.stdenv) isLinux;
 
   # Scripts for switching generations and upgrading flake inputs.
-  system-config-apply = pkgs.writeShellApplication {
+  system-config-apply = writeShellApplication {
     name = "system-config-apply";
     runtimeInputs = with pkgs; [ nix-output-monitor ];
     text = ''
@@ -28,7 +30,7 @@ let
     '';
   };
 
-  system-config-preview = pkgs.writeShellApplication {
+  system-config-preview = writeShellApplication {
     name = "system-config-preview";
     runtimeInputs = with pkgs; [
       coreutils
@@ -53,7 +55,7 @@ let
       printf "%bPrinting preview...\n" "$cyan"
       nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
       ${
-        lib.fileset.toSource {
+        fileset.toSource {
           root = projectRoot + /dotfiles/nix/bin;
           fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
         }
@@ -61,7 +63,7 @@ let
     '';
   };
 
-  system-config-pull = pkgs.writeShellApplication {
+  system-config-pull = writeShellApplication {
     name = "system-config-pull";
     runtimeInputs = with pkgs; [
       coreutils
@@ -102,7 +104,7 @@ let
     '';
   };
 
-  remote-changes-check = pkgs.writeShellApplication {
+  remote-changes-check = writeShellApplication {
     name = "remote-changes-check";
     runtimeInputs = with pkgs; [
       coreutils
@@ -142,7 +144,7 @@ let
     '';
   };
 in
-lib.mkMerge [
+mkMerge [
   {
     # The `man` in nixpkgs is only intended to be used for NixOS, it doesn't work
     # properly on other OS's so I'm disabling it.
@@ -185,12 +187,12 @@ lib.mkMerge [
       # Show me what changed everytime I switch generations e.g. version updates or
       # added/removed files.
       activation = {
-        printGenerationDiff = lib.hm.dag.entryAnywhere ''
+        printGenerationDiff = hm.dag.entryAnywhere ''
           # On the first activation, there won't be an old generation.
           if [[ -n "''${oldGenPath+set}" ]] ; then
             nix store diff-closures $oldGenPath $newGenPath
             ${
-              lib.fileset.toSource {
+              fileset.toSource {
                 root = projectRoot + /dotfiles/nix/bin;
                 fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
               }

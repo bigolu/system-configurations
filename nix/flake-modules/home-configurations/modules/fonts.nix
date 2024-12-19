@@ -7,12 +7,13 @@
 }:
 let
   inherit (pkgs.stdenv) isLinux;
+  inherit (lib) mkMerge mkIf hm;
 in
-lib.mkMerge [
-  (lib.mkIf isGui {
+mkMerge [
+  (mkIf isGui {
     home.packages = with pkgs; [ myFonts ];
   })
-  (lib.mkIf (isLinux && isGui) {
+  (mkIf (isLinux && isGui) {
     fonts.fontconfig.enable = true;
     # Wezterm can't read my fonts from Nix despite them showing up in fontconfig so I
     # copy all the Nix fonts to $XDG_DATA_HOME/fonts. Wezterm also can't read the
@@ -20,7 +21,7 @@ lib.mkMerge [
     # I don't preserve the mode of the original files since they are read only and I
     # want to be able to remove everything in the directory before copying again.
     home.activation.fontSetup =
-      lib.hm.dag.entryAfter
+      hm.dag.entryAfter
         # Must be after `installPackages` since that's when the fonts get installed.
         [ "installPackages" ]
         ''

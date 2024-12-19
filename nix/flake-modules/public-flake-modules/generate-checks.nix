@@ -11,7 +11,7 @@
       ...
     }:
     let
-      inherit (builtins) getAttr;
+      inherit (builtins) getAttr removeAttrs;
       inherit (lib)
         mapAttrs
         mapAttrs'
@@ -21,7 +21,7 @@
         mergeAttrsList
         ;
 
-      removeDefaultOutput = set: builtins.removeAttrs set [ "default" ];
+      removeDefaultOutput = set: removeAttrs set [ "default" ];
 
       prefixAttrNames = prefix: mapAttrs' (name: nameValuePair "${prefix}-${name}");
 

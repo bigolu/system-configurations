@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (lib.attrsets) optionalAttrs;
+  inherit (lib) optionalAttrs optionals;
   isLinuxGui = pkgs.stdenv.isLinux && isGui;
 in
 optionalAttrs isGui {
@@ -14,14 +14,14 @@ optionalAttrs isGui {
     [
       ncurses
     ]
-    ++ lib.lists.optionals isLinuxGui [
+    ++ optionals isLinuxGui [
       (writeShellApplication {
         name = "wezterm";
         text = ''flatpak run org.wezfurlong.wezterm "$@"'';
       })
     ];
 
-  services.flatpak = lib.attrsets.optionalAttrs isLinuxGui {
+  services.flatpak = optionalAttrs isLinuxGui {
     packages = [
       "org.wezfurlong.wezterm"
     ];

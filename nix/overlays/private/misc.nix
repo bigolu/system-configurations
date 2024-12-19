@@ -4,8 +4,8 @@ let
   inherit (inputs) self;
   inherit (inputs.nixpkgs) lib;
   inherit (final.stdenv) isLinux isDarwin;
-  fs = lib.fileset;
-  inherit (utils) projectRoot;
+  inherit (lib) fileset optionalString;
+  inherit (utils) projectRoot formatDate;
 
   # ncurses doesn't come with wezterm's terminfo so I need to add it to the
   # database.
@@ -27,24 +27,24 @@ let
           par
         ];
       };
-      generalBin = fs.toSource {
+      generalBin = fileset.toSource {
         root = projectRoot + /dotfiles/general/bin;
         fileset = projectRoot + /dotfiles/general/bin;
       };
-      generalMacosBin = fs.toSource {
+      generalMacosBin = fileset.toSource {
         root = projectRoot + /dotfiles/general/bin-macos;
         fileset = projectRoot + /dotfiles/general/bin-macos;
       };
       neovimLinuxBin =
         let
-          src = fs.toSource {
+          src = fileset.toSource {
             root = projectRoot + /dotfiles/neovim/linux-bin;
             fileset = projectRoot + /dotfiles/neovim/linux-bin;
           };
         in
         final.runCommand "neovim-linux-bin" { } ''
           mkdir "$out"
-          cp ${lib.escapeShellArg src}/wezterm.bash "$out/wezterm"
+          cp ${src}/wezterm.bash "$out/wezterm"
         '';
     in
     final.symlinkJoin {
@@ -66,8 +66,8 @@ let
           --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
           --prefix PATH : ${dependencies}/bin \
           --prefix PATH : ${generalBin} \
-          ${lib.strings.optionalString isDarwin "--prefix PATH : ${generalMacosBin}"} \
-          ${lib.strings.optionalString isLinux "--prefix PATH : ${neovimLinuxBin}"}
+          ${optionalString isDarwin "--prefix PATH : ${generalMacosBin}"} \
+          ${optionalString isLinux "--prefix PATH : ${neovimLinuxBin}"}
       '';
     };
 
@@ -82,7 +82,7 @@ let
           djvulibre
         ];
       };
-      ripgrepBin = fs.toSource {
+      ripgrepBin = fileset.toSource {
         root = projectRoot + /dotfiles/ripgrep/bin;
         fileset = projectRoot + /dotfiles/ripgrep/bin;
       };
@@ -141,7 +141,7 @@ let
 
   myFonts = final.symlinkJoin {
     name = "my-fonts";
-    version = utils.formatDate self.lastModifiedDate;
+    version = formatDate self.lastModifiedDate;
     paths = with final; [
       monaspace
       nerd-fonts.symbols-only
@@ -181,7 +181,7 @@ in
   inherit (inputs.home-manager.packages.${final.system}) home-manager;
   neovim = nightlyNeovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
-  packagesToCache = lib.recurseIntoAttrs { inherit (final) gomod2nix; };
+  packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix; };
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp { interpreter = final.bash; };
 
   inherit

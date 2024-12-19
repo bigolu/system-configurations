@@ -2,6 +2,17 @@
 final: prev:
 let
   inherit (inputs.nixpkgs) lib;
+  inherit (lib)
+    hasPrefix
+    filterAttrs
+    mapAttrs'
+    removePrefix
+    nameValuePair
+    mapAttrs
+    pipe
+    composeManyExtensions
+    ;
+  inherit (utils) formatDate;
 
   # repositoryPrefix:
   # builder: (repositoryName: repositorySourceCode: date: derivation)
@@ -13,20 +24,18 @@ let
       filterRepositoriesForPrefix =
         repositories:
         let
-          hasRepositoryPrefix = lib.hasPrefix repositoryPrefix;
+          hasRepositoryPrefix = hasPrefix repositoryPrefix;
         in
-        lib.attrsets.filterAttrs (
-          repositoryName: _ignored: hasRepositoryPrefix repositoryName
-        ) repositories;
+        filterAttrs (repositoryName: _ignored: hasRepositoryPrefix repositoryName) repositories;
 
       removePrefixFromRepositories =
         repositories:
-        lib.mapAttrs' (
+        mapAttrs' (
           repositoryName: repositorySourceCode:
           let
-            repositoryNameWithoutPrefix = lib.strings.removePrefix repositoryPrefix repositoryName;
+            repositoryNameWithoutPrefix = removePrefix repositoryPrefix repositoryName;
           in
-          lib.nameValuePair repositoryNameWithoutPrefix repositorySourceCode
+          nameValuePair repositoryNameWithoutPrefix repositorySourceCode
         ) repositories;
 
       buildPackagesFromRepositories =
@@ -35,26 +44,26 @@ let
           buildPackage =
             repositoryName: repositorySourceCode:
             let
-              date = utils.formatDate repositorySourceCode.lastModifiedDate;
+              date = formatDate repositorySourceCode.lastModifiedDate;
             in
             builder repositoryName repositorySourceCode date;
         in
-        lib.mapAttrs buildPackage repositories;
+        mapAttrs buildPackage repositories;
     in
-    lib.trivial.pipe inputs [
+    pipe inputs [
       filterRepositoriesForPrefix
       removePrefixFromRepositories
       buildPackagesFromRepositories
     ];
   composedOverlays =
-    lib.trivial.pipe
+    pipe
       [
         ./fish-plugins.nix
         ./vim-plugins.nix
       ]
       [
         (map (path: import path { inherit inputs utils makePluginPackages; }))
-        lib.composeManyExtensions
+        composeManyExtensions
       ];
 in
 composedOverlays final prev

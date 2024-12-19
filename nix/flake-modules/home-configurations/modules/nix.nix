@@ -6,11 +6,19 @@
   ...
 }:
 let
-  inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs) writeShellApplication stdenv;
+  inherit (stdenv) isLinux isDarwin;
+  inherit (lib)
+    hm
+    getExe
+    makeBinPath
+    optionals
+    optionalAttrs
+    ;
 
   # TODO: Won't be needed if the daemon auto-reloads:
   # https://github.com/NixOS/nix/issues/8939
-  nix-daemon-reload = pkgs.writeShellApplication {
+  nix-daemon-reload = writeShellApplication {
     name = "nix-daemon-reload";
     text = ''
       if uname | grep -q Linux; then
@@ -22,7 +30,7 @@ let
   };
 
   activationScripts = {
-    setLocale = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    setLocale = hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
       # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
       PATH="$PATH:/usr/bin:/bin"
@@ -39,13 +47,13 @@ let
     syncNixVersionWithSystem =
       let
         # The path set by sudo on Pop!_OS doesn't include nix
-        nix = lib.getExe pkgs.nix;
+        nix = getExe pkgs.nix;
       in
-      lib.hm.dag.entryAnywhere ''
+      hm.dag.entryAnywhere ''
         # Add /usr/bin so scripts can access system programs like sudo/apt.
         # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
         PATH="${
-          pkgs.lib.makeBinPath (
+          makeBinPath (
             with pkgs;
             [
               coreutils
@@ -66,15 +74,15 @@ let
 
           # Restart the daemon so we use the daemon from the version of nix we just
           # installed
-          sudo --set-home ${lib.getExe nix-daemon-reload}
-          while ! nix-store -q --hash ${pkgs.stdenv.shell} &>/dev/null; do
+          sudo --set-home ${getExe nix-daemon-reload}
+          while ! nix-store -q --hash ${stdenv.shell} &>/dev/null; do
             echo "waiting for nix-daemon" >&2
             sleep 0.5
           done
         fi
       '';
 
-    installNixPathFix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    installNixPathFix = hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
       # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
       PATH="$PATH:/usr/bin:/bin"
@@ -96,7 +104,7 @@ let
       fi
     '';
 
-    installNixGarbageCollectionService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    installNixGarbageCollectionService = hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
       # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
       PATH="$PATH:/usr/bin:/bin"
@@ -138,7 +146,7 @@ in
         nix-diff
         nix-search-cli
       ]
-      ++ lib.optionals isLinux [
+      ++ optionals isLinux [
         # for breakpointHook:
         # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
         cntr
@@ -149,7 +157,7 @@ in
       {
         inherit syncNixVersionWithSystem installNixPathFix;
       }
-      // lib.optionalAttrs isLinux {
+      // optionalAttrs isLinux {
         inherit setLocale installNixGarbageCollectionService;
       };
   };
@@ -204,11 +212,13 @@ in
 
       allowed-users = [ "*" ];
 
+      # Reasons why this should be enabled:
       # https://github.com/NixOS/nix/issues/4442
       always-allow-substitutes = true;
 
-      # Doesn't work on macOS
-      auto-optimise-store = pkgs.stdenv.isLinux;
+      # I don't think this works on macOS:
+      # https://github.com/NixOS/nix/issues/7273
+      auto-optimise-store = !isDarwin;
 
       build-users-group = "nixbld";
 
@@ -225,8 +235,9 @@ in
 
       require-sigs = true;
 
-      # Doesn't work on macOS
-      sandbox = pkgs.stdenv.isLinux;
+      # I don't think this works on macOS:
+      # https://github.com/NixOS/nix/issues/6049#issue-1125028427
+      sandbox = !isDarwin;
 
       sandbox-fallback = false;
 

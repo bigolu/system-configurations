@@ -4,9 +4,12 @@
   ...
 }:
 let
-  fzfWithoutShellConfig = pkgs.buildEnv {
+  inherit (pkgs) buildEnv fzf;
+  inherit (lib) hm;
+
+  fzfWithoutShellConfig = buildEnv {
     name = "fzf-without-shell-config";
-    paths = [ pkgs.fzf ];
+    paths = [ fzf ];
     pathsToLink = [
       "/bin"
       "/share/man"
@@ -29,7 +32,7 @@ in
     };
   };
 
-  home.activation.fzfSetup = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.fzfSetup = hm.dag.entryAfter [ "writeBoundary" ] ''
     history_file="''${XDG_DATA_HOME:-$HOME/.local/share}/fzf/fzf-history.txt"
     mkdir -p "$(dirname "$history_file")"
     touch "$history_file"

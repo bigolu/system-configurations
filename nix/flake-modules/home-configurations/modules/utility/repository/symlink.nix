@@ -9,19 +9,47 @@
   lib,
   ...
 }:
+let
+  inherit (lib)
+    mkDefault
+    mkOption
+    hasPrefix
+    removePrefix
+    flatten
+    filterAttrs
+    sublist
+    concatStringsSep
+    mapAttrs'
+    nameValuePair
+    foldlAttrs
+    pipe
+    splitString
+    ;
+  inherit (builtins)
+    length
+    getAttr
+    pathExists
+    filter
+    attrValues
+    hasAttr
+    readDir
+    attrNames
+    listToAttrs
+    ;
+in
 {
   # For consistency, these options are made to resemble Home Manager's options
   # for linking files.
   options.repository.symlink =
     let
       inherit (lib) types;
-      target = lib.mkOption {
+      target = mkOption {
         type = types.str;
       };
-      source = lib.mkOption {
+      source = mkOption {
         type = types.str;
       };
-      executable = lib.mkOption {
+      executable = mkOption {
         type = types.nullOr types.bool;
         default = null;
         # Marked `internal` and `readOnly` since it needs to be passed to
@@ -31,7 +59,7 @@
         internal = true;
         readOnly = true;
       };
-      recursive = lib.mkOption {
+      recursive = mkOption {
         type = types.bool;
         default = false;
         description = "This links top level files only.";
@@ -46,7 +74,7 @@
             ;
         };
         config = {
-          target = lib.mkDefault submoduleContext.config._module.args.name;
+          target = mkDefault submoduleContext.config._module.args.name;
         };
       };
       symlinkType = types.submodule symlinkOptions;
@@ -54,13 +82,13 @@
       executableSymlinkOptions = submoduleContext: {
         options = {
           inherit source executable recursive;
-          removeExtension = lib.mkOption {
+          removeExtension = mkOption {
             type = types.nullOr types.bool;
             default = true;
             internal = true;
             readOnly = true;
           };
-          target = lib.mkOption {
+          target = mkOption {
             type = types.str;
             apply =
               value:
@@ -71,43 +99,43 @@
           };
         };
         config = {
-          target = lib.mkDefault submoduleContext.config._module.args.name;
+          target = mkDefault submoduleContext.config._module.args.name;
         };
       };
       executableSymlinkType = types.submodule executableSymlinkOptions;
       executableSymlinkSetType = types.attrsOf executableSymlinkType;
     in
     {
-      makeCopiesInstead = lib.mkOption {
+      makeCopiesInstead = mkOption {
         type = types.bool;
         default = false;
         description = "Sometimes I run my home configuration in a self contained executable, using `nix bundle`, so I can use it easily on other machines. In those cases I can't have my dotfiles be symlinks since their targets won't exist. This flag is an easy way for me to make copies of everything instead.";
       };
 
-      baseDirectory = lib.mkOption {
+      baseDirectory = mkOption {
         type = types.str;
         description = "When a relative path is used a source in any symlink, it will be assumed that they are relative to this directory.";
       };
 
-      home.file = lib.mkOption {
+      home.file = mkOption {
         type = symlinkSetType;
         default = { };
       };
 
       xdg = {
-        configFile = lib.mkOption {
+        configFile = mkOption {
           type = symlinkSetType;
           default = { };
         };
-        dataFile = lib.mkOption {
+        dataFile = mkOption {
           type = symlinkSetType;
           default = { };
         };
-        executable = lib.mkOption {
+        executable = mkOption {
           type = executableSymlinkSetType;
           default = { };
         };
-        executableHome = lib.mkOption {
+        executableHome = mkOption {
           type = types.path;
           default = "${config.home.homeDirectory}/.local/bin";
           readOnly = true;
@@ -117,7 +145,7 @@
 
   config =
     let
-      isRelativePath = path: !lib.hasPrefix "/" path;
+      isRelativePath = path: !hasPrefix "/" path;
       flakeDirectory = config.repository.directory;
       makePathStringAbsolute =
         path: if isRelativePath path then "${config.repository.symlink.baseDirectory}/${path}" else path;
@@ -128,14 +156,14 @@
           # Path. However, in flake pure evaluation mode all Paths must be
           # inside the flake directory so we use a Path that points to the flake
           # directory.
-          pathStringRelativeToHomeManager = lib.strings.removePrefix flakeDirectory pathString;
+          pathStringRelativeToHomeManager = removePrefix flakeDirectory pathString;
           path = config.repository.directoryPath + pathStringRelativeToHomeManager;
         in
         path;
       getFilesRecursive =
         prefix: dir:
         let
-          typeByBasename = builtins.readDir dir;
+          typeByBasename = readDir dir;
         in
         map (
           basename:
@@ -146,9 +174,8 @@
               name = "${prefix}${basename}";
               value = typeByBasename.${basename};
             }
-        ) (builtins.attrNames typeByBasename);
-      readDirRecursive =
-        directoryPath: builtins.listToAttrs (lib.lists.flatten (getFilesRecursive "" directoryPath));
+        ) (attrNames typeByBasename);
+      readDirRecursive = directoryPath: listToAttrs (flatten (getFilesRecursive "" directoryPath));
       convertFileToHomeManagerSymlink =
         file:
         let
@@ -162,25 +189,22 @@
               convertAbsolutePathStringToPath absoluteSource
             else
               config.lib.file.mkOutOfStoreSymlink absoluteSource;
-          homeManagerSymlink = (lib.attrsets.filterAttrs (k: _v: k != "removeExtension") file) // {
+          homeManagerSymlink = (filterAttrs (k: _v: k != "removeExtension") file) // {
             source = symlinkSource;
             target =
               let
                 removeExtension =
                   path:
                   let
-                    basename = builtins.baseNameOf path;
-                    split = lib.strings.splitString "." basename;
+                    basename = baseNameOf path;
+                    basenamePieces = splitString "." basename;
                     baseNameWithoutExtension =
-                      if builtins.length split == 1 then
+                      if length basenamePieces == 1 then
                         basename
                       else
-                        lib.strings.concatStringsSep "." (lib.lists.sublist 0 ((builtins.length split) - 1) split);
+                        concatStringsSep "." (sublist 0 ((length basenamePieces) - 1) basenamePieces);
                   in
-                  if basename == path then
-                    baseNameWithoutExtension
-                  else
-                    "${builtins.dirOf path}/${baseNameWithoutExtension}";
+                  if basename == path then baseNameWithoutExtension else "${dirOf path}/${baseNameWithoutExtension}";
               in
               if (file.removeExtension or false) then (removeExtension file.target) else file.target;
           };
@@ -191,12 +215,12 @@
         let
           sourceAbsolutePathString = makePathStringAbsolute directory.source;
           sourcePath = convertAbsolutePathStringToPath sourceAbsolutePathString;
-          symlinks = lib.attrsets.mapAttrs' (
+          symlinks = mapAttrs' (
             basename: _ignored:
             # Now that we are dealing with the individual files in the
             # directory, we need to append the file name to the target and
             # source.
-            lib.attrsets.nameValuePair "${directory.target}/${basename}" (convertFileToHomeManagerSymlink {
+            nameValuePair "${directory.target}/${basename}" (convertFileToHomeManagerSymlink {
               source = "${directory.source}/${basename}";
               target = "${directory.target}/${basename}";
               inherit (directory) executable;
@@ -207,11 +231,11 @@
         symlinks;
       convertToHomeManagerSymlinkSet =
         fileSet:
-        lib.attrsets.foldlAttrs (
+        foldlAttrs (
           accumulator: targetPath: file:
           let
             symlinkSet =
-              if (builtins.hasAttr "recursive" file) && file.recursive then
+              if (hasAttr "recursive" file) && file.recursive then
                 (getHomeManagerSymlinkSetForFilesInDirectory file)
               else
                 { ${targetPath} = convertFileToHomeManagerSymlink file; };
@@ -226,30 +250,30 @@
             xdg.dataFile
             xdg.executable
           ];
-          fileLists = map builtins.attrValues fileSets;
-          files = lib.lists.flatten fileLists;
-          getSource = builtins.getAttr "source";
+          fileLists = map attrValues fileSets;
+          files = flatten fileLists;
+          getSource = getAttr "source";
           sources = map getSource files;
           # relative paths are assumed to be relative to
           # `config.repository.symlink.baseDirectory`, which we already assert
           # is within the flake directory, so no need to check them.
-          absoluteSources = builtins.filter (source: !isRelativePath source) sources;
-          isPathWithinFlakeDirectory = path: lib.hasPrefix flakeDirectory path;
-          sourcesOutsideFlake = builtins.filter (path: !isPathWithinFlakeDirectory path) absoluteSources;
-          sourcesOutsideFlakeJoined = lib.concatStringsSep " " sourcesOutsideFlake;
+          absoluteSources = filter (source: !isRelativePath source) sources;
+          isPathWithinFlakeDirectory = path: hasPrefix flakeDirectory path;
+          sourcesOutsideFlake = filter (path: !isPathWithinFlakeDirectory path) absoluteSources;
+          sourcesOutsideFlakeJoined = concatStringsSep " " sourcesOutsideFlake;
           areAllSourcesInsideFlakeDirectory = sourcesOutsideFlake == [ ];
-          isBaseDirectoryInsideFlakeDirectory = lib.strings.hasPrefix flakeDirectory config.repository.symlink.baseDirectory;
+          isBaseDirectoryInsideFlakeDirectory = hasPrefix flakeDirectory config.repository.symlink.baseDirectory;
 
           doesSourceExist =
             source:
-            lib.trivial.pipe source [
+            pipe source [
               makePathStringAbsolute
               convertAbsolutePathStringToPath
-              builtins.pathExists
+              pathExists
             ];
-          nonexistentSources = builtins.filter (s: !(doesSourceExist s)) sources;
+          nonexistentSources = filter (s: !(doesSourceExist s)) sources;
           doAllSymlinkSourcesExist = nonexistentSources == [ ];
-          brokenSymlinksJoined = lib.concatStringsSep " " nonexistentSources;
+          brokenSymlinksJoined = concatStringsSep " " nonexistentSources;
         in
         [
           # If you try to link files from outside the flake you get a strange

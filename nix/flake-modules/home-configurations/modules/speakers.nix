@@ -7,17 +7,19 @@
 }:
 let
   inherit (pkgs) speakerctl;
+  inherit (pkgs.stdenv) isDarwin isLinux;
+  inherit (lib) optionalAttrs getExe hm;
 in
-lib.attrsets.optionalAttrs isGui {
-  repository.symlink.home.file = lib.attrsets.optionalAttrs pkgs.stdenv.isDarwin {
+optionalAttrs isGui {
+  repository.symlink.home.file = optionalAttrs isDarwin {
     ".hammerspoon/Spoons/Speakers.spoon".source = "smart_plug/mac_os/Speakers.spoon";
   };
 
   home = {
     packages = [ speakerctl ];
 
-    activation = lib.optionalAttrs pkgs.stdenv.isLinux {
-      installSpeakerService = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    activation = optionalAttrs isLinux {
+      installSpeakerService = hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
         # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
         PATH="$PATH:/usr/bin:/bin"
@@ -26,7 +28,7 @@ lib.attrsets.optionalAttrs isGui {
         if [[ ! -e "$speakerctl_path" ]]; then
           sudo mkdir -p "$(dirname "$speakerctl_path")"
           sudo ln --symbolic --force --no-dereference \
-            ${lib.getExe speakerctl} \
+            ${getExe speakerctl} \
             "$speakerctl_path"
         fi
 

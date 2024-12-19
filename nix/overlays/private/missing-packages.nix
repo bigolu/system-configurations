@@ -2,6 +2,7 @@
 final: prev:
 let
   inherit (final.stdenv) isLinux;
+  inherit (inputs.flake-utils.lib) system;
 
   catp = final.stdenv.mkDerivation {
     pname = "catp";
@@ -15,7 +16,7 @@ let
       cp $src/catp $out/bin/
     '';
     meta = {
-      platforms = with inputs.flake-utils.lib.system; [
+      platforms = with system; [
         x86_64-linux
       ];
     };
@@ -40,7 +41,7 @@ let
       cp $src/validator $out/bin/
     '';
     meta = {
-      platforms = with inputs.flake-utils.lib.system; [
+      platforms = with system; [
         x86_64-linux
         x86_64-darwin
       ];

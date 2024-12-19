@@ -5,10 +5,15 @@
   ...
 }:
 let
+  inherit (builtins) getAttr attrNames;
+  inherit (lib) escapeShellArgs concatMapStringsSep;
+  inherit (pkgs) runCommand symlinkJoin myVimPlugins;
+  inherit (utils) removeRecurseIntoAttrs;
+
   # TODO: Workaround for this issue:
   # https://github.com/junegunn/vim-plug/issues/1135
-  tweakedVimPlug = pkgs.runCommand "tweaked-plug.vim" { } ''
-    vim_plug=${lib.strings.escapeShellArgs [ "${pkgs.vimPlugins.vim-plug}/plug.vim" ]}
+  tweakedVimPlug = runCommand "tweaked-plug.vim" { } ''
+    vim_plug=${escapeShellArgs [ "${myVimPlugins.vim-plug}/plug.vim" ]}
     target="len(s:glob(s:rtp(a:plug), 'plugin'))"
     # First grep so the build will error out if the string isn't present
     grep -q "$target" "$vim_plug"
@@ -21,17 +26,17 @@ in
 
     "nvim/site/lua/nix-plugins.lua".text = ''
       return {
-        ${lib.strings.concatMapStringsSep "\n" (
-          name: ''["${name}"] = "${builtins.getAttr name pkgs.myVimPlugins}",''
-        ) (builtins.attrNames (utils.removeRecurseIntoAttrs pkgs.myVimPlugins))}
+        ${concatMapStringsSep "\n" (name: ''["${name}"] = "${getAttr name myVimPlugins}",'') (
+          attrNames (removeRecurseIntoAttrs myVimPlugins)
+        )}
       }
     '';
 
     "nvim/site/parser".source =
       let
-        allTreesitterParsers = pkgs.symlinkJoin {
+        allTreesitterParsers = symlinkJoin {
           name = "all-treesitter-parsers";
-          paths = pkgs.vimPlugins.nvim-treesitter.withAllGrammars.dependencies;
+          paths = myVimPlugins.nvim-treesitter.withAllGrammars.dependencies;
         };
       in
       "${allTreesitterParsers}/parser";

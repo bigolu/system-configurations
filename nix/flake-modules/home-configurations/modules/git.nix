@@ -4,6 +4,10 @@
   isGui,
   ...
 }:
+let
+  inherit (lib.attrsets) optionalAttrs;
+  inherit (pkgs.stdenv) isLinux;
+in
 {
   home.packages = with pkgs; [
     gitMinimal
@@ -11,7 +15,7 @@
     difftastic
   ];
 
-  services.flatpak = lib.attrsets.optionalAttrs (pkgs.stdenv.isLinux && isGui) {
+  services.flatpak = optionalAttrs (isLinux && isGui) {
     packages = [
       "com.axosoft.GitKraken"
     ];
@@ -20,7 +24,7 @@
   repository.symlink = {
     # For GitKraken:
     # https://feedback.gitkraken.com/suggestions/575407/check-for-git-config-in-xdg_config_homegitconfig-in-addition-to-gitconfig
-    home.file = lib.attrsets.optionalAttrs isGui {
+    home.file = optionalAttrs isGui {
       ".gitconfig".source = "git/config";
     };
 

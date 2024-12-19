@@ -5,116 +5,133 @@
   ...
 }:
 let
-  bundlerOption =
-    let
-      inherit (flake-parts-lib) mkTransposedPerSystemModule;
-      inherit (lib) mkOption types;
-    in
-    mkTransposedPerSystemModule {
-      name = "bundlers";
-      option = mkOption {
-        type = types.anything;
-        default = { };
-      };
-      file = ./default.nix;
+  inherit (builtins)
+    pathExists
+    baseNameOf
+    concatStringsSep
+    attrNames
+    ;
+  inherit (lib)
+    recursiveUpdate
+    getName
+    warn
+    getExe'
+    assertMsg
+    mkOption
+    types
+    ;
+  inherit (utils) projectRoot;
+  inherit (flake-parts-lib) mkTransposedPerSystemModule;
+
+  bundlerOption = mkTransposedPerSystemModule {
+    name = "bundlers";
+    option = mkOption {
+      type = types.anything;
+      default = { };
     };
-in
-lib.recursiveUpdate bundlerOption {
-  config.perSystem =
-    {
-      system,
-      pkgs,
-      ...
-    }:
-    let
-      makeExecutable =
-        {
-          derivation,
-          entrypoint,
-          name,
-        }:
-        let
-          nameWithArch = "${name}-${system}";
-          gozipProjectRoot = utils.projectRoot + /gozip;
-          gozip = pkgs.buildGoApplication {
-            pname = "gozip";
-            version = "0.1";
-            src = gozipProjectRoot;
-            pwd = gozipProjectRoot;
-            modules = gozipProjectRoot + /gomod2nix.toml;
-            # Adding these tags so the gozip executable is built statically.
-            # More info: https://mt165.co.uk/blog/static-link-go
-            tags = [
-              "osusergo"
-              "netgo"
+    file = ./bundlers.nix;
+  };
+
+  bundlers = {
+    config.perSystem =
+      { pkgs, ... }:
+      let
+        makeExecutable =
+          {
+            derivation,
+            entrypoint,
+            name,
+          }:
+          let
+            inherit (pkgs) buildGoApplication stdenv writeClosure;
+
+            gozipProjectRoot = projectRoot + /gozip;
+
+            gozip = buildGoApplication {
+              pname = "gozip";
+              version = "0.1";
+              src = gozipProjectRoot;
+              pwd = gozipProjectRoot;
+
+              # Adding these tags so the gozip executable is linked statically.
+              # More info: https://mt165.co.uk/blog/static-link-go
+              tags = [
+                "osusergo"
+                "netgo"
+              ];
+            };
+          in
+          stdenv.mkDerivation {
+            pname = name;
+            version = derivation.version or "0.0.1";
+            dontUnpack = true;
+            buildInputs = [
+              gozip
+              pkgs.which
             ];
-          };
-        in
-        pkgs.stdenv.mkDerivation {
-          pname = nameWithArch;
-          name = nameWithArch;
-          dontUnpack = true;
-          buildInputs = [ gozip ];
-          installPhase = ''
-            mkdir deps
-            cp --recursive $(cat ${pkgs.writeClosure derivation}) ./deps/
-            chmod -R 777 ./deps
-            cd ./deps
-            cp ${entrypoint} entrypoint
-            chmod 777 entrypoint
-            cp --dereference "$(${pkgs.which}/bin/which gozip)" $out
-            chmod +w $out
-            gozip -create $out ./*
-          '';
-        };
+            installPhase = ''
+              mkdir deps
+              cp --recursive $(cat ${writeClosure derivation}) ./deps/
+              cp ${entrypoint} ./deps/entrypoint
+              chmod -R 777 ./deps
 
-      rootlessBundler =
-        let
-          program =
-            derivation:
-            let
-              assumedMainProgramBaseName =
-                let
-                  packageDisplayName = derivation.meta.name or derivation.pname or derivation.name;
-                  assumption = lib.getName derivation;
-                in
-                lib.warn "rootless-bundler: Package ${packageDisplayName} does not have the meta.mainProgram attribute. Assuming you want '${assumption}'." assumption;
+              cp --dereference "$(which gozip)" $out
+              chmod +w $out
 
-              mainProgramBaseName = derivation.meta.mainProgram or assumedMainProgramBaseName;
-              mainProgramPath = lib.getExe' derivation mainProgramBaseName;
-              mainProgramExists = builtins.pathExists mainProgramPath;
-            in
-            assert pkgs.lib.assertMsg mainProgramExists "Main program ${mainProgramPath} does not exist";
-            mainProgramPath;
-
-          handler = {
-            app =
-              drv:
-              makeExecutable {
-                derivation = drv.program;
-                entrypoint = drv.program;
-                name = builtins.baseNameOf drv.program;
-              };
-
-            derivation =
-              drv:
-              makeExecutable {
-                derivation = drv;
-                entrypoint = program drv;
-                inherit (drv) name;
-              };
+              cd deps
+              gozip -create $out ./*
+            '';
           };
 
-          known-types = builtins.concatStringsSep ", " (builtins.attrNames handler);
-        in
-        drv:
-        assert pkgs.lib.assertMsg (
-          handler ? ${drv.type}
-        ) "don't know how to make a bundle for type '${drv.type}'; only know ${known-types}";
-        handler.${drv.type} drv;
-    in
-    {
-      bundlers.default = rootlessBundler;
-      bundlers.rootless = rootlessBundler;
-    };
-}
+        rootlessBundler =
+          let
+            getMainProgram =
+              derivation:
+              let
+                assumedMainProgramBaseName =
+                  let
+                    packageDisplayName = derivation.meta.name or derivation.pname or derivation.name;
+                    assumption = getName derivation;
+                  in
+                  warn "rootless-bundler: Package ${packageDisplayName} does not have the meta.mainProgram attribute. Assuming you want '${assumption}'." assumption;
+
+                mainProgramBaseName = derivation.meta.mainProgram or assumedMainProgramBaseName;
+                mainProgramPath = getExe' derivation mainProgramBaseName;
+                mainProgramExists = pathExists mainProgramPath;
+              in
+              assert assertMsg mainProgramExists "Main program ${mainProgramPath} does not exist";
+              mainProgramPath;
+
+            handler = {
+              app =
+                drv:
+                makeExecutable {
+                  derivation = drv.program;
+                  entrypoint = drv.program;
+                  name = baseNameOf drv.program;
+                };
+
+              derivation =
+                drv:
+                makeExecutable {
+                  derivation = drv;
+                  entrypoint = getMainProgram drv;
+                  name = drv.meta.name or drv.pname or drv.name;
+                };
+            };
+
+            known-types = concatStringsSep ", " (attrNames handler);
+          in
+          drv:
+          assert assertMsg (
+            handler ? ${drv.type}
+          ) "don't know how to make a bundle for type '${drv.type}'; only know ${known-types}";
+          handler.${drv.type} drv;
+      in
+      {
+        bundlers.default = rootlessBundler;
+        bundlers.rootless = rootlessBundler;
+      };
+  };
+in
+recursiveUpdate bundlerOption bundlers

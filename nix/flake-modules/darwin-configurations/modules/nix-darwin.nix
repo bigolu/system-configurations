@@ -11,8 +11,10 @@
 }:
 let
   inherit (utils) projectRoot;
+  inherit (lib) fileset;
+  inherit (pkgs) writeShellApplication;
 
-  system-config-preview = pkgs.writeShellApplication {
+  system-config-preview = writeShellApplication {
     name = "system-config-preview";
     runtimeInputs = with pkgs; [
       nix
@@ -27,7 +29,7 @@ let
       printf 'Printing preview...\n'
       nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
       ${
-        lib.fileset.toSource {
+        fileset.toSource {
           root = projectRoot + /dotfiles/nix/bin;
           fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
         }
@@ -35,7 +37,7 @@ let
     '';
   };
 
-  system-config-apply = pkgs.writeShellApplication {
+  system-config-apply = writeShellApplication {
     name = "system-config-apply";
     runtimeInputs = with pkgs; [
       nix
@@ -51,7 +53,7 @@ let
     '';
   };
 
-  system-config-pull = pkgs.writeShellApplication {
+  system-config-pull = writeShellApplication {
     name = "system-config-pull";
     runtimeInputs = with pkgs; [
       coreutils
@@ -101,7 +103,7 @@ let
     '';
   };
 
-  remote-changes-check = pkgs.writeShellApplication {
+  remote-changes-check = writeShellApplication {
     name = "remote-changes-check";
     runtimeInputs = with pkgs; [
       coreutils
@@ -145,7 +147,7 @@ in
         printf '\e[36m┃ [bigolu] Printing generation diff ❯\e(B\e[m\n' >&2
         nix store diff-closures /run/current-system "$systemConfig"
         ${
-          lib.fileset.toSource {
+          fileset.toSource {
             root = projectRoot + /dotfiles/nix/bin;
             fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
           }

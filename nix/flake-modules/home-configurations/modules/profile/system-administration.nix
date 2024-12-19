@@ -4,9 +4,14 @@
   ...
 }:
 let
-  inherit (lib.lists) optionals;
+  inherit (lib)
+    optionals
+    optionalAttrs
+    hm
+    getExe
+    ;
+  inherit (pkgs) runCommand;
   inherit (pkgs.stdenv) isLinux isDarwin;
-  inherit (lib.attrsets) optionalAttrs;
 in
 {
   imports = [
@@ -69,10 +74,10 @@ in
       # part of their build so they can be put in vendor_conf.d. See the direnv
       # package for an example of how this is done.
       "fish/conf.d/zoxide.fish".source =
-        pkgs.runCommand "zoxide-config.fish" { }
+        runCommand "zoxide-config.fish" { }
           "${pkgs.zoxide}/bin/zoxide init --no-cmd fish > $out";
       "fish/conf.d/broot.fish".source =
-        pkgs.runCommand "broot.fish" { }
+        runCommand "broot.fish" { }
           "${pkgs.broot}/bin/broot --print-shell-function fish > $out";
     };
   };
@@ -105,17 +110,15 @@ in
       # [1]: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
       # [2]: https://developer.apple.com/library/archive/documentation/FileManagement/Conceptual/FileSystemProgrammingGuide/FileSystemOverview/FileSystemOverview.html#//apple_ref/doc/uid/TP40010672-CH2-SW6
       home.file = {
-        "${
-          if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"
-        }/tealdeer/config.toml".source =
+        "${if isLinux then ".config" else "Library/Application Support"}/tealdeer/config.toml".source =
           "tealdeer/config.toml";
-        "${if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"}/viddy.toml".source =
+        "${if isLinux then ".config" else "Library/Application Support"}/viddy.toml".source =
           "viddy/viddy.toml";
       };
     };
   };
 
-  home.activation.batSetup = lib.hm.dag.entryAfter [
+  home.activation.batSetup = hm.dag.entryAfter [
     "linkGeneration"
-  ] "${lib.getExe pkgs.bat} cache --build 1>/dev/null 2>&1";
+  ] "${getExe pkgs.bat} cache --build 1>/dev/null 2>&1";
 }

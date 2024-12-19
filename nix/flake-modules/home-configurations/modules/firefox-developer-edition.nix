@@ -7,13 +7,14 @@
 }:
 let
   inherit (pkgs.stdenv) isLinux isDarwin;
+  inherit (lib) mkIf mkMerge hm;
 
-  linux = lib.mkIf (isGui && isLinux) {
+  linux = mkIf (isGui && isLinux) {
     repository.symlink.xdg.executable."my-firefox".source = "firefox-developer-edition/my-firefox.bash";
 
     # The system replaces my symlink with a regular file and Home Manager doesn't
     # support backups on flake-based configs so I'll emulate that here.
-    home.activation.installBrowserDesktopFile = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    home.activation.installBrowserDesktopFile = hm.dag.entryAfter [ "writeBoundary" ] ''
       source=${config.repository.directory}/dotfiles/firefox-developer-edition/my-firefox.desktop
       destination=${config.xdg.dataHome}/applications/my-firefox.desktop
       if [[ ! -e "$destination" ]]; then
@@ -23,11 +24,11 @@ let
     '';
   };
 
-  darwin = lib.mkIf (isGui && isDarwin) {
+  darwin = mkIf (isGui && isDarwin) {
     repository.symlink.home.file.".finicky.js".source = "firefox-developer-edition/finicky/finicky.js";
   };
 in
-lib.mkMerge [
+mkMerge [
   linux
   darwin
 ]

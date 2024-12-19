@@ -2,6 +2,9 @@
 # to the build
 # https://github.com/phiresky/ripgrep-all/discussions/199
 { pkgs, ... }:
+let
+  inherit (pkgs.stdenv) isLinux;
+in
 {
   home.packages = with pkgs; [
     # TODO: I should probably xdg-wrap the ripgrep in here too
@@ -10,9 +13,7 @@
 
   repository.symlink = {
     home.file = {
-      "${
-        if pkgs.stdenv.isLinux then ".config" else "Library/Application Support"
-      }/ripgrep-all/config.jsonc".source =
+      "${if isLinux then ".config" else "Library/Application Support"}/ripgrep-all/config.jsonc".source =
         "ripgrep/config.jsonc";
     };
   };

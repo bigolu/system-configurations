@@ -2,6 +2,14 @@
 final: prev:
 let
   inherit (inputs.nixpkgs) lib;
+  inherit (lib) splitString;
+  inherit (builtins)
+    filter
+    readFile
+    hasAttr
+    replaceStrings
+    listToAttrs
+    ;
 
   vimPluginsFromFlake =
     let
@@ -9,7 +17,7 @@ let
 
       vimPluginBuilder =
         repositoryName: repositorySourceCode: date:
-        if builtins.hasAttr repositoryName prev.vimPlugins then
+        if hasAttr repositoryName prev.vimPlugins then
           prev.vimPlugins.${repositoryName}.overrideAttrs (_old: {
             name = "${repositoryName}-${date}";
             version = date;
@@ -26,21 +34,21 @@ let
 
   myVimPlugins =
     let
-      pluginNames = builtins.filter (name: name != "") (
-        lib.strings.splitString "\n" (builtins.readFile "${inputs.self}/dotfiles/neovim/plugin-names.txt")
+      pluginNames = filter (name: name != "") (
+        splitString "\n" (readFile "${inputs.self}/dotfiles/neovim/plugin-names.txt")
       );
-      replaceDotsWithDashes = builtins.replaceStrings [ "." ] [ "-" ];
+      replaceDotsWithDashes = replaceStrings [ "." ] [ "-" ];
     in
     final.lib.recurseIntoAttrs (
-      builtins.listToAttrs (
+      listToAttrs (
         map (
           pluginName:
           let
             formattedPluginName = replaceDotsWithDashes pluginName;
             package =
-              if builtins.hasAttr pluginName final.vimPlugins then
+              if hasAttr pluginName final.vimPlugins then
                 final.vimPlugins.${pluginName}
-              else if builtins.hasAttr formattedPluginName final.vimPlugins then
+              else if hasAttr formattedPluginName final.vimPlugins then
                 final.vimPlugins.${formattedPluginName}
               else
                 abort "Failed to find vim plugin: ${pluginName}";

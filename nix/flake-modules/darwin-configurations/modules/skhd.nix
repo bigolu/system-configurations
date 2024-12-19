@@ -4,39 +4,43 @@
   utils,
   ...
 }:
-{
-  services = {
-    skhd = {
-      enable = true;
+let
+  inherit (lib) fileset;
+  inherit (utils) projectRoot;
+  inherit (pkgs) symlinkJoin makeWrapper skhd;
 
-      package =
-        let
-          # all programs transitively called from my skhdrc
-          dependencies = pkgs.symlinkJoin {
-            name = "skhd-dependencies";
-            paths = with pkgs; [
-              skhd
-              yabai
-              fish
-              jq
-              bashInteractive
-            ];
-          };
-          skhdBin = lib.fileset.toSource {
-            root = utils.projectRoot + /dotfiles/skhd/bin;
-            fileset = utils.projectRoot + /dotfiles/skhd/bin;
-          };
-        in
-        pkgs.symlinkJoin {
-          name = "my-${pkgs.skhd.name}";
-          paths = [ pkgs.skhd ];
-          buildInputs = [ pkgs.makeWrapper ];
-          postBuild = ''
-            wrapProgram $out/bin/skhd \
-              --prefix PATH : ${dependencies}/bin \
-              --prefix PATH : ${skhdBin}
-          '';
-        };
-    };
+  # Programs called from skhdrc that are inside the package set
+  dependenciesFromPkgs = symlinkJoin {
+    name = "skhd-dependencies";
+    paths = with pkgs; [
+      skhd
+      yabai
+      fish
+      jq
+      bashInteractive
+    ];
+  };
+
+  # Programs called from skhdrc that are inside this project
+  dependenciesFromProject = fileset.toSource {
+    root = projectRoot + /dotfiles/skhd/bin;
+    fileset = projectRoot + /dotfiles/skhd/bin;
+  };
+
+  skhdWithDependencies = symlinkJoin {
+    name = "my-${skhd.name}";
+    paths = [ skhd ];
+    buildInputs = [ makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/skhd \
+        --prefix PATH : ${dependenciesFromPkgs}/bin \
+        --prefix PATH : ${dependenciesFromProject}
+    '';
+  };
+in
+{
+  services.skhd = {
+    enable = true;
+    package = skhdWithDependencies;
   };
 }

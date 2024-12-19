@@ -7,9 +7,11 @@
   ...
 }:
 let
-  inherit (pkgs.stdenv) isDarwin isLinux;
+  inherit (pkgs) stdenv;
+  inherit (stdenv) isDarwin isLinux;
+  inherit (lib) mkIf hm mkMerge;
 
-  stacklineWithoutConfig = pkgs.stdenv.mkDerivation {
+  stacklineWithoutConfig = stdenv.mkDerivation {
     pname = "mystackline";
     version = "0.1";
     src = inputs.stackline;
@@ -21,7 +23,7 @@ let
     '';
   };
 
-  mac = lib.mkIf (isGui && isDarwin) {
+  mac = mkIf (isGui && isDarwin) {
     repository.symlink = {
       xdg = {
         configFile = {
@@ -53,9 +55,9 @@ let
     };
   };
 
-  linux = lib.mkIf (isGui && isLinux) {
+  linux = mkIf (isGui && isLinux) {
     home.activation = {
-      installKeyd = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      installKeyd = hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
         # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
         PATH="$PATH:/usr/bin:/bin"
@@ -81,7 +83,7 @@ let
         fi
       '';
 
-      setKeyboardToMacMode = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      setKeyboardToMacMode = hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
         # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
         PATH="$PATH:/usr/bin:/bin"
@@ -113,7 +115,7 @@ let
 
   };
 in
-lib.mkMerge [
+mkMerge [
   mac
   linux
 ]

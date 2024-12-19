@@ -3,13 +3,13 @@ final: _prev:
 let
   inherit (inputs.nixpkgs) lib;
   inherit (final.stdenv) isLinux;
-  inherit (lib.attrsets) optionalAttrs;
+  inherit (lib) optionalAttrs concatStringsSep;
 
   filterPrograms =
     package: programsToKeep:
     let
-      findFilters = builtins.map (program: "! -name '${program}'") programsToKeep;
-      findFiltersAsString = lib.strings.concatStringsSep " " findFilters;
+      findFilters = map (program: "! -name '${program}'") programsToKeep;
+      findFiltersAsString = concatStringsSep " " findFilters;
     in
     final.symlinkJoin {
       name = "${package.name}-partial";

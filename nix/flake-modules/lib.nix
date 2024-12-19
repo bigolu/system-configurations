@@ -4,21 +4,26 @@ let
   # just concatenating the given shellHook with the shellHooks from inputsFrom, this
   # wrapper will first deduplicate them. This way you can compose your shell of
   # smaller shells without worrying about hooks running more than once.
-  mkShellUnique =
-    nixpkgsMkShell:
+  mkShellUniqueWrapper =
+    mkShell:
     args@{
       shellHook ? null,
       inputsFrom ? [ ],
       ...
     }:
     let
-      inherit (lib.trivial) pipe;
-      inherit (lib.lists) unique concatLists optionals;
-      inherit (lib.strings) concatStringsSep;
-      inherit (lib) mergeAttrs flip;
+      inherit (lib)
+        mergeAttrs
+        flip
+        concatStringsSep
+        unique
+        concatLists
+        optionals
+        pipe
+        ;
       inherit (builtins) removeAttrs catAttrs;
 
-      mergeAttrsLeftWins = flip mergeAttrs;
+      mergeAttrsBackwards = flip mergeAttrs;
 
       # This keys will be added to the shell to keep track of the individual
       # shellHooks that have been merged together, in case we need to merge that
@@ -40,11 +45,11 @@ let
       inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
     in
     pipe args [
-      (mergeAttrsLeftWins {
+      (mergeAttrsBackwards {
         shellHook = mergedShellHooks;
         inputsFrom = inputsFromWithoutShellHooks;
       })
-      nixpkgsMkShell
+      mkShell
       (mergeAttrs {
         ${uniqueShellHooksKey} = uniqueShellHooks;
       })
@@ -52,6 +57,6 @@ let
 in
 {
   flake.lib = {
-    inherit mkShellUnique;
+    inherit mkShellUniqueWrapper;
   };
 }

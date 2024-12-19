@@ -8,8 +8,12 @@
 let
   inherit (builtins) mapAttrs;
   inherit (lib) pipe mergeAttrs;
-  homeManagerBaseModule = utils.homeManager.baseModule;
-  homeManagerModuleRoot = utils.homeManager.moduleRoot;
+  inherit (inputs.flake-utils.lib) system;
+  inherit (inputs.nix-darwin.lib) darwinSystem;
+
+  homeManagerUtils = utils.homeManager;
+  homeManagerBaseModule = homeManagerUtils.baseModule;
+  homeManagerModuleRoot = homeManagerUtils.moduleRoot;
 
   makeHomeManagerDarwinModules =
     {
@@ -77,7 +81,7 @@ let
     in
     withSystem system (
       { pkgs, ... }:
-      inputs.nix-darwin.lib.darwinSystem {
+      darwinSystem {
         inherit pkgs;
         modules = modules ++ homeManagerSubmodules;
         # SYNC: SPECIAL-ARGS
@@ -105,7 +109,7 @@ let
 in
 makeOutputs {
   bigmac = {
-    system = inputs.flake-utils.lib.system.x86_64-darwin;
+    system = system.x86_64-darwin;
     modules = [
       ./modules/profile/base.nix
     ];

@@ -1,7 +1,8 @@
 inputs:
 let
   inherit (inputs.nixpkgs) lib;
-  inherit (builtins) removeAttrs attrNames;
+  inherit (lib) concatStringsSep recurseIntoAttrs;
+  inherit (builtins) removeAttrs attrNames match;
 
   projectRoot = ../.;
 
@@ -9,11 +10,11 @@ let
   formatDate =
     date:
     let
-      yearMonthDayStrings = builtins.match "(....)(..)(..).*" date;
+      yearMonthDayStrings = match "(....)(..)(..).*" date;
     in
-    lib.concatStringsSep "-" yearMonthDayStrings;
+    concatStringsSep "-" yearMonthDayStrings;
 
-  removeRecurseIntoAttrs = set: removeAttrs set (attrNames (lib.recurseIntoAttrs { }));
+  removeRecurseIntoAttrs = set: removeAttrs set (attrNames (recurseIntoAttrs { }));
 
   homeManager =
     let

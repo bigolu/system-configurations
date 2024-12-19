@@ -11,10 +11,21 @@
       ...
     }:
     let
-      inherit (utils) projectRoot;
-      inherit (lib) fileset pipe init;
-      inherit (lib.strings) splitString;
+      inherit (utils) projectRoot removeRecurseIntoAttrs;
+      inherit (lib)
+        fileset
+        pipe
+        init
+        splitString
+        ;
       inherit (builtins) readFile;
+      inherit (pkgs)
+        mkShellNoCC
+        writeShellApplication
+        linkFarm
+        runCommand
+        ;
+      inherit (self.lib) mkShellUniqueWrapper;
 
       makeShell =
         args@{
@@ -22,7 +33,7 @@
           ...
         }:
         let
-          mkShellUnique = self.lib.mkShellUnique pkgs.mkShellNoCC;
+          mkShellUnique = mkShellUniqueWrapper mkShellNoCC;
 
           setPackagesPathHook =
             let
@@ -67,10 +78,11 @@
           ...
         }:
         let
-          ci-bash = pkgs.writeShellApplication {
+          ci-bash = writeShellApplication {
             name = "ci-bash";
+            runtimeInputs = with pkgs; [ bash ];
             text = ''
-              exec ${pkgs.bashInteractive}/bin/bash \
+              exec bash \
                 --noprofile \
                 --norc \
                 -o errexit \
@@ -158,7 +170,7 @@
       vsCode =
         let
           # The set passed to linkFarm can only contain derivations
-          plugins = pkgs.linkFarm "plugins" (utils.removeRecurseIntoAttrs pkgs.myVimPlugins);
+          plugins = linkFarm "plugins" (removeRecurseIntoAttrs pkgs.myVimPlugins);
 
           efmLs = makeShell {
             inputsFrom = [ linting ];
@@ -240,7 +252,7 @@
       scriptDependencies = makeShell {
         packages =
           pipe
-            (pkgs.runCommand "extract-script-dependencies-from-shebangs"
+            (runCommand "extract-script-dependencies-from-shebangs"
               {
                 nativeBuildInputs = with pkgs; [
                   ripgrep
