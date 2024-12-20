@@ -18,8 +18,6 @@
 
     "nefrob.vscode-just-syntax",
 
-    "ast-grep.ast-grep-vscode",
-
     "editorconfig.editorconfig",
 
     "golang.go",
