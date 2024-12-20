@@ -36,19 +36,25 @@
 
           setPackagesPathHook =
             let
-              relativePathStrings = [
-                "flake.nix"
-                "flake.lock"
-                "default.nix"
-                "nix"
-              ];
-
-              absolutePaths = map (path: projectRoot + "/${path}") relativePathStrings;
-
-              packages = fileset.toSource {
-                root = projectRoot;
-                fileset = fileset.unions absolutePaths;
-              };
+              filesReferencedByPackagesFile =
+                pipe
+                  [
+                    "flake.nix"
+                    "flake.lock"
+                    "default.nix"
+                    "nix"
+                  ]
+                  [
+                    (map (relativePath: projectRoot + "/${relativePath}"))
+                    fileset.unions
+                    (
+                      union:
+                      fileset.toSource {
+                        root = projectRoot;
+                        fileset = union;
+                      }
+                    )
+                  ];
             in
             ''
               # I reference packages.nix in several places so rather than hardcode
@@ -61,7 +67,7 @@
               # cache. When I use $PWD, a lot of files unrelated to nix, like
               # $PWD/.git/index, become part of the trace, resulting in much more
               # cache invalidations.
-              export PACKAGES=${packages}/nix/packages.nix
+              export PACKAGES=${filesReferencedByPackagesFile}/nix/packages.nix
             '';
 
           essentials = mkShellUniqueNoCC {
@@ -251,7 +257,7 @@
       scriptDependencies = makeShell {
         packages =
           pipe
-            (runCommand "extract-script-dependencies-from-shebangs"
+            (runCommand "script-dependencies"
               {
                 nativeBuildInputs = with pkgs; [
                   ripgrep
@@ -259,16 +265,23 @@
                 ];
               }
               ''
-                # Each line printed contains the dependencies for a single script
-                # separated by a ' ' e.g. 'dep1 dep2 dep3'
+                # Extract the scripts' dependencies from their nix-shell shebangs.
+                #
+                # The shebang looks something like:
+                #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
+                #
+                # So this command will extract everything between the brackets i.e.
+                #   'dep1 dep2 dep3'.
+                #
+                # Each line printed will contain the extraction above, per script.
                 rg \
                   --no-filename \
                   --glob '*.bash' \
-                  '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)]"' \
+                  '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)\].*' \
                   --replace '$packages' \
                   ${projectRoot + /scripts} |
 
-                # Flattens the output of the previous command i.e. prints _one_
+                # Flatten the output of the previous command i.e. print _one_
                 # dependency per line
                 rg --only-matching '[^\s]+' |
 

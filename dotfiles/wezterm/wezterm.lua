@@ -237,7 +237,7 @@ local function make_config()
   }
   if is_mac then
     config.font_size = 13.5
-    config.line_height = 1.4
+    config.line_height = 1.3
     config.underline_position = "400%"
   else
     config.font_size = 11.3

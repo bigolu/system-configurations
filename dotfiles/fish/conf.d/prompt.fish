@@ -42,11 +42,11 @@ function fish_prompt --description 'Print the prompt'
     # `_make_line`. The max() is there so the value is never negative
     set max_length (math max\($COLUMNS - 4, 1\))
     set contexts \
+        (_job_context) \
         (_broot_context) \
         (_direnv_context) \
         (_nix_context) \
         (_python_context) \
-        (_job_context) \
         (_git_context $max_length) \
         (_path_context $max_length) \
         (_login_context) \
