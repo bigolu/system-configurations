@@ -30,8 +30,8 @@
           rootlessBundlerCheck = runCommand "check-${bundlerPrefix}-${rootlessBundlerName}" { } ''
             [[ $(${rootlessBundler pkgs.hello}) == $(${getExe pkgs.hello}) ]]
 
-            # runCommand only considers the command to be successful if something
-            # is written to $out.
+            # Nix only considers the command to be successful if something is written
+            # to $out.
             echo success > $out
           '';
         in
