@@ -87,6 +87,7 @@ if IsRunningInTerminal then
     config = function()
       require("treesitter-context").setup({
         line_numbers = false,
+        multiline_threshold = 1,
       })
       vim.keymap.set({ "n", "x" }, "[s", function()
         require("treesitter-context").go_to_context(vim.v.count1)
