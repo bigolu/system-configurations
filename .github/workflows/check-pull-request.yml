@@ -9,7 +9,7 @@ on:
     # These branches get merged without a pull request being made so I need to check
     # them too.
     branches:
-      - "renovate/branch-automerge/**"
+      - "renovate-self-hosted/branch-automerge/**"
 # I'm only interested in checking the latest commit to a branch. That means if a
 # commit is pushed and a new check starts before an older one finishes, I want to
 # cancel the older one.
@@ -40,7 +40,7 @@ jobs:
   check-pull-request:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
-    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate/branch-automerge/'))"
+    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate-self-hosted/branch-automerge/'))"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
