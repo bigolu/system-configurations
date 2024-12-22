@@ -236,6 +236,7 @@
         packages = with pkgs; [
           # These get called in the lefthook config
           doctoc
+          gomod2nix
 
           # Runs the generators
           lefthook
