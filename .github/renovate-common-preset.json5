@@ -57,7 +57,7 @@
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
         commands: [
-          "[ -f {{{packageFileDir}}}/gomod2nix.toml ] && gomod2nix --dir {{{packageFileDir}}} generate || true",
+          "if [ -f {{{packageFileDir}}}/gomod2nix.toml ]; then gomod2nix --dir {{{packageFileDir}}} generate; fi",
         ],
       },
     },
