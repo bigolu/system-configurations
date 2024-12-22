@@ -485,7 +485,7 @@ check-lint:
     # will just output whatever the tool outputs. Though this means these errors
     # won't show up in the pull request UI so you'd have to check the console.
     renovate-config-validator:
-      glob: ".github/{renovate,renovate-global}.json5"
+      glob: ".github/{renovate,renovate-global,renovate-automerge-preset}.json5"
       run: >
         ./scripts/run-check-with-reviewdog.bash
         -efm "_REVIEWDOG_DO_NOT_MATCH" -tee --

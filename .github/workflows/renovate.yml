@@ -30,4 +30,4 @@ jobs:
           #
           # [1]: https://docs.github.com/en/actions/security-for-github-actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow
           RENOVATE_TOKEN: "${{ steps.bot-token.outputs.token }}"
-        run: renovate --print-config
+        run: renovate
