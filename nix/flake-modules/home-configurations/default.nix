@@ -17,7 +17,7 @@ let
 
   makeEmptyPackage =
     pkgs: packageName:
-    pkgs.runCommand packageName { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
+    pkgs.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
 
   # When I called nix-tree with the portable home, I got a warning that calling
   # lib.getExe on a package that doesn't have a meta.mainProgram is deprecated. The
