@@ -1,9 +1,10 @@
 # yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
 
-# By default lefthook uses true colors (e.g. #FFFFFF), but they may not be
-# readable depending on the terminal background color. Instead I'm using ANSI
-# colors since they come from the terminal's color palette.
-# TODO: They should change this.
+# TODO: Lefthook sets its colors based on the background color of the terminal to
+# ensure good contrast[1], but it doesn't seem to be working for me so I'm using ANSI
+# colors instead. I should report this.
+#
+# [1]: https://github.com/evilmartians/lefthook/pull/482
 colors:
   cyan: 6
   gray: 8
@@ -11,17 +12,14 @@ colors:
   red: 1
   yellow: 3
 
+# Only show the output of commands that fail. If you want to see more output, just
+# comment this out or add more output types.
 output:
   - execution_info
 
 pre-push:
   commands:
     check:
-      # TODO: {push_files} will always be the diff between the current branch and
-      # main, but you may be merging into another branch like develop. When this
-      # issue is resolved[1] I should explicitly set the branch.
-      #
-      # [1]: https://github.com/evilmartians/lefthook/issues/785
       run: printf '%s\0' {push_files} | lefthook run check --files-from-stdin
 
 post-merge:
@@ -53,9 +51,19 @@ post-checkout:
         fi
 
 sync:
-  # So we can see the output of the direnv and system tasks. They can take a while so
-  # if their output doesn't show it looks like the task is hanging.
+  # So we can see the output of the nix-direnv and system tasks. They can take a
+  # while so it's nice to see their progress.
   follow: true
+  # Lefthook only applies a command's glob if the command's group has a 'files'
+  # command or you use the {files} placeholder in the command[1]. Not all of my
+  # commands use {files} so to ensure globs are always applied, I always add a
+  # 'files' command, even if I don't need it. The exceptions to this are the
+  # pre-commit and pre-push groups since lefthook always applies globs for them.
+  # Apparently this behavior was confusing for users so the author doesn't want to
+  # use the same behavior for other groups[2].
+  #
+  # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+  # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
   files: |
     if [ -f .git/sync-point-1.txt -a -f .git/sync-point-2.txt ]; then
       git diff-tree -r --name-only --no-commit-id \
@@ -167,9 +175,17 @@ check:
         printf '%s\0' {files} | lefthook run test --files-from-stdin "${ci_flags[@]}"
 
 test:
-  files: |
-    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
-    exit 1
+  # Lefthook only applies a command's glob if the command's group has a 'files'
+  # command or you use the {files} placeholder in the command[1]. Not all of my
+  # commands use {files} so to ensure globs are always applied, I always add a
+  # 'files' command, even if I don't need it. The exceptions to this are the
+  # pre-commit and pre-push groups since lefthook always applies globs for them.
+  # Apparently this behavior was confusing for users so the author doesn't want to
+  # use the same behavior for other groups[2].
+  #
+  # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+  # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
+  files: ":"
   parallel: true
   commands:
     flake:
@@ -185,9 +201,17 @@ test:
       run: nix config check
 
 generate:
-  files: |
-    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
-    exit 1
+  # Lefthook only applies a command's glob if the command's group has a 'files'
+  # command or you use the {files} placeholder in the command[1]. Not all of my
+  # commands use {files} so to ensure globs are always applied, I always add a
+  # 'files' command, even if I don't need it. The exceptions to this are the
+  # pre-commit and pre-push groups since lefthook always applies globs for them.
+  # Apparently this behavior was confusing for users so the author doesn't want to
+  # use the same behavior for other groups[2].
+  #
+  # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+  # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
+  files: ":"
   commands:
     readme-table-of-contents:
       glob: README.md
@@ -216,9 +240,17 @@ generate:
         nix flake lock
 
 format:
-  files: |
-    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
-    exit 1
+  # Lefthook only applies a command's glob if the command's group has a 'files'
+  # command or you use the {files} placeholder in the command[1]. Not all of my
+  # commands use {files} so to ensure globs are always applied, I always add a
+  # 'files' command, even if I don't need it. The exceptions to this are the
+  # pre-commit and pre-push groups since lefthook always applies globs for them.
+  # Apparently this behavior was confusing for users so the author doesn't want to
+  # use the same behavior for other groups[2].
+  #
+  # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+  # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
+  files: ":"
   commands:
     taplo:
       glob: "*.toml"
@@ -283,9 +315,17 @@ format:
         ruff check --select I --fix-only {files}
 
 fix-lint:
-  files: |
-    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
-    exit 1
+  # Lefthook only applies a command's glob if the command's group has a 'files'
+  # command or you use the {files} placeholder in the command[1]. Not all of my
+  # commands use {files} so to ensure globs are always applied, I always add a
+  # 'files' command, even if I don't need it. The exceptions to this are the
+  # pre-commit and pre-push groups since lefthook always applies globs for them.
+  # Apparently this behavior was confusing for users so the author doesn't want to
+  # use the same behavior for other groups[2].
+  #
+  # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+  # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
+  files: ":"
   commands:
     deadnix:
       glob: "*.nix"
@@ -311,17 +351,9 @@ fix-lint:
         markdownlint-cli2 --fix {files}
     go-mod-tidy:
       glob: "gozip/go.{mod,sum}"
-      # The comment containing '{files}' is there because lefthook only applies the
-      # glob if you have a 'files' command or you use {files} in your run command[1].
-      # If this command were under the pre-commit and pre-push groups, the glob would
-      # get applied, but apparently this behavior was confusing for users so the
-      # author doesn't want to use the same behavior for other groups[2].
-      #
-      # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
-      # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=go-mod-tidy --
-        go -C gozip mod tidy # {files}
+        go -C gozip mod tidy
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >
@@ -329,9 +361,17 @@ fix-lint:
         typos --write-changes --format silent {files}
 
 check-lint:
-  files: |
-    echo "Error: Only use this with --files-from-stdin or --all-files" >&2
-    exit 1
+  # Lefthook only applies a command's glob if the command's group has a 'files'
+  # command or you use the {files} placeholder in the command[1]. Not all of my
+  # commands use {files} so to ensure globs are always applied, I always add a
+  # 'files' command, even if I don't need it. The exceptions to this are the
+  # pre-commit and pre-push groups since lefthook always applies globs for them.
+  # Apparently this behavior was confusing for users so the author doesn't want to
+  # use the same behavior for other groups[2].
+  #
+  # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
+  # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
+  files: ":"
   parallel: true
   commands:
     ltex-cli:
@@ -408,17 +448,9 @@ check-lint:
         typos --color never --format brief {files}
     mypy:
       glob: "dotfiles/smart_plug/*.py"
-      # The comment containing '{files}' is there because lefthook only applies the
-      # glob if you have a 'files' command or you use {files} in your run command[1].
-      # If this command were under the pre-commit and pre-push groups, the glob would
-      # get applied, but apparently this behavior was confusing for users so the
-      # author doesn't want to use the same behavior for other groups[2].
-      #
-      # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
-      # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
       run: >
         ./scripts/run-check-with-reviewdog.bash -f mypy --
-        mypy dotfiles/smart_plug # {files}
+        mypy dotfiles/smart_plug
     isutf8:
       exclude:
         # Apparently, this file isn't valid UTF-8, but macOS generated it so I won't
