@@ -10,8 +10,7 @@
   onboardingBranch: "renovate-self-hosted/configure",
   dependencyDashboardTitle: "Dependency Dashboard (Self Hosted)",
 
-  // Per the Renovate documentation[1], these settings should be set if Renovate is
-  // running as a GitHub app.
+  // These settings should be set if Renovate is running as a GitHub app[1].
   //
   // [1]: https://docs.renovatebot.com/modules/platform/github/#running-as-a-github-app
   repositories: ["bigolu/system-configurations"],
