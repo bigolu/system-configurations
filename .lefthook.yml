@@ -194,11 +194,6 @@ generate:
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=readme-table-of-contents --
         doctoc README.md --github
-    neovim-plugin-list:
-      glob: "*neovim/lua/*.lua"
-      run: >
-        ./scripts/run-check-with-reviewdog.bash -name=neovim-plugin-list --
-        ./scripts/code-generation/generate-neovim-plugin-list.bash
     gomod2nix:
       glob: "gozip/go.mod"
       run: >

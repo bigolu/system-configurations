@@ -28,7 +28,6 @@ let
       [
         "comma"
         "moreutils"
-        "ast-grep"
         "timg"
         "ripgrep-all"
         "lesspipe"
