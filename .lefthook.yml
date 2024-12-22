@@ -199,11 +199,11 @@ generate:
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=neovim-plugin-list --
         ./scripts/code-generation/generate-neovim-plugin-list.bash
-    gomod2nix-lock:
+    gomod2nix:
       glob: "gozip/go.mod"
       run: >
-        ./scripts/run-check-with-reviewdog.bash -name=gomod2nix-lock --
-        ./scripts/code-generation/generate-gomod2nix-lock.bash
+        ./scripts/run-check-with-reviewdog.bash --
+        gomod2nix --dir gozip generate
     nix-version:
       glob: "flake.lock"
       run: >
@@ -326,7 +326,7 @@ fix-lint:
       # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
       run: >
         ./scripts/run-check-with-reviewdog.bash -name=go-mod-tidy --
-        bash -euc 'cd gozip && go mod tidy' # {files}
+        go -C gozip mod tidy # {files}
     typos:
       glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
       run: >

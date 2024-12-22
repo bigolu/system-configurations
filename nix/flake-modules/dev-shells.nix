@@ -265,7 +265,7 @@
                 ];
               }
               ''
-                # Extract the scripts' dependencies from their nix-shell shebangs.
+                # Extract script dependencies from their nix-shell shebangs.
                 #
                 # The shebang looks something like:
                 #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"

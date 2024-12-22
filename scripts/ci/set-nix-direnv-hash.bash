@@ -8,11 +8,13 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 
-# WARNING: The following vs code bash debugger extension does not support
-# bash_rematch: https://github.com/rogalmic/vscode-bash-debug/issues/183
+# WARNING: The VS Code Bash debugger extension does not support BASH_REMATCH:
+# https://github.com/rogalmic/vscode-bash-debug/issues/183
+
+envrc_path="${1:-.envrc}"
 
 nix_direnv_url_pattern='https://raw.githubusercontent.com/nix-community/nix-direnv/.*/direnvrc'
-original_envrc="$(<.envrc)"
+original_envrc="$(<"$envrc_path")"
 regex=".*(${nix_direnv_url_pattern}).*"
 if ! [[ $original_envrc =~ $regex ]]; then
   echo 'Error: Could not find the nix-direnv URL' >&2
@@ -35,4 +37,4 @@ if ! [[ $original_envrc =~ $replacement_regex ]]; then
 fi
 new_envrc="${BASH_REMATCH[1]}${new_nix_direnv_hash}${BASH_REMATCH[4]}"
 
-echo "$new_envrc" >.envrc
+echo "$new_envrc" >"$envrc_path"

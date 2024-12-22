@@ -21,10 +21,10 @@ runs:
     # resolved:
     # https://github.com/renovatebot/renovate/issues/28016
     - uses: DeterminateSystems/nix-installer-action@main
-    # TODO: Ideally, I would only read from the GitHub Actions cache in CI since it
-    # will be the closest cache to the workflow runners. However, since the packages
-    # from my flake that I want to cache aren't pushed to the GitHub Action cache, I
-    # read those packages from this cache. The reason I can't push those packages to
+    # TODO: Ideally, I would only read from the GitHub Actions cache since it will be
+    # the closest cache to the workflow runners. However, since the packages from my
+    # flake that I want to cache aren't pushed to the GitHub Action cache, I read
+    # those packages from this cache. The reason I can't push those packages to
     # Github Actions is explained in the package-caching workflow.
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:

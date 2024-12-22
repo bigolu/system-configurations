@@ -2,11 +2,11 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
 
   // Renovate recommends changing the branch prefix if you're self hosting to avoid
-  // interference with the hosted Renovate[1].
+  // interference with the hosted Renovate[1]. For this reason I also changed some
+  // other settings that may interfere with hosted Renovate.
   //
   // [1]: https://github.com/renovatebot/github-action?tab=readme-ov-file#configurationfile
   branchPrefix: "renovate-self-hosted/",
-  // For the reason above, I'll change these as well
   onboardingBranch: "renovate-self-hosted/configure",
   dependencyDashboardTitle: "Dependency Dashboard (Self Hosted)",
 
