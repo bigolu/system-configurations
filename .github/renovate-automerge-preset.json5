@@ -1,12 +1,11 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-
   automerge: true,
-  // I'm using the branch type, instead of the pull request type, for auto merge
-  // so I don't get notifications for them.
+  // I'm using the branch type, instead of the pull request type, for auto merge so I
+  // don't get notifications for them.
   automergeType: "branch",
-  // Normally, I only run CI checks for pull requests, but since Renovate will
-  // merge these changes straight from a branch I need to run checks on them as
-  // well. To identify these changes, I'm adding a prefix to their branch name.
+  // Normally, I only run CI checks for pull requests, but since I'm configuring
+  // Renovate to merge directly from a branch I need to run checks on those branches.
+  // To identify these branches in CI, I'm adding a prefix to their name.
   additionalBranchPrefix: "branch-automerge/",
 }
