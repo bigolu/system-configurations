@@ -35,9 +35,9 @@
         let
           mkShellUniqueNoCC = mkShellUniqueWrapper mkShellNoCC;
 
-          setPackagesPathHook =
+          flakePackageSetHook =
             let
-              filesReferencedByPackagesFile =
+              filesReferencedByFlakePackageSetFile =
                 pipe
                   [
                     "flake.nix"
@@ -58,22 +58,21 @@
                   ];
             in
             ''
-              # I reference flake-package-set.nix in several places so rather than
-              # hardcode its path in all those places, I'll put its path in an
-              # environment variable.
+              # To avoid hard coding the path to the flake package set in every
+              # script with a nix-shell shebang, I export a variable with the path.
               #
               # You may be wondering why I'm using a fileset instead of just using
               # $PWD/nix/flake-package-set.nix. cached-nix-shell traces the files
               # accessed during the nix-shell invocation so it knows when to
-              # invalidate the cache. When I use $PWD, a lot of files unrelated to
-              # nix, like $PWD/.git/index, become part of the trace, resulting in
-              # much more cache invalidations.
-              export FLAKE_PACKAGE_SET_FILE=${filesReferencedByPackagesFile}/nix/flake-package-set.nix
+              # invalidate the cache. When I use $PWD, a lot more files, like
+              # $PWD/.git/index, become part of the trace, resulting in much more
+              # cache invalidations.
+              export FLAKE_PACKAGE_SET_FILE=${filesReferencedByFlakePackageSetFile}/nix/flake-package-set.nix
             '';
 
           essentials = mkShellUniqueNoCC {
             packages = with pkgs; [ cached-nix-shell ];
-            shellHook = setPackagesPathHook;
+            shellHook = flakePackageSetHook;
           };
         in
         mkShellUniqueNoCC (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
