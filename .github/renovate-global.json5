@@ -19,4 +19,7 @@
 
   // Allow any post-upgrade commands to be run
   allowedPostUpgradeCommands: [".*"],
+
+  // Pass all environment variables to package managers
+  exposeAllEnv: true,
 }
