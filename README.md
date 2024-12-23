@@ -58,7 +58,7 @@ format "\<config_name> / \<platform>":
 
    ```bash
    ./nix-installer install \
-     --nix-package-url https://releases.nixos.org/nix/nix-2.24.10/nix-2.24.10-x86_64-linux.tar.xz \
+     --nix-package-url https://releases.nixos.org/nix/nix-2.24.11/nix-2.24.11-x86_64-linux.tar.xz \
      --extra-conf "extra-trusted-users = $(whoami)"
    ```
 
