@@ -8,7 +8,7 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 
-version="$(nix eval --impure --expr '(import ./nix/packages.nix).nix.version' --raw)"
+version="$(nix eval --impure --expr '(import ./nix/flake-package-set.nix).nix.version' --raw)"
 sed --regexp-extended --in-place \
   "s/\/nix-[0-9]+(\.[0-9]+){0,2}/\/nix-$version/g" \
   README.md

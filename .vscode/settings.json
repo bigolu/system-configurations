@@ -22,7 +22,7 @@
   "nix.serverSettings": {
     "nixd": {
       "nixpkgs": {
-        "expr": "import ./nix/packages.nix",
+        "expr": "import ./nix/flake-package-set.nix",
       },
 
       // Ideally, I could scope these options by platform[1].

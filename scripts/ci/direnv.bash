@@ -1,6 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i bash
-#! nix-shell --packages "with (import ../../nix/packages.nix); [bash direnv]"
+#! nix-shell --packages "with (import ../../nix/flake-package-set.nix); [bash direnv]"
 
 # ^ Note the use of a relative path to access the package set instead of the PACKAGES
 # environment variable. That is because this script is used as part of loading a

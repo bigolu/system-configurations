@@ -40,7 +40,7 @@
 
           # - For nixd[1]
           # - To get access to the flake's package set, i.e. the `pkgs` argument passed
-          #   to perSystem[2], from outside the flake. See packages.nix for an example
+          #   to perSystem[2], from outside the flake. See flake-package-set.nix for an example
           #   of how it gets accessed.
           #
           # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
