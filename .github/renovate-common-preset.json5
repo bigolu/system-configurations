@@ -65,7 +65,9 @@
       matchDepNames: ["nix-community/nix-direnv"],
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
-        commands: ["./scripts/ci/set-nix-direnv-hash.bash {{{packageFile}}}"],
+        commands: [
+          '"$RENOVATE_BOT_REPO/scripts/ci/set-nix-direnv-hash.bash" {{{packageFile}}}',
+        ],
       },
     },
   ],

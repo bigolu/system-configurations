@@ -67,7 +67,7 @@ format "\<config_name> / \<platform>":
    local development environment:
 
    ```bash
-   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#bashInteractive nixpkgs#gitMinimal \
+   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#bash nixpkgs#gitMinimal \
      --command fish --init-command '
        # Fish does not have a way to exit whenever a command fails so I am
        # manually adding `|| exit`.

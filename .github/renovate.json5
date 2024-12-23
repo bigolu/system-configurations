@@ -9,7 +9,9 @@
       matchUpdateTypes: ["lockFileMaintenance"],
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
-        commands: ["./scripts/code-generation/sync-nix-version.bash"],
+        commands: [
+          "./scripts/ci/run-in-direnv.sh ./scripts/code-generation/sync-nix-version.bash",
+        ],
       },
     },
   ],

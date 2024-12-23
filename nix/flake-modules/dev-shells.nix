@@ -342,10 +342,17 @@
 
         ci-renovate = makeCiShell {
           name = "ci-renovate";
-          packages = with pkgs; [ renovate ];
+          packages = with pkgs; [
+            renovate
+            # This is used in a post-upgrade task
+            gomod2nix
+          ];
           shellHook = ''
             export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
             export LOG_LEVEL='debug'
+            # Post-Upgrade tasks are executed in the directory of the repo that's
+            # currently being processed so I'm going to save the path to this repo.
+            export RENOVATE_BOT_REPO="$PWD"
           '';
         };
 
