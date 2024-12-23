@@ -57,7 +57,7 @@ runs:
         #
         # [1]: https://apple.stackexchange.com/a/238281
         nix profile install --impure --expr 'import ./nix/packages.nix' \
-          bashInteractive direnv
+          bash direnv
 
         direnv allow .
         direnv export gha >> "$GITHUB_ENV"
