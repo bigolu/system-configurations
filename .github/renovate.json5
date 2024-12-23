@@ -10,7 +10,7 @@
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
         commands: [
-          "./scripts/ci/run-in-direnv.sh ./scripts/code-generation/sync-nix-version.bash",
+          "./scripts/ci/direnv.bash exec . ./scripts/code-generation/sync-nix-version.bash",
         ],
       },
     },

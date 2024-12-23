@@ -4,7 +4,7 @@ inputs:
   dev-shell:
     description: The name of the devShell to activate
     required: false
-    default: ci-default
+    default: ""
   cachix-auth-token:
     description: >
       An authentication token for Cachix. Only necessary for pushing to the cache.
@@ -49,17 +49,9 @@ runs:
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        # I'm installing another Bash because the Bash on the runner may not support
-        # all of the features used in the .envrc. In particular, macOS comes with a
-        # very old version[1]. This also makes the workflow more reproducible, and
-        # consistent across operating systems, since we're using the version of Bash
-        # pinned in the repository commit that we have checked out.
-        #
-        # [1]: https://apple.stackexchange.com/a/238281
-        nix profile install --impure --expr 'import ./nix/packages.nix' \
-          bash direnv
+        ./scripts/ci/direnv.bash \
+          export gha >> "$GITHUB_ENV"
 
-        direnv allow .
-        direnv export gha >> "$GITHUB_ENV"
         # GitHub Actions handles the PATH differently
-        direnv exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
+        ./scripts/ci/direnv.bash \
+          exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
