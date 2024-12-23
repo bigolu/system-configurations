@@ -129,6 +129,8 @@ let
           handler.${drv.type} drv;
       in
       {
+        # I would use self'.bundlers.rootless here, but that would cause infinite
+        # recursion.
         bundlers.default = rootlessBundler;
         bundlers.rootless = rootlessBundler;
       };

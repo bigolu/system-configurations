@@ -4,6 +4,7 @@
     {
       pkgs,
       system,
+      self',
       ...
     }:
     let
@@ -11,7 +12,7 @@
     in
     {
       packages = {
-        default = plugctl;
+        default = self'.packages.plugctl;
         inherit plugctl;
 
         shell = makePortableShell {

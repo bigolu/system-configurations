@@ -1,6 +1,8 @@
-_:
-let
-  miscOverlay =
+{ self, ... }:
+{
+  flake.overlays.default = self.overlays.misc;
+
+  flake.overlays.misc =
     final: prev:
     let
       inherit (final.lib)
@@ -96,8 +98,4 @@ let
           })
         ];
     };
-in
-{
-  flake.overlays.default = miscOverlay;
-  flake.overlays.misc = miscOverlay;
 }

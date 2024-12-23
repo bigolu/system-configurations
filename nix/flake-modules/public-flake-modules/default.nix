@@ -1,4 +1,4 @@
-_:
+{ self, ... }:
 let
   generateChecksModules = import ./generate-checks.nix;
 in
@@ -10,7 +10,7 @@ in
   ];
 
   flake.flakeModules = {
+    default = self.flakeModules.generate-checks;
     generate-checks = generateChecksModules;
-    default = generateChecksModules;
   };
 }

@@ -7,6 +7,7 @@
   perSystem =
     {
       pkgs,
+      self',
       ...
     }:
     let
@@ -297,27 +298,26 @@
               (map (dependencyName: pkgs.${dependencyName}))
             ];
       };
-
-      local = makeShell {
-        name = "local";
-        inputsFrom = [
-          vsCode
-          linting
-          formatting
-          codeGeneration
-          sync
-          taskRunner
-          versionControl
-          languages
-          scriptDependencies
-          plugctl
-        ];
-      };
     in
     {
       devShells = {
-        inherit local;
-        default = local;
+        default = self'.devShells.local;
+
+        local = makeShell {
+          name = "local";
+          inputsFrom = [
+            vsCode
+            linting
+            formatting
+            codeGeneration
+            sync
+            taskRunner
+            versionControl
+            languages
+            scriptDependencies
+            plugctl
+          ];
+        };
 
         # Have a default shell with common dependencies so I don't have to make a
         # shell for every CI workflow.
