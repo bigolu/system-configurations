@@ -1,7 +1,7 @@
 #! /usr/bin/env cached-nix-shell
-#! nix-shell --keep PACKAGES
+#! nix-shell --keep FLAKE_PACKAGE_SET_FILE
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"PACKAGES\")); [nix-shell-interpreter coreutils gh]"
+#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils gh]"
 
 set -o errexit
 set -o nounset

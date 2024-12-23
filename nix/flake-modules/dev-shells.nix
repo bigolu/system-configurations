@@ -58,17 +58,17 @@
                   ];
             in
             ''
-              # I reference flake-package-set.nix in several places so rather than hardcode
-              # its path in all those places, I'll put its path in an environment
-              # variable.
+              # I reference flake-package-set.nix in several places so rather than
+              # hardcode its path in all those places, I'll put its path in an
+              # environment variable.
               #
               # You may be wondering why I'm using a fileset instead of just using
-              # $PWD/nix/flake-package-set.nix. cached-nix-shell traces the files accessed
-              # during the nix-shell invocation so it knows when to invalidate the
-              # cache. When I use $PWD, a lot of files unrelated to nix, like
-              # $PWD/.git/index, become part of the trace, resulting in much more
-              # cache invalidations.
-              export PACKAGES=${filesReferencedByPackagesFile}/nix/flake-package-set.nix
+              # $PWD/nix/flake-package-set.nix. cached-nix-shell traces the files
+              # accessed during the nix-shell invocation so it knows when to
+              # invalidate the cache. When I use $PWD, a lot of files unrelated to
+              # nix, like $PWD/.git/index, become part of the trace, resulting in
+              # much more cache invalidations.
+              export FLAKE_PACKAGE_SET_FILE=${filesReferencedByPackagesFile}/nix/flake-package-set.nix
             '';
 
           essentials = mkShellUniqueNoCC {
