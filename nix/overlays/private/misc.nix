@@ -176,6 +176,19 @@ let
         plugctl plug "$@"
       '';
     };
+
+  ci-bash = final.writeShellApplication {
+    name = "ci-bash";
+    runtimeInputs = [ final.bash ];
+    text = ''
+      exec bash \
+        --noprofile \
+        --norc \
+        -o errexit \
+        -o nounset \
+        -o pipefail "$@"
+    '';
+  };
 in
 {
   inherit (inputs.home-manager.packages.${final.system}) home-manager;
@@ -191,5 +204,6 @@ in
     myTerminfoDatabase
     plugctl
     speakerctl
+    ci-bash
     ;
 }

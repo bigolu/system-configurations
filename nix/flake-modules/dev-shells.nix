@@ -22,7 +22,6 @@
       inherit (pkgs)
         mkShellNoCC
         mkShellUniqueWrapper
-        writeShellApplication
         linkFarm
         runCommand
         ;
@@ -82,21 +81,7 @@
           packages ? [ ],
           ...
         }:
-        let
-          ci-bash = writeShellApplication {
-            name = "ci-bash";
-            runtimeInputs = with pkgs; [ bash ];
-            text = ''
-              exec bash \
-                --noprofile \
-                --norc \
-                -o errexit \
-                -o nounset \
-                -o pipefail "$@"
-            '';
-          };
-        in
-        makeShell (args // { packages = packages ++ [ ci-bash ]; });
+        makeShell (args // { packages = packages ++ [ pkgs.ci-bash ]; });
 
       plugctlPython = import ../plugctl-python.nix pkgs;
 

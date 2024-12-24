@@ -9,7 +9,6 @@
 # This script is for executing direnv commands in CI. It does a few things:
 #   - Get direnv and bash, using the nix-shell shebang at the top
 #   - Automatically call `direnv allow`
-#   - Set a default Nix flake dev shell of 'ci-default'
 
 set -o errexit
 set -o nounset
@@ -17,4 +16,4 @@ set -o pipefail
 shopt -s nullglob
 
 direnv allow .
-DEV_SHELL="${DEV_SHELL:-ci-default}" direnv "$@"
+direnv "$@"

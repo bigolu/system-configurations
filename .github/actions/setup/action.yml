@@ -41,11 +41,9 @@ runs:
         # to any of my substituters.
         upstream-cache: https://example.com
         use-flakehub: false
-    # Since this is the step that loads a dev-shell, there isn't one loaded here. So
-    # instead of using ci-bash like I usually do, I'll use "bash". When the value is
-    # "bash", GitHub Actions will run:
-    # bash --noprofile --norc -eo pipefail {0}
-    - shell: bash
+    # Since this is the step that loads a dev shell, there isn't one loaded here. So
+    # instead of calling ci-bash directly like I usually do, I'll use `nix run`.
+    - shell: nix run --impure --expr 'import ./nix/flake-package-set.nix' ci-bash -- {0}
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
