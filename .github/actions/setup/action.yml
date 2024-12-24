@@ -41,8 +41,12 @@ runs:
         # to any of my substituters.
         upstream-cache: https://example.com
         use-flakehub: false
-    # Since this is the step that loads a dev shell, there isn't one loaded here. So
-    # instead of calling ci-bash directly like I usually do, I'll use `nix run`.
+    # Since this is the step that loads a dev shell, there isn't one loaded
+    # here. So instead of calling ci-bash directly like I usually do, I'll use
+    # `nix run`.
+    #
+    # GitHub seems to be splitting 'shell' on spaces which is why I wrote the
+    # expression for --expr in this strange way.
     - shell: nix run --impure --expr import(./nix/flake-package-set.nix) ci-bash -- {0}
       env:
         INPUT_DEV_SHELL: ${{ inputs.dev-shell }}
