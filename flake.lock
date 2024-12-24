@@ -307,11 +307,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1734944412,
-        "narHash": "sha256-36QfCAl8V6nMIRUCgiC79VriJPUXXkHuR8zQA1vAtSU=",
+        "lastModified": 1734992499,
+        "narHash": "sha256-f9UyHMTb+BwF6RDZ8eO9HOkSlKeeSPBlcYhMmV1UNIk=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "8264bfe3a064d704c57df91e34b795b6ac7bad9e",
+        "rev": "f1b1786ea77739dcd181b920d430e30fb1608b8a",
         "type": "github"
       },
       "original": {
@@ -628,11 +628,11 @@
     "vim-plugin-SchemaStore-nvim": {
       "flake": false,
       "locked": {
-        "lastModified": 1734951638,
-        "narHash": "sha256-6WNJEZ8zXtvfFoWELb8ap2ouwbKG7LE8FkAdoY4rtqg=",
+        "lastModified": 1734980437,
+        "narHash": "sha256-zLNqNgEUaKmTExk6KVUCMUxagQ6Q811BlHENdgbjRSw=",
         "owner": "b0o",
         "repo": "SchemaStore.nvim",
-        "rev": "e6085187d6c5bde220ebbf38c963a2fda77dfbb4",
+        "rev": "545d8814f624fb5239c4691fa0914549540e6f53",
         "type": "github"
       },
       "original": {
@@ -756,11 +756,11 @@
     "vim-plugin-nvim-lightbulb": {
       "flake": false,
       "locked": {
-        "lastModified": 1729134062,
-        "narHash": "sha256-JfXSuOBwyxgH/PzzcBQ7OqoXHkLGZSCYutYHLocbTto=",
+        "lastModified": 1734997673,
+        "narHash": "sha256-byvgRJvvt5rhiUVWdreY2jELXoPVld5EKQlOXwjNgWE=",
         "owner": "kosayoda",
         "repo": "nvim-lightbulb",
-        "rev": "33d4c95e0e853956bc9468b70b3064c87d5abaca",
+        "rev": "3ac0791be37ba9cc7939f1ad90ebc5e75abf4eea",
         "type": "github"
       },
       "original": {
