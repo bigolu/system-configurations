@@ -43,7 +43,7 @@ runs:
         use-flakehub: false
     # Since this is the step that loads a dev shell, there isn't one loaded here. So
     # instead of calling ci-bash directly like I usually do, I'll use `nix run`.
-    - shell: nix run --impure --expr 'import ./nix/flake-package-set.nix' ci-bash -- {0}
+    - shell: nix run --impure --expr import\ ./nix/flake-package-set.nix ci-bash -- {0}
       env:
         INPUT_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
