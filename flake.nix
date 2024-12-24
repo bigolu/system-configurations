@@ -23,7 +23,7 @@
         { self, ... }:
         {
           imports = [
-            ./nix/flake-modules/checks
+            ./nix/flake-modules/checks.nix
             ./nix/flake-modules/dev-shells.nix
             ./nix/flake-modules/packages.nix
             ./nix/flake-modules/bundlers.nix
