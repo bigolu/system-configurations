@@ -45,8 +45,12 @@ runs:
     # instead of calling ci-bash directly like I usually do, I'll use `nix run`.
     - shell: nix run --impure --expr 'import ./nix/flake-package-set.nix' ci-bash -- {0}
       env:
-        DEV_SHELL: ${{ inputs.dev-shell }}
+        INPUT_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
+        if [[ -n $INPUT_DEV_SHELL ]]; then
+          export DEV_SHELL="$INPUT_DEV_SHELL"
+        fi
+
         ./scripts/ci/direnv.bash \
           export gha >> "$GITHUB_ENV"
 
