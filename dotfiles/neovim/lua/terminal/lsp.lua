@@ -201,8 +201,6 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
--- TODO: ruff's language server fails because this plugin doesn't pass a 'range'
--- field.
 Plug("kosayoda/nvim-lightbulb", {
   config = function()
     require("nvim-lightbulb").setup({
