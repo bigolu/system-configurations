@@ -24,10 +24,6 @@
       "nixpkgs": {
         "expr": "import ./nix/flake-package-set.nix",
       },
-
-      // Ideally, I could scope these options by platform[1].
-      //
-      // [1]: https://github.com/microsoft/vscode/issues/5595
       "options": {
         "bigmac": {
           "expr": "(import ./default.nix).darwinConfigurations.bigmac.options",
@@ -52,23 +48,8 @@
 
   "ltex.completionEnabled": true,
   "ltex.enabled": [
-    // This block of languages should contain all of the languages here:
-    // https://github.com/valentjn/ltex-ls/blob/1193c9959aa87b3d36ca436060447330bf735a9d/src/main/kotlin/org/bsplines/ltexls/parsing/CodeFragmentizer.kt
-    "bib",
-    "bibtex",
     "git-commit",
-    "html",
-    "xhtml",
-    "context",
-    "context.tex",
-    "latex",
-    "plaintex",
-    "rsweave",
-    "tex",
     "markdown",
-    "nop",
-    "org",
-    "restructuredtext",
   ],
 
   // Use our version for consistency
