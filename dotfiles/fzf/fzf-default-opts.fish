@@ -61,6 +61,11 @@ function _bigolu_fix_label
     echo "change-border-label($_bigolu_fzf_help_text)"
 end
 
+# TODO: fzf doesn't support `ctrl-[`, though there's an issue open for supporting the
+# kitty keyboard protocol[1]. When it does I, should bind ctrl+[/] to previous/next
+# history respectively.
+#
+# [1]: https://github.com/junegunn/fzf/issues/3208
 set flags \
     (__flag 'cycle') \
     (__flag 'ellipsis' '…') \
@@ -111,8 +116,6 @@ set flags \
         'ctrl-w:toggle-preview-wrap' \
         'alt-w:toggle-wrap' \
         'alt-enter:toggle' \
-        'f7:prev-history' \
-        'f8:next-history' \
         'ctrl-p:toggle-preview+transform(_bigolu_fix_label)' \
         'alt-a:toggle-all' \
         'ctrl-t:transform(_bigolu_track_toggle)' \

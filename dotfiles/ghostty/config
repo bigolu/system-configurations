@@ -1,0 +1,55 @@
+theme = dark:bigolu-dark,light:bigolu-light
+cursor-style = bar
+window-padding-color = extend
+copy-on-select = clipboard
+confirm-close-surface = false
+quit-after-last-window-closed = true
+gtk-wide-tabs = false
+
+# When this is fixed I can enable this:
+# https://github.com/ghostty-org/ghostty/issues/3229
+focus-follows-mouse = false
+
+font-size = 10.5
+font-family = "Fira Mono"
+font-family-italic = "Monaspace Radon"
+font-family-bold-italic = "Monaspace Radon"
+font-style-italic = "Monaspace Radon"
+font-style-bold-italic = "Monaspace Radon"
+font-synthetic-style = false
+
+adjust-cell-height = 30%
+adjust-cursor-height = 30%
+adjust-underline-position = 11
+
+keybind = shift+insert=paste_from_clipboard
+keybind = alt+r=reload_config
+keybind = alt+shift+left_bracket=move_tab:-1
+keybind = alt+shift+right_bracket=move_tab:1
+keybind = alt+t=new_tab
+keybind = alt+left_bracket=previous_tab
+keybind = alt+right_bracket=next_tab
+keybind = alt+one=goto_tab:1
+keybind = alt+two=goto_tab:2
+keybind = alt+three=goto_tab:3
+keybind = alt+four=goto_tab:4
+keybind = alt+five=goto_tab:5
+keybind = alt+six=goto_tab:6
+keybind = alt+seven=goto_tab:7
+keybind = alt+eight=goto_tab:8
+keybind = alt+nine=goto_tab:9
+keybind = alt+shift+d=toggle_tab_overview
+keybind = alt+minus=new_split:down
+keybind = alt+backslash=new_split:right
+keybind = alt+h=goto_split:left
+keybind = alt+j=goto_split:bottom
+keybind = alt+k=goto_split:top
+keybind = alt+l=goto_split:right
+keybind = alt+m=toggle_split_zoom
+keybind = alt+up=resize_split:up,10
+keybind = alt+down=resize_split:down,10
+keybind = alt+left=resize_split:left,10
+keybind = alt+right=resize_split:right,10
+keybind = alt+equal=equalize_splits
+keybind = ctrl+shift+i=inspector:toggle
+keybind = alt+q=close_surface

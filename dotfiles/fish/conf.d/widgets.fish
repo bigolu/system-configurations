@@ -238,13 +238,11 @@ function file-widget --description 'Search files'
     set prompt (__widgets_format_directory_for_prompt $dir)
 
     set preview_command '
+        # TODO: timg cannot detect the line and column count of the screen in fzf
         if file --brief --mime-type {} | grep -q -i image
-            if test "$TERM_PROGRAM" = WezTerm
-                # TODO: timg should use iterm2 image mode for WezTerm
-                #
-                # TODO: switch to kitty when wezterm gets support:
-                # https://github.com/wez/wezterm/issues/986
-                timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
+            if test "$TERM_PROGRAM" = ghostty
+                # TODO: timg can detect ghostty outside of fzf, but not in it
+                timg -p kitty --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
             else if set --export --names | string match --quiet  --regex \'^VSCODE_.*\'
                 # TODO: timg should use iterm2 image mode for vscode
                 timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}

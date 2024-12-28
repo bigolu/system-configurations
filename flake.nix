@@ -39,9 +39,9 @@
           ];
 
           # - For nixd[1]
-          # - To get access to the flake's package set, i.e. the `pkgs` argument passed
-          #   to perSystem[2], from outside the flake. See flake-package-set.nix for an example
-          #   of how it gets accessed.
+          # - To get access to the flake's package set, i.e. the `pkgs` argument
+          #   passed to perSystem[2], from outside the flake. See
+          #   flake-package-set.nix for an example of how it gets accessed.
           #
           # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
           # [2]: https://flake.parts/module-arguments.html?highlight=pkgs#pkgs
@@ -61,6 +61,10 @@
                 overlays = [
                   inputs.gomod2nix.overlays.default
                   inputs.nix-darwin.overlays.default
+                  inputs.nix-gl-host.overlays.default
+                  (_final: _prev: { inherit (inputs.ghostty.packages.${system}) ghostty; })
+                  (_final: _prev: { inherit (inputs.home-manager.packages.${system}) home-manager; })
+                  (_final: _prev: { inherit (inputs.neovim-nightly-overlay.packages.${system}) neovim; })
                   (import ./nix/overlays/private inputs)
                 ] ++ (builtins.attrValues self.overlays);
               };
@@ -78,6 +82,14 @@
     spoons = {
       url = "github:Hammerspoon/Spoons";
       flake = false;
+    };
+    ghostty = {
+      url = "github:ghostty-org/ghostty";
+      inputs = {
+        flake-compat.follows = "";
+        # This doesn't seem to be used
+        nixpkgs-unstable.follows = "";
+      };
     };
 
     # Nix
@@ -109,6 +121,10 @@
       inputs = {
         nixpkgs.follows = "nixpkgs";
       };
+    };
+    nix-gl-host = {
+      url = "github:numtide/nix-gl-host";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     # Flake

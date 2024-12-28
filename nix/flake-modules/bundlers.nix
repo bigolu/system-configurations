@@ -116,7 +116,7 @@ let
                 makeRootlessProgram {
                   derivation = drv;
                   entrypoint = getMainProgram drv;
-                  name = drv.meta.name or drv.pname or drv.name;
+                  name = drv.pname or drv.meta.name or drv.name;
                 };
             };
 

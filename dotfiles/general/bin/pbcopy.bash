@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# This command copies the text from stdin to the clipboard using OSC 52. With this you can even copy text from
-# an SSH shell to the host computer's clipboard.
+# This command copies the text from stdin to the clipboard using OSC 52. With this
+# you can even copy text from an SSH shell to the host computer's clipboard.
 
 set -o errexit
 set -o nounset
@@ -15,8 +15,9 @@ if [[ -n ${SSH_TTY-} ]]; then
 # source: https://stackoverflow.com/a/69088164
 elif bash -c ": 1>/dev/tty" 1>/dev/null 2>&1; then
   target_tty='/dev/tty'
-# If we don't have a terminal to send the escape sequence to, use the system copy utility. For example, when neovim
-# is running headless while embedded in another editor, like vscode.
+# If we don't have a terminal to send the escape sequence to, use the system copy
+# utility. For example, when neovim is running headless while embedded in another
+# editor, like vscode.
 else
   if uname | grep -q Linux; then
     if command -v wl-copy 1>/dev/null 2>&1; then
@@ -31,8 +32,9 @@ else
     # Full path for the current executable
     my_pbcopy="$0"
 
-    # To find the real pbcopy just take the next pbcopy binary on the $PATH after this one. This way
-    # if there are other wrappers they can do the same and eventually we'll reach the real pbcopy.
+    # To find the real pbcopy just take the next pbcopy binary on the $PATH after
+    # this one. This way if there are other wrappers they can do the same and
+    # eventually we'll reach the real pbcopy.
     reached_wrapper=''
     real_pbcopy=''
     while read -r command; do
@@ -55,9 +57,10 @@ fi
 
 # Get input from stdin
 #
-# Command substitution removes trailing newlines, but I want to keep them. To do so, I add a
-# character to the end of the input, this way any trailing newlines will no longer be trailing. Then
-# I remove the extra character by getting a substring that excludes the last character.
+# Command substitution removes trailing newlines, but I want to keep them. To do so,
+# I add a character to the end of the input, this way any trailing newlines will no
+# longer be trailing. Then I remove the extra character by getting a substring that
+# excludes the last character.
 input="$(
   cat
   printf x

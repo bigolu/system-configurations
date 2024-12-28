@@ -6,7 +6,7 @@
   imports = [
     ../firefox-developer-edition.nix
     ../git.nix
-    ../wezterm.nix
+    ../terminal.nix
   ];
 
   home.packages = with pkgs; [

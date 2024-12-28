@@ -265,6 +265,7 @@ local groups = {
   Underlined = { underline = true }, -- Text that stands out, HTML links
   Ignore = { ctermfg = 0 }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
   Todo = { ctermfg = 3, bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
+  ghosttyConfigKeyword = "Normal",
   -- }}}
 
   -- nvim-treesitter-context {{{

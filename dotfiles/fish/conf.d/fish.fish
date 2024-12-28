@@ -459,3 +459,8 @@ function _ls_after_directory_change --on-variable PWD
         echo '<empty>'
     end
 end
+
+# ghostty
+if set --query GHOSTTY_RESOURCES_DIR
+    source "$GHOSTTY_RESOURCES_DIR/shell-integration/fish/vendor_conf.d/ghostty-shell-integration.fish"
+end

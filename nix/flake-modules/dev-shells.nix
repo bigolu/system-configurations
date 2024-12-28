@@ -240,10 +240,10 @@
         ];
       };
 
-      scriptDependencies = makeShell {
-        packages =
-          pipe
-            (runCommand "script-dependencies"
+      scriptDependencies =
+        let
+          dependencyFile =
+            runCommand "script-dependencies"
               {
                 nativeBuildInputs = with pkgs; [
                   ripgrep
@@ -272,16 +272,16 @@
                 rg --only-matching '[^\s]+' |
 
                 sort --unique > $out
-              ''
-            )
-            [
-              readFile
-              (splitString "\n")
-              # The file ends in a newline so the last line will be empty
-              init
-              (map (dependencyName: pkgs.${dependencyName}))
-            ];
-      };
+              '';
+        in
+        pipe dependencyFile [
+          readFile
+          (splitString "\n")
+          # The file ends in a newline so the last line will be empty
+          init
+          (map (dependencyName: pkgs.${dependencyName}))
+          (dependencies: makeShell { packages = dependencies; })
+        ];
     in
     {
       devShells = {

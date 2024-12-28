@@ -31,6 +31,9 @@
       }) packages;
   };
 
+  # For ssh.fish
+  home.packages = with pkgs; [ ncurses ];
+
   repository = {
     symlink.xdg.configFile = {
       "fish/conf.d" = {

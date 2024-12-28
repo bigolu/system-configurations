@@ -114,7 +114,7 @@ in
 
       baseDirectory = mkOption {
         type = types.str;
-        description = "When a relative path is used a source in any symlink, it will be assumed that they are relative to this directory.";
+        description = "When a relative path is used as a source in any symlink, it will be assumed that they are relative to this directory.";
       };
 
       home.file = mkOption {

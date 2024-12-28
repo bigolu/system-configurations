@@ -6,18 +6,7 @@ abbr --add --global g git
 abbr --add --global x 'chmod +x'
 abbr --add --global du 'du --dereference --human-readable --summarize --apparent-size'
 function timg --wraps timg
-    set options
-    if test "$TERM_PROGRAM" = WezTerm
-        # TODO: timg should use iterm2 image mode for WezTerm
-        #
-        # TODO: switch to kitty when wezterm gets support:
-        # https://github.com/wez/wezterm/issues/986
-        set options -p iterm2
-    else if set --export --names | string match --quiet --regex '^VSCODE_.*'
-        # TODO: timg should use iterm2 image mode for vscode
-        set options -p iterm2
-    end
-    command timg --center $options $argv
+    command timg --center $argv
 end
 if test (uname) = Linux
     abbr --add --global initramfs-reload 'sudo update-initramfs -u -k all'
@@ -259,10 +248,4 @@ set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
 abbr --add --global admin 'sudo -- (which run-as-admin) sudo'
 if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
-end
-
-# This way when I use sudo the terminfo can still be found
-set TERMINFO "$HOME/.terminfo"
-if test -d "$TERMINFO"
-    set --export TERMINFO "$TERMINFO"
 end

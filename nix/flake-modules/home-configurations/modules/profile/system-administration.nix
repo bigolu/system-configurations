@@ -17,7 +17,7 @@ in
   imports = [
     ../git.nix
     ../fzf.nix
-    ../wezterm.nix
+    ../terminal.nix
     ../ripgrep-all.nix
   ];
 

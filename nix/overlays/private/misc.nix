@@ -3,23 +3,13 @@ final: prev:
 let
   inherit (inputs) self;
   inherit (inputs.nixpkgs) lib;
-  inherit (final.stdenv) isLinux isDarwin;
+  inherit (final.stdenv) isDarwin;
   inherit (lib) fileset optionalString;
   inherit (utils) projectRoot formatDate;
 
-  # ncurses doesn't come with wezterm's terminfo so I need to add it to the
-  # database.
-  myTerminfoDatabase = final.symlinkJoin {
-    name = "my-terminfo-database";
-    paths = [
-      final.wezterm.terminfo
-      final.ncurses
-    ];
-  };
-
-  nightlyNeovimWithDependencies =
+  neovimWithDependencies =
     let
-      nightly = inputs.neovim-nightly-overlay.packages.${final.system}.default;
+      previousNeovim = prev.neovim;
       dependencies = final.symlinkJoin {
         name = "neovim-dependencies";
         paths = with final; [
@@ -35,39 +25,23 @@ let
         root = projectRoot + /dotfiles/general/bin-macos;
         fileset = projectRoot + /dotfiles/general/bin-macos;
       };
-      neovimLinuxBin =
-        let
-          src = fileset.toSource {
-            root = projectRoot + /dotfiles/neovim/linux-bin;
-            fileset = projectRoot + /dotfiles/neovim/linux-bin;
-          };
-        in
-        final.runCommand "neovim-linux-bin" { } ''
-          mkdir "$out"
-          cp ${src}/wezterm.bash "$out/wezterm"
-        '';
     in
     final.symlinkJoin {
-      name = "my-${nightly.name}";
-      paths = [ nightly ];
+      pname = "my-${previousNeovim.pname}";
+      inherit (previousNeovim) version;
+      paths = [ previousNeovim ];
       buildInputs = [ final.makeWrapper ];
       postBuild = ''
-        # TERMINFO: Neovim uses unibilium to discover term info entries
-        # which is a problem for me because unibilium sets its terminfo
-        # search path at build time so I'm setting the search path here.
-        #
         # PARINIT: The par manpage recommends using this value if you want
         # to start using par, but aren't familiar with how par works so
         # until I learn more, I'll use this value.
         #
         # I'm adding general/bin for: trash, pbcopy
         wrapProgram $out/bin/nvim \
-          --set TERMINFO_DIRS '${myTerminfoDatabase}/share/terminfo' \
           --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
           --prefix PATH : ${dependencies}/bin \
           --prefix PATH : ${generalBin} \
-          ${optionalString isDarwin "--prefix PATH : ${generalMacosBin}"} \
-          ${optionalString isLinux "--prefix PATH : ${neovimLinuxBin}"}
+          ${optionalString isDarwin "--prefix PATH : ${generalMacosBin}"}
       '';
     };
 
@@ -191,17 +165,14 @@ let
   };
 in
 {
-  inherit (inputs.home-manager.packages.${final.system}) home-manager;
-  neovim = nightlyNeovimWithDependencies;
+  neovim = neovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
-  packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix; };
+  packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix ghostty; };
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp { interpreter = final.bash; };
 
   inherit
     runAsAdmin
     myFonts
-    # I'm renaming this to avoid rebuilds.
-    myTerminfoDatabase
     plugctl
     speakerctl
     ci-bash

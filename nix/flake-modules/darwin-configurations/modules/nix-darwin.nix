@@ -103,26 +103,40 @@ let
     '';
   };
 
-  remote-changes-check = writeShellApplication {
-    name = "remote-changes-check";
-    runtimeInputs = with pkgs; [
-      coreutils
-      gitMinimal
-      terminal-notifier
-    ];
-    text = ''
-      log="$(mktemp --tmpdir 'nix_darwin_XXXXX')"
-      exec 2>"$log" 1>"$log"
-      trap 'terminal-notifier -title "Nix Darwin" -message "The check for changes failed :( Check the logs in $log"' ERR
+  remote-changes-check =
+    let
+      ghosttyConfigFile = "${
+        fileset.toSource {
+          root = projectRoot + /dotfiles/ghostty;
+          fileset = projectRoot + /dotfiles/ghostty/config;
+        }
+      }/config";
+    in
+    writeShellApplication {
+      name = "remote-changes-check";
 
-      cd "${repositoryDirectory}"
+      runtimeInputs = with pkgs; [
+        coreutils
+        gitMinimal
+        terminal-notifier
+      ];
 
-      git fetch
-      if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
-        terminal-notifier -title "Nix Darwin" -message "There are changes on the remote, click here to pull." -execute '/usr/local/bin/wezterm --config "default_prog={[[${system-config-pull}/bin/system-config-pull]]}" --config "exit_behavior=[[Hold]]"'
-      fi
-    '';
-  };
+      text = ''
+        log="$(mktemp --tmpdir 'nix_darwin_XXXXX')"
+        exec 2>"$log" 1>"$log"
+        trap 'terminal-notifier -title "Nix Darwin" -message "The check for changes failed :( Check the logs in $log"' ERR
+
+        cd "${repositoryDirectory}"
+
+        git fetch
+        if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
+          terminal-notifier \
+            -title "Nix Darwin" \
+            -message "There are changes on the remote, click here to pull." \
+            -execute 'open -a Ghostty —args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'
+        fi
+      '';
+    };
 in
 {
   configureLoginShellForNixDarwin = true;

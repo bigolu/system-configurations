@@ -12,6 +12,7 @@ let
         ./missing-packages.nix
         ./partial-packages.nix
         ./misc.nix
+        ./gl-wrappers.nix
       ]
       [
         (map (path: import path { inherit inputs utils; }))

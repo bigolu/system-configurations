@@ -9,7 +9,7 @@
     };
 
     casks = [
-      "wezterm@nightly"
+      "ghostty"
       "xcodes"
       "hammerspoon"
       "visual-studio-code"
