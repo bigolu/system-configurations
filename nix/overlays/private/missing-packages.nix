@@ -1,14 +1,14 @@
 { inputs, ... }:
-final: prev:
+final: _prev:
 let
-  inherit (final) fetchurl;
+  inherit (final) fetchurl fetchzip;
   inherit (final.stdenv) isLinux mkDerivation;
   inherit (inputs.flake-utils.lib) system;
 
-  catp = final.stdenv.mkDerivation {
+  catp = mkDerivation {
     pname = "catp";
     version = "0.2.0";
-    src = prev.fetchzip {
+    src = fetchzip {
       url = "https://github.com/rapiz1/catp/releases/download/v0.2.0/catp-x86_64-unknown-linux-gnu.zip";
       sha256 = "sha256-U7h/Ecm+8oXy8Zr+Rq25eSiZw/2/GuUCFvnCtuc7pT8=";
     };
@@ -23,10 +23,10 @@ let
     };
   };
 
-  config-file-validator = final.stdenv.mkDerivation {
+  config-file-validator = mkDerivation {
     pname = "config-file-validator";
     version = "1.8.0";
-    src = prev.fetchzip {
+    src = fetchzip {
       url = "https://github.com/Boeing/config-file-validator/releases/download/v1.8.0/validator-v1.8.0-${
         if isLinux then "linux" else "darwin"
       }-amd64.tar.gz";
