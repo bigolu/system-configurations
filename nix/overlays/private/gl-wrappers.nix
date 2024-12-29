@@ -9,7 +9,7 @@
 
 _: final: prev:
 let
-  inherit (prev) symlinkJoin writeShellApplication;
+  inherit (prev) symlinkJoin writeScriptBin;
   inherit (prev.stdenv) isLinux;
   inherit (prev.lib)
     optionalAttrs
@@ -23,14 +23,14 @@ let
     let
       package = prev.${packageName};
       packageExecutable = getExe package;
+      nixglhost = getExe final.nix-gl-host;
+      bash = getExe final.bash;
 
-      wrappedExecutable = writeShellApplication {
-        name = packageName;
-        runtimeInputs = with final; [ nix-gl-host ];
-        text = ''
-          exec nixglhost ${packageExecutable} "$@"
-        '';
-      };
+      # I reference dependencies directly to avoid polluting the PATH.
+      wrappedExecutable = writeScriptBin packageName ''
+        #!${bash}
+        exec ${nixglhost} ${packageExecutable} "$@"
+      '';
 
       wrappedPackage = symlinkJoin {
         pname = "${packageName}-with-nix-gl-host";
