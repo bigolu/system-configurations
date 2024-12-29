@@ -2,9 +2,8 @@
 final: prev:
 let
   inherit (inputs) self;
-  inherit (inputs.nixpkgs) lib;
+  inherit (inputs.nixpkgs.lib) fileset optionalString;
   inherit (final.stdenv) isDarwin;
-  inherit (lib) fileset optionalString;
   inherit (utils) projectRoot formatDate;
 
   neovimWithDependencies =

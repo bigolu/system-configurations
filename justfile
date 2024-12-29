@@ -110,7 +110,7 @@ check GROUPS='':
 
     lefthook_arguments=()
     if [[ -n "$1" ]]; then
-      lefthook_arguments+=(--commands "$1")
+      lefthook_arguments+=(--jobs "$1")
     fi
     lefthook run check "${lefthook_arguments[@]}"
 
@@ -129,7 +129,7 @@ check-all GROUPS='':
 
     lefthook_arguments=(--files-from-stdin)
     if [[ -n "$1" ]]; then
-      lefthook_arguments+=(--commands "$1")
+      lefthook_arguments+=(--jobs "$1")
     fi
 
     {
@@ -174,7 +174,7 @@ force-sync TASKS='':
 
     lefthook_arguments=(--force)
     if [[ -n "$1" ]]; then
-      lefthook_arguments+=(--commands "$1")
+      lefthook_arguments+=(--jobs "$1")
     fi
 
     # TODO: The sync group has 'follows' enabled so I need to execution_out or else
