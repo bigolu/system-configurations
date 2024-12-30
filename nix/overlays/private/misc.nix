@@ -2,8 +2,8 @@
 final: prev:
 let
   inherit (inputs) self;
-  inherit (inputs.nixpkgs.lib) fileset optionalString;
-  inherit (final.stdenv) isDarwin;
+  inherit (inputs.nixpkgs.lib) fileset optionalString optionalAttrs;
+  inherit (final.stdenv) isDarwin isLinux;
   inherit (utils) projectRoot formatDate;
 
   neovimWithDependencies =
@@ -166,7 +166,9 @@ in
 {
   neovim = neovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
-  packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix ghostty; };
+  packagesToCache = final.lib.recurseIntoAttrs (
+    { inherit (final) gomod2nix; } // optionalAttrs isLinux { inherit (final) ghostty; }
+  );
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp { interpreter = final.bash; };
 
   inherit
