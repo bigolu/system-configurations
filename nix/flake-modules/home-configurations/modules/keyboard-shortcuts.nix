@@ -56,23 +56,26 @@ let
   };
 
   linux = mkIf (isGui && isLinux) {
+    repository.symlink.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
+
     home.activation = {
-      installKeyd = hm.dag.entryAfter [ "writeBoundary" ] ''
+      # Needs to be before systemd services are started since the
+      # keyd-application-mapper service requires my user be in the keyd group and I
+      # add myself to that group here.
+      setUpKeyd = hm.dag.entryBefore [ "reloadSystemd" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
         # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
         PATH="$PATH:/usr/bin:/bin"
 
-        if ! type -P keyd 1>/dev/null; then
-          # The readme[1] links to this unofficial PPA[2].
-          #
-          # [1]: https://github.com/rvaiya/keyd
-          # [2]: https://launchpad.net/~keyd-team/+archive/ubuntu/ppa
-          sudo add-apt-repository ppa:keyd-team/ppa
-          sudo apt update
-          sudo apt install keyd
-          sudo systemctl enable keyd
-          sudo keyd reload
+        service_base_name='keyd.service'
+        service_name=${pkgs.keyd}"/lib/systemd/system/$service_base_name"
+        if systemctl list-unit-files "$service_base_name" 1>/dev/null 2>&1; then
+          # This will unlink it
+          sudo systemctl disable "$service_base_name" &>/dev/null
         fi
+        sudo systemctl link "$service_name" &>/dev/null
+        sudo systemctl enable "$service_base_name" &>/dev/null
+        sudo systemctl restart "$service_base_name" &>/dev/null
 
         path=/etc/keyd/default.conf
         if [[ ! -e "$path" ]]; then
@@ -81,6 +84,9 @@ let
             ${config.repository.directory}/dotfiles/keyd/default.conf \
             "$path"
         fi
+
+        # Add myself to the keyd group so I can use application-specific mappings
+        sudo usermod -aG keyd biggs
       '';
 
       setKeyboardToMacMode = hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -113,6 +119,19 @@ let
       '';
     };
 
+    systemd.user.services.keyd-application-mapper = {
+      Unit = {
+        Description = "Application-Specific mappings for keyd";
+        After = "multi-user.target";
+      };
+      Service = {
+        Type = "simple";
+        ExecStart = "${pkgs.keyd}/bin/keyd-application-mapper -d";
+      };
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
+    };
   };
 in
 mkMerge [
