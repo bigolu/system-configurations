@@ -129,11 +129,11 @@ let
     final.writeShellApplication {
       name = exeName;
       runtimeInputs = [
-        (import ../../plugctl-python.nix final)
+        (import ../plugctl-python.nix final)
       ];
       meta.mainProgram = exeName;
       text = ''
-        python ${../../../dotfiles/smart_plug/smart_plug.py} "$@"
+        python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
       '';
     };
 

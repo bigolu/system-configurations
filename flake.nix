@@ -49,6 +49,17 @@
 
           perSystem =
             { system, ... }:
+            let
+              privateOverlay = import ./nix/overlay inputs;
+              publicOverlays = builtins.attrValues self.overlays;
+
+              makeOverlay =
+                {
+                  input,
+                  package ? input,
+                }:
+                _final: _prev: { ${package} = inputs.${input}.packages.${system}.${package}; };
+            in
             {
               # - For the convenience of having my overlay already applied wherever I
               #   access pkgs.
@@ -62,11 +73,11 @@
                   inputs.gomod2nix.overlays.default
                   inputs.nix-darwin.overlays.default
                   inputs.nix-gl-host.overlays.default
-                  (_final: _prev: { inherit (inputs.ghostty.packages.${system}) ghostty; })
-                  (_final: _prev: { inherit (inputs.home-manager.packages.${system}) home-manager; })
-                  (_final: _prev: { inherit (inputs.neovim-nightly-overlay.packages.${system}) neovim; })
-                  (import ./nix/overlays/private inputs)
-                ] ++ (builtins.attrValues self.overlays);
+                  inputs.neovim-nightly-overlay.overlays.default
+                  inputs.ghostty.overlays.default
+                  (makeOverlay { input = "home-manager"; })
+                  privateOverlay
+                ] ++ publicOverlays;
               };
             };
         }

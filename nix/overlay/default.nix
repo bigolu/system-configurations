@@ -3,7 +3,7 @@ let
   inherit (inputs.nixpkgs) lib;
   inherit (lib) pipe composeManyExtensions;
 
-  utils = import ../../utils.nix inputs;
+  utils = import ../utils.nix inputs;
 
   composedOverlays =
     pipe
