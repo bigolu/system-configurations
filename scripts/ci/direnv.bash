@@ -2,13 +2,19 @@
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../../nix/flake-package-set.nix); [bash direnv]"
 
-# ^ Note the use of a relative path to access the package set instead of the FLAKE_PACKAGE_SET_FILE
-# environment variable. That is because this script is used as part of loading a
-# direnv environment, so FLAKE_PACKAGE_SET_FILE won't be set yet.
-
-# This script is for executing direnv commands in CI. It does a few things:
+# This script is for running direnv commands in CI. It takes care of things that need
+# to be done before running direnv:
 #   - Get direnv and bash, using the nix-shell shebang at the top
-#   - Automatically call `direnv allow`
+#   - Run `direnv allow`
+#
+# Since this script is used to load the direnv environment, it's not run from within
+# the environment. Because of this, the shebang at the top works differently than the
+# ones in other scripts:
+#   - A relative path is used to access the package set instead of the
+#     FLAKE_PACKAGE_SET_FILE environment variable. This is done because that variable
+#     comes from the direnv environment.
+#   - nix-shell is used instead of cached-nix-shell. This is done because
+#     cached-nix-shell comes from the direnv environment.
 
 set -o errexit
 set -o nounset

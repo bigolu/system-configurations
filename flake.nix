@@ -13,7 +13,7 @@
     flake-parts.lib.mkFlake
       {
         inherit inputs;
-        # This is the recommended way to provide internal utilities to flake
+        # This is the recommended way to provide private utilities to flake
         # modules[1].
         #
         # [1]: https://github.com/hercules-ci/flake-parts/discussions/234#discussioncomment-9950293
