@@ -5,6 +5,7 @@ copy-on-select = clipboard
 confirm-close-surface = false
 quit-after-last-window-closed = true
 gtk-wide-tabs = false
+macos-option-as-alt = true
 
 # When this is fixed I can enable this:
 # https://github.com/ghostty-org/ghostty/issues/3229
