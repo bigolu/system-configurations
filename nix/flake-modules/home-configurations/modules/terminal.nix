@@ -6,7 +6,8 @@
 }:
 let
   inherit (lib) optionalAttrs optionals;
-  isLinuxGui = pkgs.stdenv.isLinux && isGui;
+  inherit (pkgs.stdenv) isLinux;
+  isLinuxGui = isLinux && isGui;
 in
 optionalAttrs isGui {
   home.packages =
@@ -15,7 +16,12 @@ optionalAttrs isGui {
       ghostty
     ];
 
-  repository.symlink.xdg.configFile = {
-    "ghostty".source = "ghostty";
-  };
+  repository.symlink.xdg.configFile =
+    {
+      "ghostty/config".source = "ghostty/config";
+      "ghostty/themes".source = "ghostty/themes";
+    }
+    // optionalAttrs isLinux {
+      "ghostty/linux-config".source = "ghostty/linux-config";
+    };
 }
