@@ -37,14 +37,5 @@ project do it for me.
 - Enter the repository directory and run `direnv allow; nix-direnv-reload`. That
   will load all the dependencies.
 
-## Resources
-
-- [login1 dbus interface](https://www.freedesktop.org/software/systemd/man/org.freedesktop.login1.html)
-- [inhibitor API](https://www.freedesktop.org/wiki/Software/systemd/inhibit/)
-- [Stack Overflow post on how dbus-python integrates with a mainloop](https://stackoverflow.com/questions/33428804/role-of-mainloops-event-loops-in-dbus-service)
-- [intro to dbus](https://www.freedesktop.org/wiki/IntroductionToDBus/)
-- [Stack Overflow post where the poster explains why a systemd service alone wouldn't work](https://unix.stackexchange.com/questions/337853/how-can-i-trigger-a-systemd-unit-on-suspend-before-networking-is-shut-down)
-- [Stack Overflow post on why a user service would not work](https://unix.stackexchange.com/questions/152039/how-to-run-a-user-script-after-systemd-wakeup)
-
 [systemd]: https://systemd.io/
 [hammerspoon]: https://www.hammerspoon.org/

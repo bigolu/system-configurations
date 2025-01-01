@@ -90,8 +90,11 @@ sync:
       glob: ".lefthook.yml"
       run: lefthook install --force
     - name: system
-      interactive: true
       glob: "{{dotfiles,flake-modules}/*,flake.{lock,nix}}"
+      # Needs to be interactive so I can input my password when the path for
+      # run-as-admin changes. This is because I specify its path in my sudoers config
+      # to allow running it without a password.
+      interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       run: sudo -- "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
     - name: hammerspoon-annotations

@@ -1,13 +1,11 @@
 [Unit]
-Description=Smart Plug
+Description=Turn smart plug on
 After=default.target sleep.target
-Conflicts=sleep.target
 
 [Service]
 Type=oneshot
+ExecStartPre=/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'
 ExecStart=/opt/speaker/speakerctl on
-ExecStop=/opt/speaker/speakerctl off
-RemainAfterExit=yes
 
 [Install]
 WantedBy=default.target sleep.target

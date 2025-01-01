@@ -22,31 +22,40 @@ optionalAttrs isGui {
       installSpeakerService = hm.dag.entryAfter [ "writeBoundary" ] ''
         # Add /usr/bin so scripts can access system programs like sudo/apt
         # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
-        PATH="$PATH:/usr/bin:/bin"
+        PATH="$PATH:/usr/bin:/bin:${pkgs.moreutils}/bin"
 
-        speakerctl_path=/opt/speaker/speakerctl
-        if [[ ! -e "$speakerctl_path" ]]; then
-          sudo mkdir -p "$(dirname "$speakerctl_path")"
-          sudo ln --symbolic --force --no-dereference \
-            ${getExe speakerctl} \
-            "$speakerctl_path"
-        fi
+        speakerctl_directory='/opt/speaker'
+        sudo mkdir -p "$speakerctl_directory"
+        speakerctl_path="$speakerctl_directory/speakerctl"
+        sudo ln --symbolic --force --no-dereference \
+          ${getExe speakerctl} \
+          "$speakerctl_path"
 
-        turn_off_speakers_path=/etc/NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers
-        if [[ ! -e "$turn_off_speakers_path" ]]; then
-          sudo mkdir -p "$(dirname "$turn_off_speakers_path")"
-          sudo ln --symbolic --force --no-dereference \
-            ${config.repository.directory}/dotfiles/smart_plug/linux/turn-off-speakers.bash \
-            "$turn_off_speakers_path"
-        fi
+        # I'm using install here because NetworkManager won't run the script unless
+        # it's owned by root.
+        sudo install \
+          --compare -D --no-target-directory \
+          --owner=root --group=root --mode='u=rwx,g=r,o=r' \
+          ${config.repository.directory}/dotfiles/smart_plug/linux/turn-off-speakers.bash \
+          /etc/NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers
 
-        service_name='smart-plug.service'
-        if ! systemctl list-unit-files "$service_name" 1>/dev/null 2>&1; then
-          sudo systemctl link \
-            ${config.repository.directory}/dotfiles/smart_plug/linux/"$service_name"
-          sudo systemctl enable "$service_name"
-          sudo systemctl start "$service_name"
-        fi
+        function set_up_service {
+          service_base_name="$1"
+          service_name=${config.repository.directory}/dotfiles/smart_plug/linux/"$service_base_name"
+
+          if systemctl list-unit-files "$service_base_name" 1>/dev/null 2>&1; then
+            # This will unlink it
+            chronic sudo systemctl disable "$service_base_name"
+          fi
+          # Ideally, I'd restart the service as well, but this would turn my speakers
+          # on and off. And since I can't tell from Home Manager if any relevant
+          # files actually changed, I'd do it on every Home Manager reload, which
+          # would get annoying. Instead, I'll do the restart in lefthook.
+          chronic sudo systemctl link "$service_name"
+          chronic sudo systemctl enable "$service_base_name"
+        }
+        set_up_service 'smart-plug-off.service'
+        set_up_service 'smart-plug-on.service'
       '';
     };
   };
