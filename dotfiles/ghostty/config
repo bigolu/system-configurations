@@ -53,3 +53,4 @@ keybind = alt+right=resize_split:right,10
 keybind = alt+equal=equalize_splits
 keybind = ctrl+shift+i=inspector:toggle
 keybind = alt+q=close_surface
+keybind = ctrl+minus=unbind
