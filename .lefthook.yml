@@ -1,4 +1,5 @@
-# yaml-language-server: $schema=https://json.schemastore.org/lefthook.json
+# There's a JSON schema for this file, but it's out of date:
+# https://github.com/evilmartians/lefthook/issues/632
 
 # TODO: Lefthook sets its colors based on the background color of the terminal to
 # ensure good contrast[1], but it doesn't seem to be working for me so I'm using ANSI
@@ -18,28 +19,28 @@ output:
   - execution_info
 
 pre-push:
-  commands:
-    check:
+  jobs:
+    - name: check
       run: printf '%s\0' {push_files} | lefthook run check --files-from-stdin
 
 post-merge:
-  commands:
-    mark-sync-point:
+  jobs:
+    - name: mark-sync-point
       run: |
         printf ORIG_HEAD >.git/sync-point-1.txt
         printf HEAD >.git/sync-point-2.txt
 
 post-rewrite:
-  commands:
-    mark-sync-point:
+  jobs:
+    - name: mark-sync-point
       only: rebase
       run: |
         printf ORIG_HEAD >.git/sync-point-1.txt
         printf HEAD >.git/sync-point-2.txt
 
 post-checkout:
-  commands:
-    mark-sync-point:
+  jobs:
+    - name: mark-sync-point
       # TODO: Open an issue for passing the git hook arguments to the only/skip
       # commands, or add new skip/only conditions e.g. 'file' and 'branch'. Then
       # I could remove this conditional.
