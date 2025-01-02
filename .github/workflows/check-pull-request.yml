@@ -54,4 +54,4 @@ jobs:
       # the output values specified in the config file, but it seems to be
       # overwriting them instead. For now, I'm duplicating the values specified in my
       # config here. I should open an issue.
-      - run: LEFTHOOK_OUTPUT='execution_info,summary' lefthook run check --all-files --no-tty
+      - run: LEFTHOOK_OUTPUT='execution_info,summary' lefthook run check --all-files --no-tty --colors on
