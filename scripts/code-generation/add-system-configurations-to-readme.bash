@@ -16,9 +16,11 @@ function main {
   )"
   configs="${configs::-1}"
 
+  echo beforeperl
   perl -0777 -w -i -pe \
     "s{.*}{justatest}igs" \
     README.md </dev/null 1>/dev/null 2>&1
+  echo afterperl
 }
 
 function get_configs {
