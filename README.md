@@ -36,8 +36,6 @@ format "\<config_name> / \<platform>":
 
 - Home Manager
 
-  - desktop / x86_64-linux
-
 - nix-darwin
 
   - bigmac / x86_64-darwin
