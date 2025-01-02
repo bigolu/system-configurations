@@ -8,10 +8,7 @@ confirm-close-surface = false
 quit-after-last-window-closed = true
 gtk-wide-tabs = false
 macos-option-as-alt = true
-
-# When this is fixed I can enable this:
-# https://github.com/ghostty-org/ghostty/issues/3229
-focus-follows-mouse = false
+focus-follows-mouse = true
 
 font-family = "Fira Mono"
 font-family-italic = "Monaspace Radon"
