@@ -17,6 +17,7 @@
         pipe
         init
         splitString
+        optionalString
         ;
       inherit (builtins) readFile;
       inherit (pkgs)
@@ -25,6 +26,7 @@
         linkFarm
         runCommand
         ;
+      inherit (pkgs.stdenv) isLinux;
 
       makeShell =
         args@{
@@ -69,9 +71,20 @@
               export FLAKE_PACKAGE_SET_FILE=${filesReferencedByFlakePackageSetFile}/nix/flake-package-set.nix
             '';
 
+          # For non-NixOS linux distributions[1].
+          # TODO: See if Nix should do this as part of its setup script
+          #
+          # [1]: https://nixos.wiki/wiki/Locales
+          localeArchiveHook = ''
+            export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+          '';
+
           essentials = mkShellUniqueNoCC {
             packages = with pkgs; [ cached-nix-shell ];
-            shellHook = flakePackageSetHook;
+            shellHook = ''
+              ${flakePackageSetHook}
+              ${optionalString isLinux localeArchiveHook}
+            '';
           };
         in
         mkShellUniqueNoCC (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
