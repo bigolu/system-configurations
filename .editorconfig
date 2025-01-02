@@ -18,7 +18,7 @@ indent_style = tab
 [*.md]
 indent_size = unset
 
-# These were generated so need to enforce a certain style
+# These files were generated or copied so need to enforce a certain style
 [{*.{plist,keylayout},COPYING.txt}]
 insert_final_newline = unset
 indent_style = unset
