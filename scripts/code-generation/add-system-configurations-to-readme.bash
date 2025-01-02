@@ -17,7 +17,7 @@ function main {
   configs="${configs::-1}"
 
   perl -0777 -w -i -pe \
-    "s{(<!-- START_CONFIGURATIONS -->).*(<!-- END_CONFIGURATIONS -->)}{\$1$configs\$2}igs" \
+    "s{.*}{justatest}igs" \
     README.md </dev/null 1>/dev/null 2>&1
 }
 
