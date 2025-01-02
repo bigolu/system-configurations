@@ -246,6 +246,7 @@ mkMerge [
             };
             Service = {
               Type = "oneshot";
+              ExecStartPre = "/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'";
               ExecStart = "${remote-changes-check}/bin/remote-changes-check";
             };
           };
