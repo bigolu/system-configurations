@@ -151,6 +151,11 @@ sync:
     # TODO: The sync group has 'follows' enabled so I need to execution_out or else
     # nothing will show. I should open an issue for allowing output to be configured
     # per group, the same way 'follows' is.
+    #
+    # TODO: According to the lefthook documentation, this variable should _extend_
+    # the output values specified in the config file, but it seems to be overwriting
+    # them instead. For now, I'm duplicating the values specified in my config here.
+    # I should open an issue.
     LEFTHOOK_OUTPUT='execution_out' lefthook run sync
 
 [doc('''
@@ -180,6 +185,11 @@ force-sync TASKS='':
     # TODO: The sync group has 'follows' enabled so I need to execution_out or else
     # nothing will show. I should open an issue for allowing output to be configured
     # per group, the same way 'follows' is.
+    #
+    # TODO: According to the lefthook documentation, this variable should _extend_
+    # the output values specified in the config file, but it seems to be overwriting
+    # them instead. For now, I'm duplicating the values specified in my config here.
+    # I should open an issue.
     LEFTHOOK_OUTPUT='execution_out' lefthook run sync "${lefthook_arguments[@]}"
 
 [group('Syncing')]

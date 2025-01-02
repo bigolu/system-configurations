@@ -49,4 +49,9 @@ jobs:
           dev-shell: ci-check-pull-request
       # Since all the checks are run, the output can be a bit long so a summary at
       # the bottom is nice to have.
-      - run: LEFTHOOK_OUTPUT='summary' lefthook run check --all-files --no-tty
+      #
+      # TODO: According to the lefthook documentation, this variable should _extend_
+      # the output values specified in the config file, but it seems to be
+      # overwriting them instead. For now, I'm duplicating the values specified in my
+      # config here. I should open an issue.
+      - run: LEFTHOOK_OUTPUT='execution_info,summary' lefthook run check --all-files --no-tty
