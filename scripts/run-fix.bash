@@ -67,7 +67,7 @@ function diff_including_untracked {
   readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
   track_files "${untracked_files[@]}"
   # This gets called in CI so I can't use a pager
-  git --no-pager diff
+  git --no-pager diff --color
   untrack_files "${untracked_files[@]}"
 }
 
