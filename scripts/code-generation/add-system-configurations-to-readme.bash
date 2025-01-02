@@ -18,7 +18,7 @@ function main {
 
   perl -0777 -w -i -pe \
     "s{(<!-- START_CONFIGURATIONS -->).*(<!-- END_CONFIGURATIONS -->)}{\$1$configs\$2}igs" \
-    README.md
+    README.md </dev/null 1>/dev/null 2>&1
 }
 
 function get_configs {
