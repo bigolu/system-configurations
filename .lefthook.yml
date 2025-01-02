@@ -10,6 +10,11 @@ colors:
   red: 1
   yellow: 3
 
+# Only show the output of commands that fail. If you want to see more output, just
+# comment this out or add more output types.
+output:
+  - execution_info
+
 pre-push:
   jobs:
     - name: check
@@ -114,7 +119,6 @@ sync:
       run: fish -c fish-reload
 
 check:
-  follow: true
   # Lefthook only applies a command's glob if the command's group has a 'files'
   # command or you use the {files} placeholder in the command[1]. Not all of my
   # commands use {files} so to ensure globs are always applied, I always add a
