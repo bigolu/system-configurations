@@ -10,11 +10,6 @@ colors:
   red: 1
   yellow: 3
 
-# Only show the output of commands that fail. If you want to see more output, just
-# comment this out or add more output types.
-output:
-  - execution_info
-
 pre-push:
   jobs:
     - name: check
