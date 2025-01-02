@@ -76,7 +76,7 @@ sync:
     - name: nix-direnv
       # The scripts directory is included so script dependencies can be recalculated
       # and loaded in the dev shell.
-      glob: "{.envrc,flake.{nix,lock},nix/*,scripts/*}"
+      glob: "{.envrc,flake.lock,*.nix,scripts/*}"
       run: touch flake.nix && nix-direnv-reload |& nom
     - name: lefthook
       # TODO: Currently, this is only needed on the first sync that's done after
@@ -90,7 +90,7 @@ sync:
       glob: ".lefthook.yml"
       run: lefthook install --force
     - name: system
-      glob: "{{dotfiles,flake-modules}/*,flake.{lock,nix}}"
+      glob: "{flake.lock,*.nix,dotfiles/*}"
       # Needs to be interactive so I can input my password when the path for
       # run-as-admin changes. This is because I specify its path in my sudoers config
       # to allow running it without a password.
