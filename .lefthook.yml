@@ -186,8 +186,6 @@ check:
             # VS Code formats its settings files automatically when you change a
             # setting through its UI.
             exclude: ["*.vscode/*.json"]
-            # TODO: Get prettier to not log unchanged files:
-            # https://github.com/prettier/prettier/issues/2611
             run: ./scripts/run-fix.bash prettier --write {files}
           - name: shfmt
             glob: "*.{envrc,sh,bash}"
@@ -197,7 +195,7 @@ check:
             run: ./scripts/run-fix.bash fish_indent --write {files}
           - name: nixfmt
             glob: "*.nix"
-            # TODO: --verify confirms that the formatted code parses the same as the
+            # --verify confirms that the formatted code parses the same as the
             # input code.
             run: ./scripts/run-fix.bash nixfmt --verify {files}
           - name: just
@@ -229,7 +227,7 @@ check:
               parallel: true
               jobs:
                 - name: ltex-cli
-                  # TODO: The cli isn't respecting my dictionary or ignore files so I
+                  # TODO: The CLI isn't respecting my dictionary or ignore files so I
                   # can't use it: https://github.com/valentjn/ltex-ls/issues/283
                   skip: true
                   glob: "*.md"
