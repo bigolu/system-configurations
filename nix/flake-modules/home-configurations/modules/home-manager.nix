@@ -106,12 +106,14 @@ let
 
   remote-changes-check =
     let
-      ghosttyConfigFile = "${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/ghostty;
-          fileset = projectRoot + /dotfiles/ghostty/config;
-        }
-      }/config";
+      ghosttyConfig = fileset.toSource {
+        root = projectRoot + /dotfiles;
+        fileset =
+          if isLinux then
+            (projectRoot + /dotfiles/ghostty)
+          else
+            fileset.difference (projectRoot + /dotfiles/ghostty) (projectRoot + /dotfiles/ghostty/linux-config);
+      };
     in
     writeShellApplication {
       name = "remote-changes-check";
@@ -148,9 +150,7 @@ let
           exit_code=$?
           set -o errexit
           if (( exit_code != timeout_exit_code )); then
-            ghostty \
-              --config-default-files=false \
-              --config-file=${ghosttyConfigFile} \
+            XDG_CONFIG_HOME=${ghosttyConfig} ghostty \
               --wait-after-command=true \
               -e ${system-config-pull}/bin/system-config-pull
           fi
