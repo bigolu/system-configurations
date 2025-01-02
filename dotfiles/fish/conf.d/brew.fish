@@ -19,6 +19,7 @@ if test -d $HOMEBREW_PREFIX/share/fish/vendor_completions.d
     set --global --prepend fish_complete_path $HOMEBREW_PREFIX/share/fish/vendor_completions.d
 end
 
+teh
 function brew-install-widget --description 'Install packages with brew'
     if not set choices ( \
         FZF_DEFAULT_COMMAND='brew formulae' \
@@ -41,6 +42,16 @@ function brew-install-widget --description 'Install packages with brew'
     echo "Running command 'brew install $choices'..."
     brew install $choices
 end
+
+
+
+
+
+
+
+
+
+
 
 function brew-uninstall-widget --description 'Uninstall packages with brew'
     if not set choices ( \

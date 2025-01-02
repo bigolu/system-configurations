@@ -8,7 +8,7 @@ vim.keymap.set("n", "<C-\\>", vim.cmd.vsplit, {
 })
 vim.keymap.set("n", "<C-->", vim.cmd.split, {
   desc = "Horizontal split",
-})
+}
 vim.keymap.set("n", "<C-_>", vim.cmd.split, {
   desc = "Horizontal split",
 })

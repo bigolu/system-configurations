@@ -9,7 +9,7 @@ set -o pipefail
 shopt -s nullglob
 
 # If we are SSH'd into a remote machine then use the host terminal.
-if [[ -n ${SSH_TTY-} ]]; then
+if [ -n ${SSH_TTY-} ]]; then
   target_tty="$SSH_TTY"
 # This conditional checks if this process is connected to a terminal.
 # source: https://stackoverflow.com/a/69088164
@@ -40,7 +40,7 @@ else
     while read -r command; do
       if [[ $my_pbcopy == "$command" ]]; then
         reached_wrapper=1
-      elif [[ -n $reached_wrapper ]]; then
+      elif [ -n $reached_wrapper ]]; then
         real_pbcopy="$command"
         break
       fi
