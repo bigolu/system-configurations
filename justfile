@@ -156,7 +156,7 @@ sync:
     # the output values specified in the config file, but it seems to be overwriting
     # them instead. For now, I'm duplicating the values specified in my config here.
     # I should open an issue.
-    LEFTHOOK_OUTPUT='execution_out' lefthook run sync
+    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync
 
 [doc('''
     This is the same as the sync recipe above, except that it forces all tasks
@@ -190,7 +190,7 @@ force-sync TASKS='':
     # the output values specified in the config file, but it seems to be overwriting
     # them instead. For now, I'm duplicating the values specified in my config here.
     # I should open an issue.
-    LEFTHOOK_OUTPUT='execution_out' lefthook run sync "${lefthook_arguments[@]}"
+    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync "${lefthook_arguments[@]}"
 
 [group('Syncing')]
 [no-exit-message]
