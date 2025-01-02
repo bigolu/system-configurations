@@ -123,16 +123,17 @@
           # for 'go mod tidy'
           go
           typos
-          partialPackages.isutf8
           # TODO: If the YAML language server gets a CLI I should use that instead:
           # https://github.com/redhat-developer/yaml-language-server/issues/535
           yamllint
           editorconfig-checker
+          # For isutf8 and parallel. parallel isn't a linter, but it's used to run
+          # any linter that doesn't support multiple file arguments.
+          moreutils
 
           # These aren't linters, but they also get called in lefthook as part of
           # certain linting commands.
           gitMinimal
-          parallel
 
           # Runs the linters
           lefthook

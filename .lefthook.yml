@@ -162,7 +162,7 @@ check:
             glob: "*.nix"
             # statix doesn't support passing multiple files yet:
             # https://github.com/nerdypepper/statix/issues/69
-            run: "./scripts/run-fix.bash parallel statix fix ::: {files}"
+            run: "./scripts/run-fix.bash parallel statix fix -- {files}"
           - name: markdownlint-cli2
             glob: "*.md"
             run: ./scripts/run-fix.bash markdownlint-cli2 --fix {files}
@@ -246,7 +246,7 @@ check:
                   glob: "*.fish"
                   # TODO: Fish doesn't support passing multiple files, I should open
                   # an issue.
-                  run: "parallel fish --no-execute '{}' ::: {files}"
+                  run: "parallel fish --no-execute -- {files}"
                 - name: desktop-file-validate
                   glob: "*.desktop"
                   run: desktop-file-validate {files}
@@ -266,7 +266,7 @@ check:
                   glob: "*.nix"
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/nerdypepper/statix/issues/69
-                  run: "parallel statix check {} ::: {files}"
+                  run: "parallel statix check -- {files}"
                 - name: typos
                   glob: "{.envrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}}"
                   run: typos {files}
