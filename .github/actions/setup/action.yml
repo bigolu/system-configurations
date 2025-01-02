@@ -21,8 +21,6 @@ runs:
     # resolved:
     # https://github.com/renovatebot/renovate/issues/28016
     - uses: DeterminateSystems/nix-installer-action@main
-      with:
-        nix-package-url: https://releases.nixos.org/nix/nix-2.24.11/nix-2.24.11-x86_64-${{ runner.os == 'Linux' && 'linux' || 'darwin' }}.tar.xz
     # TODO: Ideally, I would only read from the GitHub Actions cache since it will be
     # the closest cache to the workflow runners. However, since the packages from my
     # flake that I want to cache aren't pushed to the GitHub Action cache, I read
