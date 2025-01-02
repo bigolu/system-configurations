@@ -47,6 +47,4 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           dev-shell: ci-check-pull-request
-      - env:
-          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run check --all-files --no-tty
+      - run: lefthook run check --all-files --no-tty

@@ -135,64 +135,42 @@ check:
         jobs:
           - name: readme-table-of-contents
             glob: README.md
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=readme-table-of-contents --
-              doctoc README.md --github
+            run: ./scripts/run-fix.bash doctoc README.md --github
           - name: gomod2nix
             glob: "gozip/go.mod"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              gomod2nix --dir gozip generate
+            run: ./scripts/run-fix.bash gomod2nix --dir gozip generate
           - name: nix-version
             glob: "flake.lock"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=nix-version --
-              ./scripts/code-generation/sync-nix-version.bash
+            run: ./scripts/run-fix.bash ./scripts/code-generation/sync-nix-version.bash
           - name: system-configs
             glob: "{nix/*,flake.nix}"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=system-configs --
-              ./scripts/code-generation/add-system-configurations-to-readme.bash
+            run: ./scripts/run-fix.bash ./scripts/code-generation/add-system-configurations-to-readme.bash
           - name: flake-lock
             glob: "flake.nix"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=flake-lock --
-              nix flake lock
+            run: ./scripts/run-fix.bash nix flake lock
     - name: fix-lint
       group:
         jobs:
           - name: deadnix
             glob: "*.nix"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              deadnix --quiet --edit {files}
+            run: ./scripts/run-fix.bash deadnix --quiet --edit {files}
           - name: ruff
             glob: "*.py"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              ruff check --fix-only {files}
+            run: ./scripts/run-fix.bash ruff check --fix-only {files}
           - name: statix
             glob: "*.nix"
             # statix doesn't support passing multiple files yet:
             # https://github.com/nerdypepper/statix/issues/69
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=statix --
-              parallel statix fix ::: {files}
+            run: "./scripts/run-fix.bash parallel statix fix ::: {files}"
           - name: markdownlint-cli2
             glob: "*.md"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              markdownlint-cli2 --fix {files}
+            run: ./scripts/run-fix.bash markdownlint-cli2 --fix {files}
           - name: go-mod-tidy
             glob: "gozip/go.{mod,sum}"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=go-mod-tidy --
-              go -C gozip mod tidy
+            run: ./scripts/run-fix.bash go -C gozip mod tidy
           - name: typos
             glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              typos --write-changes --format silent {files}
+            run: ./scripts/run-fix.bash typos --write-changes --format silent {files}
     # Run formatting after lint fixes because sometimes a lint fix produces code that
     # doesn't comply with the formatting.
     - name: format
@@ -201,9 +179,7 @@ check:
           - name: taplo
             glob: "*.toml"
             exclude: [gozip/gomod2nix.toml]
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              taplo format {files}
+            run: ./scripts/run-fix.bash taplo format {files}
           - name: prettier
             glob: "*.{md,js,json,json{5,c},yml,yaml}"
             # VS Code formats its settings files automatically when you change a
@@ -211,55 +187,37 @@ check:
             exclude: ["*.vscode/*.json"]
             # TODO: Get prettier to not log unchanged files:
             # https://github.com/prettier/prettier/issues/2611
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              prettier --write {files}
+            run: ./scripts/run-fix.bash prettier --write {files}
           - name: shfmt
             glob: "*.{envrc,sh,bash}"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}
+            run: ./scripts/run-fix.bash shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}
           - name: fish_indent
             glob: "*.fish"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              fish_indent --write {files}
+            run: ./scripts/run-fix.bash fish_indent --write {files}
           - name: nixfmt
             glob: "*.nix"
             # TODO: --verify confirms that the formatted code parses the same as the
             # input code.
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              nixfmt --verify {files}
+            run: ./scripts/run-fix.bash nixfmt --verify {files}
           - name: just
             # TODO: just's builtin formatter currently removes/rearranges comments.
             # Until this is fixed I'll disable it:
             # https://github.com/casey/just/issues/862.
             skip: true
             glob: "justfile"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              just --unstable --fmt --justfile {files}
+            run: ./scripts/run-fix.bash just --unstable --fmt --justfile {files}
           - name: stylua
             glob: "*.lua"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              stylua {files}
+            run: ./scripts/run-fix.bash stylua {files}
           - name: gofmt
             glob: "*.go"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash --
-              gofmt -w {files}
+            run: ./scripts/run-fix.bash gofmt -w {files}
           - name: ruff-format
             glob: "*.py"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=ruff-format --
-              ruff format {files}
+            run: ./scripts/run-fix.bash ruff format {files}
           - name: ruff-format-sort-imports
             glob: "*.py"
-            run: >
-              ./scripts/run-check-with-reviewdog.bash -name=ruff-format-sort-imports --
-              ruff check --select I --fix-only {files}
+            run: ./scripts/run-fix.bash ruff check --select I --fix-only {files}
     # I'm putting the following checks in their own group so I can run them parallel.
     # It's safe to do so because they don't modify any files.
     - group:
@@ -274,111 +232,64 @@ check:
                   # can't use it: https://github.com/valentjn/ltex-ls/issues/283
                   skip: true
                   glob: "*.md"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
-                    ltex-cli --server-command-line=ltex-ls {files}
+                  run: ltex-cli --server-command-line=ltex-ls {files}
                 - name: golangci-lint
                   # TODO: Don't want to address these issues yet
                   skip: true
                   glob: "*.go"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -f sarif --
-                    golangci-lint run --out-format sarif {files}
+                  run: golangci-lint run {files}
                 - name: ruff
                   glob: "*.py"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -f sarif --
-                    ruff check --output-format sarif {files}
+                  run: ruff check {files}
                 - name: fish
                   glob: "*.fish"
                   # TODO: Fish doesn't support passing multiple files, I should open
                   # an issue.
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -name=fish -efm '%f (line %l): %m' --
-                    parallel fish --no-execute '{}' ::: {files}
+                  run: "parallel fish --no-execute '{}' ::: {files}"
                 - name: desktop-file-validate
                   glob: "*.desktop"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -efm '%f: %m' --
-                    desktop-file-validate {files}
+                  run: desktop-file-validate {files}
                 - name: markdownlint-cli2
                   glob: "*.md"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash
-                    -efm "%f:%l:%c: %m"
-                    -efm "%f:%l:%c %m"
-                    -efm "%f:%l: %m"
-                    -efm "%f:%l %m"
-                    --
-                    markdownlint-cli2 {files}
+                  run: markdownlint-cli2 {files}
                 - name: shellcheck
                   glob: "*.{sh,bash}"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -f checkstyle --
-                    shellcheck --format checkstyle {files}
+                  run: shellcheck {files}
                 - name: yamllint
                   glob: "*.{yaml,yml}"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: [%t%*[a-z]] %m' --
-                    yamllint --strict --format parsable {files}
+                  run: yamllint --strict {files}
                 - name: actionlint
                   glob: ".github/workflows/*.{yaml,yml}"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -efm "%f:%l:%c: %m" --
-                    actionlint {files}
+                  run: actionlint {files}
                 - name: statix
                   glob: "*.nix"
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/nerdypepper/statix/issues/69
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash
-                    -name=statix -efm '%f>%l:%c:%t:%n:%m' --
-                    parallel statix check {} -o errfmt ::: {files}
+                  run: "parallel statix check {} ::: {files}"
                 - name: typos
                   glob: "{.envrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}}"
-                  # TODO: Colors should be automatically disabled if stdout isn't a
-                  # TTY, but that isn't happening.
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
-                    typos --color never --format brief {files}
+                  run: typos {files}
                 - name: mypy
                   glob: "dotfiles/smart_plug/*.py"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -f mypy --
-                    mypy dotfiles/smart_plug
+                  run: mypy dotfiles/smart_plug
                 - name: isutf8
                   exclude:
                     # Apparently, this file isn't valid UTF-8, but macOS generated it
                     # so I won't change it.
                     - dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/U.S. copy.icns
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -efm '%f: %m' --
-                    isutf8 {files}
+                  run: isutf8 {files}
                 - name: editorconfig-checker
                   # I'm disabling the indentation size check because it applies to
                   # comments as well and I don't want it to. I could add inline
                   # directives to disable it for comments, but that would be
                   # cumbersome.
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash -efm '%f:%l:%c: %m' --
-                    editorconfig-checker -no-color -format gcc --disable-indent-size {files}
-                # TODO: It supports SARIF, but it prints output for files that
-                # succeed. I should ask if an option can be added to omit files that
-                # don't have issues.
+                  run: editorconfig-checker --disable-indent-size {files}
                 - name: config-file-validator
                   glob: "*.{editorconfig,json,ini}"
                   # VS Code's configuration files end in .json, but they're actually
                   # jsonc files.
                   exclude: ["*.vscode/*.json"]
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash
-                    -name=config-file-validator
-                    -efm '%A    × %f'
-                    -efm '%Z        error: Error at line %l column %c: %m'
-                    -efm '%A    × %f'
-                    -efm '%Z        error: %m'
-                    --
-                    validator -groupby pass-fail {files}
+                  run: validator -groupby pass-fail {files}
                 - name: commit-message-typos
                   skip:
                     # Don't run in CI since this check isn't required. It isn't
@@ -402,28 +313,14 @@ check:
                       done
                       [[ ! "$found_problem" ]]
                     '
-                # TODO: These tools don't output a format that reviewdog can parse, I
-                # should open issues with all of them. In the meantime, I put
-                # reviewdog in tee mode so it will just output whatever the tool
-                # outputs. Though this means these errors won't show up in the pull
-                # request UI so you'd have to check the console.
                 - name: renovate-config-validator
                   glob: ".github/{renovate,renovate-global,renovate-automerge-preset}.json5"
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash
-                    -efm "_REVIEWDOG_DO_NOT_MATCH" -tee --
-                    renovate-config-validator --strict {files}
+                  run: renovate-config-validator --strict {files}
                 - name: taplo
                   glob: "*.toml"
                   # This is a generated file
                   exclude: [gozip/gomod2nix.toml]
-                  # Support for GitHub annotation format is being considered. This
-                  # could be parsed by reviewdog:
-                  # https://github.com/tamasfe/taplo/issues/470
-                  run: >
-                    ./scripts/run-check-with-reviewdog.bash
-                    -efm "_REVIEWDOG_DO_NOT_MATCH" -tee --
-                    taplo lint {files}
+                  run: taplo lint {files}
           - name: test
             group:
               parallel: true
