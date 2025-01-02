@@ -66,7 +66,8 @@ function fail_if_files_change {
 function diff_including_untracked {
   readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
   track_files "${untracked_files[@]}"
-  git diff
+  # This gets called in CI so I can't use a pager
+  git --no-pager diff
   untrack_files "${untracked_files[@]}"
 }
 
