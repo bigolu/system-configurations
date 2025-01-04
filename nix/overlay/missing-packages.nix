@@ -1,7 +1,7 @@
 { inputs, ... }:
 final: _prev:
 let
-  inherit (final) fetchurl fetchzip fetchFromGitHub;
+  inherit (final) fetchzip fetchFromGitHub;
   inherit (final.stdenv) isLinux mkDerivation;
   inherit (final.lib) getExe;
   inherit (inputs.flake-utils.lib) system;
@@ -49,48 +49,6 @@ let
       ];
     };
   };
-
-  lefthook =
-    let
-      version = "1.10.1";
-      os = if isLinux then "Linux" else "MacOS";
-
-      sha256 =
-        if isLinux then
-          "1dvkv9kqrd1885clf4v6y8c2pg252qyllrivd85csl5f8fnzq3qq"
-        else
-          "1x8cwih5acy8l3cz17nqx9hvrlzxqxidnyrbn3jd0nf9lbninnq6";
-    in
-    mkDerivation {
-      pname = "lefthook";
-      inherit version;
-
-      src = fetchurl {
-        url = "https://github.com/evilmartians/lefthook/releases/download/v${version}/lefthook_${version}_${os}_x86_64";
-        inherit sha256;
-      };
-
-      phases = [
-        "installPhase"
-        "patchPhase"
-      ];
-
-      installPhase = ''
-        mkdir -p $out/bin
-        cp $src $out/bin/lefthook
-        chmod +x $out/bin/lefthook
-
-        mkdir -p $out/share/fish/vendor_completions.d
-        $out/bin/lefthook completion fish > $out/share/fish/vendor_completions.d/lefthook.fish
-      '';
-
-      meta = {
-        platforms = with system; [
-          x86_64-linux
-          x86_64-darwin
-        ];
-      };
-    };
 
   # Normally I'd use overrideAttrs, but that wouldn't affect keyd-application-mapper
   keyd =
@@ -171,7 +129,6 @@ in
   inherit
     catp
     config-file-validator
-    lefthook
     keyd
     ;
 }
