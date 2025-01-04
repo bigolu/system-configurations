@@ -1,0 +1,35 @@
+# The goal of this service is to start wake.target after sleep has ended. systemd
+# doesn't have a way to register services after one has ended, but I am able to do so
+# here because the systemd-* services below all have the Type "oneshot". This means
+# that when their ExecStart commands are done, the service itself is also done. So by
+# using an After ordering, I am able to start my service when sleep has ended.
+#
+# You may be wondering why I have a separate service for starting the wake target
+# instead of just adding the following configuration to the wake target:
+#
+#   [Unit]
+#   After=systemd-suspend.service systemd-hybrid-sleep.service systemd-hibernate.service
+#   [Install]
+#   WantedBy=systemd-suspend.service systemd-hybrid-sleep.service systemd-hibernate.service
+#
+# The above will not work because all three of those services Require sleep.target.
+# If I were to add the above configuration, then those three services would have a
+# dependency on sleep.target _and_ wake.target which isn't satisfiable because
+# wake.target Conflicts with sleep.target.
+#
+# This service works because it comes After the systemd-* services and by the time
+# the ExecStart commands in the systemd-* services end, the sleep.target has also
+# ended. Which allows this service to then start wake.target. systemd doesn't know that
+# by the time the systemd-* services' ExecStart commands end, sleep.target will have
+# ended, so the configuration from the beginning of this comment doesn't work.
+
+[Unit]
+Description=Starts the wake target
+After=systemd-suspend.service systemd-hybrid-sleep.service systemd-hibernate.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/env systemctl start wake.target
+
+[Install]
+WantedBy=systemd-suspend.service systemd-hybrid-sleep.service systemd-hibernate.service

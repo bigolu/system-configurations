@@ -1,0 +1,10 @@
+# TODO: There's an issue for adding a wake target to systemd[1]. I should comment on
+# it with my use case and the non-trivial workaround needed i.e. this target and
+# start-wake-target.service.
+#
+# [1]: https://github.com/systemd/systemd/issues/6364
+
+[Unit]
+Description=Wake
+Conflicts=sleep.target
+Before=sleep.target

@@ -217,8 +217,8 @@ check:
           - name: ruff-format-sort-imports
             glob: "*.py"
             run: ./scripts/run-fix.bash ruff check --select I --fix-only {files}
-    # I'm putting the following checks in their own group so I can run them parallel.
-    # It's safe to do so because they don't modify any files.
+    # I'm putting the following checks in their own group so I can run them in
+    # parallel. It's safe to do so because they don't modify any files.
     - group:
         parallel: true
         jobs:
