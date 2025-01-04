@@ -18,8 +18,7 @@ from typing import Optional, Self
 
 import psutil
 from diskcache import Cache
-from kasa import Discover, KasaException
-from kasa.discover import DeviceDict
+from kasa import Device, Discover, KasaException
 from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
@@ -34,9 +33,9 @@ class KasaPlug:
     _plug: IotPlug
 
     @classmethod
-    async def connect(cls, alias: str) -> Self:
+    async def connect(cls, alias: str, attempts: int) -> Self:
         instance = cls()
-        instance._plug = await instance._find_plug(alias)
+        instance._plug = await instance._find_plug(alias, attempts)
 
         return instance
 
@@ -54,16 +53,15 @@ class KasaPlug:
         return cast(bool, self._plug.is_on)
 
     @classmethod
-    async def _find_plug(cls, alias: str) -> IotPlug:
+    async def _find_plug(cls, alias: str, attempts: int) -> IotPlug:
         plug = await cls._get_plug_from_cache(alias)
         if plug is not None:
             return plug
 
-        devices_by_ip_address = await cls._discover_devices()
-        for ip_address, device in devices_by_ip_address.items():
-            if device.alias == alias and isinstance(device, IotPlug):
-                cls._add_plug_to_cache(device)
-                return device
+        plug = await cls._discover_plug(alias, attempts)
+        if plug is not None:
+            cls._add_plug_to_cache(plug)
+            return plug
 
         raise Exception(f"Unable to find a plug with alias: {alias}")
 
@@ -86,31 +84,44 @@ class KasaPlug:
             del cls._ip_address_cache[alias]
             return None
 
-        if isinstance(device, IotPlug):
+        if isinstance(device, IotPlug) and device.alias == alias:
             return device
         else:
             del cls._ip_address_cache[alias]
             return None
 
     @classmethod
-    async def _discover_devices(cls) -> DeviceDict:
+    async def _discover_plug(cls, alias: str, attempts: int) -> Optional[IotPlug]:
+        for _ in range(attempts):
+            for device in await cls._discover_devices():
+                if isinstance(device, IotPlug) and device.alias == alias:
+                    return device
+
+        return None
+
+    @classmethod
+    async def _discover_devices(cls) -> list[Device]:
         # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because
         # the default broadcast address (255.255.255.255) is an alias for 'this
-        # network' which will mean that of the VPN network when I'm connected to it
-        # and not that of my actual wifi/ethernet network. To get around this, I run
-        # discovery on all the broadcast addresses found on my machine.
+        # network' which will mean that of my VPN's virtual network card when I'm
+        # connected to it and not that of my actual wifi/ethernet network card. To
+        # get around this, I run discovery on all my network cards' broadcast
+        # addresses.
         discovery_awaitables_per_broadcast_address = [
             Discover.discover(target=address)
             for address in cls._get_broadcast_addresses()
         ]
-        devices_per_broadcast_address = await asyncio.gather(
+        devices_dicts_per_broadcast_address = await asyncio.gather(
             *discovery_awaitables_per_broadcast_address
         )
-        merged_devices: DeviceDict = reduce(
-            operator.or_, devices_per_broadcast_address, {}
+        device_lists_per_broadcast_address = [
+            device_dict.values() for device_dict in devices_dicts_per_broadcast_address
+        ]
+        devices: list[Device] = reduce(
+            operator.add, device_lists_per_broadcast_address, []
         )
 
-        return merged_devices
+        return devices
 
     @classmethod
     def _get_broadcast_addresses(cls) -> set[str]:
@@ -134,6 +145,12 @@ def parse_args() -> Namespace:
         formatter_class=MaxWidthHelpFormatter,
     )
 
+    parser.add_argument(
+        "--attempts",
+        type=int,
+        default=1,
+        help="The number of discovery attempts to make",
+    )
     parser.add_argument("alias", help="The plug's name")
     parser.add_argument(
         "command",
@@ -151,7 +168,7 @@ def parse_args() -> Namespace:
 
 async def main() -> None:
     args = parse_args()
-    plug = await KasaPlug.connect(args.alias)
+    plug = await KasaPlug.connect(args.alias, args.attempts)
     match args.command:
         case "status":
             exit_code = 0 if await plug.is_on() else 1
@@ -165,5 +182,6 @@ async def main() -> None:
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except Exception:
+    except Exception as exception:
+        print(exception)
         sys.exit(2)

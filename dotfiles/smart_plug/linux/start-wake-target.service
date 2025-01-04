@@ -1,27 +1,27 @@
-# The goal of this service is to start wake.target after sleep has ended. systemd
-# doesn't have a way to register services after one has ended, but I am able to do so
-# here because the systemd-* services below all have the Type "oneshot". This means
-# that when their ExecStart commands are done, the service itself is also done. So by
-# using an After ordering, I am able to start my service when sleep has ended.
-#
-# You may be wondering why I have a separate service for starting the wake target
-# instead of just adding the following configuration to the wake target:
+# The goal of this service to start wake.target after sleep has ended. This is
+# tricky because systemd does not allow you to order one unit's start after the
+# stopping of another unit. One way around this is to order your unit after what I
+# call the "sleep services". The sleep services are systemd-suspend.service,
+# systemd-hybrid-sleep.service, and systemd-hibernate.service. Since they are
+# oneshot services, they end when their ExecStart commands end so if you order
+# your unit to start after they start your're effectively ordering your unit to
+# start after they end. At this point, you may be wondering why I can't just
+# order wake.target to start after the sleep services like so:
 #
 #   [Unit]
 #   After=systemd-suspend.service systemd-hybrid-sleep.service systemd-hibernate.service
 #   [Install]
 #   WantedBy=systemd-suspend.service systemd-hybrid-sleep.service systemd-hibernate.service
 #
-# The above will not work because all three of those services Require sleep.target.
-# If I were to add the above configuration, then those three services would have a
-# dependency on sleep.target _and_ wake.target which isn't satisfiable because
-# wake.target Conflicts with sleep.target.
+# The above will not work because the sleep services Require sleep.target.
+# If I were to add the above configuration, then the sleep services would
+# have a dependency on sleep.target _and_ wake.target which isn't satisfiable
+# because wake.target Conflicts with sleep.target. wake.target Conflicts with
+# sleep.target to ensure that when sleep.target starts, wake.target ends.
 #
-# This service works because it comes After the systemd-* services and by the time
-# the ExecStart commands in the systemd-* services end, the sleep.target has also
-# ended. Which allows this service to then start wake.target. systemd doesn't know that
-# by the time the systemd-* services' ExecStart commands end, sleep.target will have
-# ended, so the configuration from the beginning of this comment doesn't work.
+# This service works because by the time the ExecStart commands in the sleep
+# services end, sleep.target has stopped. So by ordering this service After the
+# sleep services, the ExecStart command in this service can start wake.target.
 
 [Unit]
 Description=Starts the wake target
