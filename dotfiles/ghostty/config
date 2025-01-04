@@ -6,7 +6,6 @@ window-padding-color = extend
 copy-on-select = clipboard
 confirm-close-surface = false
 quit-after-last-window-closed = true
-gtk-wide-tabs = false
 macos-option-as-alt = true
 focus-follows-mouse = true
 
