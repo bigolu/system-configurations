@@ -10,9 +10,6 @@ Type=oneshot
 ExecStart=/opt/speaker/speakerctl on
 RemainAfterExit=yes
 ExecStop=/opt/speaker/speakerctl off
-# Despite having this service run After network-online I found I still couldn't make
-# a connection so I added this to keep looping until a connection can be made.
-ExecStartPre=/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'
 
 [Install]
 WantedBy=multi-user.target wake.target
