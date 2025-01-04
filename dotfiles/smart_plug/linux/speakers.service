@@ -10,6 +10,15 @@ Type=oneshot
 ExecStart=/opt/speaker/speakerctl on
 RemainAfterExit=yes
 ExecStop=/opt/speaker/speakerctl off
+# This command will loop until it is able to connect to example.com. This way, I can
+# tell when the network is online. Though this is service is ordered after
+# network-online.target, this only guarantees the network on startup, not after wake.
+# This is because NetworkManager shuts down before sleep and restarts after
+# wake, but network-online.target remains active from the moment the network is first
+# online until the computer shuts down. So when the system wakes from sleep, systemd
+# sees that network-online.target is active starts this service, but in reality, the
+# network is not actually online.
+ExecStartPre=/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'
 
 [Install]
 WantedBy=multi-user.target wake.target
