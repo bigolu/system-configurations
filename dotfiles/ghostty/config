@@ -9,7 +9,7 @@ quit-after-last-window-closed = true
 macos-option-as-alt = true
 focus-follows-mouse = true
 
-font-family = "Fira Mono"
+font-family = "JetBrains Mono NL"
 font-family-italic = "Monaspace Radon"
 font-family-bold-italic = "Monaspace Radon"
 font-style-italic = "Monaspace Radon"

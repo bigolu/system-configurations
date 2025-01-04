@@ -6,11 +6,14 @@ let
   inherit (final.stdenv) isDarwin isLinux;
   inherit (utils) projectRoot formatDate;
 
+  flakeLastModifiedDateAsVersion = formatDate self.lastModifiedDate;
+
   neovimWithDependencies =
     let
       previousNeovim = prev.neovim;
       dependencies = final.symlinkJoin {
-        name = "neovim-dependencies";
+        pname = "neovim-dependencies";
+        version = flakeLastModifiedDateAsVersion;
         paths = with final; [
           # to format comments
           par
@@ -47,7 +50,8 @@ let
   ripgrepAllWithDependencies =
     let
       dependencies = final.symlinkJoin {
-        name = "ripgrep-all-dependencies";
+        pname = "ripgrep-all-dependencies";
+        version = flakeLastModifiedDateAsVersion;
         paths = with final; [
           xlsx2csv
           fastgron
@@ -61,7 +65,8 @@ let
       };
     in
     final.symlinkJoin {
-      inherit (prev.ripgrep-all) name;
+      pname = "my-${prev.ripgrep-all.pname}";
+      inherit (prev.ripgrep-all) version;
       paths = [ prev.ripgrep-all ];
       buildInputs = [ final.makeWrapper ];
       postBuild = ''
@@ -113,12 +118,12 @@ let
   };
 
   myFonts = final.symlinkJoin {
-    name = "my-fonts";
-    version = formatDate self.lastModifiedDate;
+    pname = "my-fonts";
+    version = flakeLastModifiedDateAsVersion;
     paths = with final; [
       monaspace
       nerd-fonts.symbols-only
-      fira-mono
+      jetbrains-mono
     ];
   };
 
