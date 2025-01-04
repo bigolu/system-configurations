@@ -107,22 +107,22 @@ let
     installNixGarbageCollectionService = hm.dag.entryAfter [ "writeBoundary" ] ''
       # Add /usr/bin so scripts can access system programs like sudo/apt
       # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
-      PATH="$PATH:/usr/bin:/bin"
+      PATH="$PATH:/usr/bin:/bin:${pkgs.moreutils}/bin"
 
-      service_name='nix-garbage-collection.service'
-      if ! systemctl list-unit-files "$service_name" 1>/dev/null 2>&1; then
-        sudo systemctl link \
-          ${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/"$service_name"
-        sudo systemctl enable "$service_name"
-      fi
+      function set_up_unit {
+        unit_base_name="$1"
+        unit_name=${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/"$unit_base_name"
 
-      timer_name='nix-garbage-collection.timer'
-      if ! systemctl list-unit-files "$timer_name" 1>/dev/null 2>&1; then
-        sudo systemctl link \
-          ${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/"$timer_name"
-        sudo systemctl enable "$timer_name"
-        sudo systemctl start "$timer_name"
-      fi
+        if systemctl list-unit-files "$unit_base_name" 1>/dev/null 2>&1; then
+          # This will unlink it
+          chronic sudo systemctl disable "$unit_base_name"
+        fi
+        chronic sudo systemctl link "$unit_name"
+        chronic sudo systemctl enable "$unit_base_name"
+      }
+
+      set_up_unit 'nix-garbage-collection.service'
+      set_up_unit 'nix-garbage-collection.timer'
     '';
   };
 in

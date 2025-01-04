@@ -33,6 +33,8 @@
     "ms-python.mypy-type-checker",
     // Using this for Jedi
     "ms-python.python",
+
+    "hangxingliu.vscode-systemd-support",
   ],
 
   "unwantedRecommendations": ["ms-python.vscode-pylance"],
