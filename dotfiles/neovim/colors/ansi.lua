@@ -240,6 +240,7 @@ local groups = {
   ["@tag.attribute"] = "Tag",
   ["@tag.delimiter"] = "Delimiter",
   ["@attribute.builtin.python"] = "Normal",
+  ["@keyword.json5"] = "Normal",
   -- }}}
 
   -- misc. {{{

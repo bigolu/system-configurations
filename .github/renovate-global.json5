@@ -1,9 +1,12 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
 
-  // Renovate recommends changing the branch prefix if you're self hosting to avoid
-  // interference with the hosted Renovate[1]. For this reason I also changed some
-  // other settings that may interfere with hosted Renovate.
+  // Renovate recommends changing the branch prefix if you're self hosting to
+  // avoid interference with the hosted Renovate[1]. For this reason I also
+  // changed some other settings that may interfere with hosted Renovate. I
+  // don't plan to run hosted Renovate alongside my self-hosted one, but if
+  // I have a problem with my self-hosted Renovate, I can run the hosted one
+  // alongside it to compare behaviors without worrying about them clashing.
   //
   // [1]: https://github.com/renovatebot/github-action?tab=readme-ov-file#configurationfile
   branchPrefix: "renovate-self-hosted/",

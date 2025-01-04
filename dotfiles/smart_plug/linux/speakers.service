@@ -1,24 +1,55 @@
 [Unit]
 Description=Speakers
-Wants=network-online.target
-After=network-online.target
 Conflicts=sleep.target
 Before=sleep.target
+# Since systemd shuts down services in the reverse order that they were started up,
+# ordering this service after network.target guarantees that this service is shut down
+# before the network is shut down.
+Wants=network.target
+After=network.target
+# I want the service to stop restarting after 4 minutes of trying. I'm only allowing
+# restarts to account for network unavailability and if I can't connect to the
+# network for 4 minutes after startup/wakeup, then something is probably wrong.
+# Technically, what I have below will disable restarting if the service restarts more
+# than 40 times in 5 minutes. I'll explain why I chose these numbers:
+#   StartLimitBurst:
+#     If the network is down, or the plug can't be found, the ExecStart command takes
+#     about 5 seconds to search for the plug. I've capped it at 5 seconds using
+#     TimeoutStartSec to make it easier to calculate StartLimitIntervalSec. The
+#     delay between restarts (RestartSec) is 1 second so each restart should take
+#     about 6 seconds. 6 seconds * 40 is 240 seconds i.e. 4 minutes.
+#   StartLimitIntervalSec:
+#     I chose 5 minutes for StartLimitIntervalSec to ensure that the time it takes
+#     to restart the service 40 times does not exceed StartLimitIntervalSec. If it
+#     did, then the restart counter would reset, which I do not want. I could set it
+#     to an extremely high interval, e.g. 1 day, since the counter is reset when the
+#     computer starts up, but I also start this service on wakeup and I want a new
+#     counter for that.
+StartLimitIntervalSec=5m
+StartLimitBurst=40
 
 [Service]
 Type=oneshot
 ExecStart=/opt/speaker/speakerctl on
 RemainAfterExit=yes
 ExecStop=/opt/speaker/speakerctl off
-# This command will loop until it is able to connect to example.com. This way, I can
-# tell when the network is online. Though this is service is ordered after
-# network-online.target, this only guarantees the network on startup, not after wake.
-# This is because NetworkManager shuts down before sleep and restarts after
-# wake, but network-online.target remains active from the moment the network is first
-# online until the computer shuts down. So when the system wakes from sleep, systemd
-# sees that network-online.target is active starts this service, but in reality, the
-# network is not actually online.
-ExecStartPre=/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'
+# Having a timeout for the start command makes it easier to calculate the retry limit.
+# See the StartLimit* settings above.
+TimeoutStartSec=5s
+# If the speakers and computer are connected to the network, it should take a
+# fraction of a second for the speakers to get turned off. If it takes longer than
+# that, then one of the devices is probably disconnected from the network and the
+# command won't succeed. In that case, I don't want to stall shutdown waiting for the
+# command to fail.
+TimeoutStopSec=1s
+# Allow restarts on failure to account for network unavailability. For example, when
+# the machine first starts up, or wakes from sleep, the network may not be online yet.
+# network-online.target can handle the startup case, but not wake. systemd also gives
+# reasons to not rely on network-online[1].
+#
+# [1]: https://systemd.io/NETWORK_ONLINE/
+Restart=on-failure
+RestartSec=1s
 
 [Install]
 WantedBy=multi-user.target wake.target
