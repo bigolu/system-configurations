@@ -1,19 +1,31 @@
+# WARNING: This file should not be used directly, it contains variables in the
+# form @<variable_name>@ that will be replaced by Nix.
+
 [Unit]
 Description=Speakers
+# There is also a default conflict on shutdown.target added by systemd that will
+# stop this service before shutdown/reboot[1].
+#
+# [1]: https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#Default%20Dependencies
 Conflicts=sleep.target
 Before=sleep.target
-# Since systemd stops services in the reverse order that they were started,
-# having this service start after network.target ensures that this service is
-# stopped before the network manager shuts down.
+# The service should be stopped before the network is turned off. Since systemd
+# stops services in the reverse order that they were started, having this
+# service start after network.target ensures that this service is stopped before
+# the network.
 #
 # While the above should be true, the network manager on my machine,
-# NetworkManager, isn't actually being turned off through systemd so a
-# workaround is needed. See speakers.nix for details.
+# NetworkManager, isn't always being turned off through systemd so a workaround
+# is needed. See speakers.nix for details.
 Wants=network.target
 After=network.target
 
 [Service]
+# I'm using the oneshot type so I can use RemainAfterExit, see below.
 Type=oneshot
+# This service should still be considered active after the ExecStart command
+# ends since I want the active state to represent the speakers being on.
+RemainAfterExit=yes
 # Make multiple discovery attempts to account for network unavailability. For
 # example, when the machine first starts up, or wakes from sleep, the
 # network may not be online yet. I could have this service start after
@@ -27,9 +39,10 @@ Type=oneshot
 # i.e. 3 minutes.
 #
 # [1]: https://systemd.io/NETWORK_ONLINE/
-ExecStart=/opt/speaker/speakerctl --attempts 36 on
-RemainAfterExit=yes
-ExecStop=/opt/speaker/speakerctl off
+ExecStart=@speakerctl@ --attempts 36 on
+ExecStop=@speakerctl@ off
 
 [Install]
+# Start the service when the system either wakes or first reaches the graphical
+# interface i.e. login screen.
 WantedBy=graphical.target wake.target

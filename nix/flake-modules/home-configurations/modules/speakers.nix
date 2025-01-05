@@ -3,12 +3,34 @@
   pkgs,
   isGui,
   config,
+  utils,
   ...
 }:
 let
-  inherit (pkgs) speakerctl;
+  inherit (pkgs) speakerctl substituteAll;
   inherit (pkgs.stdenv) isDarwin isLinux;
-  inherit (lib) optionalAttrs getExe hm;
+  inherit (lib)
+    optionalAttrs
+    getExe
+    hm
+    fileset
+    ;
+  inherit (utils) projectRoot;
+
+  speakerServiceName = "speakers.service";
+
+  speakerServiceTemplate = "${
+    fileset.toSource {
+      root = projectRoot + /dotfiles/smart_plug/linux;
+      fileset = projectRoot + "/dotfiles/smart_plug/linux/${speakerServiceName}";
+    }
+  }/${speakerServiceName}";
+
+  speakerService = substituteAll {
+    name = speakerServiceName;
+    src = speakerServiceTemplate;
+    speakerctl = getExe speakerctl;
+  };
 in
 optionalAttrs isGui {
   repository.symlink.home.file = optionalAttrs isDarwin {
@@ -23,13 +45,6 @@ optionalAttrs isGui {
         # Add /usr/bin so scripts can access system programs like sudo/apt
         # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
         PATH="$PATH:/usr/bin:/bin:${pkgs.moreutils}/bin"
-
-        speakerctl_directory='/opt/speaker'
-        sudo mkdir -p "$speakerctl_directory"
-        speakerctl_path="$speakerctl_directory/speakerctl"
-        sudo ln --symbolic --force --no-dereference \
-          ${getExe speakerctl} \
-          "$speakerctl_path"
 
         # Apparently, NetworkManager's shutdown is not handled by systemd when the
         # system suspends[1]. Instead, it shuts itself down after receiving a dbus
@@ -47,8 +62,8 @@ optionalAttrs isGui {
           /etc/NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers
 
         function set_up_unit {
-          unit_base_name="$1"
-          unit_name=${config.repository.directory}/dotfiles/smart_plug/linux/"$unit_base_name"
+          unit_name="$1"
+          unit_base_name="''${unit_name##*/}"
 
           if systemctl list-unit-files "$unit_base_name" 1>/dev/null 2>&1; then
             # This will unlink it
@@ -57,9 +72,9 @@ optionalAttrs isGui {
           chronic sudo systemctl link "$unit_name"
           chronic sudo systemctl enable "$unit_base_name"
         }
-        set_up_unit 'start-wake-target.service'
-        set_up_unit 'wake.target'
-        set_up_unit 'speakers.service'
+        set_up_unit ${config.repository.directory}/dotfiles/smart_plug/linux/start-wake-target.service
+        set_up_unit ${config.repository.directory}/dotfiles/smart_plug/linux/wake.target
+        set_up_unit ${speakerService}
       '';
     };
   };
