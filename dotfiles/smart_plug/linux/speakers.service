@@ -2,9 +2,9 @@
 Description=Speakers
 Conflicts=sleep.target
 Before=sleep.target
-# Since systemd shuts down services in the reverse order that they were started
-# up. By ordering this service after network.target, we're guaranteed that this
-# service is shut down before the network is shut down.
+# Since systemd stops services in the reverse order that they were started,
+# having this service start after network.target ensures that this service is
+# stopped before the network manager shuts down.
 #
 # While the above should be true, the network manager on my machine,
 # NetworkManager, isn't actually being turned off through systemd so a
@@ -14,12 +14,17 @@ After=network.target
 
 [Service]
 Type=oneshot
-# Allow multiple discovery attempts to account for network unavailability. For
-# example, when the machine first starts up, or wakes from sleep, the network
-# may not be online yet. Ordering this service after network-online.target would
-# help with the startup case, but not wake. systemd gives more reasons to not
-# rely on network-online[1]. I chose 36 because the timeout for discovery is 5
-# seconds so 5 seconds * 36 = 180 seconds i.e. 3 minutes to attempt to connect.
+# Make multiple discovery attempts to account for network unavailability. For
+# example, when the machine first starts up, or wakes from sleep, the
+# network may not be online yet. I could have this service start after
+# network-online.target, but systemd does not recommend relying on it[1]. Also,
+# that target is not useful for sleep/wake: Even though the network is turned
+# off before sleep and restarted on wake, network-online.target remains active
+# the entire time.
+#
+# I want the service to stop attempting to connect after 3 minutes. Since
+# discovery times out after 5 seconds, 36 attempts * 5 seconds = 180 seconds
+# i.e. 3 minutes.
 #
 # [1]: https://systemd.io/NETWORK_ONLINE/
 ExecStart=/opt/speaker/speakerctl --attempts 36 on
@@ -27,4 +32,4 @@ RemainAfterExit=yes
 ExecStop=/opt/speaker/speakerctl off
 
 [Install]
-WantedBy=multi-user.target wake.target
+WantedBy=graphical.target wake.target
