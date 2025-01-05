@@ -10,11 +10,10 @@ TODO: Consider upstreaming these features
 
 import argparse
 import asyncio
-import operator
+import itertools
 import sys
 from argparse import ArgumentParser, Namespace
-from functools import reduce
-from typing import Optional, Self
+from typing import Iterable, Optional, Self
 
 import psutil
 from diskcache import Cache
@@ -100,7 +99,7 @@ class KasaPlug:
         return None
 
     @classmethod
-    async def _discover_devices(cls) -> list[Device]:
+    async def _discover_devices(cls) -> Iterable[Device]:
         # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because
         # the default broadcast address (255.255.255.255) is an alias for 'this
         # network' which will mean that of my VPN's virtual network card when I'm
@@ -117,11 +116,8 @@ class KasaPlug:
         device_lists_per_broadcast_address = [
             device_dict.values() for device_dict in devices_dicts_per_broadcast_address
         ]
-        devices: list[Device] = reduce(
-            operator.add, device_lists_per_broadcast_address, []
-        )
 
-        return devices
+        return itertools.chain(*device_lists_per_broadcast_address)
 
     @classmethod
     def _get_broadcast_addresses(cls) -> set[str]:

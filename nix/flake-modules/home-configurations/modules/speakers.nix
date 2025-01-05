@@ -7,7 +7,8 @@
   ...
 }:
 let
-  inherit (pkgs) speakerctl substituteAll;
+  inherit (builtins) readFile;
+  inherit (pkgs) speakerctl replaceVars writeTextDir;
   inherit (pkgs.stdenv) isDarwin isLinux;
   inherit (lib)
     optionalAttrs
@@ -17,20 +18,24 @@ let
     ;
   inherit (utils) projectRoot;
 
-  speakerServiceName = "speakers.service";
+  speakerService =
+    let
+      speakerServiceName = "speakers.service";
 
-  speakerServiceTemplate = "${
-    fileset.toSource {
-      root = projectRoot + /dotfiles/smart_plug/linux;
-      fileset = projectRoot + "/dotfiles/smart_plug/linux/${speakerServiceName}";
-    }
-  }/${speakerServiceName}";
+      speakerServiceTemplate = "${
+        fileset.toSource {
+          root = projectRoot + /dotfiles/smart_plug/linux;
+          fileset = projectRoot + "/dotfiles/smart_plug/linux/${speakerServiceName}";
+        }
+      }/${speakerServiceName}";
 
-  speakerService = substituteAll {
-    name = speakerServiceName;
-    src = speakerServiceTemplate;
-    speakerctl = getExe speakerctl;
-  };
+      processedTemplate = replaceVars speakerServiceTemplate {
+        speakerctl = getExe speakerctl;
+      };
+    in
+    # This way the basename of the file will be `speakerServiceName` which is
+    # necessary for the Bash function set_up_unit below.
+    "${writeTextDir speakerServiceName (readFile processedTemplate)}/${speakerServiceName}";
 in
 optionalAttrs isGui {
   repository.symlink.home.file = optionalAttrs isDarwin {
