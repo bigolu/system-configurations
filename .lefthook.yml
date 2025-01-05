@@ -226,12 +226,12 @@ check:
             group:
               parallel: true
               jobs:
-                - name: ltex-cli
+                - name: ltex-cli-plus
                   # TODO: The CLI isn't respecting my dictionary or ignore files so I
-                  # can't use it: https://github.com/valentjn/ltex-ls/issues/283
+                  # can't use it: https://github.com/ltex-plus/ltex-ls-plus/issues/56
                   skip: true
                   glob: "*.md"
-                  run: ltex-cli --server-command-line=ltex-ls {files}
+                  run: ltex-cli-plus --server-command-line=ltex-ls-plus {files}
                 - name: golangci-lint
                   # TODO: Don't want to address these issues yet
                   skip: true

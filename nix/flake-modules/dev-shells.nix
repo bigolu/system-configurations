@@ -125,8 +125,8 @@
           renovate
           shellcheck
           statix
-          # for ltex-cli
-          ltex-ls
+          # for ltex-cli-plus
+          ltex-ls-plus
           markdownlint-cli2
           desktop-file-utils
           golangci-lint

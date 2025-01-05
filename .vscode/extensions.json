@@ -8,8 +8,6 @@
 
     "mads-hartmann.bash-ide-vscode",
 
-    "valentjn.vscode-ltex",
-
     "bmalehorn.vscode-fish",
 
     "sumneko.lua",
@@ -35,6 +33,7 @@
     "ms-python.python",
 
     "hangxingliu.vscode-systemd-support",
+    "ltex-plus.vscode-ltex-plus",
   ],
 
   "unwantedRecommendations": ["ms-python.vscode-pylance"],
