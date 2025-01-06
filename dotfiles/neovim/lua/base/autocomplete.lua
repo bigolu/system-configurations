@@ -35,8 +35,7 @@ local function bullets_newline()
   return "<Plug>(bullets-newline)"
 end
 -- When I creating the keymaps outside of an autocommand it didn't work so now I'm creating it the
--- same way bullets.vim does and it works. Not sure what the difference is, maybe something to do
--- with nvim-cmp's fallback()?
+-- same way bullets.vim does and it works. Not sure what the difference is.
 vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     if vim.bo.buftype ~= "" then

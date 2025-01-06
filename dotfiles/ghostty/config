@@ -7,14 +7,15 @@ copy-on-select = clipboard
 confirm-close-surface = false
 quit-after-last-window-closed = true
 macos-option-as-alt = true
+macos-titlebar-style = tabs
 focus-follows-mouse = true
+window-padding-balance = true
 
 font-family = "JetBrains Mono NL"
 font-family-italic = "Monaspace Radon"
 font-family-bold-italic = "Monaspace Radon"
 font-style-italic = "Monaspace Radon"
 font-style-bold-italic = "Monaspace Radon"
-font-synthetic-style = false
 
 adjust-cell-height = 30%
 adjust-cursor-height = 30%

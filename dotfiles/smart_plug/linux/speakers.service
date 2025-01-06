@@ -3,8 +3,8 @@
 
 [Unit]
 Description=Speakers
-# There is also a default conflict on shutdown.target added by systemd that will
-# stop this service before shutdown/reboot[1].
+# By default, systemd also adds a conflict on shutdown.target so the service is
+# stopped before shutdown/reboot[1].
 #
 # [1]: https://www.freedesktop.org/software/systemd/man/latest/systemd.service.html#Default%20Dependencies
 Conflicts=sleep.target
@@ -15,7 +15,7 @@ Before=sleep.target
 # the network.
 #
 # While the above should be true, the network manager on my machine,
-# NetworkManager, isn't always being turned off through systemd so a workaround
+# NetworkManager, isn't always turned off through systemd so a workaround
 # is needed. See speakers.nix for details.
 Wants=network.target
 After=network.target
@@ -30,7 +30,7 @@ RemainAfterExit=yes
 # example, when the machine first starts up, or wakes from sleep, the
 # network may not be online yet. I could have this service start after
 # network-online.target, but systemd does not recommend relying on it[1]. Also,
-# that target is not useful for sleep/wake: Even though the network is turned
+# that target is not useful for sleep/wake: Despite the network being turned
 # off before sleep and restarted on wake, network-online.target remains active
 # the entire time.
 #

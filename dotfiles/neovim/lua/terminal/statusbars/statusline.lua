@@ -188,7 +188,7 @@ local function get_mode_and_left_items()
     or ""
   )
     .. table.concat(items, "%#StatusLineSeparator#" .. "  ")
-    .. (#items > 0 and "%#StatusLinePowerlineInner#" or " ")
+    .. (#items > 0 and "%#StatusLinePowerlineInner#" or "%#StatusLineC# ")
 
   return mode .. items_joined
 end

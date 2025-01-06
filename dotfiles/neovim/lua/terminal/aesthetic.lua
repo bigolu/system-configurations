@@ -5,8 +5,14 @@ vim.o.cursorlineopt = "number,screenline"
 vim.o.wrap = true
 vim.o.listchars = "tab:¬-,space:·"
 vim.opt.fillchars:append("eob: ,lastline:>")
-vim.o.termguicolors = false
+
 vim.cmd.colorscheme("ansi")
+vim.api.nvim_create_autocmd({ "OptionSet" }, {
+  pattern = "termguicolors",
+  callback = function()
+    vim.cmd.colorscheme("ansi")
+  end,
+})
 
 -- cursor
 local function set_cursor()
