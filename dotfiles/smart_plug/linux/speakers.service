@@ -14,9 +14,8 @@ Before=sleep.target
 # service start after network.target ensures that this service is stopped before
 # the network.
 #
-# While the above should be true, the network manager on my machine,
-# NetworkManager, isn't always turned off through systemd so a workaround
-# is needed. See speakers.nix for details.
+# The network manager on my machine, NetworkManager, isn't always turned off through
+# systemd so a workaround is needed. See speakers.nix for details.
 Wants=network.target
 After=network.target
 
