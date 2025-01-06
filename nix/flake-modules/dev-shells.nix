@@ -17,7 +17,7 @@
         pipe
         init
         splitString
-        optionalString
+        optionalAttrs
         ;
       inherit (builtins) readFile;
       inherit (pkgs)
@@ -71,7 +71,22 @@
               export FLAKE_PACKAGE_SET_FILE=${filesReferencedByFlakePackageSetFile}/nix/flake-package-set.nix
             '';
 
-          # For non-NixOS linux distributions[1].
+          essentials = mkShellUniqueNoCC {
+            packages = with pkgs; [ cached-nix-shell ];
+            shellHook = flakePackageSetHook;
+          };
+        in
+        mkShellUniqueNoCC (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
+
+      makeCiShell =
+        args@{
+          inputsFrom ? [ ],
+          ...
+        }:
+        let
+          # Nix recommends setting this for non-NixOS Linux distributions[1] and
+          # Ubuntu is used in CI.
+          #
           # TODO: See if Nix should do this as part of its setup script
           #
           # [1]: https://nixos.wiki/wiki/Locales
@@ -79,22 +94,16 @@
             export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
           '';
 
-          essentials = mkShellUniqueNoCC {
-            packages = with pkgs; [ cached-nix-shell ];
-            shellHook = ''
-              ${flakePackageSetHook}
-              ${optionalString isLinux localeArchiveHook}
-            '';
-          };
+          essentials = makeShell (
+            {
+              packages = with pkgs; [ ci-bash ];
+            }
+            // optionalAttrs isLinux {
+              shellHook = localeArchiveHook;
+            }
+          );
         in
-        mkShellUniqueNoCC (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
-
-      makeCiShell =
-        args@{
-          packages ? [ ],
-          ...
-        }:
-        makeShell (args // { packages = packages ++ [ pkgs.ci-bash ]; });
+        makeShell (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
 
       plugctlPython = import ../plugctl-python.nix pkgs;
 
