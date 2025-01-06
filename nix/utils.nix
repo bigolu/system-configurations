@@ -12,7 +12,7 @@ let
     let
       yearMonthDayStrings = match "(....)(..)(..).*" date;
     in
-    concatStringsSep "-" yearMonthDayStrings;
+    concatStringsSep "." yearMonthDayStrings;
 
   removeRecurseIntoAttrs = set: removeAttrs set (attrNames (recurseIntoAttrs { }));
 

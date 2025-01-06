@@ -82,6 +82,25 @@ vim.g.signify_sign_delete_first_line = signify_sign
 vim.g.signify_sign_change = signify_sign
 vim.g.signify_sign_change_delete = signify_sign
 
+Plug("jake-stewart/multicursor.nvim", {
+  config = function()
+    local mc = require("multicursor-nvim")
+
+    mc.setup()
+
+    local set_keymap = vim.keymap.set
+    set_keymap("n", "<M-leftmouse>", mc.handleMouse)
+    set_keymap({ "n", "v" }, "<c-c>", mc.toggleCursor)
+    set_keymap("n", "<esc>", function()
+      if not mc.cursorsEnabled() then
+        mc.enableCursors()
+      elseif mc.hasCursors() then
+        mc.clearCursors()
+      end
+    end)
+  end,
+})
+
 -- Get help buffers to open in the current window. Source: https://stackoverflow.com/a/26431632
 --
 -- TODO: comment on the source to add the edge cases I found.

@@ -77,7 +77,9 @@ class KasaPlug:
         assert isinstance(ip_address, str)
 
         try:
-            # TODO: This returns a Device, but I think it should return an IotPlug.
+            # TODO: The connect method is defined on the Device class, but I think
+            # the subclasses should override it to ensure that the device returned
+            # matches their class.
             device = await IotPlug.connect(host=ip_address)
         except (KasaException, TimeoutError):
             del cls._ip_address_cache[alias]
@@ -91,7 +93,7 @@ class KasaPlug:
 
     @classmethod
     async def _discover_plug(cls, alias: str, attempts: int) -> Optional[IotPlug]:
-        for _ in range(attempts):
+        for _attempt in range(attempts):
             for device in await cls._discover_devices():
                 if isinstance(device, IotPlug) and device.alias == alias:
                     return device
@@ -113,11 +115,11 @@ class KasaPlug:
         devices_dicts_per_broadcast_address = await asyncio.gather(
             *discovery_awaitables_per_broadcast_address
         )
-        device_lists_per_broadcast_address = [
+        devices_per_broadcast_address = [
             device_dict.values() for device_dict in devices_dicts_per_broadcast_address
         ]
 
-        return itertools.chain(*device_lists_per_broadcast_address)
+        return itertools.chain(*devices_per_broadcast_address)
 
     @classmethod
     def _get_broadcast_addresses(cls) -> set[str]:

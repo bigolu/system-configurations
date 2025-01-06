@@ -562,6 +562,7 @@
         "vim-plugin-fidget-nvim": "vim-plugin-fidget-nvim",
         "vim-plugin-lazy-lsp-nvim": "vim-plugin-lazy-lsp-nvim",
         "vim-plugin-mini-nvim": "vim-plugin-mini-nvim",
+        "vim-plugin-multicursor-nvim": "vim-plugin-multicursor-nvim",
         "vim-plugin-nvim-autopairs": "vim-plugin-nvim-autopairs",
         "vim-plugin-nvim-lightbulb": "vim-plugin-nvim-lightbulb",
         "vim-plugin-nvim-lspconfig": "vim-plugin-nvim-lspconfig",
@@ -822,6 +823,22 @@
       "original": {
         "owner": "echasnovski",
         "repo": "mini.nvim",
+        "type": "github"
+      }
+    },
+    "vim-plugin-multicursor-nvim": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1733109630,
+        "narHash": "sha256-0bFqoTq4d49/REDu6Rnmvms3kDIyEl0N57CpxYp0ImU=",
+        "owner": "jake-stewart",
+        "repo": "multicursor.nvim",
+        "rev": "f454cac9d03ccaf20008f4793f05b159f5547e78",
+        "type": "github"
+      },
+      "original": {
+        "owner": "jake-stewart",
+        "repo": "multicursor.nvim",
         "type": "github"
       }
     },

@@ -288,5 +288,9 @@
       url = "github:numToStr/Navigator.nvim";
       flake = false;
     };
+    vim-plugin-multicursor-nvim = {
+      url = "github:jake-stewart/multicursor.nvim";
+      flake = false;
+    };
   };
 }
