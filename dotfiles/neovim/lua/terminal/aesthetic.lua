@@ -6,11 +6,11 @@ vim.o.wrap = true
 vim.o.listchars = "tab:¬-,space:·"
 vim.opt.fillchars:append("eob: ,lastline:>")
 
-vim.cmd.colorscheme("ansi")
+vim.cmd.colorscheme("bigolu")
 vim.api.nvim_create_autocmd({ "OptionSet" }, {
   pattern = "termguicolors",
   callback = function()
-    vim.cmd.colorscheme("ansi")
+    vim.cmd.colorscheme("bigolu")
   end,
 })
 

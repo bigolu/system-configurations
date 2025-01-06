@@ -1,4 +1,4 @@
-vim.g.colors_name = "ansi"
+vim.g.colors_name = "bigolu"
 
 local colors = nil
 if vim.o.background == "dark" then
@@ -28,6 +28,8 @@ if vim.o.background == "dark" then
     ok_bg = "#1e2915",
     inlay_bg = "#292d38",
     inlay_fg = "#abb4c4",
+    string = "#8FBCBB",
+    bracket = "#88C0D0",
   }
 else
   colors = {
@@ -45,7 +47,7 @@ else
     [11] = "#c96765",
     [12] = "#218bff",
     [13] = "#652d90",
-    [14] = "#a40e26",
+    [14] = "#005C8A",
     [15] = "#808080",
     bg2 = "#e3e5e7",
     pmenu = "#eef0f2",
@@ -56,6 +58,8 @@ else
     ok_bg = "#e8fbee",
     inlay_bg = "#292d38",
     inlay_fg = "#abb4c4",
+    string = "#a40e26",
+    bracket = "#652d90",
   }
 end
 
@@ -170,7 +174,7 @@ local groups = {
   Typedef = "Type", --   A typedef
 
   Constant = "Identifier", -- (*) Any constant
-  String = { ctermfg = 14, fg = colors[14] }, --   A string constant: "this is a string"
+  String = { ctermfg = 14, fg = colors.string }, --   A string constant: "this is a string"
   Character = "String", --   A character constant: 'c', '\n'
   Number = "Identifier", --   A number constant: 234, 0xff
   Boolean = "Identifier", --   A boolean constant: TRUE, false
@@ -441,7 +445,7 @@ local groups = {
   -- }}}
 
   -- vim-matchup {{{
-  MatchParen = { ctermfg = 14, bold = true, fg = colors[14] }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
+  MatchParen = { ctermfg = 14, bold = true, fg = colors.bracket }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
   MatchWord = "Identifier",
   -- }}}
 
