@@ -27,9 +27,10 @@ function main {
       # Print the diff so users can see it in the CI console
       diff_including_untracked
 
-      # Remove changes in case another fix runs after this one. I could drop the
-      # stash as well, but in the event that this code accidentally runs when the
-      # script is run locally, I don't want to permanently delete any changes.
+      # Remove the changes to keep the git repository in a clean state for the next
+      # fix command that runs. I could drop the stash as well, but in the event that
+      # this code accidentally runs when the script is run locally, I don't want to
+      # permanently delete anyone's changes.
       git stash --include-untracked 1>/dev/null
 
       # I'm failing here to make lefthook fail which will cause the overall CI check
@@ -37,13 +38,15 @@ function main {
       exit 1
     fi
   else
-    # When running locally, I need a fix task to fail if any fixes were made for a
-    # few reasons:
+    # When running locally, I want this script to fail if any fixes were made:
     #   - This failure will cause the pre-push hook to abort the push so I can fix up
     #     my commits.
-    #   - When I run all the fix tasks together, the failures let me know _which_ fix
-    #     tasks actually fixed anything.
-    fail_if_files_change "${fix_command[@]}"
+    #   - When I run all the fix commands together, the failures let me know _which_
+    #     fix commands actually fixed anything since lefthook will highlight failed
+    #     commands differently.
+    if did_change_files "${fix_command[@]}"; then
+      exit 1
+    fi
   fi
 }
 
@@ -51,16 +54,12 @@ function has_uncommitted_changes {
   [[ -n "$(git status --porcelain)" ]]
 }
 
-function fail_if_files_change {
+function did_change_files {
   diff_before_running="$(diff_including_untracked)"
   "$@"
   diff_after_running="$(diff_including_untracked)"
 
-  if [[ $diff_before_running != "$diff_after_running" ]]; then
-    return 1
-  else
-    return 0
-  fi
+  [[ $diff_before_running != "$diff_after_running" ]]
 }
 
 function diff_including_untracked {
