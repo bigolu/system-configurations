@@ -52,9 +52,9 @@
       # smaller shells without worrying about hooks running more than once.
       #
       # While I haven't run into this myself, one possible edge case is when two
-      # shellHooks contain the same text, but do something different. Maybe because
-      # they reference a variable that will have a different value when each one is
-      # run. Here's a contrived example:
+      # shellHooks contain the same text, but do something different depending on how
+      # many times they're run. Maybe because they reference a variable that will
+      # have a different value when each one is run. Here's a contrived example:
       #   x=((x + 1))
       #   printf "$x"
       # If two shells had this hook, then one of them would be removed and the output
