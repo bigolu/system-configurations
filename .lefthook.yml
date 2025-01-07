@@ -57,7 +57,7 @@ sync:
   follow: true
   # Lefthook only applies a command's glob if the command's group has a 'files'
   # command or you use the {files} placeholder in the command[1]. Not all of my
-  # commands use {files} so to ensure globs are always applied, I always add a
+  # commands use {files} so to ensure that globs are always applied, I always add a
   # 'files' command, even if I don't need it. The exceptions to this are the
   # pre-commit and pre-push groups since lefthook always applies globs for them.
   # Apparently the behavior of the pre-commit and pre-push groups was confusing for
@@ -71,13 +71,22 @@ sync:
         "$(cat .git/sync-point-1.txt)" "$(cat .git/sync-point-2.txt)"
     fi
   jobs:
+    # Since .envrc is in .gitignore, if you make changes to it you'll need to run one
+    # of the two sync tasks below by yourself.
     - name: direnv
-      glob: ".envrc"
+      glob: ".direnv.bash"
       run: direnv reload
-    - name: nix-direnv
-      # The scripts directory is included so script dependencies can be recalculated
+    # Since reloading nix-direnv can take a while (~30 seconds) there's a separate
+    # task for reloading direnv and reloading nix-direnv.
+    - name: direnv-and-nix-direnv
+      # The scripts directory is included so script dependencies can be re-extracted
       # and loaded in the dev shell.
-      glob: "{.envrc,flake.lock,*.nix,scripts/*}"
+      glob: "{.direnv.bash,flake.lock,*.nix,scripts/*}"
+      # nix-direnv will only reload the dev shell if its cache is invalid. nix-direnv
+      # only considers its cache invalid when one of the files tracked by direnv
+      # changes. Rather than adding all of the files that affect the dev shell to
+      # direnv's tracked files, I touch one of the files that I know is already
+      # tracked, flake.nix.
       run: touch flake.nix && nix-direnv-reload |& nom
     - name: lefthook
       # TODO: Currently, this is only needed on the first sync that's done after
@@ -188,7 +197,7 @@ check:
             exclude: ["*.vscode/*.json"]
             run: ./scripts/run-fix.bash prettier --write {files}
           - name: shfmt
-            glob: "*.{envrc,sh,bash}"
+            glob: "*.{sh,bash}"
             run: ./scripts/run-fix.bash shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}
           - name: fish_indent
             glob: "*.fish"
@@ -266,7 +275,7 @@ check:
                   # https://github.com/nerdypepper/statix/issues/69
                   run: "parallel statix check -- {files}"
                 - name: typos
-                  glob: "{.envrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}}"
+                  glob: "{*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}}"
                   run: typos {files}
                 - name: mypy
                   glob: "dotfiles/smart_plug/*.py"

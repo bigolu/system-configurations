@@ -57,6 +57,7 @@
 
   "files.associations": {
     ".envrc": "shellscript",
+    ".envrc-sample.bash": "shellscript",
     "*.json5": "json5",
   },
 

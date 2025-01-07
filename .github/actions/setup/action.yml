@@ -41,23 +41,25 @@ runs:
         # to any of my substituters.
         upstream-cache: https://example.com
         use-flakehub: false
-    # Since this is the step that loads a dev shell, there isn't one loaded
-    # here. So instead of calling ci-bash directly like I usually do, I'll use
+    # Since this is the step that loads a dev shell, there isn't one loaded here. So
+    # instead of using ci-bash as the shell like I do in other workflows, I'll use
     # `nix run`.
     #
-    # GitHub seems to be splitting 'shell' on spaces which is why I wrote the
-    # expression for --expr in this strange way.
+    # Regarding the expression for --expr: Normally, you call a function in Nix using
+    # a space e.g. `function argument`, but since GitHub Actions splits the command
+    # for 'shell' on spaces, I used parentheses instead.
     - shell: nix run --impure --expr import(./nix/flake-package-set.nix) ci-bash -- {0}
       env:
         INPUT_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
+        # I only want to set the DEV_SHELL environment variable if the workflow
+        # using this action provided the dev-shell input. Since you can't
+        # conditionally set environment variables in GitHub Actions, I'm doing
+        # it here.
         if [[ -n $INPUT_DEV_SHELL ]]; then
           export DEV_SHELL="$INPUT_DEV_SHELL"
         fi
 
-        ./scripts/ci/direnv.bash \
-          export gha >> "$GITHUB_ENV"
-
+        ./scripts/direnv.bash export gha >> "$GITHUB_ENV"
         # GitHub Actions handles the PATH differently
-        ./scripts/ci/direnv.bash \
-          exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
+        ./scripts/direnv.bash exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
