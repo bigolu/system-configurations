@@ -25,6 +25,9 @@ function __fish_path_fix
     #
     # Maybe I should ask them if this behavior should be changed by adding a login-mode guard or only
     # adding the $PATH entries if they aren't already present.
+    #
+    # Relevant issues:
+    # https://github.com/NixOS/nix/issues/5950
     if not status is-login
         set new_path
         for path in (printf '%s\n' $PATH[-1..1])
