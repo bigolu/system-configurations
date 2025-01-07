@@ -12,6 +12,7 @@ import argparse
 import asyncio
 import itertools
 import sys
+import traceback
 from argparse import ArgumentParser, Namespace
 from typing import Iterable, Optional, Self
 
@@ -180,6 +181,6 @@ async def main() -> None:
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-    except Exception as exception:
-        print(exception)
+    except Exception:
+        print(traceback.format_exc())
         sys.exit(2)
