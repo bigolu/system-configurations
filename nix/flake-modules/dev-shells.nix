@@ -94,7 +94,7 @@
             export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
           '';
 
-          essentials = makeShell (
+          ciEssentials = makeShell (
             {
               packages = with pkgs; [ ci-bash ];
             }
@@ -103,7 +103,7 @@
             }
           );
         in
-        makeShell (args // { inputsFrom = inputsFrom ++ [ essentials ]; });
+        makeShell (args // { inputsFrom = inputsFrom ++ [ ciEssentials ]; });
 
       plugctlPython = import ../plugctl-python.nix pkgs;
 
@@ -326,11 +326,8 @@
           ];
         };
 
-        # Have a default shell with common dependencies so I don't have to make a
-        # shell for every CI workflow.
         ci-default = makeCiShell {
           name = "ci-default";
-          packages = with pkgs; [ coreutils ];
         };
 
         ci-check-pull-request = makeCiShell {
@@ -366,6 +363,11 @@
         ci-check-for-broken-links = makeCiShell {
           name = "ci-check-for-broken-links";
           packages = with pkgs; [ gh ];
+        };
+
+        ci-get-commit-count = makeCiShell {
+          name = "ci-get-commit-count";
+          packages = with pkgs; [ gitMinimal ];
         };
       };
     };
