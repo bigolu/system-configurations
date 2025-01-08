@@ -10,16 +10,14 @@ let
     splitString
     pipe
     init
-    toLower
     nameValuePair
     ;
   inherit (builtins)
     readFile
     hasAttr
-    replaceStrings
     listToAttrs
     ;
-  inherit (utils) projectRoot;
+  inherit (utils) projectRoot toNixpkgsAttr toNixpkgsPname;
 
   vimPluginsFromFlake =
     let
@@ -27,15 +25,17 @@ let
 
       vimPluginBuilder =
         repositoryName: repositorySourceCode: date:
-        if hasAttr repositoryName prev.vimPlugins then
-          prev.vimPlugins.${repositoryName}.overrideAttrs (_old: {
-            name = "${repositoryName}-${date}";
+        let
+          nixpkgsAttrName = toNixpkgsAttr repositoryName;
+        in
+        if hasAttr nixpkgsAttrName prev.vimPlugins then
+          prev.vimPlugins.${nixpkgsAttrName}.overrideAttrs (_old: {
             version = date;
             src = repositorySourceCode;
           })
         else
           final.vimUtils.buildVimPlugin {
-            pname = repositoryName;
+            pname = toNixpkgsPname repositoryName;
             version = date;
             src = repositorySourceCode;
           };
@@ -44,22 +44,13 @@ let
 
   myVimPlugins =
     let
-      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
-      # This doesn't apply all of the conventions, but it's enough for now.
-      applyNixpkgsNamingConventions =
-        name:
-        pipe name [
-          (replaceStrings [ "." ] [ "-" ])
-          toLower
-        ];
-
       getPackage =
         pluginName:
         let
-          packageName = applyNixpkgsNamingConventions pluginName;
+          nixpkgsAttrName = toNixpkgsAttr pluginName;
         in
-        final.vimPlugins.${packageName}
-          or (abort "Failed to find package for vim plugin: ${pluginName}. Package name used: ${packageName}");
+        final.vimPlugins.${nixpkgsAttrName}
+          or (abort "Failed to find package for vim plugin: ${pluginName}. Package name used: ${nixpkgsAttrName}");
     in
     pipe
       (final.runCommand "neovim-plugin-names"
@@ -89,6 +80,8 @@ let
         (splitString "\n")
         # The file ends in a newline so the last line will be empty
         init
+        # These attribute names do not adhere to nixpkgs' conventions. I'm
+        # intentionally doing this so they match the names in my neovim config.
         (map (pluginName: nameValuePair pluginName (getPackage pluginName)))
         listToAttrs
         final.lib.recurseIntoAttrs

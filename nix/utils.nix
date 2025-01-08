@@ -1,8 +1,18 @@
 inputs:
 let
   inherit (inputs.nixpkgs) lib;
-  inherit (lib) concatStringsSep recurseIntoAttrs;
-  inherit (builtins) removeAttrs attrNames match;
+  inherit (lib)
+    concatStringsSep
+    recurseIntoAttrs
+    toLower
+    pipe
+    ;
+  inherit (builtins)
+    removeAttrs
+    attrNames
+    match
+    replaceStrings
+    ;
 
   projectRoot = ../.;
 
@@ -25,6 +35,18 @@ let
     {
       inherit moduleRoot baseModule;
     };
+
+  # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
+  # This doesn't apply all of the conventions, but it's enough for now.
+  toNixpkgsAttr =
+    name:
+    pipe name [
+      (replaceStrings [ "." ] [ "-" ])
+      toLower
+    ];
+
+  # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
+  toNixpkgsPname = toLower;
 in
 {
   inherit
@@ -32,5 +54,7 @@ in
     formatDate
     removeRecurseIntoAttrs
     homeManager
+    toNixpkgsAttr
+    toNixpkgsPname
     ;
 }

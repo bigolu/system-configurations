@@ -12,23 +12,24 @@ let
     pipe
     composeManyExtensions
     ;
-  inherit (utils) formatDate;
+  inherit (utils) formatDate toNixpkgsAttr;
 
-  # repositoryPrefix:
+  # repositoryPrefix: e.g. 'vim-plugin-'
   # builder: (repositoryName: repositorySourceCode: date: derivation)
   #
-  # returns: A set with the form {<repo name with `repositoryPrefix` removed> = derivation}
+  # returns: A set with the form:
+  # {<repository name with `repositoryPrefix` removed and nixpkgs' naming conventions applied> = derivation}
   makePluginPackages =
     repositoryPrefix: builder:
     let
-      filterRepositoriesForPrefix =
+      filterNamesForRepositoryPrefix =
         repositories:
         let
           hasRepositoryPrefix = hasPrefix repositoryPrefix;
         in
         filterAttrs (repositoryName: _ignored: hasRepositoryPrefix repositoryName) repositories;
 
-      removePrefixFromRepositories =
+      removePrefixFromRepositoryNames =
         repositories:
         mapAttrs' (
           repositoryName: repositorySourceCode:
@@ -51,9 +52,10 @@ let
         mapAttrs buildPackage repositories;
     in
     pipe inputs [
-      filterRepositoriesForPrefix
-      removePrefixFromRepositories
+      filterNamesForRepositoryPrefix
+      removePrefixFromRepositoryNames
       buildPackagesFromRepositories
+      (mapAttrs' (name: nameValuePair (toNixpkgsAttr name)))
     ];
   composedOverlays =
     pipe

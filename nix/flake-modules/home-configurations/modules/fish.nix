@@ -16,13 +16,13 @@
     plugins =
       let
         packages = with pkgs.fishPlugins; [
-          autopair
-          async-prompt
+          autopair-fish
+          fish-async-prompt
           done
           # Using this to get shell completion for programs added to the path through
           # nix+direnv. Issue to upstream into direnv:
           # https://github.com/direnv/direnv/issues/443
-          completion-sync
+          fish-completion-sync
         ];
       in
       map (package: {
