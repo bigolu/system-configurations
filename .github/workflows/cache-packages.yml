@@ -8,7 +8,8 @@ on:
     paths:
       # Change this action or ones that it calls
       - ".github/**"
-      - ".envrc"
+      - ".direnv.bash"
+      - ".envrc-sample.bash"
       - "default.nix"
       # Change the packages used
       - "flake.nix"
