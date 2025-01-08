@@ -42,8 +42,8 @@ runs:
         upstream-cache: https://example.com
         use-flakehub: false
     # Since this is the step that loads a dev shell, there isn't one loaded here. So
-    # instead of using ci-bash as the shell like I do in other workflows, I'll use
-    # `nix run`.
+    # instead of directly using ci-bash as the shell, like I do in other workflows,
+    # I'll use ci-bash through `nix run`.
     #
     # Regarding the expression for --expr: Normally, you call a function in Nix using
     # a space e.g. `function argument`, but since GitHub Actions splits the command
@@ -52,10 +52,9 @@ runs:
       env:
         INPUT_DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        # I only want to set the DEV_SHELL environment variable if the workflow
-        # using this action provided the dev-shell input. Since you can't
-        # conditionally set environment variables in GitHub Actions, I'm doing
-        # it here.
+        # I only want to set the DEV_SHELL environment variable if the workflow using
+        # this action provided the dev-shell input. Since you can't conditionally set
+        # environment variables in GitHub Actions, I'm doing it here.
         if [[ -n $INPUT_DEV_SHELL ]]; then
           export DEV_SHELL="$INPUT_DEV_SHELL"
         fi

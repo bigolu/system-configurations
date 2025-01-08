@@ -13,8 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
-        with:
-          dev-shell: ci-check-for-broken-links
       - name: Link Checker
         id: lychee
         uses: lycheeverse/lychee-action@f796c8b7d468feb9b8c0a46da3fac0af6874d374 # v2
@@ -23,7 +21,4 @@ jobs:
           # To avoid being rate-limited by GitHub
           token: ${{ secrets.GITHUB_TOKEN }}
       - if: steps.lychee.outputs.exit_code != 0
-        run: |
-          gh issue create \
-            --title 'Link Checker Report' \
-            --body-file ./lychee/out.md
+        run: ./scripts/ci/make-issue-for-link-checker-report.bash

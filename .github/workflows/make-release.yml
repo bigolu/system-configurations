@@ -17,15 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
-        with:
-          dev-shell: ci-get-commit-count
-      # SYNC: NEW_COMMITS_SINCE
       - name: Get the number of new commits
         id: get-new-commit-count
-        run: |
-          echo \
-            "count=$(git log --oneline --since '3 months ago' | wc -l)" \
-            >> "$GITHUB_OUTPUT"
+        run: ./scripts/ci/get-new-commit-count.bash
   make-assets:
     name: Make Assets
     needs: get-new-commit-count

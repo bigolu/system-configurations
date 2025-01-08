@@ -52,9 +52,4 @@ jobs:
           #
           # [1]: https://github.com/NixOS/nix/issues/3946
           use-magic-nix-cache: "false"
-      - run: |
-          current_system="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
-          nix-fast-build \
-            --no-nom \
-            --skip-cached \
-            --flake ".#allSystems.${current_system}.allModuleArgs.pkgs.packagesToCache"
+      - run: ./scripts/ci/build-packages-to-cache.bash
