@@ -30,7 +30,7 @@ in
     ../fish.nix
     ../nix.nix
     ../neovim.nix
-    ../utility
+    ../utility/repository
     ../home-manager.nix
     ../fonts.nix
     ../keyboard-shortcuts.nix

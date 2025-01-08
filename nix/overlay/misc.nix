@@ -11,6 +11,7 @@ let
   neovimWithDependencies =
     let
       previousNeovim = prev.neovim;
+
       dependencies = final.symlinkJoin {
         pname = "neovim-dependencies";
         version = flakeLastModifiedDateAsVersion;
@@ -19,33 +20,38 @@ let
           par
         ];
       };
+
       generalBin = fileset.toSource {
         root = projectRoot + /dotfiles/general/bin;
         fileset = projectRoot + /dotfiles/general/bin;
       };
+
       generalMacosBin = fileset.toSource {
         root = projectRoot + /dotfiles/general/bin-macos;
         fileset = projectRoot + /dotfiles/general/bin-macos;
       };
+
+      wrappedNeovim = final.symlinkJoin {
+        pname = "my-${previousNeovim.pname}";
+        inherit (previousNeovim) version;
+        paths = [ previousNeovim ];
+        buildInputs = [ final.makeWrapper ];
+        postBuild = ''
+          # PARINIT: The par manpage recommends using this value if you want
+          # to start using par, but aren't familiar with how par works so
+          # until I learn more, I'll use this value.
+          #
+          # I'm adding general/bin for: trash, pbcopy
+          wrapProgram $out/bin/nvim \
+            --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
+            --prefix PATH : ${dependencies}/bin \
+            --prefix PATH : ${generalBin} \
+            ${optionalString isDarwin "--prefix PATH : ${generalMacosBin}"}
+        '';
+      };
     in
-    final.symlinkJoin {
-      pname = "my-${previousNeovim.pname}";
-      inherit (previousNeovim) version;
-      paths = [ previousNeovim ];
-      buildInputs = [ final.makeWrapper ];
-      postBuild = ''
-        # PARINIT: The par manpage recommends using this value if you want
-        # to start using par, but aren't familiar with how par works so
-        # until I learn more, I'll use this value.
-        #
-        # I'm adding general/bin for: trash, pbcopy
-        wrapProgram $out/bin/nvim \
-          --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
-          --prefix PATH : ${dependencies}/bin \
-          --prefix PATH : ${generalBin} \
-          ${optionalString isDarwin "--prefix PATH : ${generalMacosBin}"}
-      '';
-    };
+    # Merge with the original package to retain attributes like meta
+    previousNeovim // wrappedNeovim;
 
   ripgrepAllWithDependencies =
     let

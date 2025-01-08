@@ -21,6 +21,7 @@ let
       prev.fishPlugins.${nixpkgsAttrName}.overrideAttrs (_old: {
         version = date;
         src = repositorySourceCode;
+        preInstall = fixups.${repositoryName} or "";
       })
     else
       prev.fishPlugins.buildFishPlugin {
