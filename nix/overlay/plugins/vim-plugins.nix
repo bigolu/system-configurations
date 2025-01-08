@@ -6,7 +6,13 @@
 final: prev:
 let
   inherit (inputs.nixpkgs) lib;
-  inherit (lib) splitString pipe init;
+  inherit (lib)
+    splitString
+    pipe
+    init
+    toLower
+    nameValuePair
+    ;
   inherit (builtins)
     readFile
     hasAttr
@@ -38,7 +44,22 @@ let
 
   myVimPlugins =
     let
-      replaceDotsWithDashes = replaceStrings [ "." ] [ "-" ];
+      # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
+      # This doesn't apply all of the conventions, but it's enough for now.
+      applyNixpkgsNamingConventions =
+        name:
+        pipe name [
+          (replaceStrings [ "." ] [ "-" ])
+          toLower
+        ];
+
+      getPackage =
+        pluginName:
+        let
+          packageName = applyNixpkgsNamingConventions pluginName;
+        in
+        final.vimPlugins.${packageName}
+          or (abort "Failed to find package for vim plugin: ${pluginName}. Package name used: ${packageName}");
     in
     pipe
       (final.runCommand "neovim-plugin-names"
@@ -68,15 +89,7 @@ let
         (splitString "\n")
         # The file ends in a newline so the last line will be empty
         init
-        (map (
-          pluginName:
-          final.vimPlugins.${pluginName} or final.vimPlugins.${replaceDotsWithDashes pluginName}
-          or (abort "Failed to find vim plugin: ${pluginName}")
-        ))
-        (map (plugin: {
-          name = plugin.pname;
-          value = plugin;
-        }))
+        (map (pluginName: nameValuePair pluginName (getPackage pluginName)))
         listToAttrs
         final.lib.recurseIntoAttrs
       ];

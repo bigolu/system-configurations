@@ -16,7 +16,7 @@
     plugins =
       let
         packages = with pkgs.fishPlugins; [
-          autopair-fish
+          autopair
           async-prompt
           done
           # Using this to get shell completion for programs added to the path through

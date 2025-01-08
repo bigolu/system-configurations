@@ -149,20 +149,15 @@
 
     # fish
     ########################################
-    fish-plugin-autopair-fish = {
-      url = "github:jorgebucaran/autopair.fish";
-      flake = false;
-    };
+    # This is in nixpkgs, but they're tracking releases and there have been many
+    # commits to master since the last release. I should see if async-prompt can make
+    # a new release or have nixpkgs track master.
     fish-plugin-async-prompt = {
       url = "github:acomagu/fish-async-prompt";
       flake = false;
     };
     fish-plugin-completion-sync = {
       url = "github:pfgray/fish-completion-sync";
-      flake = false;
-    };
-    fish-plugin-done = {
-      url = "github:franciscolourenco/done";
       flake = false;
     };
 
@@ -176,10 +171,6 @@
     };
     vim-plugin-bullets-vim = {
       url = "github:bullets-vim/bullets.vim";
-      flake = false;
-    };
-    vim-plugin-CamelCaseMotion = {
-      url = "github:bkad/CamelCaseMotion";
       flake = false;
     };
     vim-plugin-dial-nvim = {
@@ -202,41 +193,13 @@
       url = "github:echasnovski/mini.nvim";
       flake = false;
     };
-    vim-plugin-nvim-autopairs = {
-      url = "github:windwp/nvim-autopairs";
-      flake = false;
-    };
-    vim-plugin-nvim-lightbulb = {
-      url = "github:kosayoda/nvim-lightbulb";
-      flake = false;
-    };
-    vim-plugin-nvim-lspconfig = {
-      url = "github:neovim/nvim-lspconfig";
-      flake = false;
-    };
-    vim-plugin-nvim-treesitter = {
-      url = "github:nvim-treesitter/nvim-treesitter";
-      flake = false;
-    };
-    vim-plugin-nvim-treesitter-context = {
-      url = "github:nvim-treesitter/nvim-treesitter-context";
-      flake = false;
-    };
     vim-plugin-nvim-treesitter-endwise = {
       # Use this fork until this PR is merged:
       # https://github.com/RRethy/nvim-treesitter-endwise/pull/42
       url = "github:metiulekm/nvim-treesitter-endwise";
       flake = false;
     };
-    vim-plugin-nvim-treesitter-textobjects = {
-      url = "github:nvim-treesitter/nvim-treesitter-textobjects";
-      flake = false;
-    };
-    vim-plugin-nvim-ts-autotag = {
-      url = "github:windwp/nvim-ts-autotag";
-      flake = false;
-    };
-    vim-plugin-SchemaStore-nvim = {
+    vim-plugin-schemastore-nvim = {
       url = "github:b0o/SchemaStore.nvim";
       flake = false;
     };
@@ -244,47 +207,11 @@
       url = "github:AndrewRadev/splitjoin.vim";
       flake = false;
     };
-    vim-plugin-treesj = {
-      url = "github:Wansmer/treesj";
-      flake = false;
-    };
-    vim-plugin-vim-abolish = {
-      url = "github:tpope/vim-abolish";
-      flake = false;
-    };
     vim-plugin-vim-caser = {
       url = "github:arthurxavierx/vim-caser";
       flake = false;
     };
-    vim-plugin-vim-indentwise = {
-      url = "github:jeetsukumaran/vim-indentwise";
-      flake = false;
-    };
-    vim-plugin-vim-matchup = {
-      url = "github:andymass/vim-matchup";
-      flake = false;
-    };
-    vim-plugin-vim-nix = {
-      url = "github:LnL7/vim-nix";
-      flake = false;
-    };
-    vim-plugin-vim-plug = {
-      url = "github:junegunn/vim-plug";
-      flake = false;
-    };
-    vim-plugin-vim-repeat = {
-      url = "github:tpope/vim-repeat";
-      flake = false;
-    };
-    vim-plugin-vim-signify = {
-      url = "github:mhinz/vim-signify";
-      flake = false;
-    };
-    vim-plugin-vim-sleuth = {
-      url = "github:tpope/vim-sleuth";
-      flake = false;
-    };
-    vim-plugin-Navigator-nvim = {
+    vim-plugin-navigator-nvim = {
       url = "github:numToStr/Navigator.nvim";
       flake = false;
     };
