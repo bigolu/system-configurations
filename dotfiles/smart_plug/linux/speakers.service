@@ -22,8 +22,9 @@ After=network.target
 [Service]
 # I'm using the oneshot type so I can use RemainAfterExit, see below.
 Type=oneshot
-# This service should still be considered active after the ExecStart command
-# ends since I want the active state to represent the speakers being on.
+# This service should still be considered active after the ExecStart command ends.
+# This way, ExecStop will run when the service hits one of the specified conflicts,
+# sleep.target or shutdown.target.
 RemainAfterExit=yes
 # Make multiple discovery attempts to account for network unavailability. For
 # example, when the machine first starts up, or wakes from sleep, the

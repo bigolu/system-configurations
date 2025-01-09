@@ -151,6 +151,8 @@ local groups = {
   Keyword = "Conditional", --   any other keyword
   Exception = "Conditional", --   try, catch, throw
 
+  -- Have to use 7 instead of "NONE" because when one language is embedded in
+  -- another, like bash code in a github action yaml, the string color was being used
   Identifier = { fg = colors[7] }, -- (*) Any variable name
   Function = "Identifier", --   Function name (also: methods for classes)
 
