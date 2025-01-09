@@ -94,7 +94,7 @@ class KasaPlug:
 
     @classmethod
     async def _discover_plug(cls, alias: str, attempts: int) -> Optional[IotPlug]:
-        for _attempt in range(attempts):
+        for unused in range(attempts):
             for device in await cls._discover_devices():
                 if isinstance(device, IotPlug) and device.alias == alias:
                     return device
