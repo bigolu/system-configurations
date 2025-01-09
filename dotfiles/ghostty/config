@@ -10,6 +10,7 @@ macos-option-as-alt = true
 macos-titlebar-style = tabs
 focus-follows-mouse = true
 window-padding-balance = true
+clipboard-paste-protection = false
 
 font-family = "JetBrains Mono NL"
 font-family-italic = "Monaspace Radon"

@@ -21,13 +21,5 @@
       fish-completion-sync
     ]);
 
-  repository = {
-    symlink.xdg.configFile = {
-      "fish/conf.d" = {
-        source = "fish/conf.d";
-        # I'm recursively linking because I link into this directory in other places.
-        recursive = true;
-      };
-    };
-  };
+  repository.symlink.xdg.configFile."fish/conf.d".source = "fish/conf.d";
 }

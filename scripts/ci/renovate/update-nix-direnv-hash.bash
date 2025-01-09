@@ -11,7 +11,7 @@ shopt -s nullglob
 # WARNING: The VS Code Bash debugger extension does not support BASH_REMATCH:
 # https://github.com/rogalmic/vscode-bash-debug/issues/183
 
-envrc_path="${1:-.envrc}"
+envrc_path="$1"
 
 nix_direnv_url_pattern='https://raw.githubusercontent.com/nix-community/nix-direnv/.*/direnvrc'
 original_envrc="$(<"$envrc_path")"

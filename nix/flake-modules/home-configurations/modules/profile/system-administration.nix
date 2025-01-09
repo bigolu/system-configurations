@@ -10,7 +10,6 @@ let
     hm
     getExe
     ;
-  inherit (pkgs) runCommand;
   inherit (pkgs.stdenv) isLinux isDarwin;
 in
 {
@@ -68,20 +67,6 @@ in
       pstree
     ];
 
-  xdg = {
-    configFile = {
-      # TODO: I shouldn't have to do this. The programs should generate the files as
-      # part of their build so they can be put in vendor_conf.d. See the direnv
-      # package for an example of how this is done.
-      "fish/conf.d/zoxide.fish".source =
-        runCommand "zoxide-config.fish" { }
-          "${pkgs.zoxide}/bin/zoxide init --no-cmd fish > $out";
-      "fish/conf.d/broot.fish".source =
-        runCommand "broot.fish" { }
-          "${pkgs.broot}/bin/broot --print-shell-function fish > $out";
-    };
-  };
-
   repository = {
     symlink = {
       xdg.configFile =
@@ -90,18 +75,12 @@ in
           "lesskey".source = "less/lesskey";
           "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
           "ssh/bootstrap.sh".source = "ssh/bootstrap.sh";
-          "broot" = {
-            source = "broot";
-            # I'm recursively linking because I link into this directory in other
-            # places.
-            recursive = true;
-          };
+          "broot".source = "broot";
           "bat/config".source = "bat/config.txt";
           "bat/themes/ansi.tmTheme".source = "bat/ansi.tmTheme";
         }
         // optionalAttrs isLinux {
           "pipr/pipr.toml".source = "pipr/pipr.toml";
-          "fish/conf.d/pipr.fish".source = "pipr/pipr.fish";
         };
 
       # The programs store files according to the XDG Base Directory spec[1] on Linux

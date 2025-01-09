@@ -53,13 +53,13 @@ let
   # Normally I'd use overrideAttrs, but that wouldn't affect keyd-application-mapper
   keyd =
     let
-      version = "2.5.0-9c758c0";
+      version = "2.5.0-2a86125";
 
       src = fetchFromGitHub {
         owner = "rvaiya";
         repo = "keyd";
-        rev = "9c758c0e152426cab3972256282bc7ee7e2f808e";
-        hash = "sha256-M684l/o5KdztKkVvJHrfC6WELsaQGpXjYgV1I9FJqxM=";
+        rev = "2a86125f5e20532600183449ab610e924dfb536c";
+        hash = "sha256-Dy3zvp2nBMvWJcERVoU1ydaZoROZG+gWIIafyCBAz+U=";
       };
 
       pypkgs = final.python3.pkgs;

@@ -169,10 +169,7 @@ in
         recursive = true;
       };
 
-      configFile = {
-        "nix/repl-startup.nix".source = "nix/repl-startup.nix";
-        "fish/conf.d/zz-nix.fish".source = "nix/zz-nix.fish";
-      };
+      configFile."nix/repl-startup.nix".source = "nix/repl-startup.nix";
     };
   };
 

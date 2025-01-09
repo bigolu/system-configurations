@@ -21,15 +21,9 @@ in
     fzfWithoutShellConfig
   ];
 
-  repository.symlink.xdg = {
-    configFile = {
-      "fish/conf.d/fzf-default-opts.fish".source = "fzf/fzf-default-opts.fish";
-    };
-
-    executable."fzf" = {
-      source = "fzf/bin";
-      recursive = true;
-    };
+  repository.symlink.xdg.executable."fzf" = {
+    source = "fzf/bin";
+    recursive = true;
   };
 
   home.activation.fzfSetup = hm.dag.entryAfter [ "writeBoundary" ] ''
