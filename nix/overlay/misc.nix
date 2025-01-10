@@ -2,7 +2,12 @@
 final: prev:
 let
   inherit (inputs) self;
-  inherit (inputs.nixpkgs.lib) fileset optionalString optionalAttrs;
+  inherit (inputs.nixpkgs.lib)
+    fileset
+    optionalString
+    optionalAttrs
+    recursiveUpdate
+    ;
   inherit (final.stdenv) isDarwin isLinux;
   inherit (utils) projectRoot formatDate;
 
@@ -51,7 +56,7 @@ let
       };
     in
     # Merge with the original package to retain attributes like meta
-    previousNeovim // wrappedNeovim;
+    recursiveUpdate previousNeovim wrappedNeovim;
 
   ripgrepAllWithDependencies =
     let

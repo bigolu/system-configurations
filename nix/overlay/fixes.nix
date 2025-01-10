@@ -1,7 +1,7 @@
 { inputs, ... }:
 final: prev:
 let
-  inherit (inputs.nixpkgs.lib) getExe;
+  inherit (inputs.nixpkgs.lib) getExe recursiveUpdate;
 
   # TODO: I shouldn't have to do this. The programs should generate the files as part
   # of their build so they can be put in vendor_conf.d. See the direnv package for an
@@ -29,7 +29,7 @@ let
       };
     in
     # Merge with the original package to retain attributes like meta
-    oldZoxide // newZoxide;
+    recursiveUpdate oldZoxide newZoxide;
 
   # TODO: I shouldn't have to do this. The programs should generate the files as part
   # of their build so they can be put in vendor_conf.d. See the direnv package for an
@@ -57,7 +57,7 @@ let
       };
     in
     # Merge with the original package to retain attributes like meta
-    oldBroot // newBroot;
+    recursiveUpdate oldBroot newBroot;
 in
 {
   zoxide = zoxideWithFishConfig;

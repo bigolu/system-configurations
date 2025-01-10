@@ -16,6 +16,7 @@ let
     pipe
     getExe
     mergeAttrsList
+    recursiveUpdate
     ;
 
   wrap =
@@ -42,7 +43,7 @@ let
       };
     in
     # Merge with the original package to retain attributes like meta, terminfo, etc.
-    package // wrappedPackage;
+    recursiveUpdate package wrappedPackage;
 
   wrapPackages =
     packageNames:
