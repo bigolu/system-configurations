@@ -62,8 +62,7 @@ let
             };
           in
           stdenv.mkDerivation {
-            pname = name;
-            version = derivation.version or "0.0.1";
+            inherit name;
             dontUnpack = true;
             buildInputs = [
               gozip

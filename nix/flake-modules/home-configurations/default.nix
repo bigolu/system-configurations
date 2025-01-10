@@ -78,7 +78,7 @@ let
 
         # Since I'm running Home Manager in "submodule mode", I have to set these or
         # else it won't build.
-        username = "guest";
+        username = "biggs";
         homeDirectory = "/no/home/directory";
       };
 

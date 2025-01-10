@@ -223,8 +223,9 @@ in
 
       cores = 0;
 
-      # Double the default size (64MiB -> 124MiB) since I kept hitting it
-      download-buffer-size = 134217728;
+      # Increase the buffer limit to 1GiB since the buffer would often reach the
+      # default limit of 64MiB.
+      download-buffer-size = 1073741824;
 
       max-jobs = "auto";
 

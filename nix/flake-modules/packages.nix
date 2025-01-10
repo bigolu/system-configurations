@@ -1,4 +1,7 @@
-{ self, ... }:
+{
+  self,
+  ...
+}:
 {
   perSystem =
     {
@@ -16,7 +19,7 @@
         inherit plugctl;
 
         shell = makePortableShell {
-          config = self.homeConfigurations."portable-home-${system}";
+          homeConfig = self.homeConfigurations."portable-home-${system}";
           shell = "fish";
           init = ''
             # Compile my custom themes for bat

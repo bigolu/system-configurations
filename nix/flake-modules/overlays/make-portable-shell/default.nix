@@ -1,6 +1,6 @@
 final: _prev:
 {
-  config,
+  homeConfig,
   shell,
   init ? null,
 }:
@@ -21,7 +21,7 @@ let
 
   bashPath = "${final.bash}/bin/bash";
 
-  inherit (config) activationPackage;
+  inherit (homeConfig) activationPackage;
 
   localeArchive =
     if isLinux then "export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive" else "";
@@ -66,10 +66,10 @@ let
     };
   };
 
-  name = "shell";
-
+  user = homeConfig.config.home.username;
+  programName = "${user}-shell";
 in
-(final.writeScriptBin name ''
+(final.writeScriptBin programName ''
   #!${bashPath}
   BASH_PATH=${bashPath}
   ACTIVATION_PACKAGE=${activationPackage}
@@ -79,5 +79,5 @@ in
   source ${bootstrap}/bin/bootstrap
 '')
 // {
-  meta.mainProgram = name;
+  meta.mainProgram = programName;
 }
