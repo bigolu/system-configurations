@@ -6,10 +6,13 @@ if not status is-interactive
 end
 
 function nix
-    # If I'm running the repl, use my startup file.
+    # If I'm running the repl, use my startup file. Nix is considering adding a
+    # config file for this[1].
     #
     # I'm using && instead of -a because sometimes the argument that follows it
     # starts with a '-' and then fish mistakes it for a test operator.
+    #
+    # [1]: https://github.com/NixOS/nix/issues/9940
     if test (count $argv) -eq 1 && test "$argv[1]" = repl
         set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HOME/.config")
         command nix $argv --file "$xdg_config/nix/repl-startup.nix"
