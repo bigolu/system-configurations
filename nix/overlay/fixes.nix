@@ -10,11 +10,15 @@ let
     let
       oldZoxide = prev.zoxide;
 
-      fishConfig = final.runCommand "zoxide-fish-config" { } ''
-        config_directory="$out/share/fish/vendor_conf.d"
-        mkdir -p "$config_directory"
-        ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
-      '';
+      fishConfig =
+        (final.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
+          config_directory="$out/share/fish/vendor_conf.d"
+          mkdir -p "$config_directory"
+          ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
+        '')
+        // {
+          inherit (oldZoxide) version;
+        };
 
       newZoxide = final.symlinkJoin {
         inherit (oldZoxide) pname version;
@@ -34,11 +38,15 @@ let
     let
       oldBroot = prev.broot;
 
-      fishConfig = final.runCommand "broot-fish-config" { } ''
-        config_directory="$out/share/fish/vendor_conf.d"
-        mkdir -p "$config_directory"
-        ${getExe oldBroot} --print-shell-function fish > "$config_directory/broot.fish"
-      '';
+      fishConfig =
+        (final.runCommand "broot-fish-config-${oldBroot.version}" { } ''
+          config_directory="$out/share/fish/vendor_conf.d"
+          mkdir -p "$config_directory"
+          ${getExe oldBroot} --print-shell-function fish > "$config_directory/broot.fish"
+        '')
+        // {
+          inherit (oldBroot) version;
+        };
 
       newBroot = final.symlinkJoin {
         inherit (oldBroot) pname version;
