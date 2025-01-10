@@ -72,11 +72,9 @@ function add_directory_to_path {
         cp -L "$program" "$new_directory/env"
         ;;
       fish)
+        # I unexport the XDG Base directories so host programs pick up the host's XDG
+        # directories.
         printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
-# I unexport the XDG Base directories so host programs pick up the host's XDG
-# directories.
-#
-# TODO: Do this for more shells
 XDG_CONFIG_HOME=$xdg_config_directory \
 XDG_DATA_HOME=$xdg_data_directory \
 XDG_STATE_HOME=$xdg_state_directory \
@@ -89,6 +87,24 @@ exec $program \
   --init-command 'set --unexport XDG_STATE_HOME' \
   --init-command 'set --unexport XDG_RUNTIME_DIR' \
   --init-command 'set --unexport XDG_CACHE_HOME' \
+  \"\$@\""
+        ;;
+      nvim)
+        # I unexport the XDG Base directories so host programs pick up the host's XDG
+        # directories.
+        printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
+XDG_CONFIG_HOME=$xdg_config_directory \
+XDG_DATA_HOME=$xdg_data_directory \
+XDG_STATE_HOME=$xdg_state_directory \
+XDG_RUNTIME_DIR=$xdg_runtime_directory \
+XDG_CACHE_HOME=$xdg_cache_directory \
+BIGOLU_IN_PORTABLE_HOME=1 \
+exec $program \
+  -c 'unlet \$XDG_CONFIG_HOME' \
+  -c 'unlet \$XDG_DATA_HOME' \
+  -c 'unlet \$XDG_STATE_HOME' \
+  -c 'unlet \$XDG_RUNTIME_DIR' \
+  -c 'unlet \$XDG_CACHE_HOME' \
   \"\$@\""
         ;;
       *)
