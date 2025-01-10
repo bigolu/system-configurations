@@ -133,7 +133,7 @@ let
           terminal-notifier \
             -title "Nix Darwin" \
             -message "There are changes on the remote, click here to pull." \
-            -execute 'open -a Ghostty —args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'
+            -execute 'open -n -a Ghostty --args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'
         fi
       '';
     };
