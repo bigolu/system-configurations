@@ -1,6 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i bash
-#! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv]"
+#! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"
 
 # This script is for running direnv commands. It handles things that need to be done
 # before running direnv:
