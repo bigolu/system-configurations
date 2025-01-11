@@ -9,25 +9,23 @@ set -o pipefail
 shopt -s nullglob
 
 function main {
-  local -r bundle_path="$(make_bundle)"
-  assert_bundle_meets_size_limit "$bundle_path"
+  local -r bundle="$(make_shell_bundle)"
+  assert_bundle_meets_size_limit "$bundle"
 
-  local -r bundle_basename_with_platform="$(get_basename_with_platform "$bundle_path")"
-
-  artifact_directory="$(mktemp --directory)"
-  echo "artifact-directory=$artifact_directory" >>"${GITHUB_OUTPUT:-/dev/stdout}"
-
-  checksum_directory="$artifact_directory/checksums"
-  mkdir "$checksum_directory"
-  get_checksum "$bundle_path" >"$checksum_directory/${bundle_basename_with_platform}.txt"
-
-  asset_directory="$artifact_directory/assets"
-  mkdir "$asset_directory"
-  mv "$bundle_path" "${asset_directory}/${bundle_basename_with_platform}"
+  local -r asset_directory="$(register_asset_directory)"
+  add_bundle_checksum_to_assets "$asset_directory" "$bundle"
+  move_bundle_into_assets "$asset_directory" "$bundle"
 }
 
-# Creates the bundle and prints its path
-function make_bundle {
+function register_asset_directory {
+  asset_directory="$(mktemp --directory)"
+  echo "asset-directory=$asset_directory" >>"${GITHUB_OUTPUT:-/dev/stdout}"
+
+  echo "$asset_directory"
+}
+
+# Creates a bundle for the shell and prints its path
+function make_shell_bundle {
   # Redirect stdout to stderr until we're ready to print the bundle path
   exec {stdout_copy}>&1
   exec 1>&2
@@ -46,7 +44,6 @@ function make_bundle {
   popd
 
   exec 1>&$stdout_copy
-
   echo "$bundle_path"
 }
 
@@ -60,15 +57,35 @@ function dereference_symlink {
   mv "$temp/copy" "$symlink_path"
 }
 
+function add_bundle_checksum_to_assets {
+  local -r asset_directory="$1"
+  local -r bundle_file="$2"
+
+  local -r bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
+  local -r checksum_directory="$asset_directory/checksums"
+  mkdir "$checksum_directory"
+  get_checksum "$bundle_file" >"$checksum_directory/${bundle_basename_with_platform}.txt"
+}
+
 function get_checksum {
   local -r file="$1"
   shasum -a 256 "$file" | cut -d ' ' -f 1
 }
 
-function assert_bundle_meets_size_limit {
-  local -r bundle_path="$1"
+function move_bundle_into_assets {
+  local -r asset_directory="$1"
+  local -r bundle_file="$2"
 
-  size="$(du -m "$bundle_path" | cut -f1)"
+  local -r bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
+  bundle_directory="$asset_directory/bundles"
+  mkdir "$bundle_directory"
+  mv "$bundle_file" "${bundle_directory}/${bundle_basename_with_platform}"
+}
+
+function assert_bundle_meets_size_limit {
+  local -r bundle_file="$1"
+
+  size="$(du -m "$bundle_file" | cut -f1)"
   max_size=250
   if ((size > max_size)); then
     echo "Shell is too big: $size MB. Max size: $max_size"

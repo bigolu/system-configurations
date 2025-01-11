@@ -9,6 +9,7 @@ set -o pipefail
 shopt -s nullglob
 
 tag='latest'
+asset_directory='assets'
 
 function main {
   delete_old_release
@@ -24,7 +25,7 @@ function make_new_release {
     --latest \
     --notes-file "$(make_release_notes)" \
     --title "$(date +'%Y.%m.%d')" \
-    artifacts/assets/*
+    "$asset_directory/bundles/"*
 }
 
 function make_release_notes {
@@ -32,9 +33,11 @@ function make_release_notes {
 
   {
     printf '# SHA256 Checksums:\n\n'
-    for checksum_file in artifacts/checksums/*; do
-      base="$(basename "$checksum_file")"
-      printf '%s\n' "${base%.*}"
+    for checksum_file in "$asset_directory/checksums/"*; do
+      basename="$(basename "$checksum_file")"
+      basename_without_extension="${basename%.*}"
+
+      printf '%s\n' "${basename_without_extension}"
       # shellcheck disable=2016
       printf '\n```\n%s\n```\n\n' "$(<"$checksum_file")"
     done
