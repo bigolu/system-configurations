@@ -14,7 +14,7 @@
 
   "glspc.documentFilters": [{ "pattern": "**" }],
   "glspc.serverCommand": "efm-langserver",
-  "glspc.serverCommandArguments": ["-c", ".efm-langserver.yaml"],
+  "glspc.serverCommandArguments": ["-c", "efm-langserver.yaml"],
   "glspc.trace.server": "verbose",
 
   "nix.enableLanguageServer": true,
@@ -57,7 +57,6 @@
 
   "files.associations": {
     ".envrc": "shellscript",
-    ".envrc-sample.bash": "shellscript",
     "*.json5": "json5",
   },
 

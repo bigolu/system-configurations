@@ -73,14 +73,14 @@ sync:
     # Since .envrc is in .gitignore, if you make changes to it you'll need to run one
     # of the two sync tasks below by yourself.
     - name: direnv
-      glob: ".direnv.bash"
+      glob: "direnv-config.bash"
       run: direnv reload
     # Since reloading nix-direnv can take a while (~30 seconds) there's a separate
     # task for reloading direnv and reloading nix-direnv.
     - name: direnv-and-nix-direnv
       # The scripts directory is included so script dependencies can be re-extracted
       # and loaded in the dev shell.
-      glob: "{.direnv.bash,flake.lock,*.nix,scripts/*}"
+      glob: "{direnv-config.bash,flake.lock,*.nix,scripts/*}"
       # nix-direnv will only reload the dev shell if its cache is invalid. nix-direnv
       # only considers its cache invalid when one of the files tracked by direnv
       # changes. Rather than adding all of the files that affect the dev shell to
@@ -96,7 +96,7 @@ sync:
       # hooks of the other branch.
       #
       # [1]: https://github.com/evilmartians/lefthook/issues/840
-      glob: ".lefthook.yml"
+      glob: "lefthook.yaml"
       run: lefthook install --force
     - name: system
       glob: "{flake.lock,*.nix,dotfiles/*}"
@@ -110,7 +110,7 @@ sync:
       run: |
         bash -o pipefail -euc '
           hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
-          destination='.lua-libraries/hammerspoon-annotations'
+          destination='lua-libraries/hammerspoon-annotations'
           if [[ -e $hammerspoon_annotations && ! -e $destination ]]; then
             mkdir --parents "$(dirname "$destination")"
             ln --symbolic --force --no-dereference "$hammerspoon_annotations" "$destination"
@@ -152,7 +152,7 @@ check:
             glob: "flake.lock"
             run: ./scripts/run-fix.bash ./scripts/code-generation/sync-nix-version.bash
           - name: system-configs
-            glob: "{nix/*,flake.nix}"
+            glob: "*.nix"
             run: ./scripts/run-fix.bash ./scripts/code-generation/add-system-configurations-to-readme.bash
           - name: flake-lock
             glob: "flake.nix"
@@ -178,7 +178,7 @@ check:
             glob: "gozip/go.{mod,sum}"
             run: ./scripts/run-fix.bash go -C gozip mod tidy
           - name: typos
-            glob: "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}"
+            glob: "{justfile,.editorconfig,.shellcheckrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}}"
             run: ./scripts/run-fix.bash typos --write-changes --format silent {files}
     # Run formatting after lint fixes because sometimes a lint fix produces code that
     # doesn't comply with the formatting.
@@ -190,7 +190,7 @@ check:
             exclude: [gozip/gomod2nix.toml]
             run: ./scripts/run-fix.bash taplo format {files}
           - name: prettier
-            glob: "*.{md,js,json,json{5,c},yml,yaml}"
+            glob: "*.{md,js,json,json{5,c},yaml}"
             # VS Code formats its settings files automatically when you change a
             # setting through its UI.
             exclude: ["*.vscode/*.json"]
@@ -264,10 +264,10 @@ check:
                   glob: "*.{sh,bash}"
                   run: shellcheck {files}
                 - name: yamllint
-                  glob: "*.{yaml,yml}"
+                  glob: "*.yaml"
                   run: yamllint --strict {files}
                 - name: actionlint
-                  glob: ".github/workflows/*.{yaml,yml}"
+                  glob: ".github/workflows/*.yaml"
                   run: actionlint {files}
                 - name: statix
                   glob: "*.nix"
@@ -275,7 +275,7 @@ check:
                   # https://github.com/nerdypepper/statix/issues/69
                   run: "parallel statix check -- {files}"
                 - name: typos
-                  glob: "{*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,yml,zsh}}"
+                  glob: "{justfile,.editorconfig,.shellcheckrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}}"
                   run: typos {files}
                 - name: mypy
                   glob: "dotfiles/smart_plug/*.py"
@@ -345,5 +345,5 @@ check:
                 - name: nix-config
                   skip:
                     - run: '[ "$CI" = true ]'
-                  glob: "{nix/*,flake.{lock,nix}}"
+                  glob: "{*.nix,flake.lock}"
                   run: nix config check

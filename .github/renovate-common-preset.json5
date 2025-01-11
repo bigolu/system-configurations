@@ -76,7 +76,7 @@
       customType: "regex",
       datasourceTemplate: "github-releases",
       depNameTemplate: "nix-community/nix-direnv",
-      fileMatch: ["(^|/).envrc$", "(^|/).direnv.bash$"],
+      fileMatch: ["(^|/).envrc$", "(^|/)direnv-config.bash$"],
       matchStrings: [
         "['\"]https:\\/\\/raw\\.githubusercontent\\.com\\/nix-community\\/nix-direnv\\/(?<currentValue>.+)\\/direnvrc['\"]",
       ],

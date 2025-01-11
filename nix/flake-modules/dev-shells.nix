@@ -208,7 +208,7 @@
               ${plugctlPython} "$direnv_directory/python"
 
             # For lua-ls
-            prefix='.lua-libraries'
+            prefix='lua-libraries'
             mkdir -p "$prefix"
             ln --force --no-dereference --symbolic \
               ${plugins} "$prefix/neovim-plugins"

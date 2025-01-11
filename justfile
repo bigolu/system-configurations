@@ -92,7 +92,7 @@ bundle PACKAGE:
     you are about to push.
 
     If you want to see what kind of checks are being run, they're defined in
-    .lefthook.yml.
+    lefthook.yaml.
 
     Arguments:
         GROUPS: Comma-Delimited list of groups. If you don't specify any groups,
@@ -143,7 +143,7 @@ check-all GROUPS='':
     Run this anytime you incorporate someone else's changes. For example, after
     doing 'git pull' or checking out someone else's branch.
 
-    For a list of available jobs, see .lefthook.yml.
+    For a list of available jobs, see lefthook.yaml.
 ''')]
 [group('Syncing')]
 [no-exit-message]
@@ -163,7 +163,7 @@ sync:
     specified to run, regardless of what files have changed. If no jobs are
     provided, then all of them are run.
 
-    For a list of available jobs, see .lefthook.yml.
+    For a list of available jobs, see lefthook.yaml.
 
     Arguments:
         JOBS: Comma-Delimited list of jobs.
