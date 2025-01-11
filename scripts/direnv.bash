@@ -25,7 +25,7 @@ set -o pipefail
 shopt -s nullglob
 
 if [[ ! -e .envrc ]]; then
-  cp envrc-sample.bash .envrc
+  cp direnv/envrc-sample.bash .envrc
 fi
 direnv allow .
 direnv "$@"

@@ -1,7 +1,10 @@
-.venv/
+# direnv
 .direnv/
-.mypy_cache/
-.DS_Store
-lua-libraries/
-secrets.env
 .envrc
+
+# macOS
+.DS_Store
+
+lua-libraries/
+.mypy_cache/
+secrets.env

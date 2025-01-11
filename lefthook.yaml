@@ -73,14 +73,14 @@ sync:
     # Since .envrc is in .gitignore, if you make changes to it you'll need to run one
     # of the two sync tasks below by yourself.
     - name: direnv
-      glob: "direnv-config.bash"
+      glob: "direnv/direnv-config.bash"
       run: direnv reload
     # Since reloading nix-direnv can take a while (~30 seconds) there's a separate
     # task for reloading direnv and reloading nix-direnv.
     - name: direnv-and-nix-direnv
       # The scripts directory is included so script dependencies can be re-extracted
       # and loaded in the dev shell.
-      glob: "{direnv-config.bash,flake.lock,*.nix,scripts/*}"
+      glob: "{direnv/direnv-config.bash,flake.lock,*.nix,scripts/*}"
       # nix-direnv will only reload the dev shell if its cache is invalid. nix-direnv
       # only considers its cache invalid when one of the files tracked by direnv
       # changes. Rather than adding all of the files that affect the dev shell to
