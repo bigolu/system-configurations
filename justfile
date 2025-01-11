@@ -23,19 +23,7 @@ list:
 [group('System Management')]
 [no-exit-message]
 initialize MANAGER CONFIGURATION: && force-sync
-    #!/usr/bin/env bash
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-
-    if [[ "$1" = 'home-manager' ]]; then
-      just home-manager "$2"
-    elif [[ "$1" = 'nix-darwin' ]]; then
-      just nix-darwin "$2"
-    else
-      echo "Unknown system manager: $1" >&2
-      exit 1
-    fi
+    ./scripts/just/initialize.bash
 
 [doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
@@ -103,16 +91,7 @@ bundle PACKAGE:
 [group('Checks')]
 [no-exit-message]
 check GROUPS='':
-    #!/usr/bin/env bash
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-
-    lefthook_arguments=()
-    if [[ -n "$1" ]]; then
-      lefthook_arguments+=(--jobs "$1")
-    fi
-    lefthook run check "${lefthook_arguments[@]}"
+    lefthook run check --jobs "$1"
 
 [doc('''
     This is the same as the check recipe above, except that it runs on all files.
@@ -122,21 +101,11 @@ check GROUPS='':
 [group('Checks')]
 [no-exit-message]
 check-all GROUPS='':
-    #!/usr/bin/env bash
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-
-    lefthook_arguments=(--files-from-stdin)
-    if [[ -n "$1" ]]; then
-      lefthook_arguments+=(--jobs "$1")
-    fi
-
-    {
-      git ls-files -z
-      # untracked files
-      git ls-files -z --others --exclude-standard
-    } | lefthook run check "${lefthook_arguments[@]}"
+    # The second git command prints untracked files
+    { \
+      git ls-files -z; \
+      git ls-files -z --others --exclude-standard; \
+    } | lefthook run check --files-from-stdin --jobs "$1"
 
 [doc('''
     Run various jobs to synchronize your environment with the state of the code.
@@ -172,16 +141,6 @@ sync:
 [group('Syncing')]
 [no-exit-message]
 force-sync JOBS='':
-    #!/usr/bin/env bash
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-
-    lefthook_arguments=(--force)
-    if [[ -n "$1" ]]; then
-      lefthook_arguments+=(--jobs "$1")
-    fi
-
     # TODO: The sync group has 'follows' enabled so I need to execution_out or else
     # nothing will show. I should open an issue for allowing output to be configured
     # per group, the same way 'follows' is.
@@ -190,7 +149,7 @@ force-sync JOBS='':
     # the output values specified in the config file, but it seems to be overwriting
     # them instead. For now, I'm duplicating the values specified in my config here.
     # I should open an issue.
-    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync "${lefthook_arguments[@]}"
+    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync --force --jobs "$1"
 
 [group('Syncing')]
 [no-exit-message]
@@ -205,11 +164,6 @@ sync-cosmic-to-repo:
 [group('Secrets')]
 [no-exit-message]
 get-secrets:
-    #!/usr/bin/env bash
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-
     doppler run \
         --mount "$(mktemp --dry-run --suffix '.env')" \
         --only-secrets GH_TOKEN \
