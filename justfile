@@ -6,7 +6,7 @@ set positional-arguments := true
 
 set quiet
 
-[doc('''List all tasks. You can run this whenever you forget something.''')]
+[doc('''List all recipes. You can run this whenever you forget something.''')]
 [no-exit-message]
 list:
     @just --list --justfile {{ module_file() }} --unsorted --color always \
@@ -63,7 +63,7 @@ home-manager NAME:
     --impure --expr 'import ./nix/flake-package-set.nix' \
     home-manager -- switch --flake ".#$1"
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
-  echo 'Consider syncing COSMIC settings by running `just cosmic-sync system`'
+  echo 'Consider syncing COSMIC settings by running `just sync-cosmic-to-system`'
 
 [private]
 [group('System Management')]
@@ -115,7 +115,7 @@ check GROUPS='':
     lefthook run check "${lefthook_arguments[@]}"
 
 [doc('''
-    This is the same as the check task above, except that it runs on all files.
+    This is the same as the check recipe above, except that it runs on all files.
     You should run this if you make changes that affect how any of the GROUPS
     work. For example, changing the configuration file for a linter.
 ''')]
@@ -139,11 +139,11 @@ check-all GROUPS='':
     } | lefthook run check "${lefthook_arguments[@]}"
 
 [doc('''
-    Run various tasks to synchronize your environment with the state of the code.
+    Run various jobs to synchronize your environment with the state of the code.
     Run this anytime you incorporate someone else's changes. For example, after
     doing 'git pull' or checking out someone else's branch.
 
-    For a list of available tasks, see .lefthook.yml.
+    For a list of available jobs, see .lefthook.yml.
 ''')]
 [group('Syncing')]
 [no-exit-message]
@@ -159,19 +159,19 @@ sync:
     LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync
 
 [doc('''
-    This is the same as the sync recipe above, except that it forces all tasks
-    specified to run, regardless of what files have changed. If no tasks are
+    This is the same as the sync recipe above, except that it forces all jobs
+    specified to run, regardless of what files have changed. If no jobs are
     provided, then all of them are run.
 
-    For a list of available tasks, see .lefthook.yml.
+    For a list of available jobs, see .lefthook.yml.
 
     Arguments:
-        TASKS: Comma-Delimited list of tasks.
+        JOBS: Comma-Delimited list of jobs.
                Example: `just sync-force direnv,dev-shell`
 ''')]
 [group('Syncing')]
 [no-exit-message]
-force-sync TASKS='':
+force-sync JOBS='':
     #!/usr/bin/env bash
     set -o errexit
     set -o nounset
@@ -194,8 +194,13 @@ force-sync TASKS='':
 
 [group('Syncing')]
 [no-exit-message]
-cosmic-sync DESTINATION:
-    ./dotfiles/cosmic/sync.bash "$1"
+sync-cosmic-to-system:
+    ./dotfiles/cosmic/sync.bash system
+
+[group('Syncing')]
+[no-exit-message]
+sync-cosmic-to-repo:
+    ./dotfiles/cosmic/sync.bash repo
 
 [group('Secrets')]
 [no-exit-message]
