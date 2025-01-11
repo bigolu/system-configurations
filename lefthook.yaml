@@ -150,7 +150,7 @@ check:
             run: ./scripts/run-fix.bash gomod2nix --dir gozip generate
           - name: nix-version
             glob: "flake.lock"
-            run: ./scripts/run-fix.bash ./scripts/code-generation/sync-nix-version.bash
+            run: ./scripts/run-fix.bash ./scripts/code-generation/add-nix-version-to-readme.bash
           - name: system-configs
             glob: "*.nix"
             run: ./scripts/run-fix.bash ./scripts/code-generation/add-system-configurations-to-readme.bash
