@@ -1,6 +1,6 @@
 (
     output: "all",
-    source: Path("/usr/share/backgrounds/cosmic/tarantula_nebula_nasa_PIA23646.jpg"),
+    source: Path("/usr/share/backgrounds/cosmic/otherworldly_earth_nasa_ISS064-E-29444.jpg"),
     filter_by_theme: true,
     rotation_frequency: 3600,
     filter_method: Lanczos,

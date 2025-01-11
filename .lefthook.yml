@@ -287,6 +287,9 @@ check:
                     - dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/U.S. copy.icns
                   run: isutf8 {files}
                 - name: editorconfig-checker
+                  exclude:
+                    # These files are only edited by COSMIC, I'm just backing them up.
+                    - dotfiles/cosmic/config/*
                   # I'm disabling the indentation size check because it applies to
                   # comments as well and I don't want it to. I could add inline
                   # directives to disable it for comments, but that would be
