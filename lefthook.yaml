@@ -70,8 +70,6 @@ sync:
         "$(cat .git/sync-point-1.txt)" "$(cat .git/sync-point-2.txt)"
     fi
   jobs:
-    # Since .envrc is in .gitignore, if you make changes to it you'll need to run
-    # this task yourself.
     - name: direnv
       # The scripts directory is included so script dependencies can be re-extracted
       # and loaded in the dev shell.

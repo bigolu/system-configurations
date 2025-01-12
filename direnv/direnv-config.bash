@@ -13,8 +13,15 @@
 #     development environment will be set up.
 
 function main {
-  # This needs to run first so tools that keep track of direnv's watched files, like
-  # nix-direnv, will track our reload file.
+  # Why I want to disable direnv's auto reload:
+  #   - It reloads whenever a watched file's modification time changes, even if the
+  #     contents are the same.
+  #   - Sometimes a watched file changes, but I don't want to reload. Like when doing
+  #     a git checkout or interactive rebase.
+  #   - Reloading nix-direnv takes a while (~30 seconds on my machine) so I'd like
+  #     more control over when that happens.
+  #
+  # This should run first, see the comment above the function for why.
   disable_direnv_auto_reload
 
   dotenv_if_exists secrets.env
@@ -25,10 +32,67 @@ function main {
   if ! is_first_direnv_load; then
     log_status '[tip] Remember to reload direnv inside your editor as well.'
   fi
+}
 
-  # This needs to run last so all watched files within the project can be removed,
-  # except our reload file.
-  disable_direnv_auto_reload
+# nix-direnv will refresh its cache whenever a file watched by direnv changes.
+# However, it only considers files that were on the watch list _before_ the call to
+# `use flake`. To get around this, I'm adding the reload file to the watch list
+# now.
+function disable_direnv_auto_reload {
+  DIRENV_RELOAD_FILE="$(create_direnv_reload_file)"
+  watch_file "$DIRENV_RELOAD_FILE"
+  # Export it so we can access it from `sync-direnv.bash`.
+  export DIRENV_RELOAD_FILE
+  prepend_to_exit_trap "$(printf 'remove_watched_files_within_project %q' "$DIRENV_RELOAD_FILE")"
+}
+
+function create_direnv_reload_file {
+  direnv_layout_dir="$(direnv_layout_dir)"
+  if [[ ! -e $direnv_layout_dir ]]; then
+    mkdir "$direnv_layout_dir"
+  fi
+
+  reload_file="$direnv_layout_dir/reload"
+  if [[ ! -e $reload_file ]]; then
+    touch "$reload_file"
+  fi
+
+  echo "$reload_file"
+}
+
+# Disable direnv's auto reloading by removing all of the files in this project from
+# its watch list, except our reload file.
+#
+# This should be run last to prevent files from being added to the watch list after
+# it runs.
+function remove_watched_files_within_project {
+  local -r reload_file="$1"
+
+  readarray -d '' watched_files < <(direnv watch-print --null)
+
+  # Keep the watched files that are outside of the project directory so direnv
+  # reloads after `direnv allow/block`.
+  watched_files_to_keep=()
+  for file in "${watched_files[@]}"; do
+    if [[ $file != "$PWD"* || $file == "$reload_file" ]]; then
+      watched_files_to_keep+=("$file")
+    fi
+  done
+
+  unset DIRENV_WATCHES
+  watch_file "${watched_files_to_keep[@]}"
+}
+
+# direnv sets an exit trap so we should prepend ours to it instead of overwriting it
+function prepend_to_exit_trap {
+  local -r new_trap_handler="$1"
+
+  eval "local -ra tokens=($(trap -p EXIT))"
+  # shellcheck disable=2154
+  # I declare `tokens` in the eval statement above
+  local -r old_trap_handler="${tokens[2]}"
+
+  trap -- "$new_trap_handler"$'\n'"$old_trap_handler" EXIT
 }
 
 function set_up_nix {
@@ -60,12 +124,6 @@ function load_dev_shell {
   source_url \
     'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc' \
     'sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM='
-  # nix-direnv will refresh its cache whenever a file watched by direnv changes.
-  # However, it only considers files that were on the watch list _before_ the call to
-  # `use flake`. To get around this, I'm adding the reload file to the watch list
-  # now, even though it will be removed and added back by
-  # `disable_direnv_auto_reload` later.
-  watch_file "$DIRENV_RELOAD_FILE"
   use flake ".#$(get_dev_shell)"
 }
 
@@ -102,41 +160,6 @@ function is_setting_up_local_environment {
 function is_set {
   local -r variable_name="$1"
   [[ -n ${!variable_name+x} ]]
-}
-
-# Disable direnv's auto reloading by removing all of the files in this project from
-# its watch list. Then we create a new file that is specifically for reloading direnv
-# and add that to the watch list.
-#
-# Why I don't want direnv to automatically reload:
-#   - It reloads whenever a watched file's modification time changes, even if the
-#     contents are the same.
-#   - Sometimes a watched file changes, but I don't want to reload. Like when doing a
-#     git checkout or interactive rebase.
-function disable_direnv_auto_reload {
-  readarray -d '' watched_files < <(direnv watch-print --null)
-
-  # Keep the watched files that are outside of the project directory so direnv
-  # reloads after `direnv allow/block`.
-  watched_files_outside_project=()
-  for file in "${watched_files[@]}"; do
-    if [[ $file != "$PWD"* ]]; then
-      watched_files_outside_project+=("$file")
-    fi
-  done
-
-  direnv_layout_dir="$(direnv_layout_dir)"
-  if [[ ! -e $direnv_layout_dir ]]; then
-    mkdir "$direnv_layout_dir"
-  fi
-
-  export DIRENV_RELOAD_FILE="$direnv_layout_dir/reload"
-  if [[ ! -e $DIRENV_RELOAD_FILE ]]; then
-    touch "$DIRENV_RELOAD_FILE"
-  fi
-
-  unset DIRENV_WATCHES
-  watch_file "${watched_files_outside_project[@]}" "$DIRENV_RELOAD_FILE"
 }
 
 main
