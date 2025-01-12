@@ -1,4 +1,4 @@
-# Show hidden and git-ignored files
+# Show hidden files
 default_flags: h
 
 # Mark the selected line with a triangle
