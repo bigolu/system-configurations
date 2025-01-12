@@ -22,9 +22,6 @@ modal: true
 }
 
 special_paths: {
-  "*/.direnv": { "list": "never" }
-  "*/.mypy_cache": { "list": "never" }
-  "*/.git": { "show": "never" }
   # Nix store freezes broot
   "/nix/store": { "list": "never" }
 }
