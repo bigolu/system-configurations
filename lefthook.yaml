@@ -81,12 +81,7 @@ sync:
       # The scripts directory is included so script dependencies can be re-extracted
       # and loaded in the dev shell.
       glob: "{direnv/direnv-config.bash,flake.lock,*.nix,scripts/*}"
-      # nix-direnv will only reload the dev shell if its cache is invalid. nix-direnv
-      # only considers its cache invalid when one of the files tracked by direnv
-      # changes. Rather than adding all of the files that affect the dev shell to
-      # direnv's tracked files, I touch one of the files that I know is already
-      # tracked, flake.nix.
-      run: touch flake.nix && nix-direnv-reload |& nom
+      run: ./scripts/lefthook/sync-direnv-and-nix-direnv.bash
     - name: lefthook
       # TODO: Currently, this is only needed on the first sync that's done after
       # cloning the repo. This is because lefthook syncs hooks automatically. There's

@@ -256,7 +256,6 @@
           # These get called in the lefthook config
           gitMinimal
           runAsAdmin
-          nix-output-monitor
 
           # Runs the sync tasks
           lefthook
