@@ -87,7 +87,7 @@ skin: {
     parent: None None / ansi(8) None
     file: None None / ansi(8) None
     directory: None None / ansi(8) None
-    exe: ansi(5) None / ansi(8) None
+    exe: None None / ansi(8) None
     link: None None / ansi(8) None
     pruning: ansi(8) None Italic
     perm__: ansi(8) None
