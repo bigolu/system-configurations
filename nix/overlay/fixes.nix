@@ -3,9 +3,12 @@ final: prev:
 let
   inherit (inputs.nixpkgs.lib) getExe recursiveUpdate;
 
-  # TODO: I shouldn't have to do this. The programs should generate the files as part
-  # of their build so they can be put in vendor_conf.d. See the direnv package for an
-  # example of how this is done.
+  # TODO: I shouldn't have to do this. Either nixpkgs should add the completion
+  # files, as they do with lefthook[1], or the tool itself should generate the files
+  # as part of its build script, as direnv does[2].
+  #
+  # [1]: https://github.com/NixOS/nixpkgs/blob/cd7ab3a2bc59a881859a901ba1fa5e7ddf002e5e/pkgs/by-name/le/lefthook/package.nix
+  # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
   zoxideWithFishConfig =
     let
       oldZoxide = prev.zoxide;
@@ -31,9 +34,12 @@ let
     # Merge with the original package to retain attributes like meta
     recursiveUpdate oldZoxide newZoxide;
 
-  # TODO: I shouldn't have to do this. The programs should generate the files as part
-  # of their build so they can be put in vendor_conf.d. See the direnv package for an
-  # example of how this is done.
+  # TODO: I shouldn't have to do this. Either nixpkgs should add the completion
+  # files, as they do with lefthook[1], or the tool itself should generate the files
+  # as part of its build script, as direnv does[2].
+  #
+  # [1]: https://github.com/NixOS/nixpkgs/blob/cd7ab3a2bc59a881859a901ba1fa5e7ddf002e5e/pkgs/by-name/le/lefthook/package.nix
+  # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
   brootWithFishConfig =
     let
       oldBroot = prev.broot;
