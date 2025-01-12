@@ -5,25 +5,55 @@
 # `use flake`. To get around this, I'm adding the reload file to the watch list
 # now.
 function main {
-  DIRENV_RELOAD_FILE="$(create_direnv_reload_file)"
-  watch_file "$DIRENV_RELOAD_FILE"
-  # Export it so we can access it from `sync-direnv.bash`.
-  export DIRENV_RELOAD_FILE
-  prepend_to_exit_trap "$(printf 'remove_watched_files_within_project %q' "$DIRENV_RELOAD_FILE")"
+  local -r direnv_reload_file="$(create_direnv_reload_file)"
+
+  watch_file "$direnv_reload_file"
+  add_reload_program_to_path "$direnv_reload_file"
+  prepend_to_exit_trap "$(printf 'remove_watched_files_within_project %q' "$direnv_reload_file")"
+}
+
+function add_reload_program_to_path {
+  local -r direnv_reload_file="$1"
+
+  direnv_bin="$(get_direnv_dir)/bin"
+  if [[ ! -e $direnv_bin ]]; then
+    mkdir "$direnv_bin"
+  fi
+  # First try removing it so we don't add a duplicate entry to the PATH
+  PATH_rm "$direnv_bin"
+  PATH_add "$direnv_bin"
+
+  # nix-direnv will only reload the dev shell if its cache is invalid. nix-direnv
+  # only considers its cache invalid when one of the files tracked by direnv changes.
+  # To force it to reload, I'm changing our designated reload file.
+  #
+  # `direnv reload` touches a file tracked by direnv to make it reload at the next
+  # shell prompt. To force it to reload now, so I can pipe the output to `nom`, I'm
+  # using `direnv exec` with a command that won't do anything, `true`.
+  {
+    echo '#!/usr/bin/env bash'
+    printf 'touch %q\n' "$direnv_reload_file"
+    echo 'DIRENV_LOG_FORMAT="" direnv exec . true'
+  } >"${direnv_bin}/direnv-reload"
+  chmod +x "${direnv_bin}/direnv-reload"
 }
 
 function create_direnv_reload_file {
-  direnv_layout_dir="$(direnv_layout_dir)"
-  if [[ ! -e $direnv_layout_dir ]]; then
-    mkdir "$direnv_layout_dir"
-  fi
-
-  reload_file="$direnv_layout_dir/reload"
+  direnv_dir="$(get_direnv_dir)"
+  reload_file="$direnv_dir/reload"
   if [[ ! -e $reload_file ]]; then
     touch "$reload_file"
   fi
 
   echo "$reload_file"
+}
+
+function get_direnv_dir {
+  layout_dir="$(direnv_layout_dir)"
+  if [[ ! -e $layout_dir ]]; then
+    mkdir "$layout_dir"
+  fi
+  echo "$layout_dir"
 }
 
 # Disable direnv's auto reloading by removing all of the files in this project from

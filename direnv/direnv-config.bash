@@ -19,9 +19,10 @@ function main {
   #   - Sometimes a watched file changes, but I don't want to reload. Like when doing
   #     a git checkout or interactive rebase.
   #   - Reloading nix-direnv takes a while (~30 seconds on my machine) so I'd like
-  #     more control over when that happens.
+  #     to control when that happens.
   #
-  # This should run first, see the comment above the function for why.
+  # This should run first. The reason for this is in a comment at the top of the file
+  # being sourced below.
   source ./direnv/disable-direnv-auto-reload.bash
 
   dotenv_if_exists secrets.env
@@ -90,10 +91,6 @@ function is_first_direnv_load {
 function is_setting_up_ci_environment {
   # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
   is_set CI && [[ $CI == 'true' ]]
-}
-
-function is_setting_up_local_environment {
-  ! is_setting_up_ci_environment
 }
 
 function is_set {
