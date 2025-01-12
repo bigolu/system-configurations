@@ -34,8 +34,8 @@ project do it for me.
 
 ## Development
 
-- Enter the repository directory and run `direnv allow; nix-direnv-reload`. That
-  will load all the dependencies.
+- Enter the repository directory and run `direnv allow`. That will load all the
+  dependencies.
 
 [systemd]: https://systemd.io/
 [hammerspoon]: https://www.hammerspoon.org/

@@ -10,11 +10,16 @@ shopt -s nullglob
 
 function main {
   old_dev_shell="$(get_dev_shell_store_path)"
+
   # nix-direnv will only reload the dev shell if its cache is invalid. nix-direnv
   # only considers its cache invalid when one of the files tracked by direnv changes.
-  # Rather than adding all of the files that affect the dev shell to direnv's tracked
-  # files, I touch one of the files that I know is already tracked, flake.nix.
-  touch flake.nix && nix-direnv-reload |& nom
+  # To force it to reload, I'm changing our designated reload file.
+  touch "$DIRENV_RELOAD_FILE"
+  # `direnv reload` touches a file tracked by direnv to make it reload at the next
+  # shell prompt. To force it to reload now, so I can pipe the output to `nom`, I'm
+  # using `direnv exec` with a command that won't do anything, `true`.
+  direnv exec . true |& nom
+
   new_dev_shell="$(get_dev_shell_store_path)"
 
   # On the first sync, there won't be an old dev shell

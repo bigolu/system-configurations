@@ -59,7 +59,6 @@ let
       coreutils
       gitMinimal
       less
-      direnv
       nix
     ];
     text = ''
@@ -80,16 +79,12 @@ let
               git stash --include-untracked --message 'Stashed for system pull'
           fi
 
-          direnv allow
-          direnv exec "$PWD" nix-direnv-reload
-          direnv exec "$PWD" git pull
-          direnv exec "$PWD" just sync
+          ./scripts/direnv.bash exec . git pull
+          ./scripts/direnv.bash exec . just sync
       else
           # Something probably went wrong so we're trying to pull again even
           # though there's nothing to pull. In which case, just sync.
-          direnv allow
-          direnv exec "$PWD" nix-direnv-reload
-          direnv exec "$PWD" just sync
+          ./scripts/direnv.bash exec . just sync
       fi
 
       # HACK:
