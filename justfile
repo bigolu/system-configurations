@@ -23,7 +23,7 @@ list:
 [group('System Management')]
 [no-exit-message]
 initialize MANAGER CONFIGURATION: && force-sync
-    ./scripts/just/initialize.bash
+    just "$1" "$2"
 
 [doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
@@ -67,7 +67,7 @@ nix-darwin NAME:
 [group('Nix')]
 [no-exit-message]
 bundle PACKAGE:
-  nix bundle --bundler .# "$1"
+  nix bundle --bundler ".#$1"
 
 [doc('''
     Run various checks on the code, automatically fixing issues if
@@ -112,7 +112,7 @@ check-all GROUPS='':
     Run this anytime you incorporate someone else's changes. For example, after
     doing 'git pull' or checking out someone else's branch.
 
-    For a list of available jobs, see lefthook.yaml.
+    The list of jobs is in lefthook.yaml.
 ''')]
 [group('Syncing')]
 [no-exit-message]
@@ -132,7 +132,7 @@ sync:
     specified to run, regardless of what files have changed. If no jobs are
     provided, then all of them are run.
 
-    For a list of available jobs, see lefthook.yaml.
+    The list of jobs is in lefthook.yaml.
 
     Arguments:
         JOBS: Comma-Delimited list of jobs.
