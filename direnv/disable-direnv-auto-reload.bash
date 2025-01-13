@@ -33,7 +33,6 @@ function add_reload_program_to_path {
   {
     echo '#!/usr/bin/env bash'
     printf 'touch %q\n' "$direnv_reload_file"
-    echo 'DIRENV_LOG_FORMAT="" direnv exec . true'
   } >"${direnv_bin}/direnv-reload"
   chmod +x "${direnv_bin}/direnv-reload"
 }

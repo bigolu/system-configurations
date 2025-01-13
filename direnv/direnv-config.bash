@@ -70,7 +70,26 @@ function load_dev_shell {
   source_url \
     'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc' \
     'sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM='
+  # I want the first dev shell build to happen automatically and all subsequent ones
+  # to be done manually. I'm doing this because building a dev shell can take a while
+  # (~30 seconds on my machine) so I want to control when it happens.
+  if has_cached_dev_shell; then
+    nix_direnv_manual_reload
+  fi
   use flake ".#$(get_dev_shell)"
+}
+
+function has_cached_dev_shell {
+  # nix-direnv makes a few files in the form 'flake-profile-*' after caching a dev
+  # shell so we'll assume a dev shell has been cached if those files exist.
+  #
+  # By default, if there are no matches for a glob, Bash prints the glob itself. I'm
+  # disabling this behavior with shopt, but doing it in a subshell so it doesn't
+  # apply to the rest of the script.
+  [[ -n "$(
+    shopt -s nullglob
+    echo "$(direnv_layout_dir)/flake-profile-"*
+  )" ]]
 }
 
 function get_dev_shell {
