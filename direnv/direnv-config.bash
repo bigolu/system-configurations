@@ -18,8 +18,18 @@ function main {
   #     contents are the same.
   #   - Sometimes a watched file changes, but I don't want to reload. Like when doing
   #     a git checkout or interactive rebase.
-  #   - Reloading nix-direnv takes a while (~30 seconds on my machine) so I'd like
-  #     to control when that happens.
+  #   - Reloading nix-direnv takes a while (~30 seconds on my machine) so I'd like to
+  #     control when that happens.
+  #   - I want my editor's direnv extension (vscode-direnv) to automatically reload
+  #     whenever I reload direnv in the terminal. vscode-direnv has an option for
+  #     reloading whenever one of direnv's watched files changes, but since I use
+  #     auto save, this would trigger a reload everytime I type a character into one
+  #     of direnv's watched files. This would make vscode lag since vscode-direnv
+  #     also reloads all of my other extensions, so they can pick up the new
+  #     environment. As part of disabling auto reload, the script below will set
+  #     direnv's watch list to a single file, .direnv/reload. This file will be
+  #     updated when I run `direnv-reload`. This means a call to `direnv-reload` from
+  #     the terminal will reload direnv in both the terminal and the editor.
   #
   # This should run first. The reason for this is in a comment at the top of the file
   # being sourced below.
@@ -29,10 +39,6 @@ function main {
   set_up_nix
   # Sets GOPATH and GOBIN and adds GOBIN to the PATH
   layout go
-
-  if ! is_first_direnv_load; then
-    log_status '[tip] Remember to reload direnv inside your editor as well.'
-  fi
 }
 
 function set_up_nix {
@@ -81,11 +87,6 @@ function get_default_dev_shell {
   else
     echo 'local'
   fi
-}
-
-function is_first_direnv_load {
-  # This variable gets set by direnv so it won't be set on the first load.
-  ! is_set DIRENV_DIFF
 }
 
 function is_setting_up_ci_environment {
