@@ -12,15 +12,10 @@ function main {
   old_dev_shell="$(get_dev_shell_store_path)"
   direnv-reload |& nom
   new_dev_shell="$(get_dev_shell_store_path)"
-
-  # On the first sync, there won't be an old dev shell
-  if [[ -n $old_dev_shell ]]; then
-    nix store diff-closures "$old_dev_shell" "$new_dev_shell"
-  fi
+  nix store diff-closures "$old_dev_shell" "$new_dev_shell"
 }
 
-# Prints the store path to the dev shell that is currently cached by nix-direnv.
-# Prints nothing if nix-direnv has not cached a dev shell.
+# Prints the store path for the dev shell that is currently cached by nix-direnv.
 function get_dev_shell_store_path {
   flake_profile="$(fd --type symlink --exclude '*.rc' 'flake-profile-.*' .direnv)"
 
