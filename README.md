@@ -76,7 +76,7 @@ format "\<config_name> / \<platform>":
        direnv hook fish | source || exit
        git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations || exit
        cd ~/code/system-configurations || exit
-       direnv allow || exit
+       ./scripts/direnv.bash reload || exit
      '
    ```
 
