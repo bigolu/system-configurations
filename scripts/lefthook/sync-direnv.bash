@@ -3,6 +3,11 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils fd nix-output-monitor]"
 
+# This script reloads the direnv environment. When direnv reloads, nix-direnv will
+# rebuild the dev shell. This script will show the output of that build using
+# nix-output-monitor. It will also print a diff of the packages in the old and new
+# shell.
+
 set -o errexit
 set -o nounset
 set -o pipefail
