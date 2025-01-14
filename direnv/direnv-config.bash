@@ -13,27 +13,12 @@
 #     development environment will be set up.
 
 function main {
-  # Why I want to disable direnv's auto reload:
-  #   - It reloads whenever a watched file's modification time changes, even if the
-  #     contents are the same.
-  #   - Sometimes a watched file changes, but I don't want to reload. Like when doing
-  #     a git checkout or interactive rebase.
-  #   - Reloading nix-direnv takes a while (~30 seconds on my machine) so I'd like to
-  #     control when that happens.
-  #   - I want my editor's direnv extension (vscode-direnv) to automatically reload
-  #     whenever I reload direnv in the terminal. vscode-direnv has an option for
-  #     reloading whenever one of direnv's watched files changes, but since I use
-  #     auto save, this would trigger a reload everytime I type a character into one
-  #     of direnv's watched files. This would make vscode lag since vscode-direnv
-  #     also reloads all of my other extensions, so they can pick up the new
-  #     environment. As part of disabling auto reload, the script below will set
-  #     direnv's watch list to a single file, .direnv/reload. This file will be
-  #     updated when I run `direnv-reload`. This means a call to `direnv-reload` from
-  #     the terminal will reload direnv in both the terminal and the editor.
+  # For the reasons why I want to manually reload direnv, see the comment at the top
+  # of `direnv-manual-reload.bash`.
   #
-  # This should run first. The reason for this is in a comment at the top of the file
-  # being sourced below.
-  source ./direnv/disable-direnv-auto-reload.bash
+  # This should run first. The reason for this is in a comment at the top of
+  # `direnv-manual-reload.bash`.
+  source ./direnv/direnv-manual-reload.bash
 
   dotenv_if_exists secrets.env
   set_up_nix
