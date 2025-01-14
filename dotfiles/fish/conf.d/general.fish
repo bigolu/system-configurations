@@ -128,7 +128,8 @@ function __create_cd_function --on-event fish_prompt
 end
 
 # direnv
-set --global --export DIRENV_LOG_FORMAT \n(set_color brblack)'┃ direnv: %s'(set_color normal)
+# Hide logs
+set --global --export DIRENV_LOG_FORMAT ''
 set -g direnv_fish_mode disable_arrow # trigger direnv at prompt only
 
 # vscode
