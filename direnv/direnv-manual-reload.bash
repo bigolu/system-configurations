@@ -6,34 +6,36 @@
 # which will be added to the PATH. If you use this script, `direnv reload` will no
 # longer work, you have to use `direnv-reload`.
 #
-# This script should be the first thing you run in your .envrc for the following
-# reasons:
-#   - nix-direnv[1] will only refresh its cache when a file watched by direnv
+# Usage:
+#   Add the following two lines to the top of your envrc:
+#     source <path_to_this_script>
+#     direnv_manual_reload
+#   Why it should be at the top:
+#     nix-direnv[1] will only refresh its cache when a file watched by direnv
 #     changes. However, it only considers files that were on the watch list _before_
 #     the call to `use nix/flake`[2]. This means the reload file that gets created
 #     here needs to be on the watch list before calling `use nix/flake`.
 #
-# How to use:
-#   Add `source <path_to_this_script>` to the top of your .envrc.
-#
 # Reasons why you may want to do this:
-#   - direnv reloads whenever a watched file's modification time changes, even if the
-#     contents are the same. Depending on how long a reload takes, you may not want
-#     that.
-#   - You may not always want direnv to reload when a watched file changes. Like when
-#     using `git checkout` or `git rebase --interactive`.
+#   - You may not want direnv to reload when a watched file changes. Like when using
+#     `git checkout` or `git rebase --interactive` for example.
 #   - If reloading your .envrc takes a while, you may want more control over when
-#     that happens.
-#   - If you use the editor extension direnv-vscode, or something similar, then you
-#     have the option to have it automatically reload whenever one of files of
-#     direnv's watch list changes. This is a convenient way to keep your terminal and
-#     editor's direnv environments in sync. However, if you also use auto save, then
-#     direnv-vscode will reload every time you type a character into any of the files
-#     on the watch list. This could make vscode lag since direnv-vscode also reloads
-#     all of the other extensions, so they can pick up the new environment as well.
-#     If you use this script, then the only watched file will be the one created by
-#     the script. Then you can reload both your terminal and editor's direnv
-#     environment by running `direnv-reload`.
+#     that happens. For example, without manual reload, direnv will reload whenever a
+#     watched file's modification time changes, even if the contents are the same.
+#   - Manual reloading can help avoid excessive direnv reloads when using auto save
+#     and a direnv extension in your editor. For example, if you use the editor
+#     extension direnv-vscode, or something similar, then you have the option to have
+#     it automatically reload whenever one of the files in direnv's watch list
+#     changes. This is a convenient way to keep your terminal and editor's direnv
+#     environments in sync. However, if you also use auto save, then direnv-vscode
+#     will reload every time you type a character into any of the files on the watch
+#     list. This could make vscode lag since direnv-vscode also reloads all of the
+#     other extensions, so they can pick up the new environment as well. If you use
+#     this script, then the only watched file will be the one created by the script.
+#     Since you never edit that file, you won't trigger any reloads. Instead, you can
+#     reload both your terminal and editor's direnv environment by running
+#     `direnv-reload`, which will bump the modification time of the file created by
+#     this script.
 #
 # How it works:
 #   - direnv automatically reloads whenever it detects a change in the modification
@@ -52,7 +54,7 @@
 # [2]: https://github.com/nix-community/nix-direnv?tab=readme-ov-file#tracked-files
 # [3]: https://github.com/direnv/direnv-vscode
 
-function main {
+function direnv_manual_reload {
   local -r reload_file="$(create_reload_file)"
 
   watch_file "$reload_file"
@@ -139,5 +141,3 @@ function get_exit_trap_handler {
   # I declare `trap_output_tokens` in the eval statement above
   echo "${trap_output_tokens[2]}"
 }
-
-main

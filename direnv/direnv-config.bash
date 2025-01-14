@@ -13,17 +13,20 @@
 #     development environment will be set up.
 
 function main {
-  # For the reasons why I want to manually reload direnv, see the comment at the top
-  # of `direnv-manual-reload.bash`.
-  #
   # This should run first. The reason for this is in a comment at the top of
   # `direnv-manual-reload.bash`.
-  source ./direnv/direnv-manual-reload.bash
-
+  enable_direnv_manual_reload
   dotenv_if_exists secrets.env
   set_up_nix
   # Sets GOPATH and GOBIN and adds GOBIN to the PATH
   layout go
+}
+
+# Reasons why you may want to enable manual reloading can be found in a comment at
+# the top of `direnv-manual-reload.bash`.
+function enable_direnv_manual_reload {
+  source direnv/direnv-manual-reload.bash
+  direnv_manual_reload
 }
 
 function set_up_nix {
@@ -57,21 +60,21 @@ function load_dev_shell {
     'sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM='
   # I want the first dev shell build to happen automatically and all subsequent ones
   # to be done manually. I'm doing this because building a dev shell can take a while
-  # (~30 seconds on my machine) so I want to control when it happens.
-  if has_cached_dev_shell; then
+  # (~30 seconds on my machine) so I want to control when it's rebuilt.
+  if ! is_first_dev_shell_build; then
     nix_direnv_manual_reload
   fi
   use flake ".#$(get_dev_shell)"
 }
 
-function has_cached_dev_shell {
-  # nix-direnv makes a few files in the form 'flake-profile-*' after caching a dev
-  # shell so we'll assume a dev shell has been cached if those files exist.
+function is_first_dev_shell_build {
+  # nix-direnv makes a few files in the form 'flake-profile-*' after building a dev
+  # shell. We'll assume this is the first build if those files don't exist.
   #
   # By default, if there are no matches for a glob, Bash prints the glob itself. I'm
-  # disabling this behavior with shopt, but doing it in a subshell so it doesn't
+  # disabling this behavior with shopt and I'm doing it in a subshell so it doesn't
   # apply to the rest of the script.
-  [[ -n "$(
+  [[ -z "$(
     shopt -s nullglob
     echo "$(direnv_layout_dir)/flake-profile-"*
   )" ]]
