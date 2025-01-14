@@ -19,7 +19,7 @@ function main {
 
 function register_asset_directory {
   asset_directory="$(mktemp --directory)"
-  echo "asset-directory=$asset_directory" >>"${GITHUB_OUTPUT:-/dev/stdout}"
+  echo "asset-directory=$asset_directory" >>"${GITHUB_OUTPUT:-/dev/stderr}"
 
   echo "$asset_directory"
 }
@@ -53,7 +53,6 @@ function dereference_symlink {
 
   temp="$(mktemp --directory)"
   cp --dereference "$symlink_path" "$temp/copy"
-  rm "$symlink_path"
   mv "$temp/copy" "$symlink_path"
 }
 

@@ -311,20 +311,24 @@ function _bash_style_history_expansion
         echo "$last_command_tokens[1]"
     else if test "$token" = '!$'
         echo "$last_command_tokens[-1]"
-    else if string match --quiet --regex -- '\!\-?\d+' "$token"
+    else if string match --quiet --regex -- '\!\-?\d+:?' "$token"
         set last_command_token_index (string match --regex -- '\-?\d+' "$token")
         set absolute_value (math abs "$last_command_token_index")
         if test "$absolute_value" -gt (count $last_command_tokens)
             return 1
         end
-        echo "$last_command_tokens[$last_command_token_index]"
+        if test (string sub --start -1 $token) = ':'
+            echo "$last_command_tokens[$last_command_token_index..]"
+        else
+            echo "$last_command_tokens[$last_command_token_index]"
+        end
     else
         return 1
     end
 end
 abbr --add bash_style_history_expansion \
     --position anywhere \
-    --regex '\!(\!|\^|\$|\-?\d+)' \
+    --regex '\!(\!|\^|\$|\-?\d+:?)' \
     --function _bash_style_history_expansion
 
 # Most of this was taken from fish's __fish_man_page, I just added flag
@@ -432,32 +436,6 @@ function __remove_paginate_keybind --on-event fish_prompt
     # I only want this to run once so delete the function.
     functions -e (status current-function)
     bind --erase --preset \ep
-end
-
-function fish_title
-    set -q argv[1]; or set argv fish
-    # Looks like '~/d/fish: git log' or '/e/apt: fish'
-    echo (fish_prompt_pwd_dir_length=1 prompt_pwd): $argv
-end
-
-function _ls_after_directory_change --on-variable PWD
-    # These directories have too many files to always call ls on
-    #
-    # normalize to remove trailing slash
-    set blacklist /nix/store /tmp (path normalize "$TMPDIR")
-    if contains "$PWD" $blacklist
-        return
-    end
-
-    echo -e "\n$(set_color brblack)┃ fish: Current directory contents$(set_color normal)"
-    # TODO: When lsd supports forcing grid mode, I can use this:
-    # https://github.com/lsd-rs/lsd/issues/526
-    # ls | ifne -n echo '<empty>'
-    if test -n "$(ls --almost-all)"
-        ls
-    else
-        echo '<empty>'
-    end
 end
 
 # ghostty

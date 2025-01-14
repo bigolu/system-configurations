@@ -1,7 +1,7 @@
 #! /usr/bin/env cached-nix-shell
 #! nix-shell --keep FLAKE_PACKAGE_SET_FILE
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter curl coreutils perl darwin-rebuild nix-output-monitor]"
+#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter curl coreutils darwin-rebuild nix-output-monitor]"
 
 set -o errexit
 set -o nounset

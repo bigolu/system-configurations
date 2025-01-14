@@ -109,28 +109,27 @@ class KasaPlug:
         # connected to it and not that of my actual wifi/ethernet network card. To
         # get around this, I run discovery on all my network cards' broadcast
         # addresses.
-        discovery_awaitables_per_broadcast_address = [
-            Discover.discover(target=address)
-            for address in cls._get_broadcast_addresses()
-        ]
         devices_dicts_per_broadcast_address = await asyncio.gather(
-            *discovery_awaitables_per_broadcast_address
+            *(
+                Discover.discover(target=address)
+                for address in cls._get_broadcast_addresses()
+            )
         )
-        devices_per_broadcast_address = [
+        devices_per_broadcast_address = (
             device_dict.values() for device_dict in devices_dicts_per_broadcast_address
-        ]
+        )
 
         return itertools.chain(*devices_per_broadcast_address)
 
     @classmethod
-    def _get_broadcast_addresses(cls) -> set[str]:
-        ip_addresses_per_network_card = psutil.net_if_addrs().values()
-        return {
+    def _get_broadcast_addresses(cls) -> Iterable[str]:
+        addresses_per_network_card = psutil.net_if_addrs().values()
+        return (
             address.broadcast
-            for addresses in ip_addresses_per_network_card
+            for addresses in addresses_per_network_card
             for address in addresses
             if address.broadcast is not None
-        }
+        )
 
 
 def parse_args() -> Namespace:
@@ -182,5 +181,5 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except Exception:
-        print(traceback.format_exc())
+        traceback.print_exc()
         sys.exit(2)
