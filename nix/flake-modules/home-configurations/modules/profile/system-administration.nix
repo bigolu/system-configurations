@@ -76,8 +76,7 @@ in
           "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
           "ssh/bootstrap.sh".source = "ssh/bootstrap.sh";
           "broot".source = "broot";
-          "bat/config".source = "bat/config.txt";
-          "bat/themes/ansi.tmTheme".source = "bat/ansi.tmTheme";
+          "bat".source = "bat";
         }
         // optionalAttrs isLinux {
           "pipr/pipr.toml".source = "pipr/pipr.toml";
