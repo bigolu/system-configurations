@@ -229,8 +229,8 @@ function _direnv_context
         return
     end
 
-    # The substring removes the '-' in the beginning
-    set directory (string sub --start 2 -- $DIRENV_DIR | path basename --null-in)
+    # DIRENV_DIR starts with a '-', the `string sub` removes it
+    set directory (string sub --start 2 -- $DIRENV_DIR | path basename)
 
     set blocked ''
     # TODO: A better way to check this is in the works: https://github.com/direnv/direnv/pull/1010
