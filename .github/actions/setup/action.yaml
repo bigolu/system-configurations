@@ -18,6 +18,11 @@ runs:
   using: "composite"
   steps:
     - uses: cachix/install-nix-action@v30
+      with:
+        # TODO: See if this can be done by default, seems reasonable since they
+        # already enable flakes by default and any attempt to access <nixpkgs>
+        # without this would fail.
+        nix_path: nixpkgs=flake:nixpkgs
     # TODO: Ideally, I would only read from the GitHub Actions cache since it will be
     # the closest cache to the workflow runners. However, since the packages from my
     # flake that I want to cache aren't pushed to the GitHub Action cache, I read
