@@ -76,6 +76,13 @@ tools:
     lint-stdin: false
     lint-formats:
       - "%f:%l:%c: %m"
+  statix: &statix
+    lint-after-open: true
+    lint-command: statix check --format errfmt -- ${INPUT}
+    lint-source: statix
+    lint-stdin: false
+    lint-formats:
+      - "%f>%l:%c:%t:%n:%m"
 
 version: 2
 root-markers:
@@ -93,6 +100,7 @@ languages:
     - <<: *config-file-validator
   nix:
     - <<: *nixpkgs-lint
+    - <<: *statix
   =:
     - <<: *desktop-file-validate
     - <<: *typos
