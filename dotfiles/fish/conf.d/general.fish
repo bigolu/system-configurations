@@ -28,6 +28,8 @@ set --global --export PAGER less
 # TODO: lesspipe requires this to be set to enable syntax highlighting. I should open
 # an issue to have it read lesskey
 set --global --export LESS -R
+# Have lesspipe use bat for syntax highlighting
+set --global --export LESSCOLORIZER bat
 abbr --add --position anywhere --global page less
 
 # man
