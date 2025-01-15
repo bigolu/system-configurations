@@ -37,8 +37,6 @@ function main {
   layout go
 }
 
-# Reasons why you may want to enable manual reloading can be found in a comment at
-# the top of `direnv-manual-reload.bash`.
 function enable_direnv_manual_reload {
   source direnv/direnv-manual-reload.bash
   direnv_manual_reload
