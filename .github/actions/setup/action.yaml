@@ -17,7 +17,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: DeterminateSystems/nix-installer-action@v16
+    - uses: cachix/install-nix-action@v30
+      with:
+        # To avoid being rate-limited by GitHub
+        github_access_token: ${{ secrets.GITHUB_TOKEN }}
     # TODO: Ideally, I would only read from the GitHub Actions cache since it will be
     # the closest cache to the workflow runners. However, since the packages from my
     # flake that I want to cache aren't pushed to the GitHub Action cache, I read
