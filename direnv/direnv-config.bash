@@ -86,11 +86,11 @@ function load_dev_shell {
 function is_first_dev_shell_build {
   # nix-direnv makes a few files in the form 'flake-profile-*' after building a dev
   # shell. We'll assume this is the first build if those files don't exist.
-  #
-  # By default, if there are no matches for a glob, Bash prints the glob itself. I'm
-  # disabling this behavior with shopt and I'm doing it in a subshell so it doesn't
-  # apply to the rest of the script.
   [[ -z "$(
+    # By default, if there are no matches for a glob, Bash prints the glob itself. I
+    # don't want anything to be printed if there's no match so I'm disabling this
+    # behavior. I'm doing so in a subshell so it doesn't apply to the rest of the
+    # script.
     shopt -s nullglob
     echo "$(direnv_layout_dir)/flake-profile-"*
   )" ]]
