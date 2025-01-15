@@ -18,7 +18,8 @@ vim.keymap.set(
   vim.diagnostic.goto_next,
   { desc = "Next diagnostic [lint,problem]" }
 )
-vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Declaration" })
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
+vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "gn", vim.lsp.buf.rename, { desc = "Rename variable" })
 vim.keymap.set(
   { "n", "v" },
