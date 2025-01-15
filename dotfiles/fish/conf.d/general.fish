@@ -222,7 +222,8 @@ abbr --add --global chase 'chase --verbose'
 function dui --wraps broot --description 'Check disk usage interactively'
     br -w $argv
 end
-abbr --add --global tree broot
+abbr --add --global t broot
+abbr --add --global tl broot -sdp
 
 # diffoscope
 function diff-html
