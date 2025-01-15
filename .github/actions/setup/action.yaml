@@ -29,7 +29,7 @@ runs:
         authToken: "${{ inputs.cachix-auth-token }}"
         skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
     - if: inputs.use-magic-nix-cache == 'true'
-      uses: DeterminateSystems/magic-nix-cache-action@v16
+      uses: DeterminateSystems/magic-nix-cache-action@v8
       with:
         # Since I want to cache everything, I set this to a URL that doesn't belong
         # to any of my substituters.
