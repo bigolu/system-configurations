@@ -17,10 +17,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # TODO: Renovate won't manage this action's version until the following is
-    # resolved:
-    # https://github.com/renovatebot/renovate/issues/28016
-    - uses: DeterminateSystems/nix-installer-action@main
+    - uses: DeterminateSystems/nix-installer-action@v16
     # TODO: Ideally, I would only read from the GitHub Actions cache since it will be
     # the closest cache to the workflow runners. However, since the packages from my
     # flake that I want to cache aren't pushed to the GitHub Action cache, I read
@@ -32,10 +29,7 @@ runs:
         authToken: "${{ inputs.cachix-auth-token }}"
         skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
     - if: inputs.use-magic-nix-cache == 'true'
-      # TODO: Renovate won't manage this action's version until the following is
-      # resolved:
-      # https://github.com/renovatebot/renovate/issues/28016
-      uses: DeterminateSystems/magic-nix-cache-action@main
+      uses: DeterminateSystems/magic-nix-cache-action@v16
       with:
         # Since I want to cache everything, I set this to a URL that doesn't belong
         # to any of my substituters.
