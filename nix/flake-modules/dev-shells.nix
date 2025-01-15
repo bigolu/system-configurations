@@ -160,6 +160,19 @@
           # Runs the linters
           lefthook
         ];
+
+        shellHook =
+          let
+            direnvStdlib = runCommand "direnv-stdlib.bash" {
+              nativeBuildInputs = [ pkgs.direnv ];
+            } "direnv stdlib > $out";
+          in
+          ''
+            direnv_directory='.direnv'
+            mkdir -p "$direnv_directory"
+            ln --force --no-dereference --symbolic \
+              ${direnvStdlib} "$direnv_directory/stdlib.bash"
+          '';
       };
 
       formatting = makeShell {
