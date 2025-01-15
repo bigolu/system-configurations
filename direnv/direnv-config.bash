@@ -34,7 +34,6 @@ function main {
   enable_direnv_manual_reload
   dotenv_if_exists secrets.env
   set_up_nix
-  # Sets GOPATH and GOBIN and adds GOBIN to the PATH
   layout go
 }
 
