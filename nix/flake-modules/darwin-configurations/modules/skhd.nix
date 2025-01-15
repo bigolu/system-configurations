@@ -30,7 +30,7 @@ let
   skhdWithDependencies = symlinkJoin {
     name = "my-${skhd.name}";
     paths = [ skhd ];
-    buildInputs = [ makeWrapper ];
+    nativeBuildInputs = [ makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/skhd \
         --prefix PATH : ${dependenciesFromPkgs}/bin \

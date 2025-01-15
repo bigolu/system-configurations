@@ -64,6 +64,18 @@ tools:
     lint-stdin: false
     lint-formats:
       - "%f:%l:%c: %m"
+  nixpkgs-lint: &nixpkgs-lint
+    lint-after-open: true
+    lint-command: >
+      env input=${INPUT} sh -c '
+      nixpkgs-lint --include-unfinished-lints --format json -- "$input"
+      | jq --raw-output ".[] | \"\(.file):\(.line):\(.column): \(.message)\""
+      '
+    lint-ignore-exit-code: true
+    lint-source: nixpkgs-lint
+    lint-stdin: false
+    lint-formats:
+      - "%f:%l:%c: %m"
 
 version: 2
 root-markers:
@@ -79,6 +91,8 @@ languages:
     - <<: *config-file-validator
   ini:
     - <<: *config-file-validator
+  nix:
+    - <<: *nixpkgs-lint
   =:
     - <<: *desktop-file-validate
     - <<: *typos

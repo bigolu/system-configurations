@@ -262,6 +262,9 @@ check:
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/nerdypepper/statix/issues/69
                   run: "parallel statix check -- {files}"
+                - name: nixpkgs-lint
+                  glob: "*.nix"
+                  run: nixpkgs-lint --include-unfinished-lints -- {files}
                 - name: typos
                   glob: "{justfile,.editorconfig,.shellcheckrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}}"
                   run: typos {files}

@@ -74,7 +74,6 @@ let
           nativeBuildInputs = with final; [
             ast-grep
             jq
-            coreutils
             gnused
           ];
         }

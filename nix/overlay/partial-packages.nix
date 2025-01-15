@@ -14,7 +14,7 @@ let
     final.symlinkJoin {
       name = "${package.name}-partial";
       paths = [ package ];
-      buildInputs = [ final.makeWrapper ];
+      nativeBuildInputs = [ final.makeWrapper ];
       postBuild = ''
         cd $out/bin
         find . ${findFiltersAsString} -type f,l -exec rm -f {} +

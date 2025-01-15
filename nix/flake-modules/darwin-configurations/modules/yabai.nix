@@ -17,7 +17,7 @@ let
   yabaiWithDependencies = symlinkJoin {
     name = "my-${yabai.name}";
     paths = [ yabai ];
-    buildInputs = [ makeWrapper ];
+    nativeBuildInputs = [ makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/yabai \
       --prefix PATH : ${dependencies}/bin

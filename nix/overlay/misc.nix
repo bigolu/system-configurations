@@ -40,7 +40,7 @@ let
         pname = "my-${previousNeovim.pname}";
         inherit (previousNeovim) version;
         paths = [ previousNeovim ];
-        buildInputs = [ final.makeWrapper ];
+        nativeBuildInputs = [ final.makeWrapper ];
         postBuild = ''
           # PARINIT: The par manpage recommends using this value if you want
           # to start using par, but aren't familiar with how par works so
@@ -79,7 +79,7 @@ let
       pname = "my-${prev.ripgrep-all.pname}";
       inherit (prev.ripgrep-all) version;
       paths = [ prev.ripgrep-all ];
-      buildInputs = [ final.makeWrapper ];
+      nativeBuildInputs = [ final.makeWrapper ];
       postBuild = ''
         wrapProgram $out/bin/rga \
           --prefix PATH : ${dependencies}/bin \

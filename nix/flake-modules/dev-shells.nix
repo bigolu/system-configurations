@@ -149,6 +149,7 @@
           # https://github.com/redhat-developer/yaml-language-server/issues/535
           yamllint
           editorconfig-checker
+          nixpkgs-lint-community
           # For isutf8 and parallel. parallel isn't a linter, but it's used to run
           # any linter that doesn't support multiple file arguments.
           moreutils
@@ -200,7 +201,12 @@
 
           efmLs = makeShell {
             inputsFrom = [ linting ];
-            packages = [ pkgs.efm-langserver ];
+            packages = with pkgs; [
+              efm-langserver
+              # I use this to transform the output of some linters into something efm
+              # can more easily parse.
+              jq
+            ];
           };
         in
         makeShell {
@@ -282,7 +288,6 @@
               {
                 nativeBuildInputs = with pkgs; [
                   ripgrep
-                  coreutils
                 ];
               }
               ''
