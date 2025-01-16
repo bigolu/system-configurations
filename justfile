@@ -91,7 +91,12 @@ bundle PACKAGE:
 [group('Checks')]
 [no-exit-message]
 check GROUPS='':
-    lefthook run check --jobs "$1"
+    # The first git command uses merge-base in case the current branch is behind the
+    # default branch. The second git command prints untracked files
+    { \
+      git diff -z --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"; \
+      git ls-files -z --others --exclude-standard; \
+    } | lefthook run check --files-from-stdin --jobs "$1"
 
 [doc('''
     This is the same as the check recipe above, except that it runs on all files.

@@ -47,9 +47,6 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           dev-shell: ci-check-pull-request
-      # Since all the checks are run, the output can be a bit long so a summary at
-      # the bottom is nice to have.
-      #
       # TODO: According to the lefthook documentation, this variable should _extend_
       # the output values specified in the config file, but it seems to be
       # overwriting them instead. For now, I'm duplicating the values specified in my

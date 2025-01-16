@@ -23,6 +23,8 @@ runs:
         # already enable flakes by default and any attempt to access <nixpkgs>
         # without this would fail.
         nix_path: nixpkgs=flake:nixpkgs
+        # Use this until a new version of the action is released with nix v2.25+
+        install_url: https://releases.nixos.org/nix/nix-2.25.2/install
     # TODO: Ideally, I would only read from the GitHub Actions cache since it will be
     # the closest cache to the workflow runners. However, since the packages from my
     # flake that I want to cache aren't pushed to the GitHub Action cache, I read

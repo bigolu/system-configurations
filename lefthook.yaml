@@ -119,15 +119,28 @@ check:
   #
   # [1]: https://github.com/evilmartians/lefthook/blob/6858ccbc8226051a71a51c30a57f0d36a9b7ea67/docs/configuration.md#glob
   # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
-  #
-  # This will get all the files that differ from the default branch.
-  files: |
-    # I'm using merge-base in case the current branch is behind the default branch.
-    git diff --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"
-    # Untracked files
-    git ls-files --others --exclude-standard
+  files: ":"
   jobs:
     - name: generate
+      # Don't run checks on generated files.
+      #
+      # This set of excludes is duplicated for every check group. There's an
+      # open feature request for a global exclude list[1]. If that gets
+      # implemented, I won't have to duplicate this anymore.
+      #
+      # I've also tried putting all of the check groups under one parent job
+      # and adding the excludes on the parent, but apparently excludes are only
+      # inherited by direct child jobs, not all descendants. Not sure if this
+      # is the intended behavior.
+      #
+      # [1]: https://github.com/evilmartians/lefthook/issues/593
+      exclude:
+        - gozip/gomod2nix.toml
+        - "*.vscode/*.json"
+        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
+        - dotfiles/cosmic/config/*
+        - flake.lock
+        - go.sum
       group:
         jobs:
           - name: readme-table-of-contents
@@ -146,6 +159,25 @@ check:
             glob: "flake.nix"
             run: ./scripts/run-fix.bash nix flake lock
     - name: fix-lint
+      # Don't run checks on generated files.
+      #
+      # This set of excludes is duplicated for every check group. There's an
+      # open feature request for a global exclude list[1]. If that gets
+      # implemented, I won't have to duplicate this anymore.
+      #
+      # I've also tried putting all of the check groups under one parent job
+      # and adding the excludes on the parent, but apparently excludes are only
+      # inherited by direct child jobs, not all descendants. Not sure if this
+      # is the intended behavior.
+      #
+      # [1]: https://github.com/evilmartians/lefthook/issues/593
+      exclude:
+        - gozip/gomod2nix.toml
+        - "*.vscode/*.json"
+        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
+        - dotfiles/cosmic/config/*
+        - flake.lock
+        - go.sum
       group:
         jobs:
           - name: deadnix
@@ -171,17 +203,32 @@ check:
     # Run formatting after lint fixes because sometimes a lint fix produces code that
     # doesn't comply with the formatting.
     - name: format
+      # Don't run checks on generated files.
+      #
+      # This set of excludes is duplicated for every check group. There's an
+      # open feature request for a global exclude list[1]. If that gets
+      # implemented, I won't have to duplicate this anymore.
+      #
+      # I've also tried putting all of the check groups under one parent job
+      # and adding the excludes on the parent, but apparently excludes are only
+      # inherited by direct child jobs, not all descendants. Not sure if this
+      # is the intended behavior.
+      #
+      # [1]: https://github.com/evilmartians/lefthook/issues/593
+      exclude:
+        - gozip/gomod2nix.toml
+        - "*.vscode/*.json"
+        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
+        - dotfiles/cosmic/config/*
+        - flake.lock
+        - go.sum
       group:
         jobs:
           - name: taplo
             glob: "*.toml"
-            exclude: [gozip/gomod2nix.toml]
             run: ./scripts/run-fix.bash taplo format {files}
           - name: prettier
             glob: "*.{md,js,json,json{5,c},yaml}"
-            # VS Code formats its settings files automatically when you change a
-            # setting through its UI.
-            exclude: ["*.vscode/*.json"]
             run: ./scripts/run-fix.bash prettier --write {files}
           - name: shfmt
             glob: "*.{sh,bash}"
@@ -220,6 +267,25 @@ check:
         parallel: true
         jobs:
           - name: check-lint
+            # Don't run checks on generated files.
+            #
+            # This set of excludes is duplicated for every check group. There's an
+            # open feature request for a global exclude list[1]. If that gets
+            # implemented, I won't have to duplicate this anymore.
+            #
+            # I've also tried putting all of the check groups under one parent job
+            # and adding the excludes on the parent, but apparently excludes are only
+            # inherited by direct child jobs, not all descendants. Not sure if this
+            # is the intended behavior.
+            #
+            # [1]: https://github.com/evilmartians/lefthook/issues/593
+            exclude:
+              - gozip/gomod2nix.toml
+              - "*.vscode/*.json"
+              - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
+              - dotfiles/cosmic/config/*
+              - flake.lock
+              - go.sum
             group:
               parallel: true
               jobs:
@@ -272,15 +338,8 @@ check:
                   glob: "dotfiles/smart_plug/*.py"
                   run: mypy dotfiles/smart_plug
                 - name: isutf8
-                  exclude:
-                    # Apparently, this file isn't valid UTF-8, but macOS generated it
-                    # so I won't change it.
-                    - dotfiles/keyboard/US keyboard - no accent keys.bundle/Contents/Resources/U.S. copy.icns
                   run: isutf8 {files}
                 - name: editorconfig-checker
-                  exclude:
-                    # These files are only edited by COSMIC, I'm just backing them up.
-                    - dotfiles/cosmic/config/*
                   # I'm disabling the indentation size check because it applies to
                   # comments as well and I don't want it to. I could add inline
                   # directives to disable it for comments, but that would be
@@ -288,9 +347,6 @@ check:
                   run: editorconfig-checker --disable-indent-size {files}
                 - name: config-file-validator
                   glob: "*.{editorconfig,json,ini}"
-                  # VS Code's configuration files end in .json, but they're actually
-                  # jsonc files.
-                  exclude: ["*.vscode/*.json"]
                   run: validator -groupby pass-fail {files}
                 - name: commit-message-typos
                   skip:
@@ -320,10 +376,27 @@ check:
                   run: renovate-config-validator --strict {files}
                 - name: taplo
                   glob: "*.toml"
-                  # This is a generated file
-                  exclude: [gozip/gomod2nix.toml]
                   run: taplo lint {files}
           - name: test
+            # Don't run checks on generated files.
+            #
+            # This set of excludes is duplicated for every check group. There's an
+            # open feature request for a global exclude list[1]. If that gets
+            # implemented, I won't have to duplicate this anymore.
+            #
+            # I've also tried putting all of the check groups under one parent job
+            # and adding the excludes on the parent, but apparently excludes are only
+            # inherited by direct child jobs, not all descendants. Not sure if this
+            # is the intended behavior.
+            #
+            # [1]: https://github.com/evilmartians/lefthook/issues/593
+            exclude:
+              - gozip/gomod2nix.toml
+              - "*.vscode/*.json"
+              - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
+              - dotfiles/cosmic/config/*
+              - flake.lock
+              - go.sum
             group:
               parallel: true
               jobs:
