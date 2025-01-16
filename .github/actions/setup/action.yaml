@@ -17,7 +17,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: cachix/install-nix-action@v30
+    - uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
       with:
         # TODO: See if this can be done by default, seems reasonable since they
         # already enable flakes by default and any attempt to access <nixpkgs>
@@ -36,7 +36,7 @@ runs:
         authToken: "${{ inputs.cachix-auth-token }}"
         skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
     - if: inputs.use-magic-nix-cache == 'true'
-      uses: DeterminateSystems/magic-nix-cache-action@v8
+      uses: DeterminateSystems/magic-nix-cache-action@87b14cf437d03d37989d87f0fa5ce4f5dc1a330b # v8
       with:
         # Since I want to cache everything, I set this to a URL that doesn't belong
         # to any of my substituters.
