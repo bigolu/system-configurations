@@ -5,10 +5,9 @@ let
   inherit (inputs.nixpkgs.lib)
     fileset
     optionalString
-    optionalAttrs
     recursiveUpdate
     ;
-  inherit (final.stdenv) isDarwin isLinux;
+  inherit (final.stdenv) isDarwin;
   inherit (utils) projectRoot formatDate;
 
   flakeLastModifiedDateAsVersion = formatDate self.lastModifiedDate;
@@ -182,9 +181,7 @@ in
 {
   neovim = neovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
-  packagesToCache = final.lib.recurseIntoAttrs (
-    { inherit (final) gomod2nix; } // optionalAttrs isLinux { inherit (final) ghostty; }
-  );
+  packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix; };
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp { interpreter = final.bash; };
 
   inherit
