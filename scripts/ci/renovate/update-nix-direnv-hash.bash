@@ -42,12 +42,10 @@ function replace_nix_direnv_hash {
   local -r envrc_path="$1"
   local -r new_hash="$2"
 
-  # Command substitution removes trailing newlines, but I want to keep them. To do
-  # so, I add a character to the end of the input, this way any trailing newlines
-  # will no longer be trailing.
   local original_envrc
   original_envrc="$(
     cat "$envrc_path"
+    # Add a character to the end of the output to preserve trailing newlines.
     printf x
   )"
   original_envrc="${original_envrc::-1}"
