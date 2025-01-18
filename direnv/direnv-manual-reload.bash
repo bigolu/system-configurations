@@ -38,13 +38,13 @@
 # How it works:
 #   - direnv automatically reloads whenever it detects a change in the modification
 #     time of any of the files on its watch list. To stop it from doing so, this
-#     script removes all files from the watch list right before the .envrc exits. The
-#     exceptions to this are the allow/deny files. We keep those files on the watch
-#     list so `direnv allow/block` still triggers a reload.
-#   - To give users a way to manually reload direnv, a new file is created and put on
-#     the watch list, `.direnv/reload`. A command named `direnv-reload` is put on the
-#     PATH which will change the modification time of that file, causing direnv to
-#     reload.
+#     script removes all files from the watch list except the following ones:
+#       - reload file: To give users a way to manually reload direnv, a new file is
+#         created and put on the watch list, `.direnv/reload`. A command named
+#         `direnv-reload` is put on the PATH which will change the modification time
+#         of that file, causing direnv to reload.
+#       - allow/deny files: We keep those files on the watch list so
+#         `direnv allow/block` still triggers a reload.
 #
 # [1]: https://github.com/nix-community/nix-direnv
 # [2]: https://github.com/nix-community/nix-direnv?tab=readme-ov-file#tracked-files
