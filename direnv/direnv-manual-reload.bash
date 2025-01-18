@@ -23,28 +23,24 @@
 #     that happens. For example, without manual reload, direnv will reload whenever a
 #     watched file's modification time changes, even if the contents are the same.
 #   - Manual reloading can help avoid excessive direnv reloads when using auto save
-#     and a direnv extension in your editor. For example, if you use the editor
-#     extension direnv-vscode, or something similar, then you have the option to have
-#     it automatically reload whenever one of the files in direnv's watch list
-#     changes. This is a convenient way to keep your terminal and editor's direnv
-#     environments in sync. However, if you also use auto save, then direnv-vscode
-#     will reload every time you type a character into any of the files on the watch
-#     list. This could make vscode lag since direnv-vscode also reloads all of the
-#     other extensions, so they can pick up the new environment as well. If you use
-#     this script, then the only watched file will be the one created by the script.
-#     Since you never edit that file, you won't trigger any reloads. Instead, you can
-#     reload both your terminal and editor's direnv environment by running
-#     `direnv-reload`, which will bump the modification time of the file created by
-#     this script.
+#     and a file watcher. For example, if you use the editor extension direnv-vscode,
+#     or something similar, then you have the option to have it automatically reload
+#     whenever one of the files in direnv's watch list changes. This is a convenient
+#     way to keep your terminal and editor's direnv environments in sync. However, if
+#     you also use auto save, then direnv-vscode will reload every time you type a
+#     character into any of the files on the watch list. This could make vscode lag
+#     since direnv-vscode also reloads all of the other extensions, so they can pick
+#     up the new environment as well. If you use this script, then the only watched
+#     file will be the one created by the script. Since you never edit that file, you
+#     won't trigger any reloads. Instead, you can reload both your terminal and
+#     editor's direnv environment by running `direnv-reload`.
 #
 # How it works:
 #   - direnv automatically reloads whenever it detects a change in the modification
 #     time of any of the files on its watch list. To stop it from doing so, this
 #     script removes all files from the watch list right before the .envrc exits. The
-#     exception to this are files that are outside of the project directory. This
-#     includes files like the direnvrc for your user or the allow and block files.
-#     Run `direnv watch-print` for a full list. We keep those files on the watch list
-#     so commands like `direnv allow/block` still trigger a reload.
+#     exceptions to this are the allow/deny files. We keep those files on the watch
+#     list so `direnv allow/block` still triggers a reload.
 #   - To give users a way to manually reload direnv, a new file is created and put on
 #     the watch list, `.direnv/reload`. A command named `direnv-reload` is put on the
 #     PATH which will change the modification time of that file, causing direnv to
@@ -109,14 +105,18 @@ function remove_watched_files {
 
   readarray -d '' watched_files < <(direnv watch-print --null)
 
-  # Keep our reload file and the watched files that are outside of the project
-  # directory. See the section 'How it works' in the comment at the top of this file
-  # for why.
+  # Keep our reload file and direnv's allow/deny files, so `direnv block/allow` still
+  # triggers a reload.
   watched_files_to_keep=()
+  direnv_data_directory="${XDG_DATA_HOME:-$HOME/.local/share}/direnv"
   for file in "${watched_files[@]}"; do
-    if [[ $file != "$PWD"* || $file == "$reload_file" ]]; then
-      watched_files_to_keep+=("$file")
-    fi
+    case "$file" in
+      "$direnv_data_directory/deny"*) ;&
+      "$direnv_data_directory/allow"*) ;&
+      "$reload_file")
+        watched_files_to_keep+=("$file")
+        ;;
+    esac
   done
 
   unset DIRENV_WATCHES
