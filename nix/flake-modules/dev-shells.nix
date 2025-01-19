@@ -364,7 +364,8 @@
             export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
             export LOG_LEVEL='debug'
             # Post-Upgrade tasks are executed in the directory of the repo that's
-            # currently being processed so I'm going to save the path to this repo.
+            # currently being processed. I'm going to save the path to this repo so I
+            # can reference the scripts in it.
             export RENOVATE_BOT_REPO="$PWD"
           '';
         };
