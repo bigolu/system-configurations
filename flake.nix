@@ -70,15 +70,17 @@
               # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
               _module.args.pkgs = import inputs.nixpkgs {
                 inherit system;
-                overlays = [
-                  inputs.gomod2nix.overlays.default
-                  inputs.nix-darwin.overlays.default
-                  inputs.nix-gl-host.overlays.default
-                  inputs.neovim-nightly-overlay.overlays.default
-                  inputs.ghostty.overlays.default
-                  (makeOverlay { input = "home-manager"; })
-                  privateOverlay
-                ] ++ publicOverlays;
+                overlays =
+                  [
+                    inputs.gomod2nix.overlays.default
+                    inputs.nix-darwin.overlays.default
+                    inputs.nix-gl-host.overlays.default
+                    inputs.neovim-nightly-overlay.overlays.default
+                    inputs.ghostty.overlays.default
+                    (makeOverlay { input = "home-manager"; })
+                  ]
+                  ++ publicOverlays
+                  ++ [ privateOverlay ];
               };
             };
         }
