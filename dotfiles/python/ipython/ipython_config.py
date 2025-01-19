@@ -14,7 +14,7 @@ c.TerminalInteractiveShell.highlighting_style_overrides = {
     Token.PromptNum: " bold",
     Token.OutPrompt: "ansibrightyellow",
     Token.OutPromptNum: "ansibrightyellow bold",
-    Token.Comment: "ansiwhite italic",
+    Token.Comment: "ansiwhite",
     Token.CommentPreproc: "noitalic",
     Token.Error: "ansired",
     Token.String: "ansigreen noitalic",

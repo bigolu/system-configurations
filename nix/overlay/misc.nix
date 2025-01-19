@@ -131,7 +131,6 @@ let
     pname = "my-fonts";
     version = flakeLastModifiedDateAsVersion;
     paths = with final; [
-      monaspace
       nerd-fonts.symbols-only
       jetbrains-mono
     ];

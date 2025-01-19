@@ -115,7 +115,7 @@ local groups = {
   -- }}}
 
   -- syntax groups {{{
-  Comment = { ctermfg = 8, italic = true, fg = colors[8] }, -- Any comment
+  Comment = { ctermfg = 8, fg = colors[8] }, -- Any comment
 
   -- Have to use 7 instead of "NONE" because when one language is embedded in
   -- another, like bash code in a github action yaml, the string color was being used
@@ -191,10 +191,10 @@ local groups = {
 
   -- Tree-Sitter {{{
   ["@comment.documentation"] = "Comment",
-  ["@comment.error"] = { italic = true, ctermfg = 1, bold = true, fg = colors[1] },
-  ["@comment.note"] = { italic = true, ctermfg = 4, bold = true, fg = colors[4] },
-  ["@comment.warning"] = { italic = true, ctermfg = 3, bold = true, fg = colors[3] },
-  ["@comment.todo"] = {italic = true, bold = true,},
+  ["@comment.error"] = { ctermfg = 1, bold = true, fg = colors[1] },
+  ["@comment.note"] = { ctermfg = 4, bold = true, fg = colors[4] },
+  ["@comment.warning"] = { ctermfg = 3, bold = true, fg = colors[3] },
+  ["@comment.todo"] = {bold = true,},
   ["@diff.delta"] = "DiffChange",
   ["@diff.minus"] = "DiffDelete",
   ["@diff.plus"] = "DiffAdd",
@@ -221,7 +221,7 @@ local groups = {
   ["@string.documentation"] = "String",
   ["@string.regexp"] = "String",
   ["@string.special.url"] = "Underlined",
-  ["@string.special.url.comment"] = { italic = true, underline = true },
+  ["@string.special.url.comment"] = { underline = true },
   ["@string.documentation.python"] = "Comment",
   ["@character"] = "Character", -- Character
   ["@label"] = "Label", -- Label

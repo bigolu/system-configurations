@@ -42,8 +42,6 @@
                 </string>
                 <key>settings</key>
                 <dict>
-                    <key>fontStyle</key>
-                    <string>italic</string>
                     <key>foreground</key>
                     <string>#08000000</string>
                 </dict>

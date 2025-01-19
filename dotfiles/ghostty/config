@@ -1,22 +1,19 @@
 config-file = ?linux-config
 
-theme = dark:bigolu-dark,light:bigolu-light
-cursor-style = bar
-window-padding-color = extend
-copy-on-select = clipboard
+clipboard-paste-protection = false
 confirm-close-surface = false
+copy-on-select = clipboard
+cursor-style = bar
+focus-follows-mouse = true
+font-family = "JetBrains Mono NL"
 quit-after-last-window-closed = true
+theme = dark:bigolu-dark,light:bigolu-light
+
+window-padding-balance = true
+window-padding-color = extend
+
 macos-option-as-alt = true
 macos-titlebar-style = tabs
-focus-follows-mouse = true
-window-padding-balance = true
-clipboard-paste-protection = false
-
-font-family = "JetBrains Mono NL"
-font-family-italic = "Monaspace Radon"
-font-family-bold-italic = "Monaspace Radon"
-font-style-italic = "Regular"
-font-style-bold-italic = "Bold"
 
 adjust-cell-height = 30%
 adjust-cursor-height = 30%
