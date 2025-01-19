@@ -194,7 +194,7 @@ local groups = {
   ["@comment.error"] = { italic = true, ctermfg = 1, bold = true, fg = colors[1] },
   ["@comment.note"] = { italic = true, ctermfg = 4, bold = true, fg = colors[4] },
   ["@comment.warning"] = { italic = true, ctermfg = 3, bold = true, fg = colors[3] },
-  ["@comment.todo"] = "@comment.warning",
+  ["@comment.todo"] = {italic = true, bold = true,},
   ["@diff.delta"] = "DiffChange",
   ["@diff.minus"] = "DiffDelete",
   ["@diff.plus"] = "DiffAdd",
@@ -243,7 +243,7 @@ local groups = {
   CodeActionSign = { ctermfg = 3, fg = colors[3] },
   Underlined = { underline = true }, -- Text that stands out, HTML links
   Ignore = { ctermfg = 0, fg = colors[0] }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
-  Todo = { ctermfg = 3, fg = colors[3], bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
+  Todo = { bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
   -- }}}
 
   -- nvim-treesitter-context {{{

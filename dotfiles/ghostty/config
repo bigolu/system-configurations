@@ -15,8 +15,8 @@ clipboard-paste-protection = false
 font-family = "JetBrains Mono NL"
 font-family-italic = "Monaspace Radon"
 font-family-bold-italic = "Monaspace Radon"
-font-style-italic = "Light"
-font-style-bold-italic = "Regular"
+font-style-italic = "Regular"
+font-style-bold-italic = "Bold"
 
 adjust-cell-height = 30%
 adjust-cursor-height = 30%
