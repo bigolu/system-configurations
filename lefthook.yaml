@@ -377,6 +377,14 @@ check:
                 - name: taplo
                   glob: "*.toml"
                   run: taplo lint {files}
+                - name: hjson
+                  glob: "*.hjson"
+                  # hjson-cli prints the file in json format to stdout so I'm hiding
+                  # that output.
+                  #
+                  # TODO: hjson-cli doesn't support passing multiple files, I should
+                  # open an issue.
+                  run: "parallel hjson-cli -- {files} >/dev/null"
           - name: test
             # Don't run checks on generated files.
             #
