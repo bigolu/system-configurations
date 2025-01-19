@@ -95,6 +95,12 @@ vim.diagnostic.config({
   },
 })
 
+vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach", "DiagnosticChanged" }, {
+  callback = function(_)
+    vim.cmd.redrawstatus()
+  end,
+})
+
 -- Hide all semantic highlights
 vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()

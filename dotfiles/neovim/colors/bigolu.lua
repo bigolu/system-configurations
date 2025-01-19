@@ -105,8 +105,8 @@ local groups = {
   DiagnosticFloatingInfo = "DiagnosticInfo", -- Used to color "Info" diagnostic messages in diagnostics float.
   DiagnosticFloatingHint = "DiagnosticHint", -- Used to color "Hint" diagnostic messages in diagnostics float.
   DiagnosticFloatingOk = "DiagnosticOk", -- Used to color "Ok" diagnostic messages in diagnostics float.
-
-  DiagnosticUnnecessary = { ctermfg = 8, fg = colors[8] },
+  DiagnosticUnnecessary = { ctermfg = 8, undercurl = true, sp = colors[8] },
+  DiagnosticDeprecated = "DiagnosticUnnecessary",
   -- }}}
 
   -- float {{{
