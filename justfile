@@ -4,6 +4,8 @@ set shell := ["bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # https://github.com/casey/just/issues/647#issuecomment-1404056424
 set positional-arguments := true
 
+set export
+
 set quiet
 
 [doc('''List all recipes. You can run this whenever you forget something.''')]
@@ -23,7 +25,7 @@ list:
 [group('System Management')]
 [no-exit-message]
 initialize MANAGER CONFIGURATION: && force-sync
-    just "$1" "$2"
+    just "$MANAGER" "$CONFIGURATION"
 
 [doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
@@ -49,7 +51,7 @@ preview:
 home-manager NAME:
   nix run \
     --impure --expr 'import ./nix/flake-package-set.nix' \
-    home-manager -- switch --flake ".#$1"
+    home-manager -- switch --flake ".#$NAME"
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
   echo 'Consider syncing COSMIC settings by running `just sync-cosmic-to-system`'
 
@@ -57,7 +59,7 @@ home-manager NAME:
 [group('System Management')]
 [no-exit-message]
 nix-darwin NAME:
-  ./scripts/init-nix-darwin.bash "$1"
+  ./scripts/init-nix-darwin.bash "$NAME"
 
 [doc('''
     Create a bundle for the specified package (e.g. .#shell) using the
@@ -67,11 +69,11 @@ nix-darwin NAME:
 [group('Nix')]
 [no-exit-message]
 bundle PACKAGE:
-  nix bundle --bundler ".#$1"
+  nix bundle --bundler ".#$PACKAGE"
 
 [doc('''
     Run various checks on the code, automatically fixing issues if
-    possible. These checks are split into the following groups: format,
+    possible. These checks are split into the following jobs: format,
     check-lint, fix-lint, and generate. It runs on all files that differ between
     the current branch and the default branch, including untracked files. This
     is usually what you want since you can assume any files merged into the
@@ -83,34 +85,34 @@ bundle PACKAGE:
     lefthook.yaml.
 
     Arguments:
-        GROUPS: Comma-Delimited list of groups. If you don't specify any groups,
-                all of them will be run. Possible groups are: generate, format,
+        JOBS: Comma-Delimited list of jobs. If you don't specify any jobs,
+                all of them will be run. Possible jobs are: generate, format,
                 fix-lint, and check-lint.
                 Example: `just check format,generate`
 ''')]
 [group('Checks')]
 [no-exit-message]
-check GROUPS='':
+check JOBS='':
     # The first git command uses merge-base in case the current branch is behind the
     # default branch. The second git command prints untracked files
     { \
       git diff -z --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"; \
       git ls-files -z --others --exclude-standard; \
-    } | lefthook run check --files-from-stdin --jobs "$1"
+    } | lefthook run check --files-from-stdin --jobs "$JOBS"
 
 [doc('''
     This is the same as the check recipe above, except that it runs on all files.
-    You should run this if you make changes that affect how any of the GROUPS
+    You should run this if you make changes that affect how any of the JOBS
     work. For example, changing the configuration file for a linter.
 ''')]
 [group('Checks')]
 [no-exit-message]
-check-all GROUPS='':
+check-all JOBS='':
     # The second git command prints untracked files
     { \
       git ls-files -z; \
       git ls-files -z --others --exclude-standard; \
-    } | lefthook run check --files-from-stdin --jobs "$1"
+    } | lefthook run check --files-from-stdin --jobs "$JOBS"
 
 [doc('''
     Run various jobs to synchronize your environment with the state of the code.
@@ -122,9 +124,9 @@ check-all GROUPS='':
 [group('Syncing')]
 [no-exit-message]
 sync:
-    # TODO: The sync group has 'follows' enabled so I need to execution_out or else
+    # TODO: The sync job has 'follows' enabled so I need to execution_out or else
     # nothing will show. I should open an issue for allowing output to be configured
-    # per group, the same way 'follows' is.
+    # per job, the same way 'follows' is.
     #
     # TODO: According to the lefthook documentation, this variable should _extend_
     # the output values specified in the config file, but it seems to be overwriting
@@ -146,15 +148,15 @@ sync:
 [group('Syncing')]
 [no-exit-message]
 force-sync JOBS='':
-    # TODO: The sync group has 'follows' enabled so I need to execution_out or else
+    # TODO: The sync job has 'follows' enabled so I need to execution_out or else
     # nothing will show. I should open an issue for allowing output to be configured
-    # per group, the same way 'follows' is.
+    # per job, the same way 'follows' is.
     #
     # TODO: According to the lefthook documentation, this variable should _extend_
     # the output values specified in the config file, but it seems to be overwriting
     # them instead. For now, I'm duplicating the values specified in my config here.
     # I should open an issue.
-    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync --force --jobs "$1"
+    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync --force --jobs "$JOBS"
 
 [group('Syncing')]
 [no-exit-message]
@@ -186,7 +188,7 @@ get-secrets:
 [group('Debugging')]
 [no-exit-message]
 debug PACKAGE:
-    nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$1"
+    nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$PACKAGE"
 
 [doc('''
     Run a command in a direnv CI environment
@@ -200,7 +202,7 @@ debug PACKAGE:
 debug-ci DEV_SHELL +COMMAND:
     # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv's
     # cached dev shell doesn't get overwritten with the one built here.
-    CI=true DEV_SHELL="$1" direnv_layout_dir="$(mktemp --directory)" nix shell \
+    CI=true DEV_SHELL="$DEV_SHELL" direnv_layout_dir="$(mktemp --directory)" nix shell \
         --ignore-environment \
         --keep CI --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
         nixpkgs#direnv nixpkgs#coreutils nixpkgs#bashInteractive nixpkgs#nix \
