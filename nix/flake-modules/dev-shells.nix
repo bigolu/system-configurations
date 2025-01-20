@@ -21,8 +21,7 @@
         ;
       inherit (builtins) readFile;
       inherit (pkgs)
-        mkShellNoCC
-        mkShellUniqueWrapper
+        mkShellUniqueNoCC
         linkFarm
         runCommand
         ;
@@ -34,8 +33,6 @@
           ...
         }:
         let
-          mkShellUniqueNoCC = mkShellUniqueWrapper mkShellNoCC;
-
           flakePackageSetHook =
             let
               filesReferencedByFlakePackageSetFile =
