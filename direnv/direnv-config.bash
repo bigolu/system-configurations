@@ -7,7 +7,7 @@
 #   DEV_SHELL:
 #     The name of the flake dev shell to load. If it isn't set, then a default
 #     will be used. The default is "local" if the local environment is being set
-#     up and "ci-default" if the CI environment is being set up.
+#     up and "ci-essentials" if the CI environment is being set up.
 #   CI:
 #     If set to "true", the environment will be set up for CI. Otherwise, the local
 #     development environment will be set up.
@@ -103,7 +103,7 @@ function get_dev_shell {
 
 function get_default_dev_shell {
   if is_setting_up_ci_environment; then
-    echo 'ci-default'
+    echo 'ci-essentials'
   else
     echo 'local'
   fi

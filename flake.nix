@@ -24,7 +24,7 @@
         {
           imports = [
             ./nix/flake-modules/checks.nix
-            ./nix/flake-modules/dev-shells.nix
+            ./nix/flake-modules/dev-shells
             ./nix/flake-modules/packages.nix
             ./nix/flake-modules/bundlers.nix
             ./nix/flake-modules/home-configurations
