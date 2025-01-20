@@ -71,12 +71,14 @@ function load_dev_shell {
   source_url \
     'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc' \
     'sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM='
-  # I want the first dev shell build to happen automatically and all subsequent ones
-  # to be done manually. I'm doing this because building a dev shell can take a while
-  # (~30 seconds on my machine) so I want to control when it's rebuilt.
+
+  # I want the first dev shell build to happen automatically and all subsequent
+  # ones to be done manually. I'm doing this because building a dev shell can take
+  # a while (~30 seconds on my machine) so I want to control when it's rebuilt.
   if ! is_first_dev_shell_build; then
     nix_direnv_manual_reload
   fi
+
   use flake ".#$(get_dev_shell)"
 }
 

@@ -187,3 +187,21 @@ get-secrets:
 [no-exit-message]
 debug PACKAGE:
     nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$1"
+
+[doc('''
+    Run a command in a direnv CI environment
+
+    Arguments:
+        DEV_SHELL: The CI dev shell to load
+        COMMAND: The command to run
+''')]
+[group('Debugging')]
+[no-exit-message]
+debug-ci DEV_SHELL +COMMAND:
+    # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv's
+    # cached dev shell doesn't get overwritten with the one built here.
+    CI=true DEV_SHELL="$1" direnv_layout_dir="$(mktemp --directory)" nix shell \
+        --ignore-environment \
+        --keep CI --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
+        nixpkgs#direnv nixpkgs#coreutils nixpkgs#bashInteractive nixpkgs#nix \
+        --command direnv exec "$PWD" "${@:2}"
