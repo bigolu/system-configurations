@@ -1,63 +1,67 @@
-moduleContext: {
+moduleContext@{ lib, ... }:
+{
   perSystem =
-    perSystemContext@{
-      pkgs,
-      self',
-      ...
-    }:
+    perSystemContext@{ pkgs, ... }:
     let
+      inherit (builtins) listToAttrs;
       inherit (pkgs) mkShellUniqueNoCC;
+      inherit (lib) nameValuePair pipe;
+
       partials = import ./partials.nix (moduleContext // perSystemContext);
+      makeDevShellOutputs =
+        shellSpecs:
+        pipe shellSpecs [
+          (map (spec: nameValuePair spec.name (mkShellUniqueNoCC spec)))
+          listToAttrs
+          (shells: shells // { default = shells.local; })
+          (shells: { devShells = shells; })
+        ];
     in
-    {
-      devShells = {
-        default = self'.devShells.local;
+    makeDevShellOutputs [
+      {
+        name = "local";
+        inputsFrom = with partials; [
+          essentials
+          plugctl
+          linting
+          formatting
+          codeGeneration
+          vsCode
+          taskRunner
+          versionControl
+          languages
+          sync
+          scriptDependencies
+        ];
+      }
 
-        local = mkShellUniqueNoCC {
-          name = "local";
-          inputsFrom = with partials; [
-            essentials
-            plugctl
-            linting
-            formatting
-            codeGeneration
-            vsCode
-            taskRunner
-            versionControl
-            languages
-            sync
-            scriptDependencies
-          ];
-        };
+      {
+        name = "ci-essentials";
+        inputsFrom = with partials; [ ciEssentials ];
+      }
 
-        ci-essentials = mkShellUniqueNoCC {
-          name = "ci-essentials";
-          inputsFrom = with partials; [ ciEssentials ];
-        };
+      {
+        name = "ci-check-pull-request";
+        inputsFrom = with partials; [
+          ciEssentials
+          linting
+          formatting
+          codeGeneration
+        ];
+      }
 
-        ci-check-pull-request = mkShellUniqueNoCC {
-          name = "ci-check-pull-request";
-          inputsFrom = with partials; [
-            ciEssentials
-            linting
-            formatting
-            codeGeneration
-          ];
-        };
-
-        ci-renovate = mkShellUniqueNoCC {
-          name = "ci-renovate";
-          inputsFrom = with partials; [ ciEssentials ];
-          packages = with pkgs; [ renovate ];
-          shellHook = ''
-            export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
-            export LOG_LEVEL='debug'
-            # Post-Upgrade tasks are executed in the directory of the repo that's
-            # currently being processed. I'm going to save the path to this repo so I
-            # can run the scripts in it.
-            export RENOVATE_BOT_REPO="$PWD"
-          '';
-        };
-      };
-    };
+      {
+        name = "ci-renovate";
+        inputsFrom = with partials; [ ciEssentials ];
+        packages = with pkgs; [ renovate ];
+        shellHook = ''
+          export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
+          export LOG_LEVEL='debug'
+          # Post-Upgrade tasks are executed in the directory of the repo that's
+          # currently being processed. I'm going to save the path to this repo so I
+          # can run the scripts in it.
+          export RENOVATE_BOT_REPO="$PWD"
+        '';
+      }
+    ];
 }
