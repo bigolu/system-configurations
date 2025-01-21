@@ -70,6 +70,10 @@ function nix_shim {
   local real_nix
   real_nix="$(get_real_command)"
 
+  if is_set 'NIX_GET_COMPLETIONS'; then
+    exec "$real_nix" "${nix_args[@]}"
+  fi
+
   maybe_warn_about_untracked_files
 
   # This won't be necessary if nom adds support for passing non-build commands to the
@@ -217,6 +221,11 @@ function join {
   if shift 2; then
     printf %s "$f" "${@/#/$d}"
   fi
+}
+
+function is_set {
+  local -r variable_name="$1"
+  [[ -n ${!variable_name+x} ]]
 }
 
 main "$@"
