@@ -22,7 +22,7 @@ skin: {
     status_error: "#BF616A #2f333e"
     status_job: "#BF616A #2f333e"
     status_normal: "#D8DEE9 #2f333e"
-    status_italic: "#D8DEE9 #2f333e Italic"
+    status_italic: "#8FBCBB #2f333e"
     status_bold: "#D8DEE9 #2f333e Bold"
     status_code: "#D8DEE9 #2f333e"
     status_ellipsis: "#D8DEE9 #2f333e"

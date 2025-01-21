@@ -22,7 +22,7 @@ skin: {
     status_error: "#cf222e #e3e5e7"
     status_job: "#cf222e #e3e5e7"
     status_normal: "#1f2328 #e3e5e7"
-    status_italic: "#1f2328 #e3e5e7 Italic"
+    status_italic: "#a40e26 #e3e5e7"
     status_bold: "#1f2328 #e3e5e7 Bold"
     status_code: "#1f2328 #e3e5e7"
     status_ellipsis: "#1f2328 #e3e5e7"
