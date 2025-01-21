@@ -69,7 +69,7 @@ nix-darwin NAME:
 [group('Nix')]
 [no-exit-message]
 bundle PACKAGE:
-  nix bundle --bundler ".#$PACKAGE"
+  nix bundle --bundler .# ".#$PACKAGE"
 
 [doc('''
     Run various checks on the code, automatically fixing issues if
