@@ -163,19 +163,6 @@ let
         plugctl plug "$@"
       '';
     };
-
-  ci-bash = final.writeShellApplication {
-    name = "ci-bash";
-    runtimeInputs = [ final.bash ];
-    text = ''
-      exec bash \
-        --noprofile \
-        --norc \
-        -o errexit \
-        -o nounset \
-        -o pipefail "$@"
-    '';
-  };
 in
 {
   neovim = neovimWithDependencies;
@@ -188,6 +175,5 @@ in
     myFonts
     plugctl
     speakerctl
-    ci-bash
     ;
 }
