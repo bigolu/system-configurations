@@ -48,8 +48,7 @@ let
       cd "${repositoryDirectory}"
       ${config.system.profile}/sw/bin/darwin-rebuild switch \
         --flake "${repositoryDirectory}#${configName}" \
-        "$@" \
-        |& nom
+        "$@"
     '';
   };
 

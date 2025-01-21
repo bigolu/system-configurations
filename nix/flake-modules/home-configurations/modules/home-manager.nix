@@ -25,8 +25,7 @@ let
       ${config.home.profileDirectory}/bin/home-manager \
         switch \
         --flake "${config.repository.directory}#${configName}" \
-        "$@" \
-        |& nom
+        "$@"
     '';
   };
 

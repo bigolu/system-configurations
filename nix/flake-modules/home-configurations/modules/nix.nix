@@ -164,9 +164,13 @@ in
 
   repository = {
     symlink.xdg = {
-      executable."nix" = {
-        source = "nix/bin";
-        recursive = true;
+      executable = {
+        "nix" = {
+          source = "nix/bin";
+          recursive = true;
+        };
+        "nix-build".source = "nix/bin/nix.bash";
+        "nix-shell".source = "nix/bin/nix.bash";
       };
 
       configFile."nix/repl-startup.nix".source = "nix/repl-startup.nix";

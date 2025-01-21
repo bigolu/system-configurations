@@ -13,7 +13,7 @@ shopt -s nullglob
 
 function main {
   old_dev_shell="$(get_dev_shell_store_path)"
-  nix-direnv-reload |& nom
+  nix-direnv-reload
   direnv-reload
   new_dev_shell="$(get_dev_shell_store_path)"
   nix store diff-closures "$old_dev_shell" "$new_dev_shell"
