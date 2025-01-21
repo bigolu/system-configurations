@@ -19,7 +19,6 @@ let
   # Scripts for switching generations and upgrading flake inputs.
   system-config-apply = writeShellApplication {
     name = "system-config-apply";
-    runtimeInputs = with pkgs; [ nix-output-monitor ];
     text = ''
       cd "${config.repository.directory}"
       ${config.home.profileDirectory}/bin/home-manager \

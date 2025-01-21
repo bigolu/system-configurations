@@ -15,14 +15,20 @@
   ...
 }:
 let
-  inherit (builtins) readFile;
+  inherit (builtins)
+    readFile
+    match
+    filter
+    elemAt
+    ;
   inherit (utils) projectRoot removeRecurseIntoAttrs;
   inherit (lib)
     pipe
-    init
     splitString
     fileset
     optionalAttrs
+    unique
+    concatLists
     ;
   inherit (pkgs)
     mkShellUniqueNoCC
@@ -269,9 +275,7 @@ let
   };
 
   gitHooks = mkShellUniqueNoCC {
-    packages = with pkgs; [
-      lefthook
-    ];
+    packages = with pkgs; [ lefthook ];
   };
 
   sync = mkShellUniqueNoCC {
@@ -285,60 +289,43 @@ let
     ];
   };
 
-  scripts =
-    let
-      # Having the dependencies for all scripts available makes debugging them a bit
-      # easier. Ideally, there would be a way to temporarily expose the dependencies
-      # of a script. nix-script can do this[1], but I don't use it for these reasons:
-      #   - It rebuilds the script's dependencies every time the script file changes
-      #   - I couldn't find a way to control the package set that dependencies are
-      #     pulled from. It seems to always use the nixpkgs entry in NIX_PATH.
-      #
-      # [1]: https://github.com/dschrempf/nix-script?tab=readme-ov-file#shell-mode
-      dependencies =
-        let
-          dependencyFile =
-            runCommand "script-dependencies"
-              {
-                nativeBuildInputs = with pkgs; [
-                  ripgrep
-                ];
-              }
-              ''
-                # Extract script dependencies from their nix-shell shebangs.
-                #
-                # The shebang looks something like:
-                #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
-                #
-                # So this command will extract everything between the brackets i.e.
-                #   'dep1 dep2 dep3'.
-                #
-                # Each line printed will contain the extraction above, per script.
-                rg \
-                  --no-filename \
-                  --glob '*.bash' \
-                  '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)\].*' \
-                  --replace '$packages' \
-                  ${projectRoot + /scripts} |
+  # Having the dependencies for all scripts available makes debugging them a bit
+  # easier. Ideally, there would be a way to temporarily expose the dependencies
+  # of a script. nix-script can do this[1], but I don't use it for these reasons:
+  #   - It rebuilds the script's dependencies every time the script file changes
+  #   - I couldn't find a way to control the package set that dependencies are
+  #     pulled from. It seems to always use the nixpkgs entry in NIX_PATH.
+  #
+  # [1]: https://github.com/dschrempf/nix-script?tab=readme-ov-file#shell-mode
+  scripts = pipe (projectRoot + /scripts) [
+    # Get all lines in all scripts
+    lib.filesystem.listFilesRecursive
+    (map readFile)
+    (map (splitString "\n"))
+    concatLists
 
-                # Flatten the output of the previous command i.e. print _one_
-                # dependency per line
-                rg --only-matching '[^\s]+' |
+    # Extract script dependencies from their nix-shell shebangs.
+    #
+    # The shebang looks something like:
+    #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
+    #
+    # So this command will extract everything between the brackets i.e.
+    #   'dep1 dep2 dep3'.
+    #
+    # Each line printed will contain the extraction above, per script.
+    (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
+    (filter (matches: matches != null))
+    (map (matches: elemAt matches 1))
 
-                sort --unique > $out
-              '';
-        in
-        pipe dependencyFile [
-          readFile
-          (splitString "\n")
-          # The file ends in a newline so the last line will be empty
-          init
-          (map (dependencyName: pkgs.${dependencyName}))
-        ];
-    in
-    mkShellUniqueNoCC {
-      packages = dependencies ++ [ pkgs.bashInteractive ];
-    };
+    # Flatten the output of the previous command i.e. print _one_
+    # dependency per line
+    (map (splitString " "))
+    concatLists
+
+    unique
+    (map (dependencyName: pkgs.${dependencyName}))
+    (dependencies: mkShellUniqueNoCC { packages = dependencies; })
+  ];
 in
 {
   inherit

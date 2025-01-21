@@ -41,7 +41,6 @@ let
     name = "system-config-apply";
     runtimeInputs = with pkgs; [
       nix
-      nix-output-monitor
       coreutils
     ];
     text = ''
