@@ -34,7 +34,6 @@ let
     mkShellUniqueNoCC
     linkFarm
     runCommand
-    writeShellApplication
     ;
   inherit (pkgs.stdenv) isLinux;
 
@@ -87,19 +86,6 @@ let
   # This should be included in every dev shell that's used in CI.
   ciEssentials =
     let
-      ci-bash = writeShellApplication {
-        name = "ci-bash";
-        runtimeInputs = [ pkgs.bash ];
-        text = ''
-          exec bash \
-            --noprofile \
-            --norc \
-            -o errexit \
-            -o nounset \
-            -o pipefail "$@"
-        '';
-      };
-
       # Nix recommends setting this for non-NixOS Linux distributions[1] and
       # Ubuntu is used in CI.
       #
@@ -113,7 +99,7 @@ let
     mkShellUniqueNoCC (
       {
         inputsFrom = [ essentials ];
-        packages = [ ci-bash ];
+        packages = [ pkgs.ci-bash ];
       }
       // optionalAttrs isLinux {
         shellHook = localeArchiveHook;
