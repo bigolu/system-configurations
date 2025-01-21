@@ -62,6 +62,7 @@ in
       partialPackages.pstree
       cntr
       strace
+      inotify-info
     ]
     ++ optionals isDarwin [
       pstree
