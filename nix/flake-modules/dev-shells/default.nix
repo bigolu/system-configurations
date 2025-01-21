@@ -23,15 +23,15 @@ moduleContext@{ lib, ... }:
         inputsFrom = with partials; [
           essentials
           plugctl
+          gozip
           linting
           formatting
           codeGeneration
           vsCode
           taskRunner
-          versionControl
-          languages
+          gitHooks
           sync
-          scriptDependencies
+          scripts
         ];
       }
 

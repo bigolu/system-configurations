@@ -1,3 +1,13 @@
+# The function returns a map of dev shells that I call "partials" since they
+# represent parts of a full dev shell. Partials can be included in a full dev shell
+# using the `inputsFrom` argument for `mkShell`. I use partials for these reasons:
+#   - Allows parts of a dev shell to be shared between two shells. For example, I can
+#     put all the dependencies for checks (linters, formatters, etc.) in a partial
+#     and include that partial in both the local development and CI dev shells. This
+#     way they can stay in sync.
+#   - Makes it easier to organize the dev shell since it can be broken down into
+#     smaller groups.
+
 {
   utils,
   lib,
@@ -24,6 +34,7 @@ let
 
   plugctlPython = import ../../plugctl-python.nix pkgs;
 
+  # This should be included in every dev shell.
   essentials =
     let
       flakePackageSetHook =
@@ -67,6 +78,7 @@ let
       shellHook = flakePackageSetHook;
     };
 
+  # This should be included in every dev shell that's used in CI.
   ciEssentials =
     let
       ci-bash = writeShellApplication {
@@ -111,6 +123,10 @@ let
       # the PATH so I need to make sure the one for plugctl comes first.
       PATH="${plugctlPython}/bin:$PATH"
     '';
+  };
+
+  gozip = mkShellUniqueNoCC {
+    packages = with pkgs; [ go ];
   };
 
   linting = mkShellUniqueNoCC {
@@ -201,6 +217,7 @@ let
     ];
   };
 
+  # Everything needed by the VS Code extensions recommended in .vscode/extensions.json
   vsCode =
     let
       # The set passed to linkFarm can only contain derivations
@@ -246,23 +263,14 @@ let
   taskRunner = mkShellUniqueNoCC {
     packages = with pkgs; [
       just
-
       # This gets called in the justfile
       coreutils
     ];
   };
 
-  versionControl = mkShellUniqueNoCC {
+  gitHooks = mkShellUniqueNoCC {
     packages = with pkgs; [
-      gitMinimal
       lefthook
-    ];
-  };
-
-  languages = mkShellUniqueNoCC {
-    packages = with pkgs; [
-      bashInteractive
-      go
     ];
   };
 
@@ -277,61 +285,74 @@ let
     ];
   };
 
-  scriptDependencies =
+  scripts =
     let
-      dependencyFile =
-        runCommand "script-dependencies"
-          {
-            nativeBuildInputs = with pkgs; [
-              ripgrep
-            ];
-          }
-          ''
-            # Extract script dependencies from their nix-shell shebangs.
-            #
-            # The shebang looks something like:
-            #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
-            #
-            # So this command will extract everything between the brackets i.e.
-            #   'dep1 dep2 dep3'.
-            #
-            # Each line printed will contain the extraction above, per script.
-            rg \
-              --no-filename \
-              --glob '*.bash' \
-              '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)\].*' \
-              --replace '$packages' \
-              ${projectRoot + /scripts} |
+      # Having the dependencies for all scripts available makes debugging them a bit
+      # easier. Ideally, there would be a way to temporarily expose the dependencies
+      # of a script. nix-script can do this[1], but I don't use it for these reasons:
+      #   - It rebuilds the script's dependencies every time the script file changes
+      #   - I couldn't find a way to control the package set that dependencies are
+      #     pulled from. It seems to always use the nixpkgs entry in NIX_PATH.
+      #
+      # [1]: https://github.com/dschrempf/nix-script?tab=readme-ov-file#shell-mode
+      dependencies =
+        let
+          dependencyFile =
+            runCommand "script-dependencies"
+              {
+                nativeBuildInputs = with pkgs; [
+                  ripgrep
+                ];
+              }
+              ''
+                # Extract script dependencies from their nix-shell shebangs.
+                #
+                # The shebang looks something like:
+                #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
+                #
+                # So this command will extract everything between the brackets i.e.
+                #   'dep1 dep2 dep3'.
+                #
+                # Each line printed will contain the extraction above, per script.
+                rg \
+                  --no-filename \
+                  --glob '*.bash' \
+                  '^#! nix-shell (--packages|-p) .*\[(?P<packages>.*)\].*' \
+                  --replace '$packages' \
+                  ${projectRoot + /scripts} |
 
-            # Flatten the output of the previous command i.e. print _one_
-            # dependency per line
-            rg --only-matching '[^\s]+' |
+                # Flatten the output of the previous command i.e. print _one_
+                # dependency per line
+                rg --only-matching '[^\s]+' |
 
-            sort --unique > $out
-          '';
+                sort --unique > $out
+              '';
+        in
+        pipe dependencyFile [
+          readFile
+          (splitString "\n")
+          # The file ends in a newline so the last line will be empty
+          init
+          (map (dependencyName: pkgs.${dependencyName}))
+        ];
     in
-    pipe dependencyFile [
-      readFile
-      (splitString "\n")
-      # The file ends in a newline so the last line will be empty
-      init
-      (map (dependencyName: pkgs.${dependencyName}))
-      (dependencies: mkShellUniqueNoCC { packages = dependencies; })
-    ];
+    mkShellUniqueNoCC {
+      packages = dependencies ++ [ pkgs.bashInteractive ];
+    };
 in
 {
   inherit
     essentials
     ciEssentials
     plugctl
+    gozip
     linting
     formatting
     codeGeneration
     vsCode
     taskRunner
-    versionControl
-    languages
+    gitHooks
     sync
-    scriptDependencies
+    scripts
     ;
 }
