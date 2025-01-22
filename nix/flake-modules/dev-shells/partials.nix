@@ -36,7 +36,6 @@ let
   inherit (pkgs)
     mkShellUniqueNoCC
     linkFarm
-    runCommand
     ;
   inherit (pkgs.stdenv) isLinux;
 
@@ -265,7 +264,6 @@ let
         ];
 
         packages = with pkgs; [
-          # These get called in the lefthook config
           actionlint
           deadnix
           fish
@@ -297,28 +295,11 @@ let
           # These aren't linters, but they also get called in lefthook as part of
           # certain linting commands.
           gitMinimal
-
-          # Runs the linters
-          lefthook
         ];
-
-        shellHook =
-          let
-            direnvStdlib = runCommand "direnv-stdlib.bash" {
-              nativeBuildInputs = [ pkgs.direnv ];
-            } "direnv stdlib > $out";
-          in
-          ''
-            direnv_directory='.direnv'
-            mkdir -p "$direnv_directory"
-            ln --force --no-dereference --symbolic \
-              ${direnvStdlib} "$direnv_directory/stdlib.bash"
-          '';
       };
 
       formatting = mkShellUniqueNoCC {
         packages = with pkgs; [
-          # These get called in the lefthook config
           nixfmt-rfc-style
           nodePackages.prettier
           shfmt
@@ -330,20 +311,13 @@ let
           go
           # for fish_indent
           fish
-
-          # Runs the formatters
-          lefthook
         ];
       };
 
       codeGeneration = mkShellUniqueNoCC {
         packages = with pkgs; [
-          # These get called in the lefthook config
           doctoc
           gomod2nix
-
-          # Runs the generators
-          lefthook
         ];
       };
     in
@@ -353,6 +327,9 @@ let
         formatting
         codeGeneration
       ];
+
+      # Runs the checks
+      packages = with pkgs; [ lefthook ];
     };
 in
 {

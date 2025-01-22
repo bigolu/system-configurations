@@ -12,22 +12,6 @@
 #     If set to "true", the environment will be set up for CI. Otherwise, the local
 #     development environment will be set up.
 
-# direnv's stdlib will be sourced before this file is executed so I want to make
-# _shellcheck aware of this so we can get autocomplete, go to definition, etc. To do
-# so, I'm going to pretend to source direnv's stdlib here. This way, I can use a
-# _shellcheck directive to give it the location of direnv's stdlib.
-#
-# If a shellcheck directive is placed before the first command in the file, it gets
-# applied to the entire script[1]. To avoid that, I added a command here.
-#
-# I put an '_' before any line that starts with 'shellcheck' because shellcheck was
-# mistaking it for a directive.
-#
-# [1]: https://github.com/koalaman/shellcheck/blob/d3001f337aa3f7653a621b302261f4eac01890d0/shellcheck.1.md#directives
-:
-# shellcheck source=./.direnv/stdlib.bash
-source <(:)
-
 function main {
   # This should run first. The reason for this is in a comment at the top of
   # `direnv-manual-reload.bash`.
