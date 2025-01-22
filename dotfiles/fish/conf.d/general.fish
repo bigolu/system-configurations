@@ -253,3 +253,6 @@ abbr --add --global admin 'sudo -- (which run-as-admin) sudo'
 if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
 end
+function elevate
+    sudo -- (which run-as-admin) sudo --preserve-env=PATH,SHLVL,HOME --shell
+end
