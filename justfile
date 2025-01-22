@@ -63,23 +63,21 @@ nix-darwin NAME:
 
 [doc('''
     Create a bundle for the specified package (e.g. .#shell) using the
-    bundler included in this repository. This runs periodically in CI when
-    releasing a new version of the shell.
+    bundler included in this repository.
 ''')]
 [group('Nix')]
 [no-exit-message]
 bundle PACKAGE:
-  nix bundle --bundler .# ".#$PACKAGE"
+  nix bundle --bundler .# "$PACKAGE"
 
 [doc('''
     Run various checks on the code, automatically fixing issues if
-    possible. These checks are split into the following jobs: format,
-    check-lint, fix-lint, and generate. It runs on all files that differ between
-    the current branch and the default branch, including untracked files. This
-    is usually what you want since you can assume any files merged into the
-    default branch have been checked. In case you forget to run it, it also runs
-    during the git pre-push hook, where it only checks files in the commits that
-    you are about to push.
+    possible. These checks are split into different jobs that are listed below.
+    It runs on all files that differ between the current branch and the default
+    branch, and untracked files. This is usually what you want since you can
+    assume any files merged into the default branch have been checked. In case
+    you forget to run it, it also runs during the git pre-push hook, where it
+    only checks files in the commits that you are about to push.
 
     If you want to see what kind of checks are being run, they're defined in
     lefthook.yaml.
@@ -87,7 +85,7 @@ bundle PACKAGE:
     Arguments:
         JOBS: Comma-Delimited list of jobs. If you don't specify any jobs,
                 all of them will be run. Possible jobs are: generate, format,
-                fix-lint, and check-lint.
+                fix-lint, check-lint, and test.
                 Example: `just check format,generate`
 ''')]
 [group('Checks')]
