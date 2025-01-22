@@ -10,10 +10,6 @@ inputs:
       An authentication token for Cachix. Only necessary for pushing to the cache.
     required: false
     default: ""
-  use-magic-nix-cache:
-    description: Use Magic Nix Cache
-    required: false
-    default: "true"
 runs:
   using: "composite"
   steps:
@@ -25,23 +21,11 @@ runs:
         nix_path: nixpkgs=flake:nixpkgs
         # Use this until a new version of the action is released with nix v2.25.3+
         install_url: https://releases.nixos.org/nix/nix-2.25.3/install
-    # TODO: Ideally, I would only read from the GitHub Actions cache since it will be
-    # the closest cache to the workflow runners. However, since the packages from my
-    # flake that I want to cache aren't pushed to the GitHub Action cache, I read
-    # those packages from this cache. The reason I can't push those packages to
-    # Github Actions is explained in the package-caching workflow.
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:
         name: bigolu
         authToken: "${{ inputs.cachix-auth-token }}"
         skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
-    - if: inputs.use-magic-nix-cache == 'true'
-      uses: DeterminateSystems/magic-nix-cache-action@87b14cf437d03d37989d87f0fa5ce4f5dc1a330b # v8
-      with:
-        # Since I want to cache everything, I set this to a URL that doesn't belong
-        # to any of my substituters.
-        upstream-cache: https://example.com
-        use-flakehub: false
     # Since this is the step that loads a dev shell, there isn't one loaded here. So
     # instead of directly using ci-bash as the shell, like I do in other workflows,
     # I'll use ci-bash through `nix run`.
