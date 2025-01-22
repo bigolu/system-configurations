@@ -21,13 +21,13 @@ moduleContext@{ lib, ... }:
       {
         name = "local";
         inputsFrom = with partials; [
-          essentials
+          scriptInterpreter
           plugctl
           gozip
           taskRunner
           gitHooks
           sync
-          scripts
+          scriptDependencies
           vsCode
           checks
         ];

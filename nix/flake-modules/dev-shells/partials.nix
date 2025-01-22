@@ -42,8 +42,7 @@ let
 
   plugctlPython = import ../../plugctl-python.nix pkgs;
 
-  # This should be included in every dev shell.
-  essentials =
+  scriptInterpreter =
     let
       flakePackageSetHook =
         let
@@ -101,7 +100,7 @@ let
     in
     mkShellUniqueNoCC (
       {
-        inputsFrom = [ essentials ];
+        inputsFrom = [ scriptInterpreter ];
         packages = [ pkgs.ci-bash ];
       }
       // optionalAttrs isLinux {
@@ -156,7 +155,7 @@ let
   #     from. It seems to always use the nixpkgs entry in NIX_PATH.
   #
   # [1]: https://github.com/dschrempf/nix-script?tab=readme-ov-file#shell-mode
-  scripts = pipe (projectRoot + /scripts) [
+  scriptDependencies = pipe (projectRoot + /scripts) [
     # Get all lines in all scripts
     lib.filesystem.listFilesRecursive
     (map readFile)
@@ -331,14 +330,14 @@ let
 in
 {
   inherit
-    essentials
+    scriptInterpreter
     ciEssentials
     plugctl
     gozip
     taskRunner
     gitHooks
     sync
-    scripts
+    scriptDependencies
     vsCode
     checks
     ;
