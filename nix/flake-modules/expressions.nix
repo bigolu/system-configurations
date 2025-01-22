@@ -4,7 +4,7 @@ let
   inherit (lib) hasPrefix;
 in
 {
-  flake.private.systemConfigurationsAsMarkdown =
+  flake.expressions.systemConfigurationsAsMarkdown =
     let
       homeManagerConfigNames = builtins.filter (name: !hasPrefix "portable-home" name) (
         attrNames self.homeConfigurations

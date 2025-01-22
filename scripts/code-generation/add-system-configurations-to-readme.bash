@@ -10,7 +10,7 @@ shopt -s nullglob
 
 function main {
   configs="$(
-    nix eval --raw .#private.systemConfigurationsAsMarkdown
+    nix eval --raw .#expressions.systemConfigurationsAsMarkdown
     # Add a character to the end of the output to preserve trailing newlines.
     printf x
   )"
