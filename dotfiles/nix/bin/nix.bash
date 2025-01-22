@@ -70,7 +70,12 @@ function nix_shim {
   local real_nix
   real_nix="$(get_real_command)"
 
-  if is_set 'NIX_GET_COMPLETIONS'; then
+  if
+    is_set 'NIX_GET_COMPLETIONS' \
+      || contains 'run' "${nix_args[@]}" \
+      || contains '-c' "${nix_args[@]}" \
+      || contains '--command' "${nix_args[@]}"
+  then
     exec "$real_nix" "${nix_args[@]}"
   fi
 
