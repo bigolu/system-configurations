@@ -4,6 +4,9 @@
 # TODO: lint-after-open should be the default, but it isn't set on the server:
 # https://github.com/mattn/efm-langserver/pull/277
 
+# Some of these tool definitions came from here:
+# https://github.com/llllvvuu/efm-tool-definitions.yaml
+
 tools:
   action-lint: &action-lint
     lint-after-open: true

@@ -23,6 +23,7 @@ let
 
   xargs = filterPrograms final.findutils [ "xargs" ];
   ps = filterPrograms final.procps [ "ps" ];
+  pkill = filterPrograms final.procps [ "pkill" ];
 
   # The pstree from psmisc is preferred on linux for some reason:
   # https://github.com/NixOS/nixpkgs/blob/3dc440faeee9e889fe2d1b4d25ad0f430d449356/pkgs/applications/misc/pstree/default.nix#L36C8-L36C8
@@ -46,6 +47,7 @@ in
         xargs
         ps
         look
+        pkill
         ;
     }
     // optionalAttrs isLinux {

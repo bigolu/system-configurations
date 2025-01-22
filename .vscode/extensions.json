@@ -22,19 +22,18 @@
 
     "tudoudou.json5-for-vscode",
 
-    // Python
-    ////////////////////////////////////////
     "ms-python.debugpy",
     "charliermarsh.ruff",
     "ericsia.pythonsnippets3",
     "njpwerner.autodocstring",
     "ms-python.mypy-type-checker",
-    // Using this for Jedi
+    // I use this extension for its language server, powered by Jedi
     "ms-python.python",
 
     "hangxingliu.vscode-systemd-support",
     "ltex-plus.vscode-ltex-plus",
     "laktak.hjson",
+    "rogalmic.bash-debug",
   ],
 
   "unwantedRecommendations": ["ms-python.vscode-pylance"],

@@ -1,4 +1,11 @@
 {
+  "files.associations": {
+    ".envrc": "shellscript",
+  },
+  "editor.rulers": [
+    85
+  ],
+
   // Automatically restart all the other extensions after loading the direnv
   // environment. This way the other extensions will have the environment as
   // well.
@@ -35,7 +42,6 @@
 
   // So the editor doesn't lag
   "go.lintFlags": ["--fast"],
-
   "go.lintTool": "golangci-lint",
 
   "ltex.completionEnabled": true,
@@ -47,21 +53,12 @@
   // Use our version for consistency
   "evenBetterToml.taplo.bundled": false,
 
-  "files.associations": {
-    ".envrc": "shellscript",
-    "*.json5": "json5",
-  },
-
-  // Python
-  ////////////////////////////////////////
   "python.languageServer": "Jedi",
   "mypy-type-checker.preferDaemon": true,
   "mypy-type-checker.reportingScope": "workspace",
   "mypy-type-checker.importStrategy": "fromEnvironment",
   "python.defaultInterpreterPath": ".direnv/python/bin/python",
+  "debugpy.debugJustMyCode": false,
 
-  "editor.rulers": [
-    85
-  ],
   "Lua.misc.executablePath": "lua-language-server",
 }
