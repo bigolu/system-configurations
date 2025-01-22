@@ -182,78 +182,6 @@ let
     (dependencies: mkShellUniqueNoCC { packages = dependencies; })
   ];
 
-  # Everything needed by the VS Code extensions recommended in
-  # .vscode/extensions.json
-  vsCode =
-    let
-      efmLs = mkShellUniqueNoCC {
-        packages = with pkgs; [
-          efm-langserver
-
-          # These aren't linters, but get used in some of the linting commands.
-          dash
-          bash
-          jq
-        ];
-      };
-
-      luaLs =
-        let
-          # The set passed to linkFarm can only contain derivations
-          myVimPlugins = linkFarm "plugins" (removeRecurseIntoAttrs pkgs.myVimPlugins);
-        in
-        mkShellUniqueNoCC {
-          packages = with pkgs; [ lua-language-server ];
-          shellHook = ''
-            prefix='lua-libraries'
-            mkdir -p "$prefix"
-            ln --force --no-dereference --symbolic \
-              ${myVimPlugins} "$prefix/neovim-plugins"
-            ln --force --no-dereference --symbolic \
-              ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
-          '';
-        };
-    in
-    mkShellUniqueNoCC {
-      inputsFrom = [
-        # For "llllvvuu.llllvvuu-glspc"
-        efmLs
-        # For "sumneko.lua"
-        luaLs
-        # For "ms-python.mypy-type-checker", it needs mypy. Also for the python
-        # libraries used by plugctl so mypy can factor in their types as well.
-        plugctl
-      ];
-      packages = with pkgs; [
-        # For "golang.go"
-        go
-        golangci-lint
-        # For "tamasfe.even-better-toml"
-        taplo
-        # For "jnoortheen.nix-ide"
-        nixd
-        # For "mads-hartmann.bash-ide-vscode"
-        shellcheck
-        # For "charliermarsh.ruff"
-        ruff
-        # For "bmalehorn.vscode-fish"
-        fish
-        # For "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and pkill
-        bashInteractive
-        coreutils
-        partialPackages.pkill
-      ];
-      shellHook = ''
-        # For extension "ms-python.python". Link python to a stable location so I
-        # don't have to update the python path in VS Code when the nix store path for
-        # python changes.
-        direnv_directory='.direnv'
-        mkdir -p "$direnv_directory"
-        ln --force --no-dereference --symbolic \
-          ${plugctlPython} "$direnv_directory/python"
-      '';
-    };
-
   checks =
     let
       linting = mkShellUniqueNoCC {
@@ -331,6 +259,80 @@ let
       # Runs the checks
       packages = with pkgs; [ lefthook ];
     };
+
+  # Everything needed by the VS Code extensions recommended in
+  # .vscode/extensions.json
+  vsCode =
+    let
+      efmLs = mkShellUniqueNoCC {
+        # Include checks since it has the linters
+        inputsFrom = [ checks ];
+        packages = with pkgs; [
+          efm-langserver
+
+          # These aren't linters, but get used in some of the linting commands.
+          dash
+          bash
+          jq
+        ];
+      };
+
+      luaLs =
+        let
+          # The set passed to linkFarm can only contain derivations
+          myVimPlugins = linkFarm "plugins" (removeRecurseIntoAttrs pkgs.myVimPlugins);
+        in
+        mkShellUniqueNoCC {
+          packages = with pkgs; [ lua-language-server ];
+          shellHook = ''
+            prefix='lua-libraries'
+            mkdir -p "$prefix"
+            ln --force --no-dereference --symbolic \
+              ${myVimPlugins} "$prefix/neovim-plugins"
+            ln --force --no-dereference --symbolic \
+              ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+          '';
+        };
+    in
+    mkShellUniqueNoCC {
+      inputsFrom = [
+        # For "llllvvuu.llllvvuu-glspc"
+        efmLs
+        # For "sumneko.lua"
+        luaLs
+        # For "ms-python.mypy-type-checker", it needs mypy. Also for the python
+        # libraries used by plugctl so mypy can factor in their types as well.
+        plugctl
+      ];
+      packages = with pkgs; [
+        # For "golang.go"
+        go
+        golangci-lint
+        # For "tamasfe.even-better-toml"
+        taplo
+        # For "jnoortheen.nix-ide"
+        nixd
+        # For "mads-hartmann.bash-ide-vscode"
+        shellcheck
+        # For "charliermarsh.ruff"
+        ruff
+        # For "bmalehorn.vscode-fish"
+        fish
+        # For "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and pkill
+        bashInteractive
+        coreutils
+        partialPackages.pkill
+      ];
+      shellHook = ''
+        # For extension "ms-python.python". Link python to a stable location so I
+        # don't have to update the python path in VS Code when the nix store path for
+        # python changes.
+        direnv_directory='.direnv'
+        mkdir -p "$direnv_directory"
+        ln --force --no-dereference --symbolic \
+          ${plugctlPython} "$direnv_directory/python"
+      '';
+    };
 in
 {
   inherit
@@ -342,7 +344,7 @@ in
     gitHooks
     sync
     scriptDependencies
-    vsCode
     checks
+    vsCode
     ;
 }

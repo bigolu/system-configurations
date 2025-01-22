@@ -28,8 +28,8 @@ moduleContext@{ lib, ... }:
           gitHooks
           sync
           scriptDependencies
-          vsCode
           checks
+          vsCode
         ];
       }
 
