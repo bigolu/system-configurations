@@ -7,6 +7,9 @@
 #     way they can stay in sync.
 #   - Makes it easier to organize the dev shell since it can be broken down into
 #     smaller groups.
+#   - Makes it easier to provide alternate dev shells without certain partials. For
+#     example, people that don't use VS Code may not want the partial that provides
+#     dependencies for it.
 
 {
   utils,
