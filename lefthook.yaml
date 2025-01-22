@@ -71,9 +71,13 @@ sync:
     fi
   jobs:
     - name: direnv
-      # The scripts directory is included so script dependencies can be re-extracted
-      # and loaded in the dev shell.
-      glob: "{direnv/direnv-config.bash,flake.lock,*.nix,scripts/*}"
+      glob:
+        - direnv/direnv-config.bash
+        - "*.nix"
+        - flake.lock
+        # The scripts directory is included so script dependencies can be
+        # re-extracted and loaded into the dev shell.
+        - scripts/*
       run: ./scripts/lefthook/sync-direnv.bash
     - name: lefthook
       # TODO: Currently, this is only needed on the first sync that's done after
@@ -87,7 +91,10 @@ sync:
       glob: "lefthook.yaml"
       run: lefthook install --force
     - name: system
-      glob: "{flake.lock,*.nix,dotfiles/*}"
+      glob:
+        - dotfiles/*
+        - "*.nix"
+        - flake.lock
       # Needs to be interactive so I can input my password when the path for
       # run-as-admin changes. This is because I specify its path in my sudoers config
       # to allow running it without a password.
@@ -105,7 +112,7 @@ sync:
           fi
         '
     - name: fish
-      glob: "dotfiles/fish/conf.d/*.fish"
+      glob: dotfiles/fish/conf.d/*.fish
       run: fish -c fish-reload
 
 check:
@@ -121,17 +128,12 @@ check:
   # [2]: https://github.com/evilmartians/lefthook/pull/595#issuecomment-1859784491
   files: ":"
   jobs:
-    - name: generate
+    - name: _
       # Don't run checks on generated files.
       #
-      # This set of excludes is duplicated for every check group. There's an
-      # open feature request for a global exclude list[1]. If that gets
-      # implemented, I won't have to duplicate this anymore.
-      #
-      # I've also tried putting all of the check groups under one parent job
-      # and adding the excludes on the parent, but apparently excludes are only
-      # inherited by direct child jobs, not all descendants. Not sure if this
-      # is the intended behavior.
+      # This job only exists so the excludes can get inherited by all of its
+      # descendants. There's an open feature request for a global exclude list[1]. If
+      # that gets implemented, I won't need this extra job anymore.
       #
       # [1]: https://github.com/evilmartians/lefthook/issues/593
       exclude:
@@ -143,142 +145,7 @@ check:
         - go.sum
       group:
         jobs:
-          - name: readme-table-of-contents
-            glob: README.md
-            run: ./scripts/run-fix.bash doctoc README.md --github
-          - name: gomod2nix
-            glob: "gozip/go.mod"
-            run: ./scripts/run-fix.bash gomod2nix --dir gozip generate
-          - name: nix-version
-            glob: "flake.lock"
-            run: ./scripts/run-fix.bash ./scripts/code-generation/add-nix-version-to-readme.bash
-          - name: system-configs
-            glob: "*.nix"
-            run: ./scripts/run-fix.bash ./scripts/code-generation/add-system-configurations-to-readme.bash
-          - name: flake-lock
-            glob: "flake.nix"
-            run: ./scripts/run-fix.bash nix flake lock
-    - name: fix-lint
-      # Don't run checks on generated files.
-      #
-      # This set of excludes is duplicated for every check group. There's an
-      # open feature request for a global exclude list[1]. If that gets
-      # implemented, I won't have to duplicate this anymore.
-      #
-      # I've also tried putting all of the check groups under one parent job
-      # and adding the excludes on the parent, but apparently excludes are only
-      # inherited by direct child jobs, not all descendants. Not sure if this
-      # is the intended behavior.
-      #
-      # [1]: https://github.com/evilmartians/lefthook/issues/593
-      exclude:
-        - gozip/gomod2nix.toml
-        - "*.vscode/*.json"
-        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
-        - dotfiles/cosmic/config/*
-        - flake.lock
-        - go.sum
-      group:
-        jobs:
-          - name: deadnix
-            glob: "*.nix"
-            run: ./scripts/run-fix.bash deadnix --quiet --edit {files}
-          - name: ruff
-            glob: "*.py"
-            run: ./scripts/run-fix.bash ruff check --fix-only {files}
-          - name: statix
-            glob: "*.nix"
-            # statix doesn't support passing multiple files yet:
-            # https://github.com/nerdypepper/statix/issues/69
-            run: "./scripts/run-fix.bash parallel statix fix -- {files}"
-          - name: markdownlint-cli2
-            glob: "*.md"
-            run: ./scripts/run-fix.bash markdownlint-cli2 --fix {files}
-          - name: go-mod-tidy
-            glob: "gozip/go.{mod,sum}"
-            run: ./scripts/run-fix.bash go -C gozip mod tidy
-          - name: typos
-            glob: "{justfile,.editorconfig,.shellcheckrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}}"
-            run: ./scripts/run-fix.bash typos --write-changes --format silent {files}
-    # Run formatting after lint fixes because sometimes a lint fix produces code that
-    # doesn't comply with the formatting.
-    - name: format
-      # Don't run checks on generated files.
-      #
-      # This set of excludes is duplicated for every check group. There's an
-      # open feature request for a global exclude list[1]. If that gets
-      # implemented, I won't have to duplicate this anymore.
-      #
-      # I've also tried putting all of the check groups under one parent job
-      # and adding the excludes on the parent, but apparently excludes are only
-      # inherited by direct child jobs, not all descendants. Not sure if this
-      # is the intended behavior.
-      #
-      # [1]: https://github.com/evilmartians/lefthook/issues/593
-      exclude:
-        - gozip/gomod2nix.toml
-        - "*.vscode/*.json"
-        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
-        - dotfiles/cosmic/config/*
-        - flake.lock
-        - go.sum
-      group:
-        jobs:
-          - name: taplo
-            glob: "*.toml"
-            run: ./scripts/run-fix.bash taplo format {files}
-          - name: prettier
-            glob: "*.{md,js,json,json{5,c},yaml}"
-            run: ./scripts/run-fix.bash prettier --write {files}
-          - name: shfmt
-            glob: "*.{sh,bash}"
-            run: ./scripts/run-fix.bash shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}
-          - name: fish_indent
-            glob: "*.fish"
-            run: ./scripts/run-fix.bash fish_indent --write {files}
-          - name: nixfmt
-            glob: "*.nix"
-            # --verify confirms that the formatted code parses the same as the
-            # input code.
-            run: ./scripts/run-fix.bash nixfmt --verify {files}
-          - name: just
-            # TODO: just's builtin formatter currently removes/rearranges comments.
-            # Until this is fixed I'll disable it:
-            # https://github.com/casey/just/issues/862.
-            skip: true
-            glob: "justfile"
-            run: ./scripts/run-fix.bash just --unstable --fmt --justfile {files}
-          - name: stylua
-            glob: "*.lua"
-            run: ./scripts/run-fix.bash stylua {files}
-          - name: gofmt
-            glob: "*.go"
-            run: ./scripts/run-fix.bash gofmt -w {files}
-          - name: ruff-format
-            glob: "*.py"
-            run: ./scripts/run-fix.bash ruff format {files}
-          - name: ruff-format-sort-imports
-            glob: "*.py"
-            run: ./scripts/run-fix.bash ruff check --select I --fix-only {files}
-    # I'm putting the check-lint and test groups in their own group so I can run them
-    # in parallel. It's safe to do so because they don't modify any files.
-    - name: check-lint-and-test
-      group:
-        parallel: true
-        jobs:
-          - name: check-lint
-            # Don't run checks on generated files.
-            #
-            # This set of excludes is duplicated for every check group. There's an
-            # open feature request for a global exclude list[1]. If that gets
-            # implemented, I won't have to duplicate this anymore.
-            #
-            # I've also tried putting all of the check groups under one parent job
-            # and adding the excludes on the parent, but apparently excludes are only
-            # inherited by direct child jobs, not all descendants. Not sure if this
-            # is the intended behavior.
-            #
-            # [1]: https://github.com/evilmartians/lefthook/issues/593
+          - name: generate
             exclude:
               - gozip/gomod2nix.toml
               - "*.vscode/*.json"
@@ -287,135 +154,217 @@ check:
               - flake.lock
               - go.sum
             group:
-              parallel: true
               jobs:
-                - name: ltex-cli-plus
-                  # TODO: The CLI isn't respecting my dictionary or ignore files so I
-                  # can't use it: https://github.com/ltex-plus/ltex-ls-plus/issues/56
-                  skip: true
-                  glob: "*.md"
-                  run: ltex-cli-plus --server-command-line=ltex-ls-plus {files}
-                - name: golangci-lint
-                  # TODO: Don't want to address these issues yet
-                  skip: true
-                  glob: "*.go"
-                  run: golangci-lint run {files}
+                - name: readme-table-of-contents
+                  glob: README.md
+                  run: ./scripts/run-fix.bash doctoc README.md --github
+                - name: gomod2nix
+                  glob: gozip/go.mod
+                  run: ./scripts/run-fix.bash gomod2nix --dir gozip generate
+                - name: nix-version
+                  glob: flake.lock
+                  run: ./scripts/run-fix.bash ./scripts/code-generation/add-nix-version-to-readme.bash
+                - name: system-configs
+                  glob: "*.nix"
+                  run: ./scripts/run-fix.bash ./scripts/code-generation/add-system-configurations-to-readme.bash
+                - name: flake-lock
+                  glob: flake.nix
+                  run: ./scripts/run-fix.bash nix flake lock
+          - name: fix-lint
+            group:
+              jobs:
+                - name: deadnix
+                  glob: "*.nix"
+                  run: ./scripts/run-fix.bash deadnix --quiet --edit {files}
                 - name: ruff
                   glob: "*.py"
-                  run: ruff check {files}
-                - name: fish
-                  glob: "*.fish"
-                  # TODO: Fish doesn't support passing multiple files, I should open
-                  # an issue.
-                  run: "parallel fish --no-execute -- {files}"
-                - name: desktop-file-validate
-                  glob: "*.desktop"
-                  run: desktop-file-validate {files}
-                - name: markdownlint-cli2
-                  glob: "*.md"
-                  run: markdownlint-cli2 {files}
-                - name: shellcheck
-                  glob: "*.{sh,bash}"
-                  run: shellcheck {files}
-                - name: yamllint
-                  glob: "*.yaml"
-                  run: yamllint --strict {files}
-                - name: actionlint
-                  glob: ".github/workflows/*.yaml"
-                  run: actionlint {files}
+                  run: ./scripts/run-fix.bash ruff check --fix-only {files}
                 - name: statix
                   glob: "*.nix"
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/nerdypepper/statix/issues/69
-                  run: "parallel statix check -- {files}"
-                - name: nixpkgs-lint
-                  glob: "*.nix"
-                  run: nixpkgs-lint --include-unfinished-lints -- {files}
+                  run: "./scripts/run-fix.bash parallel statix fix -- {files}"
+                - name: markdownlint-cli2
+                  glob: "*.md"
+                  run: ./scripts/run-fix.bash markdownlint-cli2 --fix {files}
+                - name: go-mod-tidy
+                  glob: gozip/go.{mod,sum}
+                  run: ./scripts/run-fix.bash go -C gozip mod tidy
                 - name: typos
-                  glob: "{justfile,.editorconfig,.shellcheckrc,*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}}"
-                  run: typos {files}
-                - name: mypy
-                  glob: "dotfiles/smart_plug/*.py"
-                  run: mypy dotfiles/smart_plug
-                - name: isutf8
-                  run: isutf8 {files}
-                - name: editorconfig-checker
-                  # I'm disabling the indentation size check because it applies to
-                  # comments as well and I don't want it to. I could add inline
-                  # directives to disable it for comments, but that would be
-                  # cumbersome.
-                  run: editorconfig-checker --disable-indent-size {files}
-                - name: config-file-validator
-                  glob: "*.{editorconfig,json,ini}"
-                  run: validator -groupby pass-fail {files}
-                - name: commit-message-typos
-                  skip:
-                    # Don't run in CI since this check isn't required. It isn't
-                    # required because there's no easy way to ignore false positives
-                    # in a commit message e.g. "no qa".
-                    - run: >
-                        [ "$CI" = true ]
-                  run: |
-                    bash -o pipefail -euc '
-                      base_ref="${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"
-                      readarray -t commits_to_check \
-                        < <(git rev-list --abbrev-commit --ancestry-path "$base_ref"..HEAD)
-                      found_problem=
-                      for commit in "${commits_to_check[@]}"; do
-                        commit_message_subject="$(git show --no-patch --format=%s "$commit")"
-                        echo "Checking commit $commit ($commit_message_subject)..."
-                        commit_full_message="$(git show --no-patch --format=%B "$commit")"
-                        if ! echo "$commit_full_message" | typos --format brief -; then
-                          found_problem=1
-                        fi
-                      done
-                      [[ ! "$found_problem" ]]
-                    '
-                - name: renovate-config-validator
-                  glob: ".github/{renovate,renovate-global,renovate-automerge-preset}.json5"
-                  run: renovate-config-validator --strict {files}
+                  glob:
+                    - justfile
+                    - .editorconfig
+                    - .shellcheckrc
+                    - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
+                  run: ./scripts/run-fix.bash typos --write-changes --format silent {files}
+          # Run formatting after lint fixes because sometimes a lint fix produces
+          # code that doesn't comply with the formatting.
+          - name: format
+            group:
+              jobs:
                 - name: taplo
                   glob: "*.toml"
-                  run: taplo lint {files}
-                - name: hjson
-                  glob: "*.hjson"
-                  # hjson-cli prints the file in json format to stdout so I'm hiding
-                  # that output.
-                  #
-                  # TODO: hjson-cli doesn't support passing multiple files, I should
-                  # open an issue.
-                  run: "parallel hjson-cli -- {files} >/dev/null"
-          - name: test
-            # Don't run checks on generated files.
-            #
-            # This set of excludes is duplicated for every check group. There's an
-            # open feature request for a global exclude list[1]. If that gets
-            # implemented, I won't have to duplicate this anymore.
-            #
-            # I've also tried putting all of the check groups under one parent job
-            # and adding the excludes on the parent, but apparently excludes are only
-            # inherited by direct child jobs, not all descendants. Not sure if this
-            # is the intended behavior.
-            #
-            # [1]: https://github.com/evilmartians/lefthook/issues/593
-            exclude:
-              - gozip/gomod2nix.toml
-              - "*.vscode/*.json"
-              - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
-              - dotfiles/cosmic/config/*
-              - flake.lock
-              - go.sum
+                  run: ./scripts/run-fix.bash taplo format {files}
+                - name: prettier
+                  glob: "*.{md,js,json,json{5,c},yaml}"
+                  run: ./scripts/run-fix.bash prettier --write {files}
+                - name: shfmt
+                  glob: "*.{sh,bash}"
+                  run: ./scripts/run-fix.bash shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}
+                - name: fish_indent
+                  glob: "*.fish"
+                  run: ./scripts/run-fix.bash fish_indent --write {files}
+                - name: nixfmt
+                  glob: "*.nix"
+                  # --verify confirms that the formatted code parses the same as the
+                  # input code.
+                  run: ./scripts/run-fix.bash nixfmt --verify {files}
+                - name: just
+                  # TODO: just's builtin formatter currently removes/rearranges
+                  # comments. Until this is fixed I'll disable it:
+                  # https://github.com/casey/just/issues/862.
+                  skip: true
+                  glob: justfile
+                  run: ./scripts/run-fix.bash just --unstable --fmt --justfile {files}
+                - name: stylua
+                  glob: "*.lua"
+                  run: ./scripts/run-fix.bash stylua {files}
+                - name: gofmt
+                  glob: "*.go"
+                  run: ./scripts/run-fix.bash gofmt -w {files}
+                - name: ruff-format
+                  glob: "*.py"
+                  run: ./scripts/run-fix.bash ruff format {files}
+                - name: ruff-format-sort-imports
+                  glob: "*.py"
+                  run: ./scripts/run-fix.bash ruff check --select I --fix-only {files}
+          # I'm putting the check-lint and test groups in their own group so I can
+          # run them in parallel. It's safe to do so because they don't modify any
+          # files.
+          - name: _
             group:
               parallel: true
               jobs:
-                - name: flake
-                  skip:
-                    # This would take a long time to run in GitHub Actions since it
-                    # would have to download all the dependencies.
-                    - run: '[ "$CI" = true ]'
-                  run: nix flake check
-                - name: nix-config
-                  skip:
-                    - run: '[ "$CI" = true ]'
-                  glob: "{*.nix,flake.lock}"
-                  run: nix config check
+                - name: check-lint
+                  group:
+                    parallel: true
+                    jobs:
+                      - name: ltex-cli-plus
+                        # TODO: The CLI isn't respecting my dictionary or ignore
+                        # files so I can't use it:
+                        # https://github.com/ltex-plus/ltex-ls-plus/issues/56
+                        skip: true
+                        glob: "*.md"
+                        run: ltex-cli-plus --server-command-line=ltex-ls-plus {files}
+                      - name: golangci-lint
+                        # TODO: Don't want to address these issues yet
+                        skip: true
+                        glob: "*.go"
+                        run: golangci-lint run {files}
+                      - name: ruff
+                        glob: "*.py"
+                        run: ruff check {files}
+                      - name: fish
+                        glob: "*.fish"
+                        # TODO: Fish doesn't support passing multiple files, I should
+                        # open an issue.
+                        run: "parallel fish --no-execute -- {files}"
+                      - name: desktop-file-validate
+                        glob: "*.desktop"
+                        run: desktop-file-validate {files}
+                      - name: markdownlint-cli2
+                        glob: "*.md"
+                        run: markdownlint-cli2 {files}
+                      - name: shellcheck
+                        glob: "*.{sh,bash}"
+                        run: shellcheck {files}
+                      - name: yamllint
+                        glob: "*.yaml"
+                        run: yamllint --strict {files}
+                      - name: actionlint
+                        glob: ".github/workflows/*.yaml"
+                        run: actionlint {files}
+                      - name: statix
+                        glob: "*.nix"
+                        # statix doesn't support passing multiple files yet:
+                        # https://github.com/nerdypepper/statix/issues/69
+                        run: "parallel statix check -- {files}"
+                      - name: nixpkgs-lint
+                        glob: "*.nix"
+                        run: nixpkgs-lint --include-unfinished-lints -- {files}
+                      - name: typos
+                        glob:
+                          - justfile
+                          - .editorconfig
+                          - .shellcheckrc
+                          - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
+                        run: typos {files}
+                      - name: mypy
+                        glob: dotfiles/smart_plug/*.py
+                        run: mypy dotfiles/smart_plug
+                      - name: isutf8
+                        run: isutf8 {files}
+                      - name: editorconfig-checker
+                        # I'm disabling the indentation size check because it applies
+                        # to comments as well and I don't want it to.
+                        run: editorconfig-checker --disable-indent-size {files}
+                      - name: config-file-validator
+                        glob: "*.{editorconfig,json,ini}"
+                        run: validator -groupby pass-fail {files}
+                      - name: commit-message-typos
+                        skip:
+                          # Don't run in CI since this check isn't required. It isn't
+                          # required because there's no easy way to ignore false
+                          # positives in a commit message e.g. "no qa".
+                          - run: >
+                              [ "$CI" = true ]
+                        run: |
+                          bash -o pipefail -euc '
+                            base_ref="${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"
+                            readarray -t commits_to_check \
+                              < <(git rev-list --abbrev-commit --ancestry-path "$base_ref"..HEAD)
+                            found_problem=
+                            for commit in "${commits_to_check[@]}"; do
+                              commit_message_subject="$(git show --no-patch --format=%s "$commit")"
+                              echo "Checking commit $commit ($commit_message_subject)..."
+                              commit_full_message="$(git show --no-patch --format=%B "$commit")"
+                              if ! echo "$commit_full_message" | typos --format brief -; then
+                                found_problem=1
+                              fi
+                            done
+                            [[ ! "$found_problem" ]]
+                          '
+                      - name: renovate-config-validator
+                        glob: ".github/renovate*.json5"
+                        # TODO: The validator says this file is invalid, but it seems
+                        # to work fine.
+                        exclude: ".github/renovate-common-preset.json5"
+                        run: renovate-config-validator --strict {files}
+                      - name: taplo
+                        glob: "*.toml"
+                        run: taplo lint {files}
+                      - name: hjson
+                        glob: "*.hjson"
+                        # hjson-cli prints the file in json format to stdout so I'm
+                        # hiding that output.
+                        #
+                        # TODO: hjson-cli doesn't support passing multiple files, I
+                        # should open an issue.
+                        run: "parallel hjson-cli -- {files} >/dev/null"
+                - name: test
+                  group:
+                    parallel: true
+                    jobs:
+                      - name: flake
+                        skip:
+                          # This would take a long time to run in GitHub Actions
+                          # since it would have to download all the dependencies.
+                          - run: '[ "$CI" = true ]'
+                        run: nix flake check
+                      - name: nix-config
+                        skip:
+                          - run: '[ "$CI" = true ]'
+                        glob:
+                          - "*.nix"
+                          - flake.lock
+                        run: nix config check
