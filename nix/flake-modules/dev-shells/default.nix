@@ -24,14 +24,12 @@ moduleContext@{ lib, ... }:
           essentials
           plugctl
           gozip
-          linting
-          formatting
-          codeGeneration
-          vsCode
           taskRunner
           gitHooks
           sync
           scripts
+          vsCode
+          checks
         ];
       }
 
@@ -44,9 +42,7 @@ moduleContext@{ lib, ... }:
         name = "ci-check-pull-request";
         inputsFrom = with partials; [
           ciEssentials
-          linting
-          formatting
-          codeGeneration
+          checks
         ];
       }
 

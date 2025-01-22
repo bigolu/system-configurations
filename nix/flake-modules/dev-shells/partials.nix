@@ -124,142 +124,6 @@ let
     packages = with pkgs; [ go ];
   };
 
-  linting = mkShellUniqueNoCC {
-    inputsFrom = [
-      # For mypy. Also for the python libraries used by plugctl so mypy can
-      # factor in their types as well.
-      plugctl
-    ];
-
-    packages = with pkgs; [
-      # These get called in the lefthook config
-      actionlint
-      deadnix
-      fish
-      # for renovate-config-validator
-      renovate
-      shellcheck
-      statix
-      # for ltex-cli-plus
-      ltex-ls-plus
-      markdownlint-cli2
-      desktop-file-utils
-      golangci-lint
-      config-file-validator
-      taplo
-      ruff
-      # for 'go mod tidy'
-      go
-      typos
-      # TODO: If the YAML language server gets a CLI I should use that instead:
-      # https://github.com/redhat-developer/yaml-language-server/issues/535
-      yamllint
-      editorconfig-checker
-      nixpkgs-lint-community
-      hjson-go
-      # For isutf8 and parallel. parallel isn't a linter, but it's used to run
-      # any linter that doesn't support multiple file arguments.
-      moreutils
-
-      # These aren't linters, but they also get called in lefthook as part of
-      # certain linting commands.
-      gitMinimal
-
-      # Runs the linters
-      lefthook
-    ];
-
-    shellHook =
-      let
-        direnvStdlib = runCommand "direnv-stdlib.bash" {
-          nativeBuildInputs = [ pkgs.direnv ];
-        } "direnv stdlib > $out";
-      in
-      ''
-        direnv_directory='.direnv'
-        mkdir -p "$direnv_directory"
-        ln --force --no-dereference --symbolic \
-          ${direnvStdlib} "$direnv_directory/stdlib.bash"
-      '';
-  };
-
-  formatting = mkShellUniqueNoCC {
-    packages = with pkgs; [
-      # These get called in the lefthook config
-      nixfmt-rfc-style
-      nodePackages.prettier
-      shfmt
-      stylua
-      just
-      taplo
-      ruff
-      go # for gofmt
-      fish # for fish_indent
-
-      # Runs the formatters
-      lefthook
-    ];
-  };
-
-  codeGeneration = mkShellUniqueNoCC {
-    packages = with pkgs; [
-      # These get called in the lefthook config
-      doctoc
-      gomod2nix
-
-      # Runs the generators
-      lefthook
-    ];
-  };
-
-  # Everything needed by the VS Code extensions recommended in .vscode/extensions.json
-  vsCode =
-    let
-      # The set passed to linkFarm can only contain derivations
-      plugins = linkFarm "plugins" (removeRecurseIntoAttrs pkgs.myVimPlugins);
-
-      efmLs = mkShellUniqueNoCC {
-        inputsFrom = [ linting ];
-        packages = with pkgs; [
-          efm-langserver
-          # I use this to transform the output of some linters into something efm
-          # can more easily parse.
-          jq
-        ];
-      };
-
-      luaLs = mkShellUniqueNoCC {
-        packages = with pkgs; [ lua-language-server ];
-        shellHook = ''
-          prefix='lua-libraries'
-          mkdir -p "$prefix"
-          ln --force --no-dereference --symbolic \
-            ${plugins} "$prefix/neovim-plugins"
-          ln --force --no-dereference --symbolic \
-            ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
-        '';
-      };
-    in
-    mkShellUniqueNoCC {
-      inputsFrom = [
-        efmLs
-        luaLs
-      ];
-      packages = with pkgs; [
-        go
-        taplo
-        nixd
-      ];
-      shellHook = ''
-        # Link python to a stable location so I don't have to update the python
-        # path in VS Code when the nix store path for python changes.
-        direnv_directory='.direnv'
-        mkdir -p "$direnv_directory"
-        ln --force --no-dereference --symbolic \
-          ${plugctlPython} "$direnv_directory/python"
-      '';
-    };
-
   taskRunner = mkShellUniqueNoCC {
     packages = with pkgs; [
       just
@@ -319,6 +183,151 @@ let
     (map (dependencyName: pkgs.${dependencyName}))
     (dependencies: mkShellUniqueNoCC { packages = dependencies; })
   ];
+
+  # Everything needed by the VS Code extensions recommended in .vscode/extensions.json
+  vsCode =
+    let
+      # The set passed to linkFarm can only contain derivations
+      plugins = linkFarm "plugins" (removeRecurseIntoAttrs pkgs.myVimPlugins);
+
+      efmLs = mkShellUniqueNoCC {
+        packages = with pkgs; [
+          efm-langserver
+          # I use this to transform the output of some linters into something efm
+          # can more easily parse.
+          jq
+        ];
+      };
+
+      luaLs = mkShellUniqueNoCC {
+        packages = with pkgs; [ lua-language-server ];
+        shellHook = ''
+          prefix='lua-libraries'
+          mkdir -p "$prefix"
+          ln --force --no-dereference --symbolic \
+            ${plugins} "$prefix/neovim-plugins"
+          ln --force --no-dereference --symbolic \
+            ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+        '';
+      };
+    in
+    mkShellUniqueNoCC {
+      inputsFrom = [
+        efmLs
+        luaLs
+      ];
+      packages = with pkgs; [
+        go
+        taplo
+        nixd
+      ];
+      shellHook = ''
+        # Link python to a stable location so I don't have to update the python
+        # path in VS Code when the nix store path for python changes.
+        direnv_directory='.direnv'
+        mkdir -p "$direnv_directory"
+        ln --force --no-dereference --symbolic \
+          ${plugctlPython} "$direnv_directory/python"
+      '';
+    };
+
+  checks =
+    let
+      linting = mkShellUniqueNoCC {
+        inputsFrom = [
+          # For mypy. Also for the python libraries used by plugctl so mypy can
+          # factor in their types as well.
+          plugctl
+        ];
+
+        packages = with pkgs; [
+          # These get called in the lefthook config
+          actionlint
+          deadnix
+          fish
+          # for renovate-config-validator
+          renovate
+          shellcheck
+          statix
+          # for ltex-cli-plus
+          ltex-ls-plus
+          markdownlint-cli2
+          desktop-file-utils
+          golangci-lint
+          config-file-validator
+          taplo
+          ruff
+          # for 'go mod tidy'
+          go
+          typos
+          # TODO: If the YAML language server gets a CLI I should use that instead:
+          # https://github.com/redhat-developer/yaml-language-server/issues/535
+          yamllint
+          editorconfig-checker
+          nixpkgs-lint-community
+          hjson-go
+          # For isutf8 and parallel. parallel isn't a linter, but it's used to run
+          # any linter that doesn't support multiple file arguments.
+          moreutils
+
+          # These aren't linters, but they also get called in lefthook as part of
+          # certain linting commands.
+          gitMinimal
+
+          # Runs the linters
+          lefthook
+        ];
+
+        shellHook =
+          let
+            direnvStdlib = runCommand "direnv-stdlib.bash" {
+              nativeBuildInputs = [ pkgs.direnv ];
+            } "direnv stdlib > $out";
+          in
+          ''
+            direnv_directory='.direnv'
+            mkdir -p "$direnv_directory"
+            ln --force --no-dereference --symbolic \
+              ${direnvStdlib} "$direnv_directory/stdlib.bash"
+          '';
+      };
+
+      formatting = mkShellUniqueNoCC {
+        packages = with pkgs; [
+          # These get called in the lefthook config
+          nixfmt-rfc-style
+          nodePackages.prettier
+          shfmt
+          stylua
+          just
+          taplo
+          ruff
+          go # for gofmt
+          fish # for fish_indent
+
+          # Runs the formatters
+          lefthook
+        ];
+      };
+
+      codeGeneration = mkShellUniqueNoCC {
+        packages = with pkgs; [
+          # These get called in the lefthook config
+          doctoc
+          gomod2nix
+
+          # Runs the generators
+          lefthook
+        ];
+      };
+    in
+    mkShellUniqueNoCC {
+      inputsFrom = [
+        linting
+        formatting
+        codeGeneration
+      ];
+    };
 in
 {
   inherit
@@ -326,13 +335,11 @@ in
     ciEssentials
     plugctl
     gozip
-    linting
-    formatting
-    codeGeneration
-    vsCode
     taskRunner
     gitHooks
     sync
     scripts
+    vsCode
+    checks
     ;
 }
