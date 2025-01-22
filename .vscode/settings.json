@@ -63,4 +63,5 @@
   "editor.rulers": [
     85
   ],
+  "Lua.misc.executablePath": "lua-language-server",
 }

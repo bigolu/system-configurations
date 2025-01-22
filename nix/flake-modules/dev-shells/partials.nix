@@ -227,10 +227,23 @@ let
           jq
         ];
       };
+
+      luaLs = mkShellUniqueNoCC {
+        packages = with pkgs; [ lua-language-server ];
+        shellHook = ''
+          prefix='lua-libraries'
+          mkdir -p "$prefix"
+          ln --force --no-dereference --symbolic \
+            ${plugins} "$prefix/neovim-plugins"
+          ln --force --no-dereference --symbolic \
+            ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+        '';
+      };
     in
     mkShellUniqueNoCC {
       inputsFrom = [
         efmLs
+        luaLs
       ];
       packages = with pkgs; [
         go
@@ -244,14 +257,6 @@ let
         mkdir -p "$direnv_directory"
         ln --force --no-dereference --symbolic \
           ${plugctlPython} "$direnv_directory/python"
-
-        # For lua-ls
-        prefix='lua-libraries'
-        mkdir -p "$prefix"
-        ln --force --no-dereference --symbolic \
-          ${plugins} "$prefix/neovim-plugins"
-        ln --force --no-dereference --symbolic \
-          ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
       '';
     };
 
