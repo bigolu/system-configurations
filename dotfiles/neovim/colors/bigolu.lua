@@ -38,7 +38,7 @@ else
     [0] = "#ffffff",
     [1] = "#cf222e",
     [2] = "#116329",
-    [3] = "#e9873a",
+    [3] = "#d67427",
     [4] = "#0969da",
     [5] = "#652d90",
     [6] = "#005C8A",
@@ -90,11 +90,11 @@ local groups = {
   DiagnosticInfo = { ctermfg = 4, fg = colors[4] }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticHint = "DiagnosticInfo", -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticOk = { ctermfg = 2, fg = colors[2] }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
-  DiagnosticVirtualTextError = { italic = not vim.o.termguicolors, ctermfg = 1, bold = not vim.o.termguicolors, bg = colors.error_bg, fg = colors[1] }, -- Used for "Error" diagnostic virtual text.
-  DiagnosticVirtualTextWarn = { italic = not vim.o.termguicolors, ctermfg = 3, bold = not vim.o.termguicolors, bg = colors.warn_bg, fg = colors[3] }, -- Used for "Warn" diagnostic virtual text.
-  DiagnosticVirtualTextInfo = { italic = not vim.o.termguicolors, ctermfg = 4, bold = not vim.o.termguicolors, bg = colors.info_bg, fg = colors[4] }, -- Used for "Info" diagnostic virtual text.
+  DiagnosticVirtualTextError = { ctermfg = 1, bold = true, bg = colors.error_bg, fg = colors[1] }, -- Used for "Error" diagnostic virtual text.
+  DiagnosticVirtualTextWarn = { ctermfg = 3, bold = true, bg = colors.warn_bg, fg = colors[3] }, -- Used for "Warn" diagnostic virtual text.
+  DiagnosticVirtualTextInfo = { ctermfg = 4, bold = true, bg = colors.info_bg, fg = colors[4] }, -- Used for "Info" diagnostic virtual text.
   DiagnosticVirtualTextHint = "DiagnosticVirtualTextInfo", -- Used for "Hint" diagnostic virtual text.
-  DiagnosticVirtualTextOk = { italic = not vim.o.termguicolors, ctermfg = 2, bold = not vim.o.termguicolors, bg = colors.ok_bg, fg = colors[2] }, -- Used for "Ok" diagnostic virtual text.
+  DiagnosticVirtualTextOk = { ctermfg = 2, bold = true, bg = colors.ok_bg, fg = colors[2] }, -- Used for "Ok" diagnostic virtual text.
   DiagnosticUnderlineError = "Error", -- Used to underline "Error" diagnostics.
   DiagnosticUnderlineWarn = "Warning", -- Used to underline "Warn" diagnostics.
   DiagnosticUnderlineInfo = { ctermfg = 4, undercurl = true, sp = colors[4] }, -- Used to underline "Info" diagnostics.
@@ -191,10 +191,10 @@ local groups = {
 
   -- Tree-Sitter {{{
   ["@comment.documentation"] = "Comment",
-  ["@comment.error"] = { ctermfg = 1, bold = true, fg = colors[1] },
-  ["@comment.note"] = { ctermfg = 4, bold = true, fg = colors[4] },
-  ["@comment.warning"] = { ctermfg = 3, bold = true, fg = colors[3] },
   ["@comment.todo"] = {bold = true,},
+  ["@comment.error"] = "@comment.todo",
+  ["@comment.note"] = "@comment.todo",
+  ["@comment.warning"] = "@comment.todo",
   ["@diff.delta"] = "DiffChange",
   ["@diff.minus"] = "DiffDelete",
   ["@diff.plus"] = "DiffAdd",
