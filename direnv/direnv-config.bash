@@ -41,13 +41,7 @@ function set_nix_config {
 
 function include_nix_config_file {
   local -r config_file="$1"
-  local -r setting_to_add="include ${config_file}"
-
-  if ! is_set NIX_CONFIG; then
-    export NIX_CONFIG="$setting_to_add"
-  else
-    NIX_CONFIG+=$'\n'"$setting_to_add"
-  fi
+  export NIX_CONFIG="${NIX_CONFIG:+$NIX_CONFIG$'\n'}include ${config_file}"
 }
 
 function load_dev_shell {
