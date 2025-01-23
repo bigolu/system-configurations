@@ -4,7 +4,7 @@
     "unusedLocalExclude": ["_*"]
   },
   "workspace": {
-    "library": ["lua-libraries"],
+    "library": [".direnv/lua-libraries"],
     "checkThirdParty": "Disable"
   },
   "runtime": {
