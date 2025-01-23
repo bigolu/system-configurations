@@ -73,6 +73,8 @@ function nix_shim {
   if
     is_set 'NIX_GET_COMPLETIONS' \
       || contains 'run' "${nix_args[@]}" \
+      || contains 'shell' "${nix_args[@]}" \
+      || contains 'develop' "${nix_args[@]}" \
       || contains '-c' "${nix_args[@]}" \
       || contains '--command' "${nix_args[@]}"
   then
