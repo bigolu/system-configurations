@@ -308,22 +308,7 @@ check:
                           # positives in a commit message e.g. "no qa".
                           - run: >
                               [ "$CI" = true ]
-                        run: |
-                          bash -o pipefail -euc '
-                            base_ref="${GIT_REMOTE:-origin}/${GIT_REF:-HEAD}"
-                            readarray -t commits_to_check \
-                              < <(git rev-list --abbrev-commit --ancestry-path "$base_ref"..HEAD)
-                            found_problem=
-                            for commit in "${commits_to_check[@]}"; do
-                              commit_message_subject="$(git show --no-patch --format=%s "$commit")"
-                              echo "Checking commit $commit ($commit_message_subject)..."
-                              commit_full_message="$(git show --no-patch --format=%B "$commit")"
-                              if ! echo "$commit_full_message" | typos --format brief -; then
-                                found_problem=1
-                              fi
-                            done
-                            [[ ! "$found_problem" ]]
-                          '
+                        run: ./scripts/lefthook/check-lint-commit-message-typos.bash
                       - name: renovate-config-validator
                         glob: ".github/renovate*.json5"
                         # TODO: The validator says this file is invalid, but it seems
