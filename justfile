@@ -169,9 +169,11 @@ sync-cosmic-to-repo:
 [group('Secrets')]
 [no-exit-message]
 get-secrets:
+    # GITHUB_TOKEN is for lychee
     doppler run \
         --mount "$(mktemp --dry-run --suffix '.env')" \
         --only-secrets GH_TOKEN \
+        --only-secrets GITHUB_TOKEN \
         --only-secrets RENOVATE_TOKEN \
         -- \
         bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >secrets.env'
