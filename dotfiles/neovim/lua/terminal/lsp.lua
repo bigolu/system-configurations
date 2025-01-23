@@ -101,13 +101,11 @@ vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach", "DiagnosticChanged" }, {
   end,
 })
 
--- Hide all semantic highlights
-vim.api.nvim_create_autocmd("ColorScheme", {
-  callback = function()
-    local highlights = vim.fn.getcompletion("@lsp", "highlight") or {}
-    for _, group in ipairs(highlights) do
-      vim.api.nvim_set_hl(0, group, {})
-    end
+-- Disable semantic highlights
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    client.server_capabilities.semanticTokensProvider = nil
   end,
 })
 

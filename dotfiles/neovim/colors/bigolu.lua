@@ -90,11 +90,11 @@ local groups = {
   DiagnosticInfo = { ctermfg = 4, fg = colors[4] }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticHint = "DiagnosticInfo", -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
   DiagnosticOk = { ctermfg = 2, fg = colors[2] }, -- Used as the base highlight group. Other Diagnostic highlights link to this by default (except Underline)
-  DiagnosticVirtualTextError = { italic = not vim.o.termguicolors, ctermfg = 1, bold = vim.o.termguicolors, bg = colors.error_bg, fg = colors[1] }, -- Used for "Error" diagnostic virtual text.
-  DiagnosticVirtualTextWarn = { italic = not vim.o.termguicolors, ctermfg = 3, bold = vim.o.termguicolors, bg = colors.warn_bg, fg = colors[3] }, -- Used for "Warn" diagnostic virtual text.
-  DiagnosticVirtualTextInfo = { italic = not vim.o.termguicolors, ctermfg = 4, bold = vim.o.termguicolors, bg = colors.info_bg, fg = colors[4] }, -- Used for "Info" diagnostic virtual text.
+  DiagnosticVirtualTextError = { italic = not vim.o.termguicolors, ctermfg = 1, bold = not vim.o.termguicolors, bg = colors.error_bg, fg = colors[1] }, -- Used for "Error" diagnostic virtual text.
+  DiagnosticVirtualTextWarn = { italic = not vim.o.termguicolors, ctermfg = 3, bold = not vim.o.termguicolors, bg = colors.warn_bg, fg = colors[3] }, -- Used for "Warn" diagnostic virtual text.
+  DiagnosticVirtualTextInfo = { italic = not vim.o.termguicolors, ctermfg = 4, bold = not vim.o.termguicolors, bg = colors.info_bg, fg = colors[4] }, -- Used for "Info" diagnostic virtual text.
   DiagnosticVirtualTextHint = "DiagnosticVirtualTextInfo", -- Used for "Hint" diagnostic virtual text.
-  DiagnosticVirtualTextOk = { italic = not vim.o.termguicolors, ctermfg = 2, bold = vim.o.termguicolors, bg = colors.ok_bg, fg = colors[2] }, -- Used for "Ok" diagnostic virtual text.
+  DiagnosticVirtualTextOk = { italic = not vim.o.termguicolors, ctermfg = 2, bold = not vim.o.termguicolors, bg = colors.ok_bg, fg = colors[2] }, -- Used for "Ok" diagnostic virtual text.
   DiagnosticUnderlineError = "Error", -- Used to underline "Error" diagnostics.
   DiagnosticUnderlineWarn = "Warning", -- Used to underline "Warn" diagnostics.
   DiagnosticUnderlineInfo = { ctermfg = 4, undercurl = true, sp = colors[4] }, -- Used to underline "Info" diagnostics.
