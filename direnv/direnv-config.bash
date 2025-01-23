@@ -15,14 +15,27 @@
 function main {
   # This should run first. The reason for this is in a comment at the top of
   # `direnv-manual-reload.bash`.
-  enable_direnv_manual_reload
+  enable_manual_reload
+  create_layout_dir
   dotenv_if_exists secrets.env
   set_up_nix
 }
 
-function enable_direnv_manual_reload {
+function enable_manual_reload {
   source direnv/direnv-manual-reload.bash
   direnv_manual_reload
+}
+
+function create_layout_dir {
+  local layout_dir
+  layout_dir="$(direnv_layout_dir)"
+
+  # Now I don't need to add checks everywhere to create this directory if it doesn't
+  # exist.
+  mkdir -p "$layout_dir"
+  # So any tools called here, like nix, can also store their things in the layout
+  # dir.
+  export DIRENV_LAYOUT_DIR="$layout_dir"
 }
 
 function set_up_nix {

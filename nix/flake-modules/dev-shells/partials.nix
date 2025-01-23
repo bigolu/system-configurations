@@ -125,10 +125,7 @@ let
   gozip = mkShellUniqueNoCC {
     packages = with pkgs; [ go ];
     shellHook = ''
-      nix_shell_directory="$PWD/.nix-shell"
-      mkdir -p "$nix_shell_directory"
-
-      gopath="$nix_shell_directory/go"
+      gopath="$DIRENV_LAYOUT_DIR/go"
       mkdir -p "$gopath"
       export GOPATH="''${gopath}''${GOPATH:+:$GOPATH}"
 
@@ -301,12 +298,19 @@ let
         mkShellUniqueNoCC {
           packages = with pkgs; [ lua-language-server ];
           shellHook = ''
-            prefix='lua-libraries'
+            prefix="$DIRENV_LAYOUT_DIR/lua-libraries"
             mkdir -p "$prefix"
+
             ln --force --no-dereference --symbolic \
               ${myVimPlugins} "$prefix/neovim-plugins"
             ln --force --no-dereference --symbolic \
               ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+
+            hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+            if [[ -e $hammerspoon_annotations ]]; then
+              ln --force --no-dereference --symbolic \
+                "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
+            fi
           '';
         };
     in
@@ -343,10 +347,8 @@ let
         # For extension "ms-python.python". Link python to a stable location so I
         # don't have to update the python path in VS Code when the nix store path for
         # python changes.
-        direnv_directory='.direnv'
-        mkdir -p "$direnv_directory"
         ln --force --no-dereference --symbolic \
-          ${plugctlPython} "$direnv_directory/python"
+          ${plugctlPython} "$DIRENV_LAYOUT_DIR/python"
       '';
     };
 in

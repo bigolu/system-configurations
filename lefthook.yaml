@@ -101,16 +101,6 @@ sync:
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       run: sudo -- "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
-    - name: hammerspoon-annotations
-      run: |
-        bash -o pipefail -euc '
-          hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
-          destination='lua-libraries/hammerspoon-annotations'
-          if [[ -e $hammerspoon_annotations && ! -e $destination ]]; then
-            mkdir --parents "$(dirname "$destination")"
-            ln --symbolic --force --no-dereference "$hammerspoon_annotations" "$destination"
-          fi
-        '
     - name: fish
       glob: dotfiles/fish/conf.d/*.fish
       run: fish -c fish-reload
