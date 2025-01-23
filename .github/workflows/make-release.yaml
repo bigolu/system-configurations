@@ -11,7 +11,6 @@ defaults:
 jobs:
   get-new-commit-count:
     if: github.event_name != 'workflow_dispatch'
-    name: Get New Commit Count
     runs-on: ubuntu-latest
     outputs:
       count: ${{ steps.get-new-commit-count.outputs.count }}
@@ -21,7 +20,6 @@ jobs:
       - id: get-new-commit-count
         run: ./scripts/ci/get-new-commit-count.bash
   make-assets:
-    name: Make Assets
     needs: get-new-commit-count
     if: >
       github.ref_name == github.event.repository.default_branch
