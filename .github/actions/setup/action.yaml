@@ -15,10 +15,6 @@ runs:
   steps:
     - uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
       with:
-        # TODO: See if this can be done by default, seems reasonable since they
-        # already enable flakes by default and any attempt to access <nixpkgs>
-        # without this would fail.
-        nix_path: nixpkgs=flake:nixpkgs
         # Use this until a new version of the action is released with nix v2.25.3+
         install_url: https://releases.nixos.org/nix/nix-2.25.3/install
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15

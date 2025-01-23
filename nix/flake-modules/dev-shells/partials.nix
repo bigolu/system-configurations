@@ -49,7 +49,15 @@ let
     let
       flakePackageSetHook =
         let
-          filesReferencedByFlakePackageSetFile =
+          # These are the files needed by flake-package-set.nix and nixpkgs.nix
+          #
+          # You may be wondering why I'm using a fileset instead of just using
+          # $PWD/nix/{flake-package-set,nixpkgs}.nix. cached-nix-shell traces the
+          # files accessed during the nix-shell invocation so it knows when to
+          # invalidate the cache. When I use $PWD, a lot more files, like
+          # $PWD/.git/index, become part of the trace, resulting in much more cache
+          # invalidations.
+          source =
             pipe
               [
                 "flake.nix"
@@ -70,16 +78,30 @@ let
               ];
         in
         ''
-          # To avoid hard coding the path to the flake package set in every
-          # script with a nix-shell shebang, I export a variable with the path.
+          function is_running_in_ci {
+            # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
+            [[ ''${CI:-} == 'true' ]]
+          }
+
+          # To avoid hard coding the path to the flake package set in every script's
+          # nix-shell shebang, I export a variable with the path.
+          export FLAKE_PACKAGE_SET_FILE=${source}/nix/flake-package-set.nix
+
+          # I need to set the nix path because my scripts' shebangs use nix-shell
+          # which looks up nixpkgs on the nix path so it can use nixpkgs.runCommand
+          # to run the script. You can also set the nixpkgs used by nix-shell by
+          # using the -I flag in the script shebang, but I don't do that since I
+          # would have to hardcode the path to nixpkgs.nix in every script.
           #
-          # You may be wondering why I'm using a fileset instead of just using
-          # $PWD/nix/flake-package-set.nix. cached-nix-shell traces the files
-          # accessed during the nix-shell invocation so it knows when to
-          # invalidate the cache. When I use $PWD, a lot more files, like
-          # $PWD/.git/index, become part of the trace, resulting in much more
-          # cache invalidations.
-          export FLAKE_PACKAGE_SET_FILE=${filesReferencedByFlakePackageSetFile}/nix/flake-package-set.nix
+          # I'm not setting this locally so comma still works[1]. If I did set it,
+          # then comma would use this nixpkgs instead of the one for my system. Even
+          # if I were ok with that, I didn't build an index for this nixpkgs so comma
+          # wouldn't be able to use it anyway.
+          #
+          # [1]: https://github.com/nix-community/comma
+          if is_running_in_ci; then
+            export NIX_PATH="nixpkgs=${source}/nix/nixpkgs.nix''${NIX_PATH:+:$NIX_PATH}"
+          fi
         '';
     in
     mkShellUniqueNoCC {
