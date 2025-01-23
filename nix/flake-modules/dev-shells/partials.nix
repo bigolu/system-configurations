@@ -1,6 +1,8 @@
 # The function returns a map of dev shells that I call "partials" since they
 # represent parts of a full dev shell. Partials can be included in a full dev shell
-# using the `inputsFrom` argument for `mkShell`. I use partials for these reasons:
+# using the `inputsFrom` argument for `mkShell`. They're similar to devcontainer
+# "features"[1], except these are specific to a project. I use partials for these
+# reasons:
 #   - Allows parts of a dev shell to be shared between two shells. For example, I can
 #     put all the dependencies for checks (linters, formatters, etc.) in a partial
 #     and include that partial in both the local development and CI dev shells. This
@@ -10,6 +12,8 @@
 #   - Makes it easier to provide alternate dev shells without certain partials. For
 #     example, people that don't use VS Code may not want the partial that provides
 #     dependencies for it.
+#
+# [1]: https://containers.dev/implementors/features/
 
 {
   utils,
