@@ -72,14 +72,9 @@ end
 
 vim.diagnostic.config({
   signs = false,
-  virtual_text = {
-    prefix = "",
-  },
   update_in_insert = true,
-  float = {
-    source = true,
-    focusable = true,
-  },
+  virtual_text = { prefix = "" },
+  float = { source = true },
 })
 
 vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach", "DiagnosticChanged" }, {
