@@ -120,6 +120,18 @@ let
 
   gozip = mkShellUniqueNoCC {
     packages = with pkgs; [ go ];
+    shellHook = ''
+      nix_shell_directory="$PWD/.nix-shell"
+      mkdir -p "$nix_shell_directory"
+
+      gopath="$nix_shell_directory/go"
+      mkdir -p "$gopath"
+      export GOPATH="''${gopath}''${GOPATH:+:$GOPATH}"
+
+      export GOBIN="''${GOPATH}/bin"
+      mkdir -p "$GOBIN"
+      export PATH="''${GOBIN}''${PATH:+:$PATH}"
+    '';
   };
 
   taskRunner = mkShellUniqueNoCC {

@@ -18,7 +18,6 @@ function main {
   enable_direnv_manual_reload
   dotenv_if_exists secrets.env
   set_up_nix
-  layout go
 }
 
 function enable_direnv_manual_reload {
