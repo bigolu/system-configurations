@@ -76,9 +76,6 @@ vim.diagnostic.config({
     prefix = "",
   },
   update_in_insert = true,
-  -- With this enabled, sign priorities will become:
-  -- hint=11, info=12, warn=13, error=14
-  severity_sort = true,
   float = {
     source = true,
     focusable = true,
