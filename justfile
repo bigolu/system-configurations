@@ -1,6 +1,6 @@
 set shell := ["bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 
-# To handle multiple arguments that have spaces:
+# Since just doesn't escape arguments:
 # https://github.com/casey/just/issues/647#issuecomment-1404056424
 set positional-arguments := true
 
