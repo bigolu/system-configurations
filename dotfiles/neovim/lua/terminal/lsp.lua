@@ -79,16 +79,6 @@ vim.diagnostic.config({
   float = {
     source = true,
     focusable = true,
-    format = function(diagnostic)
-      local result = diagnostic.message
-
-      local code = diagnostic.code
-      if code ~= nil then
-        result = result .. string.format(" [%s]", code)
-      end
-
-      return result
-    end,
   },
 })
 
