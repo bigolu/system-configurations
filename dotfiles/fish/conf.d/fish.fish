@@ -13,7 +13,7 @@ printf '\033[5 q'
 
 set --global fish_color_normal
 set --global fish_color_command $fish_color_normal
-set --global fish_color_keyword $fish_color_normal
+set --global fish_color_keyword $fish_color_normal --bold
 set --global fish_color_quote brcyan
 set --global fish_color_redirection
 set --global fish_color_end $fish_color_keyword
@@ -27,7 +27,7 @@ set --global fish_color_search_match --background=brblack
 # is configurable.
 # Issue: https://github.com/fish-shell/fish-shell/issues/2442
 set --global fish_pager_color_selected_background --background=brblack
-set --global fish_color_operator $fish_color_keyword
+set --global fish_color_operator $fish_color_normal
 set --global fish_color_escape $fish_color_redirection
 set --global fish_color_cwd
 set --global fish_color_autosuggestion brblack --bold
