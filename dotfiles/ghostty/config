@@ -15,8 +15,8 @@ window-padding-color = extend
 macos-option-as-alt = true
 macos-titlebar-style = tabs
 
-adjust-cell-height = 30%
-adjust-cursor-height = 30%
+adjust-cell-height = 25%
+adjust-cursor-height = 25%
 adjust-underline-position = 11
 
 keybind = shift+insert=paste_from_clipboard
