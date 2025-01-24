@@ -1,5 +1,5 @@
 #! /usr/bin/env nix-shell
-#! nix-shell -I nixpkgs=../nix/nixpkgs.nix
+#! nix-shell -I nixpkgs=./nix/nixpkgs.nix
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"
 
@@ -21,6 +21,10 @@
 #   - bash is used as the interpreter instead of nix-shell-interpreter. This is
 #     because nix-shell-interpreter is only needed to work around an issue with
 #     cached-nix-shell.
+#
+# Also worth noting that the path in -I is relative to the directory where this
+# script is executed and the path in the import is relative to where the script file
+# is.
 
 set -o errexit
 set -o nounset
