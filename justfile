@@ -11,8 +11,7 @@ set quiet
 [doc('''List all recipes. You can run this whenever you forget something.''')]
 [no-exit-message]
 list:
-    @just --list --justfile {{ module_file() }} --unsorted --color always \
-        | "${PAGER:-cat}"
+    @just --list --unsorted --color always | "${PAGER:-cat}"
 
 [doc('''
     Initialize a system. You only need to run this when you first clone the
