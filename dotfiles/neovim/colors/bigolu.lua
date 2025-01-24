@@ -144,7 +144,7 @@ local groups = {
   -- }}}
 
   -- cursorline {{{
-  CursorLine = { underline = true, sp = "fg" }, -- Screen-line at the cursor, when 'cursorline' is set. Low-priority if foreground (ctermfg OR guifg) is not set.
+  CursorLine = { underline = true, sp = colors[7] }, -- Screen-line at the cursor, when 'cursorline' is set. Low-priority if foreground (ctermfg OR guifg) is not set.
   CursorLineNr = { bold = true }, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
   -- }}}
 
