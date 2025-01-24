@@ -2,6 +2,7 @@
   lib,
   isGui,
   pkgs,
+  config,
   ...
 }:
 let
@@ -32,6 +33,19 @@ in
         echo "$setting" | sudo tee "$settings_file"
         sudo update-initramfs -u -k all
       fi
+    '';
+
+    increaseFileWatchLimit = hm.dag.entryAfter [ "writeBoundary" ] ''
+      # Add /usr/bin so scripts can access system programs like sudo/apt
+      # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
+      PATH="$PATH:/usr/bin:/bin:${pkgs.moreutils}/bin"
+
+      sudo install \
+        --compare -D --no-target-directory \
+        --owner=root --group=root --mode='u=rwx,g=r,o=r' \
+        ${config.repository.directory}/dotfiles/sysctl/local.conf \
+        /etc/sysctl.d/local.conf
+      chronic sudo sysctl -p --system
     '';
   };
 }
