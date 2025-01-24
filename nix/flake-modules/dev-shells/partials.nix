@@ -134,14 +134,7 @@ let
     );
 
   plugctl = mkShellUniqueNoCC {
-    packages = [
-      plugctlPython
-    ];
-    shellHook = ''
-      # Regular python, i.e. the one without plugctl's packages, is also put on
-      # the PATH so I need to make sure the one for plugctl comes first.
-      PATH="${plugctlPython}/bin:$PATH"
-    '';
+    packages = [ plugctlPython ];
   };
 
   gozip = mkShellUniqueNoCC {
