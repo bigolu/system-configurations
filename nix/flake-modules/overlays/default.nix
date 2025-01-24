@@ -6,13 +6,13 @@
     final: prev:
     let
       inherit (final.lib) getExe;
-      mkShellUniqueWrapper = import ./mk-shell-unique-wrapper.nix final prev;
+      createMkShellWrapper = import ./create-mk-shell-wrapper.nix final prev;
     in
     {
       makePortableShell = import ./make-portable-shell final prev;
 
-      mkShellUnique = mkShellUniqueWrapper prev.mkShell;
-      mkShellUniqueNoCC = mkShellUniqueWrapper prev.mkShellNoCC;
+      mkShellWrapper = createMkShellWrapper prev.mkShell;
+      mkShellWrapperNoCC = createMkShellWrapper prev.mkShellNoCC;
 
       makeNixShellInterpreterWithoutTmp =
         {

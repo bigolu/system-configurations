@@ -38,7 +38,7 @@ let
     concatLists
     ;
   inherit (pkgs)
-    mkShellUniqueNoCC
+    mkShellWrapperNoCC
     linkFarm
     ;
   inherit (pkgs.stdenv) isLinux;
@@ -104,7 +104,7 @@ let
           fi
         '';
     in
-    mkShellUniqueNoCC {
+    mkShellWrapperNoCC {
       # cached-nix-shell is used in script shebangs
       packages = with pkgs; [ cached-nix-shell ];
       shellHook = flakePackageSetHook;
@@ -123,7 +123,7 @@ let
         export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
       '';
     in
-    mkShellUniqueNoCC (
+    mkShellWrapperNoCC (
       {
         inputsFrom = [ scriptInterpreter ];
         packages = [ pkgs.ci-bash ];
@@ -133,11 +133,11 @@ let
       }
     );
 
-  plugctl = mkShellUniqueNoCC {
+  plugctl = mkShellWrapperNoCC {
     packages = [ plugctlPython ];
   };
 
-  gozip = mkShellUniqueNoCC {
+  gozip = mkShellWrapperNoCC {
     packages = with pkgs; [ go ];
     shellHook = ''
       gopath="$DIRENV_LAYOUT_DIR/go"
@@ -150,7 +150,7 @@ let
     '';
   };
 
-  taskRunner = mkShellUniqueNoCC {
+  taskRunner = mkShellWrapperNoCC {
     packages = with pkgs; [
       just
       # This gets called in the justfile
@@ -158,11 +158,11 @@ let
     ];
   };
 
-  gitHooks = mkShellUniqueNoCC {
+  gitHooks = mkShellWrapperNoCC {
     packages = with pkgs; [ lefthook ];
   };
 
-  sync = mkShellUniqueNoCC {
+  sync = mkShellWrapperNoCC {
     packages = with pkgs; [
       # These get called in the lefthook config
       gitMinimal
@@ -207,12 +207,12 @@ let
 
     unique
     (map (dependencyName: pkgs.${dependencyName}))
-    (dependencies: mkShellUniqueNoCC { packages = dependencies; })
+    (dependencies: mkShellWrapperNoCC { packages = dependencies; })
   ];
 
   checks =
     let
-      linting = mkShellUniqueNoCC {
+      linting = mkShellWrapperNoCC {
         inputsFrom = [
           # For mypy. Also for the python libraries used by plugctl so mypy can
           # factor in their types as well.
@@ -254,7 +254,7 @@ let
         ];
       };
 
-      formatting = mkShellUniqueNoCC {
+      formatting = mkShellWrapperNoCC {
         packages = with pkgs; [
           nixfmt-rfc-style
           nodePackages.prettier
@@ -270,14 +270,14 @@ let
         ];
       };
 
-      codeGeneration = mkShellUniqueNoCC {
+      codeGeneration = mkShellWrapperNoCC {
         packages = with pkgs; [
           doctoc
           gomod2nix
         ];
       };
     in
-    mkShellUniqueNoCC {
+    mkShellWrapperNoCC {
       inputsFrom = [
         linting
         formatting
@@ -292,7 +292,7 @@ let
   # .vscode/extensions.json
   vsCode =
     let
-      efmLs = mkShellUniqueNoCC {
+      efmLs = mkShellWrapperNoCC {
         # Include checks since it has the linters
         inputsFrom = [ checks ];
         packages = with pkgs; [
@@ -310,7 +310,7 @@ let
           # The set passed to linkFarm can only contain derivations
           myVimPlugins = linkFarm "plugins" (removeRecurseIntoAttrs pkgs.myVimPlugins);
         in
-        mkShellUniqueNoCC {
+        mkShellWrapperNoCC {
           packages = with pkgs; [ lua-language-server ];
           shellHook = ''
             prefix="$DIRENV_LAYOUT_DIR/lua-libraries"
@@ -329,7 +329,7 @@ let
           '';
         };
     in
-    mkShellUniqueNoCC {
+    mkShellWrapperNoCC {
       inputsFrom = [
         # For "llllvvuu.llllvvuu-glspc"
         efmLs

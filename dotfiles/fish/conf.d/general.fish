@@ -18,9 +18,7 @@ if test (uname) = Linux
     abbr --add --global font-reload 'fc-cache -vr'
     abbr --add --global open xdg-open
     abbr --add --position anywhere --global pbpaste fish_clipboard_paste
-    # autocomplete doesn't work unless "put" is used, even though just 'trash'
-    # is an alias for 'trash put'
-    abbr --add --position anywhere --global trash 'trash put'
+    abbr --add --global trash 'trash put'
 end
 
 # less

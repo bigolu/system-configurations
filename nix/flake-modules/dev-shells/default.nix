@@ -4,14 +4,14 @@ moduleContext@{ lib, ... }:
     perSystemContext@{ pkgs, ... }:
     let
       inherit (builtins) listToAttrs;
-      inherit (pkgs) mkShellUniqueNoCC;
+      inherit (pkgs) mkShellWrapperNoCC;
       inherit (lib) nameValuePair pipe;
 
       partials = import ./partials.nix (moduleContext // perSystemContext);
       makeDevShellOutputs =
         shellSpecs:
         pipe shellSpecs [
-          (map (spec: nameValuePair spec.name (mkShellUniqueNoCC spec)))
+          (map (spec: nameValuePair spec.name (mkShellWrapperNoCC spec)))
           listToAttrs
           (shells: shells // { default = shells.local; })
           (shells: { devShells = shells; })

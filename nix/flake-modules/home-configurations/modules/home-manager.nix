@@ -231,7 +231,7 @@ mkMerge [
             };
             Service = {
               Type = "oneshot";
-              ExecStart = "${config.home.profileDirectory}/bin/home-manager expire-generations '-180 days'";
+              ExecStart = "${config.home.profileDirectory}/bin/home-manager expire-generations '-1 days'";
             };
           };
           home-manager-change-check = {
@@ -252,7 +252,7 @@ mkMerge [
               Description = "Delete old generations of home-manager";
             };
             Timer = {
-              OnCalendar = "monthly";
+              OnCalendar = "weekly";
               Persistent = true;
             };
             Install = {
