@@ -199,8 +199,8 @@ debug PACKAGE:
 [group('Debugging')]
 [no-exit-message]
 debug-ci DEV_SHELL +COMMAND:
-    # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv's
-    # cached dev shell doesn't get overwritten with the one built here.
+    # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv
+    # doesn't overwrite the dev shell cached in .direnv with the one built here.
     CI=true DEV_SHELL="$DEV_SHELL" direnv_layout_dir="$(mktemp --directory)" nix shell \
         --ignore-environment \
         --keep CI --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
