@@ -3,18 +3,9 @@ on:
   push:
     branches:
       - master
-    # Only run when the files changed may impact what gets cached. This includes
-    # files that:
-    paths:
-      # Change this action or ones that it calls
-      - ".github/**"
-      - "direnv/**"
-      - "default.nix"
-      # Change the packages used
-      - "flake.nix"
-      - "nix/**"
-      # Change the versions of the packages
-      - "flake.lock"
+    paths-ignore:
+      - dotfiles/**
+      - gozip/**
 defaults:
   run:
     shell: ci-bash {0}
