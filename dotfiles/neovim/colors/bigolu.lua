@@ -209,7 +209,7 @@ local groups = {
   ["@keyword.return"] = "Keyword",
   ["@keyword.storage"] = "Keyword",
   ["@markup.italic"] = { italic = true },
-  ["@markup.link"] = { underline = true, ctermfg = 4, fg = colors[4] },
+  ["@markup.link"] = "Underlined",
   ["@markup.link.label"] = "@markup.link",
   ["@markup.link.url"] = "@markup.link",
   ["@markup.strong"] = { bold = true },
@@ -219,7 +219,7 @@ local groups = {
   ["@string.documentation"] = "String",
   ["@string.regexp"] = "String",
   ["@string.special.url"] = "Underlined",
-  ["@string.special.url.comment"] = { underline = true },
+  ["@string.special.url.comment"] = "@string.special.url",
   ["@string.documentation.python"] = "Comment",
   ["@character"] = "Character", -- Character
   ["@label"] = "Label", -- Label
