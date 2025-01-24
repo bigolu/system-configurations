@@ -1,4 +1,5 @@
 #! /usr/bin/env nix-shell
+#! nix-shell -I nixpkgs=../nix/nixpkgs.nix
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"
 
@@ -13,6 +14,8 @@
 #   - A relative path is used to access the package set instead of the
 #     FLAKE_PACKAGE_SET_FILE environment variable. This is done because that variable
 #     comes from the direnv environment.
+#   - -I is used to set nixpkgs on the nix path. This is done because NIX_PATH is set
+#     by the direnv environment.
 #   - nix-shell is used instead of cached-nix-shell. This is done because
 #     cached-nix-shell comes from the direnv environment.
 #   - bash is used as the interpreter instead of nix-shell-interpreter. This is
