@@ -117,7 +117,9 @@ local groups = {
   -- syntax groups {{{
   Comment = { ctermfg = 8, fg = colors[8] }, -- Any comment
 
-  Conditional = { bold = true }, --   if, then, else, endif, switch, etc.
+  -- Have to use 7 instead of "NONE" because when one language is embedded in
+  -- another, like bash code in a github action yaml, the string color was being used
+  Conditional = { ctermfg = 7, fg = colors[7], bold = true }, --   if, then, else, endif, switch, etc.
   Repeat = "Conditional", --   for, do, while, etc.
   Label = "Conditional", --   case, default, etc.
   Keyword = "Conditional", --   any other keyword
@@ -278,7 +280,9 @@ local groups = {
 -- I want most of the groups to be same color so I'll just set everything to that
 -- color and overwrite them as needed.
 for group, _ in pairs(vim.api.nvim_get_hl(0, {})) do
-  vim.api.nvim_set_hl(0, group, {})
+  -- Have to use 7 instead of "NONE" because when one language is embedded in
+  -- another, like bash code in a github action yaml, the string color was being used
+  vim.api.nvim_set_hl(0, group, { ctermfg = 7, fg = colors[7] })
 end
 
 for group, spec in pairs(groups) do
