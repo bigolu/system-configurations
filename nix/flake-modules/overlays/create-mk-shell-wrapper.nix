@@ -7,7 +7,6 @@ let
     pipe
     optionalAttrs
     escapeShellArg
-    reverseList
     concatStringsSep
     splitString
     ;
@@ -50,8 +49,8 @@ let
       ...
     }:
     let
-      inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
       escapedName = escapeShellArg name;
+
       indent =
         string:
         pipe string [
@@ -59,6 +58,15 @@ let
           (map (line: "  " + line))
           (concatStringsSep "\n")
         ];
+
+      hook = pipe args [
+        (args: inputsFrom ++ [ args ])
+        (catAttrs "shellHook")
+        (filter (hook: hook != ""))
+        (concatStringsSep "\n")
+        indent
+      ];
+
       safeShellHook = ''
         function safe_shell_hook {
           # Check for a '-env' suffix since `nix develop` adds one:
@@ -67,14 +75,12 @@ let
             return
           fi
 
-          ${indent (
-            concatStringsSep "\n" (
-              filter (hook: hook != "") (catAttrs "shellHook" (reverseList inputsFrom ++ [ args ]))
-            )
-          )}
+          ${hook}
         }
         safe_shell_hook
       '';
+
+      inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
     in
     args
     // {
