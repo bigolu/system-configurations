@@ -18,6 +18,7 @@ function main {
   enable_manual_reload
   create_layout_dir
   dotenv_if_exists secrets.env
+  set_cache_locations
   set_up_nix
 }
 
@@ -36,6 +37,12 @@ function create_layout_dir {
   # So any tools called here, like nix, can also store their things in the layout
   # dir.
   export DIRENV_LAYOUT_DIR="$layout_dir"
+}
+
+function set_cache_locations {
+  export PYTHONPYCACHEPREFIX="$DIRENV_LAYOUT_DIR/python-cache"
+  export MYPY_CACHE_DIR="$DIRENV_LAYOUT_DIR/mypy-cache"
+  export RUFF_CACHE_DIR="$DIRENV_LAYOUT_DIR/ruff-cache"
 }
 
 function set_up_nix {
