@@ -3,6 +3,7 @@
   pkgs,
   lib,
   homeDirectory,
+  username,
   ...
 }:
 let
@@ -23,7 +24,7 @@ in
     settings = {
       trusted-users = [
         "root"
-        "biggs"
+        username
       ];
 
       experimental-features = [

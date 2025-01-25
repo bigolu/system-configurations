@@ -4,6 +4,7 @@
   isGui,
   config,
   inputs,
+  username,
   ...
 }:
 let
@@ -86,7 +87,7 @@ let
         fi
 
         # Add myself to the keyd group so I can use application-specific mappings
-        sudo usermod -aG keyd biggs
+        sudo usermod -aG keyd ${username}
       '';
 
       setKeyboardToMacMode = hm.dag.entryAfter [ "writeBoundary" ] ''
