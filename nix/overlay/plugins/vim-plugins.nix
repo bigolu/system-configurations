@@ -111,6 +111,8 @@ let
       grep -q "$target" plug.vim
       sed -ie "s@$target@v:true@" plug.vim
 
+      # TODO: See if upstream can do this. If this is done and vim-plug is put in a
+      # vim pack, then it loads automatically.
       autoload_path='autoload'
       mkdir "$autoload_path"
       mv plug.vim "$autoload_path/"
