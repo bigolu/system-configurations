@@ -48,7 +48,7 @@
           debug = true;
 
           perSystem =
-            { system, ... }:
+            { system, inputs', ... }:
             let
               privateOverlay = import ./nix/overlay inputs;
               publicOverlays = builtins.attrValues self.overlays;
@@ -58,7 +58,7 @@
                   input,
                   package ? input,
                 }:
-                _final: _prev: { ${package} = inputs.${input}.packages.${system}.${package}; };
+                _final: _prev: { ${package} = inputs'.${input}.packages.${package}; };
             in
             {
               # - For the convenience of having my overlay already applied wherever I
