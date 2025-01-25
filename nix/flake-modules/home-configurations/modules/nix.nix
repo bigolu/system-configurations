@@ -148,6 +148,13 @@ let
         fi
         chronic sudo systemctl link "$unit_name"
         chronic sudo systemctl enable "$unit_base_name"
+
+        extension="''${unit_base_name##*.}"
+        if [[ $extension == 'timer' ]]; then
+          # If I don't this then `systemctl status <name` shows that the timer failed
+          # because it 'vanished'
+          chronic sudo systemctl start "$unit_base_name"
+        fi
       }
 
       set_up_unit ${garbageCollectionService}
