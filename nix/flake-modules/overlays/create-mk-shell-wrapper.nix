@@ -1,6 +1,11 @@
 final: _prev: mkShell: args:
 let
-  inherit (builtins) removeAttrs catAttrs filter;
+  inherit (builtins)
+    removeAttrs
+    catAttrs
+    filter
+    hasAttr
+    ;
   inherit (final.lib)
     unique
     concatLists
@@ -87,7 +92,7 @@ let
       shellHook = safeShellHook;
       inputsFrom = inputsFromWithoutShellHooks;
     }
-    // optionalAttrs (!args ? "name") { inherit name; };
+    // optionalAttrs (!hasAttr "name" args) { inherit name; };
 in
 pipe args [
   dedupInputsFrom

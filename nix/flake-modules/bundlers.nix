@@ -10,6 +10,7 @@ let
     baseNameOf
     concatStringsSep
     attrNames
+    hasAttr
     ;
   inherit (lib)
     recursiveUpdate
@@ -101,7 +102,7 @@ let
               assert assertMsg mainProgramExists "Main program ${mainProgramPath} does not exist";
               mainProgramPath;
 
-            handler = {
+            handlers = {
               app =
                 drv:
                 makeRootlessProgram {
@@ -119,13 +120,12 @@ let
                 };
             };
 
-            known-types = concatStringsSep ", " (attrNames handler);
+            known-types = concatStringsSep ", " (attrNames handlers);
           in
           drv:
-          assert assertMsg (
-            handler ? ${drv.type}
-          ) "don't know how to make a bundle for type '${drv.type}'; only know ${known-types}";
-          handler.${drv.type} drv;
+          assert assertMsg (hasAttr drv.type handlers)
+            "don't know how to make a bundle for type '${drv.type}'; only know ${known-types}";
+          handlers.${drv.type} drv;
       in
       {
         # I would use self'.bundlers.rootless here, but that would cause infinite
