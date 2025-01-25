@@ -40,7 +40,7 @@ let
     };
 
   # Prevent nested nix shells from executing this shell's hook:
-  # https://git.lix.systems/lix-project/lix/commit/7a12bc2007accb5022037b5a04b0e5475a8bb409
+  # https://git.lix.systems/lix-project/lix/issues/344
   makeSafeShellHook =
     args@{
       # I need a name that won't conflict with the default one set by mkShell
