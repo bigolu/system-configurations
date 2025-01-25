@@ -423,7 +423,7 @@ function __edit_commandline
 
     set temp (mktemp --suffix '.fish')
     echo -n "$buffer" >$temp
-    BIGOLU_EDITING_FISH_BUFFER=1 nvim -c "call cursor($line,$col)" -c "$write_index" $temp
+    nvim -c "call cursor($line,$col)" -c "$write_index" $temp
     commandline "$(cat $temp)"
     commandline --cursor "$(cat $cursor_file)"
 end
