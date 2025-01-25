@@ -7,7 +7,7 @@ shopt -s nullglob
 
 # Need sudo since nix won't show a user the PID of processes it doesn't own
 readarray -t roots \
-  < <(sudo -- "$(which run-as-admin)" sudo nix-store --gc --print-roots)
+  < <(sudo -- "$(which run-as-admin)" sudo "$(which nix-store)" --gc --print-roots)
 
 if [[ -n ${NIX_GCROOTS_INCLUDE_SIZE:-} ]]; then
   roots_with_size=()

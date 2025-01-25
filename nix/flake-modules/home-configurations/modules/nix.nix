@@ -3,10 +3,18 @@
   inputs,
   lib,
   config,
+  utils,
+  homeDirectory,
   ...
 }:
 let
-  inherit (pkgs) writeShellApplication stdenv;
+  inherit (builtins) readFile;
+  inherit (pkgs)
+    writeShellApplication
+    stdenv
+    replaceVars
+    writeTextDir
+    ;
   inherit (stdenv) isLinux isDarwin;
   inherit (lib)
     hm
@@ -14,7 +22,9 @@ let
     makeBinPath
     optionals
     optionalAttrs
+    fileset
     ;
+  inherit (utils) projectRoot;
 
   # TODO: Won't be needed if the daemon auto-reloads:
   # https://github.com/NixOS/nix/issues/8939
@@ -28,6 +38,25 @@ let
       fi
     '';
   };
+
+  garbageCollectionService =
+    let
+      serviceName = "nix-garbage-collection.service";
+
+      serviceTemplate = "${
+        fileset.toSource {
+          root = projectRoot + /dotfiles/nix/systemd-garbage-collection;
+          fileset = projectRoot + "/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.service";
+        }
+      }/${serviceName}";
+
+      processedTemplate = replaceVars serviceTemplate {
+        inherit homeDirectory;
+      };
+    in
+    # This way the basename of the file will be `serviceName` which is
+    # necessary for the Bash function set_up_unit below.
+    "${writeTextDir serviceName (readFile processedTemplate)}/${serviceName}";
 
   activationScripts = {
     setLocale = hm.dag.entryAfter [ "writeBoundary" ] ''
@@ -110,8 +139,8 @@ let
       PATH="$PATH:/usr/bin:/bin:${pkgs.moreutils}/bin"
 
       function set_up_unit {
-        unit_base_name="$1"
-        unit_name=${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/"$unit_base_name"
+        unit_name="$1"
+        unit_base_name="''${unit_name##*/}"
 
         if systemctl list-unit-files "$unit_base_name" 1>/dev/null 2>&1; then
           # This will unlink it
@@ -121,8 +150,8 @@ let
         chronic sudo systemctl enable "$unit_base_name"
       }
 
-      set_up_unit 'nix-garbage-collection.service'
-      set_up_unit 'nix-garbage-collection.timer'
+      set_up_unit ${garbageCollectionService}
+      set_up_unit ${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.timer
     '';
   };
 in

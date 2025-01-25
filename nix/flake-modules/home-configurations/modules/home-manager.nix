@@ -224,52 +224,27 @@ mkMerge [
 
     systemd = optionalAttrs isLinux {
       user = {
-        services = {
-          home-manager-delete-old-generations = {
-            Unit = {
-              Description = "Delete old generations of home-manager";
-            };
-            Service = {
-              Type = "oneshot";
-              ExecStart = "${config.home.profileDirectory}/bin/home-manager expire-generations '-1 days'";
-            };
+        services.home-manager-change-check = {
+          Unit = {
+            Description = "Check for home-manager changes on the remote";
           };
-          home-manager-change-check = {
-            Unit = {
-              Description = "Check for home-manager changes on the remote";
-            };
-            Service = {
-              Type = "oneshot";
-              ExecStartPre = "/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'";
-              ExecStart = "${remote-changes-check}/bin/remote-changes-check";
-            };
+          Service = {
+            Type = "oneshot";
+            ExecStartPre = "/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'";
+            ExecStart = "${remote-changes-check}/bin/remote-changes-check";
           };
         };
 
-        timers = {
-          home-manager-delete-old-generations = {
-            Unit = {
-              Description = "Delete old generations of home-manager";
-            };
-            Timer = {
-              OnCalendar = "weekly";
-              Persistent = true;
-            };
-            Install = {
-              WantedBy = [ "timers.target" ];
-            };
+        timers.home-manager-change-check = {
+          Unit = {
+            Description = "Check for home-manager changes on the remote";
           };
-          home-manager-change-check = {
-            Unit = {
-              Description = "Check for home-manager changes on the remote";
-            };
-            Timer = {
-              OnCalendar = "daily";
-              Persistent = true;
-            };
-            Install = {
-              WantedBy = [ "timers.target" ];
-            };
+          Timer = {
+            OnCalendar = "daily";
+            Persistent = true;
+          };
+          Install = {
+            WantedBy = [ "timers.target" ];
           };
         };
       };

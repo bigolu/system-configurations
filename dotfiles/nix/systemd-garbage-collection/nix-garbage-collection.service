@@ -1,9 +1,13 @@
+# WARNING: This file should not be used directly, it contains variables in the
+# form @<variable_name>@ that will be replaced by Nix.
+
 [Unit]
 Description=Collect garbage in the Nix store
 
 [Service]
 Type=oneshot
-# Wait 1 minute for home-manager to delete its old generations. I would schedule home-manager to run before
-# this, but I can't since the home-manager service is a user service and this is a system service and systemd
-# doesn't allow user services to reference system services and vice-versa.
-ExecStart=/bin/sh -c '/bin/sleep 60 && /nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old'
+ExecStart=/nix/var/nix/profiles/default/bin/nix-env --profile /nix/var/nix/profiles/default --delete-generations old
+ExecStart=/nix/var/nix/profiles/default/bin/nix-env --profile /nix/var/nix/profiles/per-user/root/profile --delete-generations old
+ExecStart=/nix/var/nix/profiles/default/bin/nix-env --profile @homeDirectory@/.local/state/nix/profiles/home-manager --delete-generations old
+ExecStart=/nix/var/nix/profiles/default/bin/nix-env --profile @homeDirectory@/.local/state/nix/profiles/profile --delete-generations old
+ExecStart=/nix/var/nix/profiles/default/bin/nix-collect-garbage --delete-old
