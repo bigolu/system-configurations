@@ -30,33 +30,17 @@ let
         repositoryName: repositorySourceCode: date:
         let
           nixpkgsAttrName = toNixpkgsAttr repositoryName;
-          fixups = {
-            vim-plug = ''
-              # TODO: Workaround for this issue:
-              # https://github.com/junegunn/vim-plug/issues/1135
-              target="len(s:glob(s:rtp(a:plug), 'plugin'))"
-              # First grep so the build will error out if the string isn't present
-              grep -q "$target" plug.vim
-              sed -ie "s@$target@v:true@" plug.vim
-
-              autoload_path='autoload'
-              mkdir "$autoload_path"
-              mv plug.vim "$autoload_path/"
-            '';
-          };
         in
         if hasAttr nixpkgsAttrName prev.vimPlugins then
           prev.vimPlugins.${nixpkgsAttrName}.overrideAttrs (_old: {
             version = date;
             src = repositorySourceCode;
-            preInstall = fixups.${repositoryName} or "";
           })
         else
           final.vimUtils.buildVimPlugin {
             pname = toNixpkgsPname repositoryName;
             version = date;
             src = repositorySourceCode;
-            preInstall = fixups.${repositoryName} or "";
           };
     in
     makePluginPackages vimPluginRepositoryPrefix vimPluginBuilder;
@@ -117,8 +101,23 @@ let
         listToAttrs
         final.lib.recurseIntoAttrs
       ];
+
+  patchedVimPlug = prev.vimPlugins.vim-plug.overrideAttrs (_old: {
+    preInstall = ''
+      # TODO: Workaround for this issue:
+      # https://github.com/junegunn/vim-plug/issues/1135
+      target="len(s:glob(s:rtp(a:plug), 'plugin'))"
+      # First grep so the build will error out if the string isn't present
+      grep -q "$target" plug.vim
+      sed -ie "s@$target@v:true@" plug.vim
+
+      autoload_path='autoload'
+      mkdir "$autoload_path"
+      mv plug.vim "$autoload_path/"
+    '';
+  });
 in
 {
   inherit myVimPlugins;
-  vimPlugins = prev.vimPlugins // vimPluginsFromFlake;
+  vimPlugins = prev.vimPlugins // vimPluginsFromFlake // { vim-plug = patchedVimPlug; };
 }
