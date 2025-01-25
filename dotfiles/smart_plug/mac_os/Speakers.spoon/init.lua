@@ -1,7 +1,7 @@
 local garbage_collector_roots = {}
 
 local function execute(executable, arguments, callback)
-  -- I'm using hs.task because os.execute was really slow[1].
+  -- I'm using hs.task because it's faster than os.execute[1].
   --
   -- [1]: https://github.com/Hammerspoon/hammerspoon/issues/2570
   return hs.task.new(executable, callback, arguments):start()
@@ -74,8 +74,10 @@ local function listen(speakerctl_path)
   end
 end
 
--- Using an interactive-login shell to make sure Nix's shell configuration runs so I
--- can find `speakerctl`.
+-- Using an interactive-login shell because Nix's zsh configuration only
+-- runs in interactive mode and I installed `speakerctl` with Nix. I set an
+-- environment variable so I can detect when I'm doing this from my zsh config,
+-- see zshrc.zsh for details.
 get_command_output("/usr/bin/env", {
   "HAMMERSPOON_RESOLVING_ENVIRONMENT=1",
   os.getenv("SHELL"),

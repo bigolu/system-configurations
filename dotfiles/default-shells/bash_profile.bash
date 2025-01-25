@@ -5,6 +5,7 @@
 # [1]: https://github.com/electron/electron/issues/41551
 export ELECTRON_OZONE_PLATFORM_HINT=auto
 
+# My reason for doing this is at the top of bashrc.bash
 if [[ $- == *i* && -f ~/.bashrc ]]; then
   # shellcheck disable=1090
   source ~/.bashrc
