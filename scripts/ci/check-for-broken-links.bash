@@ -10,6 +10,7 @@ shopt -s nullglob
 
 function main {
   local -r report_path="$(mktemp --directory)/report"
+  local found_broken_link=''
 
   # lychee exits with a non-zero code if it finds broken links, but I don't want this
   # script to exit if that happens.
@@ -20,6 +21,9 @@ function main {
     --format markdown --output "$report_path" \
     --include-fragments \
     --hidden --include-verbatim .
+  if (($? == 2)); then
+    found_broken_link='true'
+  fi
   set -o errexit
 
   if [[ ! -e $report_path ]]; then
@@ -27,7 +31,9 @@ function main {
     exit 1
   fi
 
-  publish_report "$report_path"
+  if [[ $found_broken_link == 'true' ]]; then
+    publish_report "$report_path"
+  fi
 }
 
 function publish_report {
