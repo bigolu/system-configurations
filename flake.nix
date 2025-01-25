@@ -1,6 +1,8 @@
-# TODO: Trick renovate into working: "github:NixOS/nixpkgs/nixpkgs-unstable"
+# TODO: Having the following text gets Renovate to recognize the
+# dependencies in this file: "github:NixOS/nixpkgs/nixpkgs-unstable"
 # Source: https://github.com/renovatebot/renovate/issues/29721
 # fix: https://github.com/renovatebot/renovate/pull/31921
+
 {
   description = "System configurations";
 
@@ -98,11 +100,20 @@
     };
     ghostty = {
       url = "github:ghostty-org/ghostty";
+      # I'm intentionally not using `inputs.nixpkgs.follows` because if I did, then
+      # the packages created by this flake would be different from the ones that they
+      # cache.
       inputs = {
         flake-compat.follows = "";
         # This doesn't seem to be used
         nixpkgs-unstable.follows = "";
       };
+    };
+    # I'm intentionally not using `inputs.nixpkgs.follows` because if I did, then the
+    # packages created by this flake would be different from the ones that they
+    # cache.
+    "neovim-nightly-overlay" = {
+      url = "github:nix-community/neovim-nightly-overlay";
     };
 
     # Nix
@@ -149,145 +160,31 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    # fish
+    # Fish plugins
     ########################################
-    "fish-plugin-autopair.fish" = {
-      url = "github:jorgebucaran/autopair.fish";
-      flake = false;
-    };
+    # TODO: This plugin doesn't seem to be making releases anymore. I should check
+    # with the author and possibly have nixpkgs track master instead.
     "fish-plugin-fish-async-prompt" = {
       url = "github:acomagu/fish-async-prompt";
       flake = false;
     };
+    # TODO: Add this plugin to nixpkgs
     "fish-plugin-fish-completion-sync" = {
       url = "github:pfgray/fish-completion-sync";
       flake = false;
     };
-    "fish-plugin-done" = {
-      url = "github:franciscolourenco/done";
-      flake = false;
-    };
 
-    # vim
+    # Vim plugins
     ########################################
-    # I'm intentionally not using `inputs.nixpkgs.follows` because if I did, then the
-    # neovim created by this flake would be different from the one that they cache
-    # and then I'd have to build it.
-    "neovim-nightly-overlay" = {
-      url = "github:nix-community/neovim-nightly-overlay";
-    };
-    "vim-plugin-bullets.vim" = {
-      url = "github:bullets-vim/bullets.vim";
-      flake = false;
-    };
-    "vim-plugin-CamelCaseMotion" = {
-      url = "github:bkad/CamelCaseMotion";
-      flake = false;
-    };
-    "vim-plugin-dial.nvim" = {
-      url = "github:monaqa/dial.nvim";
-      flake = false;
-    };
-    "vim-plugin-direnv.vim" = {
-      url = "github:direnv/direnv.vim";
-      flake = false;
-    };
-    "vim-plugin-fidget.nvim" = {
-      url = "github:j-hui/fidget.nvim";
-      flake = false;
-    };
-    "vim-plugin-lazy-lsp.nvim" = {
-      url = "github:dundalek/lazy-lsp.nvim";
-      flake = false;
-    };
-    "vim-plugin-mini.nvim" = {
-      url = "github:echasnovski/mini.nvim";
-      flake = false;
-    };
-    "vim-plugin-nvim-autopairs" = {
-      url = "github:windwp/nvim-autopairs";
-      flake = false;
-    };
-    "vim-plugin-nvim-lightbulb" = {
-      url = "github:kosayoda/nvim-lightbulb";
-      flake = false;
-    };
-    "vim-plugin-nvim-lspconfig" = {
-      url = "github:neovim/nvim-lspconfig";
-      flake = false;
-    };
-    "vim-plugin-nvim-treesitter" = {
-      url = "github:nvim-treesitter/nvim-treesitter";
-      flake = false;
-    };
-    "vim-plugin-nvim-treesitter-context" = {
-      url = "github:nvim-treesitter/nvim-treesitter-context";
-      flake = false;
-    };
     "vim-plugin-nvim-treesitter-endwise" = {
       # Use this fork until this PR is merged:
       # https://github.com/RRethy/nvim-treesitter-endwise/pull/42
       url = "github:metiulekm/nvim-treesitter-endwise";
       flake = false;
     };
-    "vim-plugin-nvim-treesitter-textobjects" = {
-      url = "github:nvim-treesitter/nvim-treesitter-textobjects";
-      flake = false;
-    };
-    "vim-plugin-nvim-ts-autotag" = {
-      url = "github:windwp/nvim-ts-autotag";
-      flake = false;
-    };
-    "vim-plugin-SchemaStore.nvim" = {
-      url = "github:b0o/SchemaStore.nvim";
-      flake = false;
-    };
-    "vim-plugin-splitjoin.vim" = {
-      url = "github:AndrewRadev/splitjoin.vim";
-      flake = false;
-    };
-    "vim-plugin-treesj" = {
-      url = "github:Wansmer/treesj";
-      flake = false;
-    };
-    "vim-plugin-vim-abolish" = {
-      url = "github:tpope/vim-abolish";
-      flake = false;
-    };
+    # TODO: Add the plugins below to nixpkgs
     "vim-plugin-vim-caser" = {
       url = "github:arthurxavierx/vim-caser";
-      flake = false;
-    };
-    "vim-plugin-vim-indentwise" = {
-      url = "github:jeetsukumaran/vim-indentwise";
-      flake = false;
-    };
-    "vim-plugin-vim-matchup" = {
-      url = "github:andymass/vim-matchup";
-      flake = false;
-    };
-    "vim-plugin-vim-nix" = {
-      url = "github:LnL7/vim-nix";
-      flake = false;
-    };
-    "vim-plugin-vim-plug" = {
-      url = "github:junegunn/vim-plug";
-      flake = false;
-    };
-    "vim-plugin-vim-repeat" = {
-      url = "github:tpope/vim-repeat";
-      flake = false;
-    };
-    "vim-plugin-vim-signify" = {
-      url = "github:mhinz/vim-signify";
-      flake = false;
-    };
-    "vim-plugin-vim-sleuth" = {
-      url = "github:tpope/vim-sleuth";
-      flake = false;
-    };
-    "vim-plugin-Navigator.nvim" = {
-      url = "github:numToStr/Navigator.nvim";
       flake = false;
     };
     "vim-plugin-multicursor.nvim" = {

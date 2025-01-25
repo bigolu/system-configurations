@@ -60,10 +60,17 @@ let
 
   myVimPlugins =
     let
+      nameOverrides = {
+        # TODO: Per nixpkgs' package naming rules, they should lowercase these:
+        # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
+        "Navigator.nvim" = "Navigator-nvim";
+        "SchemaStore.nvim" = "SchemaStore-nvim";
+      };
+
       getPackage =
         pluginName:
         let
-          nixpkgsAttrName = toNixpkgsAttr pluginName;
+          nixpkgsAttrName = nameOverrides.${pluginName} or (toNixpkgsAttr pluginName);
         in
         final.vimPlugins.${nixpkgsAttrName}
           or (abort "Failed to find package for vim plugin: ${pluginName}. Package name used: ${nixpkgsAttrName}");

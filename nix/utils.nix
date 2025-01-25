@@ -37,7 +37,7 @@ let
     };
 
   # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
-  # This doesn't apply all of the conventions, but it's enough for now.
+  # This doesn't apply all of the conventions, but it's enough for my use case.
   toNixpkgsAttr =
     name:
     pipe name [
