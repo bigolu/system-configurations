@@ -13,9 +13,12 @@ let
     nameValuePair
     ;
   inherit (builtins)
-    readFile
+    elemAt
     hasAttr
     listToAttrs
+    substring
+    stringLength
+    readFile
     ;
   inherit (utils) projectRoot toNixpkgsAttr toNixpkgsPname;
 
@@ -81,19 +84,21 @@ let
           nativeBuildInputs = with final; [
             ast-grep
             jq
-            gnused
           ];
         }
         ''
           # shellcheck disable=SC2016
           # The dollar signs are for ast-grep
+          #
+          # I'm using jq instead of builtins.fromJSON because Nix doesn't allow
+          # certain strings to have references to the Nix store[1] and one of the
+          # keys in this JSON contains the path of the file with the matched text.
+          #
+          # [1]: https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
           ast-grep --lang lua --pattern 'Plug($ARG $$$)' --json=compact ${
             projectRoot + /dotfiles/neovim/lua
           } \
             | jq --raw-output '.[].metaVariables.single.ARG.text' \
-            | cut -d'/' -f2 \
-            | sed 's/.$//' \
-            | sort --ignore-case --dictionary-order --unique \
             > $out
         ''
       )
@@ -102,6 +107,10 @@ let
         (splitString "\n")
         # The file ends in a newline so the last line will be empty
         init
+        # *<author>/<plugin_name>" -> <plugin_name>"
+        (map (authorPlugin: elemAt (splitString "/" authorPlugin) 1))
+        # <plugin_name>" -> <plugin_name>
+        (map (string: substring 0 ((stringLength string) - 1) string))
         # These attribute names do not adhere to nixpkgs' conventions. I'm
         # intentionally doing this so they match the names in my neovim config.
         (map (pluginName: nameValuePair pluginName (getPackage pluginName)))
