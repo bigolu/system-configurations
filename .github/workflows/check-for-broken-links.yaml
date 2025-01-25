@@ -13,7 +13,18 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
-      - env:
+      - id: lychee
+        uses: lycheeverse/lychee-action@f796c8b7d468feb9b8c0a46da3fac0af6874d374 # v2
+        with:
           # To avoid being rate-limited by GitHub
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./scripts/ci/check-for-broken-links.bash
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: >
+            --verbose --no-progress
+            --suggest --archive wayback
+            --include-fragments
+            --hidden --include-verbatim .
+      - if: steps.lychee.outputs.exit_code != 0
+        uses: peter-evans/create-issue-from-file@e8ef132d6df98ed982188e460ebb3b5d4ef3a9cd # v5
+        with:
+          title: Link Checker Report
+          content-filepath: ./lychee/out.md
