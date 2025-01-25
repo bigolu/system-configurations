@@ -4,12 +4,11 @@ set shell := ["bash", "-o", "errexit", "-o", "nounset", "-o", "pipefail", "-c"]
 # https://github.com/casey/just/issues/647#issuecomment-1404056424
 set positional-arguments := true
 
-set export
-
+# Don't print a message before or after executing a recipe
 set quiet
+set no-exit-message
 
 [doc('''List all recipes. You can run this whenever you forget something.''')]
-[no-exit-message]
 list:
     @just --list --unsorted --color always | "${PAGER:-cat}"
 
@@ -22,16 +21,14 @@ list:
         CONFIGURATION: The name of the configuration to apply.
 ''')]
 [group('System Management')]
-[no-exit-message]
 initialize MANAGER CONFIGURATION: && force-sync
-    just "$MANAGER" "$CONFIGURATION"
+    just "$1" "$2"
 
 [doc('''
     Pull changes and apply them. You'll get notifications occasionally if there are
     changes so no need to run manually.
 ''')]
 [group('System Management')]
-[no-exit-message]
 pull:
     system-config-pull
 
@@ -40,34 +37,30 @@ pull:
     apply with the configuration.
 ''')]
 [group('System Management')]
-[no-exit-message]
 preview:
     system-config-preview
 
 [private]
 [group('System Management')]
-[no-exit-message]
 home-manager NAME:
   nix run \
     --impure --expr 'import ./nix/flake-package-set.nix' \
-    home-manager -- switch --flake ".#$NAME"
+    home-manager -- switch --flake ".#$1"
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
   echo 'Consider syncing COSMIC settings by running `just sync-cosmic-to-system`'
 
 [private]
 [group('System Management')]
-[no-exit-message]
 nix-darwin NAME:
-  ./scripts/init-nix-darwin.bash "$NAME"
+  ./scripts/init-nix-darwin.bash "$1"
 
 [doc('''
     Create a bundle for the specified package (e.g. .#shell) using the
     bundler included in this repository.
 ''')]
 [group('Nix')]
-[no-exit-message]
 bundle PACKAGE:
-  nix bundle --bundler .# "$PACKAGE"
+  nix bundle --bundler .# "$1"
 
 [doc('''
     Run various checks on the code, automatically fixing issues if
@@ -88,14 +81,13 @@ bundle PACKAGE:
                 Example: `just check format,generate`
 ''')]
 [group('Checks')]
-[no-exit-message]
 check JOBS='':
     # The first git command uses merge-base in case the current branch is behind the
     # default branch. The second git command prints untracked files
     { \
       git diff -z --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"; \
       git ls-files -z --others --exclude-standard; \
-    } | lefthook run check --files-from-stdin --jobs "$JOBS"
+    } | lefthook run check --files-from-stdin --jobs "$1"
 
 [doc('''
     This is the same as the check recipe above, except that it runs on all files.
@@ -103,13 +95,12 @@ check JOBS='':
     work. For example, changing the configuration file for a linter.
 ''')]
 [group('Checks')]
-[no-exit-message]
 check-all JOBS='':
     # The second git command prints untracked files
     { \
       git ls-files -z; \
       git ls-files -z --others --exclude-standard; \
-    } | lefthook run check --files-from-stdin --jobs "$JOBS"
+    } | lefthook run check --files-from-stdin --jobs "$1"
 
 [doc('''
     Run various jobs to synchronize your environment with the state of the code.
@@ -119,7 +110,6 @@ check-all JOBS='':
     The list of jobs is in lefthook.yaml.
 ''')]
 [group('Syncing')]
-[no-exit-message]
 sync:
     # TODO: The sync job has 'follows' enabled so I need to execution_out or else
     # nothing will show. I should open an issue for allowing output to be configured
@@ -143,7 +133,6 @@ sync:
                Example: `just sync-force direnv,dev-shell`
 ''')]
 [group('Syncing')]
-[no-exit-message]
 force-sync JOBS='':
     # TODO: The sync job has 'follows' enabled so I need to execution_out or else
     # nothing will show. I should open an issue for allowing output to be configured
@@ -153,20 +142,17 @@ force-sync JOBS='':
     # the output values specified in the config file, but it seems to be overwriting
     # them instead. For now, I'm duplicating the values specified in my config here.
     # I should open an issue.
-    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync --force --jobs "$JOBS"
+    LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync --force --jobs "$1"
 
 [group('Syncing')]
-[no-exit-message]
 sync-cosmic-to-system:
     ./dotfiles/cosmic/sync.bash system
 
 [group('Syncing')]
-[no-exit-message]
 sync-cosmic-to-repo:
     ./dotfiles/cosmic/sync.bash repo
 
 [group('Secrets')]
-[no-exit-message]
 get-secrets:
     # GITHUB_TOKEN is for lychee
     doppler run \
@@ -185,9 +171,8 @@ get-secrets:
                  Example: just debug .#darwinConfigurations.bigmac.system
 ''')]
 [group('Debugging')]
-[no-exit-message]
 debug PACKAGE:
-    nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$PACKAGE"
+    nix build --impure --ignore-try  --debugger --print-out-paths  --no-link "$1"
 
 [doc('''
     Run a command in a direnv CI environment
@@ -197,11 +182,10 @@ debug PACKAGE:
         COMMAND: The command to run
 ''')]
 [group('Debugging')]
-[no-exit-message]
 debug-ci DEV_SHELL +COMMAND:
     # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv
     # doesn't overwrite the dev shell cached in .direnv with the one built here.
-    CI=true DEV_SHELL="$DEV_SHELL" direnv_layout_dir="$(mktemp --directory)" nix shell \
+    CI=true DEV_SHELL="$1" direnv_layout_dir="$(mktemp --directory)" nix shell \
         --ignore-environment \
         --keep CI --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
         nixpkgs#direnv nixpkgs#coreutils nixpkgs#bashInteractive nixpkgs#nix \
