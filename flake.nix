@@ -63,12 +63,6 @@
                 _final: _prev: { ${package} = inputs'.${input}.packages.${package}; };
             in
             {
-              # - For the convenience of having my overlay already applied wherever I
-              #   access pkgs.
-              # - To avoid instantiating nixpkgs multiple times, which would lead to
-              #   higher memory consumption and slower evaluation[1].
-              #
-              # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
               _module.args.pkgs = import inputs.nixpkgs {
                 inherit system;
                 overlays =
@@ -105,6 +99,7 @@
     # created by these flakes would be different from the ones that they
     # cache. These new packages would then have to be compiled, which would
     # probably take a while.
+    ############################################################################
     "neovim-nightly-overlay".url = "github:nix-community/neovim-nightly-overlay";
     ghostty = {
       url = "github:ghostty-org/ghostty";
@@ -117,7 +112,7 @@
     };
 
     # Nix
-    ########################################
+    ############################################################################
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     # There's a higher chance that something builds on stable, since stable only
     # provides conservative updates e.g. security patches, so I'll keep this just in
@@ -146,7 +141,7 @@
     };
 
     # Flake
-    ########################################
+    ############################################################################
     flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/*.tar.gz";
     flake-utils.url = "github:numtide/flake-utils";
     flake-parts = {
@@ -155,7 +150,7 @@
     };
 
     # Fish plugins
-    ########################################
+    ############################################################################
     # TODO: This plugin doesn't seem to be making releases anymore. I should check
     # with the author and possibly have nixpkgs track master instead.
     "fish-plugin-fish-async-prompt" = {
@@ -169,7 +164,7 @@
     };
 
     # Vim plugins
-    ########################################
+    ############################################################################
     "vim-plugin-nvim-treesitter-endwise" = {
       # Use this fork until this PR is merged:
       # https://github.com/RRethy/nvim-treesitter-endwise/pull/42
