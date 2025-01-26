@@ -395,7 +395,9 @@ mybind --no-focus \ck _man_page
 mybind --key f7 up-or-search
 mybind --key f8 down-or-search
 
-# It's like the builtin edit_command_buffer, but it retains the cursor position
+# While the builtin edit_command_buffer retains the cursor position when going from
+# the command line to the editor, this one also retains the cursor position when
+# going from the editor back to the command line.
 function __edit_commandline
     set buffer "$(commandline)"
     set index (commandline --cursor)

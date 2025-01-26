@@ -138,8 +138,7 @@
       inputs = {
         flake-compat.follows = "";
         nixpkgs-stable.follows = "nixpkgs-stable";
-        # TODO: This doesn't seem to be used. I should see if they can remove
-        # it.
+        # TODO: This doesn't seem to be used. I should see if they can remove it.
         nixpkgs-unstable.follows = "";
       };
     };
@@ -149,8 +148,9 @@
     # by this flake would be different from the ones that they cached.
     "neovim-nightly-overlay".url = "github:nix-community/neovim-nightly-overlay";
 
-    # Flake utilities
-    ############################################################################
+    # Flake Utilities
+    # --------------------------------------------------------------------------
+
     flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/*.tar.gz";
     flake-utils.url = "github:numtide/flake-utils";
 
@@ -159,8 +159,9 @@
       inputs.nixpkgs-lib.follows = "nixpkgs";
     };
 
-    # Fish plugins
-    ############################################################################
+    # Fish Plugins
+    # --------------------------------------------------------------------------
+
     # TODO: This plugin doesn't seem to be making releases anymore. I should check
     # with the author and possibly have nixpkgs track master instead.
     "fish-plugin-fish-async-prompt" = {
@@ -174,8 +175,9 @@
       flake = false;
     };
 
-    # Vim plugins
-    ############################################################################
+    # Vim Plugins
+    # --------------------------------------------------------------------------
+
     "vim-plugin-nvim-treesitter-endwise" = {
       # Use this fork until this PR is merged:
       # https://github.com/RRethy/nvim-treesitter-endwise/pull/42
