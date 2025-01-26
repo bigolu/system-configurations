@@ -64,7 +64,7 @@ let
           (concatStringsSep "\n")
         ];
 
-      hook = pipe args [
+      allShellHooks = pipe args [
         (args: inputsFrom ++ [ args ])
         (catAttrs "shellHook")
         (filter (hook: hook != ""))
@@ -80,7 +80,7 @@ let
             return
           fi
 
-          ${hook}
+          ${allShellHooks}
         }
         safe_shell_hook
       '';
