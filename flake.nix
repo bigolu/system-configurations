@@ -137,7 +137,7 @@
       url = "github:ghostty-org/ghostty";
       inputs = {
         flake-compat.follows = "";
-        nixpkgs-stable.follow = "nixpkgs-stable";
+        nixpkgs-stable.follows = "nixpkgs-stable";
         # TODO: This doesn't seem to be used. I should see if they can remove
         # it.
         nixpkgs-unstable.follows = "";
