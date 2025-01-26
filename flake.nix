@@ -98,22 +98,22 @@
       url = "github:Hammerspoon/Spoons";
       flake = false;
     };
+
+    # These are flakes whose packages require compilation, but are available
+    # in a cache. I'm intentionally not setting
+    # `inputs.nixpkgs.follows = "nixpkgs"`because if I did, then the packages
+    # created by these flakes would be different from the ones that they
+    # cache. These new packages would then have to be compiled, which would
+    # probably take a while.
+    "neovim-nightly-overlay".url = "github:nix-community/neovim-nightly-overlay";
     ghostty = {
       url = "github:ghostty-org/ghostty";
-      # I'm intentionally not using `inputs.nixpkgs.follows` because if I did, then
-      # the packages created by this flake would be different from the ones that they
-      # cache.
       inputs = {
         flake-compat.follows = "";
-        # This doesn't seem to be used
+        # TODO: This doesn't seem to be used. I should see if they can remove
+        # it.
         nixpkgs-unstable.follows = "";
       };
-    };
-    # I'm intentionally not using `inputs.nixpkgs.follows` because if I did, then the
-    # packages created by this flake would be different from the ones that they
-    # cache.
-    "neovim-nightly-overlay" = {
-      url = "github:nix-community/neovim-nightly-overlay";
     };
 
     # Nix
@@ -130,21 +130,15 @@
     };
     home-manager = {
       url = "github:nix-community/home-manager";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-darwin = {
       url = "github:lnl7/nix-darwin/master";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     gomod2nix = {
       url = "github:nix-community/gomod2nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-      };
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-gl-host = {
       url = "github:numtide/nix-gl-host";
