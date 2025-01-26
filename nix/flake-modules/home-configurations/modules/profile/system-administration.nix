@@ -63,6 +63,7 @@ in
       cntr
       strace
       inotify-info
+      isd
     ]
     ++ optionals isDarwin [
       pstree

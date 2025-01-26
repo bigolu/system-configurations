@@ -1,5 +1,5 @@
-# TODO: Having the following text gets Renovate to recognize the
-# dependencies in this file: "github:NixOS/nixpkgs/nixpkgs-unstable"
+# TODO: Having the following text gets Renovate to recognize the dependencies in this
+# file: "github:NixOS/nixpkgs/nixpkgs-unstable"
 # Source: https://github.com/renovatebot/renovate/issues/29721
 # fix: https://github.com/renovatebot/renovate/pull/31921
 
@@ -73,6 +73,7 @@
                     inputs.neovim-nightly-overlay.overlays.default
                     inputs.ghostty.overlays.default
                     (makeOverlay { input = "home-manager"; })
+                    (makeOverlay { input = "isd"; })
                   ]
                   ++ publicOverlays
                   ++ [ privateOverlay ];
@@ -82,10 +83,19 @@
       );
 
   inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nix-flatpak.url = "https://flakehub.com/f/gmodena/nix-flatpak/*.tar.gz";
+
+    # There's a higher chance that something builds on stable, since stable only
+    # provides conservative updates e.g. security patches, so I'll keep this just in
+    # case.
+    nixpkgs-stable.url = "https://flakehub.com/f/NixOS/nixpkgs/*.tar.gz";
+
     stackline = {
       url = "github:AdamWagner/stackline";
       flake = false;
     };
+
     # TODO: I should do a sparse checkout to get the single Spoon I need.
     # issue: https://github.com/NixOS/nix/issues/5811
     spoons = {
@@ -93,57 +103,57 @@
       flake = false;
     };
 
-    # These are flakes whose packages require compilation, but are available
-    # in a cache. I'm intentionally not setting
-    # `inputs.nixpkgs.follows = "nixpkgs"`because if I did, then the packages
-    # created by these flakes would be different from the ones that they
-    # cache. These new packages would then have to be compiled, which would
-    # probably take a while.
-    ############################################################################
-    "neovim-nightly-overlay".url = "github:nix-community/neovim-nightly-overlay";
+    nix-index-database = {
+      url = "github:Mic92/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    gomod2nix = {
+      url = "github:nix-community/gomod2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-gl-host = {
+      url = "github:numtide/nix-gl-host";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-darwin = {
+      url = "github:lnl7/nix-darwin/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    isd = {
+      url = "github:isd-project/isd";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     ghostty = {
       url = "github:ghostty-org/ghostty";
       inputs = {
         flake-compat.follows = "";
+        nixpkgs-stable.follow = "nixpkgs-stable";
         # TODO: This doesn't seem to be used. I should see if they can remove
         # it.
         nixpkgs-unstable.follows = "";
       };
     };
 
-    # Nix
-    ############################################################################
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    # There's a higher chance that something builds on stable, since stable only
-    # provides conservative updates e.g. security patches, so I'll keep this just in
-    # case.
-    nixpkgs-stable.url = "https://flakehub.com/f/NixOS/nixpkgs/*.tar.gz";
-    nix-flatpak.url = "https://flakehub.com/f/gmodena/nix-flatpak/*.tar.gz";
-    nix-index-database = {
-      url = "github:Mic92/nix-index-database";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    home-manager = {
-      url = "github:nix-community/home-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-darwin = {
-      url = "github:lnl7/nix-darwin/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    gomod2nix = {
-      url = "github:nix-community/gomod2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    nix-gl-host = {
-      url = "github:numtide/nix-gl-host";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    # This flake's packages are available in a cache. I'm intentionally not setting
+    # `inputs.nixpkgs.follows = "nixpkgs"`because if I did, then the packages created
+    # by this flake would be different from the ones that they cached.
+    "neovim-nightly-overlay".url = "github:nix-community/neovim-nightly-overlay";
 
-    # Flake
+    # Flake utilities
     ############################################################################
     flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/*.tar.gz";
     flake-utils.url = "github:numtide/flake-utils";
+
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -157,6 +167,7 @@
       url = "github:acomagu/fish-async-prompt";
       flake = false;
     };
+
     # TODO: Add this plugin to nixpkgs
     "fish-plugin-fish-completion-sync" = {
       url = "github:pfgray/fish-completion-sync";
@@ -171,11 +182,13 @@
       url = "github:metiulekm/nvim-treesitter-endwise";
       flake = false;
     };
+
     # TODO: Add the plugins below to nixpkgs
     "vim-plugin-vim-caser" = {
       url = "github:arthurxavierx/vim-caser";
       flake = false;
     };
+
     "vim-plugin-multicursor.nvim" = {
       url = "github:jake-stewart/multicursor.nvim";
       flake = false;
