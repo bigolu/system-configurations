@@ -11,12 +11,11 @@
       ...
     }:
     let
-      inherit (pkgs) plugctl makePortableShell;
+      inherit (pkgs) makePortableShell;
     in
     {
       packages = {
-        default = self'.packages.plugctl;
-        inherit plugctl;
+        default = self'.packages.shell;
 
         shell = makePortableShell {
           homeConfig = self.homeConfigurations."portable-home-${system}";

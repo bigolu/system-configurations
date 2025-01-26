@@ -22,7 +22,7 @@ moduleContext@{ lib, ... }:
         name = "local";
         inputsFrom = with partials; [
           scriptInterpreter
-          plugctl
+          speakerctl
           gozip
           taskRunner
           gitHooks

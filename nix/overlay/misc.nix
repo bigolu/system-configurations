@@ -136,31 +136,29 @@ let
     ];
   };
 
-  plugctl =
-    let
-      exeName = "plugctl";
-    in
-    final.writeShellApplication {
-      name = exeName;
-      runtimeInputs = [
-        (import ../plugctl-python.nix final)
-      ];
-      meta.mainProgram = exeName;
-      text = ''
-        python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
-      '';
-    };
-
   speakerctl =
     let
-      exeName = "speakerctl";
+      programName = "speakerctl";
+      pythonEnv = final.python3.withPackages (
+        pythonPackages: with pythonPackages; [
+          pip
+          python-kasa
+          diskcache
+          ipython
+          platformdirs
+          psutil
+          types-psutil
+          mypy
+        ]
+      );
     in
     final.writeShellApplication {
-      name = exeName;
-      runtimeInputs = [ final.plugctl ];
-      meta.mainProgram = exeName;
+      name = programName;
+      runtimeInputs = [ pythonEnv ];
+      meta.mainProgram = programName;
+      passthru.devShell = final.mkShellWrapperNoCC { packages = [ pythonEnv ]; };
       text = ''
-        plugctl plug "$@"
+        python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
       '';
     };
 
@@ -188,7 +186,6 @@ in
   inherit
     runAsAdmin
     myFonts
-    plugctl
     speakerctl
     ci-bash
     ;

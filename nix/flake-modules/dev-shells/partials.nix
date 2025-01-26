@@ -43,8 +43,6 @@ let
     ;
   inherit (pkgs.stdenv) isLinux;
 
-  plugctlPython = import ../../plugctl-python.nix pkgs;
-
   scriptInterpreter =
     let
       flakePackageSetHook =
@@ -133,9 +131,7 @@ let
       }
     );
 
-  plugctl = mkShellWrapperNoCC {
-    packages = [ plugctlPython ];
-  };
+  speakerctl = pkgs.speakerctl.devShell;
 
   gozip = mkShellWrapperNoCC {
     packages = with pkgs; [ go ];
@@ -214,9 +210,9 @@ let
     let
       linting = mkShellWrapperNoCC {
         inputsFrom = [
-          # For mypy. Also for the python libraries used by plugctl so mypy can
+          # For mypy. Also for the python libraries used by speakerctl so mypy can
           # factor in their types as well.
-          plugctl
+          speakerctl
         ];
 
         packages = with pkgs; [
@@ -336,8 +332,8 @@ let
         # For "sumneko.lua"
         luaLs
         # For "ms-python.mypy-type-checker", it needs mypy. Also for the python
-        # libraries used by plugctl so mypy can factor in their types as well.
-        plugctl
+        # libraries used by speakerctl so mypy can factor in their types as well.
+        speakerctl
       ];
       packages = with pkgs; [
         # For "golang.go"
@@ -358,12 +354,15 @@ let
         coreutils
         partialPackages.pkill
       ];
+      # For extension "ms-python.python". Link python to a stable location so I don't
+      # have to update the python path in VS Code when the nix store path for python
+      # changes.
       shellHook = ''
-        # For extension "ms-python.python". Link python to a stable location so I
-        # don't have to update the python path in VS Code when the nix store path for
-        # python changes.
+        # python is in <python_directory>/bin/python so 2 dirnames will get me the
+        # python directory
+        python_directory="$(dirname "$(dirname "$(which python)")")"
         ln --force --no-dereference --symbolic \
-          ${plugctlPython} "$DIRENV_LAYOUT_DIR/python"
+          "$python_directory" "$DIRENV_LAYOUT_DIR/python"
       '';
     };
 in
@@ -371,7 +370,7 @@ in
   inherit
     scriptInterpreter
     ciEssentials
-    plugctl
+    speakerctl
     gozip
     taskRunner
     gitHooks

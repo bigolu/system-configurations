@@ -23,19 +23,21 @@ from kasa.iot import IotPlug
 from platformdirs import user_cache_dir
 from typing_extensions import cast
 
-CLI_NAME = "plugctl"
+CLI_NAME = "speakerctl"
 
 
 class KasaPlug:
     # Key: plug alias, Value: IP address
     _ip_address_cache = Cache(user_cache_dir(CLI_NAME))
 
+    _alias = "plug"
+
     _plug: IotPlug
 
     @classmethod
-    async def connect(cls, alias: str, attempts: int) -> Self:
+    async def connect(cls, attempts: int) -> Self:
         instance = cls()
-        instance._plug = await instance._find_plug(alias, attempts)
+        instance._plug = await instance._find_plug(attempts)
 
         return instance
 
@@ -53,28 +55,28 @@ class KasaPlug:
         return cast(bool, self._plug.is_on)
 
     @classmethod
-    async def _find_plug(cls, alias: str, attempts: int) -> IotPlug:
-        plug = await cls._get_plug_from_cache(alias)
+    async def _find_plug(cls, attempts: int) -> IotPlug:
+        plug = await cls._get_plug_from_cache()
         if plug is not None:
             return plug
 
-        plug = await cls._discover_plug(alias, attempts)
+        plug = await cls._discover_plug(attempts)
         if plug is not None:
             cls._add_plug_to_cache(plug)
             return plug
 
-        raise Exception(f"Unable to find a plug with alias: {alias}")
+        raise Exception(f"Unable to find a plug with alias: {cls._alias}")
 
     @classmethod
     def _add_plug_to_cache(cls, plug: IotPlug) -> None:
         cls._ip_address_cache[plug.alias] = plug.host
 
     @classmethod
-    async def _get_plug_from_cache(cls, alias: str) -> Optional[IotPlug]:
-        if alias not in cls._ip_address_cache:
+    async def _get_plug_from_cache(cls) -> Optional[IotPlug]:
+        if cls._alias not in cls._ip_address_cache:
             return None
 
-        ip_address = cls._ip_address_cache[alias]
+        ip_address = cls._ip_address_cache[cls._alias]
         assert isinstance(ip_address, str)
 
         try:
@@ -83,20 +85,20 @@ class KasaPlug:
             # matches their class.
             device = await IotPlug.connect(host=ip_address)
         except (KasaException, TimeoutError):
-            del cls._ip_address_cache[alias]
+            del cls._ip_address_cache[cls._alias]
             return None
 
-        if isinstance(device, IotPlug) and device.alias == alias:
+        if isinstance(device, IotPlug) and device.alias == cls._alias:
             return device
         else:
-            del cls._ip_address_cache[alias]
+            del cls._ip_address_cache[cls._alias]
             return None
 
     @classmethod
-    async def _discover_plug(cls, alias: str, attempts: int) -> Optional[IotPlug]:
+    async def _discover_plug(cls, attempts: int) -> Optional[IotPlug]:
         for unused in range(attempts):
             for device in await cls._discover_devices():
-                if isinstance(device, IotPlug) and device.alias == alias:
+                if isinstance(device, IotPlug) and device.alias == cls._alias:
                     return device
 
         return None
@@ -149,7 +151,6 @@ def parse_args() -> Namespace:
         default=1,
         help="The number of discovery attempts to make",
     )
-    parser.add_argument("alias", help="The plug's name")
     parser.add_argument(
         "command",
         nargs="?",
@@ -166,7 +167,7 @@ def parse_args() -> Namespace:
 
 async def main() -> None:
     args = parse_args()
-    plug = await KasaPlug.connect(args.alias, args.attempts)
+    plug = await KasaPlug.connect(args.attempts)
     match args.command:
         case "status":
             exit_code = 0 if await plug.is_on() else 1

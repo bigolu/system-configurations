@@ -29,8 +29,7 @@ project do it for me.
 
 ## Usage
 
-- You can run it with
-  `nix run github:bigolu/system-configurations#plugctl -- --help`.
+- Run `python smart_plug.py --help`
 
 ## Development
 
