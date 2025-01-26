@@ -22,7 +22,6 @@ let
     makeBinPath
     optionals
     optionalAttrs
-    fileset
     ;
   inherit (utils) projectRoot;
 
@@ -42,13 +41,8 @@ let
   garbageCollectionService =
     let
       serviceName = "nix-garbage-collection.service";
-
-      serviceTemplate = "${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/nix/systemd-garbage-collection;
-          fileset = projectRoot + "/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.service";
-        }
-      }/${serviceName}";
+      serviceTemplate =
+        projectRoot + /dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.service;
 
       processedTemplate = replaceVars serviceTemplate {
         inherit homeDirectory;

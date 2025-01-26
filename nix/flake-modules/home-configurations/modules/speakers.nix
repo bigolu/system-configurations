@@ -14,20 +14,13 @@ let
     optionalAttrs
     getExe
     hm
-    fileset
     ;
   inherit (utils) projectRoot;
 
   speakerService =
     let
       speakerServiceName = "speakers.service";
-
-      speakerServiceTemplate = "${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/smart_plug/linux;
-          fileset = projectRoot + "/dotfiles/smart_plug/linux/${speakerServiceName}";
-        }
-      }/${speakerServiceName}";
+      speakerServiceTemplate = projectRoot + /dotfiles/smart_plug/linux/speakers.service;
 
       processedTemplate = replaceVars speakerServiceTemplate {
         speakerctl = getExe speakerctl;
