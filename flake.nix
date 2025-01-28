@@ -143,10 +143,13 @@
       };
     };
 
-    # This flake's packages are available in a cache. I'm intentionally not setting
-    # `inputs.nixpkgs.follows = "nixpkgs"`because if I did, then the packages created
-    # by this flake would be different from the ones that they cached.
-    "neovim-nightly-overlay".url = "github:nix-community/neovim-nightly-overlay";
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+      # This flake's packages are available in a cache. I'm intentionally not setting
+      # `inputs.nixpkgs.follows = "nixpkgs"`because if I did, then the packages
+      # created by this flake would be different from the ones that they cached.
+      inputs.flake-compat.follows = "";
+    };
 
     # Flake Utilities
     # --------------------------------------------------------------------------
