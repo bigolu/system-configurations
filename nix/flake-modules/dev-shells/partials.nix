@@ -148,10 +148,16 @@ let
 
   taskRunner = mkShellWrapperNoCC {
     packages = with pkgs; [
-      just
-      # This gets called in the justfile
-      coreutils
+      mise
+      # This is needed for the autocompletion of task arguments
+      usage
+      # These get used in mise.toml
+      lefthook
+      fish
     ];
+    shellHook = ''
+      mise trust --quiet
+    '';
   };
 
   gitHooks = mkShellWrapperNoCC {
@@ -229,14 +235,10 @@ let
           desktop-file-utils
           golangci-lint
           config-file-validator
-          taplo
           ruff
           # for 'go mod tidy'
           go
           typos
-          # TODO: If the YAML language server gets a CLI I should use that instead:
-          # https://github.com/redhat-developer/yaml-language-server/issues/535
-          yamllint
           editorconfig-checker
           nixpkgs-lint-community
           hjson-go
@@ -256,7 +258,6 @@ let
           nodePackages.prettier
           shfmt
           stylua
-          just
           taplo
           ruff
           # for gofmt
@@ -270,6 +271,8 @@ let
         packages = with pkgs; [
           doctoc
           gomod2nix
+          coreutils
+          markdown2html-converter
         ];
       };
     in
@@ -282,6 +285,10 @@ let
 
       # Runs the checks
       packages = with pkgs; [ lefthook ];
+
+      shellHook = ''
+        export RUFF_CACHE_DIR="$DIRENV_LAYOUT_DIR/ruff-cache"
+      '';
     };
 
   # Everything needed by the VS Code extensions recommended in
@@ -355,8 +362,8 @@ let
         partialPackages.pkill
       ];
       # For extension "ms-python.python". Link python to a stable location so I don't
-      # have to update the python path in VS Code when the nix store path for python
-      # changes.
+      # have to update "python.defaultInterpreterPath" in settings.json when the nix
+      # store path for python changes.
       shellHook = ''
         # python is in <python_directory>/bin/python so 2 dirnames will get me the
         # python directory

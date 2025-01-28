@@ -60,9 +60,9 @@ let
       nix
     ];
     text = ''
-      trap 'echo "Pull failed, run \"just pull\" to try again."' ERR
+      trap 'echo "Pull failed, run \"mise run pull\" to try again."' ERR
 
-      # TODO: So `just` has access to `system-config-apply`, not a great solution
+      # TODO: So `mise` has access to `system-config-apply`, not a great solution
       PATH="${config.system.profile}/sw/bin:$PATH"
       cd "${repositoryDirectory}"
 
@@ -78,11 +78,11 @@ let
           fi
 
           ./scripts/direnv.bash exec . git pull
-          ./scripts/direnv.bash exec . just sync
+          ./scripts/direnv.bash exec . mise run sync
       else
           # Something probably went wrong so we're trying to pull again even
           # though there's nothing to pull. In which case, just sync.
-          ./scripts/direnv.bash exec . just sync
+          ./scripts/direnv.bash exec . mise run sync
       fi
 
       # HACK:

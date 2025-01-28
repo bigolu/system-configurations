@@ -156,7 +156,15 @@ let
       name = programName;
       runtimeInputs = [ pythonEnv ];
       meta.mainProgram = programName;
-      passthru.devShell = final.mkShellWrapperNoCC { packages = [ pythonEnv ]; };
+
+      passthru.devShell = final.mkShellWrapperNoCC {
+        packages = [ pythonEnv ];
+        shellHook = ''
+          export PYTHONPYCACHEPREFIX="$DIRENV_LAYOUT_DIR/python-cache"
+          export MYPY_CACHE_DIR="$DIRENV_LAYOUT_DIR/mypy-cache"
+        '';
+      };
+
       text = ''
         python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
       '';

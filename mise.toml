@@ -1,0 +1,229 @@
+[settings]
+unix_default_inline_shell_args = "bash -o errexit -o nounset -o pipefail -c"
+quiet = true
+# The lefthook job 'sync.system' prompts for my password so I need it needs access to
+# stdin. There may be others that need stdin and since I don't run any tasks in
+# parallel, I'll set this to true for all tasks.
+raw = true
+
+[vars]
+# TODO: For any job that has 'follows' enabled, 'execution_out' needs to be enabled
+# or else nothing will show. I have it off by default so this will enable it. I
+# should open an issue for allowing output to be configured per job, the same way
+# 'follows' is.
+#
+# TODO: According to the lefthook documentation, this variable should _extend_ the
+# output values specified in the config file, but it seems to be overwriting them
+# instead. For now, I'm duplicating the values specified in my config here. I should
+# open an issue.
+lefthook_output_env_var = "LEFTHOOK_OUTPUT='execution_info,execution_out'"
+
+[tasks.help]
+description = "Display task documentation"
+run = '''
+  documentation='docs/tasks.html'
+  opener=''
+
+  # Linux uses xdg-open, macOS uses open
+  if ! opener="$(type -P xdg-open)" && ! opener="$(type -P open)"; then
+    echo "Unable to find a command for opening the documentation so you'll have to open it yourself. Path to documentation: $documentation" >&2
+    exit 1
+  fi
+
+  "$opener" "$documentation"
+'''
+
+[tasks.get-secrets]
+run = '''
+  # GITHUB_TOKEN is for lychee
+  doppler run \
+      --mount "$(mktemp --dry-run --suffix '.env')" \
+      --only-secrets GH_TOKEN \
+      --only-secrets GITHUB_TOKEN \
+      --only-secrets RENOVATE_TOKEN \
+      -- \
+      bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >secrets.env'
+'''
+
+[tasks.bundle]
+description = 'Create a bundle'
+usage = '''
+  long_about """
+    Create a bundle for the specified flake package using the bundler in this \
+    repository.
+  """
+  arg "<flakeref>" help="Flakeref of the package to build e.g. .#shell"
+'''
+run = 'nix bundle --bundler .# {{arg(name="flakeref")}}'
+
+# System Management
+# ------------------------------------------------------------------------------
+
+[tasks.initialize]
+description = 'Initialize the system'
+usage = '''
+  long_about """
+    You only need to run this when you first clone the repository.
+  """
+  arg "<manager>" help="The name of the system manager to use"
+  arg "<configuration>" help="The name of the configuration to apply"
+'''
+run = 'mise run {{arg(name="manager")}} {{arg(name="configuration")}}'
+depends_post = 'force-sync'
+
+[tasks.home-manager]
+hide = true
+run = '''
+  nix run \
+    --impure --expr 'import ./nix/flake-package-set.nix' \
+    home-manager -- switch --flake .#{{arg(name="configuration")}}
+  ./dotfiles/firefox-developer-edition/set-default-browser.bash
+  echo 'Consider syncing COSMIC settings by running `mise run sync-cosmic-to-system`'
+'''
+
+[tasks.nix-darwin]
+hide = true
+run = './scripts/init-nix-darwin.bash #{{arg(name="configuration")}}'
+
+[tasks.pull]
+description = 'Pull changes from the remote and apply them'
+usage = '''
+  long_about """
+    You'll get notifications occasionally if there are changes so there's no need \
+    to run this manually.
+  """
+'''
+run = 'system-config-pull'
+
+[tasks.preview]
+description = 'Preview system config application'
+usage = '''
+  long_about """
+    Show a preview of what changes would be made to the system if you were to apply \
+    with the configuration.
+  """
+'''
+run = 'system-config-preview'
+
+# Checks
+# ------------------------------------------------------------------------------
+
+[tasks.check]
+description = "Report/Fix issues in changed files"
+usage = '''
+  long_about """
+    Run various checks on the code, automatically fixing issues if possible. The \
+    checks are split into different jobs so you don't have to run them all at once. It runs on all files \
+    that differ between the current branch and the default branch, and untracked files. \
+    This is usually what you want since you can assume any files merged into the \
+    default branch have been checked. In case you forget to run it, it also runs during \
+    the git pre-push hook, where it only checks files in the commits that you are about \
+    to push. The list of checks is in lefthook.yaml.
+  """
+  arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run" {
+    choices "generate" "format" "fix-lint" "check-lint" "test"
+  }
+'''
+run = '''
+  joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
+  joined_jobs="${joined_jobs::-1}"
+  # The first git command uses merge-base in case the current branch is behind the
+  # default branch. The second git command prints untracked files
+  { \
+    git diff -z --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"; \
+    git ls-files -z --others --exclude-standard; \
+  } | lefthook run check --files-from-stdin --jobs "$joined_jobs"
+'''
+
+[tasks.check-all]
+description = "Report/Fix issues in all files"
+usage = '''
+  long_about """
+    This is the same as the `check` task, except that it runs on all files. You \
+    should run this if you make changes that affect how any of the checks work. For \
+    example, changing the configuration file for a linter.
+  """
+  arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run" {
+    choices "generate" "format" "fix-lint" "check-lint" "test"
+  }
+'''
+run = '''
+  joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
+  joined_jobs="${joined_jobs::-1}"
+  # The second git command prints untracked files
+  { \
+    git ls-files -z; \
+    git ls-files -z --others --exclude-standard; \
+  } | lefthook run check --files-from-stdin --jobs "$joined_jobs"
+'''
+
+# Syncing
+# ------------------------------------------------------------------------------
+
+[tasks.sync]
+description = "Synchronize your environment with the code"
+usage = '''
+  long_about """
+    Run various jobs to synchronize your environment with the code. Run this anytime \
+    you incorporate someone else's changes. For example, after doing 'git pull' or \
+    checking out someone else's branch. The list of jobs is in lefthook.yaml.
+  """
+'''
+run = '''
+  {{vars.lefthook_output_env_var}} lefthook run sync
+'''
+
+[tasks.force-sync]
+description = "Forcibly synchronize your environment with the code"
+usage = '''
+  long_about """
+    This is the same as the sync recipe above, except that it forces all jobs \
+    specified to run, regardless of what files have changed.
+  """
+  arg "[jobs]" var=#true help="Job to run. If none are passed then all of them will be run"
+  complete "jobs" run="mise run sync-jobs-completion"
+'''
+run = '''
+  joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
+  joined_jobs="${joined_jobs::-1}"
+  {{vars.lefthook_output_env_var}} lefthook run sync --force --jobs "$joined_jobs"
+'''
+
+[tasks.sync-jobs-completion]
+hide = true
+run = '''
+  fish -c 'complete -C "lefthook run sync --jobs "'
+'''
+
+[tasks.sync-cosmic-to-repo]
+run = "./dotfiles/cosmic/sync.bash 'repo'"
+
+[tasks.sync-cosmic-to-system]
+run = "./dotfiles/cosmic/sync.bash 'system'"
+
+# Debugging
+# ------------------------------------------------------------------------------
+
+[tasks.debug]
+description = "Run `nix build` in debug mode"
+usage = '''
+  arg "<flakeref>" help="Flakeref of the package to build e.g. .#shell"
+'''
+run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link {{arg(name="flakeref")}}'
+
+[tasks.debug-ci]
+description = "Run a command in a direnv CI environment"
+usage = '''
+  arg "<dev_shell>" help="The dev shell to use"
+  complete "dev_shell" run="mise run dev-shell-completion"
+  arg "<command>" var=#true var_min=1 help="The command to run"
+'''
+run = '''
+  # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv
+  # doesn't overwrite the dev shell cached in .direnv with the one built here.
+  CI=true DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" nix shell \
+      --ignore-environment \
+      --keep CI --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
+      nixpkgs#direnv nixpkgs#coreutils nixpkgs#bashInteractive nixpkgs#nix \
+      --command direnv exec "$PWD" {{arg(name="command")}}
+'''

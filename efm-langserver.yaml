@@ -18,13 +18,6 @@ tools:
     lint-stdin: true
     lint-formats:
       - "%f:%l:%c:%m"
-  yamllint: &yamllint
-    lint-after-open: true
-    lint-command: "yamllint --strict --format parsable -"
-    lint-source: "yamllint"
-    lint-stdin: true
-    lint-formats:
-      - "%f:%l:%c: [%t%*[a-z]] %m"
   markdownlint-cli2: &markdownlint-cli2
     lint-after-open: true
     lint-command: "markdownlint-cli2 ${INPUT}"
@@ -94,7 +87,7 @@ lint-debounce: 0.5s
 languages:
   yaml:
     - <<: *action-lint
-    - <<: *yamllint
+    - <<: *editorconfig-checker
   markdown:
     - <<: *markdownlint-cli2
   editorconfig:

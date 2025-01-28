@@ -7,4 +7,4 @@ nix/flake-modules/bundler/gozip/gomod2nix.toml
 nix/flake-modules/bundler/gozip/go.sum
 COPYING.txt
 dotfiles/cosmic/config/
-
+docs/tasks.html

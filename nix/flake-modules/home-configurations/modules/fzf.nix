@@ -1,11 +1,15 @@
 {
   lib,
   pkgs,
+  inputs,
   ...
 }:
 let
-  inherit (pkgs) buildEnv fzf;
+  inherit (pkgs) buildEnv;
   inherit (lib) hm;
+  # TODO: v0.58 is buggy for me. I'm not overriding fzf in an overlay because that
+  # would cause too many rebuilds. I'm fine with tools dependent on fzf using v0.58.
+  inherit (inputs.nixpkgs-stable.legacyPackages.${pkgs.system}) fzf;
 
   fzfWithoutShellConfig = buildEnv {
     name = "fzf-without-shell-config";

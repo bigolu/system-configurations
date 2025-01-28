@@ -14,7 +14,7 @@ if test (uname) = Linux
     abbr --add --global icon-reload 'sudo update-icon-caches /usr/share/icons/* ~/.local/share/icons/*'
     # reload the database used to search for applications
     abbr --add --global desktop-entry-reload 'sudo update-desktop-database; update-desktop-database ~/.local/share/applications'
-    abbr --add --global ruhroh 'sudo truncate -s 0 /var/log/syslog'
+    abbr --add --global clear-syslog 'sudo truncate -s 0 /var/log/syslog'
     abbr --add --global font-reload 'fc-cache -vr'
     abbr --add --global open xdg-open
     abbr --add --position anywhere --global pbpaste fish_clipboard_paste
@@ -255,3 +255,6 @@ end
 function elevate
     sudo -- (which run-as-admin) sudo --preserve-env=PATH,SHLVL,HOME --shell
 end
+
+# mise
+abbr --add --global run 'mise run'

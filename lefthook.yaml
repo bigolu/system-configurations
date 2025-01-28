@@ -133,6 +133,7 @@ check:
         - dotfiles/cosmic/config/*
         - flake.lock
         - go.sum
+        - docs/tasks.html
       group:
         jobs:
           - name: generate
@@ -160,6 +161,21 @@ check:
                 - name: flake-lock
                   glob: flake.nix
                   run: ./scripts/run-fix.bash nix flake lock
+                - name: task-docs
+                  glob: mise.toml
+                  # TODO: markdown2html-converter hasn't been updated in a couple
+                  # years. I'd like to switch to markdown-to-html-cli[1], but it
+                  # isn't in nixpkgs. Maybe I can add it or make a request.
+                  # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
+                  run: |
+                    # markdown2html-converter only accepts files that end in .md so I
+                    # can't use process substitution
+                    temp="$(mktemp --suffix '.md')"
+                    mise generate task-docs --style detailed --output "$temp"
+                    ./scripts/run-fix.bash markdown2html-converter \
+                      --force \
+                      --title 'Tasks' \
+                      --html-path docs/tasks.html "$temp"
           - name: fix-lint
             group:
               jobs:
@@ -182,7 +198,6 @@ check:
                   run: ./scripts/run-fix.bash go -C gozip mod tidy
                 - name: typos
                   glob:
-                    - justfile
                     - .editorconfig
                     - .shellcheckrc
                     - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
@@ -209,13 +224,6 @@ check:
                   # --verify confirms that the formatted code parses the same as the
                   # input code.
                   run: ./scripts/run-fix.bash nixfmt --verify {files}
-                - name: just
-                  # TODO: just's builtin formatter currently removes/rearranges
-                  # comments. Until this is fixed I'll disable it:
-                  # https://github.com/casey/just/issues/862.
-                  skip: true
-                  glob: justfile
-                  run: ./scripts/run-fix.bash just --unstable --fmt --justfile {files}
                 - name: stylua
                   glob: "*.lua"
                   run: ./scripts/run-fix.bash stylua {files}
@@ -268,9 +276,6 @@ check:
                       - name: shellcheck
                         glob: "*.{sh,bash}"
                         run: shellcheck {files}
-                      - name: yamllint
-                        glob: "*.yaml"
-                        run: yamllint --strict {files}
                       - name: actionlint
                         glob: ".github/workflows/*.yaml"
                         run: actionlint {files}
@@ -284,7 +289,6 @@ check:
                         run: nixpkgs-lint --include-unfinished-lints -- {files}
                       - name: typos
                         glob:
-                          - justfile
                           - .editorconfig
                           - .shellcheckrc
                           - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
@@ -299,7 +303,7 @@ check:
                         # to comments as well and I don't want it to.
                         run: editorconfig-checker --disable-indent-size {files}
                       - name: config-file-validator
-                        glob: "*.{editorconfig,json,ini}"
+                        glob: "*.{editorconfig,json,ini,yaml,toml}"
                         run: validator -groupby pass-fail {files}
                       - name: commit-message-typos
                         skip:
@@ -315,9 +319,6 @@ check:
                         # to work fine.
                         exclude: ".github/renovate-common-preset.json5"
                         run: renovate-config-validator --strict {files}
-                      - name: taplo
-                        glob: "*.toml"
-                        run: taplo lint {files}
                       - name: hjson
                         glob: "*.hjson"
                         # hjson-cli prints the file in json format to stdout so I'm

@@ -4,11 +4,11 @@
 # that's not in the spec. Until they fix this I'll disable it:
 # https://github.com/prettier/prettier/issues/15956
 [[overrides]]
-  files = ["*.jsonc"]
-  [overrides.options]
-    trailingComma = "none"
+files = ["*.jsonc"]
+[overrides.options]
+trailingComma = "none"
 
 [[overrides]]
-  files = ["*.md"]
-  [overrides.options]
-    proseWrap = "always"
+files = ["*.md"]
+[overrides.options]
+proseWrap = "always"
