@@ -50,6 +50,10 @@ function nix_build_shim {
   local real_nix_build
   real_nix_build="$(get_real_command)"
 
+  if (( ${#nix_args[@]} > 0 )) && [[ ${nix_args[0]} == '--help' ]]; then
+    exec "$real_nix_build" "${nix_args[@]}"
+  fi
+
   exec {stdout_copy}>&1
   exec "$real_nix_build" --log-format internal-json -v "${nix_args[@]}" 2>&1 1>&$stdout_copy | nom --json
 }
@@ -59,6 +63,10 @@ function nix_shell_shim {
 
   local real_nix_shell
   real_nix_shell="$(get_real_command)"
+
+  if (( ${#nix_args[@]} > 0 )) && [[ ${nix_args[0]} == '--help' ]]; then
+    exec "$real_nix_shell" "${nix_args[@]}"
+  fi
 
   exec {stdout_copy}>&1
   exec "$real_nix_shell" --log-format internal-json -v "${nix_args[@]}" 2>&1 1>&$stdout_copy | nom --json
