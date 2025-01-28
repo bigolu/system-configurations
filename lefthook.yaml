@@ -155,7 +155,7 @@ check:
                   glob: flake.nix
                   run: ./scripts/run-fix.bash nix flake lock
                 - name: task-docs
-                  glob: mise.toml
+                  glob: mise/*
                   # TODO: markdown2html-converter hasn't been updated in a couple
                   # years. I'd like to switch to markdown-to-html-cli[1], but it
                   # isn't in nixpkgs. Maybe I can add it or make a request.

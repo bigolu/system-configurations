@@ -22,20 +22,11 @@
   ...
 }:
 let
-  inherit (builtins)
-    readFile
-    match
-    filter
-    elemAt
-    ;
   inherit (utils) projectRoot removeRecurseIntoAttrs;
   inherit (lib)
     pipe
-    splitString
     fileset
     optionalAttrs
-    unique
-    concatLists
     ;
   inherit (pkgs)
     mkShellWrapperNoCC
@@ -151,7 +142,7 @@ let
       mise
       # This is needed for the autocompletion of task arguments
       usage
-      # These get used in mise.toml
+      # These get used in the mise config
       lefthook
       fish
     ];
@@ -174,43 +165,6 @@ let
       lefthook
     ];
   };
-
-  # Having the dependencies for all scripts exposed in the environment makes
-  # debugging them a bit easier. Ideally, there would be a way to temporarily expose
-  # the dependencies of a script. nix-script can do this[1], but I don't use it for
-  # these reasons:
-  #   - It rebuilds the script's dependencies every time the script file changes
-  #   - I couldn't find a way to control the package set that dependencies are pulled
-  #     from. It seems to always use the nixpkgs entry in NIX_PATH.
-  #
-  # [1]: https://github.com/dschrempf/nix-script?tab=readme-ov-file#shell-mode
-  scriptDependencies = pipe (projectRoot + /scripts) [
-    # Get all lines in all scripts
-    lib.filesystem.listFilesRecursive
-    (map readFile)
-    (map (splitString "\n"))
-    concatLists
-
-    # Extract script dependencies from their nix-shell shebangs.
-    #
-    # The shebang looks something like:
-    #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
-    #
-    # So this match will extract everything between the brackets i.e.
-    #   'dep1 dep2 dep3'.
-    (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
-    (filter (matches: matches != null))
-    (map (matches: elemAt matches 1))
-
-    # Flatten the output of the previous match i.e. print _one_
-    # dependency per line
-    (map (splitString " "))
-    concatLists
-
-    unique
-    (map (dependencyName: pkgs.${dependencyName}))
-    (dependencies: mkShellWrapperNoCC { packages = dependencies; })
-  ];
 
   checks =
     let
@@ -382,7 +336,6 @@ in
     taskRunner
     gitHooks
     sync
-    scriptDependencies
     checks
     vsCode
     ;

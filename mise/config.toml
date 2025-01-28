@@ -18,6 +18,11 @@ raw = true
 # open an issue.
 lefthook_output_env_var = "LEFTHOOK_OUTPUT='execution_info,execution_out'"
 
+[task_config]
+# Tasks are run relative to the location of this file. Since I want them to run in
+# the project root, I have to move up one directory.
+dir = ".."
+
 [tasks.help]
 description = "Display task documentation"
 run = '''

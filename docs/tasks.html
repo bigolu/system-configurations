@@ -59,6 +59,14 @@
 <p>The dev shell to use</p>
 <h4><code>&lt;command&gt;...</code></h4>
 <p>The command to run</p>
+<h2><code>debug-script</code></h2>
+<ul>
+<li><strong>Usage</strong>: <code>debug-script &lt;script&gt;</code></li>
+</ul>
+<p>Enter a nix shell with a script's dependencies</p>
+<h3>Arguments</h3>
+<h4><code>&lt;script&gt;</code></h4>
+<p>The path to the script</p>
 <h2><code>force-sync</code></h2>
 <p>This is the same as the sync recipe above, except that it forces all jobs specified to run, regardless of what files have changed.</p>
 <ul>
@@ -67,7 +75,7 @@
 <p>Forcibly synchronize your environment with the code</p>
 <h3>Arguments</h3>
 <h4><code>[jobs]...</code></h4>
-<p>Job to run. If none are passed then all of them will be run</p>
+<p>Jobs to run. If none are passed then all of them will be run</p>
 <h2><code>get-secrets</code></h2>
 <ul>
 <li><strong>Usage</strong>: <code>get-secrets</code></li>
