@@ -137,13 +137,6 @@ check:
       group:
         jobs:
           - name: generate
-            exclude:
-              - gozip/gomod2nix.toml
-              - "*.vscode/*.json"
-              - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
-              - dotfiles/cosmic/config/*
-              - flake.lock
-              - go.sum
             group:
               jobs:
                 - name: readme-table-of-contents
