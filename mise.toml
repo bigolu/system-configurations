@@ -180,7 +180,7 @@ usage = '''
     This is the same as the sync recipe above, except that it forces all jobs \
     specified to run, regardless of what files have changed.
   """
-  arg "[jobs]" var=#true help="Job to run. If none are passed then all of them will be run"
+  arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
   complete "jobs" run="mise run sync-jobs-completion"
 '''
 run = '''
