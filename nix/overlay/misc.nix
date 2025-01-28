@@ -1,16 +1,13 @@
 { inputs, utils }:
 final: prev:
 let
-  inherit (inputs) self;
   inherit (inputs.nixpkgs.lib)
     fileset
     optionalString
     recursiveUpdate
     ;
   inherit (final.stdenv) isDarwin;
-  inherit (utils) projectRoot formatDate;
-
-  flakeLastModifiedDateAsVersion = formatDate self.lastModifiedDate;
+  inherit (utils) projectRoot unstableVersion;
 
   neovimWithDependencies =
     let
@@ -18,7 +15,7 @@ let
 
       dependencies = final.symlinkJoin {
         pname = "neovim-dependencies";
-        version = flakeLastModifiedDateAsVersion;
+        version = unstableVersion;
         paths = with final; [
           # to format comments
           par
@@ -61,7 +58,7 @@ let
     let
       dependencies = final.symlinkJoin {
         pname = "ripgrep-all-dependencies";
-        version = flakeLastModifiedDateAsVersion;
+        version = unstableVersion;
         paths = with final; [
           xlsx2csv
           fastgron
@@ -129,7 +126,7 @@ let
 
   myFonts = final.symlinkJoin {
     pname = "my-fonts";
-    version = flakeLastModifiedDateAsVersion;
+    version = unstableVersion;
     paths = with final; [
       nerd-fonts.symbols-only
       jetbrains-mono
