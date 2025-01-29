@@ -171,7 +171,7 @@ usage = '''
     specified to run, regardless of what files have changed.
   """
   arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
-  complete "jobs" run=#"fish -c 'complete -C "lefthook run sync --jobs "'"#
+  complete "jobs" run=#"fish -c 'complete --do-complete "lefthook run sync --jobs "'"#
 '''
 run = '''
   joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
@@ -199,6 +199,11 @@ run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link 
 description = "Run a command in a direnv CI environment"
 usage = '''
   arg "<dev_shell>" help="The dev shell to use"
+  complete "dev_shell" run=#"""
+    nix eval --impure --raw --apply \
+      'shells: builtins.concatStringsSep "\n" (builtins.attrNames shells)' \
+      .#currentSystem.devShells 2>/dev/null
+  """#
   arg "<command>" var=#true var_min=1 help="The command to run"
 '''
 run = '''
