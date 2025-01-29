@@ -20,7 +20,14 @@ shopt -s inherit_errexit
 function main {
   local -ra fix_command=("$@")
 
-  if did_fix "${fix_command[@]}"; then
+  set +o errexit
+  did_fix "${fix_command[@]}"
+  local -r fix_exit_code=$?
+  set -o errexit
+
+  if ((fix_exit_code == 2)); then
+    exit 1
+  elif ((fix_exit_code == 0)); then
     if [[ ${CI:-} == 'true' ]]; then
       # Print the diff so people can see it in the CI console
       diff_including_untracked
@@ -46,11 +53,17 @@ function main {
   fi
 }
 
+# Exit codes:
+#   0 - a fix was made
+#   1 - no fix was made
+#   2 - unexpected error
 function did_fix {
   local -ra fix_command=("$@")
 
   local -r diff_before_running_fix="$(diff_including_untracked)"
-  "${fix_command[@]}"
+  if ! "${fix_command[@]}"; then
+    return 2
+  fi
   local -r diff_after_running_fix="$(diff_including_untracked)"
 
   [[ $diff_before_running_fix != "$diff_after_running_fix" ]]
