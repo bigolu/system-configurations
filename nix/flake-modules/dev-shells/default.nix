@@ -27,6 +27,7 @@ moduleContext@{ lib, ... }:
           taskRunner
           gitHooks
           sync
+          scriptDependencies
           checks
           vsCode
         ];

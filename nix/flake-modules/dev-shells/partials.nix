@@ -22,11 +22,20 @@
   ...
 }:
 let
+  inherit (builtins)
+    readFile
+    match
+    filter
+    elemAt
+    ;
   inherit (utils) projectRoot removeRecurseIntoAttrs;
   inherit (lib)
     pipe
     fileset
     optionalAttrs
+    unique
+    concatLists
+    splitString
     ;
   inherit (pkgs)
     mkShellWrapperNoCC
@@ -167,6 +176,45 @@ let
       lefthook
     ];
   };
+
+  # This partial contains the dependencies of all scripts. This is useful for two
+  # reasons:
+  #   - Having the dependencies for all scripts exposed in the environment makes
+  #     debugging a bit easier since you can easily call any commands referenced in a
+  #     script.
+  #   - Once the dev shell has been loaded, you can work offline since all the
+  #     dependencies have already been fetched.
+  scriptDependencies =
+    pipe
+      [
+        (projectRoot + /scripts)
+        (projectRoot + /mise/tasks)
+      ]
+      [
+        # Get all lines in all scripts
+        (map lib.filesystem.listFilesRecursive)
+        concatLists
+        (map readFile)
+        (map (splitString "\n"))
+        concatLists
+        # Extract script dependencies from their nix-shell shebangs.
+        #
+        # The shebang looks something like:
+        #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
+        #
+        # So this match will extract everything between the brackets i.e.
+        #   'dep1 dep2 dep3'.
+        (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
+        (filter (matches: matches != null))
+        (map (matches: elemAt matches 1))
+        # Flatten the output of the previous match i.e. print _one_
+        # dependency per line
+        (map (splitString " "))
+        concatLists
+        unique
+        (map (dependencyName: pkgs.${dependencyName}))
+        (dependencies: mkShellWrapperNoCC { packages = dependencies; })
+      ];
 
   checks =
     let
@@ -338,6 +386,7 @@ in
     taskRunner
     gitHooks
     sync
+    scriptDependencies
     checks
     vsCode
     ;
