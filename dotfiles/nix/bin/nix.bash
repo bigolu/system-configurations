@@ -50,7 +50,7 @@ function nix_build_shim {
   local real_nix_build
   real_nix_build="$(get_real_command)"
 
-  if (( ${#nix_args[@]} > 0 )) && [[ ${nix_args[0]} == '--help' ]]; then
+  if ((${#nix_args[@]} > 0)) && [[ ${nix_args[0]} == '--help' ]]; then
     exec "$real_nix_build" "${nix_args[@]}"
   fi
 
@@ -64,7 +64,7 @@ function nix_shell_shim {
   local real_nix_shell
   real_nix_shell="$(get_real_command)"
 
-  if (( ${#nix_args[@]} > 0 )) && [[ ${nix_args[0]} == '--help' ]]; then
+  if ((${#nix_args[@]} > 0)) && [[ ${nix_args[0]} == '--help' ]]; then
     exec "$real_nix_shell" "${nix_args[@]}"
   fi
 

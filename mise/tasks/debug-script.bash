@@ -4,6 +4,7 @@
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter ripgrep]"
 #MISE description="Enter a nix shell with a script's dependencies"
 #USAGE arg "<script>" help="The path to the script"
+#USAGE complete "script" run=#"fd --extension 'bash' --glob '*' scripts mise/tasks"#
 
 set -o errexit
 set -o nounset

@@ -23,21 +23,6 @@ lefthook_output_env_var = "LEFTHOOK_OUTPUT='execution_info,execution_out'"
 # the project root, I have to move up one directory.
 dir = ".."
 
-[tasks.help]
-description = "Display task documentation"
-run = '''
-  documentation='docs/tasks.html'
-  opener=''
-
-  # Linux uses xdg-open, macOS uses open
-  if ! opener="$(type -P xdg-open)" && ! opener="$(type -P open)"; then
-    echo "Unable to find a command for opening the documentation so you'll have to open it yourself. Path to documentation: $documentation" >&2
-    exit 1
-  fi
-
-  "$opener" "$documentation"
-'''
-
 [tasks.get-secrets]
 run = '''
   # GITHUB_TOKEN is for lychee
@@ -186,18 +171,12 @@ usage = '''
     specified to run, regardless of what files have changed.
   """
   arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
-  complete "jobs" run="mise run sync-jobs-completion"
+  complete "jobs" run=#"fish -c 'complete -C "lefthook run sync --jobs "'"#
 '''
 run = '''
   joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
   joined_jobs="${joined_jobs::-1}"
   {{vars.lefthook_output_env_var}} lefthook run sync --force --jobs "$joined_jobs"
-'''
-
-[tasks.sync-jobs-completion]
-hide = true
-run = '''
-  fish -c 'complete -C "lefthook run sync --jobs "'
 '''
 
 [tasks.sync-cosmic-to-repo]
@@ -220,7 +199,6 @@ run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link 
 description = "Run a command in a direnv CI environment"
 usage = '''
   arg "<dev_shell>" help="The dev shell to use"
-  complete "dev_shell" run="mise run dev-shell-completion"
   arg "<command>" var=#true var_min=1 help="The command to run"
 '''
 run = '''
