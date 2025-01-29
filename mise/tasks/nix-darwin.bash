@@ -2,12 +2,18 @@
 #! nix-shell --keep FLAKE_PACKAGE_SET_FILE
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter curl coreutils darwin-rebuild]"
+#MISE hide=true
+#USAGE arg "<configuration>"
 
 set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
+
+# Mise sets these variables, but we're doing this so shellcheck doesn't warn us that
+# they may be unset: https://www.shellcheck.net/wiki/SC2154
+declare usage_configuration
 
 if ! [[ -x /usr/local/bin/brew ]]; then
   # Install homebrew. Source: https://brew.sh/
@@ -20,6 +26,6 @@ hash_file='nix/flake-modules/darwin-configurations/nix-conf-hash.txt'
 # information in the comment where this file is read.
 shasum -a 256 /etc/nix/nix.conf | cut -d ' ' -f 1 >"$hash_file"
 
-darwin-rebuild switch --flake .#"$1"
+darwin-rebuild switch --flake .#"$usage_configuration"
 
 git checkout -- "$hash_file"

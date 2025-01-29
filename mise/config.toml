@@ -71,10 +71,6 @@ run = '''
   echo 'Consider syncing COSMIC settings by running `mise run sync-cosmic-to-system`'
 '''
 
-[tasks.nix-darwin]
-hide = true
-run = './scripts/init-nix-darwin.bash #{{arg(name="configuration")}}'
-
 [tasks.system-pull]
 description = 'Pull changes from the remote and apply them'
 usage = '''
@@ -178,12 +174,6 @@ run = '''
   joined_jobs="${joined_jobs::-1}"
   {{vars.lefthook_output_env_var}} lefthook run sync --force --jobs "$joined_jobs"
 '''
-
-[tasks.sync-cosmic-to-repo]
-run = "./dotfiles/cosmic/sync.bash 'repo'"
-
-[tasks.sync-cosmic-to-system]
-run = "./dotfiles/cosmic/sync.bash 'system'"
 
 # Debugging
 # ------------------------------------------------------------------------------
