@@ -21,10 +21,8 @@ readarray -t dependencies < <(
   # The shebang looks something like:
   #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
   #
-  # So this command will extract everything between the brackets i.e.
+  # This command will extract everything between the brackets i.e.
   #   'dep1 dep2 dep3'.
-  #
-  # Each line printed will contain the extraction above, per script.
   rg \
     --no-filename \
     --glob '*.bash' \
@@ -32,8 +30,9 @@ readarray -t dependencies < <(
     --replace '$packages' \
     "$usage_script" \
     |
-    # Flatten the output of the previous command i.e. print _one_ dependency per line
-    rg --only-matching '[^\s]+'
+    # This command matches 1 or more consecutive characters that aren't spaces
+    # so it will print each dependency on a different line.
+    rg --only-matching '[^ ]+'
 )
 
 nix shell --impure --expr 'import ./nix/flake-package-set.nix' "${dependencies[@]}"
