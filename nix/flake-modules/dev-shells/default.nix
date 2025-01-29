@@ -5,13 +5,37 @@ moduleContext@{ lib, ... }:
     let
       inherit (builtins) listToAttrs;
       inherit (pkgs) mkShellWrapperNoCC;
-      inherit (lib) nameValuePair pipe;
+      inherit (lib)
+        nameValuePair
+        pipe
+        hasPrefix
+        optionalAttrs
+        ;
 
       partials = import ./partials.nix (moduleContext // perSystemContext);
+
+      makeShell =
+        spec@{
+          inputsFrom ? [ ],
+          name,
+          ...
+        }:
+        mkShellWrapperNoCC (
+          spec
+          // optionalAttrs (hasPrefix "ci-" name) {
+            inputsFrom =
+              inputsFrom
+              ++ (with partials; [
+                ciSetup
+                scriptInterpreter
+              ]);
+          }
+        );
+
       makeDevShellOutputs =
         shellSpecs:
         pipe shellSpecs [
-          (map (spec: nameValuePair spec.name (mkShellWrapperNoCC spec)))
+          (map (spec: nameValuePair spec.name (makeShell spec)))
           listToAttrs
           (shells: shells // { default = shells.local; })
           (shells: { devShells = shells; })
@@ -33,22 +57,15 @@ moduleContext@{ lib, ... }:
         ];
       }
 
-      {
-        name = "ci-essentials";
-        inputsFrom = with partials; [ ciEssentials ];
-      }
+      { name = "ci-essentials"; }
 
       {
         name = "ci-check-pull-request";
-        inputsFrom = with partials; [
-          ciEssentials
-          checks
-        ];
+        inputsFrom = with partials; [ checks ];
       }
 
       {
         name = "ci-renovate";
-        inputsFrom = with partials; [ ciEssentials ];
         packages = with pkgs; [ renovate ];
         shellHook = ''
           export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"

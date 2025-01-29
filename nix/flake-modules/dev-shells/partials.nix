@@ -1,8 +1,6 @@
 # The function returns a map of dev shells that I call "partials" since they
 # represent parts of a full dev shell. Partials can be included in a full dev shell
-# using the `inputsFrom` argument for `mkShell`. They're similar to devcontainer
-# "features"[1], except these are specific to a project. I use partials for these
-# reasons:
+# using the `inputsFrom` argument for `mkShell`. I use partials for these reasons:
 #   - Allows parts of a dev shell to be shared between two shells. For example, I can
 #     put all the dependencies for checks (linters, formatters, etc.) in a partial
 #     and include that partial in both the local development and CI dev shells. This
@@ -12,8 +10,6 @@
 #   - Makes it easier to provide alternate dev shells without certain partials. For
 #     example, people that don't use VS Code may not want the partial that provides
 #     dependencies for it.
-#
-# [1]: https://containers.dev/implementors/features/
 
 {
   utils,
@@ -110,8 +106,7 @@ let
       shellHook = flakePackageSetHook;
     };
 
-  # This should be included in every dev shell that's used in CI.
-  ciEssentials =
+  ciSetup =
     let
       # Nix recommends setting this for non-NixOS Linux distributions[1] and
       # Ubuntu is used in CI.
@@ -125,7 +120,6 @@ let
     in
     mkShellWrapperNoCC (
       {
-        inputsFrom = [ scriptInterpreter ];
         packages = [ pkgs.ci-bash ];
       }
       // optionalAttrs isLinux {
@@ -219,12 +213,6 @@ let
   checks =
     let
       linting = mkShellWrapperNoCC {
-        inputsFrom = [
-          # For mypy. Also for the python libraries used by speakerctl so mypy can
-          # factor in their types as well.
-          speakerctl
-        ];
-
         packages = with pkgs; [
           actionlint
           deadnix
@@ -300,8 +288,6 @@ let
   vsCode =
     let
       efmLs = mkShellWrapperNoCC {
-        # Include checks since it has the linters
-        inputsFrom = [ checks ];
         packages = with pkgs; [
           efm-langserver
 
@@ -342,9 +328,6 @@ let
         efmLs
         # For "sumneko.lua"
         luaLs
-        # For "ms-python.mypy-type-checker", it needs mypy. Also for the python
-        # libraries used by speakerctl so mypy can factor in their types as well.
-        speakerctl
       ];
       packages = with pkgs; [
         # For "golang.go"
@@ -380,7 +363,7 @@ in
 {
   inherit
     scriptInterpreter
-    ciEssentials
+    ciSetup
     speakerctl
     gozip
     taskRunner

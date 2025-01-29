@@ -7,42 +7,13 @@ let
     hasAttr
     ;
   inherit (final.lib)
-    unique
-    concatLists
     pipe
     optionalAttrs
     escapeShellArg
     concatStringsSep
     splitString
+    concatLists
     ;
-
-  # De-Duplicate inputsFrom so you can compose your shell of smaller shells without
-  # worrying about shellHooks running more than once.
-  #
-  # TODO: See if upstream thinks this behavior should be added to mkShell
-  dedupInputsFrom =
-    args@{
-      inputsFrom ? [ ],
-      ...
-    }:
-    let
-      # This key will be added to the shell to keep track of the inputsFrom, in case
-      # we need to merge this shell with another shell.
-      uniqueInputsFromKey = "_inputsFrom";
-
-      shellWithoutInputsFrom = mkShell (removeAttrs args [ "inputsFrom" ]);
-
-      uniqueInputsFrom = pipe inputsFrom [
-        (catAttrs uniqueInputsFromKey)
-        concatLists
-        unique
-      ];
-    in
-    args
-    // {
-      inputsFrom = uniqueInputsFrom;
-      "passthru".${uniqueInputsFromKey} = uniqueInputsFrom ++ [ shellWithoutInputsFrom ];
-    };
 
   # Prevent nested nix shells from executing this shell's hook:
   # https://git.lix.systems/lix-project/lix/issues/344
@@ -54,6 +25,15 @@ let
       ...
     }:
     let
+      # This key will be added to the shell to keep track of the inputsFrom, in case
+      # we need to merge this shell with another shell.
+      uniqueInputsFromKey = "_inputsFrom";
+
+      newInputsFrom = pipe inputsFrom [
+        (catAttrs uniqueInputsFromKey)
+        concatLists
+      ];
+
       escapedName = escapeShellArg name;
 
       indent =
@@ -65,7 +45,7 @@ let
         ];
 
       allShellHooks = pipe args [
-        (args: inputsFrom ++ [ args ])
+        (args: newInputsFrom ++ [ args ])
         (catAttrs "shellHook")
         (filter (hook: hook != ""))
         (concatStringsSep "\n")
@@ -85,17 +65,19 @@ let
         safe_shell_hook
       '';
 
-      inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
+      shellWithoutInputsFrom = mkShell (removeAttrs args [ "inputsFrom" ]);
+
+      newInputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) newInputsFrom;
     in
     args
     // {
       shellHook = safeShellHook;
-      inputsFrom = inputsFromWithoutShellHooks;
+      inputsFrom = newInputsFromWithoutShellHooks;
+      "passthru".${uniqueInputsFromKey} = newInputsFrom ++ [ shellWithoutInputsFrom ];
     }
     // optionalAttrs (!hasAttr "name" args) { inherit name; };
 in
 pipe args [
-  dedupInputsFrom
   makeSafeShellHook
   mkShell
 ]
