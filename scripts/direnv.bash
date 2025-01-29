@@ -3,8 +3,8 @@
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"
 
-# This script is for running direnv commands. It handles things that need to be done
-# before running direnv:
+# This script is for running direnv commands or just loading the direnv environment.
+# It handles things that need to be done before running direnv:
 #   - Get direnv and Bash, using the nix-shell shebang at the top
 #   - Copy the sample .envrc to where direnv expects it to be
 #   - Run `direnv allow`
@@ -32,8 +32,14 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+direnv_args=("$@")
+
 if [[ ! -e .envrc ]]; then
   cp direnv/envrc-sample.bash .envrc
 fi
+
 direnv allow .
-direnv "$@"
+
+if ((${#direnv_args[@]} > 0)); then
+  direnv "$@"
+fi
