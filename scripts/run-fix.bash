@@ -15,6 +15,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 function main {
   local -ra fix_command=("$@")

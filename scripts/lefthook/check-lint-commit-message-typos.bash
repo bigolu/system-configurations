@@ -7,6 +7,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # I'm using the merge-base in case the current branch is behind the default branch.
 readarray -t commits_to_check \

@@ -4,6 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # `djvused -e 'print-pure-txt'` adds page breaks for blank pages, but
 # also for each non-page file included in the djvu file (shared image or

@@ -7,6 +7,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 if ! [[ -x /usr/local/bin/brew ]]; then
   # Install homebrew. Source: https://brew.sh/

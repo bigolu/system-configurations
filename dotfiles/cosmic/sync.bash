@@ -4,6 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 if [[ $1 == 'repo' ]]; then
   rsync --recursive ~/.config/cosmic/ dotfiles/cosmic/config/

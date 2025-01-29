@@ -4,6 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # argument one should be a direction: east, west, north, south
 (($# > 0))

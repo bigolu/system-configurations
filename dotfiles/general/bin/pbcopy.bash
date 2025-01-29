@@ -7,6 +7,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # If we are SSH'd into a remote machine then use the host terminal.
 if [[ -n ${SSH_TTY-} ]]; then

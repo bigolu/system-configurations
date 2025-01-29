@@ -4,6 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # Need sudo since nix won't show a user the PID of processes it doesn't own
 readarray -t roots \

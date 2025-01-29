@@ -30,6 +30,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 if [[ ! -e .envrc ]]; then
   cp direnv/envrc-sample.bash .envrc

@@ -4,6 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 red='\e[1;31m'
 green='\e[1;32m'

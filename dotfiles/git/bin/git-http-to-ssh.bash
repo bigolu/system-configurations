@@ -4,6 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # See if remote url end in '.git'
 if git config --get remote.origin.url | grep -P '\.git$' >/dev/null; then

@@ -7,6 +7,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 version="$(nix eval --impure --expr '(import ./nix/flake-package-set.nix).nix.version' --raw)"
 sed --regexp-extended --in-place \

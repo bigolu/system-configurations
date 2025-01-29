@@ -10,6 +10,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # Mise sets these variables, but we're doing this so shellcheck doesn't warn us that
 # they may be unset: https://www.shellcheck.net/wiki/SC2154

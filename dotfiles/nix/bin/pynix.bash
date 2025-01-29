@@ -4,6 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 # Lets me starts a nix shell with python and the specified python packages.
 # Example: `pynix requests marshmallow`

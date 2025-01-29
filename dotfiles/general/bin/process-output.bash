@@ -7,6 +7,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
+shopt -s inherit_errexit
 
 if (($# == 0)); then
   echo "Invalid usage. Correct usage: $(basename "$0") <pid>" >&2
