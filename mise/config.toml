@@ -49,7 +49,7 @@ run = 'nix bundle --bundler .# {{arg(name="flakeref")}}'
 # System Management
 # ------------------------------------------------------------------------------
 
-[tasks.initialize]
+[tasks.system-init]
 description = 'Initialize the system'
 usage = '''
   long_about """
@@ -75,7 +75,7 @@ run = '''
 hide = true
 run = './scripts/init-nix-darwin.bash #{{arg(name="configuration")}}'
 
-[tasks.pull]
+[tasks.system-pull]
 description = 'Pull changes from the remote and apply them'
 usage = '''
   long_about """
@@ -85,7 +85,7 @@ usage = '''
 '''
 run = 'system-config-pull'
 
-[tasks.preview]
+[tasks.system-preview]
 description = 'Preview system config application'
 usage = '''
   long_about """
@@ -163,11 +163,11 @@ run = '''
   {{vars.lefthook_output_env_var}} lefthook run sync
 '''
 
-[tasks.force-sync]
+[tasks.sync-force]
 description = "Forcibly synchronize your environment with the code"
 usage = '''
   long_about """
-    This is the same as the sync recipe above, except that it forces all jobs \
+    This is the same as the `sync` task, except that it forces all jobs \
     specified to run, regardless of what files have changed.
   """
   arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"

@@ -67,15 +67,6 @@
 <h3>Arguments</h3>
 <h4><code>&lt;script&gt;</code></h4>
 <p>The path to the script</p>
-<h2><code>force-sync</code></h2>
-<p>This is the same as the sync recipe above, except that it forces all jobs specified to run, regardless of what files have changed.</p>
-<ul>
-<li><strong>Usage</strong>: <code>force-sync [jobs]...</code></li>
-</ul>
-<p>Forcibly synchronize your environment with the code</p>
-<h3>Arguments</h3>
-<h4><code>[jobs]...</code></h4>
-<p>Jobs to run. If none are passed then all of them will be run</p>
 <h2><code>get-secrets</code></h2>
 <ul>
 <li><strong>Usage</strong>: <code>get-secrets</code></li>
@@ -85,29 +76,6 @@
 <li><strong>Usage</strong>: <code>help</code></li>
 </ul>
 <p>Display task documentation</p>
-<h2><code>initialize</code></h2>
-<p>You only need to run this when you first clone the repository.</p>
-<ul>
-<li><strong>Usage</strong>: <code>initialize &lt;manager&gt; &lt;configuration&gt;</code></li>
-</ul>
-<p>Initialize the system</p>
-<h3>Arguments</h3>
-<h4><code>&lt;manager&gt;</code></h4>
-<p>The name of the system manager to use</p>
-<h4><code>&lt;configuration&gt;</code></h4>
-<p>The name of the configuration to apply</p>
-<h2><code>preview</code></h2>
-<p>Show a preview of what changes would be made to the system if you were to apply with the configuration.</p>
-<ul>
-<li><strong>Usage</strong>: <code>preview</code></li>
-</ul>
-<p>Preview system config application</p>
-<h2><code>pull</code></h2>
-<p>You'll get notifications occasionally if there are changes so there's no need to run this manually.</p>
-<ul>
-<li><strong>Usage</strong>: <code>pull</code></li>
-</ul>
-<p>Pull changes from the remote and apply them</p>
 <h2><code>sync</code></h2>
 <p>Run various jobs to synchronize your environment with the code. Run this anytime you incorporate someone else's changes. For example, after doing 'git pull' or checking out someone else's branch. The list of jobs is in lefthook.yaml.</p>
 <ul>
@@ -122,4 +90,36 @@
 <ul>
 <li><strong>Usage</strong>: <code>sync-cosmic-to-system</code></li>
 </ul>
+<h2><code>sync-force</code></h2>
+<p>This is the same as the <code>sync</code> task, except that it forces all jobs specified to run, regardless of what files have changed.</p>
+<ul>
+<li><strong>Usage</strong>: <code>sync-force [jobs]...</code></li>
+</ul>
+<p>Forcibly synchronize your environment with the code</p>
+<h3>Arguments</h3>
+<h4><code>[jobs]...</code></h4>
+<p>Jobs to run. If none are passed then all of them will be run</p>
+<h2><code>system-init</code></h2>
+<p>You only need to run this when you first clone the repository.</p>
+<ul>
+<li><strong>Usage</strong>: <code>system-init &lt;manager&gt; &lt;configuration&gt;</code></li>
+</ul>
+<p>Initialize the system</p>
+<h3>Arguments</h3>
+<h4><code>&lt;manager&gt;</code></h4>
+<p>The name of the system manager to use</p>
+<h4><code>&lt;configuration&gt;</code></h4>
+<p>The name of the configuration to apply</p>
+<h2><code>system-preview</code></h2>
+<p>Show a preview of what changes would be made to the system if you were to apply with the configuration.</p>
+<ul>
+<li><strong>Usage</strong>: <code>system-preview</code></li>
+</ul>
+<p>Preview system config application</p>
+<h2><code>system-pull</code></h2>
+<p>You'll get notifications occasionally if there are changes so there's no need to run this manually.</p>
+<ul>
+<li><strong>Usage</strong>: <code>system-pull</code></li>
+</ul>
+<p>Pull changes from the remote and apply them</p>
 </article><script>document.getElementsByClassName("markdown-body")[0].style.fontFamily='CJK';var code=document.getElementsByTagName("code");for(var i=0;i<code.length;++i){code[i].style.fontFamily='CJK MONO'}</script></body></html>

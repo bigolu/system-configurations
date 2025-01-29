@@ -85,13 +85,13 @@ format "\<config_name> / \<platform>":
    - Linux
 
      1. Apply a Home Manager configuration by running
-        `mise run initialize home-manager <config_name>` where `<config_name>`
+        `mise run system-init home-manager <config_name>` where `<config_name>`
         is any compatible config from the [config list](#configs).
 
    - macOS
 
      1. Apply a nix-darwin configuration by running
-        `mise run initialize nix-darwin <config_name>` where `<config_name>` is
+        `mise run system-init nix-darwin <config_name>` where `<config_name>` is
         any compatible config from the [config list](#configs).
 
      2. Keyboard:
