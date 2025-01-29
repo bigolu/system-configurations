@@ -51,7 +51,6 @@ let
               [
                 "flake.nix"
                 "flake.lock"
-                "default.nix"
                 "nix"
               ]
               [
@@ -82,10 +81,13 @@ let
           # using the -I flag in the script shebang, but I don't do that since I
           # would have to hardcode the path to nixpkgs.nix in every script.
           #
-          # I'm not setting this locally so comma still works[1]. If I did set it,
-          # then comma would use this nixpkgs instead of the one for my system. Even
-          # if I were ok with that, I didn't build an index for this nixpkgs so comma
-          # wouldn't be able to use it anyway.
+          # I'm not setting this locally so comma still works[1]. If I did
+          # set it, then comma would use this nixpkgs instead of the one for
+          # my system. Even if I were ok with that, I didn't build an index
+          # for this nixpkgs so comma wouldn't be able to use it anyway. The
+          # consequence of this is that the user's nixpkgs will be used instead,
+          # but that shouldn't be a problem unless a breaking change is made to
+          # runCommand.
           #
           # [1]: https://github.com/nix-community/comma
           if is_running_in_ci; then

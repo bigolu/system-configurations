@@ -1,8 +1,1 @@
-# direnv
-.direnv/
-.envrc
-
-# macOS
 .DS_Store
-
-secrets.env

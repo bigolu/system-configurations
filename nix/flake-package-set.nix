@@ -3,4 +3,4 @@
 # the flake, like nix-shell shebangs, can use the same packages.
 #
 # [1]: https://flake.parts/module-arguments.html?highlight=pkgs#pkgs
-(import ../default.nix).currentSystem.allModuleArgs.pkgs
+(import ./flake-compat.nix).currentSystem.allModuleArgs.pkgs

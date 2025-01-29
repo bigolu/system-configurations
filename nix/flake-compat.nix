@@ -7,7 +7,7 @@
 # [2]: https://github.com/NixOS/nix/issues/3121
 (import (
   let
-    lock = builtins.fromJSON (builtins.readFile ./flake.lock);
+    lock = builtins.fromJSON (builtins.readFile ../flake.lock);
   in
   fetchTarball {
     url =
@@ -15,4 +15,4 @@
         or "https://github.com/edolstra/flake-compat/archive/${lock.nodes.flake-compat.locked.rev}.tar.gz";
     sha256 = lock.nodes.flake-compat.locked.narHash;
   }
-) { src = ./.; }).defaultNix
+) { src = ../.; }).defaultNix

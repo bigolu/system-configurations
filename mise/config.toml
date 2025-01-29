@@ -32,7 +32,7 @@ run = '''
       --only-secrets GITHUB_TOKEN \
       --only-secrets RENOVATE_TOKEN \
       -- \
-      bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >secrets.env'
+      bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >"${DIRENV_LAYOUT_DIR}/secrets.env"'
 '''
 
 [tasks.bundle]

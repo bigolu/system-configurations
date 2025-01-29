@@ -1,5 +1,5 @@
 let
-  flake = import ../default.nix;
+  flake = import ./flake-compat.nix;
   inherit (flake.inputs.nixpkgs) lib;
   inherit (flake) outputs;
   inherit (builtins) concatStringsSep attrNames;

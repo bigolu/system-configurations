@@ -25,16 +25,16 @@
       },
       "options": {
         "bigmac": {
-          "expr": "(import ./default.nix).darwinConfigurations.bigmac.options",
+          "expr": "(import ./nix/flake-compat.nix).darwinConfigurations.bigmac.options",
         },
         "desktop": {
-          "expr": "(import ./default.nix).homeConfigurations.desktop.options",
+          "expr": "(import ./nix/flake-compat.nix).homeConfigurations.desktop.options",
         },
         "flake-parts": {
-          "expr": "(import ./default.nix).debug.options",
+          "expr": "(import ./nix/flake-compat.nix).debug.options",
         },
         "flake-parts-per-system": {
-          "expr": "(import ./default.nix).currentSystem.options",
+          "expr": "(import ./nix/flake-compat.nix).currentSystem.options",
         },
       },
     },
