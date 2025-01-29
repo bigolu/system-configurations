@@ -20,14 +20,9 @@ shopt -s inherit_errexit
 function main {
   local -ra fix_command=("$@")
 
-  set +o errexit
-  did_fix "${fix_command[@]}"
-  local -r fix_exit_code=$?
-  set -o errexit
-
-  if ((fix_exit_code == 2)); then
-    exit 1
-  elif ((fix_exit_code == 0)); then
+  local fix_result
+  fix_result="$(did_fix "${fix_command[@]}")"
+  if [[ $fix_result == 'true' ]]; then
     if [[ ${CI:-} == 'true' ]]; then
       # Print the diff so people can see it in the CI console
       diff_including_untracked
@@ -53,20 +48,26 @@ function main {
   fi
 }
 
-# Exit codes:
-#   0 - a fix was made
-#   1 - no fix was made
-#   2 - unexpected error
+# Prints 'true' if a fix was made or 'false' if a fix was not made
 function did_fix {
   local -ra fix_command=("$@")
 
-  local -r diff_before_running_fix="$(diff_including_untracked)"
-  if ! "${fix_command[@]}"; then
-    return 2
-  fi
-  local -r diff_after_running_fix="$(diff_including_untracked)"
+  local diff_before_running_fix
+  diff_before_running_fix="$(diff_including_untracked)"
 
-  [[ $diff_before_running_fix != "$diff_after_running_fix" ]]
+  "${fix_command[@]}"
+
+  local diff_after_running_fix
+  diff_after_running_fix="$(diff_including_untracked)"
+
+  local result=''
+  if [[ $diff_before_running_fix != "$diff_after_running_fix" ]]; then
+    result='true'
+  else
+    result='false'
+  fi
+
+  echo "$result"
 }
 
 # I include untracked files in case a fix command creates new files, like a code
