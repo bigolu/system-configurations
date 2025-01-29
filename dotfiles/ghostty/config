@@ -8,6 +8,7 @@ focus-follows-mouse = true
 font-family = "JetBrains Mono NL"
 quit-after-last-window-closed = true
 theme = dark:bigolu-dark,light:bigolu-light
+app-notifications = no-clipboard-copy
 
 window-padding-balance = true
 window-padding-color = extend
