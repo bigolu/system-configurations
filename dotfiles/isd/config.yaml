@@ -1,0 +1,59 @@
+# Auto refresh the preview unit _and_ unit states of selected units.
+# Example: When a selected unit changes from running to failed
+# the unit state color and preview window will be updated after this
+# time has passed, even if _nothing_ is pressed.
+preview_and_selection_refresh_interval_sec: 2
+
+# Auto refresh all unit states.
+# This is important to find new units that have been added
+# since the start of `isd`.
+# Please note that low values will cause many and large systemctl calls.
+full_refresh_interval_sec: 10
+
+theme: "flexoki"
+
+generic_keybindings:
+  toggle_systemctl_modal: "ctrl+s"
+  open_config: "alt+e"
+
+# These keybindings must be unique across the entire application.
+main_keybindings:
+  next_preview_tab: "ctrl+right_square_bracket"
+  previous_preview_tab: "ctrl+left_square_bracket"
+  clear_input: "backspace,ctrl+u"
+  jump_to_input: "slash"
+  copy_unit_path: "y"
+  open_preview_in_pager: "enter"
+  open_preview_in_editor: "ctrl+e"
+  toggle_mode: "ctrl+t"
+
+# These will be applied to _all_ widgets that have any navigational component.
+# To avoid confusion, these must be unique across the entire application; even
+# if a given widget does not have horizontal navigation.
+navigation_keybindings:
+  page_down: "ctrl+down,ctrl+j"
+  page_up: "ctrl+up,ctrl+k"
+  page_left: "ctrl+left,ctrl+h"
+  page_right: "ctrl+right,ctrl+l"
+  top: "ctrl+shift+up,ctrl+shift+k"
+  bottom: "ctrl+shift+down,ctrl+shift+j"
+
+# List of configurable systemctl subcommand keybindings.
+# The exact subcommand (including arguments) can be defined by setting `command`.
+# The `modal_keybinding`s provide the shortcut key(s)
+# for the modal action window.
+# Optionally, `direct_keybinding`s can be configured to
+# immediately trigger the systemctl action from the main screen
+# without having to open the modal first.
+#
+# The description is used to describe the subcommand
+# in the `CommandPalette`
+systemctl_commands:
+  - command: "stop"
+    modal_keybinding: "o"
+    direct_keybinding: null
+    description: "Stop unit(s)"
+  - command: "restart"
+    modal_keybinding: "s"
+    direct_keybinding: "ctrl+r"
+    description: "Restart unit(s)"

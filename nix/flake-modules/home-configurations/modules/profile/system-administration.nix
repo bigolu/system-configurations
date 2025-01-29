@@ -82,6 +82,7 @@ in
         }
         // optionalAttrs isLinux {
           "pipr/pipr.toml".source = "pipr/pipr.toml";
+          "isd/config.yaml".source = "isd/config.yaml";
         };
 
       # The programs store files according to the XDG Base Directory spec[1] on Linux
