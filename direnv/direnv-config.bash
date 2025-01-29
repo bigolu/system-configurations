@@ -18,7 +18,7 @@ function main {
   enable_manual_reload
   create_layout_dir
   create_gitignore
-  dotenv_if_exists secrets.env
+  dotenv_if_exists "${DIRENV_LAYOUT_DIR}/secrets.env"
   set_up_nix
 }
 
