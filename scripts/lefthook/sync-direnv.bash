@@ -21,7 +21,7 @@ function main {
 
 # Prints the store path for the dev shell that is currently cached by nix-direnv.
 function get_dev_shell_store_path {
-  flake_profile="$(fd --type symlink --exclude '*.rc' 'flake-profile-.*' .direnv)"
+  flake_profile="$(fd --no-ignore --type symlink --exclude '*.rc' 'flake-profile-.*' .direnv)"
   readlink --canonicalize "$flake_profile"
 }
 
