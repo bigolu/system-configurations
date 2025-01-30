@@ -39,12 +39,12 @@ run = '''
 description = 'Create a bundle'
 usage = '''
   long_about """
-    Create a bundle for the specified flake package using the bundler in this \
+    Create a bundle for the specified package using the bundler in this \
     repository.
   """
-  arg "<flakeref>" help="Flakeref of the package to build e.g. .#shell"
+  arg "<package>" help="The package to build e.g. .#shell"
 '''
-run = 'nix bundle --bundler .# {{arg(name="flakeref")}}'
+run = 'nix bundle --bundler .# {{arg(name="package")}}'
 
 # System Management
 # ------------------------------------------------------------------------------
@@ -65,8 +65,8 @@ depends_post = 'force-sync'
 hide = true
 run = '''
   nix run \
-    --impure --expr 'import ./nix/flake-package-set.nix' \
-    home-manager -- switch --flake .#{{arg(name="configuration")}}
+    --file nix/flake-package-set.nix -- \
+    home-manager switch --flake .#{{arg(name="configuration")}}
   ./dotfiles/firefox-developer-edition/set-default-browser.bash
   echo 'Consider syncing COSMIC settings by running `mise run sync-cosmic-to-system`'
 '''
@@ -181,9 +181,9 @@ run = '''
 [tasks.debug]
 description = "Run `nix build` in debug mode"
 usage = '''
-  arg "<flakeref>" help="Flakeref of the package to build e.g. .#shell"
+  arg "<package>" help="The package to build e.g. .#shell"
 '''
-run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link {{arg(name="flakeref")}}'
+run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link {{arg(name="package")}}'
 
 [tasks.debug-ci]
 description = "Run a command in a direnv CI environment"

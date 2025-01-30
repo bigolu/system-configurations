@@ -9,7 +9,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-version="$(nix eval --impure --expr '(import ./nix/flake-package-set.nix).nix.version' --raw)"
+version="$(nix eval --raw --file nix/flake-package-set.nix 'nix.version')"
 sed --regexp-extended --in-place \
   "s/\/nix-[0-9]+(\.[0-9]+){0,2}/\/nix-$version/g" \
   README.md
