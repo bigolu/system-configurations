@@ -17,6 +17,11 @@ colors:
 output:
   - execution_info
 
+commit-msg:
+  jobs:
+    - name: typos
+      run: typos {1}
+
 pre-commit:
   jobs:
     - name: check
@@ -301,14 +306,6 @@ check:
                       - name: config-file-validator
                         glob: "*.{editorconfig,json,ini,yaml,toml}"
                         run: validator -groupby pass-fail {files}
-                      - name: commit-message-typos
-                        skip:
-                          # Don't run in CI since this check isn't required. It isn't
-                          # required because there's no easy way to ignore false
-                          # positives in a commit message e.g. "no qa".
-                          - run: >
-                              [ "$CI" = true ]
-                        run: ./scripts/lefthook/check-lint-commit-message-typos.bash
                       - name: renovate-config-validator
                         glob: ".github/renovate*.json5"
                         # TODO: The validator says this file is invalid, but it seems
