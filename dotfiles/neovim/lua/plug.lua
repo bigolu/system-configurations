@@ -25,8 +25,7 @@ local function plug(repo, options)
     return
   end
 
-  local original_plug_options =
-    vim.tbl_deep_extend("force", options, { config = nil, sync = nil })
+  local original_plug_options = vim.tbl_deep_extend("force", options, { config = nil, sync = nil })
   original_plug(repo, original_plug_options)
 
   local config = options.config

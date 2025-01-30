@@ -33,8 +33,7 @@ ffi.cdef([[
 -- This should be much simpler when this issue is resolved:
 -- https://github.com/neovim/neovim/issues/21740
 local function get_fold_sign()
-  local wp =
-    ffi.C.find_window_by_handle(vim.g.statusline_winid, ffi.new("Error"))
+  local wp = ffi.C.find_window_by_handle(vim.g.statusline_winid, ffi.new("Error"))
   local foldinfo = ffi.C.fold_info(wp, vim.v.lnum)
   local string = "%#FoldColumn#"
   local level = foldinfo.level

@@ -8,14 +8,12 @@ end
 
 local function make_statusline(...)
   local right_border = "%#StatusLine# %#StatusLinePowerlineOuter#"
-  local right_border_length =
-    vim.api.nvim_eval_statusline(right_border, {}).width
+  local right_border_length = vim.api.nvim_eval_statusline(right_border, {}).width
 
   local left_border = "%#StatusLinePowerlineOuter#"
   local left_border_length = vim.api.nvim_eval_statusline(left_border, {}).width
 
-  local space_remaining = vim.o.columns
-    - (left_border_length + right_border_length)
+  local space_remaining = vim.o.columns - (left_border_length + right_border_length)
 
   local item_separator = "  "
   local item_separator_length = #item_separator
@@ -31,8 +29,7 @@ local function make_statusline(...)
   end
 
   -- iter() filters out nil values
-  local items =
-    vim.iter({ ... }):enumerate():filter(has_space):fold({}, collect_to_list)
+  local items = vim.iter({ ... }):enumerate():filter(has_space):fold({}, collect_to_list)
 
   return left_border .. table.concat(items, item_separator) .. right_border
 end
@@ -103,8 +100,7 @@ local function get_mode_and_left_items()
     ["!"] = shell,
     ["t"] = terminal,
   }
-  local mode = "%#status_line_mode# "
-    .. (mode_map[vim.api.nvim_get_mode().mode] or "?")
+  local mode = "%#status_line_mode# " .. (mode_map[vim.api.nvim_get_mode().mode] or "?")
 
   local readonly = nil
   if vim.o.readonly then
@@ -132,8 +128,7 @@ local function get_mode_and_left_items()
   }
   local diagnostic_list = {}
   for _, datum in ipairs(diagnostic_data) do
-    local count = vim.diagnostic.count(nil, { severity = datum.severity })[datum.severity]
-      or 0
+    local count = vim.diagnostic.count(nil, { severity = datum.severity })[datum.severity] or 0
     if count > 0 then
       table.insert(diagnostic_list, datum.icon .. count)
     end
@@ -168,8 +163,7 @@ local function get_mode_and_left_items()
   local reg_recording = nil
   local recording_register = vim.fn.reg_recording()
   if recording_register ~= "" then
-    reg_recording = "%#StatusLineRecordingIndicator# %#StatusLineNormal#REC@"
-      .. recording_register
+    reg_recording = "%#StatusLineRecordingIndicator# %#StatusLineNormal#REC@" .. recording_register
   end
 
   -- iter() filters out nil values
@@ -182,11 +176,7 @@ local function get_mode_and_left_items()
       reg_recording,
     })
     :totable()
-  local items_joined = (
-    #items > 0
-      and " %#StatusLinePowerlineInner#%#StatusLinePowerlineOuter#"
-    or ""
-  )
+  local items_joined = (#items > 0 and " %#StatusLinePowerlineInner#%#StatusLinePowerlineOuter#" or "")
     .. table.concat(items, "%#StatusLineSeparator#" .. "  ")
     .. (#items > 0 and "%#StatusLinePowerlineInner#" or "%#StatusLineC# ")
 

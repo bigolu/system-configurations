@@ -25,11 +25,7 @@ local function keymap(lhs, rhs, opts, mode)
 end
 
 local function feedkeys(keys)
-  vim.api.nvim_feedkeys(
-    vim.api.nvim_replace_termcodes(keys, true, false, true),
-    "n",
-    true
-  )
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "n", true)
 end
 
 local function is_completion_menu_open()
@@ -38,25 +34,14 @@ end
 
 local is_cursor_preceded_by_nonblank_character = function()
   local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0
-    and vim.api
-        .nvim_buf_get_lines(0, line - 1, line, true)[1]
-        :sub(col, col)
-        :match("%s")
-      == nil
+  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 
 function MyEnter()
-  return is_completion_menu_open()
-      and vim.api.nvim_replace_termcodes("<C-y>", true, false, true)
+  return is_completion_menu_open() and vim.api.nvim_replace_termcodes("<C-y>", true, false, true)
     or require("nvim-autopairs").completion_confirm()
 end
-vim.api.nvim_set_keymap(
-  "i",
-  "<CR>",
-  "v:lua.MyEnter()",
-  { expr = true, noremap = true }
-)
+vim.api.nvim_set_keymap("i", "<CR>", "v:lua.MyEnter()", { expr = true, noremap = true })
 
 keymap("<Tab>", function()
   if is_completion_menu_open() then

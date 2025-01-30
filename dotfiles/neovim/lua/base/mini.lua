@@ -54,16 +54,12 @@ Plug("echasnovski/mini.nvim", {
       local old_position = vim.api.nvim_win_get_cursor(0)
       ---@diagnostic disable-next-line: undefined-global
       MiniAi.move_cursor(direction, "a", id, {
-        search_method = (direction == "left") and "cover_or_prev"
-          or "cover_or_next",
+        search_method = (direction == "left") and "cover_or_prev" or "cover_or_next",
       })
       local new_position = vim.api.nvim_win_get_cursor(0)
-      local has_cursor_moved = old_position[0] ~= new_position[0]
-        or old_position[1] ~= new_position[1]
+      local has_cursor_moved = old_position[0] ~= new_position[0] or old_position[1] ~= new_position[1]
       if has_cursor_moved then
-        vim.cmd(
-          string.format([[normal! %s]], direction == "left" and "k" or "j")
-        )
+        vim.cmd(string.format([[normal! %s]], direction == "left" and "k" or "j"))
       end
     end
 
@@ -114,8 +110,7 @@ Plug("echasnovski/mini.nvim", {
     local function run_without_indent_at_cursor(fn)
       local old_opts = vim.b.miniindentscope_config
       if old_opts ~= nil then
-        vim.b.miniindentscope_config =
-          vim.tbl_deep_extend("force", old_opts, new_opts)
+        vim.b.miniindentscope_config = vim.tbl_deep_extend("force", old_opts, new_opts)
       else
         vim.b.miniindentscope_config = new_opts
       end
@@ -274,8 +269,7 @@ Plug("echasnovski/mini.nvim", {
 
           -- Set cursor in original window to that of the maximized window.
           -- TODO: I should upstream this
-          local maximized_window_cursor_position =
-            vim.api.nvim_win_get_cursor(0)
+          local maximized_window_cursor_position = vim.api.nvim_win_get_cursor(0)
           vim.api.nvim_create_autocmd("WinEnter", {
             once = true,
             callback = function()
@@ -348,11 +342,9 @@ Plug("echasnovski/mini.nvim", {
             return
           end
 
-          local is_cursorword_keyword = vim
-            .iter(vim.treesitter.get_captures_at_cursor())
-            :any(function(capture)
-              return capture:find("keyword")
-            end)
+          local is_cursorword_keyword = vim.iter(vim.treesitter.get_captures_at_cursor()):any(function(capture)
+            return capture:find("keyword")
+          end)
 
           if is_cursorword_keyword then
             disable_cursorword()

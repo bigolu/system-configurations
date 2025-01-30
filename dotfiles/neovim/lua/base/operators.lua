@@ -33,11 +33,8 @@ local function get_commentstrings()
 end
 
 local function set_formatprg(text)
-  local formatprg = string.format(
-    "par -w%d",
-    vim.bo.textwidth == 0 and utilities.get_max_line_length()
-      or vim.bo.textwidth
-  )
+  local formatprg =
+    string.format("par -w%d", vim.bo.textwidth == 0 and utilities.get_max_line_length() or vim.bo.textwidth)
 
   local _, newline_count = string.gsub(text, "\n", "")
   local is_one_line = newline_count == 0
@@ -48,19 +45,15 @@ local function set_formatprg(text)
     table.sort(commentstrings, function(a, b)
       return #a < #b
     end)
-    local longest_matching_commentstring = vim
-      .iter(commentstrings)
-      :find(function(commentstring)
-        -- TODO: can only be preceded by spaces
-        local start, _ = text:find(commentstring, 1, true)
-        return start ~= nil
-      end)
+    local longest_matching_commentstring = vim.iter(commentstrings):find(function(commentstring)
+      -- TODO: can only be preceded by spaces
+      local start, _ = text:find(commentstring, 1, true)
+      return start ~= nil
+    end)
 
     if longest_matching_commentstring ~= nil then
-      local start_index_of_commentstring =
-        text:find(longest_matching_commentstring, 1, true)
-      local prefix = start_index_of_commentstring
-        + #longest_matching_commentstring
+      local start_index_of_commentstring = text:find(longest_matching_commentstring, 1, true)
+      local prefix = start_index_of_commentstring + #longest_matching_commentstring
       formatprg = formatprg .. string.format(" -p%d", prefix)
     else
       vim.notify(
@@ -267,12 +260,7 @@ Plug("Wansmer/treesj", {
     vim.api.nvim_create_autocmd({ "FileType" }, {
       callback = function()
         if langs[vim.bo.filetype] then
-          vim.keymap.set(
-            "n",
-            "ss",
-            vim.cmd.TSJToggle,
-            { desc = "Toggle split/join", buffer = true }
-          )
+          vim.keymap.set("n", "ss", vim.cmd.TSJToggle, { desc = "Toggle split/join", buffer = true })
           vim.keymap.set("n", "sS", function()
             require("treesj").toggle({
               join = { recursive = true },
@@ -280,19 +268,9 @@ Plug("Wansmer/treesj", {
             })
           end, { desc = "Toggle recursive split/join", buffer = true })
         else
-          vim.keymap.set(
-            "n",
-            "ss",
-            vim.cmd.SplitjoinSplit,
-            { desc = "Split", buffer = true }
-          )
+          vim.keymap.set("n", "ss", vim.cmd.SplitjoinSplit, { desc = "Split", buffer = true })
           -- Must be used on the first line of the split
-          vim.keymap.set(
-            "n",
-            "sj",
-            vim.cmd.SplitjoinJoin,
-            { desc = "Join", buffer = true }
-          )
+          vim.keymap.set("n", "sj", vim.cmd.SplitjoinJoin, { desc = "Join", buffer = true })
         end
       end,
     })

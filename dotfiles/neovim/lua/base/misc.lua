@@ -114,18 +114,11 @@ function MyPaste(was_in_visual_mode, is_capital_p)
   local enter_key = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
 
   -- This is flaky in vscode so I'll only use it in the terminal
-  local set_lazy_redraw = IsRunningInTerminal and ":set lazyredraw" .. enter_key
-    or ""
-  local unset_lazy_redraw = IsRunningInTerminal
-      and ":set nolazyredraw" .. enter_key
-    or ""
+  local set_lazy_redraw = IsRunningInTerminal and ":set lazyredraw" .. enter_key or ""
+  local unset_lazy_redraw = IsRunningInTerminal and ":set nolazyredraw" .. enter_key or ""
 
   local indent = is_multi_line_paste
-      and string.format(
-        [[:%d,%dnormal! ==]] .. enter_key,
-        LastPasteStartLine,
-        LastPasteEndLine
-      )
+      and string.format([[:%d,%dnormal! ==]] .. enter_key, LastPasteStartLine, LastPasteEndLine)
     or ""
   local go_back_to_visual = was_in_visual_mode and "gv" or ""
   local delete_into_blackhole = was_in_visual_mode and '"_d' or ""
@@ -139,26 +132,15 @@ function MyPaste(was_in_visual_mode, is_capital_p)
 (
             was_in_visual_mode
             and not is_multi_line_paste
-            and (
-              vim.fn.col("'>") == (vim.fn.col({ LastPasteEndLine, "$" }) - 1)
-            )
+            and (vim.fn.col("'>") == (vim.fn.col({ LastPasteEndLine, "$" }) - 1))
           )
-          or (
-            was_in_visual_mode
-            and is_multi_line_paste
-            and (vim.fn.line("'>") == (vim.fn.line("$")))
-          )
+          or (was_in_visual_mode and is_multi_line_paste and (vim.fn.line("'>") == (vim.fn.line("$"))))
         )
         and "p"
       or (is_capital_p and "P" or "p")
     )
   vim.api.nvim_feedkeys(
-    set_lazy_redraw
-      .. go_back_to_visual
-      .. delete_into_blackhole
-      .. paste
-      .. indent
-      .. unset_lazy_redraw,
+    set_lazy_redraw .. go_back_to_visual .. delete_into_blackhole .. paste .. indent .. unset_lazy_redraw,
     "n",
     false
   )
@@ -221,10 +203,7 @@ vim.api.nvim_create_autocmd("User", {
   callback = function()
     vim.api.nvim_create_autocmd("FileType", {
       callback = function()
-        vim.api.nvim_exec_autocmds(
-          "User",
-          { pattern = "FileTypeOverride_" .. vim.o.filetype }
-        )
+        vim.api.nvim_exec_autocmds("User", { pattern = "FileTypeOverride_" .. vim.o.filetype })
       end,
     })
   end,
@@ -265,9 +244,7 @@ Plug("tpope/vim-abolish")
 -- it will use `smagic`.
 vim.keymap.set({ "ca" }, "s", function()
   local cmdline = vim.fn.getcmdline()
-  if
-    vim.fn.getcmdtype() == ":" and (cmdline == "s" or cmdline == [['<,'>s]])
-  then
+  if vim.fn.getcmdtype() == ":" and (cmdline == "s" or cmdline == [['<,'>s]]) then
     return "smagic"
   else
     return "s"

@@ -2,24 +2,9 @@ vim.opt.matchpairs:append("<:>")
 
 -- select the text that was just pasted
 vim.keymap.set({ "n" }, "gp", function()
-  vim.api.nvim_buf_set_mark(
-    vim.api.nvim_get_current_buf(),
-    "y",
-    LastPasteStartLine,
-    LastPasteStartCol,
-    {}
-  )
-  vim.api.nvim_buf_set_mark(
-    vim.api.nvim_get_current_buf(),
-    "z",
-    LastPasteEndLine,
-    LastPasteEndCol,
-    {}
-  )
-  return string.format(
-    "`y%s`z",
-    (LastPasteStartLine == LastPasteEndLine) and "v" or "V"
-  )
+  vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "y", LastPasteStartLine, LastPasteStartCol, {})
+  vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "z", LastPasteEndLine, LastPasteEndCol, {})
+  return string.format("`y%s`z", (LastPasteStartLine == LastPasteEndLine) and "v" or "V")
 end, {
   desc = "Last pasted text",
   expr = true,
@@ -74,18 +59,8 @@ vim.keymap.set({ "n" }, "}", [[<Cmd>keepjumps normal! }<CR>]], {
 vim.keymap.set({ "n" }, "{", [[<Cmd>keepjumps normal! {<CR>]], {
   desc = "Start of paragraph",
 })
-vim.keymap.set(
-  { "n", "x" },
-  "]p",
-  "}",
-  { remap = true, desc = "End of paragraph" }
-)
-vim.keymap.set(
-  { "n", "x" },
-  "[p",
-  "{",
-  { remap = true, desc = "Start of paragraph" }
-)
+vim.keymap.set({ "n", "x" }, "]p", "}", { remap = true, desc = "End of paragraph" })
+vim.keymap.set({ "n", "x" }, "[p", "{", { remap = true, desc = "Start of paragraph" })
 
 -- Move to beginning and end of line
 vim.keymap.set({ "n" }, "<C-e>", "$", {
@@ -119,15 +94,11 @@ local function jump_to_long_line(direction)
   local max_line_length = utilities.get_max_line_length()
   local lines_to_search = nil
   if direction == "next" then
-    lines_to_search = utilities.table_concat(
-      vim.fn.range(current_line + 1, last_line),
-      vim.fn.range(1, current_line - 1)
-    )
+    lines_to_search =
+      utilities.table_concat(vim.fn.range(current_line + 1, last_line), vim.fn.range(1, current_line - 1))
   else
-    lines_to_search = utilities.table_concat(
-      vim.fn.range(current_line - 1, 1, -1),
-      vim.fn.range(last_line, current_line + 1, -1)
-    )
+    lines_to_search =
+      utilities.table_concat(vim.fn.range(current_line - 1, 1, -1), vim.fn.range(last_line, current_line + 1, -1))
   end
   local long_line = vim
     .iter(lines_to_search)

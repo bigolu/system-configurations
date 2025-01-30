@@ -1,37 +1,12 @@
 local methods = vim.lsp.protocol.Methods
 
-vim.keymap.set(
-  "n",
-  "<S-l>",
-  vim.diagnostic.open_float,
-  { desc = "Diagnostic modal [lint,problem]" }
-)
-vim.keymap.set(
-  "n",
-  "[l",
-  vim.diagnostic.goto_prev,
-  { desc = "Previous diagnostic [last,lint,problem]" }
-)
-vim.keymap.set(
-  "n",
-  "]l",
-  vim.diagnostic.goto_next,
-  { desc = "Next diagnostic [lint,problem]" }
-)
-vim.keymap.set(
-  "n",
-  "gD",
-  vim.lsp.buf.declaration,
-  { desc = "Go to declaration" }
-)
+vim.keymap.set("n", "<S-l>", vim.diagnostic.open_float, { desc = "Diagnostic modal [lint,problem]" })
+vim.keymap.set("n", "[l", vim.diagnostic.goto_prev, { desc = "Previous diagnostic [last,lint,problem]" })
+vim.keymap.set("n", "]l", vim.diagnostic.goto_next, { desc = "Next diagnostic [lint,problem]" })
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "gn", vim.lsp.buf.rename, { desc = "Rename variable" })
-vim.keymap.set(
-  { "n", "v" },
-  "ga",
-  vim.lsp.buf.code_action,
-  { desc = "Code actions" }
-)
+vim.keymap.set({ "n", "v" }, "ga", vim.lsp.buf.code_action, { desc = "Code actions" })
 vim.keymap.set("n", [[\d]], function()
   vim.diagnostic.reset(nil, vim.api.nvim_get_current_buf())
 end, { desc = "Toggle diagnostics for buffer" })
@@ -46,10 +21,7 @@ vim.api.nvim_create_autocmd("User", {
     local buffer = context.data.buffer
     local isKeywordprgOverridable = vim.bo[buffer].filetype ~= "vim"
 
-    if
-      client.supports_method(methods.textDocument_hover)
-      and isKeywordprgOverridable
-    then
+    if client.supports_method(methods.textDocument_hover) and isKeywordprgOverridable then
       -- TODO: This gets set automatically, but it wasn't being set when bashls
       -- starts
       vim.keymap.set("n", "K", vim.lsp.buf.hover, { buffer = buffer })
@@ -61,8 +33,7 @@ vim.api.nvim_create_autocmd("User", {
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
 function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
   opts = opts or {}
-  opts.border = opts.border
-    or { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+  opts.border = opts.border or { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
   opts.focusable = opts.focusable or true
   opts.max_height = opts.max_height or math.floor(vim.o.lines * 0.35)
   opts.max_width = math.min(80, math.floor(vim.o.columns * 0.65))
@@ -106,8 +77,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
     })
   end,
 })
-local original_register_capability =
-  vim.lsp.handlers[methods.client_registerCapability]
+local original_register_capability = vim.lsp.handlers[methods.client_registerCapability]
 vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
   local original_return_value = { original_register_capability(err, res, ctx) }
 
@@ -139,24 +109,18 @@ local function create_refresh_autocmd(buffer)
     )
     return
   end
-  code_lens_refresh_autocmd_ids_by_buffer[buffer] = vim.api.nvim_create_autocmd(
-    { "CursorHold", "InsertLeave" },
-    {
-      desc = "code lens refresh",
-      callback = function()
-        vim.lsp.codelens.refresh({ bufnr = buffer })
-      end,
-      buffer = buffer,
-    }
-  )
+  code_lens_refresh_autocmd_ids_by_buffer[buffer] = vim.api.nvim_create_autocmd({ "CursorHold", "InsertLeave" }, {
+    desc = "code lens refresh",
+    callback = function()
+      vim.lsp.codelens.refresh({ bufnr = buffer })
+    end,
+    buffer = buffer,
+  })
 end
 local function delete_refresh_autocmd(buffer)
   local refresh_autocmd_id = code_lens_refresh_autocmd_ids_by_buffer[buffer]
   if refresh_autocmd_id == -1 then
-    vim.notify(
-      "Unable to to remove the code lens refresh autocmd because its id was not found",
-      vim.log.levels.ERROR
-    )
+    vim.notify("Unable to to remove the code lens refresh autocmd because its id was not found", vim.log.levels.ERROR)
     return
   end
   vim.api.nvim_del_autocmd(refresh_autocmd_id)
@@ -179,8 +143,7 @@ vim.api.nvim_create_autocmd("User", {
       end
 
       vim.keymap.set("n", [[\l]], function()
-        local refresh_autocmd_id =
-          code_lens_refresh_autocmd_ids_by_buffer[buffer]
+        local refresh_autocmd_id = code_lens_refresh_autocmd_ids_by_buffer[buffer]
         local is_refresh_autocmd_active = refresh_autocmd_id ~= -1
         if is_refresh_autocmd_active then
           delete_refresh_autocmd(buffer)

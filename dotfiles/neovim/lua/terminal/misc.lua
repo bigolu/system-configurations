@@ -203,9 +203,7 @@ vim.keymap.set("n", "<C-q>", function()
   -- If this is the last tab and window, exit vim
   local is_last_window = window_count == 1
   if tab_count == 1 and is_last_window then
-    local is_linked_to_file = #vim.api.nvim_buf_get_name(
-      vim.api.nvim_get_current_buf()
-    ) > 0
+    local is_linked_to_file = #vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()) > 0
     -- Only `confirm` if the buffer is linked to a file
     if is_linked_to_file then
       vim.cmd([[
@@ -231,19 +229,14 @@ end, { silent = true, desc = "Close pane [split,window]" })
 local function open(path)
   local _, err = vim.ui.open(path)
   if err ~= nil then
-    vim.notify(
-      string.format("Failed to open path '%s'\n%s", path, err),
-      vim.log.levels.ERROR
-    )
+    vim.notify(string.format("Failed to open path '%s'\n%s", path, err), vim.log.levels.ERROR)
   end
 end
 local function get_url_under_cursor()
   local cfile = vim.fn.expand("<cfile>")
   local is_url = cfile:match(
     "https?://(([%w_.~!*:@&+$/?%%#-]-)(%w[-.%w]*%.)(%w%w%w?%w?)(:?)(%d*)(/?)([%w_.~!*:@&+$/?%%#=-]*))"
-  ) or cfile:match(
-    "ftps?://(([%w_.~!*:@&+$/?%%#-]-)(%w[-.%w]*%.)(%w%w%w?%w?)(:?)(%d*)(/?)([%w_.~!*:@&+$/?%%#=-]*))"
-  )
+  ) or cfile:match("ftps?://(([%w_.~!*:@&+$/?%%#-]-)(%w[-.%w]*%.)(%w%w%w?%w?)(:?)(%d*)(/?)([%w_.~!*:@&+$/?%%#=-]*))")
   if is_url then
     return cfile
   end
@@ -254,9 +247,7 @@ function OpenUrlUnderCursor(is_mouse_click)
   -- wrap in function so I can return early
   (function()
     -- Vim help links.
-    local vim_help_tag = (vim.fn.expand("<cWORD>") --[[@as string]]):match(
-      "|(%S-)|"
-    )
+    local vim_help_tag = (vim.fn.expand("<cWORD>") --[[@as string]]):match("|(%S-)|")
     if vim_help_tag then
       vim.cmd.Help(vim_help_tag)
       return
@@ -264,8 +255,7 @@ function OpenUrlUnderCursor(is_mouse_click)
 
     -- Markdown links.
     local col = vim.api.nvim_win_get_cursor(0)[2] + 1
-    local from, to, url =
-      vim.api.nvim_get_current_line():find("%[.-%]%((%S-)%)")
+    local from, to, url = vim.api.nvim_get_current_line():find("%[.-%]%((%S-)%)")
     if from and col >= from and col <= to then
       open(url)
       return
@@ -278,11 +268,7 @@ function OpenUrlUnderCursor(is_mouse_click)
   end)()
 end
 vim.keymap.set("n", "U", OpenUrlUnderCursor, { desc = "Open link [url]" })
-vim.keymap.set(
-  "n",
-  "<C-LeftMouse>",
-  "<LeftMouse><Cmd>lua OpenUrlUnderCursor(true)<CR>"
-)
+vim.keymap.set("n", "<C-LeftMouse>", "<LeftMouse><Cmd>lua OpenUrlUnderCursor(true)<CR>")
 -- }}}
 
 -- Autosave {{{
@@ -338,13 +324,7 @@ timer:start(
             ---@diagnostic disable-next-line: param-type-mismatch
             local was_successful = pcall(vim.cmd, "silent write")
             if not was_successful then
-              vim.notify(
-                string.format(
-                  "Failed to write buffer #%s, disabling autosave...",
-                  buf
-                ),
-                vim.log.levels.ERROR
-              )
+              vim.notify(string.format("Failed to write buffer #%s, disabling autosave...", buf), vim.log.levels.ERROR)
               timer:stop()
             end
           end)
@@ -354,18 +334,15 @@ timer:start(
 )
 -- Check for changes made outside of vim. Source:
 -- https://unix.stackexchange.com/questions/149209/refresh-changed-content-of-file-opened-in-vim/383044#383044
-vim.api.nvim_create_autocmd(
-  { "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "VimResume" },
-  {
-    callback = function()
-      -- you can't run checktime in the commandline
-      if vim.fn.getcmdwintype() ~= "" then
-        return
-      end
-      checktime()
-    end,
-  }
-)
+vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "VimResume" }, {
+  callback = function()
+    -- you can't run checktime in the commandline
+    if vim.fn.getcmdwintype() ~= "" then
+      return
+    end
+    checktime()
+  end,
+})
 -- }}}
 
 -- Indentation {{{

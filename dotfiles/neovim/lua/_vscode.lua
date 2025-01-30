@@ -306,11 +306,7 @@ local function move(d)
       -- 那么在执行完行间移动后，就将新行的光标移动到行首或行尾
       -- 实现模拟 visual line 的效果
       -- 最后直接返回，不再执行下面的逻辑
-      if
-        start_col == 0
-        and end_col + 1 == #selected_end_line_text
-        and start_line == end_line
-      then
+      if start_col == 0 and end_col + 1 == #selected_end_line_text and start_line == end_line then
         moveLine(d)
         if d == "j" then
           moveInLine("end")
@@ -357,11 +353,7 @@ local function moveCursor(d)
   return function()
     -- 当 v.count 为 0 时，表示没有使用数字修饰符，此时可以执行自定义的移动
     -- 否则，执行原生的移动，如 10j
-    if
-      vim.v.count == 0
-      and vim.fn.reg_recording() == ""
-      and vim.fn.reg_executing() == ""
-    then
+    if vim.v.count == 0 and vim.fn.reg_recording() == "" and vim.fn.reg_executing() == "" then
       return "g" .. d
     else
       return d

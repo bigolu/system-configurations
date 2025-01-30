@@ -52,23 +52,15 @@ local function execute(executable, arguments, callback)
 end
 
 local function toggle_tiling_mode()
-  execute(
-    "/usr/local/bin/yabai",
-    { "-m", "config", "layout" },
-    function(_, stdout, _)
-      local layout = "bsp"
-      if stdout == "bsp\n" then
-        layout = "float"
-      end
-      execute(
-        "/usr/local/bin/yabai",
-        { "-m", "config", "layout", layout },
-        function()
-          menubar_item:setIcon(icons[layout])
-        end
-      )
+  execute("/usr/local/bin/yabai", { "-m", "config", "layout" }, function(_, stdout, _)
+    local layout = "bsp"
+    if stdout == "bsp\n" then
+      layout = "float"
     end
-  )
+    execute("/usr/local/bin/yabai", { "-m", "config", "layout", layout }, function()
+      menubar_item:setIcon(icons[layout])
+    end)
+  end)
 end
 
 local function getShortcutsHtml()
@@ -163,10 +155,7 @@ local function getShortcutsHtml()
   local menu = ""
   for index, shortcut_group in ipairs(shortcuts) do
     menu = menu .. "<ul class='col col" .. index .. "'>"
-    menu = menu
-      .. "<li class='title group-title'><strong>"
-      .. shortcut_group.title
-      .. "</strong></li>"
+    menu = menu .. "<li class='title group-title'><strong>" .. shortcut_group.title .. "</strong></li>"
 
     for _, shortcut in ipairs(shortcut_group.items) do
       local mods = ""

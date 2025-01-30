@@ -22,12 +22,7 @@ local function fold_toggle()
     return "zR"
   end
 end
-vim.keymap.set(
-  "n",
-  "<S-Tab>",
-  fold_toggle,
-  { silent = true, expr = true, desc = "Toggle all folds [expand,collapse]" }
-)
+vim.keymap.set("n", "<S-Tab>", fold_toggle, { silent = true, expr = true, desc = "Toggle all folds [expand,collapse]" })
 vim.keymap.set("n", "<Tab>", function()
   vim.cmd([[silent! normal! za]])
 end, { desc = "Toggle fold [expand,collapse]" })
@@ -41,8 +36,7 @@ vim.keymap.set({ "n", "x" }, "]<Tab>", "]z", {
 })
 
 local function SetDefaultFoldMethod()
-  local is_foldmethod_overridable =
-    not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
+  local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
   if is_foldmethod_overridable then
     vim.wo.foldmethod = "indent"
   end
@@ -52,13 +46,9 @@ vim.api.nvim_create_autocmd("BufEnter", {
 })
 
 local function maybe_set_treesitter_foldmethod()
-  local is_foldmethod_overridable =
-    not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
+  local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
 
-  if
-    require("nvim-treesitter.parsers").has_parser()
-    and is_foldmethod_overridable
-  then
+  if require("nvim-treesitter.parsers").has_parser() and is_foldmethod_overridable then
     vim.wo.foldmethod = "expr"
     vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
   end
