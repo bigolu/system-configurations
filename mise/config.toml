@@ -103,8 +103,7 @@ usage = '''
     that differ between the current branch and the default branch, and untracked files. \
     This is usually what you want since you can assume any files merged into the \
     default branch have been checked. In case you forget to run it, it also runs during \
-    the git pre-push hook, where it only checks files in the commits that you are about \
-    to push. The list of checks is in lefthook.yaml.
+    the git pre-commit hook. The list of checks is in lefthook.yaml.
   """
   arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run" {
     choices "generate" "format" "fix-lint" "check-lint" "test"

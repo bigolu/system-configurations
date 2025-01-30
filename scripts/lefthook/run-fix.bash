@@ -43,7 +43,7 @@ function main {
     exit 1
   else
     # Why I'm failing here:
-    #   - This failure will cause the pre-push hook to abort the push so I can fix
+    #   - This failure will cause the pre-commit hook to abort the push so I can fix
     #     up my commits.
     #   - When I run all the fix commands together, the failures let me know which
     #     fix commands actually fixed anything since lefthook will highlight failed
