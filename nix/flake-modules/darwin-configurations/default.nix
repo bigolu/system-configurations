@@ -108,7 +108,7 @@ let
   };
 in
 makeOutputs {
-  bigmac = {
+  mac = {
     system = system.x86_64-darwin;
     modules = [
       ./modules/profile/base.nix

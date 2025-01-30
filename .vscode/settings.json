@@ -24,11 +24,11 @@
         "expr": "import ./nix/flake-package-set.nix",
       },
       "options": {
-        "bigmac": {
-          "expr": "(import ./nix/flake-compat.nix).darwinConfigurations.bigmac.options",
+        "mac": {
+          "expr": "(import ./nix/flake-compat.nix).darwinConfigurations.mac.options",
         },
-        "desktop": {
-          "expr": "(import ./nix/flake-compat.nix).homeConfigurations.desktop.options",
+        "linux": {
+          "expr": "(import ./nix/flake-compat.nix).homeConfigurations.linux.options",
         },
         "flake-parts": {
           "expr": "(import ./nix/flake-compat.nix).debug.options",

@@ -164,7 +164,7 @@ let
 
 in
 makeOutputs {
-  desktop = {
+  linux = {
     systems = with inputs.flake-utils.lib.system; [ x86_64-linux ];
     modules = [
       "${moduleRoot}/profile/application-development.nix"
