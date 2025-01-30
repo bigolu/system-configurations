@@ -191,7 +191,7 @@ check:
                 - name: typos
                   glob:
                     - .editorconfig
-                    - .shellcheckrc
+                    - shellcheckrc
                     - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
                   run: ./scripts/run-fix.bash typos --write-changes --format silent {files}
           # Run formatting after lint fixes because sometimes a lint fix produces
@@ -282,7 +282,7 @@ check:
                       - name: typos
                         glob:
                           - .editorconfig
-                          - .shellcheckrc
+                          - shellcheckrc
                           - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
                         run: typos {files}
                       - name: mypy
