@@ -1,5 +1,5 @@
 name: Setup
-description: Install Nix, configure the cache(s), and load direnv.
+description: Install Nix, configure the cache, and load direnv.
 inputs:
   dev-shell:
     description: The name of the devShell to activate
@@ -22,9 +22,6 @@ runs:
         name: bigolu
         authToken: "${{ inputs.cachix-auth-token }}"
         skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
-    # Since this is the step that loads a dev shell, there isn't one loaded here. So
-    # instead of directly using ci-bash as the shell, like I do in other workflows,
-    # I'll use ci-bash through `nix run`.
     - shell: nix run --file nix/flake-package-set.nix -- ci-bash {0}
       env:
         INPUT_DEV_SHELL: ${{ inputs.dev-shell }}
