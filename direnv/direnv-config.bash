@@ -5,7 +5,7 @@
 #
 # Environment Variables
 #   DEV_SHELL:
-#     The name of the flake dev shell to load. If it isn't set, then a default
+#     The name of the flake dev shell to load. If it's unset or empty, then a default
 #     will be used. The default is "local" if the local environment is being set
 #     up and "ci-essentials" if the CI environment is being set up.
 #   CI:
@@ -75,7 +75,8 @@ function load_dev_shell {
     nix_direnv_manual_reload
   fi
 
-  use flake ".#$(get_dev_shell)"
+  default_dev_shell="$(get_default_dev_shell)"
+  use flake ".#${DEV_SHELL:-$default_dev_shell}"
 }
 
 function is_first_dev_shell_build {
@@ -87,16 +88,8 @@ function is_first_dev_shell_build {
     # behavior. I'm doing so in a subshell so it doesn't apply to the rest of the
     # script.
     shopt -s nullglob
-    echo "$(direnv_layout_dir)/flake-profile-"*
+    echo "${DIRENV_LAYOUT_DIR}/flake-profile-"*
   )" ]]
-}
-
-function get_dev_shell {
-  if is_set DEV_SHELL; then
-    echo "$DEV_SHELL"
-  else
-    get_default_dev_shell
-  fi
 }
 
 function get_default_dev_shell {
@@ -109,12 +102,7 @@ function get_default_dev_shell {
 
 function is_setting_up_ci_environment {
   # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
-  is_set CI && [[ $CI == 'true' ]]
-}
-
-function is_set {
-  local -r variable_name="$1"
-  [[ -n ${!variable_name+x} ]]
+  [[ ${CI:-} == 'true' ]]
 }
 
 main

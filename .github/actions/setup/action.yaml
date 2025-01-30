@@ -24,15 +24,8 @@ runs:
         skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
     - shell: nix run --file nix/flake-package-set.nix -- ci-bash {0}
       env:
-        INPUT_DEV_SHELL: ${{ inputs.dev-shell }}
+        DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        # I only want to set the DEV_SHELL environment variable if the workflow using
-        # this action provided the dev-shell input. Since you can't conditionally set
-        # environment variables in GitHub Actions, I'm doing it here.
-        if [[ -n $INPUT_DEV_SHELL ]]; then
-          export DEV_SHELL="$INPUT_DEV_SHELL"
-        fi
-
         ./scripts/direnv.bash export gha >> "$GITHUB_ENV"
         # GitHub Actions handles the PATH differently
         ./scripts/direnv.bash exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
