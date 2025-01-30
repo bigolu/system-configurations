@@ -24,5 +24,6 @@ if uname | grep -q Darwin; then
     '
 else
   # TODO: Remove catp and use strace directly
-  sudo "$(which catp)" "$pid"
+  catp="$(which catp)"
+  sudo "$catp" "$pid"
 fi

@@ -22,10 +22,16 @@ function delete_old_release {
 }
 
 function make_new_release {
+  local release_notes
+  release_notes="$(make_release_notes)"
+
+  local title
+  title="$(date +'%Y.%m.%d')"
+
   gh release create "$tag" \
     --latest \
-    --notes-file "$(make_release_notes)" \
-    --title "$(date +'%Y.%m.%d')" \
+    --notes-file "$release_notes" \
+    --title "$title" \
     "$asset_directory/bundles/"*
 }
 

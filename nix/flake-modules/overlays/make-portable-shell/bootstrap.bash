@@ -36,7 +36,7 @@ xdg_cache_directory="$(make_directory_in_prefix 'cache')"
 
 # Some packages need one of their XDG Base directories to be mutable so if the
 # Nix store isn't writable we copy the directories into temporary ones.
-activation_package_config_directory="$ACTIVATION_PACKAGE/home-files/.config"
+activation_package_config_directory="${ACTIVATION_PACKAGE:?}/home-files/.config"
 activation_package_data_directory="$ACTIVATION_PACKAGE/home-files/.local/share"
 if ! [[ -w $ACTIVATION_PACKAGE ]]; then
   xdg_config_directory="$(make_directory_in_prefix config)"
@@ -50,8 +50,10 @@ else
   xdg_data_directory="$activation_package_data_directory"
 
   # This way we have a reference to all the XDG base directories from the prefix
-  ln --symbolic "$xdg_config_directory" "$(make_directory_in_prefix 'config')"
-  ln --symbolic "$xdg_data_directory" "$(make_directory_in_prefix 'data')"
+  config_in_prefix="$(make_directory_in_prefix 'config')"
+  ln --symbolic "$xdg_config_directory" "$config_in_prefix"
+  data_in_prefix="$(make_directory_in_prefix 'data')"
+  ln --symbolic "$xdg_data_directory" "$data_in_prefix"
 fi
 
 function add_directory_to_path {
@@ -75,7 +77,7 @@ function add_directory_to_path {
       fish)
         # I unexport the XDG Base directories so host programs pick up the host's XDG
         # directories.
-        printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
+        printf >"$new_directory/$program_basename" '%s' "#!${BASH_PATH:?}
 XDG_CONFIG_HOME=$xdg_config_directory \
 XDG_DATA_HOME=$xdg_data_directory \
 XDG_STATE_HOME=$xdg_state_directory \
@@ -136,7 +138,7 @@ if [[ -t 2 ]]; then
   printf '\33[2K\r'
 fi
 
-shell="$(which "$USER_SHELL")"
+shell="$(which "${USER_SHELL:?}")"
 export SHELL="$shell"
 
 if [[ -n ${INIT_SNIPPET:-} ]]; then

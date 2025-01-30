@@ -7,8 +7,9 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 if (($# == 0)); then
+  merge_base="$(git merge-base origin/HEAD HEAD)"
   choice="$(
-    git log "$(git merge-base origin/HEAD HEAD)"..HEAD --oneline \
+    git log "${merge_base}..HEAD" --oneline \
       | fzf-zoom \
         --no-sort \
         --prompt 'Choose a commit to rebase from: ' \

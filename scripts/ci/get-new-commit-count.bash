@@ -10,6 +10,10 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 # SYNC: NEW_COMMITS_SINCE
-readarray -d '' new_commits < <(git log -z --since '3 months ago')
-new_commit_count=${#new_commits[@]}
-echo "count=$new_commit_count" >>"$GITHUB_OUTPUT"
+git log -z --since '3 months ago' \
+  | {
+    readarray -d '' new_commits
+    new_commit_count=${#new_commits[@]}
+    # Output to stderr for debugging locally
+    echo "count=$new_commit_count" >>"${GITHUB_OUTPUT:-/dev/stderr}"
+  }

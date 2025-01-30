@@ -17,7 +17,8 @@ declare usage_configuration
 
 if ! [[ -x /usr/local/bin/brew ]]; then
   # Install homebrew. Source: https://brew.sh/
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  homebrew_install_script="$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  /bin/bash -c "$homebrew_install_script"
 fi
 
 hash_file='nix/flake-modules/darwin-configurations/nix-conf-hash.txt'

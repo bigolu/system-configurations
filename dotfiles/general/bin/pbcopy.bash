@@ -38,14 +38,16 @@ else
     # eventually we'll reach the real pbcopy.
     reached_wrapper=''
     real_pbcopy=''
-    while read -r command; do
+    which_pbcopy_output="$(which -a pbcopy)"
+    readarray -t all_pbcopys <<<"$which_pbcopy_output"
+    for command in "${all_pbcopys[@]}"; do
       if [[ $my_pbcopy == "$command" ]]; then
         reached_wrapper=1
       elif [[ -n $reached_wrapper ]]; then
         real_pbcopy="$command"
         break
       fi
-    done < <(which -a pbcopy)
+    done
 
     if [[ -n $real_pbcopy ]]; then
       exec "$real_pbcopy"

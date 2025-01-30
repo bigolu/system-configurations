@@ -82,13 +82,15 @@ function did_fix {
 # I include untracked files in case a fix command creates new files, like a code
 # generation fix for example.
 function diff_including_untracked {
-  local -a untracked_files
-  readarray -d '' untracked_files < <(git ls-files -z --others --exclude-standard)
+  git ls-files -z --others --exclude-standard \
+    | {
+      readarray -d '' untracked_files
 
-  track_files "${untracked_files[@]}"
-  # This gets called in CI so I can't use a pager
-  git --no-pager diff --color
-  untrack_files "${untracked_files[@]}"
+      track_files "${untracked_files[@]}"
+      # This gets called in CI so I can't use a pager
+      git --no-pager diff --color
+      untrack_files "${untracked_files[@]}"
+    }
 }
 
 function track_files {

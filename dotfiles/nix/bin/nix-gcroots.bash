@@ -7,8 +7,10 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 # Need sudo since nix won't show a user the PID of processes it doesn't own
-readarray -t roots \
-  < <(sudo -- "$(which run-as-admin)" sudo "$(which nix-store)" --gc --print-roots)
+run_as_admin="$(which run-as-admin)"
+nix_store="$(which nix-store)"
+gc_roots_output="$(sudo -- "$run_as_admin" sudo "$nix_store" --gc --print-roots)"
+readarray -t roots <<<"$gc_roots_output"
 
 if [[ -n ${NIX_GCROOTS_INCLUDE_SIZE:-} ]]; then
   roots_with_size=()
@@ -21,9 +23,10 @@ if [[ -n ${NIX_GCROOTS_INCLUDE_SIZE:-} ]]; then
       continue
     fi
 
+    root_path="$(awk '{print $3}' <<<"$root")"
+    unformatted_size="$(nix path-info --closure-size "$root_path" | awk '{ print $2 }')"
     size="$(
-      numfmt --to=iec-i --suffix=B --format="%.2f" -- \
-        "$(nix path-info --closure-size "$(awk '{print $3}' <<<"$root")" | awk '{ print $2 }')"
+      numfmt --to=iec-i --suffix=B --format="%.2f" -- "$unformatted_size"
     )"
 
     roots_with_size+=("$size $root")

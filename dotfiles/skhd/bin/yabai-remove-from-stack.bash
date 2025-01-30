@@ -9,8 +9,9 @@ shopt -s inherit_errexit
 # argument one should be a direction: east, west, north, south
 (($# > 0))
 
-OTHER_STACKED_WINDOW_ID="$(printf %s "$(yabai -m query --windows --window stack.prev 2>/dev/null || yabai -m query --windows --window stack.next 2>/dev/null)" | jq --raw-output '.id')"
-if [[ -z ${OTHER_STACKED_WINDOW_ID:-} ]]; then
+other_stacked_window="$(yabai -m query --windows --window stack.prev 2>/dev/null || yabai -m query --windows --window stack.next 2>/dev/null)"
+other_stacked_window_id="$(jq --raw-output '.id' <<<"$other_stacked_window")"
+if [[ -z $other_stacked_window_id ]]; then
   exit 1
 fi
 
@@ -21,6 +22,6 @@ yabai -m window --toggle float
 yabai -m window --toggle float
 
 # Set the split direction of the window we want to warp onto
-yabai -m window "$OTHER_STACKED_WINDOW_ID" --insert "$1"
+yabai -m window "$other_stacked_window_id" --insert "$1"
 
-yabai -m window --warp "$OTHER_STACKED_WINDOW_ID"
+yabai -m window --warp "$other_stacked_window_id"

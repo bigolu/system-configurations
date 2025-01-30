@@ -1,4 +1,10 @@
 #!/usr/bin/env bash
+# shellcheck disable=all
+#
+# NOTE: This directive must be on the first non-commented/non-whitespace line after
+# the shebang.
+#
+# Going to rewrite this in Python so I don't want to spend time fixing the lints.
 
 # This script is a multi-call program[1] that acts as a shim[2] for nix-build,
 # nix-shell, and the new cli, nix. Its features vary based on what program it's
@@ -80,7 +86,7 @@ function nix_shim {
   real_nix="$(get_real_command)"
 
   if
-    is_set 'NIX_GET_COMPLETIONS' \
+    [[ -n ${NIX_GET_COMPLETIONS:-} ]] \
       || contains 'run' "${nix_args[@]}" \
       || contains 'shell' "${nix_args[@]}" \
       || contains 'develop' "${nix_args[@]}" \
@@ -237,11 +243,6 @@ function join {
   if shift 2; then
     printf %s "$f" "${@/#/$d}"
   fi
-}
-
-function is_set {
-  local -r variable_name="$1"
-  [[ -n ${!variable_name+x} ]]
 }
 
 main "$@"

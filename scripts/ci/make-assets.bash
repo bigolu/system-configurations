@@ -10,10 +10,13 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 function main {
-  local -r bundle="$(make_shell_bundle)"
+  local bundle
+  bundle="$(make_shell_bundle)"
   assert_bundle_meets_size_limit "$bundle"
 
-  local -r asset_directory="$(register_asset_directory)"
+  local asset_directory
+  asset_directory="$(register_asset_directory)"
+
   add_bundle_checksum_to_assets "$asset_directory" "$bundle"
   move_bundle_into_assets "$asset_directory" "$bundle"
 }
@@ -34,7 +37,9 @@ function make_shell_bundle {
   # Enter a new directory so the only file in it will be the bundle. This way, I can
   # use the '*' glob to match the name of the bundle instead of hardcoding it.
   flake_path="$PWD"
-  pushd "$(mktemp --directory)"
+  local temp_directory
+  temp_directory="$(mktemp --directory)"
+  pushd "$temp_directory"
 
   # nix will create a symlink to the bundle in the current directory
   nix bundle --show-trace --bundler "${flake_path}#" "${flake_path}#shell"
@@ -61,7 +66,9 @@ function add_bundle_checksum_to_assets {
   local -r asset_directory="$1"
   local -r bundle_file="$2"
 
-  local -r bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
+  local bundle_basename_with_platform
+  bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
+
   local -r checksum_directory="$asset_directory/checksums"
   mkdir "$checksum_directory"
   get_checksum "$bundle_file" >"$checksum_directory/${bundle_basename_with_platform}.txt"
@@ -76,7 +83,9 @@ function move_bundle_into_assets {
   local -r asset_directory="$1"
   local -r bundle_file="$2"
 
-  local -r bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
+  local bundle_basename_with_platform
+  bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
+
   bundle_directory="$asset_directory/bundles"
   mkdir "$bundle_directory"
   mv "$bundle_file" "${bundle_directory}/${bundle_basename_with_platform}"
@@ -96,9 +105,16 @@ function assert_bundle_meets_size_limit {
 function get_basename_with_platform {
   local -r file="$1"
 
-  # e.g. x86_64-linux
-  local -r platform="$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]')"
+  # e.g. x86_64
+  local instruction_set
+  instruction_set="$(uname -m)"
+
+  local kernel
+  kernel="$(uname -s | tr '[:upper:]' '[:lower:]')"
+
+  local -r platform="$instruction_set-$kernel"
   local -r basename="${file##*/}"
+
   echo "${basename}-${platform}"
 }
 

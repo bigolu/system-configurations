@@ -51,7 +51,8 @@
 # [3]: https://github.com/direnv/direnv-vscode
 
 function direnv_manual_reload {
-  local -r reload_file="$(create_reload_file)"
+  local reload_file
+  reload_file="$(create_reload_file)"
 
   watch_file "$reload_file"
   add_reload_program_to_path "$reload_file"
@@ -61,7 +62,8 @@ function direnv_manual_reload {
 function add_reload_program_to_path {
   local -r reload_file="$1"
 
-  local -r reload_program="$(get_direnv_bin)/direnv-reload"
+  local reload_program
+  reload_program="$(get_direnv_bin)/direnv-reload"
   {
     echo '#!/usr/bin/env bash'
     printf 'touch %q\n' "$reload_file"
@@ -103,6 +105,12 @@ function get_direnv_dir {
 function remove_watched_files {
   local -r reload_file="$1"
 
+  # shellcheck disable=2312
+  # TODO: The exit code of direnv is being masked by readarray, but it would be
+  # tricky to avoid that. I can't use a pipeline since I want to unset the
+  # DIRENV_WATCHES environment variable below. I could put the output of the direnv
+  # command in a temporary file, but since this runs every time you enter the project
+  # directory I want to avoid doing anything slow.
   readarray -d '' watched_files < <(direnv watch-print --null)
 
   # Keep our reload file and direnv's allow/deny files, so `direnv block/allow` still
@@ -125,9 +133,12 @@ function remove_watched_files {
 
 function run_before_exit {
   local -r command_to_run="$1"
+
   # direnv sets an exit trap so we should prepend ours to it instead of overwriting
   # it.
-  trap -- "$command_to_run"$'\n'"$(get_exit_trap_handler)" EXIT
+  local current_trap_handler
+  current_trap_handler="$(get_exit_trap_handler)"
+  trap -- "$command_to_run"$'\n'"$current_trap_handler" EXIT
 }
 
 function get_exit_trap_handler {
@@ -136,7 +147,9 @@ function get_exit_trap_handler {
   # this, we can use eval to tokenize it.
   #
   # [1]: https://www.gnu.org/software/coreutils/manual/html_node/printf-invocation.html#printf-invocation
-  eval "local -ra trap_output_tokens=($(trap -p EXIT))"
+  local trap_output
+  trap_output="$(trap -p EXIT)"
+  eval "local -ra trap_output_tokens=($trap_output)"
   # shellcheck disable=2154
   # I declare `trap_output_tokens` in the eval statement above
   echo "${trap_output_tokens[2]}"

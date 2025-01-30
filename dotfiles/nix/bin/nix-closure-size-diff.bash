@@ -24,7 +24,9 @@ function main {
       color="$red"
       sign='+'
     fi
-    message="$(human_size "$size_before") → $(human_size "$size_after"), $color$sign$(human_size $size_diff)$reset"
+    human_size_before="$(human_size "$size_before")"
+    human_size_after="$(human_size "$size_after")"
+    message="$human_size_before → $human_size_after, $color$sign$(human_size $size_diff)$reset"
   else
     message='Closure size is exactly the same'
   fi
