@@ -328,6 +328,12 @@ check:
                     parallel: true
                     jobs:
                       - name: flake
+                        glob:
+                          - flake.nix
+                          - flake.lock
+                          - nix/*
+                          - dotfiles/*
+                          - gozip/*
                         skip:
                           # This would take a long time to run in GitHub Actions
                           # since it would have to download all the dependencies.
