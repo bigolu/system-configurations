@@ -3,10 +3,9 @@ moduleContext@{ lib, ... }:
   perSystem =
     perSystemContext@{ pkgs, ... }:
     let
-      inherit (builtins) listToAttrs;
+      inherit (builtins) mapAttrs;
       inherit (pkgs) mkShellWrapperNoCC;
       inherit (lib)
-        nameValuePair
         pipe
         hasPrefix
         optionalAttrs
@@ -35,15 +34,13 @@ moduleContext@{ lib, ... }:
       makeDevShellOutputs =
         shellSpecs:
         pipe shellSpecs [
-          (map (spec: nameValuePair spec.name (makeShell spec)))
-          listToAttrs
+          (mapAttrs (name: spec: makeShell (spec // { inherit name; })))
           (shells: shells // { default = shells.local; })
           (shells: { devShells = shells; })
         ];
     in
-    makeDevShellOutputs [
-      {
-        name = "local";
+    makeDevShellOutputs {
+      local = {
         inputsFrom = with partials; [
           scriptInterpreter
           speakerctl
@@ -55,17 +52,15 @@ moduleContext@{ lib, ... }:
           checks
           vsCode
         ];
-      }
+      };
 
-      { name = "ci-essentials"; }
+      ci-essentials = { };
 
-      {
-        name = "ci-check-pull-request";
+      ci-check-pull-request = {
         inputsFrom = with partials; [ checks ];
-      }
+      };
 
-      {
-        name = "ci-renovate";
+      ci-renovate = {
         packages = with pkgs; [ renovate ];
         shellHook = ''
           export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
@@ -75,6 +70,6 @@ moduleContext@{ lib, ... }:
           # can run the scripts in it.
           export RENOVATE_BOT_REPO="$PWD"
         '';
-      }
-    ];
+      };
+    };
 }
