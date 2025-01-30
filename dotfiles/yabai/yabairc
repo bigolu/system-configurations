@@ -1,15 +1,11 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Calling this when I'm already in tiling mode might change the order of my
 # windows, which I don't want, so I only set tiling mode if it isn't already set
-[ "$(yabai -m config layout)" != 'bsp' ] && yabai -m config layout bsp
+if [[ $(yabai -m config layout) != 'bsp' ]]; then
+  yabai -m config layout bsp
+fi
 
-padding=10
-yabai -m config bottom_padding $padding
-yabai -m config top_padding    $padding
-yabai -m config left_padding   $padding
-yabai -m config right_padding  $padding
-yabai -m config window_gap     $padding
 yabai -m config auto_balance off
 yabai -m config focus_follows_mouse autoraise
 yabai -m config mouse_follows_focus on
@@ -27,8 +23,35 @@ yabai -m rule --add label=installer app="^Installer$" title=".*" manage=off
 yabai -m rule --add label=finder app="^Finder$" title="^Copy$" manage=off
 yabai -m rule --add label=firefox app="^Firefox$" title="^Log in to your PayPal account$" manage=off
 
+# Only add padding for a space if there is more than one window in it
+read -r -d '' set_padding <<'END'
+  if (( $(yabai -m query --windows --space | jq 'length') == 1 )); then
+    value=0
+  else
+    value=10
+  fi
+
+  yabai -m config --space mouse bottom_padding "$value"
+  yabai -m config --space mouse top_padding "$value"
+  yabai -m config --space mouse left_padding "$value"
+  yabai -m config --space mouse right_padding "$value"
+  yabai -m config --space mouse window_gap "$value"
+END
+eval "$set_padding"
+yabai -m signal --add label=remove_padding_create event=window_created action="$set_padding"
+yabai -m signal --add label=remove_padding_destroy event=window_destroyed action="$set_padding"
+
 # Hide the stackline stack indicators if the current window is fullscreen or
-# it's maximized and not in a stack.
-# shellcheck disable=2016
-# I don't want to expand the variable
-yabai -m signal --add label=hidestackline event=window_resized action='if yabai -m query --windows --window | jq --exit-status '"'"'."is-native-fullscreen" or (."has-fullscreen-zoom" and ."stack-index" == 0)'"'"' 1>/dev/null 2>&1; then alpha=0; else alpha=1; fi; hs -c "if stackline.config:get([[appearance.alpha]]) ~= $alpha then stackline.config:set([[appearance.alpha]], $alpha) end"'
+# maximized and not in a stack.
+read -r -d '' hide_stackline <<'END'
+  if
+    yabai -m query --windows --window |
+    jq --exit-status '."is-native-fullscreen" or (."has-fullscreen-zoom" and ."stack-index" == 0)' 1>/dev/null 2>&1
+  then
+    alpha=0
+  else
+    alpha=1
+  fi
+  hs -c "if stackline.config:get([[appearance.alpha]]) ~= $alpha then stackline.config:set([[appearance.alpha]], $alpha) end"
+END
+yabai -m signal --add label=hidestackline event=window_resized action="$hide_stackline"
