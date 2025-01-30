@@ -20,36 +20,44 @@ shopt -s inherit_errexit
 function main {
   local -ra fix_command=("$@")
 
-  local fix_result
-  fix_result="$(did_fix "${fix_command[@]}")"
-  if [[ $fix_result == 'true' ]]; then
-    if [[ ${CI:-} == 'true' ]]; then
-      # Print the diff so people can see it in the CI console
-      diff_including_untracked
+  # I'm intentionally not running did_fix within the conditional because errexit
+  # won't cause the script to exit if a command fails inside a conditional.
+  local result
+  result="$(did_fix "${fix_command[@]}")"
+  if [[ $result == 'false' ]]; then
+    return
+  fi
 
-      # Remove the changes to keep the git repository in a clean state for the next
-      # fix command that runs. I could drop the stash as well, but in the event that
-      # this code accidentally runs when the script is run locally, I don't want to
-      # permanently delete anyone's changes.
-      git stash --include-untracked 1>/dev/null
+  if [[ ${CI:-} == 'true' ]]; then
+    # Print the diff so people can see it in the CI console
+    diff_including_untracked
 
-      # I'm failing here to make lefthook fail which will cause the overall CI check
-      # to fail.
-      exit 1
-    else
-      # Why I'm failing here:
-      #   - This failure will cause the pre-push hook to abort the push so I can fix
-      #     up my commits.
-      #   - When I run all the fix commands together, the failures let me know which
-      #     fix commands actually fixed anything since lefthook will highlight failed
-      #     commands differently.
-      exit 1
-    fi
+    # Remove the changes to keep the git repository in a clean state for the next
+    # fix command that runs. I could drop the stash as well, but in the event that
+    # this code accidentally runs when the script is run locally, I don't want to
+    # permanently delete anyone's changes.
+    git stash --include-untracked 1>/dev/null
+
+    # I'm failing here to make lefthook fail which will cause the overall CI check
+    # to fail.
+    exit 1
+  else
+    # Why I'm failing here:
+    #   - This failure will cause the pre-push hook to abort the push so I can fix
+    #     up my commits.
+    #   - When I run all the fix commands together, the failures let me know which
+    #     fix commands actually fixed anything since lefthook will highlight failed
+    #     commands differently.
+    exit 1
   fi
 }
 
 # Prints 'true' if a fix was made or 'false' if a fix was not made
 function did_fix {
+  # Redirect stdout to stderr until we're ready to print the return value
+  exec {stdout_copy}>&1
+  exec 1>&2
+
   local -ra fix_command=("$@")
 
   local diff_before_running_fix
@@ -67,6 +75,7 @@ function did_fix {
     result='false'
   fi
 
+  exec 1>&$stdout_copy
   echo "$result"
 }
 
