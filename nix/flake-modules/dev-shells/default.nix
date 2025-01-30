@@ -19,15 +19,16 @@ moduleContext@{ lib, ... }:
           name,
           ...
         }:
+        let
+          ciEssentials = with partials; [
+            ciSetup
+            scriptInterpreter
+          ];
+        in
         mkShellWrapperNoCC (
           spec
           // optionalAttrs (hasPrefix "ci-" name) {
-            inputsFrom =
-              inputsFrom
-              ++ (with partials; [
-                ciSetup
-                scriptInterpreter
-              ]);
+            inputsFrom = inputsFrom ++ ciEssentials;
           }
         );
 
