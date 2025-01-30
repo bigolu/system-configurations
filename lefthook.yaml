@@ -17,10 +17,10 @@ colors:
 output:
   - execution_info
 
-pre-push:
+pre-commit:
   jobs:
     - name: check
-      run: printf '%s\0' {push_files} | lefthook run check --files-from-stdin
+      run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
 
 post-merge:
   jobs:
