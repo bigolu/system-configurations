@@ -17,7 +17,6 @@ function main {
   # `direnv-manual-reload.bash`.
   enable_manual_reload
   create_layout_dir
-  create_gitignore
   dotenv_if_exists "${DIRENV_LAYOUT_DIR}/secrets.env"
   set_up_nix
 }
@@ -34,22 +33,14 @@ function create_layout_dir {
   # Now I don't need to add checks everywhere to create this directory if it doesn't
   # exist.
   mkdir -p "$layout_dir"
+
   # So any tools called here, like nix, can also store their things in the layout
   # dir.
   export DIRENV_LAYOUT_DIR="$layout_dir"
-}
 
-function create_gitignore {
   local -r gitignore_path="${DIRENV_LAYOUT_DIR}/.gitignore"
   if [[ ! -e $gitignore_path ]]; then
     echo '*' >"$gitignore_path"
-  fi
-
-  # TODO: I tried adding '../.envrc' to the gitignore above, but that didn't
-  # work so I'm using the exclude file instead. I should see if that's a bug.
-  local -r exclude_path="${GIT_DIR:-.git}/info/exclude"
-  if [[ ! -e $exclude_path || $(<"$exclude_path") != *.envrc* ]]; then
-    printf '\n.envrc\n' >>"$exclude_path"
   fi
 }
 
