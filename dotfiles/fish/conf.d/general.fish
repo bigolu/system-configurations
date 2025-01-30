@@ -2,7 +2,6 @@ if not status is-interactive
     exit
 end
 
-abbr --add --global g git
 abbr --add --global x 'chmod +x'
 abbr --add --global du 'du --dereference --human-readable --summarize --apparent-size'
 function timg --wraps timg
@@ -258,3 +257,19 @@ end
 
 # mise
 abbr --add --global run 'mise run'
+
+# git
+abbr --add --global g git
+# TODO: My pre-commit hook doesn't run if I use an alias for 'commit'. Not sure if
+# that's a bug in git.
+function _git_commit
+    set command (commandline --tokenize)[1]
+    if test "$command" = git
+        echo commit
+    else
+        return 1
+    end
+end
+abbr --add c \
+    --position anywhere \
+    --function _git_commit

@@ -15,7 +15,6 @@
   p-sub = submodule update
   s = status
   ss = status --short
-  c = commit
   C = commit --no-verify
   Push = push --no-verify
   a = add
