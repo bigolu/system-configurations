@@ -51,7 +51,6 @@ let
         # TODO: Per nixpkgs' package naming rules, they should lowercase these:
         # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
         "Navigator.nvim" = "Navigator-nvim";
-        "SchemaStore.nvim" = "SchemaStore-nvim";
       };
 
       getPackage =

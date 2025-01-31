@@ -158,8 +158,6 @@ Plug("kosayoda/nvim-lightbulb", {
 
 Plug("neovim/nvim-lspconfig")
 
-Plug("b0o/SchemaStore.nvim")
-
 -- An error is printed if nix isn't available
 if vim.fn.executable("nix") == 1 then
   Plug("dundalek/lazy-lsp.nvim", {
@@ -186,33 +184,7 @@ if vim.fn.executable("nix") == 1 then
 
       require("lazy-lsp").setup({
         prefer_local = true,
-
         excluded_servers = excluded_servers,
-
-        configs = {
-          jsonls = {
-            settings = {
-              json = {
-                schemas = require("schemastore").json.schemas(),
-                validate = { enable = true },
-              },
-            },
-          },
-
-          yamlls = {
-            settings = {
-              yaml = {
-                schemas = require("schemastore").yaml.schemas(),
-                -- For why this is needed see:
-                -- https://github.com/b0o/SchemaStore.nvim?tab=readme-ov-file#usage
-                schemaStore = {
-                  enable = false,
-                  url = "",
-                },
-              },
-            },
-          },
-        },
       })
 
       -- re-trigger lsp attach so nvim-lsp-config has a chance to attach to any
