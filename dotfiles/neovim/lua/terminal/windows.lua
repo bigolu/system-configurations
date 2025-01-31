@@ -3,15 +3,11 @@ vim.o.splitright = true
 vim.o.splitbelow = true
 vim.o.winminheight = 0
 vim.o.winminwidth = 0
-vim.keymap.set("n", "<C-\\>", vim.cmd.vsplit, {
-  desc = "Vertical split",
-})
-vim.keymap.set("n", "<C-->", vim.cmd.split, {
-  desc = "Horizontal split",
-})
-vim.keymap.set("n", "<C-_>", vim.cmd.split, {
-  desc = "Horizontal split",
-})
+vim.keymap.set("n", "<C-\\>", vim.cmd.vsplit)
+vim.keymap.set("n", "<C-->", vim.cmd.split)
+vim.keymap.set("n", "<C-_>", "<C-->", { expr = true })
+vim.keymap.set("n", "<C-[>", vim.cmd.tabprevious)
+vim.keymap.set("n", "<C-]>", vim.cmd.tabnext)
 
 Plug("numToStr/Navigator.nvim", {
   config = function()

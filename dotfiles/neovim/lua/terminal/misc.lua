@@ -101,30 +101,6 @@ Plug("jake-stewart/multicursor.nvim", {
   end,
 })
 
--- Get help buffers to open in the current window. Source: https://stackoverflow.com/a/26431632
---
--- TODO: comment on the source to add the edge cases I found.
-vim.api.nvim_create_user_command("Help", function(context)
-  vim.cmd.enew()
-  local new_buffer = vim.fn.bufnr()
-  vim.bo.buftype = "help"
-  vim.cmd.help(context.args)
-
-  -- If the help buffer was already open, vim will just jump to it so in that case we should close the new buffer we made.
-  local not_in_new_buffer = new_buffer ~= vim.fn.bufnr()
-  if not_in_new_buffer then
-    vim.cmd.bwipeout(new_buffer)
-    return
-  end
-
-  vim.bo.buflisted = true
-  -- some help pages have the filetype "text" so I'll change that
-  vim.bo.filetype = "help"
-end, {
-  complete = "help",
-  nargs = 1,
-})
-
 -- Settings {{{
 vim.o.mouse = "a"
 vim.o.jumpoptions = "stack"
@@ -174,10 +150,6 @@ vim.api.nvim_create_autocmd("User", {
 -- suspend vim
 vim.keymap.set({ "n", "i", "x" }, "<C-z>", "<Cmd>suspend<CR>", {
   desc = "Suspend [background]",
-})
-
-vim.keymap.set("n", "<BS>", "<C-^>", {
-  desc = "Last window",
 })
 
 -- To have separate mappings for <Tab> and <C-i> you have to map both. Since I
@@ -328,7 +300,7 @@ vim.keymap.set({ "ca" }, "lua", function()
 end, { expr = true })
 vim.keymap.set({ "ca" }, "h", function()
   if vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == "h" then
-    return "Help"
+    return "tab help"
   else
     return "h"
   end
@@ -352,35 +324,8 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
 vim.keymap.set("t", "jk", [[<C-\><C-n>]])
 
 vim.api.nvim_create_autocmd("TermOpen", {
-  callback = function()
-    vim.opt_local.signcolumn = "no"
-    vim.opt_local.statuscolumn = ""
-  end,
-})
-vim.api.nvim_create_autocmd("WinEnter", {
-  nested = true,
-  callback = function()
-    if vim.bo.buftype == "terminal" then
-      vim.cmd.startinsert()
-    end
-  end,
-})
-vim.api.nvim_create_autocmd("BufWinEnter", {
-  callback = function()
-    if vim.bo.buftype == "terminal" then
-      vim.opt_local.signcolumn = "no"
-      vim.opt_local.statuscolumn = ""
-    end
-  end,
-})
-vim.api.nvim_create_autocmd("BufWinLeave", {
-  callback = function()
-    if vim.bo[tonumber(vim.fn.expand("<abuf>"))].buftype == "terminal" then
-      vim.cmd([[
-        set signcolumn<
-        set statuscolumn<
-      ]])
-    end
+  callback = function(_)
+    vim.cmd.startinsert()
   end,
 })
 -- }}}

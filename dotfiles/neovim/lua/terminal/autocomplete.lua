@@ -18,12 +18,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
-local function keymap(lhs, rhs, opts, mode)
-  opts = type(opts) == "string" and { desc = opts } or opts
-  mode = mode or "n"
-  vim.keymap.set(mode, lhs, rhs, opts)
-end
-
 local function feedkeys(keys)
   vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "n", true)
 end
@@ -37,35 +31,38 @@ local is_cursor_preceded_by_nonblank_character = function()
   return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
 end
 
-function MyEnter()
+local function trigger_autocomplete()
+  -- TODO: A definition of get_clients in mini.nvim is being used by linters
+  -- instead of the one from the neovim runtime. Since it has a different signature
+  -- than the real one, linters think I'm calling it incorrectly.
+  ---@diagnostic disable-next-line: redundant-parameter
+  local is_any_lsp_server_running = next(vim.lsp.get_clients({ bufnr = 0 }))
+  if is_any_lsp_server_running then
+    vim.lsp.completion.trigger()
+  else
+    -- Buffer complete
+    feedkeys("<C-n>")
+  end
+end
+
+vim.keymap.set("i", "<CR>", function()
   return is_completion_menu_open() and vim.api.nvim_replace_termcodes("<C-y>", true, false, true)
     or require("nvim-autopairs").completion_confirm()
-end
-vim.api.nvim_set_keymap("i", "<CR>", "v:lua.MyEnter()", { expr = true, noremap = true })
+end, { expr = true, noremap = true })
 
-keymap("<Tab>", function()
+vim.keymap.set("i", "<Tab>", function()
   if is_completion_menu_open() then
     -- Select next entry
     feedkeys("<C-n>")
   elseif is_cursor_preceded_by_nonblank_character() then
-    -- TODO: A definition of get_clients in mini.nvim is being used by linters
-    -- instead of the one from the neovim runtime. Since it has a different signature
-    -- than the real one, linters think I'm calling it incorrectly.
-    ---@diagnostic disable-next-line: redundant-parameter
-    local is_any_lsp_server_running = next(vim.lsp.get_clients({ bufnr = 0 }))
-    if is_any_lsp_server_running then
-      vim.lsp.completion.trigger()
-    else
-      -- Buffer complete
-      feedkeys("<C-n>")
-    end
+    trigger_autocomplete()
   else
     feedkeys("<Tab>")
   end
-end, { desc = "Trigger/select next completion" }, "i")
+end)
 
-keymap("<S-Tab>", function()
+vim.keymap.set("i", "<C-Space>", trigger_autocomplete)
+
+vim.keymap.set("i", "<S-Tab>", function()
   return is_completion_menu_open() and "<C-p>" or "<S-Tab>"
-end, { desc = "Select last completion", expr = true }, "i")
-
-keymap("<C-f>", "<C-x><C-f>", { desc = "File completion" }, "i")
+end, { expr = true })
