@@ -22,6 +22,8 @@ commit-msg:
     - name: typos
       run: typos {1}
 
+# Lefthook stashes unstaged changes before running this hook, but not untracked
+# files: https://github.com/evilmartians/lefthook/issues/833
 pre-commit:
   jobs:
     - name: check
