@@ -76,6 +76,17 @@ Plug("echasnovski/mini.nvim", {
     --}}}
 
     -- operators {{{
+    --  Do this before mini overwrites it
+    local default_gx = vim
+      .iter(vim.api.nvim_get_keymap("n"))
+      :filter(function(k)
+        return k.lhs == "gx"
+      end)
+      :totable()[1]
+    local default_gx_rhs = default_gx.rhs or default_gx.callback
+    vim.keymap.set("n", "U", default_gx_rhs)
+    vim.keymap.set("n", "<C-LeftMouse>", "U", { remap = true })
+
     require("mini.operators").setup({
       evaluate = { prefix = "" },
       multiply = { prefix = "" },

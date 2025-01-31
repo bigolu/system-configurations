@@ -15,6 +15,8 @@ vim.api.nvim_create_autocmd({ "OptionSet" }, {
 })
 
 -- cursor
+-- I don't think I'll need to reset/restore the cursor once this issue is resolved:
+-- https://github.com/neovim/neovim/issues/4396
 local function set_cursor()
   -- Block cursor in normal mode, thin line in insert mode, and underline in replace
   -- mode
@@ -23,8 +25,6 @@ local function set_cursor()
 end
 local function reset_cursor()
   -- Reset terminal cursor to blinking bar.
-  -- TODO: This won't be necessary once neovim starts doing this automatically.
-  -- Issue: https://github.com/neovim/neovim/issues/4396
   vim.o.guicursor = "a:ver25-blinkwait0-blinkon200-blinkoff200"
 end
 set_cursor()
