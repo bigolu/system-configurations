@@ -150,7 +150,7 @@ local groups = {
   CursorLineNr = { bold = true }, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
   -- }}}
 
-  -- statusline {{{
+  -- statusline/tabline {{{
   status_line_mode = { ctermfg = 15, reverse = not vim.o.termguicolors, bold = true, bg = colors.bg2 }, -- Status line of current window
   StatusLine = { ctermfg = 15, reverse = not vim.o.termguicolors, bg = colors.bg2, fg = colors[7] }, -- Status line of current window
   StatusLineNormal = { ctermbg = "NONE", ctermfg = 7, nocombine = true, bg = colors[0] },
@@ -167,6 +167,9 @@ local groups = {
   StatusLinePowerlineOuter = { ctermfg = 15, nocombine = true, fg = colors.bg2, bg = colors[0] },
   StatusLinePowerlineInner = { ctermfg = 15, nocombine = true, reverse = not vim.o.termguicolors, bg = colors.bg2, fg = colors[0] },
   StatusLineC = { bg = colors.bg2, fg = colors[0] },
+  TabLine = "StatusLine",
+  TabLineFill = "TabLine",
+  TabLineSel = "Normal",
   -- }}}
 
   -- LSP {{{
