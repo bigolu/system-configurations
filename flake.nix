@@ -1,8 +1,3 @@
-# TODO: Having the following text gets Renovate to recognize the dependencies in this
-# file: "github:NixOS/nixpkgs/nixpkgs-unstable"
-# Source: https://github.com/renovatebot/renovate/issues/29721
-# fix: https://github.com/renovatebot/renovate/pull/31921
-
 {
   description = "System configurations";
 
