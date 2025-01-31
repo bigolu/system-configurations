@@ -1,5 +1,8 @@
 [settings]
 unix_default_inline_shell_args = "bash -o errexit -o nounset -o pipefail -c"
+# This setting must be true for any tasks that are used to generate autocomplete
+# entries. So if you ever change this global setting to false, ensure that any
+# autocomplete tasks set this to true locally.
 quiet = true
 # The lefthook job 'sync.system' prompts for my password so I need it needs access to
 # stdin. There may be others that need stdin and since I don't run any tasks in
