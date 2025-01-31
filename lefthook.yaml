@@ -106,14 +106,14 @@ templates:
 
 commit-msg:
   jobs:
-    - name: typos
+    - name: commit-msg-typos-check
       run: typos {1}
 
 # Lefthook stashes unstaged changes before running this hook, but not untracked
 # files: https://github.com/evilmartians/lefthook/issues/833
 pre-commit:
   jobs:
-    - name: check
+    - name: pre-commit-check
       run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
 
 post-merge:
