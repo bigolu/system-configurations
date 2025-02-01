@@ -11,7 +11,12 @@
 }:
 let
   inherit (utils) projectRoot;
-  inherit (lib) fileset mkMerge hm;
+  inherit (lib)
+    fileset
+    mkMerge
+    hm
+    getExe
+    ;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs) writeShellApplication;
   inherit (pkgs.stdenv) isLinux;
@@ -34,6 +39,7 @@ let
       coreutils
       gnugrep
       nix
+      nvd
     ];
     text = ''
       cd "${config.repository.directory}"
@@ -51,13 +57,7 @@ let
 
       cyan='\033[1;0m'
       printf "%bPrinting preview...\n" "$cyan"
-      nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
-      ${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/nix/bin;
-          fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
-        }
-      }/nix-closure-size-diff.bash "$oldGenerationPath" "$newGenerationPath"
+      nvd --color=never diff "$oldGenerationPath" "$newGenerationPath"
     '';
   };
 
@@ -198,13 +198,7 @@ mkMerge [
         printGenerationDiff = hm.dag.entryAnywhere ''
           # On the first activation, there won't be an old generation.
           if [[ -n "''${oldGenPath+set}" ]] ; then
-            nix store diff-closures $oldGenPath $newGenPath
-            ${
-              fileset.toSource {
-                root = projectRoot + /dotfiles/nix/bin;
-                fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
-              }
-            }/nix-closure-size-diff.bash $oldGenPath $newGenPath
+            ${getExe pkgs.nvd} --color=never diff $oldGenPath $newGenPath
           fi
         '';
       };

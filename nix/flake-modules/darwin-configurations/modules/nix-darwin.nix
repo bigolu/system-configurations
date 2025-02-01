@@ -11,7 +11,7 @@
 }:
 let
   inherit (utils) projectRoot;
-  inherit (lib) fileset;
+  inherit (lib) fileset getExe;
   inherit (pkgs) writeShellApplication;
 
   system-config-preview = writeShellApplication {
@@ -19,6 +19,7 @@ let
     runtimeInputs = with pkgs; [
       nix
       coreutils
+      nvd
     ];
     text = ''
       cd "${repositoryDirectory}"
@@ -27,13 +28,7 @@ let
       newGenerationPath="$(nix build --no-link --print-out-paths .#darwinConfigurations.${configName}.system)"
 
       printf 'Printing preview...\n'
-      nix store diff-closures "$oldGenerationPath" "$newGenerationPath"
-      ${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/nix/bin;
-          fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
-        }
-      }/nix-closure-size-diff.bash "$oldGenerationPath" "$newGenerationPath"
+      nvd --color=never diff "$oldGenerationPath" "$newGenerationPath"
     '';
   };
 
@@ -152,13 +147,7 @@ in
     activationScripts.postActivation.text = ''
       if [[ -e /run/current-system ]]; then
         printf '\e[36m┃ [bigolu] Printing generation diff ❯\e(B\e[m\n' >&2
-        nix store diff-closures /run/current-system "$systemConfig"
-        ${
-          fileset.toSource {
-            root = projectRoot + /dotfiles/nix/bin;
-            fileset = projectRoot + /dotfiles/nix/bin/nix-closure-size-diff.bash;
-          }
-        }/nix-closure-size-diff.bash /run/current-system "$systemConfig"
+        ${getExe pkgs.nvd} --color=never diff /run/current-system "$systemConfig"
       fi
     '';
   };
