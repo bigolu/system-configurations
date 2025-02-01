@@ -105,7 +105,10 @@
 
     gomod2nix = {
       url = "github:nix-community/gomod2nix";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+      };
     };
 
     nix-gl-host = {
@@ -125,7 +128,12 @@
 
     isd = {
       url = "github:isd-project/isd";
-      inputs.nixpkgs.follows = "nixpkgs";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        systems.follows = "systems";
+        nix-appimage.follows = "";
+        systemd-nix.follows = "";
+      };
     };
 
     ghostty = {
@@ -143,14 +151,24 @@
       # This flake's packages are available in a cache. I'm intentionally not setting
       # `inputs.nixpkgs.follows = "nixpkgs"`because if I did, then the packages
       # created by this flake would be different from the ones that they cached.
-      inputs.flake-compat.follows = "";
+      inputs = {
+        flake-compat.follows = "";
+        flake-parts.follows = "flake-parts";
+        git-hooks.follows = "";
+        hercules-ci-effects.follows = "";
+        treefmt-nix.follows = "";
+      };
     };
 
     # Flake Utilities
     # --------------------------------------------------------------------------
 
     flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/*.tar.gz";
-    flake-utils.url = "github:numtide/flake-utils";
+
+    flake-utils = {
+      url = "github:numtide/flake-utils";
+      inputs.systems.follows = "systems";
+    };
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -193,5 +211,11 @@
       url = "github:jake-stewart/multicursor.nvim";
       flake = false;
     };
+
+    # Follow Targets
+    # --------------------------------------------------------------------------
+    # These inputs are only here so I can set them as the target of a `follows`.
+
+    systems.url = "github:nix-systems/default";
   };
 }
