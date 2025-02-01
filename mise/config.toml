@@ -193,7 +193,11 @@ usage = '''
   arg "<dev_shell>" help="The dev shell that direnv should load"
   complete "dev_shell" run=#"""
     nix eval --impure --raw --apply \
-      'shells: builtins.concatStringsSep "\n" (builtins.attrNames shells)' \
+      '
+        shells: builtins.concatStringsSep
+          "\n"
+          (builtins.filter (name: (builtins.substring 0 3 name) == "ci-") (builtins.attrNames shells))
+      ' \
       .#currentSystem.devShells 2>/dev/null
   """#
 '''
