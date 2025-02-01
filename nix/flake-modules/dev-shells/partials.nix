@@ -149,6 +149,8 @@ let
       # These get used in the mise config
       lefthook
       fish
+      yq-go
+      coreutils
     ];
     shellHook = ''
       mise trust --quiet

@@ -101,16 +101,15 @@ run = 'system-config-preview'
 description = "Report/Fix issues in changed files"
 usage = '''
   long_about """
-    Run various checks on the code, automatically fixing issues if possible. The \
-    checks are split into different jobs so you don't have to run them all at once. It runs on all files \
-    that differ between the current branch and the default branch, and untracked files. \
-    This is usually what you want since you can assume any files merged into the \
-    default branch have been checked. In case you forget to run it, it also runs during \
-    the git pre-commit hook. The list of checks is in lefthook.yaml.
+    Run checks on the code, automatically fixing issues if possible. It runs \
+    on all files that differ between the current branch and the default branch, \
+    and untracked files. This is usually what you want since you can assume any \
+    files merged into the default branch have been checked. You shouldn't have \
+    to run this manually since it runs during the git pre-commit hook, where it \
+    only runs on staged files. The list of checks is in lefthook.yaml.
   """
-  arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run" {
-    choices "generate" "format" "fix-lint" "check-lint" "test"
-  }
+  arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
+  complete "jobs" run=#"mise run check-autocomplete"#
 '''
 run = '''
   joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
@@ -131,9 +130,8 @@ usage = '''
     should run this if you make changes that affect how any of the checks work. For \
     example, changing the configuration file for a linter.
   """
-  arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run" {
-    choices "generate" "format" "fix-lint" "check-lint" "test"
-  }
+  arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
+  complete "jobs" run=#"mise run check-autocomplete"#
 '''
 run = '''
   joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
@@ -143,6 +141,12 @@ run = '''
     git ls-files -z; \
     git ls-files -z --others --exclude-standard; \
   } | lefthook run check --files-from-stdin --jobs "$joined_jobs"
+'''
+
+[tasks.check-autocomplete]
+hide = true
+run = '''
+  yq '.check | .. | select(has("name")) | .name | select(test("^(_|generate|fix-lint|format|check-lint|test)$") | not)' lefthook.yaml | sort --unique
 '''
 
 # Syncing

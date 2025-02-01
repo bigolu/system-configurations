@@ -8,7 +8,7 @@
 <h4><code>&lt;package&gt;</code></h4>
 <p>The package to build e.g. .#shell</p>
 <h2><code>check</code></h2>
-<p>Run various checks on the code, automatically fixing issues if possible. The checks are split into different jobs so you don't have to run them all at once. It runs on all files that differ between the current branch and the default branch, and untracked files. This is usually what you want since you can assume any files merged into the default branch have been checked. In case you forget to run it, it also runs during the git pre-commit hook. The list of checks is in lefthook.yaml.</p>
+<p>Run checks on the code, automatically fixing issues if possible. It runs on all files that differ between the current branch and the default branch, and untracked files. This is usually what you want since you can assume any files merged into the default branch have been checked. You shouldn't have to run this manually since it runs during the git pre-commit hook, where it only runs on staged files. The list of checks is in lefthook.yaml.</p>
 <ul>
 <li><strong>Usage</strong>: <code>check [jobs]...</code></li>
 </ul>
@@ -16,14 +16,6 @@
 <h3>Arguments</h3>
 <h4><code>[jobs]...</code></h4>
 <p>Jobs to run. If none are passed then all of them will be run</p>
-<p><strong>Choices:</strong></p>
-<ul>
-<li><code>generate</code></li>
-<li><code>format</code></li>
-<li><code>fix-lint</code></li>
-<li><code>check-lint</code></li>
-<li><code>test</code></li>
-</ul>
 <h2><code>check-all</code></h2>
 <p>This is the same as the <code>check</code> task, except that it runs on all files. You should run this if you make changes that affect how any of the checks work. For example, changing the configuration file for a linter.</p>
 <ul>
@@ -33,14 +25,6 @@
 <h3>Arguments</h3>
 <h4><code>[jobs]...</code></h4>
 <p>Jobs to run. If none are passed then all of them will be run</p>
-<p><strong>Choices:</strong></p>
-<ul>
-<li><code>generate</code></li>
-<li><code>format</code></li>
-<li><code>fix-lint</code></li>
-<li><code>check-lint</code></li>
-<li><code>test</code></li>
-</ul>
 <h2><code>debug</code></h2>
 <ul>
 <li><strong>Usage</strong>: <code>debug &lt;package&gt;</code></li>
