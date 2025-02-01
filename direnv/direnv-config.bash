@@ -17,7 +17,7 @@ function main {
   # `direnv-manual-reload.bash`.
   enable_manual_reload
   create_layout_dir
-  dotenv_if_exists "${DIRENV_LAYOUT_DIR}/secrets.env"
+  dotenv_if_exists secrets.env
   set_up_nix
 }
 
