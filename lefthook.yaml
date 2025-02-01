@@ -68,8 +68,8 @@ templates:
         diff_including_untracked
 
         # Remove the changes to keep the git repository in a clean state for the next
-        # fix command that runs. I could drop the stash as well, but in the event that
-        # this code accidentally runs when the script is run locally, I don't want to
+        # fix command that runs. I could drop the stash as well, but in the event
+        # that this code is run locally, to debug for example, I don't want to
         # permanently delete anyone's changes.
         git stash --include-untracked 1>/dev/null
 

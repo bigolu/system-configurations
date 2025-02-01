@@ -58,7 +58,13 @@ moduleContext@{ lib, ... }:
       ci-essentials = { };
 
       ci-check-pull-request = {
-        inputsFrom = with partials; [ checks ];
+        inputsFrom = with partials; [
+          checks
+          # This is needed for generating task documentation
+          taskRunner
+          # This is needed for running mypy
+          speakerctl
+        ];
       };
 
       ci-renovate = {
