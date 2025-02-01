@@ -188,22 +188,27 @@ usage = '''
 run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link {{arg(name="package")}}'
 
 [tasks.debug-ci]
-description = "Run a command in a direnv CI environment"
+description = "Start a Bash REPL in a direnv CI environment"
 usage = '''
-  arg "<dev_shell>" help="The dev shell to use"
+  arg "<dev_shell>" help="The dev shell that direnv should load"
   complete "dev_shell" run=#"""
     nix eval --impure --raw --apply \
       'shells: builtins.concatStringsSep "\n" (builtins.attrNames shells)' \
       .#currentSystem.devShells 2>/dev/null
   """#
-  arg "<command>" var=#true var_min=1 help="The command to run"
 '''
 run = '''
+  # direnv will add non-interactive Bash to the path since that's part of Nix's
+  # stdenv. We can't use ci-bash since it exits when a command fails.
+  bash_interactive="$(nix eval --raw --file nix/flake-package-set.nix 'bashInteractive')/bin/bash"
+
   # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv
   # doesn't overwrite the dev shell cached in .direnv with the one built here.
-  CI=true DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" nix shell \
+  CI=true DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" HOME="$(mktemp --directory)" \
+      nix shell \
       --ignore-environment \
       --keep CI --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
-      nixpkgs#direnv nixpkgs#coreutils nixpkgs#bashInteractive nixpkgs#nix \
-      --command direnv exec "$PWD" {{arg(name="command")}}
+      --keep TERM --keep TERMINFO --keep TERMINFO_DIRS --keep TERM_PROGRAM --keep TERM_PROGRAM_VERSION --keep COLORTERM \
+      nixpkgs#direnv nixpkgs#coreutils nixpkgs#bash nixpkgs#nix \
+      --command bash -c "direnv allow; exec direnv exec . $bash_interactive"
 '''
