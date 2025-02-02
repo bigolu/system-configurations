@@ -15,9 +15,6 @@
       autopair-fish
       fish-async-prompt
       done
-      # Using this to get shell completion for programs added to the path through
-      # nix+direnv. Issue to upstream into direnv:
-      # https://github.com/direnv/direnv/issues/443
       fish-completion-sync
     ]);
 
