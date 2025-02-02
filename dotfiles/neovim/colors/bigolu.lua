@@ -58,8 +58,8 @@ else
     warn_bg = "#fdf7f1",
     info_bg = "#edf4fe",
     ok_bg = "#e8fbee",
-    inlay_bg = "#292d38",
-    inlay_fg = "#abb4c4",
+    inlay_bg = "#e3e5e7",
+    inlay_fg = "#666666",
     string = "#a40e26",
     bracket = "#652d90",
   }
