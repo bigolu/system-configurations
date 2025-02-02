@@ -75,7 +75,7 @@ Plug("mhinz/vim-signify", {
 })
 vim.g.signify_priority = 1
 vim.g.signify_sign_show_count = 0
-local signify_sign = "┃"
+local signify_sign = "▎"
 vim.g.signify_sign_add = signify_sign
 vim.g.signify_sign_delete = signify_sign
 vim.g.signify_sign_delete_first_line = signify_sign
