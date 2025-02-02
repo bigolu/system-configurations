@@ -144,8 +144,6 @@ let
   taskRunner = mkShellWrapperNoCC {
     packages = with pkgs; [
       mise
-      # This is needed for the autocompletion of task arguments
-      usage
       # These get used in the mise config
       lefthook
       fish
