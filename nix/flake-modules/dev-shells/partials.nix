@@ -192,6 +192,7 @@ let
         (map readFile)
         (map (splitString "\n"))
         concatLists
+
         # Extract script dependencies from their nix-shell shebangs.
         #
         # The shebang looks something like:
@@ -202,12 +203,19 @@ let
         (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
         (filter (matches: matches != null))
         (map (matches: elemAt matches 1))
-        # Flatten the output of the previous match i.e. print _one_
-        # dependency per line
+
+        # Flatten the output of the previous match i.e. each string in the list will
+        # hold _one_ dependency.
         (map (splitString " "))
         concatLists
+
         unique
         (map (dependencyName: pkgs.${dependencyName}))
+        # Scripts use `nix-shell-interpreter` as their interpreter to work around an
+        # issue with nix-shell, but bashInteractive can be used locally for
+        # debugging. It's important that bashInteractive is added to the front of the
+        # list because otherwise non-interactive bash will shadow it on the PATH.
+        (dependencies: [ pkgs.bashInteractive ] ++ dependencies)
         (dependencies: mkShellWrapperNoCC { packages = dependencies; })
       ];
 
