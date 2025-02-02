@@ -185,7 +185,6 @@ in
   ripgrep-all = ripgrepAllWithDependencies;
   packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix; };
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp {
-    name = "bash";
     interpreter = final.bashInteractive;
   };
 
