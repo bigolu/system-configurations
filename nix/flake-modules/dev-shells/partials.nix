@@ -177,45 +177,50 @@ let
   #     script.
   #   - Once the dev shell has been loaded, you can work offline since all the
   #     dependencies have already been fetched.
-  scriptDependencies =
-    pipe
-      [
-        (projectRoot + /scripts)
-        (projectRoot + /mise/tasks)
-      ]
-      [
-        # Get all lines in all scripts
-        (map lib.filesystem.listFilesRecursive)
-        concatLists
-        (map readFile)
-        (map (splitString "\n"))
-        concatLists
+  scriptDependencies = pipe projectRoot [
+    # Get all nix-shell shebang scripts
+    (fileset.fileFilter (file: file.hasExt "bash"))
+    # The scripts in dotfiles/ don't use nix-shell shebangs
+    (bashScripts: fileset.difference bashScripts (projectRoot + /dotfiles))
+    (
+      nixShellShebangScripts:
+      fileset.toSource {
+        root = projectRoot;
+        fileset = nixShellShebangScripts;
+      }
+    )
 
-        # Extract script dependencies from their nix-shell shebangs.
-        #
-        # The shebang looks something like:
-        #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
-        #
-        # So this match will extract everything between the brackets i.e.
-        #   'dep1 dep2 dep3'.
-        (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
-        (filter (matches: matches != null))
-        (map (matches: elemAt matches 1))
+    # Get all lines in all scripts
+    lib.filesystem.listFilesRecursive
+    (map readFile)
+    (map (splitString "\n"))
+    concatLists
 
-        # Flatten the output of the previous match i.e. each string in the list will
-        # hold _one_ dependency.
-        (map (splitString " "))
-        concatLists
+    # Extract script dependencies from their nix-shell shebangs.
+    #
+    # The shebang looks something like:
+    #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
+    #
+    # So this match will extract everything between the brackets i.e.
+    #   'dep1 dep2 dep3'.
+    (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
+    (filter (matches: matches != null))
+    (map (matches: elemAt matches 1))
 
-        unique
-        (map (dependencyName: pkgs.${dependencyName}))
-        # Scripts use `nix-shell-interpreter` as their interpreter to work around an
-        # issue with nix-shell, but bashInteractive can be used locally for
-        # debugging. It's important that bashInteractive is added to the front of the
-        # list because otherwise non-interactive bash will shadow it on the PATH.
-        (dependencies: [ pkgs.bashInteractive ] ++ dependencies)
-        (dependencies: mkShellWrapperNoCC { packages = dependencies; })
-      ];
+    # Flatten the output of the previous match i.e. each string in the list will
+    # hold _one_ dependency, instead of multiple separated by a space.
+    (map (splitString " "))
+    concatLists
+
+    unique
+    (map (dependencyName: pkgs.${dependencyName}))
+    # Scripts use `nix-shell-interpreter` as their interpreter to work around an
+    # issue with nix-shell, but bashInteractive can be used locally for
+    # debugging. It's important that bashInteractive is added to the front of the
+    # list because otherwise non-interactive bash will shadow it on the PATH.
+    (dependencies: [ pkgs.bashInteractive ] ++ dependencies)
+    (dependencies: mkShellWrapperNoCC { packages = dependencies; })
+  ];
 
   checks =
     let

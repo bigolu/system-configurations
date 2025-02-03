@@ -173,10 +173,12 @@ sync:
         - nix/*
         - flake.nix
         - flake.lock
-        # These directories are included so script dependencies can be re-extracted
-        # and loaded into the dev shell.
-        - scripts/*
-        - mise/tasks/*
+        # This glob, and the one in `exclude`, are for matching all the nix-shell
+        # shebang scripts. This way, script dependencies can be re-extracted and
+        # loaded into the dev shell.
+        - "*.bash"
+      exclude:
+        - dotfiles/*.bash
       run: ./scripts/lefthook/sync-direnv.bash
     - name: lefthook
       # TODO: Currently, this is only needed on the first sync that's done after
