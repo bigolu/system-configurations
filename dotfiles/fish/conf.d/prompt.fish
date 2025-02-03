@@ -140,8 +140,6 @@ function _job_context
 end
 
 function _login_context
-    set host (hostname)
-
     if test -n "$(_container_name)"
         set --append host_attributes $_color_warning_text'container'$_color_normal
     end
@@ -155,6 +153,7 @@ function _login_context
 
     if set --query host_attributes
         or set --query privilege
+        set host $hostname
         set user $USER
         if test -z "$user"
             set user (set_color --italics)"no name"(set_color normal)
