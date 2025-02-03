@@ -8,6 +8,13 @@ set _color_success_text (set_color green)
 set _color_normal (set_color normal)
 set _color_border (set_color brblack)
 
+function _prompt_max_length
+    # The max number of screen columns a context can use and still fit on one
+    # line. The 4 accounts for the 4 characters that make up the border, see
+    # `_make_line`. The max() is there so the value is never negative
+    math max\($COLUMNS - 4, 1\)
+end
+
 function fish_prompt --description 'Print the prompt'
     # I want the value of $status and $pipestatus for the last command executed
     # on the command line so I will store their values now before executing any
@@ -37,21 +44,18 @@ function fish_prompt --description 'Print the prompt'
         return
     end
 
-    # The max number of screen columns a context can use and still fit on one
-    # line. The 4 accounts for the 4 characters that make up the border, see
-    # `_make_line`. The max() is there so the value is never negative
-    set max_length (math max\($COLUMNS - 4, 1\))
     set contexts \
         (_job_context) \
         (_broot_context) \
         (_direnv_context) \
         (_nix_context) \
         (_python_context) \
-        (_git_context $max_length) \
-        (_path_context $max_length) \
+        (_git_context) \
+        (_path_context) \
         (_login_context) \
         (_status_context $last_status $last_pipestatus)
 
+    set max_length (_prompt_max_length)
     set new_contexts $contexts
     set contexts
     for context in $new_contexts
@@ -200,8 +204,9 @@ function _container_name
     end
 end
 
-function _path_context --argument-names max_length
+function _path_context
     set context_prefix 'path: '
+    set max_length (_prompt_max_length)
 
     # Passing 0 means prompt won't be shortened
     set path (prompt_pwd --dir-length 0)
@@ -243,7 +248,7 @@ function _direnv_context
     printf "direnv: $directory$blocked"
 end
 
-function _git_context --argument-names max_length
+function _git_context
     # Won't be in portable home
     if not type --query git
         return
@@ -255,6 +260,7 @@ function _git_context --argument-names max_length
         return
     end
 
+    # SYNC
     set context_prefix 'git: '
 
     set git_status (_git_status)
@@ -266,34 +272,7 @@ function _git_context --argument-names max_length
         return
     end
 
-    # remove parentheses and leading space
-    # e.g. ' (<branch>,dirty,untracked)' -> '<branch>,dirty,untracked'
-    set --local formatted_status (string sub --start=3 --end=-1 $git_status)
-    # replace first comma with ' ('
-    # e.g. ',<branch>,dirty,untracked' -> ' (<branch> dirty,untracked'
-    set --local formatted_status (string replace ',' ' (' $formatted_status)
-    # only add the closing parentheses if we added the opening one
-    and set formatted_status (string join '' $formatted_status ')')
-
-    set max_status_length (math $max_length - (string length $context_prefix))
-    if test (string length --visible $formatted_status) -gt $max_status_length
-        set formatted_status (_abbreviate_git_states $formatted_status)
-    end
-
-    set branch_name (git branch --show-current)
-    # I could also check that this branch exists on the remote, but that check
-    # takes ~500ms whereas the rest of my prompt take ~100ms to load so I don't
-    # think it's worth the wait.
-    if test -n "$branch_name"
-        set git_branch_hyperlink (_make_hyperlink_to_git_branch "$branch_name")
-
-        set branch_name_length (math (string length "$branch_name") + 1)
-        set formatted_status_without_git_branch (string sub --start "$branch_name_length" "$formatted_status")
-
-        set formatted_status "$git_branch_hyperlink$formatted_status_without_git_branch"
-    end
-
-    printf "git: $formatted_status"
+    printf "git: $git_status"
 end
 function _make_hyperlink_to_git_branch --argument-names branch_name
     set hyperlink
@@ -325,6 +304,10 @@ function _make_hyperlink_to_git_branch --argument-names branch_name
     end
 end
 function _git_status
+    if not git rev-parse --is-inside-work-tree >/dev/null 2>&1
+        return
+    end
+
     # Since this will be executed in a separate process, I have to set all these
     # global variables here.
     set --global __fish_git_prompt_showupstream informative
@@ -337,7 +320,39 @@ function _git_status
     set --global __fish_git_prompt_char_stagedstate ',staged'
     set --global __fish_git_prompt_char_invalidstate ',invalid'
     set --global __fish_git_prompt_char_stateseparator ''
-    fish_git_prompt
+    set git_status (fish_git_prompt)
+
+    # remove parentheses and leading space
+    # e.g. ' (<branch>,dirty,untracked)' -> '<branch>,dirty,untracked'
+    set --local formatted_status (string sub --start=3 --end=-1 $git_status)
+    # replace first comma with ' ('
+    # e.g. ',<branch>,dirty,untracked' -> ' (<branch> dirty,untracked'
+    set --local formatted_status (string replace ',' ' (' $formatted_status)
+    # only add the closing parentheses if we added the opening one
+    and set formatted_status (string join '' $formatted_status ')')
+
+    set max_length (_prompt_max_length)
+    # SYNC
+    set context_prefix 'git: '
+    set max_status_length (math $max_length - (string length $context_prefix))
+    if test (string length --visible $formatted_status) -gt $max_status_length
+        set formatted_status (_abbreviate_git_states $formatted_status)
+    end
+
+    set branch_name (git branch --show-current)
+    # I could also check that this branch exists on the remote, but that check
+    # takes ~500ms whereas the rest of my prompt take ~100ms to load so I don't
+    # think it's worth the wait.
+    if test -n "$branch_name"
+        set git_branch_hyperlink (_make_hyperlink_to_git_branch "$branch_name")
+
+        set branch_name_length (math (string length "$branch_name") + 1)
+        set formatted_status_without_git_branch (string sub --start "$branch_name_length" "$formatted_status")
+
+        set formatted_status "$git_branch_hyperlink$formatted_status_without_git_branch"
+    end
+
+    echo "$formatted_status"
 end
 function _git_status_loading_indicator
     printf (set_color --dim --italics)'loading…'$_color_normal
