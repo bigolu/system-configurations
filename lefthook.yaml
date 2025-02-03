@@ -17,77 +17,7 @@ output:
   - execution_info
 
 templates:
-  # Usage: {fix_wrapper} [fix_command]...
-  #
-  # This template runs the given fix command and reports any fixed problems
-  # appropriately depending on whether it's run locally or in CI. Use this to run any
-  # fix. A fix is any check that modifies files like a formatter or code generator.
-  fix_wrapper: |
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-    shopt -s nullglob
-    shopt -s inherit_errexit
-
-    # I include untracked files in case a fix command creates new files, like a code
-    # generation fix for example.
-    function diff_including_untracked {
-      git ls-files -z --others --exclude-standard \
-        | {
-          readarray -d '' untracked_files
-          track_files "${untracked_files[@]}"
-          # This gets called in CI so I can't use a pager
-          git --no-pager diff --color
-          untrack_files "${untracked_files[@]}"
-        }
-    }
-
-    function track_files {
-      if (($# > 0)); then
-        git add --intent-to-add -- "$@"
-      fi
-    }
-
-    function untrack_files {
-      if (($# > 0)); then
-        git reset --quiet -- "$@"
-      fi
-    }
-
-    function _fix_wrapper {
-      diff_before_running_fix="$(diff_including_untracked)"
-      "$@"
-      diff_after_running_fix="$(diff_including_untracked)"
-
-      if [[ $diff_before_running_fix == "$diff_after_running_fix" ]]; then
-        return
-      fi
-
-      if [[ ${CI:-} == 'true' ]]; then
-        # Print the diff so people can see it in the CI console
-        diff_including_untracked
-
-        # Remove the changes to keep the git repository in a clean state for the next
-        # fix command that runs. I could drop the stash as well, but in the event
-        # that this code is run locally, to debug for example, I don't want to
-        # permanently delete anyone's changes.
-        git stash --include-untracked 1>/dev/null
-
-        # I'm failing here to make lefthook fail which will cause the overall CI check
-        # to fail.
-        exit 1
-      else
-        # Why I'm failing here:
-        #   - This failure will cause the pre-commit hook to abort the push so I can fix
-        #     up my commits.
-        #   - When I run all the fix commands together, the failures let me know which
-        #     fix commands actually fixed anything since lefthook will highlight failed
-        #     commands differently.
-        exit 1
-      fi
-    }
-
-    _fix_wrapper \
+  run_fix: scripts/lefthook/run-fix.bash
 
 # Git Hooks
 # -----------------------------------------------------------------------------------
@@ -235,19 +165,19 @@ check:
               jobs:
                 - name: readme-table-of-contents
                   glob: README.md
-                  run: "{fix_wrapper} doctoc README.md --github"
+                  run: "{run_fix} doctoc README.md --github"
                 - name: gomod2nix
                   glob: gozip/go.mod
-                  run: "{fix_wrapper} gomod2nix --dir gozip generate"
+                  run: "{run_fix} gomod2nix --dir gozip generate"
                 - name: nix-version
                   glob: flake.lock
-                  run: "{fix_wrapper} ./scripts/lefthook/code-generation/add-nix-version-to-readme.bash"
+                  run: "{run_fix} ./scripts/lefthook/code-generation/add-nix-version-to-readme.bash"
                 - name: system-configs
                   glob: "*.nix"
-                  run: "{fix_wrapper} ./scripts/lefthook/code-generation/add-system-configurations-to-readme.bash"
+                  run: "{run_fix} ./scripts/lefthook/code-generation/add-system-configurations-to-readme.bash"
                 - name: flake-lock
                   glob: flake.nix
-                  run: "{fix_wrapper} nix flake lock"
+                  run: "{run_fix} nix flake lock"
                 - name: task-docs
                   glob: mise/*
                   # TODO: markdown2html-converter hasn't been updated in a couple
@@ -259,7 +189,7 @@ check:
                     # can't use process substitution
                     temp="$(mktemp --suffix '.md')"
                     mise generate task-docs --style detailed --output "$temp"
-                    {fix_wrapper} markdown2html-converter \
+                    {run_fix} markdown2html-converter \
                       --force \
                       --title 'Tasks' \
                       --html-path docs/tasks.html "$temp"
@@ -268,27 +198,27 @@ check:
               jobs:
                 - name: deadnix
                   glob: "*.nix"
-                  run: "{fix_wrapper} deadnix --quiet --edit {files}"
+                  run: "{run_fix} deadnix --quiet --edit {files}"
                 - name: ruff
                   glob: "*.py"
-                  run: "{fix_wrapper} ruff check --fix-only {files}"
+                  run: "{run_fix} ruff check --fix-only {files}"
                 - name: statix
                   glob: "*.nix"
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/nerdypepper/statix/issues/69
-                  run: "{fix_wrapper} parallel statix fix -- {files}"
+                  run: "{run_fix} parallel statix fix -- {files}"
                 - name: markdownlint-cli2
                   glob: "*.md"
-                  run: "{fix_wrapper} markdownlint-cli2 --fix {files}"
+                  run: "{run_fix} markdownlint-cli2 --fix {files}"
                 - name: go-mod-tidy
                   glob: gozip/go.{mod,sum}
-                  run: "{fix_wrapper} go -C gozip mod tidy"
+                  run: "{run_fix} go -C gozip mod tidy"
                 - name: typos
                   glob:
                     - .editorconfig
                     - shellcheckrc
                     - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
-                  run: "{fix_wrapper} typos --write-changes --format silent {files}"
+                  run: "{run_fix} typos --write-changes --format silent {files}"
           # Run formatting after lint fixes because sometimes a lint fix produces
           # code that doesn't comply with the formatting.
           - name: format
@@ -296,33 +226,33 @@ check:
               jobs:
                 - name: taplo
                   glob: "*.toml"
-                  run: "{fix_wrapper} taplo format {files}"
+                  run: "{run_fix} taplo format {files}"
                 - name: prettier
                   glob: "*.{md,js,json,json{5,c},yaml}"
-                  run: "{fix_wrapper} prettier --write {files}"
+                  run: "{run_fix} prettier --write {files}"
                 - name: shfmt
                   glob: "*.{sh,bash}"
-                  run: "{fix_wrapper} shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}"
+                  run: "{run_fix} shfmt --simplify --binary-next-line --case-indent --indent 2 --write {files}"
                 - name: fish_indent
                   glob: "*.fish"
-                  run: "{fix_wrapper} fish_indent --write {files}"
+                  run: "{run_fix} fish_indent --write {files}"
                 - name: nixfmt
                   glob: "*.nix"
                   # --verify confirms that the formatted code parses the same as the
                   # input code.
-                  run: "{fix_wrapper} nixfmt --verify {files}"
+                  run: "{run_fix} nixfmt --verify {files}"
                 - name: stylua
                   glob: "*.lua"
-                  run: "{fix_wrapper} stylua {files}"
+                  run: "{run_fix} stylua {files}"
                 - name: gofmt
                   glob: "*.go"
-                  run: "{fix_wrapper} gofmt -w {files}"
+                  run: "{run_fix} gofmt -w {files}"
                 - name: ruff-format
                   glob: "*.py"
-                  run: "{fix_wrapper} ruff format {files}"
+                  run: "{run_fix} ruff format {files}"
                 - name: ruff-format-sort-imports
                   glob: "*.py"
-                  run: "{fix_wrapper} ruff check --select I --fix-only {files}"
+                  run: "{run_fix} ruff check --select I --fix-only {files}"
           # I'm putting the check-lint and test groups in their own group so I can
           # run them in parallel. It's safe to do so because they don't modify any
           # files.
