@@ -30,4 +30,8 @@ case "$usage_destination" in
   'to-system')
     rsync --recursive dotfiles/cosmic/config/ ~/.config/cosmic/
     ;;
+  *)
+    # It shouldn't ever reach this case
+    exit 1
+    ;;
 esac

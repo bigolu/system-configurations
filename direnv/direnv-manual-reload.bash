@@ -124,6 +124,9 @@ function remove_watched_files {
       "$reload_file")
         watched_files_to_keep+=("$file")
         ;;
+      *)
+        continue
+        ;;
     esac
   done
 
