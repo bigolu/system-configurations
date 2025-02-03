@@ -55,7 +55,7 @@ function _completion_sync_add --argument-names file
         set COMPLETION_SYNC_ADDITION_ENTRIES "$COMPLETION_SYNC_ADDITION_ENTRIES$COMPLETION_SYNC_ENTRIES_DELIMITER"
     end
     set COMPLETION_SYNC_ADDITION_ENTRIES "$COMPLETION_SYNC_ADDITION_ENTRIES""$(string join --no-empty \n $added_entries)"
-    printf %s "$COMPLETION_SYNC_ADDITION_ENTRIES" >$COMPLETION_SYNC_ADDITION_ENTRIES_FILE
+    set _completion_sync_should_update_file true
 end
 
 function _completion_sync_remove --argument-names file
@@ -80,10 +80,12 @@ function _completion_sync_remove --argument-names file
 
     set --erase entries[$file_index]
     set COMPLETION_SYNC_ADDITION_ENTRIES "$(string join $COMPLETION_SYNC_ENTRIES_DELIMITER $entries)"
-    printf %s "$COMPLETION_SYNC_ADDITION_ENTRIES" >$COMPLETION_SYNC_ADDITION_ENTRIES_FILE
+    set _completion_sync_should_update_file true
 end
 
 function _completion_sync
+    set --global _completion_sync_should_update_file false
+
     if test $COMPLETION_SYNC_PID != $fish_pid
         _completion_sync_debug 'A sub shell was started, resetting state...'
 
@@ -104,7 +106,7 @@ function _completion_sync
         # Reset completion state since we're in a subshell
         set COMPLETION_SYNC_ADDITION_FILES
         set COMPLETION_SYNC_ADDITION_ENTRIES
-        printf %s "$COMPLETION_SYNC_ADDITION_ENTRIES" >$COMPLETION_SYNC_ADDITION_ENTRIES_FILE
+        set _completion_sync_should_update_file true
     end
 
     _completion_sync_debug 'Syncing...'
@@ -151,6 +153,10 @@ function _completion_sync
     end
     if test (count $added_files) -gt 0
         _completion_sync_debug 'Adding completions for these files:'\n"$(string join \n $added_files)"
+    end
+
+    if test $_completion_sync_should_update_file = true
+        printf %s "$COMPLETION_SYNC_ADDITION_ENTRIES" >$COMPLETION_SYNC_ADDITION_ENTRIES_FILE
     end
 end
 
