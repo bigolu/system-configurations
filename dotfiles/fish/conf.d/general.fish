@@ -273,3 +273,15 @@ end
 abbr --add c \
     --position anywhere \
     --function _git_commit
+# Using an abbreviation instead of a git alias so I can still get autocomplete
+function _git_unstage
+    set command (commandline --tokenize)[1]
+    if test "$command" = git
+        echo 'reset HEAD --'
+    else
+        return 1
+    end
+end
+abbr --add unstage \
+    --position anywhere \
+    --function _git_unstage
