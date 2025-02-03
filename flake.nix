@@ -185,12 +185,6 @@
       flake = false;
     };
 
-    # TODO: Add this plugin to nixpkgs
-    "fish-plugin-fish-completion-sync" = {
-      url = "github:pfgray/fish-completion-sync";
-      flake = false;
-    };
-
     # Vim Plugins
     # --------------------------------------------------------------------------
 

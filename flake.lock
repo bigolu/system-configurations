@@ -16,22 +16,6 @@
         "type": "github"
       }
     },
-    "fish-plugin-fish-completion-sync": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1690910715,
-        "narHash": "sha256-wmtMUVi/NmbvJtrPbORPhAwXgnILvm4rjOtjl98GcWA=",
-        "owner": "pfgray",
-        "repo": "fish-completion-sync",
-        "rev": "f75ed04e98b3b39af1d3ce6256ca5232305565d8",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pfgray",
-        "repo": "fish-completion-sync",
-        "type": "github"
-      }
-    },
     "flake-compat": {
       "locked": {
         "lastModified": 1733328505,
@@ -430,7 +414,6 @@
     "root": {
       "inputs": {
         "fish-plugin-fish-async-prompt": "fish-plugin-fish-async-prompt",
-        "fish-plugin-fish-completion-sync": "fish-plugin-fish-completion-sync",
         "flake-compat": "flake-compat",
         "flake-parts": "flake-parts",
         "flake-utils": "flake-utils",

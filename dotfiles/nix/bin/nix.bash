@@ -112,7 +112,7 @@ function maybe_warn_about_untracked_files {
         {
           echo -e "\n${yellow}┃ nix-wrapper: WARNING: Files outside the git index will be ignored by any flake operation.${reset}"
           echo 'You can add them to the index with the following command:'
-          echo "git add --intent-to-add ${joined_untracked_or_deleted_files})"
+          echo "git add --intent-to-add ${joined_untracked_or_deleted_files}"
         } >/dev/tty 2>&1
       fi
     }

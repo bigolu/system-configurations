@@ -15,7 +15,6 @@
       autopair-fish
       fish-async-prompt
       done
-      fish-completion-sync
     ]);
 
   repository.symlink.xdg.configFile."fish/conf.d".source = "fish/conf.d";
