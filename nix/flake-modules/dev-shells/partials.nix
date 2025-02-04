@@ -304,7 +304,6 @@ let
           efm-langserver
 
           # These aren't linters, but get used in some of the linting commands.
-          dash
           bash
           jq
         ];
