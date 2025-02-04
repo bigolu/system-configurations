@@ -75,6 +75,7 @@ function load_dev_shell {
     nix_direnv_manual_reload
   fi
 
+  local default_dev_shell
   default_dev_shell="$(get_default_dev_shell)"
   use flake ".#${DEV_SHELL:-$default_dev_shell}"
 }
