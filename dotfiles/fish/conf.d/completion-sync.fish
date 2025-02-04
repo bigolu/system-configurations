@@ -6,6 +6,49 @@ end
 # way to guarantee that there is never a collision.
 set --export COMPLETION_SYNC_ENTRIES_DELIMITER ':::::::completion_sync:::::::'
 
+function _completion_sync_debug --argument-names message
+    if test -n "$COMPLETION_SYNC_DEBUG"
+        echo "[completion-sync] $message" >&2
+    end
+end
+
+function _completion_sync_list
+    string split --no-empty ':' "$COMPLETION_SYNC_ADDITION_FILES"
+end
+
+# If the entries file isn't empty, but the global buffer is, either the user launched
+# a sub shell or called `exec fish`. Either way, it means the shell is starting up.
+#
+# On startup, Fish will add XDG_DATA_DIRS to fish_complete_path so we'll remove
+# the ones we're managing.
+#
+# If we ever change our minds and decide to leave them, we need to remove the
+# code further down that ignores files that are already in fish_complete_path.
+if set --query --export COMPLETION_SYNC_ADDITION_ENTRIES_FILE
+    and test -s "$COMPLETION_SYNC_ADDITION_ENTRIES_FILE"
+    and not set --query --global COMPLETION_SYNC_ADDITION_ENTRIES
+
+    set -l removed_paths
+    for addition_file in (_completion_sync_list)
+        if set -l index (contains --index -- (path dirname $addition_file) $fish_complete_path)
+            set --append removed_paths $fish_complete_path[$index]
+            set --erase fish_complete_path[$index]
+        end
+    end
+    if test (count $removed_paths) -gt 0
+        _completion_sync_debug 'Paths removed from fish_complete_path:'\n"$(string join \n $removed_paths)"
+    end
+
+    set COMPLETION_SYNC_ADDITION_FILES
+    if test $COMPLETION_SYNC_PID != $fish_pid
+        # New shell gets a new file
+        set COMPLETION_SYNC_ADDITION_ENTRIES_FILE (mktemp)
+    else
+        # We exec'd no new file needed
+        true >$COMPLETION_SYNC_ADDITION_ENTRIES_FILE
+    end
+end
+
 if not set --query --export COMPLETION_SYNC_ADDITION_FILES COMPLETION_SYNC_ADDITION_ENTRIES_FILE
     set --export COMPLETION_SYNC_ADDITION_FILES
     set --export COMPLETION_SYNC_ADDITION_ENTRIES_FILE (mktemp)
@@ -20,14 +63,9 @@ if not set --query --export COMPLETION_SYNC_PID
     set --export COMPLETION_SYNC_PID $fish_pid
 end
 
-function _completion_sync_debug --argument-names message
-    if test -n "$COMPLETION_SYNC_DEBUG"
-        echo "[completion-sync] $message" >&2
-    end
-end
-
-function _completion_sync_list
-    string split --no-empty ':' "$COMPLETION_SYNC_ADDITION_FILES"
+if test $COMPLETION_SYNC_PID != $fish_pid
+    _completion_sync_debug 'A sub shell was started, updating PID...'
+    set COMPLETION_SYNC_PID $fish_pid
 end
 
 function _completion_sync_add --argument-names file
@@ -85,28 +123,6 @@ end
 
 function _completion_sync
     set --global _completion_sync_should_update_file false
-
-    if test $COMPLETION_SYNC_PID != $fish_pid
-        _completion_sync_debug 'A sub shell was started, resetting state...'
-
-        # On startup, Fish will add XDG_DATA_DIRS to fish_complete_path so we'll
-        # remove the ones we're managing.
-        #
-        # If we ever change our minds and decide to leave them, we need to remove the
-        # code further down that ignores files that are already in
-        # fish_complete_path.
-        for addition_file in (_completion_sync_list)
-            if set -l index (contains --index -- (path dirname $addition_file) $fish_complete_path)
-                set --erase fish_complete_path[$index]
-            end
-        end
-
-        # Reset completion state since we're in a subshell
-        set COMPLETION_SYNC_PID $fish_pid
-        set COMPLETION_SYNC_ADDITION_FILES
-        set COMPLETION_SYNC_ADDITION_ENTRIES_FILE (mktemp)
-        set COMPLETION_SYNC_ADDITION_ENTRIES
-    end
 
     _completion_sync_debug 'Syncing...'
 
