@@ -44,7 +44,7 @@ set --global fish_color_valid_path
 abbr --add --global r fish-reload
 
 # Don't print a greeting when a new interactive fish shell is started
-set --global --export fish_greeting ''
+set --global fish_greeting ''
 
 # use ctrl+z to resume the most recently suspended job
 function _resume_job
