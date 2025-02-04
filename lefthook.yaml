@@ -324,9 +324,6 @@ check:
                         run: validator -groupby pass-fail {files}
                       - name: renovate-config-validator
                         glob: ".github/renovate*.json5"
-                        # TODO: The validator says this file is invalid, but it seems
-                        # to work fine.
-                        exclude: ".github/renovate-common-preset.json5"
                         run: renovate-config-validator --strict {files}
                       - name: hjson
                         glob: "*.hjson"

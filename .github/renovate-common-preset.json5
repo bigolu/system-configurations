@@ -1,12 +1,17 @@
-// This preset contains all of the settings that I usually add to a configuration. I
-// use this as a starting point for my projects.
+// TODO: Regarding the automerge settings: I used to have them in a separate preset,
+// since they are repeated a few times in this config. However,
+// `renovate-config-validator` would consider this config invalid, despite the fact
+// that the `renovate` program had no problem using it. An issue was opened for this
+// where a Renovate author said they never intended for presets to be used inside of
+// package rules[1]. The issue has since gone stale, but maybe I should reopen it.
+//
+// [1]: https://github.com/renovatebot/renovate/issues/7373#issuecomment-824815983
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  description: "This preset contains all of the settings that I usually add to a configuration. I use this as a starting point for my projects.",
   extends: ["config:best-practices", ":semanticCommitsDisabled"],
   // Nix support is currently in beta so you have to opt in.
-  nix: {
-    enabled: true,
-  },
+  nix: { enabled: true },
   // This is an experimental feature that may be removed at any time so you have to
   // opt in: https://github.com/renovatebot/renovate/discussions/20542
   osvVulnerabilityAlerts: true,
@@ -15,24 +20,45 @@
   separateMultipleMajor: true,
   lockFileMaintenance: {
     enabled: true,
-    extends: [
-      "local>bigolu/system-configurations//.github/renovate-automerge-preset.json5",
-    ],
+
+    automerge: true,
+    // I'm using the branch type, instead of the pull request type, for auto merge so I
+    // don't get notifications for them.
+    automergeType: "branch",
+    // Normally, I only run CI checks for pull requests, but since I'm configuring
+    // Renovate to merge directly from a branch I need to run checks on those branches.
+    // To identify these branches in CI, I'm adding a prefix to their name.
+    additionalBranchPrefix: "branch-automerge/",
   },
   digest: {
-    extends: [
-      "local>bigolu/system-configurations//.github/renovate-automerge-preset.json5",
-    ],
+    automerge: true,
+    // I'm using the branch type, instead of the pull request type, for auto merge so I
+    // don't get notifications for them.
+    automergeType: "branch",
+    // Normally, I only run CI checks for pull requests, but since I'm configuring
+    // Renovate to merge directly from a branch I need to run checks on those branches.
+    // To identify these branches in CI, I'm adding a prefix to their name.
+    additionalBranchPrefix: "branch-automerge/",
   },
   pin: {
-    extends: [
-      "local>bigolu/system-configurations//.github/renovate-automerge-preset.json5",
-    ],
+    automerge: true,
+    // I'm using the branch type, instead of the pull request type, for auto merge so I
+    // don't get notifications for them.
+    automergeType: "branch",
+    // Normally, I only run CI checks for pull requests, but since I'm configuring
+    // Renovate to merge directly from a branch I need to run checks on those branches.
+    // To identify these branches in CI, I'm adding a prefix to their name.
+    additionalBranchPrefix: "branch-automerge/",
   },
   pinDigest: {
-    extends: [
-      "local>bigolu/system-configurations//.github/renovate-automerge-preset.json5",
-    ],
+    automerge: true,
+    // I'm using the branch type, instead of the pull request type, for auto merge so I
+    // don't get notifications for them.
+    automergeType: "branch",
+    // Normally, I only run CI checks for pull requests, but since I'm configuring
+    // Renovate to merge directly from a branch I need to run checks on those branches.
+    // To identify these branches in CI, I'm adding a prefix to their name.
+    additionalBranchPrefix: "branch-automerge/",
   },
   packageRules: [
     // This rule enables auto merge for all post-1.0, minor/patch version changes.
@@ -48,9 +74,15 @@
       //
       // [1]: https://github.com/renovatebot/renovate/issues/24513
       matchCurrentVersion: "!/^[~^]?0/",
-      extends: [
-        "local>bigolu/system-configurations//.github/renovate-automerge-preset.json5",
-      ],
+
+      automerge: true,
+      // I'm using the branch type, instead of the pull request type, for auto merge so I
+      // don't get notifications for them.
+      automergeType: "branch",
+      // Normally, I only run CI checks for pull requests, but since I'm configuring
+      // Renovate to merge directly from a branch I need to run checks on those branches.
+      // To identify these branches in CI, I'm adding a prefix to their name.
+      additionalBranchPrefix: "branch-automerge/",
     },
     {
       matchManagers: ["gomod"],
