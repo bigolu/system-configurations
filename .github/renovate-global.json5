@@ -20,8 +20,8 @@
   username: "bigolu-renovate[bot]",
   gitAuthor: "bigolu Renovate Bot <179542175+bigolu-renovate[bot]@users.noreply.github.com>",
 
-  // Allow any post-upgrade commands to be run
-  allowedPostUpgradeCommands: [".*"],
+  // Allow any commands, like post-upgrade commands, to be run
+  allowedCommands: [".*"],
 
   // Pass all environment variables to package managers
   exposeAllEnv: true,

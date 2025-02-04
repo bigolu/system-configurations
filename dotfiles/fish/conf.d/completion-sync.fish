@@ -101,12 +101,11 @@ function _completion_sync
             end
         end
 
-        set COMPLETION_SYNC_PID $fish_pid
-
         # Reset completion state since we're in a subshell
+        set COMPLETION_SYNC_PID $fish_pid
         set COMPLETION_SYNC_ADDITION_FILES
+        set COMPLETION_SYNC_ADDITION_ENTRIES_FILE (mktemp)
         set COMPLETION_SYNC_ADDITION_ENTRIES
-        set _completion_sync_should_update_file true
     end
 
     _completion_sync_debug 'Syncing...'

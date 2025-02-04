@@ -12,8 +12,8 @@ colors:
   red: 1
   yellow: 3
 
-# Only show the output of commands that fail.
 output:
+  # Print a header for each job
   - execution_info
 
 templates:
