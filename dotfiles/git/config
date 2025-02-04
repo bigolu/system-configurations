@@ -10,6 +10,7 @@
 [alias]
   all = add -A
   unstage-all = reset
+  unstage = reset HEAD --
   commit-all = commit -am
   p = pull
   p-sub = submodule update

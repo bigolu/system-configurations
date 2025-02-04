@@ -207,9 +207,13 @@ usage = '''
   complete "dev_shell" run=#"""
     nix eval --impure --raw --apply \
       '
-        shells: builtins.concatStringsSep
-          "\n"
-          (builtins.filter (name: (builtins.substring 0 3 name) == "ci-") (builtins.attrNames shells))
+        with builtins;
+        shells:
+          concatStringsSep
+            "\n"
+            (filter
+              (name: (substring 0 3 name) == "ci-")
+              (attrNames shells))
       ' \
       .#currentSystem.devShells 2>/dev/null
   """#
