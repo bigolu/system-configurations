@@ -10,8 +10,6 @@
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   description: "This preset contains all of the settings that I usually add to a configuration. I use this as a starting point for my projects.",
   extends: ["config:best-practices", ":semanticCommitsDisabled"],
-  // Nix support is currently in beta so you have to opt in.
-  nix: { enabled: true },
   // This is an experimental feature that may be removed at any time so you have to
   // opt in: https://github.com/renovatebot/renovate/discussions/20542
   osvVulnerabilityAlerts: true,
@@ -60,6 +58,25 @@
     // To identify these branches in CI, I'm adding a prefix to their name.
     additionalBranchPrefix: "branch-automerge/",
   },
+  customManagers: [
+    {
+      customType: "regex",
+      datasourceTemplate: "github-releases",
+      depNameTemplate: "nix-community/nix-direnv",
+      fileMatch: ["(^|/)direnv/direnv-config.bash$"],
+      matchStrings: [
+        "['\"]https:\\/\\/raw\\.githubusercontent\\.com\\/nix-community\\/nix-direnv\\/(?<currentValue>.+)\\/direnvrc['\"]",
+      ],
+    },
+  ],
+  nix: {
+    // Nix support is currently in beta so you have to opt in.
+    enabled: true,
+    // Flake inputs don't support version constraints so lockFileMaintenance would
+    // update all inputs to their latest version. As such, I'd rather update the
+    // inputs separately.
+    lockFileMaintenance: { enabled: false },
+  },
   packageRules: [
     // This rule enables auto merge for all post-1.0, minor/patch version changes.
     // These changes won't be breaking so passing CI checks is sufficient to merge
@@ -76,12 +93,13 @@
       matchCurrentVersion: "!/^[~^]?0/",
 
       automerge: true,
-      // I'm using the branch type, instead of the pull request type, for auto merge so I
-      // don't get notifications for them.
+      // I'm using the branch type, instead of the pull request type, for auto merge
+      // so I don't get notifications for them.
       automergeType: "branch",
       // Normally, I only run CI checks for pull requests, but since I'm configuring
-      // Renovate to merge directly from a branch I need to run checks on those branches.
-      // To identify these branches in CI, I'm adding a prefix to their name.
+      // Renovate to merge directly from a branch I need to run checks on those
+      // branches. To identify these branches in CI, I'm adding a prefix to their
+      // name.
       additionalBranchPrefix: "branch-automerge/",
     },
     {
@@ -101,17 +119,6 @@
           '"$RENOVATE_BOT_REPO/scripts/ci/renovate/update-nix-direnv-hash.bash" {{{packageFile}}}',
         ],
       },
-    },
-  ],
-  customManagers: [
-    {
-      customType: "regex",
-      datasourceTemplate: "github-releases",
-      depNameTemplate: "nix-community/nix-direnv",
-      fileMatch: ["(^|/)direnv/direnv-config.bash$"],
-      matchStrings: [
-        "['\"]https:\\/\\/raw\\.githubusercontent\\.com\\/nix-community\\/nix-direnv\\/(?<currentValue>.+)\\/direnvrc['\"]",
-      ],
     },
   ],
 }

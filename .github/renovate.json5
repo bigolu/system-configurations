@@ -6,7 +6,7 @@
   packageRules: [
     {
       matchManagers: ["nix"],
-      matchUpdateTypes: ["lockFileMaintenance"],
+      matchDepNames: ["nixpkgs"],
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
         commands: [
