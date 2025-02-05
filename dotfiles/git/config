@@ -25,8 +25,9 @@
   lpt = -c diff.external='difft --syntax-highlight off' log -p --ext-diff
   d-sub = diff --submodule=diff
   undo = checkout --
-  some = add -u
   undocommit = reset "HEAD^"
+  undoamend = "!git reset --soft HEAD@{1}"
+  some = add -u
   co = checkout
   gui = "!gitkraken --path \"$(git rev-parse --show-toplevel)\" --log-file /dev/null --show-splash-screen false"
   l = log
