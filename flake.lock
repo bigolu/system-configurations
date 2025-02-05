@@ -141,11 +141,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1738610386,
-        "narHash": "sha256-yb6a5efA1e8xze1vcdN2HBxqYr340EsxFMrDUHL3WZM=",
+        "lastModified": 1738709900,
+        "narHash": "sha256-8Bo5xFlCH5q72ExvAnH7TzStMlLZldKOSLMClRSfmTc=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "066ba0c5cfddbc9e0dddaec73b1561ad38aa8abe",
+        "rev": "f2d32e46fac9d51da6912948ae1156044c71774b",
         "type": "github"
       },
       "original": {
@@ -170,11 +170,11 @@
         "uv2nix": "uv2nix"
       },
       "locked": {
-        "lastModified": 1738568547,
-        "narHash": "sha256-Os/8eArlEtVbMve0a/leEW9NNIAtflk3AHPOtd/B0aU=",
+        "lastModified": 1738662252,
+        "narHash": "sha256-N5Uao4Wkcfd4hb7eipDtJBBERbe7ctHT17Dsw6jtNcI=",
         "owner": "isd-project",
         "repo": "isd",
-        "rev": "c3653055824eb9cdf9b1d0e1c239c434c2f62696",
+        "rev": "827f5dad83f5dd0cf26bc28fed385ff3f4e5f54d",
         "type": "github"
       },
       "original": {
@@ -196,11 +196,11 @@
         "treefmt-nix": []
       },
       "locked": {
-        "lastModified": 1738569536,
-        "narHash": "sha256-oIhU2SGZnCX7fqFg0ZmnpXhUggRogkVr6cqcH1PXDZ8=",
+        "lastModified": 1738652022,
+        "narHash": "sha256-gKPFP/hWRwR+rkpXMoDnXZDZMqKnUwIBDnYH8FpgNNU=",
         "owner": "nix-community",
         "repo": "neovim-nightly-overlay",
-        "rev": "9fb5bc0eff86f8bad827f9f3d17d76789d28643b",
+        "rev": "9a95d2aa820df2b596af18f2a5ca37873a3d2695",
         "type": "github"
       },
       "original": {
@@ -212,11 +212,11 @@
     "neovim-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1738537783,
-        "narHash": "sha256-BbtORMMsvCyobInYJdCiIvUuhK9PXH1gBEJhKjEMFTQ=",
+        "lastModified": 1738626281,
+        "narHash": "sha256-aZUwhRP5jBEZ1AaafBQ7FjV8XicyAkWh6Vhx94j53Ik=",
         "owner": "neovim",
         "repo": "neovim",
-        "rev": "87e806186c721f12c338af86677b6d1e6e2fa44a",
+        "rev": "5a7cf85c2c7e452563a4bce9195e9a3426ca3050",
         "type": "github"
       },
       "original": {
@@ -317,11 +317,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1738422722,
-        "narHash": "sha256-Q4vhtbLYWBUnjWD4iQb003Lt+N5PuURDad1BngGKdUs=",
+        "lastModified": 1738553537,
+        "narHash": "sha256-HrrsuYIOl14dreCDUsXQGrWxdiU8LPKxcIo759jUk6Q=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "102a39bfee444533e6b4e8611d7e92aa39b7bec1",
+        "rev": "2d31b9476b7c6f5b029e595586b0b112a7ad130b",
         "type": "github"
       },
       "original": {
@@ -333,12 +333,12 @@
     },
     "nixpkgs-stable": {
       "locked": {
-        "lastModified": 1738435198,
-        "narHash": "sha256-5+Hmo4nbqw8FrW85FlNm4IIrRnZ7bn0cmXlScNsNRLo=",
-        "rev": "f6687779bf4c396250831aa5a32cbfeb85bb07a3",
-        "revCount": 714033,
+        "lastModified": 1738574474,
+        "narHash": "sha256-rvyfF49e/k6vkrRTV4ILrWd92W+nmBDfRYZgctOyolQ=",
+        "rev": "fecfeb86328381268e29e998ddd3ebc70bbd7f7c",
+        "revCount": 714063,
         "type": "tarball",
-        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2411.714033%2Brev-f6687779bf4c396250831aa5a32cbfeb85bb07a3/0194c6cc-a4bf-71ae-bdbd-0fcdc51459ee/source.tar.gz"
+        "url": "https://api.flakehub.com/f/pinned/NixOS/nixpkgs/0.2411.714063%2Brev-fecfeb86328381268e29e998ddd3ebc70bbd7f7c/0194cffc-c0cd-7ddd-a965-6c167613ee67/source.tar.gz"
       },
       "original": {
         "type": "tarball",
@@ -347,11 +347,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1738517419,
-        "narHash": "sha256-tttEXgKimgbtPvxFl+Avos4P4lssIqxHhxpLbbvNekk=",
+        "lastModified": 1738703096,
+        "narHash": "sha256-1MABVDwNpAUrUDvyM6PlHlAB1eTWAX0eNYCzdsZ54NI=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "8532db2a88ba56de9188af72134d93e39fd825f3",
+        "rev": "f7384aacd0ecd28681a99269ac0dff2c3a805d63",
         "type": "github"
       },
       "original": {
