@@ -68,6 +68,28 @@
         "['\"]https:\\/\\/raw\\.githubusercontent\\.com\\/nix-community\\/nix-direnv\\/(?<currentValue>.+)\\/direnvrc['\"]",
       ],
     },
+
+    // This manager will update GitHub Actions runner versions that are _not_
+    // specified with the `runs-on` key. Renovate already detects runner versions
+    // that are specified with the `runs-on` key. This will account for runner
+    // versions that I specify in variables.
+    {
+      customType: "regex",
+      depTypeTemplate: "github-runner",
+      datasourceTemplate: "github-runners",
+      // These file matches were taken from the Renovate GitHub Actions manager:
+      // https://docs.renovatebot.com/modules/manager/github-actions/#file-matching
+      fileMatch: [
+        "(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)\\/(?:workflows|actions))\\/.+\\.ya?ml$",
+        "(^|/)action\\.ya?ml$",
+      ],
+      matchStrings: [
+        // This regex will match text in the form
+        // '<depName>-<currentVersion> # renovate'. If there are multiple dashes,
+        // depName is everything up until the first dash.
+        "(?<depName>[^\\s]+?)-(?<currentValue>.*)\\s+#\\s+renovate",
+      ],
+    },
   ],
   nix: {
     // Nix support is currently in beta so you have to opt in.
@@ -119,6 +141,14 @@
           '"$RENOVATE_BOT_REPO/scripts/ci/renovate/update-nix-direnv-hash.bash" {{{packageFile}}}',
         ],
       },
+    },
+    {
+      // This is the last version of macOS that GitHub Actions still runs on Intel so
+      // I'll assume that if I specified this version, I don't want to upgrade.
+      matchDepTypes: ["github-runner"],
+      matchDepNames: ["macos"],
+      matchCurrentVersion: "13",
+      enabled: false,
     },
   ],
 }

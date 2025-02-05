@@ -41,7 +41,7 @@ jobs:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate
     # automerge branch. Those are covered by the push event.
     if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate-self-hosted/branch-automerge/'))"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup

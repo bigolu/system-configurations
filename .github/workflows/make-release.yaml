@@ -11,7 +11,7 @@ defaults:
 jobs:
   get-new-commit-count:
     if: github.event_name != 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       count: ${{ steps.get-new-commit-count.outputs.count }}
     steps:
@@ -28,10 +28,10 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-latest
+          - ubuntu-24.04 # renovate
           # GitHub Actions runs macos-latest on Apple silicon so instead I'll use the
           # most recent version of macOS that they still run on Intel.
-          - macos-13
+          - macos-13 # renovate
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
@@ -43,7 +43,7 @@ jobs:
           path: ${{ steps.make-assets.outputs.asset-directory }}
   make-release:
     needs: make-assets
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
