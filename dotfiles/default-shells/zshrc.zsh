@@ -14,10 +14,14 @@
 # when I'm doing this. My reason for using interactive mode can be found in
 # Speakers.spoon/init.lua.
 #
+# Zed will launch the shell in interactive mode to resolve the environment. It fails
+# when I call `exec fish` further down. I'm not sure of a way to detect when Zed is
+# doing this so I'll just check if stdin is connected to a tty.
+#
 # [1]: https://code.visualstudio.com/docs/supporting/FAQ#_resolving-shell-environment-fails
 # [2]: https://github.com/microsoft/vscode/issues/177126#issuecomment-1630889619
 # [3]: https://github.com/microsoft/vscode/issues/163186
-if ! (( ${+VSCODE_RESOLVING_ENVIRONMENT} )) && ! (( ${+HAMMERSPOON_RESOLVING_ENVIRONMENT} )); then
+if ! (( ${+VSCODE_RESOLVING_ENVIRONMENT} )) && ! (( ${+HAMMERSPOON_RESOLVING_ENVIRONMENT} )) && [ -t 1 ]; then
   # If the current shell isn't fish, exec into fish. My reason for doing this is in README.md
   if [ "$(basename "$SHELL")" != 'fish' ]; then
     SHELL="$(command -v fish)" exec fish

@@ -43,6 +43,13 @@ if [[ -n ${VSCODE_RESOLVING_ENVIRONMENT+set} ]]; then
   return
 fi
 
+# Zed will launch the shell in interactive mode to resolve the environment. It fails
+# when I call `exec fish` further down. I'm not sure of a way to detect when Zed is
+# doing this so I'll just check if stdin isn't connected to a tty.
+if [[ ! -t 1 ]]; then
+  return
+fi
+
 # If the current shell isn't fish, exec into fish. My reason for doing this is in README.md
 if [[ "$(basename "$SHELL")" != 'fish' ]]; then
   fish_path="$(command -v fish)"
