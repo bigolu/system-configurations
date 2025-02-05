@@ -152,11 +152,9 @@ check:
       # [1]: https://github.com/evilmartians/lefthook/issues/593
       exclude:
         - gozip/gomod2nix.toml
-        - "*.vscode/*.json"
+        - ".vscode/*.json"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
         - dotfiles/cosmic/config/*
-        - flake.lock
-        - go.sum
         - docs/tasks.html
       group:
         jobs:
