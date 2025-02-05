@@ -37,14 +37,16 @@ tools:
       - "%f: %m"
   config-file-validator: &config-file-validator
     lint-after-open: true
-    lint-command: validator -groupby pass-fail ${INPUT}
+    lint-command: >
+      env input=${INPUT} bash -c '
+      validator -groupby pass-fail -reporter json -- "$input"
+      | jq --raw-output ".files.Failed.[] | \"\(.path): \(.error)\""
+      '
+    lint-ignore-exit-code: true
     lint-source: "config-file-validator"
     lint-stdin: false
     lint-formats:
-      - "%A    × %f"
-      - "%Z        error: Error at line %l column %c: %m"
-      - "%A    × %f"
-      - "%Z        error: %m"
+      - "%f: %m"
   typos: &typos
     lint-after-open: true
     lint-command: typos --color never --format brief ${INPUT}
