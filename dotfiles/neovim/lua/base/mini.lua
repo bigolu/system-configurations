@@ -296,32 +296,6 @@ Plug("echasnovski/mini.nvim", {
     end
     -- }}}
 
-    -- animate {{{
-    if IsRunningInTerminal then
-      require("mini.animate").setup({
-        cursor = {
-          timing = require("mini.animate").gen_timing.exponential({
-            duration = 300,
-            easing = "out",
-            unit = "total",
-          }),
-        },
-        resize = {
-          enable = false,
-        },
-        scroll = {
-          enable = false,
-        },
-        open = {
-          enable = false,
-        },
-        close = {
-          enable = false,
-        },
-      })
-    end
-    -- }}}
-
     -- jump {{{
     require("mini.jump").setup({
       mappings = {
