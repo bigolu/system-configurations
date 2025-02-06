@@ -57,7 +57,11 @@ function diff_including_untracked {
     | {
       readarray -d '' untracked_files
       track_files "${untracked_files[@]}"
-      # This gets called in CI so I can't use a pager
+      # Why I can't use a pager:
+      #   - This may be run non-interactively like in CI or through a git GUI for
+      #     example.
+      #   - If a pager was used, the next fix command would not be able to run until
+      #     the pager was closed.
       git --no-pager diff --color
       untrack_files "${untracked_files[@]}"
     }
