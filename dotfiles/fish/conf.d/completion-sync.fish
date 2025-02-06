@@ -193,17 +193,20 @@ function _complete_fish_register --on-event fish_prompt
         if test -n "$nearest_envrc"
             if not set --query DIRENV_DIR
                 _complete_fish_pre_load
-                set --global _complete_fish_pre_load_done true
-            else if not set --query --global _complete_fish_pre_load_done
-                # This accounts for `exec` and sub shells
-                _complete_fish_pre_load
-                set --global _complete_fish_pre_load_done true
-            else if test $is_moving_directly_to_new_direnv = true
-                # TODO: I want to call this after the old direnv is unloaded and
-                # before the new direnv is loaded, but direnv does them both in its
-                # single hook.
-                _complete_fish_pre_load
-                set --global _complete_fish_pre_load_done true
+            else
+                if not set --query --global _complete_fish_direnv_loaded
+                    # If DIRENV_DIR is set, but _complete_fish_direnv_loaded
+                    # isn't, then the user either called `exec fish` or started
+                    # a sub shell. Doing either of those would erase global
+                    # variables, like _complete_fish_direnv_loaded, but not
+                    # DIRENV_DIR.
+                    _complete_fish_pre_load
+                else if test $is_moving_directly_to_new_direnv = true
+                    # TODO: I want to call this after the old direnv is unloaded and
+                    # before the new direnv is loaded, but direnv does them both in its
+                    # single hook.
+                    _complete_fish_pre_load
+                end
             end
         end
 
