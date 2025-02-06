@@ -255,8 +255,17 @@ function elevate
     sudo -- (which run-as-admin) sudo --preserve-env=PATH,SHLVL,HOME --shell
 end
 
-# mise
-abbr --add --global run 'mise run'
+# Task runner
+function _task_runner
+    if type --query mise
+        echo 'mise run'
+    else if type --query just
+        echo just
+    else
+        return 1
+    end
+end
+abbr --add --global run --function _task_runner
 
 # git
 abbr --add --global g git
