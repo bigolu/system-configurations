@@ -1,0 +1,77 @@
+icon_theme = "nerdfont"
+
+# Show hidden files
+default_flags = "h"
+
+# Mark the selected line with a triangle
+show_selection_mark = true
+
+# You can usually cancel the last state change on escape. This lets the escape key
+# quit broot when there's nothing to cancel.
+quit_on_last_cancel = true
+
+# Max file size for content search
+content_search_max_file_size = "10MB"
+
+enable_kitty_keyboard = true
+
+modal = true
+
+[[imports]]
+luma = "light"
+file = "light.toml"
+
+[[imports]]
+luma = ["dark", "unknown"]
+file = "dark.toml"
+
+[search-modes]
+"/" = "fuzzy path"
+"r/" = "regex path"
+
+# Nix store freezes broot
+[special_paths."/nix/store"]
+list = "never"
+
+[[verbs]]
+invocation = "edit"
+key = "ctrl-e"
+apply_to = "file"
+external = "edit {file}"
+leave_broot = false
+
+[[verbs]]
+invocation = "shell"
+key = "ctrl-s"
+apply_to = "any"
+# Reconnect to the terminal in case broot was disconnected from it.
+external = "env IN_BROOT=1 sh -c 'exec fish 1>/dev/tty 2>/dev/tty </dev/tty'"
+leave_broot = false
+set_working_dir = true
+
+[[verbs]]
+key = "q"
+cmd = ":quit"
+
+[[verbs]]
+key = "ctrl-p"
+internal = ":toggle_preview"
+
+[[verbs]]
+key = "ctrl-h"
+internal = ":panel_left_no_open"
+
+[[verbs]]
+key = "ctrl-l"
+internal = ":panel_right_no_open"
+
+[[verbs]]
+key = "h"
+internal = ":root_up"
+
+[[verbs]]
+key = "enter"
+# TODO: I want to clear the filter too
+internal = ":focus"
+invocation = "select"
+leave_broot = false

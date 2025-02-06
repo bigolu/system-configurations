@@ -245,7 +245,6 @@ let
           typos
           editorconfig-checker
           nixpkgs-lint-community
-          hjson-go
           # For isutf8 and parallel. parallel isn't a linter, but it's used to run
           # any linter that doesn't support multiple file arguments.
           moreutils
