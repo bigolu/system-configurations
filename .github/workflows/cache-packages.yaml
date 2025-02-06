@@ -23,10 +23,10 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu-24.04 # renovate
+          - ubuntu-24.04 # renovate: github-runner
           # GitHub Actions runs macos-latest on Apple silicon so instead I'll use the
           # most recent version of macOS that they still run on Intel.
-          - macos-13 # renovate
+          - macos-13 # renovate: github-runner
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup

@@ -65,13 +65,13 @@
       depNameTemplate: "nix-community/nix-direnv",
       fileMatch: ["(^|/)direnv/direnv-config.bash$"],
       matchStrings: [
-        // This will text with the following pattern:
-        //   # renovate
+        // This will match text with the following pattern:
+        //   # renovate: nix-direnv
         //   source_url<separator><nix-direnv-url>
         // Where <separator> is anything that can separate two tokens in Bash i.e. a
         // ' ' or a backslash followed by a newline, which allows you to continue a
         // statement on another line.
-        "#\\s+renovate\\s+source_url( |\\\\\\n)+['\"]https://raw\\.githubusercontent\\.com/nix-community/nix-direnv/(?<currentValue>.+)/direnvrc['\"]",
+        "#\\s+renovate: nix-direnv\\s+source_url( |\\\\\\n)+['\"]https://raw\\.githubusercontent\\.com/nix-community/nix-direnv/(?<currentValue>.+)/direnvrc['\"]",
       ],
     },
 
@@ -91,9 +91,9 @@
       ],
       matchStrings: [
         // This regex will match text in the form
-        // '<depName>-<currentVersion> # renovate'. If there are multiple dashes,
+        // '<depName>-<currentVersion> # renovate: github-runner'. If there are multiple dashes,
         // depName is everything up until the first dash.
-        "(?<depName>[^\\s]+?)-(?<currentValue>.*)\\s+#\\s+renovate",
+        "(?<depName>[^\\s]+?)-(?<currentValue>.*)\\s+#\\s+renovate: github-runner",
       ],
     },
   ],

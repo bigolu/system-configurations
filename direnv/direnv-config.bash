@@ -64,7 +64,7 @@ function include_nix_config_file {
 }
 
 function load_dev_shell {
-  # renovate
+  # renovate: nix-direnv
   source_url \
     'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc' \
     'sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM='
