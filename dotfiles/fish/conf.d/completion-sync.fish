@@ -2,7 +2,6 @@ if not status is-interactive
     exit
 end
 
-set -x COMPLETE_FISH_DEBUG 1
 function _complete_fish_debug --argument-names message
     if test -n "$COMPLETE_FISH_DEBUG"
         echo "[completion-sync] $message" >&2
