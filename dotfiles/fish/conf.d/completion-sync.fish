@@ -2,187 +2,162 @@ if not status is-interactive
     exit
 end
 
-# TODO: I should scan the completion commands for this string and escape it in some
-# way to guarantee that there is never a collision.
-set --export COMPLETION_SYNC_ENTRIES_DELIMITER ':::::::completion_sync:::::::'
-
-function _completion_sync_debug --argument-names message
+set -x COMPLETION_SYNC_DEBUG 1
+function _complete_fish_debug --argument-names message
     if test -n "$COMPLETION_SYNC_DEBUG"
         echo "[completion-sync] $message" >&2
     end
 end
 
-function _completion_sync_list
-    string split --no-empty ':' "$COMPLETION_SYNC_ADDITION_FILES"
-end
-
-# If the entries file isn't empty, but the global buffer is, either the user launched
-# a sub shell or called `exec fish`. Either way, it means the shell is starting up.
-#
-# On startup, Fish will add XDG_DATA_DIRS to fish_complete_path so we'll remove
-# the ones we're managing.
-#
-# If we ever change our minds and decide to leave them, we need to remove the
-# code further down that ignores files that are already in fish_complete_path.
-if set --query --export COMPLETION_SYNC_ADDITION_ENTRIES_FILE
-    and test -s "$COMPLETION_SYNC_ADDITION_ENTRIES_FILE"
-    and not set --query --global COMPLETION_SYNC_ADDITION_ENTRIES
-
+function _complete_fish_remove_managed_files_from_complete_path
     set -l removed_paths
-    for addition_file in (_completion_sync_list)
+    for addition_file in $COMPLETE_FISH_PATH
         if set -l index (contains --index -- (path dirname $addition_file) $fish_complete_path)
             set --append removed_paths $fish_complete_path[$index]
             set --erase fish_complete_path[$index]
         end
     end
     if test (count $removed_paths) -gt 0
-        _completion_sync_debug 'Paths removed from fish_complete_path:'\n"$(string join \n $removed_paths)"
+        _complete_fish_debug 'Paths removed from fish_complete_path:'\n"$(string join \n $removed_paths)"
     end
 
-    set COMPLETION_SYNC_ADDITION_FILES
-    if test $COMPLETION_SYNC_PID != $fish_pid
-        # New shell gets a new file
-        set COMPLETION_SYNC_ADDITION_ENTRIES_FILE (mktemp)
-    else
-        # We exec'd no new file needed
-        true >$COMPLETION_SYNC_ADDITION_ENTRIES_FILE
-    end
+    set --erase COMPLETE_FISH_PATH
 end
 
-if not set --query --export COMPLETION_SYNC_ADDITION_FILES COMPLETION_SYNC_ADDITION_ENTRIES_FILE
-    set --export COMPLETION_SYNC_ADDITION_FILES
-    set --export COMPLETION_SYNC_ADDITION_ENTRIES_FILE (mktemp)
-end
-if not set --query --global COMPLETION_SYNC_ADDITION_ENTRIES
-    # The autocomplete entries for `ruff` exceeded the max length of an environment
-    # variable so a file has to be used.
-    set --global COMPLETION_SYNC_ADDITION_ENTRIES "$(cat $COMPLETION_SYNC_ADDITION_ENTRIES_FILE)"
-end
+function _complete_fish_add
+    for file in $argv
+        set -l command (path change-extension '' (path basename $file))
 
-if not set --query --export COMPLETION_SYNC_PID
-    set --export COMPLETION_SYNC_PID $fish_pid
-end
+        set -l old_entries (complete $command)
+        source $file
+        set -l new_entries (complete $command)
+        set -l added_entries
+        for new_entry in $new_entries
+            if not contains $new_entry $old_entries
+                set --append added_entries $new_entry
+            end
+        end
+        if test (count $added_entries) -eq 0
+            _complete_fish_debug "This file didn't add any completion entries, ignoring: $file"
+            return
+        end
 
-if test $COMPLETION_SYNC_PID != $fish_pid
-    _completion_sync_debug 'A sub shell was started, updating PID...'
-    set COMPLETION_SYNC_PID $fish_pid
-end
+        # Fish will treat variables with 'PATH' suffix like arrays, but when
+        # exported the elements will be joined by ':'.
+        #
+        # This needs to be exported for
+        # `_complete_fish_remove_managed_files_from_complete_path` to work.
+        if set --query --export COMPLETE_FISH_PATH
+            set --append COMPLETE_FISH_PATH $file
+        else
+            set --global --export COMPLETE_FISH_PATH $file
+        end
 
-function _completion_sync_add --argument-names file
-    set -l command (path change-extension '' (path basename $file))
-
-    set -l old_entries (complete $command)
-    source $file
-    set -l new_entries (complete $command)
-    set -l added_entries
-    for new_entry in $new_entries
-        if not contains $new_entry $old_entries
-            set --append added_entries $new_entry
+        set -l added_entries_string "$(string join --no-empty \n $added_entries)"
+        # The autocomplete entries for `ruff` exceeded the max length of an
+        # environment variable so a global variable should be used.
+        if set --query --global COMPLETE_FISH_ENTRIES
+            set --append COMPLETE_FISH_ENTRIES $added_entries_string
+        else
+            set --global COMPLETE_FISH_ENTRIES $added_entries_string
         end
     end
-    if test (count $added_entries) -eq 0
-        return
-    end
-
-    if test -n "$COMPLETION_SYNC_ADDITION_FILES"
-        set COMPLETION_SYNC_ADDITION_FILES "$COMPLETION_SYNC_ADDITION_FILES:"
-    end
-    set COMPLETION_SYNC_ADDITION_FILES "$COMPLETION_SYNC_ADDITION_FILES$file"
-
-    if test -n "$COMPLETION_SYNC_ADDITION_ENTRIES"
-        set COMPLETION_SYNC_ADDITION_ENTRIES "$COMPLETION_SYNC_ADDITION_ENTRIES$COMPLETION_SYNC_ENTRIES_DELIMITER"
-    end
-    set COMPLETION_SYNC_ADDITION_ENTRIES "$COMPLETION_SYNC_ADDITION_ENTRIES""$(string join --no-empty \n $added_entries)"
-    set _completion_sync_should_update_file true
 end
 
-function _completion_sync_remove --argument-names file
-    set -l files (_completion_sync_list)
-    set -l entries (string split --no-empty $COMPLETION_SYNC_ENTRIES_DELIMITER "$COMPLETION_SYNC_ADDITION_ENTRIES")
-
-    set -l file_index (contains --index -- $file $files)
-
-    set --erase files[$file_index]
-    set COMPLETION_SYNC_ADDITION_FILES "$(string join ':' $files)"
-
-    set -l added_entries (string split --no-empty \n "$entries[$file_index]")
-    set -l command (path change-extension '' (path basename $file))
-    set -l current_entries (complete $command)
-    for entry in $added_entries
-        if set -l entry_index (contains --index -- $entry $current_entries)
-            set --erase current_entries[$entry_index]
+function _complete_fish_remove
+    for file_index in (seq (count $COMPLETE_FISH_PATH))
+        set -l added_entries (string split --no-empty \n "$COMPLETE_FISH_ENTRIES[$file_index]")
+        set -l file $COMPLETE_FISH_PATH[$file_index]
+        set -l command (path change-extension '' (path basename $file))
+        set -l current_entries (complete $command)
+        for entry in $added_entries
+            if set -l entry_index (contains --index -- $entry $current_entries)
+                set --erase current_entries[$entry_index]
+            end
         end
+        complete --erase $command
+        printf %s\n $current_entries | source
     end
-    complete --erase $command
-    printf %s\n $current_entries | source
-
-    set --erase entries[$file_index]
-    set COMPLETION_SYNC_ADDITION_ENTRIES "$(string join $COMPLETION_SYNC_ENTRIES_DELIMITER $entries)"
-    set _completion_sync_should_update_file true
+    set COMPLETE_FISH_PATH
+    set COMPLETE_FISH_ENTRIES
 end
 
-function _completion_sync
-    set --global _completion_sync_should_update_file false
+function _complete_fish_post_load
+    _complete_fish_debug 'In post load'
 
-    _completion_sync_debug 'Syncing...'
+    # On startup, Fish will add XDG_DATA_DIRS to fish_complete_path so we'll
+    # remove the ones we're managing.
+    #
+    # Cases where we need to do this:
+    #   - A sub shell is started in a direnv environment
+    #   - `exec` is used in a direnv environment
+    #
+    # I'm not sure how to detect all of these cases so I'll just always do it.
+    #
+    # If we ever change our minds and decide to leave them, we need to
+    # remove the code further down that ignores files that are already in
+    # fish_complete_path.
+    _complete_fish_remove_managed_files_from_complete_path
 
     set -l xdg_files
-    for dir in (string split --no-empty ":" "$XDG_DATA_DIRS")
+    for dir in $XDG_DATA_DIRS
         set dir $dir'/fish/vendor_completions.d'
+
         if not test -d $dir
             continue
         end
+
+        # We only want to add completions for directories added to XDG
+        # by direnv. I'm not sure how to do that without a 'pre-load'
+        # hook. Instead, we'll ignore directories that are already in
+        # `fish_complete_path`. Fish adds those on startup.
         if contains $dir $fish_complete_path
             continue
         end
 
-        for file in $dir/*
-            set --append xdg_files $file
-        end
+        set --append xdg_files $dir/*
     end
-    if test (count $xdg_files) -gt 0
-        _completion_sync_debug 'Completion files found in XDG_DATA_DIRS:'\n"$(string join \n $xdg_files)"
+    if test (count $xdg_files) -eq 0
+        return
     end
 
-    set -l addition_files (_completion_sync_list)
+    _complete_fish_debug 'Adding completions for these files:'\n"$(string join \n $xdg_files)"
+    _complete_fish_add $xdg_files
+end
 
-    # Remove whatever is in additions, but not xdg
-    set -l removed files
-    for addition_file in $addition_files
-        if not contains $addition_file $xdg_files
-            _completion_sync_remove $addition_file
-            set --append removed_files $addition_file
-        end
-    end
-    if test (count $removed_files) -gt 0
-        _completion_sync_debug 'Removing completions for these files:'\n"$(string join \n $removed_files)"
+function _complete_fish_pre_unload
+    _complete_fish_debug 'In pre unload'
+
+    if test (count $COMPLETE_FISH_PATH) -eq 0
+        return
     end
 
-    # Add whatever is in xdg, but not additions
-    set -l added_files
-    for xdg_file in $xdg_files
-        if not contains $xdg_file $addition_files
-            _completion_sync_add $xdg_file
-            set --append added_files $xdg_file
-        end
-    end
-    if test (count $added_files) -gt 0
-        _completion_sync_debug 'Adding completions for these files:'\n"$(string join \n $added_files)"
-    end
+    _complete_fish_debug 'Removing completions for these files:'\n"$(string join \n $COMPLETE_FISH_PATH)"
+    _complete_fish_remove
+end
 
-    if test $_completion_sync_should_update_file = true
-        printf %s "$COMPLETION_SYNC_ADDITION_ENTRIES" >$COMPLETION_SYNC_ADDITION_ENTRIES_FILE
+function _complete_fish_main
+    if not set --query --global COMPLETE_FISH_DIRENV_LOADED
+        and set --query DIRENV_DIR
+
+        set --global COMPLETE_FISH_DIRENV_LOADED true
+        _complete_fish_post_load
+    else if set --query --global COMPLETE_FISH_DIRENV_LOADED
+        and not set --query DIRENV_DIR
+
+        set --erase COMPLETE_FISH_DIRENV_LOADED
+        _complete_fish_pre_unload
     end
 end
 
 # Run after direnv's prompt hook
-function _completions_sync_register --on-event fish_prompt
+function _complete_fish_register --on-event fish_prompt
     functions --erase (status current-function)
 
     functions --copy __direnv_export_eval __direnv_export_eval_backup
     function __direnv_export_eval --on-event fish_prompt
         __direnv_export_eval_backup
-        _completion_sync
+        _complete_fish_main
     end
 
     # In case direnv's hook hasn't run yet, run it now
