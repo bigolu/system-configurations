@@ -2,6 +2,7 @@ if not status is-interactive
     exit
 end
 
+set -x COMPLETE_FISH_DEBUG 1
 function _complete_fish_debug --argument-names message
     if test -n "$COMPLETE_FISH_DEBUG"
         echo "[completion-sync] $message" >&2
@@ -56,8 +57,17 @@ function _complete_fish_add
     end
 end
 
+function _complete_fish_convert_xdg_to_path_variable
+    # TODO: On Linux, fish treats XDG_DATA_DIRS like a "path variable", meaning
+    # its value is split on ":". However, on macOS it's a single element. I
+    # think they should do the same thing on either platform.
+    set --path XDG_DATA_DIRS "$XDG_DATA_DIRS"
+end
+
 function _complete_fish_post_load
     _complete_fish_debug 'In post load'
+
+    _complete_fish_convert_xdg_to_path_variable
 
     set -l xdg_files
     for dir in $XDG_DATA_DIRS
@@ -94,6 +104,8 @@ end
 function _complete_fish_post_unload
     _complete_fish_debug 'In post unload'
 
+    _complete_fish_convert_xdg_to_path_variable
+
     if test (count $_complete_fish_files) -eq 0
         return
     end
@@ -119,6 +131,8 @@ end
 
 function _complete_fish_pre_load
     _complete_fish_debug 'In pre load'
+
+    _complete_fish_convert_xdg_to_path_variable
 
     # This variable holds the value of XDG_DATA_DIRS before the direnv environment is
     # loaded. It's exported to account for the following edge cases:
@@ -178,8 +192,7 @@ function _complete_fish_is_moving_directly_to_new_direnv
     echo false
 end
 
-# Replace direnv's prompt hook with one that will call out pre_load, post_load,
-# and post_unload hooks.
+# Replace direnv's prompt hook with one that will call our pre and post hooks.
 function _complete_fish_register --on-event fish_prompt
     functions --erase (status current-function)
 
@@ -187,7 +200,7 @@ function _complete_fish_register --on-event fish_prompt
     function __direnv_export_eval --on-event fish_prompt
         set -l is_moving_directly_to_new_direnv (_complete_fish_is_moving_directly_to_new_direnv)
 
-        # See if pre_load should run
+        # Determine which pre hooks should run
         set -l nearest_envrc "$(_complete_fish_nearest_envrc)"
         if test -n "$nearest_envrc"
             if not set --query DIRENV_DIR
@@ -211,6 +224,7 @@ function _complete_fish_register --on-event fish_prompt
 
         __direnv_export_eval_backup
 
+        # Determine which post hooks should run
         if not set --query --global _complete_fish_direnv_loaded
             and set --query DIRENV_DIR
 
