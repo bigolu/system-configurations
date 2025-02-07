@@ -4,8 +4,9 @@
 # CI. It should be sourced from the .envrc.
 #
 # Environment Variables
-#   DEV_SHELL (required):
-#     The name of the flake dev shell to load.
+#   DEV_SHELL:
+#     The name of the flake dev shell to load. If it's unset or empty, then "local"
+#     will be used.
 
 function main {
   # This should run first. The reason for this is in a comment at the top of
@@ -62,7 +63,7 @@ function load_dev_shell {
     nix_direnv_manual_reload
   fi
 
-  use flake ".#${DEV_SHELL:?}"
+  use flake ".#${DEV_SHELL:-local}"
 }
 
 function is_first_dev_shell_build {
