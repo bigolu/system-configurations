@@ -5,9 +5,8 @@
 #
 # Environment Variables
 #   DEV_SHELL:
-#     The name of the flake dev shell to load. If it's unset or empty, then a default
-#     will be used. The default is "local" if the local environment is being set
-#     up and "ci-essentials" if the CI environment is being set up.
+#     The name of the flake dev shell to load. If it's unset or empty, then "local"
+#     will be used.
 #   CI:
 #     If set to "true", the environment will be set up for CI. Otherwise, the local
 #     development environment will be set up.
@@ -76,9 +75,7 @@ function load_dev_shell {
     nix_direnv_manual_reload
   fi
 
-  local default_dev_shell
-  default_dev_shell="$(get_default_dev_shell)"
-  use flake ".#${DEV_SHELL:-$default_dev_shell}"
+  use flake ".#${DEV_SHELL:-local}"
 }
 
 function is_first_dev_shell_build {
@@ -92,14 +89,6 @@ function is_first_dev_shell_build {
     shopt -s nullglob
     echo "${DIRENV_LAYOUT_DIR}/flake-profile-"*
   )" ]]
-}
-
-function get_default_dev_shell {
-  if is_setting_up_ci_environment; then
-    echo 'ci-essentials'
-  else
-    echo 'local'
-  fi
 }
 
 function is_setting_up_ci_environment {
