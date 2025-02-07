@@ -2,6 +2,14 @@ if not status is-interactive
     exit
 end
 
+# direnv autocomplete shell hook
+# ------------------------------------------------------------------------------
+# This hook will load autocomplete scripts from any directories added to
+# XDG_DATA_DIRS by direnv.
+#
+# How it works:
+# TODO
+
 function _complete_fish_debug --argument-names message
     if test -n "$COMPLETE_FISH_DEBUG"
         echo "[completion-sync] $message" >&2
@@ -191,8 +199,46 @@ function _complete_fish_is_moving_directly_to_new_direnv
     echo false
 end
 
+# direnv hook wrapper
+# ------------------------------------------------------------------------------
+# This wrapper is responsible for calling the pre and post hooks. There are four
+# hooks:
+#   - pre_load: This is useful for recording what an environment variable contained
+#     before loading direnv.
+#   - pre_unload (TODO): You can use this to undo the shell-specific changes.
+#   - post_load: This is where you should apply the shell-specific changes.
+#   - post_unload: You can use this to undo the shell-specific changes.
+#
+# This next section will describe the actions that lead to each hook being run.
+#   Actions:
+#     - cd: Change directory
+#     - exec: Running `exec fish`
+#     - sub_shell Running `fish`
+#   Terminology:
+#     - direnv: A directory that itself, or one of its ancestors, contains a .envrc.
+#     - non_direnv: A directory that itself, or one of its ancestors, does not
+#       contain a .envrc.
+#   When hooks are called:
+#     - cd from non_direnv to direnv: pre_load runs before direnv loads. post_load
+#       runs after direnv loads.
+#     - cd from direnv to non_direnv: pre_unload runs before direnv is unloaded.
+#       post_unload runs after direnv is unloaded.
+#     - cd from direnv1 to direnv2: pre_unload runs before direnv1 is unloaded.
+#       post_unload runs after direnv1 is unloaded. pre_load runs before direnv2 is
+#       loaded. post_load runs after direnv2 is loaded.
+#     - exec while inside a direnv: pre_load runs before direnv is loaded. post_load
+#       runs after direnv is loaded.
+#     - sub_shell while inside a direnv: pre_load runs before direnv is loaded.
+#       post_load runs after direnv is loaded.
+
 # Replace direnv's prompt hook with one that will call our pre and post hooks.
-function _complete_fish_register --on-event fish_prompt
+#
+# TODO: For this to work correctly, this file must be loaded before direnv's config
+# runs. This way, the function below will run before `__direnv_export_eval` and we
+# can wrap it before it gets a chance to run. This works on my machine since this
+# file starts with a 'c' and direnv's config is in a file named 'direnv.fish'. I
+# should find a way to guarantee that this runs at the right time.
+function _complete_fish_register_direnv_hook_wrapper --on-event fish_prompt
     functions --erase (status current-function)
 
     functions --copy __direnv_export_eval __direnv_export_eval_backup
