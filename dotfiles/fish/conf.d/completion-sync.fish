@@ -223,6 +223,9 @@ end
 #        direnv is unloaded. post_unload runs after allowed direnv is unloaded.
 #        LIMITATIONS: This currently has the same behavior as case #3, but it
 #        shouldn't.
+#    10. User closes the shell or terminal: pre_unload is run. This could be useful
+#        for a shell hook that starts servers in the background.
+#        LIMITATIONS: This case is currently not being handled.
 
 # Replace direnv's prompt hook with one that will call our pre and post hooks.
 #
