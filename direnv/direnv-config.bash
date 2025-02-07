@@ -1,15 +1,11 @@
 # shellcheck shell=bash
 
-# This script sets up the local development or CI environment. It should be sourced
-# from the .envrc.
+# This script sets up the direnv environment that is used in local development and
+# CI. It should be sourced from the .envrc.
 #
 # Environment Variables
-#   DEV_SHELL:
-#     The name of the flake dev shell to load. If it's unset or empty, then "local"
-#     will be used.
-#   CI:
-#     If set to "true", the environment will be set up for CI. Otherwise, the local
-#     development environment will be set up.
+#   DEV_SHELL (required):
+#     The name of the flake dev shell to load.
 
 function main {
   # This should run first. The reason for this is in a comment at the top of
@@ -44,17 +40,8 @@ function create_layout_dir {
 }
 
 function set_up_nix {
-  set_nix_config
+  include_nix_config_file "${PWD}/nix/nix.conf"
   load_dev_shell
-}
-
-function set_nix_config {
-  local -r nix_config_directory="${PWD}/nix/config"
-
-  include_nix_config_file "${nix_config_directory}/common.conf"
-  if is_setting_up_ci_environment; then
-    include_nix_config_file "${nix_config_directory}/ci.conf"
-  fi
 }
 
 function include_nix_config_file {
@@ -75,7 +62,7 @@ function load_dev_shell {
     nix_direnv_manual_reload
   fi
 
-  use flake ".#${DEV_SHELL:-local}"
+  use flake ".#${DEV_SHELL:?}"
 }
 
 function is_first_dev_shell_build {
@@ -89,11 +76,6 @@ function is_first_dev_shell_build {
     shopt -s nullglob
     echo "${DIRENV_LAYOUT_DIR}/flake-profile-"*
   )" ]]
-}
-
-function is_setting_up_ci_environment {
-  # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
-  [[ ${CI:-} == 'true' ]]
 }
 
 main

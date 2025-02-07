@@ -17,6 +17,11 @@ runs:
       with:
         # Use this until a new version of the action is released with nix v2.24.12+
         install_url: https://releases.nixos.org/nix/nix-2.25.3/install
+        extra_nix_config: |
+          # Increase the buffer limit to 124MiB since the buffer would often reach
+          # the default limit of 64MiB.
+          download-buffer-size = 134217728
+          show-trace = true
     - uses: cachix/cachix-action@ad2ddac53f961de1989924296a1f236fcfbaa4fc # v15
       with:
         name: bigolu

@@ -5,4 +5,5 @@
 #   - Gives users a place to set environment variables that influence the behavior of
 #     the direnv config without accidentally committing those changes.
 
+export DEV_SHELL='local'
 source direnv/direnv-config.bash
