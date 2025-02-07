@@ -225,7 +225,7 @@ run = '''
 
   # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv
   # doesn't overwrite the dev shell cached in .direnv with the one built here.
-  CI=true DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" HOME="$(mktemp --directory)" \
+  DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" HOME="$(mktemp --directory)" \
       nix shell \
       --ignore-environment \
       --keep CI --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
