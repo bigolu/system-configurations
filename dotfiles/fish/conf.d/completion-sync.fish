@@ -71,8 +71,10 @@ function _complete_fish_post_unload
         complete --erase $command
         printf %s\n $current_entries | source
     end
-    set _complete_fish_files
-    set _complete_fish_entries
+    set --erase _complete_fish_files
+    set --erase _complete_fish_entries
+
+    set --erase COMPLETE_FISH_OLD_XDG_PATH
 end
 
 function _complete_fish_pre_load
