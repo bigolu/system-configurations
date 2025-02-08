@@ -6,7 +6,7 @@
 # This script is for running direnv commands or just loading the direnv environment.
 # It handles things that need to be done before running direnv:
 #   - Get direnv and Bash, using the nix-shell shebang at the top
-#   - Copy the sample .envrc to where direnv expects it to be
+#   - Create .envrc if it doesn't already exist
 #   - Run `direnv allow`
 #
 # Since this script is not run from within the direnv environment, the shebang at the
@@ -35,7 +35,7 @@ shopt -s inherit_errexit
 direnv_args=("$@")
 
 if [[ ! -e .envrc ]]; then
-  cp direnv/envrc-sample.bash .envrc
+  echo 'source direnv/direnv-config.bash' >.envrc
 fi
 
 direnv allow .
