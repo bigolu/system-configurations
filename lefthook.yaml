@@ -99,7 +99,7 @@ sync:
   jobs:
     - name: direnv
       glob:
-        - direnv/direnv-config.bash
+        - direnv/base.bash
         - nix/*
         - flake.nix
         - flake.lock

@@ -63,7 +63,7 @@
       customType: "regex",
       datasourceTemplate: "github-releases",
       depNameTemplate: "nix-community/nix-direnv",
-      fileMatch: ["(^|/)direnv/direnv-config.bash$"],
+      fileMatch: ["(^|/)direnv/.*$"],
       matchStrings: [
         // This will match text with the following pattern:
         //   # renovate: nix-direnv

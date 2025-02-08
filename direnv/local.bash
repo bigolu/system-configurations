@@ -6,4 +6,4 @@
 #     the direnv config without accidentally committing those changes.
 
 export DEV_SHELL='local'
-source direnv/direnv-config.bash
+source direnv/base.bash

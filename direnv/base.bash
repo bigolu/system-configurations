@@ -1,7 +1,7 @@
 # shellcheck shell=bash
 
 # This script sets up the direnv environment that is used in local development and
-# CI. It should be sourced from the .envrc.
+# CI. There are local and CI specific configs that extend this.
 #
 # Environment Variables
 #   DEV_SHELL (required):

@@ -4,7 +4,7 @@ inputs:
   dev-shell:
     description: The name of the devShell to activate
     required: false
-    default: ci-essentials
+    default: ""
   cachix-auth-token:
     description: >
       An authentication token for Cachix. Only necessary for pushing to the cache.
@@ -31,6 +31,8 @@ runs:
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        ./scripts/direnv.bash export gha >> "$GITHUB_ENV"
+        ./scripts/direnv-wrapper.bash direnv/ci.bash \
+          export gha >> "$GITHUB_ENV"
         # GitHub Actions handles the PATH differently
-        ./scripts/direnv.bash exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
+        ./scripts/direnv-wrapper.bash direnv/ci.bash \
+          exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"

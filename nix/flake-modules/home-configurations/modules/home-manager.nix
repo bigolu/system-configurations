@@ -73,6 +73,10 @@ let
     text = ''
       trap 'echo "Pull failed, run \"mise run pull\" to try again."' ERR
 
+      function direnv_wrapper {
+        ./scripts/direnv-wrapper.bash direnv/local.bash "$@"
+      }
+
       # TODO: So `mise` has access to `system-config-apply`, not a great solution
       PATH="${config.home.profileDirectory}/bin:$PATH"
       cd "${config.repository.directory}"
@@ -88,12 +92,12 @@ let
               git stash --include-untracked --message 'Stashed for system pull'
           fi
 
-          ./scripts/direnv.bash exec . git pull
-          ./scripts/direnv.bash exec . mise run sync
+          direnv_wrapper exec . git pull
+          direnv_wrapper exec . mise run sync
       else
           # Something probably went wrong so we're trying to pull again even
           # though there's nothing to pull. In which case, just sync.
-          ./scripts/direnv.bash exec . mise run sync
+          direnv_wrapper exec . mise run sync
       fi
     '';
   };

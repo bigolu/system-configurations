@@ -67,7 +67,7 @@ format "\<config_name> / \<platform>":
    local development environment:
 
    ```bash
-   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#gitMinimal \
+   nix shell nixpkgs#fish nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils nixpkgs#gitMinimal \
      --command fish --init-command '
        # Fish does not have a way to exit whenever a command fails so I am
        # manually adding `|| exit`.
@@ -76,7 +76,8 @@ format "\<config_name> / \<platform>":
        direnv hook fish | source || exit
        git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations || exit
        cd ~/code/system-configurations || exit
-       ./scripts/direnv.bash || exit
+       cp direnv/local.bash .envrc || exit
+       direnv allow || exit
      '
    ```
 

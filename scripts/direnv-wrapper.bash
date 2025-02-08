@@ -3,11 +3,15 @@
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"
 
-# This script is for running direnv commands or just loading the direnv environment.
-# It handles things that need to be done before running direnv:
-#   - Get direnv and Bash, using the nix-shell shebang at the top
-#   - Create .envrc if it doesn't already exist
+# This script is a wrapper for direnv. It does a few things:
+#   - Get direnv and its dependencies, Bash and coreutils, using the nix-shell
+#     shebang at the top
+#   - Allows you to specify a file to load besides .envrc. direnv is considering
+#     adding support for this[1].
 #   - Run `direnv allow`
+#
+# Usage:
+#   <direnv_wrapper> <path_to_envrc> <direnv_arguments>...
 #
 # Since this script is not run from within the direnv environment, the shebang at the
 # top works differently than the ones in other scripts:
@@ -23,8 +27,10 @@
 #     cached-nix-shell.
 #
 # Also worth noting that the path in -I is relative to the directory where this
-# script is executed, which is assumed to be the root of the project, and the
-# path in the import is relative to where the script file is.
+# script is executed, which is assumed to be the root of the project, and the path in
+# the import is relative to where the script file is.
+#
+# [1]: https://github.com/direnv/direnv/issues/348
 
 set -o errexit
 set -o nounset
@@ -32,14 +38,23 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-direnv_args=("$@")
+envrc="$1"
+direnv_args=("${@:2}")
 
-if [[ ! -e .envrc ]]; then
-  echo 'source direnv/direnv-config.bash' >.envrc
+if [[ -e .envrc ]]; then
+  temp="$(mktemp --directory)"
+  backup="$temp/.envrc"
+
+  mv .envrc "$backup"
+
+  # This way if the trap fails to restore it, users can do it themselves.
+  echo "Backed up .envrc to $backup" >&2
+  # shellcheck disable=2064
+  # I want the command substitution to evaluate now, not when the trap is run.
+  trap "$(printf 'mv %q .envrc' "$backup")" SIGTERM ERR EXIT
 fi
 
+ln --symbolic "$envrc" .envrc
 direnv allow .
-
-if ((${#direnv_args[@]} > 0)); then
-  direnv "$@"
-fi
+direnv "${direnv_args[@]}"
+rm .envrc
