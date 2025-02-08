@@ -3,7 +3,7 @@
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"
 
-# This script is a wrapper for direnv. It does a few things:
+# What this script does:
 #   - Get direnv and its dependencies, Bash and coreutils, using the nix-shell
 #     shebang at the top
 #   - Allows you to specify a file to load besides .envrc. direnv is considering
