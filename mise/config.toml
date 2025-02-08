@@ -146,15 +146,14 @@ run = '''
 [tasks.check-autocomplete]
 hide = true
 run = '''
-  yq \
+  <lefthook.yaml yq \
     '
       .check |
       .. |
       select(has("name")) |
       .name |
       select(test("^(_|generate|fix-lint|format|check-lint|test)$") | not)
-    ' \
-    lefthook.yaml |
+    ' |
   sort --unique
 '''
 
