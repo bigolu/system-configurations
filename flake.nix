@@ -188,10 +188,9 @@
     # Vim Plugins
     # --------------------------------------------------------------------------
 
+    # Keep this until nixpkgs gets a commit from 2/9/25 or newer
     "vim-plugin-nvim-treesitter-endwise" = {
-      # Use this fork until this PR is merged:
-      # https://github.com/RRethy/nvim-treesitter-endwise/pull/42
-      url = "github:metiulekm/nvim-treesitter-endwise";
+      url = "github:RRethy/nvim-treesitter-endwise";
       flake = false;
     };
 

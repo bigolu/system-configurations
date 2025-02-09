@@ -12,6 +12,8 @@ Plug("nvim-treesitter/nvim-treesitter", {
     ---@diagnostic disable-next-line: missing-fields
     require("nvim-treesitter.configs").setup({
       auto_install = false,
+      incremental_selection = { enable = false },
+      indent = { enable = false },
       highlight = {
         enable = IsRunningInTerminal,
         additional_vim_regex_highlighting = false,
@@ -19,25 +21,10 @@ Plug("nvim-treesitter/nvim-treesitter", {
           return is_current_buffer_too_big_to_highlight()
         end,
       },
-      incremental_selection = {
-        enable = false,
-      },
-      indent = {
-        enable = false,
-      },
       matchup = {
         enable = true,
         disable_virtual_text = true,
-        include_match_words = true,
         enable_quotes = true,
-      },
-      endwise = {
-        -- Doesn't work in vscode
-        enable = not vim.g.vscode,
-      },
-      autotag = {
-        -- I prefer vscode's autotag
-        enable = not vim.g.vscode,
       },
     })
   end,

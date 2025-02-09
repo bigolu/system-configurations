@@ -163,7 +163,6 @@ Plug("jeetsukumaran/vim-indentwise", {
 vim.g.indentwise_suppress_keymaps = 1
 
 Plug("andymass/vim-matchup")
-vim.g.matchup_transmute_enabled = 1
 -- Don't display off-screen matches in my statusline or a popup window
 vim.g.matchup_matchparen_offscreen = {}
 -- These two highlight the surroundings that the cursor is currently contained within
