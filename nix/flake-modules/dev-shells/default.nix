@@ -13,29 +13,21 @@ moduleContext@{ lib, ... }:
 
       partials = import ./partials.nix (moduleContext // perSystemContext);
 
-      makeShell =
-        spec@{
-          inputsFrom ? [ ],
-          name,
-          ...
-        }:
-        let
-          ciEssentials = with partials; [
-            ciSetup
-            scriptInterpreter
-          ];
-        in
-        mkShellWrapperNoCC (
-          spec
-          // optionalAttrs (hasPrefix "ci-" name) {
-            inputsFrom = inputsFrom ++ ciEssentials;
-          }
-        );
+      ciEssentials = with partials; [
+        ciSetup
+        scriptInterpreter
+      ];
 
       makeDevShellOutputs =
         shellSpecs:
         pipe shellSpecs [
-          (mapAttrs (name: spec: makeShell (spec // { inherit name; })))
+          (mapAttrs (name: spec: spec // { inherit name; }))
+          (mapAttrs (
+            name: spec:
+            spec
+            // optionalAttrs (hasPrefix "ci-" name) { inputsFrom = (spec.inputsFrom or [ ]) ++ ciEssentials; }
+          ))
+          (mapAttrs (_name: mkShellWrapperNoCC))
           (shells: shells // { default = shells.local; })
           (shells: { devShells = shells; })
         ];
