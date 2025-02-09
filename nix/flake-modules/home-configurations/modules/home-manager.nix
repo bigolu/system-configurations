@@ -74,7 +74,7 @@ let
       trap 'echo "Pull failed, run \"mise run pull\" to try again."' ERR
 
       function direnv_wrapper {
-        ./scripts/direnv-wrapper.bash direnv/local.bash "$@"
+        ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
       }
 
       # TODO: So `mise` has access to `system-config-apply`, not a great solution

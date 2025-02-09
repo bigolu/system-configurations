@@ -31,8 +31,8 @@ runs:
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
       run: |
-        ./scripts/direnv-wrapper.bash direnv/ci.bash \
+        ./direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
         # GitHub Actions handles the PATH differently
-        ./scripts/direnv-wrapper.bash direnv/ci.bash \
+        ./direnv/direnv-wrapper.bash direnv/ci.bash \
           exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"

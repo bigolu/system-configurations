@@ -10,7 +10,7 @@
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
         commands: [
-          "./scripts/direnv-wrapper.bash direnv/ci.bash exec . ./scripts/lefthook/code-generation/add-nix-version-to-readme.bash",
+          "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./scripts/lefthook/code-generation/add-nix-version-to-readme.bash",
         ],
       },
     },

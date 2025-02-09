@@ -230,5 +230,5 @@ run = '''
       --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
       --keep TERM --keep TERM_PROGRAM --keep TERM_PROGRAM_VERSION --keep COLORTERM \
       --keep TERMINFO --keep TERMINFO_DIRS \
-      --command ./scripts/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive"
+      --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive"
 '''

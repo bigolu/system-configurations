@@ -38,7 +38,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-envrc="$1"
+envrc="${1:?}"
 direnv_args=("${@:2}")
 
 if [[ -e .envrc ]]; then
