@@ -32,4 +32,4 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           cachix-auth-token: "${{ secrets.CACHIX_AUTH_TOKEN }}"
-      - run: ./scripts/ci/build-packages-to-cache.bash
+      - run: ./github/scripts/build-packages-to-cache.bash

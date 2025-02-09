@@ -70,7 +70,7 @@ moduleContext@{ lib, ... }:
       ci-renovate = {
         packages = with pkgs; [ renovate ];
         shellHook = ''
-          export RENOVATE_CONFIG_FILE="$PWD/.github/renovate-global.json5"
+          export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
           export LOG_LEVEL='debug'
           # Post-Upgrade tasks are executed in the directory of the repo that's
           # currently being processed. I'm going to save the path to this repo so I

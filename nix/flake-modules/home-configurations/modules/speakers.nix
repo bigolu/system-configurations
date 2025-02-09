@@ -17,10 +17,12 @@ let
     ;
   inherit (utils) projectRoot;
 
+  smartPlugRoot = "${config.repository.directory}/smart_plug";
+
   speakerService =
     let
       speakerServiceName = "speakers.service";
-      speakerServiceTemplate = projectRoot + /dotfiles/smart_plug/linux/speakers.service;
+      speakerServiceTemplate = projectRoot + /smart_plug/linux/speakers.service;
 
       processedTemplate = replaceVars speakerServiceTemplate {
         speakerctl = getExe speakerctl;
@@ -32,7 +34,7 @@ let
 in
 optionalAttrs isGui {
   repository.symlink.home.file = optionalAttrs isDarwin {
-    ".hammerspoon/Spoons/Speakers.spoon".source = "smart_plug/mac_os/Speakers.spoon";
+    ".hammerspoon/Spoons/Speakers.spoon".source = "${smartPlugRoot}/mac_os/Speakers.spoon";
   };
 
   home = {
@@ -56,7 +58,7 @@ optionalAttrs isGui {
         sudo install \
           --compare -D --no-target-directory \
           --owner=root --group=root --mode='u=rwx,g=r,o=r' \
-          ${config.repository.directory}/dotfiles/smart_plug/linux/turn-off-speakers.bash \
+          ${smartPlugRoot}/linux/turn-off-speakers.bash \
           /etc/NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers
 
         function set_up_unit {
@@ -70,8 +72,8 @@ optionalAttrs isGui {
           chronic sudo systemctl link "$unit_name"
           chronic sudo systemctl enable "$unit_base_name"
         }
-        set_up_unit ${config.repository.directory}/dotfiles/smart_plug/linux/start-wake-target.service
-        set_up_unit ${config.repository.directory}/dotfiles/smart_plug/linux/wake.target
+        set_up_unit ${smartPlugRoot}/linux/start-wake-target.service
+        set_up_unit ${smartPlugRoot}/linux/wake.target
         set_up_unit ${speakerService}
       '';
     };

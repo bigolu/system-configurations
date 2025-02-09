@@ -135,7 +135,7 @@
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
         commands: [
-          '"$RENOVATE_BOT_REPO/scripts/ci/renovate/regenerate-gomod2nix-lock.bash" {{{packageFileDir}}}',
+          '"$RENOVATE_BOT_REPO/renovate/global/scripts/regenerate-gomod2nix-lock.bash" {{{packageFileDir}}}',
         ],
       },
     },
@@ -144,7 +144,7 @@
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
         commands: [
-          '"$RENOVATE_BOT_REPO/scripts/ci/renovate/update-nix-direnv-hash.bash" {{{packageFile}}}',
+          '"$RENOVATE_BOT_REPO/renovate/global/scripts/update-nix-direnv-hash.bash" {{{packageFile}}}',
         ],
       },
     },

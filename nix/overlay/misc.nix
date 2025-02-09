@@ -163,7 +163,7 @@ let
       };
 
       text = ''
-        python ${../../dotfiles/smart_plug/smart_plug.py} "$@"
+        python ${../../smart_plug/smart_plug.py} "$@"
       '';
     };
 

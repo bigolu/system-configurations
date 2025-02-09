@@ -17,7 +17,7 @@ output:
   - execution_info
 
 templates:
-  run_fix: scripts/lefthook/run-fix.bash
+  run_fix: lefthook/scripts/run-fix.bash
 
 # Git Hooks
 # -----------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ sync:
         - "*.bash"
       exclude:
         - dotfiles/*.bash
-      run: ./scripts/lefthook/sync-direnv.bash
+      run: ./lefthook/scripts/sync-direnv.bash
     - name: lefthook
       # TODO: Currently, this is only needed on the first sync that's done after
       # cloning the repo. This is because lefthook syncs hooks automatically. There's
@@ -169,10 +169,10 @@ check:
                   run: "{run_fix} gomod2nix --dir gozip generate"
                 - name: nix-version
                   glob: flake.lock
-                  run: "{run_fix} ./scripts/lefthook/code-generation/add-nix-version-to-readme.bash"
+                  run: "{run_fix} ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash"
                 - name: system-configs
                   glob: "*.nix"
-                  run: "{run_fix} ./scripts/lefthook/code-generation/add-system-configurations-to-readme.bash"
+                  run: "{run_fix} ./lefthook/scripts/code-generation/add-system-configurations-to-readme.bash"
                 - name: flake-lock
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
@@ -309,8 +309,8 @@ check:
                           - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
                         run: typos {files}
                       - name: mypy
-                        glob: dotfiles/smart_plug/*.py
-                        run: mypy dotfiles/smart_plug
+                        glob: smart_plug/*.py
+                        run: mypy smart_plug
                       - name: isutf8
                         run: isutf8 {files}
                       - name: editorconfig-checker
@@ -321,7 +321,9 @@ check:
                         glob: "*.{editorconfig,json,ini,yaml,toml}"
                         run: validator -groupby pass-fail {files}
                       - name: renovate-config-validator
-                        glob: ".github/renovate*.json5"
+                        glob:
+                          - renovate.json5
+                          - renovate/*.json5
                         run: renovate-config-validator --strict {files}
                 - name: test
                   group:

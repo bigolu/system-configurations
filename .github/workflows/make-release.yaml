@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
       - id: get-new-commit-count
-        run: ./scripts/ci/get-new-commit-count.bash
+        run: ./.github/scripts/get-new-commit-count.bash
   make-assets:
     needs: get-new-commit-count
     if: >
@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
       - id: make-assets
-        run: ./scripts/ci/make-assets.bash
+        run: ./.github/scripts/make-assets.bash
       - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4
         with:
           name: assets-${{ matrix.os }}
@@ -53,6 +53,6 @@ jobs:
           merge-multiple: true
           # The destination
           path: assets
-      - run: ./scripts/ci/make-release.bash
+      - run: ./.github/scripts/make-release.bash
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

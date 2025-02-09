@@ -1,8 +1,6 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: [
-    "local>bigolu/system-configurations//.github/renovate-common-preset.json5",
-  ],
+  extends: ["local>bigolu/system-configurations//renovate/common-preset.json5"],
   packageRules: [
     {
       matchManagers: ["nix"],
@@ -10,7 +8,7 @@
       // This setting is only allowed on self-hosted Renovate instances
       postUpgradeTasks: {
         commands: [
-          "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./scripts/lefthook/code-generation/add-nix-version-to-readme.bash",
+          "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash",
         ],
       },
     },
