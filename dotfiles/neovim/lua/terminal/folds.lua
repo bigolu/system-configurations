@@ -17,6 +17,24 @@ vim.keymap.set("n", "<S-Tab>", toggle_all_folds, { silent = true, expr = true })
 vim.keymap.set({ "n", "x" }, "[<Tab>", "[z")
 vim.keymap.set({ "n", "x" }, "]<Tab>", "]z")
 
+-- Every time we enter a buffer, reset the fold options. This avoids the issue
+-- where you set a foldmethod because the attached LSP server supports
+-- it, but then switch to another buffer and the foldmethod is still set to
+-- LSP. Your other fold providers think that LSP folding is active and don't
+-- override it. With this autocmd, there will never be "stale" fold options
+-- because they will always get reset. Though this means that all fold providers
+-- have to set fold options every time the buffer is entered. I expected this
+-- to be a problem with modelines, but it seems to work. I put the autocmd here
+-- because it needs to fire before the autocmds of any fold providers.
+vim.api.nvim_create_autocmd({ "BufRead" }, {
+  callback = function()
+    vim.cmd([[
+      setlocal foldmethod&
+      setlocal foldexpr&
+    ]])
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
   callback = function(_)
     local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
@@ -29,6 +47,43 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
       vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
     else
       vim.wo.foldmethod = "indent"
+    end
+  end,
+})
+
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
+    if not is_foldmethod_overridable then
+      return
+    end
+
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if not client:supports_method("textDocument/foldingRange") then
+      return
+    end
+
+    vim.wo.foldmethod = "expr"
+    vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
+  end,
+})
+vim.api.nvim_create_autocmd({ "BufEnter" }, {
+  callback = function(args)
+    local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
+    if not is_foldmethod_overridable then
+      return
+    end
+
+    -- TODO: A definition of get_clients in mini.nvim is being used by linters
+    -- instead of the one from the neovim runtime. Since it has a different signature
+    -- than the real one, linters think I'm calling it incorrectly.
+    ---@diagnostic disable-next-line: redundant-parameter
+    for _, client in ipairs(vim.lsp.get_clients({ bufnr = args.buf })) do
+      if client:supports_method("textDocument/foldingRange") then
+        vim.wo.foldmethod = "expr"
+        vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
+        return
+      end
     end
   end,
 })
