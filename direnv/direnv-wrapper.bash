@@ -28,7 +28,7 @@
 #
 # Also worth noting that the path in -I is relative to the directory where this
 # script is executed, which is assumed to be the root of the project, and the path in
-# the import is relative to where the script file is.
+# the import expression is relative to where this script is.
 #
 # [1]: https://github.com/direnv/direnv/issues/348
 
