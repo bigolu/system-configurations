@@ -1,7 +1,7 @@
 #! /usr/bin/env cached-nix-shell
 #! nix-shell --keep FLAKE_PACKAGE_SET_FILE
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils gh]"
+#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils gh perl]"
 
 set -o errexit
 set -o nounset
@@ -10,7 +10,6 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 tag='latest'
-asset_directory='assets'
 
 function main {
   delete_old_release
@@ -22,35 +21,20 @@ function delete_old_release {
 }
 
 function make_new_release {
-  local release_notes
-  release_notes="$(make_release_notes)"
-
   local title
   title="$(date +'%Y.%m.%d')"
 
+  local bundles=("assets/bundles/"*)
+
+  local checksum_file
+  checksum_file="$(mktemp --directory)/checksums.txt"
+  shasum -a 256 "${bundles[@]}" >"$checksum_file"
+
   gh release create "$tag" \
     --latest \
-    --notes-file "$release_notes" \
+    --notes-file .github/release_notes.md \
     --title "$title" \
-    "$asset_directory/bundles/"*
-}
-
-function make_release_notes {
-  notes_file="$(mktemp)"
-
-  {
-    printf '# SHA256 Checksums:\n\n'
-    for checksum_file in "$asset_directory/checksums/"*; do
-      basename="$(basename "$checksum_file")"
-      basename_without_extension="${basename%.*}"
-
-      printf '%s\n' "${basename_without_extension}"
-      # shellcheck disable=2016
-      printf '\n```\n%s\n```\n\n' "$(<"$checksum_file")"
-    done
-  } >"$notes_file"
-
-  echo "$notes_file"
+    "${bundles[@]}" "$checksum_file"
 }
 
 main

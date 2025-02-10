@@ -17,11 +17,11 @@ function main {
   local asset_directory
   asset_directory="$(register_asset_directory)"
 
-  add_bundle_checksum_to_assets "$asset_directory" "$bundle"
   move_bundle_into_assets "$asset_directory" "$bundle"
 }
 
 function register_asset_directory {
+  local asset_directory
   asset_directory="$(mktemp --directory)"
   echo "asset-directory=$asset_directory" >>"${GITHUB_OUTPUT:-/dev/stderr}"
 
@@ -36,6 +36,7 @@ function make_shell_bundle {
 
   # Enter a new directory so the only file in it will be the bundle. This way, I can
   # use the '*' glob to match the name of the bundle instead of hardcoding it.
+  local flake_path
   flake_path="$PWD"
   local temp_directory
   temp_directory="$(mktemp --directory)"
@@ -43,7 +44,9 @@ function make_shell_bundle {
 
   # nix will create a symlink to the bundle in the current directory
   nix bundle --show-trace --bundler "${flake_path}#" "${flake_path}#shell"
+  local bundle_basename
   bundle_basename="$(echo *)"
+  local bundle_path
   bundle_path="$PWD/$bundle_basename"
   dereference_symlink "$bundle_path"
 
@@ -57,26 +60,10 @@ function make_shell_bundle {
 function dereference_symlink {
   local -r symlink_path="$1"
 
+  local temp
   temp="$(mktemp --directory)"
   cp --dereference "$symlink_path" "$temp/copy"
   mv "$temp/copy" "$symlink_path"
-}
-
-function add_bundle_checksum_to_assets {
-  local -r asset_directory="$1"
-  local -r bundle_file="$2"
-
-  local bundle_basename_with_platform
-  bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
-
-  local -r checksum_directory="$asset_directory/checksums"
-  mkdir "$checksum_directory"
-  get_checksum "$bundle_file" >"$checksum_directory/${bundle_basename_with_platform}.txt"
-}
-
-function get_checksum {
-  local -r file="$1"
-  shasum -a 256 "$file" | cut -d ' ' -f 1
 }
 
 function move_bundle_into_assets {
@@ -86,6 +73,7 @@ function move_bundle_into_assets {
   local bundle_basename_with_platform
   bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
 
+  local bundle_directory
   bundle_directory="$asset_directory/bundles"
   mkdir "$bundle_directory"
   mv "$bundle_file" "${bundle_directory}/${bundle_basename_with_platform}"
@@ -94,8 +82,9 @@ function move_bundle_into_assets {
 function assert_bundle_meets_size_limit {
   local -r bundle_file="$1"
 
+  local -r max_size=250
+  local size
   size="$(du -m "$bundle_file" | cut -f1)"
-  max_size=250
   if ((size > max_size)); then
     echo "Shell is too big: $size MB. Max size: $max_size"
     exit 1

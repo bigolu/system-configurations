@@ -9,21 +9,22 @@ defaults:
   run:
     shell: ci-bash {0}
 jobs:
-  get-new-commit-count:
+  has-new-commits:
     if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-24.04
     outputs:
-      count: ${{ steps.get-new-commit-count.outputs.count }}
+      result: ${{ steps.has-new-commits.outputs.result }}
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          # We need the full history to check for new commits
+          fetch-depth: 0
       - uses: ./.github/actions/setup
-      - id: get-new-commit-count
-        run: ./.github/scripts/get-new-commit-count.bash
+      - id: has-new-commits
+        run: ./.github/scripts/has-new-commits.bash
   make-assets:
-    needs: get-new-commit-count
-    if: >
-      github.ref_name == github.event.repository.default_branch
-      && (needs.get-new-commit-count.outputs.count > 0 || github.event_name == 'workflow_dispatch')
+    needs: has-new-commits
+    if: github.event_name == 'workflow_dispatch' || needs.has-new-commits.outputs.result == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
