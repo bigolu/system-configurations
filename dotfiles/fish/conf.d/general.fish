@@ -43,7 +43,7 @@ begin
     else
         set editor_arguments nvim
     end
-    set --local joined_editor_arguments (string join ' ' (type --force-path $editor_arguments[1]) $editor_arguments[2..])
+    set --local joined_editor_arguments (string join ' ' -- (type --force-path $editor_arguments[1]) $editor_arguments[2..])
     set --global --export VISUAL "$joined_editor_arguments"
     set --global --export EDITOR $VISUAL
 end
