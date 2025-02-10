@@ -269,6 +269,7 @@ local groups = {
   Clear = "Identifier",
   MiniCursorword = { underline = not vim.o.termguicolors, bg = colors.bg2 },
   MiniOperatorsExchangeFrom = "Visual",
+  MiniCompletionActiveParameter = { ctermfg = 14, fg = colors.bracket, },
   -- }}}
 
   -- vim-signify {{{

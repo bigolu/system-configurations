@@ -352,6 +352,81 @@ Plug("echasnovski/mini.nvim", {
       })
     end
     -- }}}
+
+    -- completion {{{
+    if IsRunningInTerminal then
+      local window_info = {
+        height = math.floor(vim.o.lines * 0.35),
+        width = math.min(80, math.floor(vim.o.columns * 0.65)),
+        border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+      }
+
+      require("mini.completion").setup({
+        mappings = { force_fallback = "" },
+
+        lsp_completion = {
+          source_func = "omnifunc",
+          auto_setup = false,
+        },
+
+        window = {
+          info = window_info,
+          signature = window_info,
+        },
+      })
+
+      vim.api.nvim_create_autocmd("LspAttach", {
+        callback = function(args)
+          local client = vim.lsp.get_client_by_id(args.data.client_id)
+          local methods = vim.lsp.protocol.Methods
+          if client.supports_method(methods.textDocument_completion) then
+            vim.bo[args.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
+          end
+        end,
+      })
+
+      local function is_completion_menu_open()
+        return tonumber(vim.fn.pumvisible()) ~= 0
+      end
+
+      vim.keymap.set("i", "<Tab>", function()
+        if is_completion_menu_open() then
+          -- Select next entry
+          return "<C-n>"
+        else
+          return "<Tab>"
+        end
+      end, { expr = true })
+
+      vim.keymap.set("i", "<S-Tab>", function()
+        if is_completion_menu_open() then
+          -- Select previous entry
+          return "<C-p>"
+        else
+          return "<Tab>"
+        end
+      end, { expr = true })
+
+      vim.keymap.set("i", "<CR>", function()
+        if is_completion_menu_open() then
+          return "<Esc>a"
+        else
+          -- TODO: This function originally put its inputs through nvim_replace_termcodes,
+          -- but that ended up with garbage being put in the document. I've overridden it
+          -- to return whatever it was given, unmodified. It's original behavior is needed
+          -- for other keymaps like <BS> So I have to restore it.
+          local original = require("nvim-autopairs.utils").esc
+          require("nvim-autopairs.utils").esc = function(x)
+            return x
+          end
+          local return_value = require("nvim-autopairs").completion_confirm()
+          require("nvim-autopairs.utils").esc = original
+
+          return return_value
+        end
+      end, { expr = true })
+    end
+    -- }}}
   end,
 })
 
