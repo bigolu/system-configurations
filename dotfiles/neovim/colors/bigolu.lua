@@ -270,14 +270,9 @@ local groups = {
   MiniCursorword = { underline = not vim.o.termguicolors, bg = colors.bg2 },
   MiniOperatorsExchangeFrom = "Visual",
   MiniCompletionActiveParameter = { ctermfg = 14, fg = colors.bracket, },
-  -- }}}
-
-  -- vim-signify {{{
-  SignifySignAdd = { ctermfg = 2, fg = colors[2] },
-  SignifySignChange = { ctermfg = 3, fg = colors[3] },
-  SignifySignChangeDelete = "SignifySignChange",
-  SignifySignDelete = { ctermfg = 1, fg = colors[1] },
-  SignifySignDeleteFirstLine = "SignifySignDelete",
+  MiniDiffSignAdd = { ctermfg = 2, fg = colors[2] },
+  MiniDiffSignChange = { ctermfg = 3, fg = colors[3] },
+  MiniDiffSignDelete = { ctermfg = 1, fg = colors[1] },
   -- }}}
 }
 

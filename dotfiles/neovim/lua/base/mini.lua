@@ -427,12 +427,40 @@ Plug("echasnovski/mini.nvim", {
       end, { expr = true })
     end
     -- }}}
+
+    -- diff {{{
+    if IsRunningInTerminal then
+      local sign = "▎"
+
+      require("mini.diff").setup({
+        view = {
+          style = "sign",
+          signs = { add = sign, change = sign, delete = sign },
+          priority = 1,
+        },
+
+        mappings = {
+          apply = "",
+          reset = "",
+          textobject = "",
+          goto_first = "",
+          goto_last = "",
+          goto_prev = "[c",
+          goto_next = "]c",
+        },
+
+        options = { wrap_goto = true },
+      })
+    end
+    -- }}}
   end,
 })
 
-vim.api.nvim_create_autocmd("User", {
-  pattern = "PlugEndPost",
-  callback = function()
-    require("mini.misc").setup_restore_cursor({ center = false })
-  end,
-})
+if IsRunningInTerminal then
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "PlugEndPost",
+    callback = function()
+      require("mini.misc").setup_restore_cursor({ center = false })
+    end,
+  })
+end
