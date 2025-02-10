@@ -9,7 +9,12 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+# TODO: If nix-fast-build allowed impure evaluation[1], then I could remove this and
+# use `currentSystem.allModuleArgs` instead.
+#
+# [1]: https://github.com/Mic92/nix-fast-build/issues/41
 current_system="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
+
 nix-fast-build \
   --no-nom \
   --skip-cached \
