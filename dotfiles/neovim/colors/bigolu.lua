@@ -273,6 +273,11 @@ local groups = {
   MiniDiffSignAdd = { ctermfg = 2, fg = colors[2] },
   MiniDiffSignChange = { ctermfg = 3, fg = colors[3] },
   MiniDiffSignDelete = { ctermfg = 1, fg = colors[1] },
+  MiniPickBorderBusy = 'MiniPickBorder',
+  MiniPickBorderText = "MiniPickBorder",
+  MiniPickPrompt = "Normal",
+  MiniPickMatchRanges = "String",
+  MiniPickMatchCurrent = {underline = not vim.o.termguicolors, bg = colors.bg2, },
   -- }}}
 }
 

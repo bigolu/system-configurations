@@ -453,6 +453,30 @@ Plug("echasnovski/mini.nvim", {
       })
     end
     -- }}}
+
+    -- pick {{{
+    if IsRunningInTerminal then
+      require("mini.pick").setup({
+        mappings = {
+          move_down = "<Tab>",
+          move_up = "<S-Tab>",
+          toggle_preview = "<C-p>",
+          scroll_down = "<C-j>",
+          scroll_left = "<C-h>",
+          scroll_right = "<C-l>",
+          scroll_up = "<C-k>",
+          toggle_info = "",
+        },
+      })
+
+      vim.keymap.set({ "n" }, "<leader>f", function()
+        vim.cmd.Pick("files")
+      end)
+      vim.keymap.set({ "n" }, "<leader><leader>", function()
+        vim.cmd.Pick("resume")
+      end)
+    end
+    -- }}}
   end,
 })
 
