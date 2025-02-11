@@ -31,16 +31,16 @@ function main {
 }
 
 function publish_report {
-  local -r report_file="$1"
+  local -r report_path="$1"
 
   # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
   if [[ ${CI:-} == 'true' ]]; then
     gh issue create --title 'Link Checker Report' --body-file "$report_path"
   else
     printf '%s\n' \
-      "Report file: $report_file" \
+      "Report path: $report_path" \
       'Contents:' \
-      "$(<"$report_file")"
+      "$(<"$report_path")"
   fi
 }
 
