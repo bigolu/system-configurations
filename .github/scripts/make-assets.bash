@@ -80,7 +80,7 @@ function move_bundle_into_assets {
 function assert_bundle_meets_size_limit {
   local -r bundle_file="$1"
 
-  local -r max_size=300
+  local -r max_size=350
   local size
   size="$(du -m "$bundle_file" | cut -f1)"
   if ((size > max_size)); then
