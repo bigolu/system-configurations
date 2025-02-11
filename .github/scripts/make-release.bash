@@ -24,17 +24,17 @@ function make_new_release {
   local title
   title="$(date +'%Y.%m.%d')"
 
-  local bundles=("assets/bundles/"*)
+  local assets=(assets/*)
 
   local checksum_file
   checksum_file="$(mktemp --directory)/checksums.txt"
-  shasum -a 256 "${bundles[@]}" >"$checksum_file"
+  shasum --algorithm 256 "${assets[@]}" >"$checksum_file"
 
   gh release create "$tag" \
     --latest \
-    --notes-file .github/release_notes.md \
     --title "$title" \
-    "${bundles[@]}" "$checksum_file"
+    --notes-file .github/release_notes.md \
+    "${assets[@]}" "$checksum_file"
 }
 
 main

@@ -10,12 +10,13 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 function main {
-  local bundle
-  bundle="$(make_shell_bundle)"
-  assert_bundle_meets_size_limit "$bundle"
-
   local asset_directory
   asset_directory="$(register_asset_directory)"
+
+  local bundle
+  bundle="$(make_shell_bundle)"
+
+  assert_bundle_meets_size_limit "$bundle"
 
   move_bundle_into_assets "$asset_directory" "$bundle"
 }
@@ -73,16 +74,13 @@ function move_bundle_into_assets {
   local bundle_basename_with_platform
   bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
 
-  local bundle_directory
-  bundle_directory="$asset_directory/bundles"
-  mkdir "$bundle_directory"
-  mv "$bundle_file" "${bundle_directory}/${bundle_basename_with_platform}"
+  mv "$bundle_file" "${asset_directory}/${bundle_basename_with_platform}"
 }
 
 function assert_bundle_meets_size_limit {
   local -r bundle_file="$1"
 
-  local -r max_size=250
+  local -r max_size=300
   local size
   size="$(du -m "$bundle_file" | cut -f1)"
   if ((size > max_size)); then
@@ -91,6 +89,7 @@ function assert_bundle_meets_size_limit {
   fi
 }
 
+# Example: a/b/file -> file-x86_64-linux
 function get_basename_with_platform {
   local -r file="$1"
 

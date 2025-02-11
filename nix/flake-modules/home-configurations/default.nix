@@ -19,6 +19,16 @@ let
     pkgs: packageName:
     pkgs.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
 
+  # These variables contain the path to the locale archive in
+  # pkgs.glibcLocales. There is no option to prevent Home Manager from making
+  # these environment variables and overriding glibcLocales in an overlay would
+  # cause too many rebuild so instead I overwrite the environment variables.
+  # Now glibcLocales won't be a dependency.
+  emptySessionVariables = lib.mkForce {
+    LOCALE_ARCHIVE_2_27 = "";
+    LOCALE_ARCHIVE_2_11 = "";
+  };
+
   # When I called nix-tree with the portable home, I got a warning that calling
   # lib.getExe on a package that doesn't have a meta.mainProgram is deprecated. The
   # package that was lib.getExe was called with is nix.
@@ -49,27 +59,16 @@ let
       # outside the Nix store.
       repository.symlink.makeCopiesInstead = true;
 
-      programs.nix-index = {
-        enable = false;
-        symlinkToCacheHome = false;
+      programs = {
+        home-manager.enable = lib.mkForce false;
+        nix-index = {
+          enable = false;
+          symlinkToCacheHome = false;
+        };
       };
 
-      programs.home-manager.enable = lib.mkForce false;
-
-      # This removes the dependency on `sd-switch`.
-      systemd.user.startServices = lib.mkForce "suggest";
       home = {
-        # These variables contain the path to the locale archive in
-        # pkgs.glibcLocales. There is no option to prevent Home Manager from making
-        # these environment variables and overriding glibcLocales in an overlay would
-        # cause too many rebuild so instead I overwrite the environment variables.
-        # Now, glibcLocales won't be a dependency.
-        sessionVariables = lib.attrsets.optionalAttrs pkgs.stdenv.isLinux (
-          lib.mkForce {
-            LOCALE_ARCHIVE_2_27 = "";
-            LOCALE_ARCHIVE_2_11 = "";
-          }
-        );
+        sessionVariables = lib.attrsets.optionalAttrs pkgs.stdenv.isLinux emptySessionVariables;
 
         file.".hammerspoon/Spoons/EmmyLua.spoon" = lib.mkForce {
           source = makeEmptyPackage pkgs "stub-spoon";
@@ -80,6 +79,12 @@ let
         # else it won't build.
         username = "biggs";
         homeDirectory = "/no/home/directory";
+      };
+
+      systemd.user = {
+        # This removes the dependency on `sd-switch`.
+        startServices = lib.mkForce "suggest";
+        sessionVariables = lib.attrsets.optionalAttrs pkgs.stdenv.isLinux emptySessionVariables;
       };
 
       xdg = {

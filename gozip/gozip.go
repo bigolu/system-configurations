@@ -108,6 +108,14 @@ func EndProgress() {
 	}
 }
 
+func IsSymlink(path string) (bool, error) {
+	fileInfo, err := os.Lstat(path)
+	if err != nil {
+		return false, err
+	}
+	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink, nil
+}
+
 func Zip(destinationPath string, filesToZip []string) (err error) {
 	destinationFile, err := os.OpenFile(destinationPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
@@ -141,6 +149,31 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 	for _, file := range filesToZip {
 		rootDir := os.DirFS(cd)
 		file = filepath.Clean(file)
+
+		// If the input file is a symlink, don't dereference it.
+		isSymlink, err := IsSymlink(file)
+		if err != nil {
+			return err
+		}
+		if isSymlink {
+			var hdr tar.Header
+			hdr.Name = file
+
+			hdr.Typeflag = tar.TypeSymlink
+			target, err := filepath.EvalSymlinks((filepath.Join(cd, file)))
+			if err != nil {
+				return err
+			}
+			hdr.Linkname = target
+
+			err = tarWrt.WriteHeader(&hdr)
+			if err != nil {
+				return err
+			}
+
+			continue
+		}
+
 		fs.WalkDir(rootDir, file, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err

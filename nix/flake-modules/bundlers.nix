@@ -65,15 +65,17 @@ let
           stdenv.mkDerivation {
             inherit name;
             dontUnpack = true;
-            buildInputs = [
+            nativeBuildInputs = [
               gozip
               pkgs.which
             ];
             installPhase = ''
               mkdir deps
+
               cp --recursive $(cat ${writeClosure derivation}) ./deps/
               cp ${entrypoint} ./deps/entrypoint
-              chmod -R 777 ./deps
+
+              chmod -R 777 deps
 
               cp --dereference "$(which gozip)" $out
               chmod +w $out
