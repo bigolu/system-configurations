@@ -7,13 +7,13 @@ vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" 
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "gn", vim.lsp.buf.rename, { desc = "Rename variable" })
 vim.keymap.set({ "n", "v" }, "ga", vim.lsp.buf.code_action, { desc = "Code actions" })
+vim.keymap.set("n", "gl", vim.lsp.codelens.run, { desc = "Run code lens" })
 vim.keymap.set("n", [[\d]], function()
   vim.diagnostic.reset(nil, vim.api.nvim_get_current_buf())
 end, { desc = "Toggle diagnostics for buffer" })
 vim.keymap.set("n", [[\i]], function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), { bufnr = 0 })
 end, { desc = "Toggle inlay hints" })
-vim.keymap.set("n", "gl", vim.lsp.codelens.run, { desc = "Run code lens" })
 
 -- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
@@ -142,60 +142,46 @@ vim.api.nvim_create_autocmd("User", {
   end,
 })
 
-Plug("kosayoda/nvim-lightbulb", {
-  config = function()
-    require("nvim-lightbulb").setup({
-      autocmd = { enabled = true },
-      sign = { enabled = false },
-      virtual_text = {
-        enabled = true,
-        text = "",
-        hl = "CodeActionSign",
-      },
-    })
-  end,
-})
+Plug("kosayoda/nvim-lightbulb", function()
+  require("nvim-lightbulb").setup({
+    autocmd = { enabled = true },
+    sign = { enabled = false },
+    virtual_text = {
+      enabled = true,
+      text = "",
+      hl = "CodeActionSign",
+    },
+  })
+end)
 
 Plug("neovim/nvim-lspconfig")
 
 -- An error is printed if nix isn't available
 if vim.fn.executable("nix") == 1 then
-  Plug("dundalek/lazy-lsp.nvim", {
-    config = function()
-      local excluded_servers = {
-        "pylyzer",
-        "jedi_language_server",
-        "basedpyright",
-        "pylsp",
-        "nil_ls",
-        "quick_lint_js",
-      }
-      -- TODO: See if it makes sense to upstream this to nvim-lspconfig. Some of
-      -- these files are optional so it wouldn't make sense to upstream those.
-      local maybe_excluded_severs = {
-        denols = { "deno.json", "deno.jsonc" },
-        tailwindcss = { "tailwind.config.js" },
-      }
-      for name, files in pairs(maybe_excluded_severs) do
-        if not next(vim.fs.find(files, { upward = true })) then
-          table.insert(excluded_servers, name)
-        end
+  Plug("dundalek/lazy-lsp.nvim", function()
+    local excluded_servers = {
+      "pylyzer",
+      "jedi_language_server",
+      "basedpyright",
+      "pylsp",
+      "nil_ls",
+      "quick_lint_js",
+    }
+    -- TODO: See if it makes sense to upstream this to nvim-lspconfig. Some of
+    -- these files are optional so it wouldn't make sense to upstream those.
+    local maybe_excluded_severs = {
+      denols = { "deno.json", "deno.jsonc" },
+      tailwindcss = { "tailwind.config.js" },
+    }
+    for name, files in pairs(maybe_excluded_severs) do
+      if not next(vim.fs.find(files, { upward = true })) then
+        table.insert(excluded_servers, name)
       end
+    end
 
-      require("lazy-lsp").setup({
-        prefer_local = true,
-        excluded_servers = excluded_servers,
-      })
-
-      -- re-trigger lsp attach so nvim-lsp-config has a chance to attach to any
-      -- buffers that were opened before it was configured. This way I can load
-      -- nvim-lsp-config asynchronously.
-      --
-      -- Set the filetype of all the currently open buffers to trigger a 'FileType'
-      -- event for each buffer. This will trigger lsp attach
-      vim.iter(vim.api.nvim_list_bufs()):each(function(buf)
-        vim.bo[buf].filetype = vim.bo[buf].filetype
-      end)
-    end,
-  })
+    require("lazy-lsp").setup({
+      prefer_local = true,
+      excluded_servers = excluded_servers,
+    })
+  end)
 end

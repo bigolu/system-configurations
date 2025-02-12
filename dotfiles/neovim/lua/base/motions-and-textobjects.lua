@@ -120,46 +120,34 @@ vim.keymap.set({ "n", "x" }, "[m", function()
 end, { remap = true, desc = "Previous long line [last,max]" })
 
 -- Motions for levels of indentation
-Plug("jeetsukumaran/vim-indentwise", {
-  config = function()
-    vim.keymap.set(
-      "",
-      "[-",
-      "<Plug>(IndentWisePreviousLesserIndent)",
-      { remap = true, desc = "Last line with lower indent" }
-    )
-    vim.keymap.set(
-      "",
-      "[+",
-      "<Plug>(IndentWisePreviousGreaterIndent)",
-      { remap = true, desc = "Last line with higher indent" }
-    )
-    vim.keymap.set(
-      "",
-      "[=",
-      "<Plug>(IndentWisePreviousEqualIndent)",
-      { remap = true, desc = "Last block with equal indent" }
-    )
-    vim.keymap.set(
-      "",
-      "]-",
-      "<Plug>(IndentWiseNextLesserIndent)",
-      { remap = true, desc = "Next line with lower indent" }
-    )
-    vim.keymap.set(
-      "",
-      "]+",
-      "<Plug>(IndentWiseNextGreaterIndent)",
-      { remap = true, desc = "Next line with higher indent" }
-    )
-    vim.keymap.set(
-      "",
-      "]=",
-      "<Plug>(IndentWiseNextEqualIndent)",
-      { remap = true, desc = "Next block with equal indent" }
-    )
-  end,
-})
+Plug("jeetsukumaran/vim-indentwise", function()
+  vim.keymap.set(
+    "",
+    "[-",
+    "<Plug>(IndentWisePreviousLesserIndent)",
+    { remap = true, desc = "Last line with lower indent" }
+  )
+  vim.keymap.set(
+    "",
+    "[+",
+    "<Plug>(IndentWisePreviousGreaterIndent)",
+    { remap = true, desc = "Last line with higher indent" }
+  )
+  vim.keymap.set(
+    "",
+    "[=",
+    "<Plug>(IndentWisePreviousEqualIndent)",
+    { remap = true, desc = "Last block with equal indent" }
+  )
+  vim.keymap.set("", "]-", "<Plug>(IndentWiseNextLesserIndent)", { remap = true, desc = "Next line with lower indent" })
+  vim.keymap.set(
+    "",
+    "]+",
+    "<Plug>(IndentWiseNextGreaterIndent)",
+    { remap = true, desc = "Next line with higher indent" }
+  )
+  vim.keymap.set("", "]=", "<Plug>(IndentWiseNextEqualIndent)", { remap = true, desc = "Next block with equal indent" })
+end)
 vim.g.indentwise_suppress_keymaps = 1
 
 Plug("andymass/vim-matchup")

@@ -3,59 +3,55 @@
 -- To get the vim help pages for vim-plug itself, you need to add it as a plugin
 Plug("junegunn/vim-plug")
 
-Plug("j-hui/fidget.nvim", {
-  config = function()
-    local fidget = require("fidget")
-    fidget.setup({
-      progress = {
-        ignore_done_already = true,
-        suppress_on_insert = true,
-        ignore = { "null-ls" },
-        display = {
-          render_limit = 1,
-          done_ttl = 0.1,
-          done_icon = "󰄬",
-          done_style = "FidgetNormal",
-          progress_style = "FidgetAccent",
-          group_style = "FidgetAccent",
-          icon_style = "FidgetIcon",
-          progress_icon = { "dots" },
-        },
+Plug("j-hui/fidget.nvim", function()
+  local fidget = require("fidget")
+  fidget.setup({
+    progress = {
+      ignore_done_already = true,
+      suppress_on_insert = true,
+      ignore = { "null-ls" },
+      display = {
+        render_limit = 1,
+        done_ttl = 0.1,
+        done_icon = "󰄬",
+        done_style = "FidgetNormal",
+        progress_style = "FidgetAccent",
+        group_style = "FidgetAccent",
+        icon_style = "FidgetIcon",
+        progress_icon = { "dots" },
       },
-      notification = {
-        view = {
-          group_separator = "─────",
-        },
-        window = {
-          normal_hl = "FidgetNormal",
-          winblend = 0,
-          zindex = 1,
-          max_width = 40,
-        },
+    },
+    notification = {
+      view = {
+        group_separator = "─────",
       },
-    })
-    vim.notify = fidget.notify
-  end,
-})
+      window = {
+        normal_hl = "FidgetNormal",
+        winblend = 0,
+        zindex = 1,
+        max_width = 40,
+      },
+    },
+  })
+  vim.notify = fidget.notify
+end)
 
-Plug("jake-stewart/multicursor.nvim", {
-  config = function()
-    local mc = require("multicursor-nvim")
+Plug("jake-stewart/multicursor.nvim", function()
+  local mc = require("multicursor-nvim")
 
-    mc.setup()
+  mc.setup()
 
-    local set_keymap = vim.keymap.set
-    set_keymap("n", "<M-leftmouse>", mc.handleMouse)
-    set_keymap({ "n", "v" }, "<c-c>", mc.toggleCursor)
-    set_keymap("n", "<esc>", function()
-      if not mc.cursorsEnabled() then
-        mc.enableCursors()
-      elseif mc.hasCursors() then
-        mc.clearCursors()
-      end
-    end)
-  end,
-})
+  local set_keymap = vim.keymap.set
+  set_keymap("n", "<M-leftmouse>", mc.handleMouse)
+  set_keymap({ "n", "v" }, "<c-c>", mc.toggleCursor)
+  set_keymap("n", "<esc>", function()
+    if not mc.cursorsEnabled() then
+      mc.enableCursors()
+    elseif mc.hasCursors() then
+      mc.clearCursors()
+    end
+  end)
+end)
 
 -- Settings {{{
 vim.o.mouse = "a"
