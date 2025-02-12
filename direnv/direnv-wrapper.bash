@@ -51,7 +51,10 @@ if [[ -e .envrc ]]; then
   echo "Backed up .envrc to $backup" >&2
   # shellcheck disable=2064
   # I want the command substitution to evaluate now, not when the trap is run.
-  trap "$(printf 'mv %q .envrc' "$backup")" SIGTERM ERR EXIT
+  #
+  # The existence check is necessary since more than one of the specified signals may
+  # get triggered.
+  trap "$(printf '[[ -e %q ]] && mv %q .envrc' "$backup" "$backup")" SIGTERM ERR EXIT
 fi
 
 ln --symbolic "$envrc" .envrc

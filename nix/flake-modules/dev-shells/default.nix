@@ -56,6 +56,15 @@ moduleContext@{ lib, ... }:
           taskRunner
           # This is needed for running mypy
           speakerctl
+          # Runs the checks
+          gitHooks
+        ];
+      };
+
+      ci-check-for-broken-links = {
+        inputsFrom = with partials; [
+          # Runs the check
+          gitHooks
         ];
       };
 

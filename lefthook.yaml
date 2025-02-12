@@ -143,7 +143,8 @@ check:
   files: ":"
   jobs:
     - name: _
-      # Don't run checks on generated files.
+      # Don't run checks on files I didn't make. For example, generated files and
+      # licenses.
       #
       # This job only exists so the excludes can get inherited by all of its
       # descendants. There's an open feature request for a global exclude list[1]. If
@@ -156,6 +157,7 @@ check:
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
         - dotfiles/cosmic/config/*
         - docs/tasks.html
+        - COPYING.txt
       group:
         jobs:
           - name: generate
@@ -203,7 +205,7 @@ check:
                 - name: statix
                   glob: "*.nix"
                   # statix doesn't support passing multiple files yet:
-                  # https://github.com/nerdypepper/statix/issues/69
+                  # https://github.com/oppiliappan/statix/issues/69
                   run: "{run_fix} parallel statix fix -- {files}"
                 - name: markdownlint-cli2
                   glob: "*.md"
@@ -297,7 +299,7 @@ check:
                       - name: statix
                         glob: "*.nix"
                         # statix doesn't support passing multiple files yet:
-                        # https://github.com/nerdypepper/statix/issues/69
+                        # https://github.com/oppiliappan/statix/issues/69
                         run: "parallel statix check -- {files}"
                       - name: nixpkgs-lint
                         glob: "*.nix"
@@ -348,3 +350,9 @@ check:
                           - "*.nix"
                           - flake.lock
                         run: nix config check
+          - name: lychee
+            only:
+              - run: '[ "$CI" = true ]'
+            exclude:
+              - .lycheeignore
+            run: ./lefthook/scripts/check-lychee.bash {files}

@@ -10,6 +10,8 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 function main {
+  local -ra files=("$@")
+
   local report_path
   report_path="$(mktemp --directory)/report"
 
@@ -17,11 +19,11 @@ function main {
   # exit if that happens.
   set +o errexit
   lychee \
-    --verbose --no-progress \
+    -vv --no-progress \
     --archive wayback --suggest \
     --format markdown --output "$report_path" \
     --include-fragments \
-    --hidden --include-verbatim .
+    --hidden --include-verbatim "${files[@]}"
   local -r lychee_exit_code=$?
   set -o errexit
 
@@ -44,4 +46,4 @@ function publish_report {
   fi
 }
 
-main
+main "$@"

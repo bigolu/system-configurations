@@ -75,6 +75,10 @@ let
             [[ ''${CI:-} == 'true' ]]
           }
 
+          function is_debugging_ci {
+            [[ ''${CI_DEBUG:-} == 'true' ]]
+          }
+
           # To avoid hard coding the path to the flake package set in every script's
           # nix-shell shebang, I export a variable with the path.
           export FLAKE_PACKAGE_SET_FILE=${source}/nix/flake-package-set.nix
@@ -93,8 +97,13 @@ let
           # but that shouldn't be a problem unless a breaking change is made to
           # runCommand.
           #
+          # I check to see if I'm debugging CI because this is one thing that is done
+          # in CI that I also want done when debugging CI locally. I don't want to
+          # set CI to true because then things like creating GitHub issues would
+          # happen locally.
+          #
           # [1]: https://github.com/nix-community/comma
-          if is_running_in_ci; then
+          if is_running_in_ci || is_debugging_ci; then
             export NIX_PATH="nixpkgs=${source}/nix/nixpkgs.nix''${NIX_PATH:+:$NIX_PATH}"
           fi
         '';
@@ -145,7 +154,6 @@ let
     packages = with pkgs; [
       mise
       # These get used in the mise config
-      lefthook
       fish
       yq-go
       coreutils
@@ -156,17 +164,18 @@ let
   };
 
   gitHooks = mkShellWrapperNoCC {
-    packages = with pkgs; [ lefthook ];
+    packages = with pkgs; [
+      lefthook
+      # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
+      # it a dependency.
+      gitMinimal
+    ];
   };
 
   sync = mkShellWrapperNoCC {
     packages = with pkgs; [
       # These get called in the lefthook config
-      gitMinimal
       runAsAdmin
-
-      # Runs the sync tasks
-      lefthook
     ];
   };
 
@@ -248,10 +257,6 @@ let
           # For isutf8 and parallel. parallel isn't a linter, but it's used to run
           # any linter that doesn't support multiple file arguments.
           moreutils
-
-          # These aren't linters, but they also get called in lefthook as part of
-          # certain linting commands.
-          gitMinimal
         ];
       };
 
@@ -285,9 +290,6 @@ let
         formatting
         codeGeneration
       ];
-
-      # Runs the checks
-      packages = with pkgs; [ lefthook ];
 
       shellHook = ''
         export RUFF_CACHE_DIR="$DIRENV_LAYOUT_DIR/ruff-cache"

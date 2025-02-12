@@ -224,10 +224,10 @@ run = '''
 
   # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv
   # doesn't overwrite the dev shell cached in .direnv with the one built here.
-  DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" HOME="$(mktemp --directory)" \
+  CI_DEBUG=true DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" HOME="$(mktemp --directory)" \
       nix shell --file nix/flake-package-set.nix nix \
       --ignore-environment \
-      --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
+      --keep CI_DEBUG --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
       --keep TERM --keep TERM_PROGRAM --keep TERM_PROGRAM_VERSION --keep COLORTERM \
       --keep TERMINFO --keep TERMINFO_DIRS \
       --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive"
