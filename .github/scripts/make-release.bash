@@ -1,7 +1,7 @@
 #! /usr/bin/env cached-nix-shell
 #! nix-shell --keep FLAKE_PACKAGE_SET_FILE
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils gh perl]"
+#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils gh]"
 
 set -o errexit
 set -o nounset
@@ -24,17 +24,18 @@ function make_new_release {
   local title
   title="$(date +'%Y.%m.%d')"
 
-  local assets=(assets/*)
-
+  # This way only the basenames of the assets will be put in the checksum file
+  pushd assets
   local checksum_file
-  checksum_file="$(mktemp --directory)/checksums.txt"
-  shasum --algorithm 256 "${assets[@]}" >"$checksum_file"
+  checksum_file="$(mktemp --directory)checksums.txt"
+  sha256sum -- * >"$checksum_file"
+  popd
 
   gh release create "$tag" \
     --latest \
     --title "$title" \
     --notes-file .github/release_notes.md \
-    "${assets[@]}" "$checksum_file"
+    assets/* "$checksum_file"
 }
 
 main
