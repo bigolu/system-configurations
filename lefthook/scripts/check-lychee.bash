@@ -29,7 +29,7 @@ function main {
 
   if ((lychee_exit_code == 2)); then
     publish_report "$report_path"
-  elif ((lychee_exit_code != 0)); then
+  else
     exit $lychee_exit_code
   fi
 }
