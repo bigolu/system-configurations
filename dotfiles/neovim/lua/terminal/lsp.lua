@@ -48,41 +48,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
--- TODO: Fire a single event for when a server first starts _and_ when it registers a
--- capability dynamically. This should be simpler once this issue is resolved:
---
--- https://github.com/neovim/neovim/issues/24229
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    vim.api.nvim_exec_autocmds("User", {
-      pattern = "LspAttach",
-      data = {
-        client = vim.lsp.get_client_by_id(args.data.client_id),
-        buffer = args.buf,
-      },
-    })
-  end,
-})
-local original_register_capability = vim.lsp.handlers[methods.client_registerCapability]
-vim.lsp.handlers[methods.client_registerCapability] = function(err, res, ctx)
-  local original_return_value = { original_register_capability(err, res, ctx) }
-
-  local client = vim.lsp.get_client_by_id(ctx.client_id)
-  if client then
-    vim.iter(vim.lsp.get_buffers_by_client_id(client.id)):each(function(buf)
-      vim.api.nvim_exec_autocmds("User", {
-        pattern = "LspAttach",
-        data = {
-          client = client,
-          buffer = buf,
-        },
-      })
-    end)
-  end
-
-  return unpack(original_return_value)
-end
-
 -- codelens utils
 local code_lens_refresh_autocmd_ids_by_buffer = {}
 local function create_refresh_autocmd(buffer)
@@ -113,9 +78,7 @@ local function delete_refresh_autocmd(buffer)
   code_lens_refresh_autocmd_ids_by_buffer[buffer] = -1
 end
 
-vim.api.nvim_create_autocmd("User", {
-  pattern = "LspAttach",
-
+vim.api.nvim_create_autocmd("LspAttach", {
   -- Should be idempotent since it may be called multiple times for the same buffer
   -- if a server registers a capability dynamically.
   callback = function(context)
