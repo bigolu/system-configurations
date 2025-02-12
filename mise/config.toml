@@ -218,17 +218,38 @@ usage = '''
   """#
 '''
 run = '''
-  # direnv will add non-interactive Bash to the path since that's part of Nix's
-  # stdenv. We can't use ci-bash since it exits when a command fails.
+  # Inside the direnv environment, the non-interactive Bash is shadowing the
+  # interactive one. We can't use ci-bash either since it exits when a command
+  # fails.
   bash_interactive="$(nix eval --raw --file nix/flake-package-set.nix 'bashInteractive')/bin/bash"
 
-  # I'm changing the direnv's cache directory, normally .direnv, so nix-direnv
-  # doesn't overwrite the dev shell cached in .direnv with the one built here.
-  CI_DEBUG=true DEV_SHELL={{arg(name="dev_shell")}} direnv_layout_dir="$(mktemp --directory)" HOME="$(mktemp --directory)" \
-      nix shell --file nix/flake-package-set.nix nix \
-      --ignore-environment \
-      --keep CI_DEBUG --keep DEV_SHELL --keep direnv_layout_dir --keep HOME \
-      --keep TERM --keep TERM_PROGRAM --keep TERM_PROGRAM_VERSION --keep COLORTERM \
-      --keep TERMINFO --keep TERMINFO_DIRS \
-      --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive"
+  environment_variables=(
+    DEV_SHELL={{arg(name="dev_shell")}}
+    CI_DEBUG=true
+
+    # direnv stores its cache in the directory specified in `direnv_layout_dir`.
+    # If it's not set, .direnv is used. I'm changing it so nix-direnv doesn't
+    # overwrite the dev shell cached in .direnv with the one built here.
+    direnv_layout_dir="$(mktemp --directory)"
+
+    # direnv requires the `HOME` variable be set. I'm using a temporary
+    # directory to avoid accessing anything from the real `HOME` inside this
+    # environment.
+    HOME="$(mktemp --directory)"
+  )
+
+  nix_shell_flags=(
+    --file nix/flake-package-set.nix nix
+
+    --ignore-environment
+    --keep DEV_SHELL --keep CI_DEBUG --keep direnv_layout_dir --keep HOME
+    # CLIs read these to determine what terminal they're running in
+    --keep TERM --keep TERM_PROGRAM --keep TERM_PROGRAM_VERSION
+    # CLIs read these to determine the capabilities of the terminal they're running in
+    --keep TERMINFO --keep TERMINFO_DIRS --keep COLORTERM
+
+    --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive"
+  )
+
+  env "${environment_variables[@]}" nix shell "${nix_shell_flags[@]}"
 '''
