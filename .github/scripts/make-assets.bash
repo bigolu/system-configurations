@@ -37,8 +37,7 @@ function make_shell_bundle {
 
   # Enter a new directory so the only file in it will be the bundle. This way, I can
   # use the '*' glob to match the name of the bundle instead of hardcoding it.
-  local flake_path
-  flake_path="$PWD"
+  local flake_path="$PWD"
   local temp_directory
   temp_directory="$(mktemp --directory)"
   pushd "$temp_directory"
@@ -47,8 +46,7 @@ function make_shell_bundle {
   nix bundle --show-trace --bundler "${flake_path}#" "${flake_path}#shell"
   local bundle_basename
   bundle_basename="$(echo *)"
-  local bundle_path
-  bundle_path="$PWD/$bundle_basename"
+  local bundle_path="$PWD/$bundle_basename"
   dereference_symlink "$bundle_path"
 
   popd
