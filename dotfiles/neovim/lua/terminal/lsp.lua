@@ -82,8 +82,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
   -- Should be idempotent since it may be called multiple times for the same buffer
   -- if a server registers a capability dynamically.
   callback = function(context)
-    local client = context.data.client
-    local buffer = context.data.buffer
+    local client = vim.lsp.get_client_by_id(context.data.client_id)
+    local buffer = context.buf
 
     if client.supports_method(methods.textDocument_codeLens) then
       if code_lens_refresh_autocmd_ids_by_buffer[buffer] == nil then
