@@ -146,15 +146,22 @@ run = '''
 [tasks.check-autocomplete]
 hide = true
 run = '''
-  <lefthook.yaml yq \
+  yq \
     '
-      .check |
-      .. |
-      select(has("name")) |
-      .name |
-      select(test("^(_|generate|fix-lint|format|check-lint|test)$") | not)
-    ' |
-  sort --unique
+      [
+        # Get all job maps within the check map. Jobs are any maps with a "name" key.
+        .check.jobs | .. | select(has("name")) |
+
+        # Exclude jobs that have child jobs, we only want the individual jobs
+        select(has("group") | not) |
+
+        .name
+      ] |
+      sort |
+      unique |
+      .[]
+    ' \
+    lefthook.yaml
 '''
 
 # Syncing

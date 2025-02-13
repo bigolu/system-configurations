@@ -32,8 +32,11 @@ yabai -m rule --add label=firefox app="^Firefox$" title="^Log in to your PayPal 
 
 # Only add padding for a space if there is more than one window in it
 function set_padding {
-  windows=$(yabai -m query --windows --space | jq 'map(select(."is-visible" == true and ."is-floating" == false)) | length')
-  if ((windows > 1)); then
+  window_count=$(
+    yabai -m query --windows --space |
+      jq 'map(select(."is-visible" == true and ."is-floating" == false)) | length'
+  )
+  if ((window_count > 1)); then
     value=10
   else
     value=0
