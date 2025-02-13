@@ -102,8 +102,8 @@ function maybe_warn_about_untracked_files {
     return
   fi
 
-  git ls-files -z --deleted --others --exclude-standard \
-    | {
+  git ls-files -z --deleted --others --exclude-standard |
+    {
       readarray -d '' untracked_or_deleted_files
       if ((${#untracked_or_deleted_files[@]} > 0)); then
         local joined_untracked_or_deleted_files

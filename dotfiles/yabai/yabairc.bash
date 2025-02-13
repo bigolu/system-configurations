@@ -54,8 +54,8 @@ yabai -m signal --add label=remove_padding_destroy event=window_destroyed action
 # maximized and not in a stack.
 function hide_stackline {
   if
-    yabai -m query --windows --window \
-      | jq --exit-status '."is-native-fullscreen" or (."has-fullscreen-zoom" and ."stack-index" == 0)' 1>/dev/null 2>&1
+    yabai -m query --windows --window |
+      jq --exit-status '."is-native-fullscreen" or (."has-fullscreen-zoom" and ."stack-index" == 0)' 1>/dev/null 2>&1
   then
     alpha=0
   else

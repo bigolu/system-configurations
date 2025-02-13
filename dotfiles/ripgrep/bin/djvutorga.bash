@@ -23,8 +23,8 @@ input_file="$1"
 #     I …
 #     A …
 #     T …
-djvused "$input_file" -e 'ls' \
-  | {
+djvused "$input_file" -e 'ls' |
+  {
     while IFS= read -r file_info; do
       page="${file_info%% [APIT]*}"
       page="${page// /}"
