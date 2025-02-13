@@ -28,7 +28,7 @@ let
     repository.symlink = {
       xdg = {
         configFile = {
-          "yabai/yabairc".source = "yabai/yabairc";
+          "yabai/yabairc".source = "yabai/yabairc.bash";
           "skhd/skhdrc".source = "skhd/skhdrc";
         };
       };
