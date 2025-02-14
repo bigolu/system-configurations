@@ -27,7 +27,7 @@ function make_new_release {
   # This way only the basenames of the assets will be put in the checksum file
   pushd assets
   local checksum_file
-  checksum_file="$(mktemp --directory)checksums.txt"
+  checksum_file="$(mktemp --directory)/checksums.txt"
   sha256sum -- * >"$checksum_file"
   popd
 
