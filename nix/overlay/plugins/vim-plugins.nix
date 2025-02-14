@@ -103,13 +103,6 @@ let
 
   patchedVimPlug = prev.vimPlugins.vim-plug.overrideAttrs (_old: {
     preInstall = ''
-      # TODO: Workaround for this issue:
-      # https://github.com/junegunn/vim-plug/issues/1135
-      target="len(s:glob(s:rtp(a:plug), 'plugin'))"
-      # First grep so the build will error out if the string isn't present
-      grep -q "$target" plug.vim
-      sed -ie "s@$target@v:true@" plug.vim
-
       # TODO: See if upstream can do this. If this is done and vim-plug is put in a
       # vim pack, then it loads automatically.
       autoload_path='autoload'
