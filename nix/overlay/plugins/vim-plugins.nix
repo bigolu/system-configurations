@@ -103,8 +103,6 @@ let
 
   patchedVimPlug = prev.vimPlugins.vim-plug.overrideAttrs (_old: {
     preInstall = ''
-      # TODO: See if upstream can do this. If this is done and vim-plug is put in a
-      # vim pack, then it loads automatically.
       autoload_path='autoload'
       mkdir "$autoload_path"
       mv plug.vim "$autoload_path/"
