@@ -17,6 +17,7 @@ if test (uname) = Linux
     abbr --add --global font-reload 'fc-cache -vr'
     abbr --add --global open xdg-open
     abbr --add --position anywhere --global pbpaste fish_clipboard_paste
+    abbr --add --position anywhere --global pbcopy fish_clipboard_copy
     abbr --add --global trash 'trash put'
 end
 

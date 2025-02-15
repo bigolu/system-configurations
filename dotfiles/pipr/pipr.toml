@@ -10,7 +10,7 @@
 # Leon Kowarschick
 
 # finish_hook: Executed once you close pipr, getting the command you constructed piped into stdin.
-finish_hook = "pbcopy"
+finish_hook = "wl-copy"
 
 # Paranoid history mode writes every successfully running command into the history in autoeval mode.
 paranoid_history_mode_default = false

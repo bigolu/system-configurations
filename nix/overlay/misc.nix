@@ -3,10 +3,8 @@ final: prev:
 let
   inherit (inputs.nixpkgs.lib)
     fileset
-    optionalString
     recursiveUpdate
     ;
-  inherit (final.stdenv) isDarwin;
   inherit (utils) projectRoot unstableVersion;
 
   neovimWithDependencies =
@@ -22,16 +20,6 @@ let
         ];
       };
 
-      generalBin = fileset.toSource {
-        root = projectRoot + /dotfiles/general/bin;
-        fileset = projectRoot + /dotfiles/general/bin;
-      };
-
-      generalMacosBin = fileset.toSource {
-        root = projectRoot + /dotfiles/general/bin-macos;
-        fileset = projectRoot + /dotfiles/general/bin-macos;
-      };
-
       wrappedNeovim = final.symlinkJoin {
         pname = "my-${previousNeovim.pname}";
         inherit (previousNeovim) version;
@@ -41,13 +29,9 @@ let
           # PARINIT: The par manpage recommends using this value if you want
           # to start using par, but aren't familiar with how par works so
           # until I learn more, I'll use this value.
-          #
-          # I'm adding general/bin for: trash, pbcopy
           wrapProgram $out/bin/nvim \
             --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
-            --prefix PATH : ${dependencies}/bin \
-            --prefix PATH : ${generalBin} \
-            ${optionalString isDarwin "--prefix PATH : ${generalMacosBin}"}
+            --prefix PATH : ${dependencies}/bin
         '';
       };
     in
