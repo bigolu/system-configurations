@@ -211,12 +211,13 @@ function _insert_entries_into_commandline
         # tildes. For scenarios like (bar is cursor) `echo "$HOME/|"` where the
         # autocomplete entry will include the left quote, but not the right
         # quote. I remove the left quote so `test -d` works.
-        if test (string sub --length 1 --start 1 -- "$entry") = '"' -a (string sub --start -1 -- "$entry") != '"'
+        if test "$(string sub --length 1 --start 1 -- "$entry")" = '"'
+            and test "$(string sub --start -1 -- "$entry")" != '"'
             set balanced_quote_entry (string sub --start 2 -- "$entry")
         else
             set balanced_quote_entry "$entry"
         end
-        if eval test -d "$balanced_quote_entry" && test (string sub --start -1 -- "$entry") = /
+        if eval test -d "$balanced_quote_entry" && test "$(string sub --start -1 -- "$entry")" = /
             set space ''
         end
     end
@@ -299,7 +300,7 @@ function _reload_fish --on-variable _fish_reload_indicator
     exec fish
 end
 
-# Bash-style history expansion
+# Bash-Style history expansion
 function _bash_style_history_expansion
     set token "$argv[1]"
     set last_command "$history[1]"
@@ -331,65 +332,7 @@ abbr --add bash_style_history_expansion \
     --regex '\!(\!|\^|\$|\-?\d+:?)' \
     --function _bash_style_history_expansion
 
-# Most of this was taken from fish's __fish_man_page, I just added flag
-# searching.
-function _man_page
-    # Get all commandline tokens not starting with "-", up to and including the
-    # cursor's
-    set -l args (string match -rv '^-|^$' -- (commandline --cut-at-cursor --tokenize --current-process && commandline --current-token))
-
-    # If commandline is empty, exit.
-    if not set -q args[1]
-        printf \a
-        return
-    end
-
-    # Skip leading commands and display the manpage of following command
-    while set -q args[2]
-        and string match -qr -- '^(and|begin|builtin|caffeinate|command|doas|entr|env|exec|if|mosh|nice|not|or|pipenv|prime-run|setsid|sudo|systemd-nspawn|time|watch|while|xargs|.*=.*)$' $args[1]
-        set -e args[1]
-    end
-
-    # If there are at least two tokens not starting with "-", the second one
-    # might be a subcommand.  Try "man first-second" and fall back to "man
-    # first" if that doesn't work out.
-    set -l maincmd (basename $args[1])
-    # HACK: If stderr is not attached to a terminal `less` (the default pager)
-    # wouldn't use the alternate screen.  But since we don't know what pager it
-    # is, and because `man` is totally underspecified, the best we can do is to
-    # *try* the man page, and assume that `man` will return false if it fails.
-    # See #7863.
-    if set -q args[2]
-        and not string match -q -- '*/*' $args[2]
-        and man "$maincmd-$args[2]" &>/dev/null
-        set manpage_name "$maincmd-$args[2]"
-    else if man "$maincmd" &>/dev/null
-        set manpage_name "$maincmd"
-    else
-        printf \a
-        return
-    end
-
-    set wrapped (string match --groups-only --regex -- '.*\-\-wraps (.*)' (complete -c $manpage_name))
-    if test -n "$wrapped"
-        set manpage_name $wrapped
-    end
-
-    # If the token underneath or right before the cursor starts with a '-' try
-    # to search for that flag
-    set current_token (commandline --current-token)
-    if test -z "$current_token"
-        set current_token (commandline --cut-at-cursor --tokenize --current-process)[-1]
-    end
-    if string match --regex '^-' -- $current_token
-        man "$manpage_name" | less --pattern "^\s+(\-\-?[^\s]+[,/\s]+)*\K$(string escape --style regex -- $current_token)"
-    else
-        man "$manpage_name"
-    end
-
-    commandline -f repaint
-end
-mybind --no-focus \ck _man_page
+mybind --no-focus \ck __fish_man_page
 
 # navigate history
 mybind --key f7 up-or-search
