@@ -182,6 +182,9 @@ let
     in
     final.writeShellApplication {
       name = "bash-script";
+      meta.description = ''
+        Bash with settings applied for running scripts non-interactively.
+      '';
       runtimeInputs = [ final.bash ];
       text = ''
         exec bash --noprofile --norc --init-file ${initFile} "$@"
