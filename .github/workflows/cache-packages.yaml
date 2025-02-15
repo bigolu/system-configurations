@@ -8,7 +8,7 @@ on:
       - gozip/**
 defaults:
   run:
-    shell: ci-bash {0}
+    shell: bash-script {0}
 # Since I am only interested in caching packages from the latest commit to the
 # branch, I will limit the workflow to running at most once per branch, cancelling
 # older runs when newer ones start.

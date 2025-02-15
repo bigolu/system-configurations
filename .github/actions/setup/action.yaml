@@ -27,7 +27,7 @@ runs:
         name: bigolu
         authToken: "${{ inputs.cachix-auth-token }}"
         skipPush: "${{ inputs.cachix-auth-token == '' && 'true' || 'false' }}"
-    - shell: nix run --file nix/flake-package-set.nix -- ci-bash {0}
+    - shell: nix run --file nix/flake-package-set.nix -- bash-script {0}
       env:
         DEV_SHELL: ${{ inputs.dev-shell }}
       run: |

@@ -128,7 +128,7 @@ let
     in
     mkShellWrapperNoCC (
       {
-        packages = [ pkgs.ci-bash ];
+        packages = [ pkgs.bash-script ];
       }
       // optionalAttrs isLinux {
         shellHook = localeArchiveHook;
@@ -157,6 +157,7 @@ let
       fish
       yq-go
       coreutils
+      bash-script
     ];
     shellHook = ''
       mise trust --quiet

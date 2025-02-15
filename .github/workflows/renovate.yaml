@@ -6,7 +6,7 @@ on:
     - cron: "0 0 * * *"
 defaults:
   run:
-    shell: ci-bash {0}
+    shell: bash-script {0}
 jobs:
   renovate:
     runs-on: ubuntu-24.04

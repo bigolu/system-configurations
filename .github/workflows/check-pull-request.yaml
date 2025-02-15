@@ -35,7 +35,7 @@ concurrency:
   cancel-in-progress: true
 defaults:
   run:
-    shell: ci-bash {0}
+    shell: bash-script {0}
 jobs:
   check-pull-request:
     # Only run this job if it wasn't triggered by a pull request event for a Renovate

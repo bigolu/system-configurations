@@ -1,5 +1,5 @@
 [settings]
-unix_default_inline_shell_args = "bash -o errexit -o nounset -o pipefail -c"
+unix_default_inline_shell_args = "bash-script -c"
 # This setting must be true for any tasks that are used to generate autocomplete
 # entries. So if you ever change this global setting to false, ensure that any
 # autocomplete tasks set this to true locally.
@@ -234,7 +234,7 @@ usage = '''
 '''
 run = '''
   # Inside the direnv environment, the non-interactive Bash is shadowing the
-  # interactive one. We can't use ci-bash either since it exits when a command
+  # interactive one. We can't use bash-script either since it exits when a command
   # fails.
   bash_interactive="$(nix eval --raw --file nix/flake-package-set.nix 'bashInteractive')/bin/bash"
 

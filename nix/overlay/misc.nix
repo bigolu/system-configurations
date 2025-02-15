@@ -167,31 +167,39 @@ let
       '';
     };
 
-  ci-bash = final.writeShellApplication {
-    name = "ci-bash";
-    runtimeInputs = [ final.bash ];
-    text = ''
-      exec bash \
-        --noprofile \
-        --norc \
-        -o errexit \
-        -o nounset \
-        -o pipefail "$@"
-    '';
-  };
+  bash-script =
+    let
+      initFile = final.writeTextFile {
+        name = "init-file";
+        text = ''
+          set -o errexit
+          set -o nounset
+          set -o pipefail
+          shopt -s nullglob
+          shopt -s inherit_errexit
+        '';
+      };
+    in
+    final.writeShellApplication {
+      name = "bash-script";
+      runtimeInputs = [ final.bash ];
+      text = ''
+        exec bash --noprofile --norc --init-file ${initFile} "$@"
+      '';
+    };
 in
 {
   neovim = neovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
   packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix; };
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp {
-    interpreter = final.bashInteractive;
+    interpreter = final.bash-script;
   };
 
   inherit
     runAsAdmin
     myFonts
     speakerctl
-    ci-bash
+    bash-script
     ;
 }
