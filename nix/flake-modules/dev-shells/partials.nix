@@ -163,12 +163,12 @@ let
     '';
   };
 
-  gitHooks = mkShellWrapperNoCC {
-    packages = with pkgs; [
-      lefthook
+  lefthook = mkShellWrapperNoCC {
+    packages = [
+      pkgs.lefthook
       # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
       # it a dependency.
-      gitMinimal
+      pkgs.gitMinimal
     ];
   };
 
@@ -379,7 +379,7 @@ in
     speakerctl
     gozip
     taskRunner
-    gitHooks
+    lefthook
     sync
     scriptDependencies
     checks

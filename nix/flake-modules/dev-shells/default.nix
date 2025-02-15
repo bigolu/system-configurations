@@ -8,25 +8,25 @@ moduleContext@{ lib, ... }:
       inherit (lib)
         pipe
         hasPrefix
-        optionalAttrs
         ;
 
       partials = import ./partials.nix (moduleContext // perSystemContext);
 
-      ciEssentials = with partials; [
-        ciSetup
-        scriptInterpreter
-      ];
+      includeCiEssentials =
+        shellSpec:
+        let
+          ciEssentials = with partials; [
+            ciSetup
+            scriptInterpreter
+          ];
+        in
+        shellSpec // { inputsFrom = (shellSpec.inputsFrom or [ ]) ++ ciEssentials; };
 
       makeDevShellOutputs =
         shellSpecs:
         pipe shellSpecs [
           (mapAttrs (name: spec: spec // { inherit name; }))
-          (mapAttrs (
-            name: spec:
-            spec
-            // optionalAttrs (hasPrefix "ci-" name) { inputsFrom = (spec.inputsFrom or [ ]) ++ ciEssentials; }
-          ))
+          (mapAttrs (name: spec: if (hasPrefix "ci-" name) then includeCiEssentials spec else spec))
           (mapAttrs (_name: mkShellWrapperNoCC))
           (shells: shells // { default = shells.local; })
           (shells: { devShells = shells; })
@@ -39,7 +39,7 @@ moduleContext@{ lib, ... }:
           speakerctl
           gozip
           taskRunner
-          gitHooks
+          lefthook
           sync
           scriptDependencies
           checks
@@ -57,14 +57,14 @@ moduleContext@{ lib, ... }:
           # This is needed for running mypy
           speakerctl
           # Runs the checks
-          gitHooks
+          lefthook
         ];
       };
 
       ci-check-for-broken-links = {
         inputsFrom = with partials; [
           # Runs the check
-          gitHooks
+          lefthook
         ];
       };
 
