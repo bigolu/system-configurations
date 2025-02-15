@@ -10,12 +10,7 @@ end
 if test (uname) = Linux
     abbr --add --global initramfs-reload 'sudo update-initramfs -u -k all'
     abbr --add --global logout-all 'sudo killall -u $USER'
-    abbr --add --global icon-reload 'sudo update-icon-caches /usr/share/icons/* ~/.local/share/icons/*'
-    # reload the database used to search for applications
-    abbr --add --global desktop-entry-reload 'sudo update-desktop-database; update-desktop-database ~/.local/share/applications'
     abbr --add --global clear-syslog 'sudo truncate -s 0 /var/log/syslog'
-    abbr --add --global font-reload 'fc-cache -vr'
-    abbr --add --global open xdg-open
     abbr --add --position anywhere --global pbpaste fish_clipboard_paste
     abbr --add --position anywhere --global pbcopy fish_clipboard_copy
     abbr --add --global trash 'trash put'
@@ -50,7 +45,6 @@ begin
 end
 abbr --add --global -- vim nvim
 
-# Change the color grep uses for highlighting matches to magenta
 set --global --export GREP_COLORS 'ms=00;36'
 
 # ls
@@ -248,7 +242,6 @@ set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HO
 set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
 
 # sudo
-abbr --add --global admin 'sudo -- (which run-as-admin) sudo'
 if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
 end
