@@ -26,6 +26,14 @@ lefthook_output_env_var = "LEFTHOOK_OUTPUT='execution_info,execution_out'"
 # the project root, I have to move up one directory.
 dir = ".."
 
+[tasks.help]
+description = 'Display task documentation'
+run = '''
+  documentation='docs/tasks.html'
+  # Linux uses xdg-open, macOS uses open
+  xdg-open "$documentation" || open "$documentation"
+'''
+
 [tasks.get-secrets]
 run = '''
   # GITHUB_TOKEN is for lychee
