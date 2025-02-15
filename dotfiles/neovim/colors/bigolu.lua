@@ -1,3 +1,4 @@
+-- vim:foldmethod=marker
 -- stylua: ignore start
 
 vim.g.colors_name = "bigolu"
@@ -151,22 +152,14 @@ local groups = {
   -- }}}
 
   -- statusline/tabline {{{
-  status_line_mode = { ctermfg = 15, reverse = not vim.o.termguicolors, bold = true, bg = colors.bg2 }, -- Status line of current window
-  StatusLine = { ctermfg = 15, reverse = not vim.o.termguicolors, bg = colors.bg2, fg = colors[7] }, -- Status line of current window
-  StatusLineNormal = { ctermbg = "NONE", ctermfg = 7, nocombine = true, bg = colors[0] },
-  StatusLineFill = { ctermbg = 15, ctermfg = 15, bg = colors.bg2, fg = colors.bg2 },
-  StatusLineSeparator = { ctermfg = 0, bold = true, bg = colors[0] },
-  StatusLineErrorText = { ctermfg = 1, nocombine = true, fg = colors[1], bg = colors[0] },
-  StatusLineWarningText = { ctermfg = 3, nocombine = true, fg = colors[3], bg = colors[0] },
+  StatusLine = { ctermfg = 15, reverse = not vim.o.termguicolors, bg = colors.bg2 },
+  StatusLineMode = { bold = true, },
+  StatusLineErrorText = { ctermfg = 1, fg = colors[1], },
+  StatusLineWarningText = { ctermfg = 3, fg = colors[3], },
   StatusLineStandoutText = "StatusLineWarningText",
-  StatusLineInfoText = { ctermfg = 4, nocombine = true, fg = colors[4], bg = colors[0] },
+  StatusLineInfoText = { ctermfg = 4, fg = colors[4], },
   StatusLineHintText = "StatusLineInfoText",
-  StatusLineNC = "StatusLine", -- Status lines of not-current windows. Note: If this is equal to "StatusLine" Vim will use "^^^" in the status line of the current window.
-  StatusLineRecordingIndicator = { ctermfg = 1, nocombine = true, fg = colors[1], bg = colors[0] },
-  StatusLineShowcmd = "StatusLine",
-  StatusLinePowerlineOuter = { ctermfg = 15, nocombine = true, fg = colors.bg2, bg = colors[0] },
-  StatusLinePowerlineInner = { ctermfg = 15, nocombine = true, reverse = not vim.o.termguicolors, bg = colors.bg2, fg = colors[0] },
-  StatusLineC = { bg = colors.bg2, fg = colors[0] },
+  StatusLineRecordingIndicator = { ctermfg = 1, fg = colors[1], },
   TabLine = "StatusLine",
   TabLineFill = "TabLine",
   TabLineSel = "Normal",

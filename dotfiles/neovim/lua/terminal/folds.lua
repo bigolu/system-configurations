@@ -51,39 +51,33 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
   end,
 })
 
+local function maybe_set_lsp_fold_method(client)
+  local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
+  if not is_foldmethod_overridable then
+    return
+  end
+
+  if not client:supports_method("textDocument/foldingRange") then
+    return
+  end
+
+  vim.wo.foldmethod = "expr"
+  vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
+end
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
-    local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
-    if not is_foldmethod_overridable then
-      return
-    end
-
     local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if not client:supports_method("textDocument/foldingRange") then
-      return
-    end
-
-    vim.wo.foldmethod = "expr"
-    vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
+    maybe_set_lsp_fold_method(client)
   end,
 })
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
   callback = function(args)
-    local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
-    if not is_foldmethod_overridable then
-      return
-    end
-
     -- TODO: A definition of get_clients in mini.nvim is being used by linters
     -- instead of the one from the neovim runtime. Since it has a different signature
     -- than the real one, linters think I'm calling it incorrectly.
     ---@diagnostic disable-next-line: redundant-parameter
     for _, client in ipairs(vim.lsp.get_clients({ bufnr = args.buf })) do
-      if client:supports_method("textDocument/foldingRange") then
-        vim.wo.foldmethod = "expr"
-        vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
-        return
-      end
+      maybe_set_lsp_fold_method(client)
     end
   end,
 })

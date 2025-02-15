@@ -1,16 +1,10 @@
 -- vim:foldmethod=marker
 
--- statusline helpers {{{
-local function collect_to_list(acc, _index, item)
-  table.insert(acc, item)
-  return acc
-end
-
 local function make_statusline(...)
-  local right_border = "%#StatusLine# %#StatusLinePowerlineOuter#"
+  local right_border = " "
   local right_border_length = vim.api.nvim_eval_statusline(right_border, {}).width
 
-  local left_border = "%#StatusLinePowerlineOuter#"
+  local left_border = " "
   local left_border_length = vim.api.nvim_eval_statusline(left_border, {}).width
 
   local space_remaining = vim.o.columns - (left_border_length + right_border_length)
@@ -19,7 +13,8 @@ local function make_statusline(...)
   local item_separator_length = #item_separator
 
   local function has_space(index, item)
-    -- I need to remove aligners because they affect the width.
+    -- TODO: I need to remove aligners because they affect the width, but I
+    -- don't think they should.
     local length = vim.api.nvim_eval_statusline(item:gsub("%%=", ""), {}).width
     space_remaining = space_remaining - length
     if index > 1 then
@@ -29,22 +24,34 @@ local function make_statusline(...)
   end
 
   -- iter() filters out nil values
-  local items = vim.iter({ ... }):enumerate():filter(has_space):fold({}, collect_to_list)
+  local joined_items = vim
+    .iter({ ... })
+    :enumerate()
+    :filter(has_space)
+    :map(function(_index, item)
+      return item
+    end)
+    :join(item_separator)
 
-  return left_border .. table.concat(items, item_separator) .. right_border
+  return left_border .. joined_items .. right_border
 end
--- }}}
+
+local function is_current_buffer_too_big_to_search()
+  local max_filesize = 100 * 1024 -- 100 KB
+  -- I make sure to use something that gets the size of the buffer and not file
+  -- because I may be editing a file that isn't stored locally e.g. `nvim <url>`
+  return vim.fn.wordcount().bytes > max_filesize
+end
 
 local function is_pattern_in_buffer(pattern)
-  -- PERF
-  if vim.fn.line("$") < 300 then
-    return vim.fn.search(pattern, "nw", 0, 50) > 0
-  else
+  if is_current_buffer_too_big_to_search() then
     return false
+  else
+    return vim.fn.search(pattern, "nw", 0, 50) > 0
   end
 end
 
-local function get_mode_and_left_items()
+function StatusLine()
   local normal = "NORMAL"
   local operator_pending = "OPERATOR-PENDING"
   local visual = "VISUAL"
@@ -100,7 +107,7 @@ local function get_mode_and_left_items()
     ["!"] = shell,
     ["t"] = terminal,
   }
-  local mode = "%#status_line_mode# " .. (mode_map[vim.api.nvim_get_mode().mode] or "?")
+  local mode = "%#StatusLineMode#" .. mode_map[vim.api.nvim_get_mode().mode]
 
   local readonly = nil
   if vim.o.readonly then
@@ -138,11 +145,11 @@ local function get_mode_and_left_items()
     diagnostics = table.concat(diagnostic_list, " ")
   end
 
-  local mixed_indentation_indicator = nil
+  local mixed_indentation = nil
   -- Taken from here:
   -- https://github.com/vim-airline/vim-airline/blob/3b9e149e19ed58dee66e4842626751e329e1bd96/autoload/airline/extensions/whitespace.vim#L30
   if is_pattern_in_buffer([[\v(^\t+ +)|(^ +\t+)]]) then
-    mixed_indentation_indicator = "%#StatusLineErrorText#[  mixed indent]"
+    mixed_indentation = "%#StatusLineErrorText#[  mixed indent]"
   end
 
   local mixed_line_endings = nil
@@ -166,27 +173,9 @@ local function get_mode_and_left_items()
     reg_recording = "%#StatusLineRecordingIndicator# %#StatusLineNormal#REC@" .. recording_register
   end
 
-  -- iter() filters out nil values
-  local items = vim
-    .iter({
-      readonly,
-      diagnostics,
-      mixed_indentation_indicator,
-      mixed_line_endings,
-      reg_recording,
-    })
-    :totable()
-  local items_joined = (#items > 0 and " %#StatusLinePowerlineInner#%#StatusLinePowerlineOuter#" or "")
-    .. table.concat(items, "%#StatusLineSeparator#" .. "  ")
-    .. (#items > 0 and "%#StatusLinePowerlineInner#" or "%#StatusLineC# ")
-
-  return mode .. items_joined
-end
-
-function StatusLine()
-  local showcmd = "%#StatusLineShowcmd#%S"
-  local aligner = "%#StatusLineFill#%="
-  local statusline_separator = aligner .. showcmd .. aligner
+  local showcmd = "%S"
+  local aligner = "%="
+  local statusline_separator = "%#StatusLine#" .. aligner .. showcmd .. aligner
 
   local maximized = nil
   if IsMaximized then
@@ -229,7 +218,12 @@ function StatusLine()
   local basename = "%t"
 
   return make_statusline(
-    get_mode_and_left_items(),
+    mode,
+    readonly,
+    diagnostics,
+    mixed_indentation,
+    mixed_line_endings,
+    reg_recording,
     statusline_separator,
     maximized,
     position,
