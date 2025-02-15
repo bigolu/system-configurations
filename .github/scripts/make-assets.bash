@@ -91,15 +91,11 @@ function assert_bundle_meets_size_limit {
 function get_basename_with_platform {
   local -r file="$1"
 
-  # e.g. x86_64
-  local instruction_set
-  instruction_set="$(uname -m)"
-
-  local kernel
-  kernel="$(uname -s | tr '[:upper:]' '[:lower:]')"
-
-  local -r platform="$instruction_set-$kernel"
   local -r basename="${file##*/}"
+
+  # e.g. x86_64-linux
+  local platform
+  platform="$(uname -ms | tr ' [:upper:]' '-[:lower:]')"
 
   echo "${basename}-${platform}"
 }
