@@ -23,7 +23,7 @@ let
     filter
     elemAt
     ;
-  inherit (utils) projectRoot removeRecurseIntoAttrs;
+  inherit (utils) projectRoot;
   inherit (lib)
     pipe
     fileset
@@ -34,7 +34,6 @@ let
     ;
   inherit (pkgs)
     mkShellWrapperNoCC
-    linkFarm
     ;
   inherit (pkgs.stdenv) isLinux;
 
@@ -311,29 +310,24 @@ let
         ];
       };
 
-      luaLs =
-        let
-          # The set passed to linkFarm can only contain derivations
-          myVimPlugins = linkFarm "plugins" (removeRecurseIntoAttrs pkgs.myVimPlugins);
-        in
-        mkShellWrapperNoCC {
-          packages = with pkgs; [ lua-language-server ];
-          shellHook = ''
-            prefix="$DIRENV_LAYOUT_DIR/lua-libraries"
-            mkdir -p "$prefix"
+      luaLs = mkShellWrapperNoCC {
+        packages = with pkgs; [ lua-language-server ];
+        shellHook = ''
+          prefix="$DIRENV_LAYOUT_DIR/lua-libraries"
+          mkdir -p "$prefix"
 
-            ln --force --no-dereference --symbolic \
-              ${myVimPlugins} "$prefix/neovim-plugins"
-            ln --force --no-dereference --symbolic \
-              ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+          ln --force --no-dereference --symbolic \
+            ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
+          ln --force --no-dereference --symbolic \
+            ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
 
-            hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
-            if [[ -e $hammerspoon_annotations ]]; then
-              ln --force --no-dereference --symbolic \
-                "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
-            fi
-          '';
-        };
+          hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+          if [[ -e $hammerspoon_annotations ]]; then
+            ln --force --no-dereference --symbolic \
+              "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
+          fi
+        '';
+      };
     in
     mkShellWrapperNoCC {
       inputsFrom = [

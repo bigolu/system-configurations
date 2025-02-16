@@ -10,12 +10,10 @@ let
     splitString
     pipe
     init
-    nameValuePair
     ;
   inherit (builtins)
     elemAt
     hasAttr
-    listToAttrs
     substring
     stringLength
     readFile
@@ -45,7 +43,7 @@ let
     in
     makePluginPackages vimPluginRepositoryPrefix vimPluginBuilder;
 
-  myVimPlugins =
+  myVimPluginPack =
     let
       nameOverrides = {
         # TODO: Per nixpkgs' package naming rules, they should lowercase these:
@@ -53,12 +51,16 @@ let
         "Navigator.nvim" = "Navigator-nvim";
       };
 
+      packageOverrides = {
+        "nvim-treesitter" = final.vimPlugins.nvim-treesitter.withAllGrammars;
+      };
+
       getPackage =
         pluginName:
         let
           nixpkgsAttrName = nameOverrides.${pluginName} or (toNixpkgsAttr pluginName);
         in
-        final.vimPlugins.${nixpkgsAttrName}
+        packageOverrides.${nixpkgsAttrName} or final.vimPlugins.${nixpkgsAttrName}
           or (abort "Failed to find package for vim plugin: ${pluginName}. Package name used: ${nixpkgsAttrName}");
     in
     pipe
@@ -94,11 +96,8 @@ let
         (map (authorPlugin: elemAt (splitString "/" authorPlugin) 1))
         # <plugin_name>" -> <plugin_name>
         (map (string: substring 0 ((stringLength string) - 1) string))
-        # These attribute names do not adhere to nixpkgs' conventions. I'm
-        # intentionally doing this so they match the names in my neovim config.
-        (map (pluginName: nameValuePair pluginName (getPackage pluginName)))
-        listToAttrs
-        final.lib.recurseIntoAttrs
+        (map getPackage)
+        (plugins: final.vimUtils.packDir { bigolu.start = plugins; })
       ];
 
   patchedVimPlug = prev.vimPlugins.vim-plug.overrideAttrs (_old: {
@@ -110,6 +109,6 @@ let
   });
 in
 {
-  inherit myVimPlugins;
+  inherit myVimPluginPack;
   vimPlugins = prev.vimPlugins // vimPluginsFromFlake // { vim-plug = patchedVimPlug; };
 }

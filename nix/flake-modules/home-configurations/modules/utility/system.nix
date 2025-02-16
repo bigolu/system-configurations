@@ -71,26 +71,30 @@ in
 
     system.activation =
       {
-        installSystemFiles = hm.dag.entryAfter [ "writeBoundary" ] ''
-          function install_file {
-            local -r source="$1"
-            local -r target="$2"
-            sudo install \
-              --compare -D --no-target-directory \
-              --owner=root --group=wheel --mode='u=rwx,g=r,o=r' \
-              "$source" "$target"
-          }
-
-          ${foldl (acc: next: ''
-            ${acc}
-            install_file ${
-              escapeShellArgs [
-                next.source
-                next.target
-              ]
+        installSystemFiles =
+          let
+            group = if isLinux then "sudo" else "wheel";
+          in
+          hm.dag.entryAfter [ "writeBoundary" ] ''
+            function install_file {
+              local -r source="$1"
+              local -r target="$2"
+              sudo install \
+                --compare -D --no-target-directory \
+                --owner=root --group=${group} --mode='u=rwx,g=r,o=r' \
+                "$source" "$target"
             }
-          '') "" (attrValues config.system.file)}
-        '';
+
+            ${foldl (acc: next: ''
+              ${acc}
+              install_file ${
+                escapeShellArgs [
+                  next.source
+                  next.target
+                ]
+              }
+            '') "" (attrValues config.system.file)}
+          '';
       }
       // optionalAttrs isLinux {
         installSystemUnits = hm.dag.entryAfter [ "writeBoundary" ] ''

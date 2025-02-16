@@ -1,6 +1,5 @@
 -- vim:foldmethod=marker
 
--- To get the vim help pages for vim-plug itself, you need to add it as a plugin
 Plug("junegunn/vim-plug")
 
 Plug("j-hui/fidget.nvim", function()

@@ -3,13 +3,10 @@ let
   inherit (inputs.nixpkgs) lib;
   inherit (lib)
     concatStringsSep
-    recurseIntoAttrs
     toLower
     pipe
     ;
   inherit (builtins)
-    removeAttrs
-    attrNames
     match
     replaceStrings
     ;
@@ -23,8 +20,6 @@ let
       yearMonthDayStrings = match "(....)(..)(..).*" date;
     in
     concatStringsSep "." yearMonthDayStrings;
-
-  removeRecurseIntoAttrs = set: removeAttrs set (attrNames (recurseIntoAttrs { }));
 
   homeManager =
     let
@@ -60,7 +55,6 @@ in
   inherit
     projectRoot
     formatDate
-    removeRecurseIntoAttrs
     homeManager
     toNixpkgsAttr
     toNixpkgsPname

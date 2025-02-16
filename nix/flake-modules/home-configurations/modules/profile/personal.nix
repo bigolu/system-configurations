@@ -36,7 +36,10 @@ in
       '';
 
       increaseFileWatchLimit = hm.dag.entryAfter [ "installSystemFiles" ] ''
+        OLD_PATH="$PATH"
+        PATH="$PATH:${pkgs.moreutils}/bin"
         chronic sudo sysctl -p --system
+        PATH="$OLD_PATH"
       '';
     };
   };
