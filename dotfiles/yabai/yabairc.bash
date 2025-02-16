@@ -13,6 +13,10 @@ if [[ $layout != 'bsp' ]]; then
   yabai -m config layout bsp
 fi
 
+# Remove existing signal handlers. The remove command will fail if there's
+# nothhing to remove so keep running it until it fails.
+until ! yabai -m signal --remove 0 1>/dev/null 2>&1; do :; done
+
 yabai -m config auto_balance off
 yabai -m config focus_follows_mouse autoraise
 yabai -m config mouse_follows_focus on
@@ -50,8 +54,10 @@ function set_padding {
 }
 call_set_padding="$(declare -pf set_padding)"$'\n''set_padding'
 eval "$call_set_padding"
-yabai -m signal --add label=remove_padding_create event=window_created action="$call_set_padding"
-yabai -m signal --add label=remove_padding_destroy event=window_destroyed action="$call_set_padding"
+set_padding_events=(window_created window_destroyed window_minimized window_deminimized window_moved)
+for event in "${set_padding_events[@]}"; do
+  yabai -m signal --add "label=set_padding_$event" "event=$event" action="$call_set_padding"
+done
 
 # Hide the stackline stack indicators if the current window is fullscreen or
 # maximized and not in a stack.
