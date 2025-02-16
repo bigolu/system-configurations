@@ -32,10 +32,6 @@ function M.get_visual_selection()
   return text
 end
 
-function M.escape_percent(string_to_escape)
-  return string_to_escape:gsub("([^%w])", "%%%1")
-end
-
 function M.get_char()
   local ret_val, char_num = pcall(vim.fn.getchar)
   -- Return nil if error (e.g. <C-c>) or for control characters
