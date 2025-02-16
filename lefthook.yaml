@@ -352,7 +352,7 @@ check:
                         run: nix config check
           - name: lychee
             only:
-              - run: '[ "$CI" = true ]'
+              - run: '[ "$CI" = true ] || [ "$CI_DEBUG" = true ]'
             exclude:
               - .lycheeignore
             run: ./lefthook/scripts/check-lychee.bash {files}
