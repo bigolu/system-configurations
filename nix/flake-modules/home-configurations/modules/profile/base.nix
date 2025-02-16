@@ -23,6 +23,17 @@ let
   inherit (utils) projectRoot;
 
   isLinuxGui = isGui && isLinux;
+
+  sudoersFile =
+    let
+      group = if isLinux then "sudo" else "admin";
+    in
+    writeText "10-bigolu" ''
+      %${group} ALL=(ALL:ALL) NOPASSWD: ${pkgs.runAsAdmin}/bin/run-as-admin
+      Defaults  env_keep += "TERMINFO"
+      Defaults  env_keep += "PATH"
+      Defaults  timestamp_timeout=30
+    '';
 in
 {
   imports = [
@@ -31,11 +42,14 @@ in
     ../nix.nix
     ../neovim.nix
     ../utility/repository
+    ../utility/system.nix
     ../home-manager.nix
     ../fonts.nix
     ../keyboard-shortcuts.nix
     inputs.nix-flatpak.homeManagerModules.nix-flatpak
   ];
+
+  system.file."/etc/sudoers.d/10-bigolu".source = sudoersFile;
 
   home = {
     packages =
@@ -50,46 +64,22 @@ in
         wl-clipboard
       ];
 
-    activation =
-      {
-        addRunAsAdminToSudoers =
-          let
-            sudoersFile =
-              let
-                group = if isLinux then "sudo" else "admin";
-              in
-              writeText "10-bigolu" ''
-                %${group} ALL=(ALL:ALL) NOPASSWD: ${pkgs.runAsAdmin}/bin/run-as-admin
-                Defaults  env_keep += "TERMINFO"
-                Defaults  env_keep += "PATH"
-                Defaults  timestamp_timeout=30
-              '';
-          in
-          hm.dag.entryAfter [ "writeBoundary" ] ''
-            # Add /usr/bin so scripts can access system programs like sudo/apt
-            # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
-            PATH="$PATH:/usr/bin:/bin"
-
-            sudo ln --symbolic --force --no-dereference \
-              ${sudoersFile} /etc/sudoers.d/10-bigolu
-          '';
-      }
-      // optionalAttrs isLinuxGui {
-        # TODO: Flatpak didn't read the overrides when the files were symlinks to the
-        # Nix store so I'm making copies instead.
-        flatpakOverrides = hm.dag.entryAfter [ "writeBoundary" ] ''
-          target=${escapeShellArg "${config.xdg.dataHome}/flatpak/overrides/"}
-          mkdir -p "$target"
-          cp --no-preserve=mode --dereference ${
-            escapeShellArg (
-              fileset.toSource {
-                root = projectRoot + /dotfiles/flatpak/overrides;
-                fileset = projectRoot + /dotfiles/flatpak/overrides;
-              }
-            )
-          }/* "$target"
-        '';
-      };
+    activation = optionalAttrs isLinuxGui {
+      # TODO: Flatpak didn't read the overrides when the files were symlinks to the
+      # Nix store so I'm making copies instead.
+      flatpakOverrides = hm.dag.entryAfter [ "writeBoundary" ] ''
+        target=${escapeShellArg "${config.xdg.dataHome}/flatpak/overrides/"}
+        mkdir -p "$target"
+        cp --no-preserve=mode --dereference ${
+          escapeShellArg (
+            fileset.toSource {
+              root = projectRoot + /dotfiles/flatpak/overrides;
+              fileset = projectRoot + /dotfiles/flatpak/overrides;
+            }
+          )
+        }/* "$target"
+      '';
+    };
 
     file = optionalAttrs isDarwin {
       ".hammerspoon/Spoons/EmmyLua.spoon" = {

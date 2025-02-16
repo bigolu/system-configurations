@@ -49,112 +49,44 @@ let
       };
     in
     # This way the basename of the file will be `serviceName` which is
-    # necessary for the Bash function set_up_unit below.
+    # necessary for config.system.systemd.units.
     "${writeTextDir serviceName (readFile processedTemplate)}/${serviceName}";
 
-  activationScripts = {
-    setLocale = hm.dag.entryAfter [ "writeBoundary" ] ''
-      # Add /usr/bin so scripts can access system programs like sudo/apt
-      # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
-      PATH="$PATH:/usr/bin:/bin"
+  syncNixVersionWithSystem =
+    let
+      # The path set by sudo on Pop!_OS doesn't include nix
+      nix = getExe pkgs.nix;
+    in
+    hm.dag.entryAnywhere ''
+      PATH="${
+        makeBinPath (
+          with pkgs;
+          [
+            coreutils
+            jq
+          ]
+        )
+      }:$PATH"
 
-      path=/etc/profile.d/bigolu-nix-locale-variable.sh
-      if [[ ! -e "$path" ]]; then
-        sudo mkdir -p "$(dirname "$path")"
-        sudo ln --symbolic --force --no-dereference \
-          ${config.repository.directory}/dotfiles/nix/bigolu-nix-locale-variable.sh \
-          "$path"
+      desired_store_paths=(${pkgs.nix} ${pkgs.cacert})
+      store_path_diff="$(
+        comm -3 \
+        <(sudo --set-home ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
+        <(printf '%s\n' "''${desired_store_paths[@]}" | sort)
+      )"
+      if [[ -n "$store_path_diff" ]]; then
+        sudo --set-home ${nix} profile remove --all
+        sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
+
+        # Restart the daemon so we use the daemon from the version of nix we just
+        # installed
+        sudo --set-home ${getExe nix-daemon-reload}
+        while ! nix-store -q --hash ${stdenv.shell} &>/dev/null; do
+          echo "waiting for nix-daemon" >&2
+          sleep 0.5
+        done
       fi
     '';
-
-    syncNixVersionWithSystem =
-      let
-        # The path set by sudo on Pop!_OS doesn't include nix
-        nix = getExe pkgs.nix;
-      in
-      hm.dag.entryAnywhere ''
-        # Add /usr/bin so scripts can access system programs like sudo/apt.
-        # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
-        PATH="${
-          makeBinPath (
-            with pkgs;
-            [
-              coreutils
-              jq
-            ]
-          )
-        }:$PATH:/usr/bin:/bin"
-
-        desired_store_paths=(${pkgs.nix} ${pkgs.cacert})
-        store_path_diff="$(
-          comm -3 \
-          <(sudo --set-home ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
-          <(printf '%s\n' "''${desired_store_paths[@]}" | sort)
-        )"
-        if [[ -n "$store_path_diff" ]]; then
-          sudo --set-home ${nix} profile remove --all
-          sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
-
-          # Restart the daemon so we use the daemon from the version of nix we just
-          # installed
-          sudo --set-home ${getExe nix-daemon-reload}
-          while ! nix-store -q --hash ${stdenv.shell} &>/dev/null; do
-            echo "waiting for nix-daemon" >&2
-            sleep 0.5
-          done
-        fi
-      '';
-
-    installNixPathFix = hm.dag.entryAfter [ "writeBoundary" ] ''
-      # Add /usr/bin so scripts can access system programs like sudo/apt
-      # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
-      PATH="$PATH:/usr/bin:/bin"
-
-      script_name=zz-nix-fix.fish
-
-      source=${config.repository.directory}/dotfiles/nix/"$script_name"
-
-      if uname | grep -q Linux; then
-        prefix='/usr/share/fish/vendor_conf.d'
-      else
-        prefix='/usr/local/share/fish/vendor_conf.d'
-      fi
-      destination="$prefix/$script_name"
-
-      if [[ ! -e "$destination" ]]; then
-        sudo mkdir -p "$(dirname "$destination")"
-        sudo ln --symbolic --force --no-dereference "$source" "$destination"
-      fi
-    '';
-
-    installNixGarbageCollectionService = hm.dag.entryAfter [ "writeBoundary" ] ''
-      # Add /usr/bin so scripts can access system programs like sudo/apt
-      # Apparently macOS hasn't merged /bin and /usr/bin so add /bin too.
-      PATH="$PATH:/usr/bin:/bin:${pkgs.moreutils}/bin"
-
-      function set_up_unit {
-        unit_name="$1"
-        unit_base_name="''${unit_name##*/}"
-
-        if systemctl list-unit-files "$unit_base_name" 1>/dev/null 2>&1; then
-          # This will unlink it
-          chronic sudo systemctl disable "$unit_base_name"
-        fi
-        chronic sudo systemctl link "$unit_name"
-        chronic sudo systemctl enable "$unit_base_name"
-
-        extension="''${unit_base_name##*.}"
-        if [[ $extension == 'timer' ]]; then
-          # If I don't this then `systemctl status <name` shows that the timer failed
-          # because it 'vanished'
-          chronic sudo systemctl start "$unit_base_name"
-        fi
-      }
-
-      set_up_unit ${garbageCollectionService}
-      set_up_unit ${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.timer
-    '';
-  };
 in
 {
   imports = [
@@ -164,32 +96,44 @@ in
   # Don't make a command_not_found handler
   programs.nix-index.enableFishIntegration = false;
 
-  home = {
-    packages =
-      with pkgs;
-      [
-        nix-tree
-        nix-melt
-        comma
-        nix-daemon-reload
-        nix-output-monitor
-        nix-diff
-        nix-search-cli
-      ]
-      ++ optionals isLinux [
-        # for breakpointHook:
-        # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
-        cntr
-      ];
+  home.packages =
+    with pkgs;
+    [
+      nix-tree
+      nix-melt
+      comma
+      nix-daemon-reload
+      nix-output-monitor
+      nix-diff
+      nix-search-cli
+    ]
+    ++ optionals isLinux [
+      # for breakpointHook:
+      # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
+      cntr
+    ];
 
-    activation =
-      with activationScripts;
+  system = {
+    activation = {
+      inherit syncNixVersionWithSystem;
+    };
+
+    file =
       {
-        inherit syncNixVersionWithSystem installNixPathFix;
+        "${
+          if isLinux then "/usr/share/fish/vendor_conf.d" else "/usr/local/share/fish/vendor_conf.d"
+        }/zz-nix-fix.fish".source =
+          "${config.repository.directory}/dotfiles/nix/zz-nix-fix.fish";
       }
       // optionalAttrs isLinux {
-        inherit setLocale installNixGarbageCollectionService;
+        "/etc/profile.d/bigolu-nix-locale-variable.sh".source =
+          "${config.repository.directory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
       };
+
+    systemd.units = optionals isLinux [
+      garbageCollectionService
+      "${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.timer"
+    ];
   };
 
   repository = {
