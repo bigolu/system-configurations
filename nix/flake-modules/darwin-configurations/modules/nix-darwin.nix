@@ -55,7 +55,10 @@ let
       nix
     ];
     text = ''
-      trap 'echo "Pull failed, run \"mise run pull\" to try again."' ERR
+      function failure_handler {
+        echo 'Pull failed, run "mise run pull" to try again.'
+      }
+      trap failure_handler ERR
 
       function direnv_wrapper {
         ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
@@ -116,7 +119,10 @@ let
       text = ''
         log="$(mktemp --tmpdir 'nix_darwin_XXXXX')"
         exec 2>"$log" 1>"$log"
-        trap 'terminal-notifier -title "Nix Darwin" -message "The check for changes failed :( Check the logs in $log"' ERR
+        function send_failure_notification {
+          terminal-notifier -title "Nix Darwin" -message "The check for changes failed. Check the logs in $log"
+        }
+        trap send_failure_notification ERR
 
         cd "${repositoryDirectory}"
 

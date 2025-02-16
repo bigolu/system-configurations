@@ -71,7 +71,10 @@ let
       nix
     ];
     text = ''
-      trap 'echo "Pull failed, run \"mise run pull\" to try again."' ERR
+      function failure_handler {
+        echo 'Pull failed, run "mise run pull" to try again.'
+      }
+      trap failure_handler ERR
 
       function direnv_wrapper {
         ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
@@ -126,7 +129,10 @@ let
       text = ''
         log="$(mktemp --tmpdir 'home_manager_XXXXX')"
         exec 2>"$log" 1>"$log"
-        trap 'notify-send --app-name "Home Manager" "The check for changes failed :( Check the logs in $log"' ERR
+        function failure_handler {
+          notify-send --app-name 'Home Manager' "The check for changes failed. Check the logs in $log"
+        }
+        trap failure_handler ERR
 
         cd "${config.repository.directory}"
 

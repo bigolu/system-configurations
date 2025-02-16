@@ -82,7 +82,10 @@ in
       text = ''
         log="$(mktemp --tmpdir 'nix_garbage_collection_XXXXX')"
         exec 2>"$log" 1>"$log"
-        trap 'terminal-notifier -title "Nix Darwin" -message "Garbage collection failed :( Check the logs in $log"' ERR
+        function send_failure_notification {
+          terminal-notifier -title "Nix Darwin" -message "Garbage collection failed. Check the logs in $log"
+        }
+        trap send_failure_notification ERR
 
         last_gc_file='/nix/last-gc.txt'
         if [[ -e "$last_gc_file" ]]; then

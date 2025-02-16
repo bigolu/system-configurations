@@ -43,19 +43,21 @@ envrc="${1:?}"
 direnv_args=("${@:2}")
 
 if [[ -e .envrc ]]; then
-  temp="$(mktemp --directory)"
-  backup="$temp/.envrc"
+  backup="$(mktemp --directory)/.envrc"
 
   mv .envrc "$backup"
 
-  # This way if the trap fails to restore it, users can do it themselves.
+  # This way if the trap below fails to restore it, users can do it themselves.
   echo "Backed up .envrc to $backup" >&2
-  # shellcheck disable=2064
-  # I want the command substitution to evaluate now, not when the trap is run.
-  #
-  # The existence check is necessary since more than one of the specified signals may
-  # get triggered.
-  trap "$(printf '[[ -e %q ]] && mv %q .envrc' "$backup" "$backup")" SIGTERM ERR EXIT
+
+  function restore_envrc {
+    # The existence check is necessary since more than one of the specified signals
+    # may get triggered.
+    if [[ -e $backup ]]; then
+      mv "$backup" .envrc
+    fi
+  }
+  trap restore_envrc SIGTERM ERR EXIT
 fi
 
 ln --symbolic "$envrc" .envrc

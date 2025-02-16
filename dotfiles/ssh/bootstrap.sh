@@ -3,7 +3,13 @@
 set -o errexit
 set -o nounset
 
-trap '[ $? -ne 0 ] && printf "%s\n" "Bootstrap failed, falling back to a login shell..." >&2 && exec "$SHELL" -l' EXIT
+exit_handler() {
+  if [ $? -ne 0 ]; then
+    printf "%s\n" "Bootstrap failed, falling back to a login shell..." >&2
+    exec "$SHELL" -l
+  fi
+}
+trap exit_handler EXIT
 
 abort() {
   printf 'Error: %s\n' "$1" >&2

@@ -19,8 +19,10 @@ prefix_directory="$(mktemp --tmpdir --directory 'home_shell_XXXXX')"
 # So we know where to find the prefix
 export PORTABLE_HOME_PREFIX="$prefix_directory"
 
-# Clean up temporary directories when the shell exits
-trap 'rm -rf "$prefix_directory"' SIGTERM ERR EXIT
+function clean_up {
+  rm -rf "$prefix_directory"
+}
+trap clean_up SIGTERM ERR EXIT
 
 function make_directory_in_prefix {
   local new_directory_basename="$1"
