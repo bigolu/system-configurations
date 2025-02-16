@@ -6,9 +6,9 @@
 # What this script does:
 #   - Get direnv and its dependencies, Bash and coreutils, using the nix-shell
 #     shebang at the top
-#   - Allows you to specify a file to load besides .envrc. direnv is considering
-#     adding support for this[1].
-#   - Run `direnv allow`
+#   - Allow you to specify a file to load besides .envrc. There's an open issue for
+#     this[1].
+#   - Run `direnv allow`. There's an open issue for this[2].
 #
 # Usage:
 #   <direnv_wrapper> <path_to_envrc> <direnv_arguments>...
@@ -31,6 +31,7 @@
 # the import expression is relative to where this script is.
 #
 # [1]: https://github.com/direnv/direnv/issues/348
+# [2]: https://github.com/direnv/direnv/issues/227
 
 set -o errexit
 set -o nounset
