@@ -59,7 +59,6 @@ in
     ++ optionals isLinux [
       trashy
       pipr
-      catp
       partialPackages.pstree
       cntr
       strace

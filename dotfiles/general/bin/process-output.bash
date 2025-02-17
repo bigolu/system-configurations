@@ -23,7 +23,10 @@ if uname | grep -q Darwin; then
       }
     '
 else
-  # TODO: Remove catp and use strace directly
-  catp="$(which catp)"
-  sudo "$catp" "$pid"
+  strace="$(which strace)"
+  sudo "$strace" \
+    --attach "$pid" --follow-forks \
+    --string-limit 9999999 \
+    --signal '!all' --quiet=attach,exit \
+    --trace=write --trace-fds=0,1,2
 fi
