@@ -12,6 +12,10 @@ moduleContext@{ lib, ... }:
 
       partials = import ./partials.nix (moduleContext // perSystemContext);
 
+      applyIf =
+        condition: function: arg:
+        if condition then function arg else arg;
+
       includeCiEssentials =
         shellSpec:
         let
@@ -23,16 +27,17 @@ moduleContext@{ lib, ... }:
         shellSpec // { inputsFrom = (shellSpec.inputsFrom or [ ]) ++ ciEssentials; };
 
       makeDevShellOutputs =
-        shellSpecs:
-        pipe shellSpecs [
+        specs:
+        pipe specs [
           (mapAttrs (name: spec: spec // { inherit name; }))
-          (mapAttrs (name: spec: if (hasPrefix "ci-" name) then includeCiEssentials spec else spec))
+          (mapAttrs (name: applyIf (hasPrefix "ci-" name) includeCiEssentials))
           (mapAttrs (_name: mkShellWrapperNoCC))
-          (shells: shells // { default = shells.local; })
           (shells: { devShells = shells; })
         ];
     in
-    makeDevShellOutputs {
+    makeDevShellOutputs rec {
+      default = local;
+
       local = {
         inputsFrom = with partials; [
           scriptInterpreter
