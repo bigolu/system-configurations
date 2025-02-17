@@ -18,5 +18,5 @@ in
     vimPack
   ];
 
-  repository.symlink.xdg.configFile."nvim".source = "neovim";
+  repository.xdg.configFile."nvim".source = "neovim";
 }

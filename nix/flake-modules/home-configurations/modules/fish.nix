@@ -17,5 +17,5 @@
       done
     ]);
 
-  repository.symlink.xdg.configFile."fish/conf.d".source = "fish/conf.d";
+  repository.xdg.configFile."fish/conf.d".source = "fish/conf.d";
 }

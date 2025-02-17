@@ -2,7 +2,7 @@
   lib,
   isGui,
   pkgs,
-  config,
+  repositoryDirectory,
   ...
 }:
 let
@@ -15,8 +15,7 @@ in
   ];
 
   system = optionalAttrs (isLinux && isGui) {
-    file."/etc/sysctl.d/local.conf".source =
-      "${config.repository.directory}/dotfiles/sysctl/local.conf";
+    file."/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/dotfiles/sysctl/local.conf";
 
     activation = {
       # Whenever I resume from suspension on Pop!_OS, I get a black screen and then I

@@ -41,7 +41,7 @@ in
     ../fish.nix
     ../nix.nix
     ../neovim.nix
-    ../utility/repository
+    ../utility/repository.nix
     ../utility/system.nix
     ../home-manager.nix
     ../fonts.nix
@@ -100,27 +100,27 @@ in
   };
 
   repository = {
-    directory = repositoryDirectory;
-    directoryPath = projectRoot;
-
-    symlink = {
-      baseDirectory = "${repositoryDirectory}/dotfiles";
-
-      xdg = {
-        executable =
-          {
-            "general" = {
-              source = "general/bin";
-              recursive = true;
-            };
-          }
-          // optionalAttrs isDarwin {
-            "general macOS" = {
-              source = "general/bin-macos";
-              recursive = true;
-            };
-          };
+    fileSettings = {
+      editableInstall = true;
+      relativePathRoot = "${repositoryDirectory}/dotfiles";
+      flake.root = {
+        path = repositoryDirectory;
+        storePath = projectRoot;
       };
     };
+
+    xdg.executable =
+      {
+        "general" = {
+          source = "general/bin";
+          recursive = true;
+        };
+      }
+      // optionalAttrs isDarwin {
+        "general macOS" = {
+          source = "general/bin-macos";
+          recursive = true;
+        };
+      };
   };
 }

@@ -7,6 +7,7 @@
   homeDirectory,
   isHomeManagerRunningAsASubmodule,
   utils,
+  repositoryDirectory,
   ...
 }:
 let
@@ -25,10 +26,10 @@ let
   system-config-apply = writeShellApplication {
     name = "system-config-apply";
     text = ''
-      cd "${config.repository.directory}"
+      cd ${repositoryDirectory}
       ${config.home.profileDirectory}/bin/home-manager \
         switch \
-        --flake "${config.repository.directory}#${configName}" \
+        --flake '${repositoryDirectory}#${configName}' \
         "$@" |& nom
     '';
   };
@@ -42,7 +43,7 @@ let
       nvd
     ];
     text = ''
-      cd "${config.repository.directory}"
+      cd ${repositoryDirectory}
 
       oldGenerationPath="$(
         ${config.home.profileDirectory}/bin/home-manager generations \
@@ -82,7 +83,7 @@ let
 
       # TODO: So `mise` has access to `system-config-apply`, not a great solution
       PATH="${config.home.profileDirectory}/bin:$PATH"
-      cd "${config.repository.directory}"
+      cd ${repositoryDirectory}
 
       rm -f ~/.local/state/nvim/*.log
       rm -f ~/.local/state/nvim/undo/*
@@ -134,7 +135,7 @@ let
         }
         trap failure_handler ERR
 
-        cd "${config.repository.directory}"
+        cd ${repositoryDirectory}
 
         git fetch
         if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then

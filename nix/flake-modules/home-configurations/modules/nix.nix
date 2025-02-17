@@ -2,9 +2,9 @@
   pkgs,
   inputs,
   lib,
-  config,
   utils,
   homeDirectory,
+  repositoryDirectory,
   ...
 }:
 let
@@ -123,21 +123,21 @@ in
         "${
           if isLinux then "/usr/share/fish/vendor_conf.d" else "/usr/local/share/fish/vendor_conf.d"
         }/zz-nix-fix.fish".source =
-          "${config.repository.directory}/dotfiles/nix/zz-nix-fix.fish";
+          "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
       }
       // optionalAttrs isLinux {
         "/etc/profile.d/bigolu-nix-locale-variable.sh".source =
-          "${config.repository.directory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
+          "${repositoryDirectory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
       };
 
     systemd.units = optionals isLinux [
       garbageCollectionService
-      "${config.repository.directory}/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.timer"
+      "${repositoryDirectory}/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.timer"
     ];
   };
 
   repository = {
-    symlink.xdg = {
+    xdg = {
       executable."nix" = {
         source = "nix/bin";
         recursive = true;

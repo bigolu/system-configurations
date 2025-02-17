@@ -2,8 +2,8 @@
   lib,
   pkgs,
   isGui,
-  config,
   utils,
+  repositoryDirectory,
   ...
 }:
 let
@@ -16,7 +16,7 @@ let
     ;
   inherit (utils) projectRoot;
 
-  smartPlugRoot = "${config.repository.directory}/smart_plug";
+  smartPlugRoot = "${repositoryDirectory}/smart_plug";
 
   speakerService =
     let
@@ -32,7 +32,7 @@ let
     "${writeTextDir speakerServiceName (readFile processedTemplate)}/${speakerServiceName}";
 in
 optionalAttrs isGui {
-  repository.symlink.home.file = optionalAttrs isDarwin {
+  repository.home.file = optionalAttrs isDarwin {
     ".hammerspoon/Spoons/Speakers.spoon".source = "${smartPlugRoot}/mac_os/Speakers.spoon";
   };
 

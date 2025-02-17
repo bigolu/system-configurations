@@ -2,7 +2,7 @@
   lib,
   pkgs,
   isGui,
-  config,
+  repositoryDirectory,
   inputs,
   username,
   ...
@@ -25,7 +25,7 @@ let
   };
 
   mac = mkIf (isGui && isDarwin) {
-    repository.symlink = {
+    repository = {
       xdg = {
         configFile = {
           "yabai/yabairc".source = "yabai/yabairc.bash";
@@ -57,14 +57,14 @@ let
   };
 
   linux = mkIf (isGui && isLinux) {
-    repository.symlink.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
+    repository.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
 
     system = {
       systemd.units = [
         "${pkgs.keyd}/lib/systemd/system/keyd.service"
       ];
 
-      file."/etc/keyd/default.conf".source = "${config.repository.directory}/dotfiles/keyd/default.conf";
+      file."/etc/keyd/default.conf".source = "${repositoryDirectory}/dotfiles/keyd/default.conf";
 
       activation = {
         # Needs to be before systemd services are started since the

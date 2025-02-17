@@ -16,7 +16,7 @@ optionalAttrs isGui {
       ghostty
     ];
 
-  repository.symlink.xdg.configFile =
+  repository.xdg.configFile =
     {
       "ghostty/config".source = "ghostty/config";
       "ghostty/themes".source = "ghostty/themes";

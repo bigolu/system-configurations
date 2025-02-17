@@ -11,10 +11,8 @@ in
     ripgrep-all
   ];
 
-  repository.symlink = {
-    home.file = {
-      "${if isLinux then ".config" else "Library/Application Support"}/ripgrep-all/config.jsonc".source =
-        "ripgrep/config.jsonc";
-    };
+  repository.home.file = {
+    "${if isLinux then ".config" else "Library/Application Support"}/ripgrep-all/config.jsonc".source =
+      "ripgrep/config.jsonc";
   };
 }

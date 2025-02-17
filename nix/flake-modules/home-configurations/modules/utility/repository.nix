@@ -1,0 +1,326 @@
+# A wrapper for the Home Manager file options. This wrapper allows you to make an
+# "editableInstall" where symlinks are made to files instead of copying them. This
+# way you can edit a file and have the changes applied instantly without having to
+# switch generations.
+#
+# TODO: I probably wouldn't need this if Home Manager did what is suggested here:
+# https://github.com/nix-community/home-manager/issues/3032
+
+{ lib, config, ... }:
+let
+  inherit (lib)
+    types
+    mkDefault
+    mkOption
+    hasPrefix
+    removePrefix
+    flatten
+    sublist
+    concatStringsSep
+    nameValuePair
+    foldlAttrs
+    pipe
+    splitString
+    ;
+  inherit (lib.filesystem) listFilesRecursive;
+  inherit (config.lib.file) mkOutOfStoreSymlink;
+  inherit (builtins)
+    length
+    getAttr
+    pathExists
+    filter
+    attrValues
+    listToAttrs
+    ;
+in
+{
+  options.repository =
+    let
+      source = mkOption {
+        type = types.str;
+      };
+      executable = mkOption {
+        type = types.nullOr types.bool;
+        default = null;
+        # Marked `internal` and `readOnly` since it needs to be passed to
+        # home-manager, but the user shouldn't set it.  This is because permissions
+        # on a symlink are ignored, only the source's permissions are considered.
+        # Also I got an error when I tried to set it to `true`.
+        internal = true;
+        readOnly = true;
+      };
+      recursive = mkOption {
+        type = types.bool;
+        default = false;
+        description = "This links top level files only.";
+      };
+
+      attrsOfSubmodule =
+        submoduleDefinition:
+        pipe submoduleDefinition [
+          types.submodule
+          types.attrsOf
+        ];
+
+      fileSetType = attrsOfSubmodule (submoduleContext: {
+        options = {
+          inherit
+            source
+            executable
+            recursive
+            ;
+
+          target = mkOption {
+            type = types.str;
+          };
+        };
+        config = {
+          target = mkDefault submoduleContext.config._module.args.name;
+        };
+      });
+
+      executableSetType = attrsOfSubmodule (submoduleContext: {
+        options = {
+          inherit source executable recursive;
+          removeExtension = mkOption {
+            type = types.nullOr types.bool;
+            default = true;
+            internal = true;
+            readOnly = true;
+          };
+          target = mkOption {
+            type = types.str;
+            apply =
+              value:
+              if submoduleContext.config.recursive then
+                config.repository.xdg.executableHome
+              else
+                "${config.repository.xdg.executableHome}/${value}";
+          };
+        };
+        config = {
+          target = mkDefault submoduleContext.config._module.args.name;
+        };
+      });
+    in
+    {
+      fileSettings = {
+        editableInstall = mkOption {
+          type = types.bool;
+          default = false;
+          description = "Use symlinks instead of copies.";
+        };
+
+        relativePathRoot = mkOption {
+          type = types.str;
+          description = "Relative paths used as the source for any file are assumed to be relative to this directory.";
+          default = config.repository.fileSettings.flake.root.path;
+        };
+
+        flake.root = {
+          # Only needed to turn absolute path strings to Paths if flake pure eval is
+          # enabled.
+          path = mkOption {
+            type = types.str;
+            description = "Absolute path to the root of the flake.";
+          };
+          storePath = mkOption {
+            type = types.path;
+            description = "Store path of the flake";
+          };
+        };
+      };
+
+      home.file = mkOption {
+        type = fileSetType;
+        default = { };
+      };
+
+      xdg = {
+        configFile = mkOption {
+          type = fileSetType;
+          default = { };
+        };
+        dataFile = mkOption {
+          type = fileSetType;
+          default = { };
+        };
+        executable = mkOption {
+          type = executableSetType;
+          default = { };
+        };
+        executableHome = mkOption {
+          type = types.path;
+          default = "${config.home.homeDirectory}/.local/bin";
+          readOnly = true;
+        };
+      };
+    };
+
+  config =
+    let
+      flakeRootPath = config.repository.fileSettings.flake.root.path;
+      flakeRootStorePath = config.repository.fileSettings.flake.root.storePath;
+      inherit (config.repository.fileSettings) relativePathRoot;
+      isEditableInstall = config.repository.fileSettings.editableInstall;
+
+      isRelativePath = path: !hasPrefix "/" path;
+
+      makePathAbsolute = path: if isRelativePath path then "${relativePathRoot}/${path}" else path;
+
+      removeFlakePrefixFromPath = removePrefix flakeRootPath;
+
+      convertToPathBuiltin =
+        path:
+        pipe path [
+          makePathAbsolute
+          # You can make a string into a Path by concatenating it with a Path.
+          # However, in flake pure evaluation mode all Paths must be inside the flake
+          # directory so we use a Path that points to the flake directory.
+          removeFlakePrefixFromPath
+          (pathRelativeToFlake: flakeRootStorePath + pathRelativeToFlake)
+        ];
+
+      removeExtension =
+        path:
+        let
+          basename = baseNameOf path;
+          basenamePieces = splitString "." basename;
+          baseNameWithoutExtension =
+            if length basenamePieces == 1 then
+              basename
+            else
+              concatStringsSep "." (sublist 0 ((length basenamePieces) - 1) basenamePieces);
+        in
+        if basename == path then baseNameWithoutExtension else "${dirOf path}/${baseNameWithoutExtension}";
+
+      convertFileToHomeManagerFile =
+        file:
+        let
+          symlinkOrCopy =
+            if isEditableInstall then
+              mkOutOfStoreSymlink
+            else
+              # Flake evaluation automatically makes copies of all Paths so we just
+              # have to make it a Path.
+              convertToPathBuiltin;
+
+          homeManagerSource = pipe file.source [
+            makePathAbsolute
+            symlinkOrCopy
+          ];
+
+          homeManagerTarget =
+            if (file.removeExtension or false) then (removeExtension file.target) else file.target;
+        in
+        pipe file [
+          (file: removeAttrs file [ "removeExtension" ])
+          (
+            file:
+            file
+            // {
+              source = homeManagerSource;
+              target = homeManagerTarget;
+            }
+          )
+        ];
+
+      listRelativeFilesRecursive =
+        dir:
+        pipe dir [
+          listFilesRecursive
+          (map (path: removePrefix "${toString dir}/" (toString path)))
+        ];
+
+      getHomeManagerFileSetForFilesInDirectory =
+        directory:
+        pipe directory.source [
+          convertToPathBuiltin
+          listRelativeFilesRecursive
+          (map (
+            relativeFile:
+            nameValuePair "${directory.target}/${relativeFile}" (convertFileToHomeManagerFile {
+              source = "${directory.source}/${relativeFile}";
+              target = "${directory.target}/${relativeFile}";
+              inherit (directory) executable;
+              removeExtension = directory.removeExtension or false;
+            })
+          ))
+          listToAttrs
+        ];
+
+      convertToHomeManagerFileSet =
+        fileSet:
+        foldlAttrs (
+          accumulator: target: file:
+          let
+            homeManagerFileSet =
+              if file.recursive or false then
+                getHomeManagerFileSetForFilesInDirectory file
+              else
+                { ${target} = convertFileToHomeManagerFile file; };
+          in
+          accumulator // homeManagerFileSet
+        ) { } fileSet;
+
+      assertions =
+        let
+          fileSets = with config.repository; [
+            home.file
+            xdg.configFile
+            xdg.dataFile
+            xdg.executable
+          ];
+          fileLists = map attrValues fileSets;
+          files = flatten fileLists;
+          getSource = getAttr "source";
+          sources = map getSource files;
+          # relative paths are assumed to be relative to
+          # `config.repository.fileSettings.relativePathRoot`, which we already
+          # assert is within the flake directory, so no need to check them.
+          absoluteSources = filter (source: !isRelativePath source) sources;
+          isPathWithinFlakeDirectory = path: hasPrefix flakeRootPath path;
+          sourcesOutsideFlake = filter (path: !isPathWithinFlakeDirectory path) absoluteSources;
+          sourcesOutsideFlakeJoined = concatStringsSep " " sourcesOutsideFlake;
+          areAllSourcesInsideFlakeDirectory = sourcesOutsideFlake == [ ];
+          isBaseDirectoryInsideFlakeDirectory = hasPrefix flakeRootPath relativePathRoot;
+
+          doesSourceExist =
+            source:
+            pipe source [
+              convertToPathBuiltin
+              pathExists
+            ];
+          nonexistentSources = filter (s: !(doesSourceExist s)) sources;
+          doAllSymlinkSourcesExist = nonexistentSources == [ ];
+          brokenSymlinksJoined = concatStringsSep " " nonexistentSources;
+        in
+        [
+          # If you try to link files from outside the flake you get a strange error
+          # along the lines of 'no such file/directory' so instead I make an
+          # assertion here since my error will be much clearer.  I think you can link
+          # files from anywhere if you pass --impure to home-manager, but I want a
+          # pure evaluation.
+          {
+            assertion = areAllSourcesInsideFlakeDirectory;
+            message = "All file sources for config.repository.* must be within the directory of the flake. Offending paths: ${sourcesOutsideFlakeJoined}";
+          }
+          {
+            assertion = isBaseDirectoryInsideFlakeDirectory;
+            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${config.repository.fileSettings.relativePathRoot}";
+          }
+          {
+            assertion = doAllSymlinkSourcesExist;
+            message = "The following symlink sources do not exist: ${brokenSymlinksJoined}";
+          }
+        ];
+    in
+    {
+      inherit assertions;
+      home.file =
+        (convertToHomeManagerFileSet config.repository.home.file)
+        // (convertToHomeManagerFileSet config.repository.xdg.executable);
+      xdg.configFile = convertToHomeManagerFileSet config.repository.xdg.configFile;
+      xdg.dataFile = convertToHomeManagerFileSet config.repository.xdg.dataFile;
+    };
+}

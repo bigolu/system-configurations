@@ -25,7 +25,7 @@ in
     fzfWithoutShellConfig
   ];
 
-  repository.symlink.xdg.executable."fzf" = {
+  repository.xdg.executable."fzf" = {
     source = "fzf/bin";
     recursive = true;
   };
