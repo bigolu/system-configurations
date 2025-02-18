@@ -24,10 +24,10 @@ function make_new_release {
   local title
   title="$(date +'%Y.%m.%d')"
 
-  # This way only the basenames of the assets will be put in the checksum file
-  pushd assets
   local checksum_file
   checksum_file="$(mktemp --directory)/checksums.txt"
+  # This way only the basenames of the assets will be put in the checksum file
+  pushd assets
   sha256sum -- * >"$checksum_file"
   popd
 
@@ -36,6 +36,15 @@ function make_new_release {
     --title "$title" \
     --notes-file .github/release_notes.md \
     assets/* "$checksum_file"
+}
+
+function gh {
+  # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
+  if [[ ${CI:-} == 'true' ]]; then
+    command gh "$@"
+  else
+    echo "gh spy:" "$@"
+  fi
 }
 
 main
