@@ -320,15 +320,19 @@ Plug("echasnovski/mini.nvim", function()
     end
 
     -- Don't highlight keywords
-    vim.api.nvim_create_autocmd("CursorMoved", {
+    vim.api.nvim_create_autocmd("CursorHold", {
       callback = function()
         if vim.b.minicursorword_disable_permanent then
           return
         end
 
-        local is_cursorword_keyword = vim.iter(vim.treesitter.get_captures_at_cursor()):any(function(capture)
-          return capture:find("keyword")
-        end)
+        local is_cursorword_keyword = false
+        for _, capture in ipairs(vim.treesitter.get_captures_at_cursor()) do
+          if capture:find("keyword") then
+            is_cursorword_keyword = true
+            break
+          end
+        end
 
         if is_cursorword_keyword then
           disable_cursorword()
@@ -402,26 +406,36 @@ Plug("echasnovski/mini.nvim", function()
         -- Select previous entry
         return "<C-p>"
       else
-        return "<Tab>"
+        return "<S-Tab>"
       end
     end, { expr = true })
 
+    -- TODO: When I call the original `completion_confirm` through the <CR>
+    -- mapping, it doesn't return the right value. This has something to do
+    -- with the `esc` function that gets called by `completion_confirm`.
+    -- `esc` uses `nvim_replace_termcodes` to escape its input. If I instead
+    -- have `esc` return its input without calling `nvim_replace_termcodes`,
+    -- `completion_confirm` returns the right value.
+    --
+    -- On the other hand, mappings like <BS> only work with the original `esc`
+    -- so I have to restore the original `esc.
+    local function patched_completion_confirm()
+      local original_esc = require("nvim-autopairs.utils").esc
+      require("nvim-autopairs.utils").esc = function(x)
+        return x
+      end
+      local return_value = require("nvim-autopairs").completion_confirm()
+      require("nvim-autopairs.utils").esc = original_esc
+
+      return return_value
+    end
+
     vim.keymap.set("i", "<CR>", function()
       if is_completion_menu_open() then
+        -- <C-y> would occasionally remove the character under the cursor
         return "<Esc>a"
       else
-        -- TODO: This function originally put its inputs through nvim_replace_termcodes,
-        -- but that ended up with garbage being put in the document. I've overridden it
-        -- to return whatever it was given, unmodified. It's original behavior is needed
-        -- for other keymaps like <BS> So I have to restore it.
-        local original = require("nvim-autopairs.utils").esc
-        require("nvim-autopairs.utils").esc = function(x)
-          return x
-        end
-        local return_value = require("nvim-autopairs").completion_confirm()
-        require("nvim-autopairs.utils").esc = original
-
-        return return_value
+        return patched_completion_confirm()
       end
     end, { expr = true })
   end
