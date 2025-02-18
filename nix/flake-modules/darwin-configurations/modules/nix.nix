@@ -83,9 +83,12 @@ in
         log="$(mktemp --tmpdir 'nix_garbage_collection_XXXXX')"
         exec 2>"$log" 1>"$log"
         function send_failure_notification {
+          if (($? == 0)); then
+            return
+          fi
           terminal-notifier -title "Nix Darwin" -message "Garbage collection failed. Check the logs in $log"
         }
-        trap send_failure_notification ERR
+        trap send_failure_notification EXIT
 
         last_gc_file='/nix/last-gc.txt'
         if [[ -e "$last_gc_file" ]]; then

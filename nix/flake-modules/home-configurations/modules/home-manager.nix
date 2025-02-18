@@ -73,9 +73,12 @@ let
     ];
     text = ''
       function failure_handler {
+        if (($? == 0)); then
+          return
+        fi
         echo 'Pull failed, run "mise run pull" to try again.'
       }
-      trap failure_handler ERR
+      trap failure_handler EXIT
 
       function direnv_wrapper {
         ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
@@ -131,9 +134,12 @@ let
         log="$(mktemp --tmpdir 'home_manager_XXXXX')"
         exec 2>"$log" 1>"$log"
         function failure_handler {
+          if (($? == 0)); then
+            return
+          fi
           notify-send --app-name 'Home Manager' "The check for changes failed. Check the logs in $log"
         }
-        trap failure_handler ERR
+        trap failure_handler EXIT
 
         cd ${repositoryDirectory}
 

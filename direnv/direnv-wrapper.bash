@@ -51,13 +51,9 @@ if [[ -e .envrc ]]; then
   echo "Backed up .envrc to $backup" >&2
 
   function restore_envrc {
-    # The existence check is necessary since more than one of the specified signals
-    # may get triggered.
-    if [[ -e $backup ]]; then
-      mv "$backup" .envrc
-    fi
+    mv "$backup" .envrc
   }
-  trap restore_envrc SIGTERM ERR EXIT
+  trap restore_envrc EXIT
 fi
 
 ln --symbolic "$envrc" .envrc

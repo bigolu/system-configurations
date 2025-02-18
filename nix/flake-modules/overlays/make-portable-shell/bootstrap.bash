@@ -22,7 +22,7 @@ export PORTABLE_HOME_PREFIX="$prefix_directory"
 function clean_up {
   rm -rf "$prefix_directory"
 }
-trap clean_up SIGTERM ERR EXIT
+trap clean_up EXIT
 
 function make_directory_in_prefix {
   local new_directory_basename="$1"

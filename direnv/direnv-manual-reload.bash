@@ -51,17 +51,14 @@
 # [3]: https://github.com/direnv/direnv-vscode
 
 function direnv_manual_reload {
-  local reload_file
+  # Intentionally global so it can be accessed in the exit handler
   reload_file="$(create_reload_file)"
-
   watch_file "$reload_file"
-  add_reload_program_to_path "$reload_file"
-  run_before_exit "$(printf 'remove_watched_files %q' "$reload_file")"
+  add_reload_program_to_path
+  run_before_exit remove_watched_files
 }
 
 function add_reload_program_to_path {
-  local -r reload_file="$1"
-
   local reload_program
   reload_program="$(get_direnv_bin)/direnv-reload"
   {
@@ -72,8 +69,10 @@ function add_reload_program_to_path {
 }
 
 function create_reload_file {
+  local direnv_dir
   direnv_dir="$(get_direnv_dir)"
-  reload_file="$direnv_dir/reload"
+
+  local reload_file="$direnv_dir/reload"
   if [[ ! -e $reload_file ]]; then
     touch "$reload_file"
   fi
@@ -82,7 +81,9 @@ function create_reload_file {
 }
 
 function get_direnv_bin {
+  local direnv_bin
   direnv_bin="$(get_direnv_dir)/bin"
+
   if [[ ! -e $direnv_bin ]]; then
     mkdir "$direnv_bin"
   fi
@@ -95,6 +96,7 @@ function get_direnv_bin {
 }
 
 function get_direnv_dir {
+  local layout_dir
   layout_dir="$(direnv_layout_dir)"
   if [[ ! -e $layout_dir ]]; then
     mkdir "$layout_dir"
@@ -103,8 +105,6 @@ function get_direnv_dir {
 }
 
 function remove_watched_files {
-  local -r reload_file="$1"
-
   # shellcheck disable=2312
   # TODO: The exit code of direnv is being masked by readarray, but it would be
   # tricky to avoid that. I can't use a pipeline since I want to unset the
@@ -115,8 +115,9 @@ function remove_watched_files {
 
   # Keep our reload file and direnv's allow/deny files, so `direnv block/allow` still
   # triggers a reload.
-  watched_files_to_keep=()
-  direnv_data_directory="${XDG_DATA_HOME:-$HOME/.local/share}/direnv"
+  local watched_files_to_keep=()
+  local direnv_data_directory="${XDG_DATA_HOME:-$HOME/.local/share}/direnv"
+  local file
   for file in "${watched_files[@]}"; do
     case "$file" in
       "$direnv_data_directory/deny"*) ;&
