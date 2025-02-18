@@ -43,7 +43,7 @@ function gh {
   if [[ ${CI:-} == 'true' ]]; then
     command gh "$@"
   else
-    echo "gh spy:" "$@"
+    echo 'gh spy:' "$@"
   fi
 }
 

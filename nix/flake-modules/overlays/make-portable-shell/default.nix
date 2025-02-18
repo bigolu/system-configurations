@@ -59,9 +59,6 @@ let
         keep = {
           "$SHELL" = true;
         };
-        fake = {
-          external = [ "bat" ];
-        };
       };
     };
   };
