@@ -221,7 +221,9 @@ local groups = {
   ["@string.documentation.python"] = "Comment",
   ["@character"] = "Character", -- Character
   ["@label"] = "Label", -- Label
+  ["@label.yaml"] = { ctermfg = 7, fg = colors[7] },
   ["@keyword"] = "Keyword", -- Keyword
+  ["@keyword.json5"] = { ctermfg = 7, fg = colors[7] },
   -- }}}
 
   -- misc. {{{
@@ -280,7 +282,9 @@ local groups = {
 -- color and overwrite them as needed.
 for group, _ in pairs(vim.api.nvim_get_hl(0, {})) do
   -- Have to use 7 instead of "NONE" because when one language is embedded in
-  -- another, like bash code in a github action yaml, the string color was being used
+  -- another, like bash code in a github action yaml, the string color was being
+  -- used. I'm intentionally not setting a background color so it takes the
+  -- background color of any other highlights applied like the fold highlight.
   vim.api.nvim_set_hl(0, group, { ctermfg = 7, fg = colors[7] })
 end
 
