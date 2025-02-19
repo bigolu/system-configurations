@@ -54,8 +54,6 @@ format "\<config_name> / \<platform>":
    > NOTE: The installer may have changed since this was written so make sure
    > everything below is still valid.
 
-   <!-- SYNC: NIX_INITIAL_SETTINGS -->
-
    ```bash
    ./nix-installer install \
      --nix-package-url https://releases.nixos.org/nix/nix-2.24.12/nix-2.24.12-x86_64-linux.tar.xz \

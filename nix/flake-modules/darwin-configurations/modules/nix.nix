@@ -16,12 +16,6 @@ in
       options = "--delete-old";
     };
 
-    # TODO: I manage nix from my user config, but nix-darwin doesn't have an option
-    # for not creating /etc/nix/nix.conf. Instead, I'll add the settings that I
-    # include when I first install nix since that's the configuration that nix-darwin
-    # will be overwriting.
-    #
-    # SYNC: NIX_INITIAL_SETTINGS
     settings = {
       trusted-users = [
         "root"
