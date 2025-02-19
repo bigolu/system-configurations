@@ -2,18 +2,13 @@
   pkgs,
   inputs,
   lib,
-  utils,
-  homeDirectory,
   repositoryDirectory,
   ...
 }:
 let
-  inherit (builtins) readFile;
   inherit (pkgs)
     writeShellApplication
     stdenv
-    replaceVars
-    writeTextDir
     ;
   inherit (stdenv) isLinux isDarwin;
   inherit (lib)
@@ -23,7 +18,6 @@ let
     optionals
     optionalAttrs
     ;
-  inherit (utils) projectRoot;
 
   # TODO: Won't be needed if the daemon auto-reloads:
   # https://github.com/NixOS/nix/issues/8939
@@ -37,20 +31,6 @@ let
       fi
     '';
   };
-
-  garbageCollectionService =
-    let
-      serviceName = "nix-garbage-collection.service";
-      serviceTemplate =
-        projectRoot + /dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.service;
-
-      processedTemplate = replaceVars serviceTemplate {
-        inherit homeDirectory;
-      };
-    in
-    # This way the basename of the file will be `serviceName` which is
-    # necessary for config.system.systemd.units.
-    "${writeTextDir serviceName (readFile processedTemplate)}/${serviceName}";
 
   syncNixVersionWithSystem =
     let
@@ -129,11 +109,6 @@ in
         "/etc/profile.d/bigolu-nix-locale-variable.sh".source =
           "${repositoryDirectory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
       };
-
-    systemd.units = optionals isLinux [
-      garbageCollectionService
-      "${repositoryDirectory}/dotfiles/nix/systemd-garbage-collection/nix-garbage-collection.timer"
-    ];
   };
 
   repository = {
@@ -148,6 +123,11 @@ in
   };
 
   nix = {
+    gc = {
+      automatic = true;
+      options = "--delete-old";
+    };
+
     registry = {
       # Use the nixpkgs in this flake in the system flake registry. By default, it
       # pulls the latest version of nixpkgs-unstable.
