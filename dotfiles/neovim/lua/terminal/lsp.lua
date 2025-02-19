@@ -1,8 +1,12 @@
 local methods = vim.lsp.protocol.Methods
 
-vim.keymap.set("n", "<S-l>", vim.diagnostic.open_float, { desc = "Diagnostic modal [lint,problem]" })
-vim.keymap.set("n", "[l", vim.diagnostic.goto_prev, { desc = "Previous diagnostic [last,lint,problem]" })
-vim.keymap.set("n", "]l", vim.diagnostic.goto_next, { desc = "Next diagnostic [lint,problem]" })
+vim.keymap.set("n", "<S-l>", vim.diagnostic.open_float, { desc = "Diagnostic modal" })
+vim.keymap.set("n", "[l", function()
+  vim.diagnostic.jump({ count = -1 })
+end, { desc = "Previous diagnostic" })
+vim.keymap.set("n", "]l", function()
+  vim.diagnostic.jump({ count = 1 })
+end, { desc = "Next diagnostic" })
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration, { desc = "Go to declaration" })
 vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "gn", vim.lsp.buf.rename, { desc = "Rename variable" })
@@ -17,6 +21,7 @@ end, { desc = "Toggle inlay hints" })
 
 -- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
+---@diagnostic disable-next-line: duplicate-set-field
 function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
   opts = opts or {}
   opts.border = opts.border or { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
@@ -44,6 +49,7 @@ vim.api.nvim_create_autocmd({ "LspAttach", "LspDetach", "DiagnosticChanged" }, {
 vim.api.nvim_create_autocmd("LspAttach", {
   callback = function(args)
     local client = vim.lsp.get_client_by_id(args.data.client_id)
+    assert(client ~= nil)
     client.server_capabilities.semanticTokensProvider = nil
   end,
 })
@@ -83,9 +89,10 @@ vim.api.nvim_create_autocmd("LspAttach", {
   -- if a server registers a capability dynamically.
   callback = function(context)
     local client = vim.lsp.get_client_by_id(context.data.client_id)
+    assert(client ~= nil)
     local buffer = context.buf
 
-    if client.supports_method(methods.textDocument_codeLens) then
+    if client:supports_method(methods.textDocument_codeLens) then
       if code_lens_refresh_autocmd_ids_by_buffer[buffer] == nil then
         code_lens_refresh_autocmd_ids_by_buffer[buffer] = -1
         create_refresh_autocmd(buffer)

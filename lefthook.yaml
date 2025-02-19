@@ -327,6 +327,9 @@ check:
                           - renovate.json5
                           - renovate/*.json5
                         run: renovate-config-validator --strict {files}
+                      - name: lua-ls
+                        glob: dotfiles/neovim/*.lua
+                        run: ./lefthook/scripts/check-lint-lua-ls.bash
                 - name: test
                   group:
                     parallel: true

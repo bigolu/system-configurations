@@ -1,15 +1,16 @@
 {
   "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
   "diagnostics": {
-    "unusedLocalExclude": ["_*"]
+    "unusedLocalExclude": ["_*"],
+    "libraryFiles": "Disable"
   },
   "workspace": {
-    "library": [".direnv/lua-libraries"],
+    "library": [".direnv/lua-libraries", "../../.direnv/lua-libraries"],
     "checkThirdParty": "Disable"
   },
   "runtime": {
     "version": "LuaJIT",
-    "path": ["dotfiles/neovim/lua/?.lua", "dotfiles/neovim/lua/?/init.lua"]
+    "path": ["?.lua"]
   },
   "telemetry": {
     "enable": false

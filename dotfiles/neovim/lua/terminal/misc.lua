@@ -160,6 +160,7 @@ end, { silent = true, desc = "Close pane [split,window]" })
 local function checktime()
   return pcall(vim.cmd.checktime)
 end
+---@diagnostic disable-next-line: undefined-field
 local timer = vim.uv.new_timer()
 timer:start(
   0,

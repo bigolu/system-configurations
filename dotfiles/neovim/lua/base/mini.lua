@@ -381,8 +381,9 @@ Plug("echasnovski/mini.nvim", function()
     vim.api.nvim_create_autocmd("LspAttach", {
       callback = function(args)
         local client = vim.lsp.get_client_by_id(args.data.client_id)
+        assert(client ~= nil)
         local methods = vim.lsp.protocol.Methods
-        if client.supports_method(methods.textDocument_completion) then
+        if client:supports_method(methods.textDocument_completion) then
           vim.bo[args.buf].omnifunc = "v:lua.MiniCompletion.completefunc_lsp"
         end
       end,
@@ -421,6 +422,7 @@ Plug("echasnovski/mini.nvim", function()
     -- so I have to restore the original `esc.
     local function patched_completion_confirm()
       local original_esc = require("nvim-autopairs.utils").esc
+      ---@diagnostic disable-next-line: duplicate-set-field
       require("nvim-autopairs.utils").esc = function(x)
         return x
       end
