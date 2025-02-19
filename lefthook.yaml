@@ -354,8 +354,9 @@ check:
                           - flake.lock
                         run: nix config check
           - name: lychee
+            # This will be run on an interval in CI
             only:
-              - run: '[ "$CI" = true ] || [ "$CI_DEBUG" = true ]'
+              - run: '[ "$ENABLE_LYCHEE" = true ]'
             exclude:
               - .lycheeignore
             run: ./lefthook/scripts/check-lychee.bash {files}

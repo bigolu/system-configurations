@@ -71,6 +71,9 @@ moduleContext@{ lib, ... }:
           # Runs the check
           lefthook
         ];
+        shellHook = ''
+          export ENABLE_LYCHEE='true'
+        '';
       };
 
       ci-renovate = {
