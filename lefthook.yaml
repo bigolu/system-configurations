@@ -354,7 +354,9 @@ check:
                           - flake.lock
                         run: nix config check
           - name: lychee
-            # This will be run on an interval in CI
+            # This will be run on an interval in CI. Instead of using an environment
+            # variable, I'd rather just move this check to a separate hook, but I
+            # want it to inherit the excludes that are set in the top-most job.
             only:
               - run: '[ "$ENABLE_LYCHEE" = true ]'
             exclude:
