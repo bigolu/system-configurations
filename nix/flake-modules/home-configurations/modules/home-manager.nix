@@ -26,10 +26,9 @@ let
   system-config-apply = writeShellApplication {
     name = "system-config-apply";
     text = ''
-      cd ${repositoryDirectory}
       ${config.home.profileDirectory}/bin/home-manager \
         switch \
-        --flake '${repositoryDirectory}#${configName}' \
+        --flake ${repositoryDirectory}#${configName} \
         "$@" |& nom
     '';
   };
@@ -43,21 +42,11 @@ let
       nvd
     ];
     text = ''
-      cd ${repositoryDirectory}
-
-      oldGenerationPath="$(
-        ${config.home.profileDirectory}/bin/home-manager generations \
-          | head -1 \
-          | grep -E --only-matching '/nix.*$'
-      )"
-
+      oldGenerationPath="''${XDG_STATE_HOME:-$HOME/.local/state}/nix/profiles/home-manager"
       newGenerationPath="$(
         nix build --no-link --print-out-paths \
-          .#homeConfigurations.${configName}.activationPackage
+          ${repositoryDirectory}#homeConfigurations.${configName}.activationPackage
       )"
-
-      cyan='\033[1;0m'
-      printf "%bPrinting preview...\n" "$cyan"
       nvd --color=never diff "$oldGenerationPath" "$newGenerationPath"
     '';
   };

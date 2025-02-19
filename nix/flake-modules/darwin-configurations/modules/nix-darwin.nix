@@ -22,12 +22,11 @@ let
       nvd
     ];
     text = ''
-      cd "${repositoryDirectory}"
-
-      oldGenerationPath="$(readlink --canonicalize ${config.system.profile})"
-      newGenerationPath="$(nix build --no-link --print-out-paths .#darwinConfigurations.${configName}.system)"
-
-      printf 'Printing preview...\n'
+      oldGenerationPath=${config.system.profile}
+      newGenerationPath="$(
+        nix build --no-link --print-out-paths \
+          ${repositoryDirectory}#darwinConfigurations.${configName}.system
+      )"
       nvd --color=never diff "$oldGenerationPath" "$newGenerationPath"
     '';
   };
@@ -39,9 +38,8 @@ let
       coreutils
     ];
     text = ''
-      cd "${repositoryDirectory}"
       ${config.system.profile}/sw/bin/darwin-rebuild switch \
-        --flake "${repositoryDirectory}#${configName}" \
+        --flake ${repositoryDirectory}#${configName} \
         "$@" |& nom
     '';
   };
