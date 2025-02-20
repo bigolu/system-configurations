@@ -24,7 +24,7 @@ local original_open_floating_preview = vim.lsp.util.open_floating_preview
 ---@diagnostic disable-next-line: duplicate-set-field
 function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
   opts = opts or {}
-  opts.border = opts.border or { "╭", "─", "╮", "│", "╯", "─", "╰", "│" }
+  opts.border = opts.border or "rounded"
   opts.focusable = opts.focusable or true
   opts.max_height = opts.max_height or math.floor(vim.o.lines * 0.35)
   opts.max_width = math.min(80, math.floor(vim.o.columns * 0.65))

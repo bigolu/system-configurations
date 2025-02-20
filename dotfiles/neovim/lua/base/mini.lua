@@ -256,8 +256,20 @@ Plug("echasnovski/mini.nvim", function()
   })
   -- }}}
 
-  -- misc {{{
+  -- jump {{{
+  require("mini.jump").setup({
+    mappings = {
+      repeat_jump = "",
+    },
+    delay = {
+      highlight = 10000000,
+      idle_stop = 10000000,
+    },
+  })
+  -- }}}
+
   if IsRunningInTerminal then
+    -- misc {{{
     local misc = require("mini.misc")
     vim.keymap.set("n", "<C-m>", function()
       if not IsMaximized then
@@ -292,23 +304,9 @@ Plug("echasnovski/mini.nvim", function()
     end, {
       desc = "Toggle maximize window [zoom]",
     })
-  end
-  -- }}}
+    -- }}}
 
-  -- jump {{{
-  require("mini.jump").setup({
-    mappings = {
-      repeat_jump = "",
-    },
-    delay = {
-      highlight = 10000000,
-      idle_stop = 10000000,
-    },
-  })
-  -- }}}
-
-  -- cursorword {{{
-  if IsRunningInTerminal then
+    -- cursorword {{{
     require("mini.cursorword").setup()
 
     local cursorword_highlight_name = "MiniCursorword"
@@ -353,15 +351,13 @@ Plug("echasnovski/mini.nvim", function()
         enable_cursorword()
       end,
     })
-  end
-  -- }}}
+    -- }}}
 
-  -- completion {{{
-  if IsRunningInTerminal then
+    -- completion {{{
     local window_info = {
       height = math.floor(vim.o.lines * 0.35),
       width = math.min(80, math.floor(vim.o.columns * 0.65)),
-      border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
+      border = "rounded",
     }
 
     require("mini.completion").setup({
@@ -440,11 +436,9 @@ Plug("echasnovski/mini.nvim", function()
         return patched_completion_confirm()
       end
     end, { expr = true })
-  end
-  -- }}}
+    -- }}}
 
-  -- diff {{{
-  if IsRunningInTerminal then
+    -- diff {{{
     local sign = "▎"
 
     require("mini.diff").setup({
@@ -466,11 +460,9 @@ Plug("echasnovski/mini.nvim", function()
 
       options = { wrap_goto = true },
     })
-  end
-  -- }}}
+    -- }}}
 
-  -- pick {{{
-  if IsRunningInTerminal then
+    -- pick {{{
     require("mini.pick").setup({
       mappings = {
         move_down = "<Tab>",
@@ -482,6 +474,12 @@ Plug("echasnovski/mini.nvim", function()
         scroll_up = "<C-k>",
         toggle_info = "",
       },
+
+      window = {
+        config = function()
+          return { width = vim.o.columns }
+        end
+      }
     })
 
     vim.keymap.set({ "n" }, "<leader>f", function()
@@ -493,8 +491,8 @@ Plug("echasnovski/mini.nvim", function()
     vim.keymap.set({ "n" }, "<leader><leader>", function()
       vim.cmd.Pick("resume")
     end)
+    -- }}}
   end
-  -- }}}
 end)
 
 if IsRunningInTerminal then
