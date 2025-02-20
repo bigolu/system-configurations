@@ -341,8 +341,6 @@ let
       inputsFrom = [
         # For "llllvvuu.llllvvuu-glspc"
         efmLs
-        # For "sumneko.lua"
-        luaLs
       ];
       packages = with pkgs; [
         # For "golang.go"
