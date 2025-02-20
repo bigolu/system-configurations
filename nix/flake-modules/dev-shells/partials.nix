@@ -241,6 +241,25 @@ let
     (dependencies: mkShellWrapperNoCC { packages = dependencies; })
   ];
 
+  luaLs = mkShellWrapperNoCC {
+    packages = with pkgs; [ lua-language-server ];
+    shellHook = ''
+      prefix="$DIRENV_LAYOUT_DIR/lua-libraries"
+      mkdir -p "$prefix"
+
+      ln --force --no-dereference --symbolic \
+        ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
+      ln --force --no-dereference --symbolic \
+        ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+
+      hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+      if [[ -e $hammerspoon_annotations ]]; then
+        ln --force --no-dereference --symbolic \
+          "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
+      fi
+    '';
+  };
+
   checks =
     let
       linting = mkShellWrapperNoCC {
@@ -317,25 +336,6 @@ let
           jq
         ];
       };
-
-      luaLs = mkShellWrapperNoCC {
-        packages = with pkgs; [ lua-language-server ];
-        shellHook = ''
-          prefix="$DIRENV_LAYOUT_DIR/lua-libraries"
-          mkdir -p "$prefix"
-
-          ln --force --no-dereference --symbolic \
-            ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
-          ln --force --no-dereference --symbolic \
-            ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
-
-          hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
-          if [[ -e $hammerspoon_annotations ]]; then
-            ln --force --no-dereference --symbolic \
-              "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
-          fi
-        '';
-      };
     in
     mkShellWrapperNoCC {
       inputsFrom = [
@@ -385,6 +385,7 @@ in
     lefthook
     sync
     scriptDependencies
+    luaLs
     checks
     vsCode
     ;

@@ -47,6 +47,7 @@ moduleContext@{ lib, ... }:
           lefthook
           sync
           scriptDependencies
+          luaLs
           checks
           vsCode
         ];
@@ -63,6 +64,8 @@ moduleContext@{ lib, ... }:
           speakerctl
           # Runs the checks
           lefthook
+          # This is needed for running lua-language-server
+          luaLs
         ];
       };
 
