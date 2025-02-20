@@ -72,6 +72,9 @@ let
         # add myself to that group here.
         addToKeydGroup = hm.dag.entryBefore [ "reloadSystemd" ] ''
           # Add myself to the keyd group so I can use application-specific mappings
+          if ! getent group keyd; then
+            sudo groupadd keyd
+          fi
           sudo usermod -aG keyd ${username}
         '';
 
