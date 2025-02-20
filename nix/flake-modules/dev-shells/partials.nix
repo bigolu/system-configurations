@@ -115,6 +115,16 @@ let
 
   ciSetup =
     let
+      # The full set of locales is pretty big (~220MB) so I'll only include the ones
+      # I need.
+      locales = pkgs.glibcLocales.override {
+        allLocales = false;
+        locales = [
+          "en_US.UTF-8/UTF-8"
+          "C.UTF-8/UTF-8"
+        ];
+      };
+
       # Nix recommends setting this for non-NixOS Linux distributions[1] and
       # Ubuntu is used in CI.
       #
@@ -122,7 +132,7 @@ let
       #
       # [1]: https://nixos.wiki/wiki/Locales
       localeArchiveHook = ''
-        export LOCALE_ARCHIVE=${pkgs.glibcLocales}/lib/locale/locale-archive
+        export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
       '';
     in
     mkShellWrapperNoCC (
