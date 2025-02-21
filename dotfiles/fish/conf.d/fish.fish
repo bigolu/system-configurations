@@ -307,7 +307,7 @@ function _bash_style_history_expansion
     printf '%s' "$last_command" | read --tokenize --list last_command_tokens
 
     if test "$token" = '!!'
-        string escape --style script "$last_command"
+        echo "$last_command"
     else if test "$token" = '!^'
         string escape --style script "$last_command_tokens[1]"
     else if test "$token" = '!$'
