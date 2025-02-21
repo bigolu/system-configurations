@@ -478,8 +478,8 @@ Plug("echasnovski/mini.nvim", function()
       window = {
         config = function()
           return { width = vim.o.columns }
-        end
-      }
+        end,
+      },
     })
 
     vim.keymap.set({ "n" }, "<leader>f", function()
