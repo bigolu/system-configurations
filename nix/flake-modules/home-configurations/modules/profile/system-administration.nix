@@ -49,7 +49,6 @@ in
       diffoscopeMinimal
       bat
       coreutils
-      binutils
       gnused
       runAsAdmin
       less

@@ -35,6 +35,7 @@ let
     "toybox"
     "tar"
     "hostname"
+    "strings"
   ];
 
   look = filterPrograms final.util-linux [ "look" ];

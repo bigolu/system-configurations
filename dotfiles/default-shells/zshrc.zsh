@@ -22,8 +22,9 @@
 # [2]: https://github.com/microsoft/vscode/issues/177126#issuecomment-1630889619
 # [3]: https://github.com/microsoft/vscode/issues/163186
 if ! (( ${+VSCODE_RESOLVING_ENVIRONMENT} )) && ! (( ${+HAMMERSPOON_RESOLVING_ENVIRONMENT} )) && [ -t 1 ]; then
-  # If the current shell isn't fish, exec into fish. My reason for doing this is in README.md
-  if [ "$(basename "$SHELL")" != 'fish' ]; then
+  # If the current shell isn't fish, exec into fish. My reason for doing this is in
+  # README.md
+  if [ "$(basename "$SHELL")" != 'fish' ] && (( $+commands[fish] )); then
     SHELL="$(command -v fish)" exec fish
   fi
 fi

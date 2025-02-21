@@ -250,11 +250,6 @@ function _direnv_context
 end
 
 function _git_context
-    # Won't be in portable home
-    if not type --query git
-        return
-    end
-
     # This way we don't print the git section and possibly remove it later
     # because the directory wasn't in a git repo.
     if not git rev-parse --is-inside-work-tree >/dev/null 2>&1

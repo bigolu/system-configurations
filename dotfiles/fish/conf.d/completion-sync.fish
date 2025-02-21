@@ -237,6 +237,10 @@ end
 function _complete_fish_register_direnv_hook_wrapper --on-event fish_prompt
     functions --erase (status current-function)
 
+    if not type --query __direnv_export_eval
+        return
+    end
+
     functions --copy __direnv_export_eval __direnv_export_eval_backup
     function __direnv_export_eval --on-event fish_prompt
         set -l is_moving_from_one_direnv_directly_to_another \

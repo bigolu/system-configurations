@@ -46,37 +46,46 @@ format "\<config_name> / \<platform>":
 
 ### Steps
 
-1. Install Nix using the [Determinate Systems Nix
-   Installer][determinate-systems-installer]. After you download it, replace the
-   platform (x86_64) in the URL below with that of your system and then run the
-   command:
+1. Install Nix using [Determinate Systems Nix
+   Installer][determinate-systems-installer]. You can use the `curl` command
+   below or download it from [the site][determinate-systems-installer-install].
+   After you download it, replace the platform (x86_64) in the URL below with
+   that of your system and then run the command:
 
    > NOTE: The installer may have changed since this was written so make sure
    > everything below is still valid.
 
    ```bash
-   ./nix-installer install \
+   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
+     sh -s -- install \
      --nix-package-url https://releases.nixos.org/nix/nix-2.24.12/nix-2.24.12-x86_64-linux.tar.xz \
      --extra-conf "extra-trusted-users = $(whoami)"
    ```
 
-2. Run the following command. It will start a fish shell within a Nix shell
-   containing the other required programs, clone the repository, and load the
-   local development environment:
+2. Run the following command to get the repo, load the environment, and start
+   `fish`.
 
    ```bash
-   nix shell --file nix/flake-package-set.nix fish gitMinimal direnv bash coreutils \
-     --command fish --init-command '
-       # Fish does not have a way to exit whenever a command fails so I am
-       # manually adding `|| exit`.
-       # https://github.com/fish-shell/fish-shell/issues/510
-
-       direnv hook fish | source || exit
-       git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations || exit
-       cd ~/code/system-configurations || exit
-       cp direnv/local.bash .envrc || exit
-       direnv allow || exit
-     '
+   # Fish does not have a way to exit whenever a command fails so I am
+   # manually adding `|| exit`.
+   # https://github.com/fish-shell/fish-shell/issues/510
+   #
+   # NOTE: Comments can't go inside the command string because they would end the
+   # string.
+   nix shell nixpkgs#gitMinimal nixpkgs#bash --command bash --noprofile --norc -euc '
+     git clone \
+       https://github.com/bigolu/system-configurations.git \
+       ~/code/system-configurations
+     nix shell \
+       --file ~/code/system-configurations/nix/flake-package-set.nix \
+       fish direnv bash coreutils \
+       --command fish --no-config --init-command "
+         direnv hook fish | source || exit
+         cd ~/code/system-configurations || exit
+         cp direnv/local.bash .envrc || exit
+         direnv allow || exit
+       "
+   '
    ```
 
 3. The next steps depend on the operating system you're using:
@@ -139,6 +148,8 @@ to build it to learn more about Nix.
 
 [determinate-systems-installer]:
   https://github.com/DeterminateSystems/nix-installer
+[determinate-systems-installer-install]:
+  https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#install-nix
 [home-manager]: https://github.com/nix-community/home-manager
 [nix-darwin]: https://github.com/LnL7/nix-darwin
 [rootless-nix]: https://github.com/NixOS/nix/issues/1971#issue-304578884

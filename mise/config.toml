@@ -20,6 +20,12 @@ raw = true
 # instead. For now, I'm duplicating the values specified in my config here. I should
 # open an issue.
 lefthook_output_env_var = "LEFTHOOK_OUTPUT='execution_info,execution_out'"
+# The first line of variables are read by CLIs to determine what terminal they're
+# running in. The second line of variables are read by CLIs to determine the
+# capabilities of the terminal they're running in.
+nix_shell_keep_terminal_env_vars = """
+  --keep TERM --keep TERM_PROGRAM --keep TERM_PROGRAM_VERSION \
+  --keep TERMINFO --keep TERMINFO_DIRS --keep COLORTERM"""
 
 [task_config]
 # Tasks are run relative to the location of this file. Since I want them to run in
@@ -31,7 +37,7 @@ description = 'Display task documentation'
 run = '''
   documentation='docs/tasks.html'
   # Linux uses xdg-open, macOS uses open
-  xdg-open "$documentation" || open "$documentation"
+  xdg-open "$documentation" 2>/dev/null || open "$documentation"
 '''
 
 [tasks.get-secrets]
@@ -258,13 +264,25 @@ run = '''
 
     --ignore-environment
     --keep DEV_SHELL --keep CI_DEBUG --keep direnv_layout_dir --keep HOME
-    # CLIs read these to determine what terminal they're running in
-    --keep TERM --keep TERM_PROGRAM --keep TERM_PROGRAM_VERSION
-    # CLIs read these to determine the capabilities of the terminal they're running in
-    --keep TERMINFO --keep TERMINFO_DIRS --keep COLORTERM
+    {{vars.nix_shell_keep_terminal_env_vars}}
 
-    --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive"
+    --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive" --noprofile --norc
   )
 
   env "${environment_variables[@]}" nix shell "${nix_shell_flags[@]}"
+'''
+
+[tasks.debug-shell]
+description = "Start `.#shell` in an empty environment"
+run = '''
+  nix_shell_flags=(
+    --ignore-environment
+    --keep HOME
+    {{vars.nix_shell_keep_terminal_env_vars}}
+
+    # Use '*' so I don't have to hard-code the program name
+    --command "$(nix build --print-out-paths  --no-link .#shell)/bin/"*
+  )
+
+  env HOME="$(mktemp --directory)" nix shell "${nix_shell_flags[@]}"
 '''

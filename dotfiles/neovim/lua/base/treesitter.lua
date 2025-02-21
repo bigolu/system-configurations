@@ -12,7 +12,8 @@ Plug("nvim-treesitter/nvim-treesitter", function()
     incremental_selection = { enable = false },
     indent = { enable = false },
     highlight = {
-      enable = IsRunningInTerminal,
+      -- This also needs to be on for mini.ai's treesitter text objects to work
+      enable = true,
       additional_vim_regex_highlighting = false,
       disable = function(_, _)
         return is_current_buffer_too_big_to_highlight()

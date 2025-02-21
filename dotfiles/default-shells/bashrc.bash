@@ -50,8 +50,9 @@ if [[ ! -t 1 ]]; then
   return
 fi
 
-# If the current shell isn't fish, exec into fish. My reason for doing this is in README.md
-if [[ "$(basename "$SHELL")" != 'fish' ]]; then
+# If the current shell isn't fish, exec into fish. My reason for doing this is in
+# README.md
+if [[ "$(basename "$SHELL")" != 'fish' ]] && type -P fish >/dev/null; then
   fish_path="$(command -v fish)"
   SHELL="$fish_path" exec fish
 fi

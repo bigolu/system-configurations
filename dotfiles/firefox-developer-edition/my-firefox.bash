@@ -9,10 +9,9 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 devedition_executable_name='firefox-devedition'
-regular_executable_name='firefox'
 
 if pgrep --full "$devedition_executable_name" >/dev/null 2>&1; then
   exec "$devedition_executable_name" "$@"
 else
-  exec "$regular_executable_name" "$@"
+  exec flatpak run org.mozilla.firefox "$@"
 fi

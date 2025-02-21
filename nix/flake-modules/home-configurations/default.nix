@@ -41,9 +41,7 @@ let
         "timg"
         "ripgrep-all"
         "lesspipe"
-        "wordnet"
         "diffoscopeMinimal"
-        "gitMinimal"
         "difftastic"
         "nix"
       ]
