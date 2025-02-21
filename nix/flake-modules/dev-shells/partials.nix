@@ -149,11 +149,12 @@ let
   gozip = mkShellWrapperNoCC {
     packages = with pkgs; [ go ];
     shellHook = ''
-      gopath="$DIRENV_LAYOUT_DIR/go"
-      mkdir -p "$gopath"
-      export GOPATH="''${gopath}''${GOPATH:+:$GOPATH}"
+      # Go modules are immutable so they should be stored in a single location and
+      # shared between projects.
+      export GOPATH="$HOME/.cache/go"
+      mkdir -p "$GOPATH"
 
-      export GOBIN="''${GOPATH}/bin"
+      export GOBIN="$DIRENV_LAYOUT_DIR/go-bin"
       mkdir -p "$GOBIN"
       export PATH="''${GOBIN}''${PATH:+:$PATH}"
     '';
