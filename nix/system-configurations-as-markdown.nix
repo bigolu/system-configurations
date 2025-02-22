@@ -2,15 +2,17 @@ let
   flake = import ./flake-compat.nix;
   inherit (flake.inputs.nixpkgs) lib;
   inherit (flake) outputs;
-  inherit (builtins) concatStringsSep attrNames;
+  inherit (builtins) concatStringsSep attrNames filter;
   inherit (lib) hasPrefix;
 
-  homeManagerConfigNames = builtins.filter (name: !hasPrefix "portable-home" name) (
+  homeManagerConfigNames = filter (name: !hasPrefix "portable-home" name) (
     attrNames outputs.homeConfigurations
   );
   homeManagerPlatformFetcher = name: outputs.homeConfigurations.${name}.activationPackage.system;
 
-  nixDarwinConfigNames = builtins.attrNames outputs.darwinConfigurations;
+  nixDarwinConfigNames = filter (name: name != "linux-builder-bootstrap") (
+    attrNames outputs.darwinConfigurations
+  );
   nixDarwinPlatformFetcher = name: outputs.darwinConfigurations.${name}.system.system;
 
   makeListItems =
