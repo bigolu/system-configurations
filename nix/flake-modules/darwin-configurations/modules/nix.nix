@@ -21,11 +21,7 @@ in
     };
 
     settings = {
-      trusted-users = [
-        "root"
-        username
-      ];
-
+      trusted-users = [ username ];
       experimental-features = [
         "nix-command"
         "flakes"
