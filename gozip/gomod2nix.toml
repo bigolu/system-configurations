@@ -5,8 +5,8 @@ schema = 3
     version = "v0.0.0-20240702044807-c8f9c0587c5e"
     hash = "sha256-c9u+sj5NHZyaw6v7pfCn74tqiml/9YXJD9eiXvie4IU="
   [mod."github.com/klauspost/compress"]
-    version = "v1.17.11"
-    hash = "sha256-LFSIWy0C4VbiuPve0eKHr7Q7s4XtaGzsZ3qpO+6bEgc="
+    version = "v1.18.0"
+    hash = "sha256-jc5pMU/HCBFOShMcngVwNMhz9wolxjOb579868LtOuk="
   [mod."github.com/mitchellh/colorstring"]
     version = "v0.0.0-20190213212951-d06e56a500db"
     hash = "sha256-dg5havre+NkxU85tbWXgdhjVtVnkNfTVa999HX+JVbQ="
