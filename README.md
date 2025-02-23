@@ -36,7 +36,11 @@ format "\<config_name> / \<platform>":
 
 - Home Manager
 
+  <!-- LTeX: SETTINGS enabled=false (leave linux lowercased) -->
+
   - linux / x86_64-linux
+
+  <!-- LTeX: SETTINGS enabled=true -->
 
 - nix-darwin
 
@@ -121,7 +125,7 @@ format "\<config_name> / \<platform>":
             → Switch to Desktop 1-9" `cmd+[1-9]`
 
      3. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels,
-        Nightfall, and "Mac Mouse Fix" to configure them.
+        Nightfall, Mac Mouse Fix, and Podman Desktop to configure them.
 
 ## Running the Portable Home Configuration
 
