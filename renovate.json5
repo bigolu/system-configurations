@@ -5,6 +5,7 @@
     {
       matchManagers: ["nix"],
       matchDepNames: ["nixpkgs"],
+      extends: ["schedule:weekly"],
       postUpgradeTasks: {
         commands: [
           "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash",
