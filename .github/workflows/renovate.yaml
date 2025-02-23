@@ -1,9 +1,6 @@
 name: Renovate
 on:
   workflow_dispatch:
-  schedule:
-    # Once a day
-    - cron: "0 0 * * *"
 defaults:
   run:
     shell: bash-script {0}

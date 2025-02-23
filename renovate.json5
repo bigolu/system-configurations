@@ -1,11 +1,25 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  extends: ["local>bigolu/system-configurations//renovate/common-preset.json5"],
+  extends: [
+    "local>bigolu/system-configurations//renovate/common-preset.json5",
+    "group:all",
+  ],
+  // Automerge even if no tests are run
+  ignoreTests: true,
   packageRules: [
+    // Automerge everything since I only run renovate manually
+    {
+      matchPackageNames: ["*"],
+
+      automerge: true,
+      // I'm using the branch type, instead of the pull request type, for auto merge
+      // so I don't get notifications for them.
+      automergeType: "branch",
+    },
+
     {
       matchManagers: ["nix"],
       matchDepNames: ["nixpkgs"],
-      extends: ["schedule:weekly"],
       postUpgradeTasks: {
         commands: [
           "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash",
