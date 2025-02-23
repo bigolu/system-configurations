@@ -1,5 +1,5 @@
 { inputs, ... }:
-final: _prev:
+final: prev:
 let
   inherit (final) fetchzip fetchFromGitHub;
   inherit (final.stdenv) isLinux mkDerivation;
@@ -30,6 +30,21 @@ let
         x86_64-darwin
       ];
     };
+  };
+
+  # TODO: This should be in the podman package
+  podman-mac-helper = mkDerivation {
+    pname = "podman-mac-helper";
+    inherit (final.podman) version;
+    src = fetchzip {
+      url = "https://github.com/containers/podman/releases/download/v${final.podman.version}/podman-remote-release-darwin_amd64.zip";
+      sha256 = "sha256-QYoWSB2v6BuFdbqVn0Ly/yi6u5MQMVQ8eHWMR9VvyME=";
+    };
+    installPhase = ''
+      mkdir -p $out/bin
+      cp $src/usr/bin/podman-mac-helper $out/bin/
+    '';
+    meta.platforms = with system; [ x86_64-darwin ];
   };
 
   # Normally I'd use overrideAttrs, but that wouldn't affect keyd-application-mapper
@@ -113,3 +128,4 @@ in
     keyd
     ;
 }
+// prev.lib.optionalAttrs prev.stdenv.isDarwin { inherit podman-mac-helper; }

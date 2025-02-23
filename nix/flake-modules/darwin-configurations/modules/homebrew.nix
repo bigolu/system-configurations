@@ -17,12 +17,11 @@
       "firefox@developer-edition"
       "google-chrome"
       "finicky"
-      "docker"
       "unnaturalscrollwheels"
       "MonitorControl"
-      "responsively"
       "element"
       "nightfall"
+      "podman-desktop"
     ];
 
     caskArgs = {
