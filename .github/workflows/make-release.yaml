@@ -1,33 +1,11 @@
 name: Make a Release
 on:
   workflow_dispatch:
-  schedule:
-    # Once every 3 months
-    # SYNC: NEW_COMMITS_SINCE
-    - cron: "0 0 1 */3 *"
 defaults:
   run:
     shell: bash-script {0}
 jobs:
-  has-new-commits:
-    runs-on: ubuntu-24.04
-    outputs:
-      result: ${{ steps.has-new-commits.outputs.result }}
-    steps:
-      # TODO: A single, top-level, conditional didn't work so I added it to each step
-      - if: github.event_name != 'workflow_dispatch'
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-        with:
-          # We need the full history to check for new commits
-          fetch-depth: 0
-      - if: github.event_name != 'workflow_dispatch'
-        uses: ./.github/actions/setup
-      - if: github.event_name != 'workflow_dispatch'
-        id: has-new-commits
-        run: ./.github/scripts/has-new-commits.bash
   make-assets:
-    needs: has-new-commits
-    if: needs.has-new-commits.outputs.result == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
