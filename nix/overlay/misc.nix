@@ -178,7 +178,6 @@ in
 {
   neovim = neovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
-  packagesToCache = final.lib.recurseIntoAttrs { inherit (final) gomod2nix; };
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp {
     interpreter = final.bash-script;
   };
