@@ -1,46 +1,18 @@
 name: "Check Pull Request"
 on:
-  # Ideally, I would add a branch filter here to ignore the branches that are already
-  # matched by the push event below. Or if a label filter was allowed, I could add a
-  # label to the pull requests opened for the branches below and filter on that.
-  # Instead, I use a job.<job_id>.if condition.
-  pull_request:
-  push:
-    # These branches get merged without a pull request being made so I need to check
-    # them too.
-    branches:
-      - "renovate-self-hosted/branch-automerge/**"
-# I'm only interested in checking the latest commit to a branch. That means if a
-# commit is pushed and a new check starts before an older one finishes, I want to
-# cancel the older one.
-#
-# However, if a pull request is opened for a Renovate automerge branch, which happens
-# if a check on that branch fails, then pushing to that branch would result in two
-# checks getting started: one for the push event and one for the pull_request event.
-# The one that starts first would get cancelled when the second one starts.
-#
-# I'm fine with one of them being cancelled since I know that this workflow does the
-# same thing regardless of what event triggers it. The problem is GitHub doesn't know
-# that, so it requires any required checks _per event_ to run. This means I can't
-# cancel a workflow run the way I described in the previous section.
-#
-# To get around this, I instead limit the workflow to running once _per event_ per
-# branch. This way, I still only run the on the latest commit, but a required check
-# is never skipped. To skip duplicate runs, I instead use a job.<job_id>.if
-# conditional.
+  workflow_dispatch:
 concurrency:
-  # For more information on how the branch name is calculated see:
-  # https://stackoverflow.com/a/71158878
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.ref_name }}
+  # If a run of this workflow starts and there is already an ongoing run for the same
+  # branch, cancel the one in progress. I assume this will only happen if the second
+  # run is for a more recent commit on the branch. In which case, I only want to run
+  # checks on the most recent commit.
+  group: ${{ github.workflow }}-${{ github.ref_name }}
   cancel-in-progress: true
 defaults:
   run:
     shell: bash-script {0}
 jobs:
   check-pull-request:
-    # Only run this job if it wasn't triggered by a pull request event for a Renovate
-    # automerge branch. Those are covered by the push event.
-    if: "! (github.event_name == 'pull_request' && startsWith(github.head_ref, 'renovate-self-hosted/branch-automerge/'))"
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
