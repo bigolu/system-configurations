@@ -10,9 +10,7 @@ let
   );
   homeManagerPlatformFetcher = name: outputs.homeConfigurations.${name}.activationPackage.system;
 
-  nixDarwinConfigNames = filter (name: name != "linux-builder-bootstrap") (
-    attrNames outputs.darwinConfigurations
-  );
+  nixDarwinConfigNames = attrNames outputs.darwinConfigurations;
   nixDarwinPlatformFetcher = name: outputs.darwinConfigurations.${name}.system.system;
 
   makeListItems =

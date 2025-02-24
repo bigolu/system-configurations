@@ -2,7 +2,7 @@
 _: {
   imports = [
     ../homebrew.nix
-    ../nix.nix
+    ../nix
     ../nix-darwin.nix
     ../system-settings.nix
     ../skhd.nix

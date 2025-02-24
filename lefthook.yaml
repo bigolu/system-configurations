@@ -175,6 +175,9 @@ check:
                 - name: system-configs
                   glob: "*.nix"
                   run: "{run_fix} ./lefthook/scripts/code-generation/add-system-configurations-to-readme.bash"
+                - name: nixpkgs-commit
+                  glob: flake.lock
+                  run: "{run_fix} ./lefthook/scripts/code-generation/add-nixpkgs-commit-to-readme.bash"
                 - name: flake-lock
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"

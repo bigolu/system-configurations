@@ -72,20 +72,18 @@ format "\<config_name> / \<platform>":
    #
    # NOTE: Comments can't go inside the command string because they would end the
    # string.
-   nix shell nixpkgs#gitMinimal nixpkgs#bash --command bash --noprofile --norc -euc '
-     git clone \
-       https://github.com/bigolu/system-configurations.git \
-       ~/code/system-configurations
-     nix shell \
-       --file ~/code/system-configurations/nix/flake-package-set.nix \
-       fish direnv bash coreutils \
-       --command fish --no-config --init-command "
-         direnv hook fish | source || exit
-         cd ~/code/system-configurations || exit
-         cp direnv/local.bash .envrc || exit
-         direnv allow || exit
-       "
-   '
+   nix shell \
+     --override-flake nixpkgs github:NixOS/nixpkgs/5b2753b0356d1c951d7a3ef1d086ba5a71fff43c \
+     nixpkgs#fish nixpkgs#gitMinimal nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
+     --command fish --no-config --init-command '
+       git clone \
+         https://github.com/bigolu/system-configurations.git \
+         ~/code/system-configurations || exit
+       cd ~/code/system-configurations || exit
+       direnv hook fish | source || exit
+       cp direnv/local.bash .envrc || exit
+       direnv allow || exit
+     '
    ```
 
 3. The next steps depend on the operating system you're using:

@@ -23,6 +23,7 @@
       postUpgradeTasks: {
         commands: [
           "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash",
+          "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nixpkgs-commit-to-readme.bash",
         ],
       },
     },
