@@ -52,7 +52,6 @@ in
       recursive = mkOption {
         type = types.bool;
         default = false;
-        description = "This links top level files only.";
       };
 
       attrsOfSubmodule =
@@ -72,6 +71,11 @@ in
 
           target = mkOption {
             type = types.str;
+          };
+
+          force = mkOption {
+            type = types.bool;
+            default = false;
           };
         };
         config = {

@@ -3,7 +3,7 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter curl coreutils darwin-rebuild]"
 #USAGE arg "<destination>" {
-#USAGE   choices "to-repo" "to-sync"
+#USAGE   choices "to-repo" "to-system"
 #USAGE }
 
 # TODO: Regarding the choices above: I prefixed them to 'to-' so it's clear from the

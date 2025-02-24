@@ -99,7 +99,7 @@ let
 
           conf_file='/etc/modprobe.d/hid_apple.conf'
           conf_line="options hid_apple fnmode=$desired_fnmode"
-          if ! grep -q "$conf_line" <"$conf_file"; then
+          if [[ ! -e $conf_file ]] || ! grep -q "$conf_line" <"$conf_file"; then
             # Persist it so it gets set automatically on future boots
             echo "$conf_line" \
               | sudo tee -a "$conf_file"
