@@ -36,11 +36,7 @@ format "\<config_name> / \<platform>":
 
 - Home Manager
 
-  <!-- LTeX: SETTINGS enabled=false (leave linux lowercased) -->
-
   - linux / x86_64-linux
-
-  <!-- LTeX: SETTINGS enabled=true -->
 
 - nix-darwin
 

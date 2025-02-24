@@ -176,8 +176,6 @@ in
 
       build-users-group = "nixbld";
 
-      builders = null;
-
       cores = 0;
 
       # Increase the buffer limit to 1GiB since the buffer would often reach the

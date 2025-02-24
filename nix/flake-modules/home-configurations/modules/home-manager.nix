@@ -15,12 +15,14 @@ let
   inherit (lib)
     fileset
     mkMerge
+    mkIf
     hm
     getExe
+    optionals
     ;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs) writeShellApplication;
-  inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs.stdenv) isLinux isDarwin;
 
   # Scripts for switching generations and upgrading flake inputs.
   system-config-apply = writeShellApplication {
@@ -157,6 +159,50 @@ let
         fi
       '';
     };
+
+  update-reminder = writeShellApplication {
+    name = "update-reminder";
+    runtimeInputs =
+      with pkgs;
+      [
+        coreutils
+        gitMinimal
+      ]
+      ++ (optionals isLinux [ libnotify ])
+      ++ (optionals isDarwin [ terminal-notifier ]);
+    text = ''
+      cd ${repositoryDirectory}
+      if [[ $(git log --since="1 month ago") == *'deps:'* ]]; then
+        exit
+      fi
+
+      if [[ $(uname) == 'Linux' ]]; then
+        # TODO: I want to use action buttons on the notification, but it isn't
+        # working.
+        #
+        # TODO: With `--wait`, `notify-send` only exits if the x button is
+        # clicked. I assume that I want to pull if I click the x button
+        # within one hour. Using `timeout` I can kill `notify-send` once one
+        # hour passes.  This behavior isn't correct based on the `notify-send`
+        # manpage, not sure if the bug is with `notify-send` or my desktop
+        # environment, COSMIC.
+        timeout_exit_code=124
+        set +o errexit
+        timeout 1h notify-send --wait --app-name 'System Configuration' \
+          'To update dependencies, click the "x" button now or after the notification has been dismissed.'
+        exit_code=$?
+        set -o errexit
+        if (( exit_code != timeout_exit_code )); then
+          xdg-open 'https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml'
+        fi
+      else
+        terminal-notifier \
+          -title 'System Configuration' \
+          -message 'Click here to update dependencies' \
+          -execute 'open "https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml"'
+      fi
+    '';
+  };
 in
 mkMerge [
   {
@@ -182,6 +228,46 @@ mkMerge [
       stateVersion = "23.11";
     };
   }
+
+  (mkIf isLinux {
+    systemd.user.services.update-system-config-reminder = {
+      Unit = {
+        Description = "Reminder to update system-config dependencies";
+      };
+      Service = {
+        ExecStart = getExe update-reminder;
+      };
+    };
+    systemd.user.timers.update-system-config-reminder = {
+      Unit = {
+        Description = "Reminder to update system-config dependencies";
+      };
+      Timer = {
+        OnCalendar = "weekly";
+        Persistent = true;
+      };
+      Install = {
+        WantedBy = [ "timers.target" ];
+      };
+    };
+  })
+
+  (mkIf isDarwin {
+    launchd.agents.update-system-config-reminder = {
+      enable = true;
+      config = {
+        ProgramArguments = [ (getExe update-reminder) ];
+        StartCalendarInterval = [
+          # weekly
+          {
+            Weekday = 1;
+            Hour = 0;
+            Minute = 0;
+          }
+        ];
+      };
+    };
+  })
 
   # These are all things that don't need to be done when home manager is being run as
   # a submodule inside of another system manager, like nix-darwin. They don't need to
@@ -222,30 +308,28 @@ mkMerge [
     # [1]: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
     news.display = "silent";
 
-    systemd = optionalAttrs isLinux {
-      user = {
-        services.home-manager-change-check = {
-          Unit = {
-            Description = "Check for home-manager changes on the remote";
-          };
-          Service = {
-            Type = "oneshot";
-            ExecStartPre = "/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'";
-            ExecStart = "${remote-changes-check}/bin/remote-changes-check";
-          };
+    systemd.user = optionalAttrs isLinux {
+      services.home-manager-change-check = {
+        Unit = {
+          Description = "Check for home-manager changes on the remote";
         };
+        Service = {
+          Type = "oneshot";
+          ExecStartPre = "/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'";
+          ExecStart = "${remote-changes-check}/bin/remote-changes-check";
+        };
+      };
 
-        timers.home-manager-change-check = {
-          Unit = {
-            Description = "Check for home-manager changes on the remote";
-          };
-          Timer = {
-            OnCalendar = "daily";
-            Persistent = true;
-          };
-          Install = {
-            WantedBy = [ "timers.target" ];
-          };
+      timers.home-manager-change-check = {
+        Unit = {
+          Description = "Check for home-manager changes on the remote";
+        };
+        Timer = {
+          OnCalendar = "daily";
+          Persistent = true;
+        };
+        Install = {
+          WantedBy = [ "timers.target" ];
         };
       };
     };
