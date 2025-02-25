@@ -136,8 +136,8 @@ run = '''
   } |
     # This removes the final character, which is the null byte '\0'. This is
     # necessary because lefthook expects the file names to be separated by a
-    # '\0' so a trailing one would result in any empty string being passed in as
-    # a file.
+    # '\0' so a trailing one would result in an empty string being passed in as
+    # a file name.
     head -c -1 |
     lefthook run check --files-from-stdin --jobs "$joined_jobs"
 '''
@@ -163,8 +163,8 @@ run = '''
   } |
     # This removes the final character, which is the null byte '\0'. This is
     # necessary because lefthook expects the file names to be separated by a
-    # '\0' so a trailing one would result in any empty string being passed in as
-    # a file.
+    # '\0' so a trailing one would result in an empty string being passed in as
+    # a file name.
     head -c -1 |
     lefthook run check --files-from-stdin --jobs "$joined_jobs"
 '''
