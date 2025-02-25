@@ -60,11 +60,16 @@ in
         done
       ''
       + optionalString isLinux ''
-        sudo cp ${pkgs.shadow}/bin/newuidmap /usr/local/bin/newuidmap
-        # These are the user, group, and permissions that were set on the newuidmap
-        # installed by APT
-        sudo chown root:root /usr/local/bin/newuidmap
-        sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' /usr/local/bin/newuidmap
+        for file in ${pkgs.shadow}/bin/newuidmap ${pkgs.shadow}/bin/newgidmap; do
+          basename="''${file##*/}"
+          destination=/usr/local/bin/"$basename"
+
+          sudo cp "$file" "$destination"
+          # These are the user, group, and permissions that were set on the newuidmap
+          # installed by APT
+          sudo chown root:root "$destination"
+          sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
+        done
       ''
     );
   };
