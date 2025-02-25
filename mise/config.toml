@@ -130,10 +130,16 @@ run = '''
   joined_jobs="${joined_jobs::-1}"
   # The first git command uses merge-base in case the current branch is behind the
   # default branch. The second git command prints untracked files
-  { \
-    git diff -z --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"; \
-    git ls-files -z --others --exclude-standard; \
-  } | lefthook run check --files-from-stdin --jobs "$joined_jobs"
+  {
+    git diff -z --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"
+    git ls-files -z --others --exclude-standard
+  } |
+    # This removes the final character, which is the null byte '\0'. This is
+    # necessary because lefthook expects the file names to be separated by a
+    # '\0' so a trailing one would result in any empty string being passed in as
+    # a file.
+    head -c -1 |
+    lefthook run check --files-from-stdin --jobs "$joined_jobs"
 '''
 
 [tasks.check-all]
@@ -151,10 +157,16 @@ run = '''
   joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
   joined_jobs="${joined_jobs::-1}"
   # The second git command prints untracked files
-  { \
-    git ls-files -z; \
-    git ls-files -z --others --exclude-standard; \
-  } | lefthook run check --files-from-stdin --jobs "$joined_jobs"
+  {
+    git ls-files -z
+    git ls-files -z --others --exclude-standard
+  } |
+    # This removes the final character, which is the null byte '\0'. This is
+    # necessary because lefthook expects the file names to be separated by a
+    # '\0' so a trailing one would result in any empty string being passed in as
+    # a file.
+    head -c -1 |
+    lefthook run check --files-from-stdin --jobs "$joined_jobs"
 '''
 
 [tasks.check-autocomplete]

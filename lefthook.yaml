@@ -44,7 +44,14 @@ commit-msg:
 pre-commit:
   jobs:
     - name: pre-commit-check
-      run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
+      run: |
+        printf '%s\0' {staged_files} |
+          # This removes the final character, which is the null byte '\0'. This is
+          # necessary because lefthook expects the file names to be separated by a
+          # '\0' so a trailing one would result in any empty string being passed in as
+          # a file.
+          head -c -1 |
+          lefthook run check --files-from-stdin
 
 post-merge:
   jobs:
