@@ -60,9 +60,11 @@ in
         done
       ''
       + optionalString isLinux ''
-        # podman needs newuidmap which must have setuid and I don't feel like making
-        # wrappers
-        sudo apt-get install --assume-yes uidmap 1>/dev/null
+        sudo cp ${pkgs.shadow}/bin/newuidmap /usr/local/bin/newuidmap
+        # These are the user, group, and permissions that were set on the newuidmap
+        # installed by APT
+        sudo chown root:root /usr/local/bin/newuidmap
+        sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' /usr/local/bin/newuidmap
       ''
     );
   };
