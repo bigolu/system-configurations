@@ -53,13 +53,16 @@ let
       nix
     ];
     text = ''
-      function failure_handler {
-        if (($? == 0)); then
-          return
+      function exit_handler {
+        if (($? != 0)); then
+          echo 'Pull failed, run "mise run pull" to try again.' >&2
         fi
-        echo 'Pull failed, run "mise run pull" to try again.'
+        if [[ ''${did_stash:-} == true ]]; then
+          git stash pop 1>/dev/null
+        fi
       }
-      trap failure_handler EXIT
+      trap exit_handler EXIT
+
 
       function direnv_wrapper {
         ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
@@ -69,17 +72,14 @@ let
       PATH="${config.system.profile}/sw/bin:$PATH"
       cd "${repositoryDirectory}"
 
-      rm -f ~/.local/state/nvim/*.log
-      rm -f ~/.local/state/nvim/undo/*
+      if [[ -n "$(git status --porcelain)" ]]; then
+        git stash --include-untracked --message 'Stashed for system pull' 1>/dev/null
+        did_stash=true
+      fi
 
       git fetch
       if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
           echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
-
-          if [[ -n "$(git status --porcelain)" ]]; then
-              git stash --include-untracked --message 'Stashed for system pull'
-          fi
-
           direnv_wrapper exec . git pull
           direnv_wrapper exec . mise run sync
       else
