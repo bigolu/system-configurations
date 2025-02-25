@@ -2,7 +2,6 @@
 
 {
   pkgs,
-  config,
   lib,
   isGui,
   repositoryDirectory,
@@ -14,9 +13,6 @@ let
   inherit (lib)
     optionalAttrs
     optionals
-    hm
-    escapeShellArg
-    fileset
     ;
   inherit (pkgs) writeText;
   inherit (pkgs.stdenv) isDarwin isLinux;
@@ -64,23 +60,6 @@ in
         wl-clipboard
       ];
 
-    activation = optionalAttrs isLinuxGui {
-      # TODO: Flatpak didn't read the overrides when the files were symlinks to the
-      # Nix store so I'm making copies instead.
-      flatpakOverrides = hm.dag.entryAfter [ "writeBoundary" ] ''
-        target=${escapeShellArg "${config.xdg.dataHome}/flatpak/overrides/"}
-        mkdir -p "$target"
-        cp --no-preserve=mode --dereference ${
-          escapeShellArg (
-            fileset.toSource {
-              root = projectRoot + /dotfiles/flatpak/overrides;
-              fileset = projectRoot + /dotfiles/flatpak/overrides;
-            }
-          )
-        }/* "$target"
-      '';
-    };
-
     file = optionalAttrs isDarwin {
       ".hammerspoon/Spoons/EmmyLua.spoon" = {
         source = "${inputs.spoons}/Source/EmmyLua.spoon";
@@ -91,7 +70,15 @@ in
     };
   };
 
-  services.flatpak.enable = isLinuxGui;
+  services.flatpak = {
+    enable = isLinuxGui;
+    overrides.global = {
+      Context.filesystems = [
+        "xdg-config/gtk-4.0:ro"
+        "/nix"
+      ];
+    };
+  };
 
   # When switching generations, stop obsolete services and start ones that are wanted
   # by active units.

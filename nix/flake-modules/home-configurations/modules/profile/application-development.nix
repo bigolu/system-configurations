@@ -8,9 +8,20 @@ let
   inherit (lib)
     optionals
     optionalAttrs
+    optionalString
     hm
+    escapeShellArgs
     ;
   inherit (pkgs.stdenv) isLinux isDarwin;
+
+  podmanPathsToCopy =
+    [
+      "${pkgs.podman}/bin"
+      "${pkgs.podman}/libexec/podman"
+    ]
+    ++ optionals isDarwin [
+      "${pkgs.podman-mac-helper}/bin"
+    ];
 in
 {
   imports = [
@@ -26,21 +37,34 @@ in
     podman
   ];
 
-  services.flatpak.packages = optionals (isLinux && isGui) [
-    "io.podman_desktop.PodmanDesktop"
-  ];
+  services.flatpak = optionalAttrs (isLinux && isGui) {
+    packages = [
+      "io.podman_desktop.PodmanDesktop"
+    ];
+    # Podman Desktop uses X11, but since I set `ELECTRON_OZONE_PLATFORM_HINT=auto` it
+    # tries to use Wayland instead, which requires the following permissions.
+    overrides."io.podman_desktop.PodmanDesktop".Context.sockets = [
+      "system-bus"
+      "wayland"
+    ];
+  };
 
-  system.activation = optionalAttrs isDarwin {
-    # TODO: So Podman Desktop on macOS can find it. Maybe they could launch a login
+  system.activation = {
+    # TODO: So Podman Desktop can find them. Maybe they could launch a login
     # shell to get the PATH instead or respect the `engine.helper_binaries_dir` field
     # in `$XDG_CONFIG_HOME/containers/containers.conf`.
-    addPodmanPathToConfig = hm.dag.entryAfter [ "writeBoundary" ] ''
-      sudo cp \
-        ${pkgs.podman}/bin/* \
-        ${pkgs.podman}/libexec/podman/* \
-        ${pkgs.podman-mac-helper}/bin/* \
-        /usr/local/bin/
-    '';
+    copyPodmanPrograms = hm.dag.entryAfter [ "writeBoundary" ] (
+      ''
+        for path in ${escapeShellArgs podmanPathsToCopy}; do
+          sudo cp "$path/"* /usr/local/bin/
+        done
+      ''
+      + optionalString isLinux ''
+        # podman needs newuidmap which must have setuid and I don't feel like making
+        # wrappers
+        sudo apt-get install --assume-yes uidmap 1>/dev/null
+      ''
+    );
   };
 
   repository = {
@@ -57,6 +81,8 @@ in
         recursive = true;
       };
       "direnv/direnv.toml".source = "direnv/direnv.toml";
+      "containers/policy.json".source = "containers/policy.json";
+      "containers/registries.conf".source = "containers/registries.conf";
     };
   };
 }
