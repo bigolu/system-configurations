@@ -79,7 +79,7 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nix-flatpak.url = "https://flakehub.com/f/gmodena/nix-flatpak/*.tar.gz";
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     # There's a higher chance that something builds on stable, since stable only
     # provides conservative updates e.g. security patches, so I'll keep this just in
