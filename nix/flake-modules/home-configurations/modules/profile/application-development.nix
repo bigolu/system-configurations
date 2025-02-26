@@ -1,27 +1,17 @@
 {
   pkgs,
-  isGui,
   lib,
   ...
 }:
 let
   inherit (lib)
-    optionals
     optionalAttrs
     optionalString
     hm
     escapeShellArgs
+    makeBinPath
     ;
   inherit (pkgs.stdenv) isLinux isDarwin;
-
-  podmanPathsToCopy =
-    [
-      "${pkgs.podman}/bin"
-      "${pkgs.podman}/libexec/podman"
-    ]
-    ++ optionals isDarwin [
-      "${pkgs.podman-mac-helper}/bin"
-    ];
 in
 {
   imports = [
@@ -30,14 +20,40 @@ in
     ../terminal.nix
   ];
 
-  home.packages = with pkgs; [
-    cloudflared
-    doppler
-    direnv
-    podman
-  ];
+  home = {
+    packages = with pkgs; [
+      cloudflared
+      doppler
+      direnv
+      podman
+    ];
 
-  services.flatpak = optionalAttrs (isLinux && isGui) {
+    activation = optionalAttrs isDarwin {
+      createPodmanMachine =
+        let
+          dependencies = makeBinPath (
+            with pkgs;
+            [
+              podman
+              jq
+            ]
+          );
+        in
+        lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          OLD_PATH="$PATH"
+          PATH="${dependencies}:$PATH"
+
+          machine_count=$(podman machine list --format json | jq length)
+          if (($machine_count == 0)); then
+            podman machine init --cpus 6 --memory 7629 --disk-size 55 --rootful
+          fi
+
+          PATH="$OLD_PATH"
+        '';
+    };
+  };
+
+  services.flatpak = optionalAttrs isLinux {
     packages = [
       "io.podman_desktop.PodmanDesktop"
     ];
@@ -53,25 +69,32 @@ in
     # TODO: So Podman Desktop can find them. Maybe they could launch a login
     # shell to get the PATH instead or respect the `engine.helper_binaries_dir` field
     # in `$XDG_CONFIG_HOME/containers/containers.conf`.
-    copyPodmanPrograms = hm.dag.entryAfter [ "writeBoundary" ] (
-      ''
-        for path in ${escapeShellArgs podmanPathsToCopy}; do
-          sudo cp "$path/"* /usr/local/bin/
-        done
-      ''
-      + optionalString isLinux ''
-        for file in ${pkgs.shadow}/bin/newuidmap ${pkgs.shadow}/bin/newgidmap; do
-          basename="''${file##*/}"
-          destination=/usr/local/bin/"$basename"
+    copyPodmanPrograms =
+      let
+        podmanPathsToCopy = [
+          "${pkgs.podman}/bin"
+          "${pkgs.podman}/libexec/podman"
+        ];
+      in
+      hm.dag.entryAfter [ "writeBoundary" ] (
+        ''
+          for path in ${escapeShellArgs podmanPathsToCopy}; do
+            sudo cp "$path/"* /usr/local/bin/
+          done
+        ''
+        + optionalString isLinux ''
+          for file in ${pkgs.shadow}/bin/newuidmap ${pkgs.shadow}/bin/newgidmap; do
+            basename="''${file##*/}"
+            destination=/usr/local/bin/"$basename"
 
-          sudo cp "$file" "$destination"
-          # These are the user, group, and permissions that were set on the newuidmap
-          # installed by APT
-          sudo chown root:root "$destination"
-          sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
-        done
-      ''
-    );
+            sudo cp "$file" "$destination"
+            # These are the user, group, and permissions that were set on the newuidmap
+            # installed by APT
+            sudo chown root:root "$destination"
+            sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
+          done
+        ''
+      );
   };
 
   repository = {

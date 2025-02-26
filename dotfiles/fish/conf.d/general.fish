@@ -276,11 +276,3 @@ end
 abbr --add c \
     --position anywhere \
     --function _git_commit
-
-# podman
-if test (uname) != Linux
-    function podman --wraps podman
-        command podman machine start 1>/dev/null 2>&1
-        command podman $argv
-    end
-end
