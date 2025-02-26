@@ -6,9 +6,7 @@
 let
   inherit (lib)
     optionalAttrs
-    optionalString
     hm
-    escapeShellArgs
     makeBinPath
     ;
   inherit (pkgs.stdenv) isLinux isDarwin;
@@ -65,36 +63,22 @@ in
     ];
   };
 
-  system.activation = {
-    # TODO: So Podman Desktop can find them. Maybe they could launch a login
-    # shell to get the PATH instead or respect the `engine.helper_binaries_dir` field
-    # in `$XDG_CONFIG_HOME/containers/containers.conf`.
-    copyPodmanPrograms =
-      let
-        podmanPathsToCopy = [
-          "${pkgs.podman}/bin"
-          "${pkgs.podman}/libexec/podman"
-        ];
-      in
-      hm.dag.entryAfter [ "writeBoundary" ] (
-        ''
-          for path in ${escapeShellArgs podmanPathsToCopy}; do
-            sudo cp "$path/"* /usr/local/bin/
-          done
-        ''
-        + optionalString isLinux ''
-          for file in ${pkgs.shadow}/bin/newuidmap ${pkgs.shadow}/bin/newgidmap; do
-            basename="''${file##*/}"
-            destination=/usr/local/bin/"$basename"
+  system = {
+    systemd.units = [
+      "${pkgs.podman}/lib/systemd/system/podman.socket"
+      "${pkgs.podman}/lib/systemd/system/podman.service"
+    ];
 
-            sudo cp "$file" "$destination"
-            # These are the user, group, and permissions that were set on the newuidmap
-            # installed by APT
-            sudo chown root:root "$destination"
-            sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
-          done
-        ''
-      );
+    activation = {
+      # TODO: So Podman Desktop can find them. Maybe they could launch a login
+      # shell to get the PATH instead or respect the `engine.helper_binaries_dir` field
+      # in `$XDG_CONFIG_HOME/containers/containers.conf`.
+      copyPodmanPrograms = hm.dag.entryAfter [ "writeBoundary" ] ''
+        for path in "${pkgs.podman}/bin" "${pkgs.podman}/libexec/podman"; do
+          sudo cp "$path/"* /usr/local/bin/
+        done
+      '';
+    };
   };
 
   repository = {

@@ -112,10 +112,11 @@ in
             chronic sudo systemctl link "$unit_name"
             chronic sudo systemctl enable "$unit_base_name"
 
+            # - If I don't this then `systemctl status <name>` shows that any timer
+            #   set up here failed because it 'vanished'
+            # - socket units need to be started
             extension="''${unit_base_name##*.}"
-            if [[ $extension == 'timer' ]]; then
-              # If I don't this then `systemctl status <name` shows that the timer failed
-              # because it 'vanished'
+            if [[ $extension == 'timer' || $extension == 'socket' ]]; then
               chronic sudo systemctl start "$unit_base_name"
             fi
           }
