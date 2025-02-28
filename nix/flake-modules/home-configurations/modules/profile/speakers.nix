@@ -1,7 +1,6 @@
 {
   lib,
   pkgs,
-  isGui,
   utils,
   repositoryDirectory,
   ...
@@ -31,7 +30,7 @@ let
     # necessary for config.systemd.units.
     "${writeTextDir speakerServiceName (readFile processedTemplate)}/${speakerServiceName}";
 in
-optionalAttrs isGui {
+{
   repository.home.file = optionalAttrs isDarwin {
     ".hammerspoon/Spoons/Speakers.spoon".source = "${smartPlugRoot}/mac_os/Speakers.spoon";
   };

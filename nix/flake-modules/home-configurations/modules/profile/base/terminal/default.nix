@@ -14,10 +14,13 @@ let
 in
 {
   imports = [
-    ../git.nix
-    ../fzf.nix
-    ../terminal.nix
-    ../ripgrep-all.nix
+    ./fish.nix
+    ./fzf.nix
+    ./ghostty.nix
+    ./git.nix
+    ./neovim.nix
+    ./nix.nix
+    ./ripgrep-all.nix
   ];
 
   home.packages =
@@ -96,7 +99,7 @@ in
     };
   };
 
-  home.activation.batSetup = hm.dag.entryAfter [
-    "linkGeneration"
-  ] "${getExe pkgs.bat} cache --build 1>/dev/null 2>&1";
+  home.activation.batSetup = hm.dag.entryAfter [ "linkGeneration" ] ''
+    ${getExe pkgs.bat} cache --build 1>/dev/null 2>&1
+  '';
 }

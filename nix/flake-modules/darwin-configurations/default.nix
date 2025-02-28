@@ -111,13 +111,10 @@ in
 makeOutputs {
   mac = {
     system = system.x86_64-darwin;
-    modules = [
-      ./modules/profile/base.nix
-    ];
+    modules = [ ./modules/profile/base ];
     homeModules = [
-      "${homeManagerModuleRoot}/profile/system-administration.nix"
-      "${homeManagerModuleRoot}/profile/application-development.nix"
-      "${homeManagerModuleRoot}/profile/personal.nix"
+      "${homeManagerModuleRoot}/profile/application-development"
+      "${homeManagerModuleRoot}/profile/speakers.nix"
     ];
   };
 }

@@ -7,14 +7,9 @@
 let
   inherit (lib) optionalAttrs optionals;
   inherit (pkgs.stdenv) isLinux;
-  isLinuxGui = isLinux && isGui;
 in
 optionalAttrs isGui {
-  home.packages =
-    with pkgs;
-    optionals isLinuxGui [
-      ghostty
-    ];
+  home.packages = optionals isLinux [ pkgs.ghostty ];
 
   repository.xdg.configFile =
     {

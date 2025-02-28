@@ -33,16 +33,14 @@ let
 in
 {
   imports = [
-    ../default-shells.nix
-    ../fish.nix
-    ../nix.nix
-    ../neovim.nix
-    ../utility/repository.nix
-    ../utility/system.nix
-    ../home-manager.nix
-    ../fonts.nix
-    ../keyboard-shortcuts.nix
+    ./utility/repository.nix
+    ./utility/system.nix
     inputs.nix-flatpak.homeManagerModules.nix-flatpak
+    ./home-manager.nix
+    ./terminal
+    ./keyboard-shortcuts.nix
+    ./fonts.nix
+    ./default-shells.nix
   ];
 
   system.file."/etc/sudoers.d/10-bigolu".source = sudoersFile;

@@ -4,10 +4,8 @@
 }:
 {
   imports = [
-    ../firefox-developer-edition.nix
-    ../git.nix
-    ../terminal.nix
-    ../podman.nix
+    ./firefox-developer-edition.nix
+    ./podman.nix
   ];
 
   home.packages = with pkgs; [

@@ -23,7 +23,8 @@ let
 
     myBuilder = {
       # Setting this will erase the VM state, but is necessary for certain config
-      # changes[1]. Only do it when necessary to avoid excessive rebuilds.
+      # changes[1]. Only do it when necessary since it would clear the VM's build
+      # cache.
       #
       # [1]: https://github.com/LnL7/nix-darwin/pull/850
       # ephemeral = true;
