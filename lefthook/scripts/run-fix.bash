@@ -43,8 +43,8 @@ function main {
   #     to fail.
   #
   # Why it should fail locally:
-  #   - This failure will cause the pre-commit hook to abort the push so I can fix
-  #     up my commits.
+  #   - This failure will cause the pre-commit hook to abort so I can see what
+  #     fixes were made and, if everything looks good, include them in the commit.
   #   - The failures let me know which fix commands actually fixed anything since
   #     lefthook will highlight failed commands differently.
   exit 1
