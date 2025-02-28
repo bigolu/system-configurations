@@ -37,6 +37,7 @@ in
     ./utility/system.nix
     inputs.nix-flatpak.homeManagerModules.nix-flatpak
     ./home-manager.nix
+    ./nix.nix
     ./terminal
     ./keyboard-shortcuts.nix
     ./fonts.nix

@@ -19,7 +19,6 @@ in
     ./ghostty.nix
     ./git.nix
     ./neovim.nix
-    ./nix.nix
     ./ripgrep-all.nix
   ];
 
