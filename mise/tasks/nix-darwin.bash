@@ -26,10 +26,11 @@ function undo_hash_file_changes {
 }
 trap undo_hash_file_changes EXIT
 
-# Before applying the config with the real Linux builder, apply the config with the
-# bootstrap builders.
+# Apply the config with the bootstrap builders.
 builder_file='nix/flake-modules/darwin-configurations/modules/nix/linux-builder-config-name.txt'
-for builder in bootstrap1 bootstrap2 "$(<"$builder_file")"; do
+my_builder="$(<"$builder_file")"
+for builder in bootstrap1 bootstrap2; do
   echo "$builder" >"$builder_file"
   darwin-rebuild switch --flake .#"${usage_configuration:?}" |& nom
 done
+echo "$my_builder" >"$builder_file"
