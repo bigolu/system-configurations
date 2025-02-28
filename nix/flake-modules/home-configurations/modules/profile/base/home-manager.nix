@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   configName,
@@ -19,6 +18,7 @@ let
     hm
     getExe
     optionals
+    makeBinPath
     ;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs) writeShellApplication;
@@ -30,16 +30,19 @@ let
     runtimeInputs = with pkgs; [
       nix
       coreutils
+      home-manager
+      darwin-rebuild
     ];
     text = ''
       if [[ $(uname) == 'Linux' ]]; then
-        ${getExe pkgs.home-manager} \
+        home-manager \
           switch \
           -b backup \
           --flake ${repositoryDirectory}#${configName} \
           "$@" |& nom
       else
-        ${getExe pkgs.darwin-rebuild} switch \
+        darwin-rebuild \
+          switch \
           --flake ${repositoryDirectory}#${configName} \
           "$@" |& nom
       fi
@@ -85,8 +88,10 @@ let
         ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
       }
 
-      # TODO: So `mise` has access to `system-config-apply`, not a great solution
-      PATH="${config.home.profileDirectory}/bin:$PATH"
+      # TODO: So `mise` has access to `system-config-apply`. The problem is that
+      # the system-* programs are not available in the package set so I can't
+      # declare them as a dependency.
+      PATH="${makeBinPath [ system-config-apply ]}:$PATH"
 
       cd ${repositoryDirectory}
 
