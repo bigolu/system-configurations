@@ -45,6 +45,7 @@ let
         home-manager = {
           inherit extraSpecialArgs;
           useGlobalPkgs = true;
+          backupFileExtension = "backup";
           # This makes home-manager install packages to the same path that it
           # normally does, ~/.nix-profile. Though this is the default now, they
           # are considering defaulting to true later so I'm explicitly setting

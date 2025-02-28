@@ -10,13 +10,11 @@
     ../podman.nix
   ];
 
-  home = {
-    packages = with pkgs; [
-      cloudflared
-      doppler
-      direnv
-    ];
-  };
+  home.packages = with pkgs; [
+    cloudflared
+    doppler
+    direnv
+  ];
 
   repository = {
     home.file = {

@@ -30,6 +30,7 @@ let
     text = ''
       ${config.home.profileDirectory}/bin/home-manager \
         switch \
+        -b backup \
         --flake ${repositoryDirectory}#${configName} \
         "$@" |& nom
     '';

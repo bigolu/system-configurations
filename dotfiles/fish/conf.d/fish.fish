@@ -300,6 +300,14 @@ function _reload_fish --on-variable _fish_reload_indicator
     exec fish
 end
 
+function _maybe_escape --argument-names token
+    if test (string sub --start 1 --length 1 -- $token) != '~'
+        string escape --style script -- $token
+    else
+        echo -- $token
+    end
+end
+
 # Bash-Style history expansion
 function _bash_style_history_expansion
     set token "$argv[1]"
@@ -309,9 +317,9 @@ function _bash_style_history_expansion
     if test "$token" = '!!'
         echo "$last_command"
     else if test "$token" = '!^'
-        string escape --style script "$last_command_tokens[1]"
+        _maybe_escape $last_command_tokens[1]
     else if test "$token" = '!$'
-        string escape --style script "$last_command_tokens[-1]"
+        _maybe_escape $last_command_tokens[-1]
     else if string match --quiet --regex -- '\!\-?\d+:?' "$token"
         set last_command_token_index (string match --regex -- '\-?\d+' "$token")
         set absolute_value (math abs "$last_command_token_index")
@@ -321,11 +329,11 @@ function _bash_style_history_expansion
         if test (string sub --start -1 $token) = ':'
             set escaped
             for item in $last_command_tokens[$last_command_token_index..]
-                set --append escaped (string escape --style script $item)
+                set --append escaped (_maybe_escape $item)
             end
             echo "$escaped"
         else
-            string escape --style script $last_command_tokens[$last_command_token_index]
+            _maybe_escape $last_command_tokens[$last_command_token_index]
         end
     else
         return 1
