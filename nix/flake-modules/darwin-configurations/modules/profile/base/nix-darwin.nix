@@ -29,19 +29,6 @@ let
     '';
   };
 
-  system-config-apply = writeShellApplication {
-    name = "system-config-apply";
-    runtimeInputs = with pkgs; [
-      nix
-      coreutils
-    ];
-    text = ''
-      ${config.system.profile}/sw/bin/darwin-rebuild switch \
-        --flake ${repositoryDirectory}#${configName} \
-        "$@" |& nom
-    '';
-  };
-
   system-config-pull = writeShellApplication {
     name = "system-config-pull";
     runtimeInputs = with pkgs; [
@@ -105,7 +92,6 @@ in
   environment = {
     systemPackages = [
       system-config-preview
-      system-config-apply
       system-config-pull
     ];
   };

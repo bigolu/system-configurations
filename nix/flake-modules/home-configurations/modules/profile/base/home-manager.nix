@@ -27,12 +27,22 @@ let
   # Scripts for switching generations and upgrading flake inputs.
   system-config-apply = writeShellApplication {
     name = "system-config-apply";
+    runtimeInputs = with pkgs; [
+      nix
+      coreutils
+    ];
     text = ''
-      ${config.home.profileDirectory}/bin/home-manager \
-        switch \
-        -b backup \
-        --flake ${repositoryDirectory}#${configName} \
-        "$@" |& nom
+      if [[ $(uname) == 'Linux' ]]; then
+        ${getExe pkgs.home-manager} \
+          switch \
+          -b backup \
+          --flake ${repositoryDirectory}#${configName} \
+          "$@" |& nom
+      else
+        ${getExe pkgs.darwin-rebuild} switch \
+          --flake ${repositoryDirectory}#${configName} \
+          "$@" |& nom
+      fi
     '';
   };
 
@@ -256,6 +266,10 @@ mkMerge [
       # the Home Manager release notes for a list of state version
       # changes in each release.
       stateVersion = "23.11";
+
+      packages = [
+        system-config-apply
+      ];
     };
   }
 
@@ -352,7 +366,6 @@ mkMerge [
 
       packages = [
         system-config-preview
-        system-config-apply
         system-config-pull
       ];
 
