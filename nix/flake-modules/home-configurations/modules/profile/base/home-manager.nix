@@ -49,8 +49,6 @@ let
   system-config-preview = writeShellApplication {
     name = "system-config-preview";
     runtimeInputs = with pkgs; [
-      coreutils
-      gnugrep
       nix
       nvd
     ];
@@ -70,7 +68,6 @@ let
       coreutils
       gitMinimal
       less
-      direnv
       nix
     ];
     text = ''
@@ -90,6 +87,7 @@ let
 
       # TODO: So `mise` has access to `system-config-apply`, not a great solution
       PATH="${config.home.profileDirectory}/bin:$PATH"
+
       cd ${repositoryDirectory}
 
       if [[ -n "$(git status --porcelain)" ]]; then
@@ -106,6 +104,17 @@ let
         # Something probably went wrong so we're trying to pull again even
         # though there's nothing to pull. In which case, just sync.
         direnv_wrapper exec . mise run sync
+      fi
+
+      if [[ $(uname) == 'Darwin' ]]; then
+        # HACK:
+        # https://stackoverflow.com/a/40473139
+        rm -rf "$(/usr/local/bin/brew --prefix)/var/homebrew/locks"
+
+        /usr/local/bin/brew update
+        /usr/local/bin/brew upgrade --greedy
+        /usr/local/bin/brew autoremove
+        /usr/local/bin/brew cleanup
       fi
     '';
   };
@@ -245,6 +254,40 @@ let
   };
 in
 mkMerge [
+  # These are all things that don't need to be done when home manager is being run as
+  # a submodule inside of another system manager, like nix-darwin. They don't need to
+  # be done because the outer system manager will do them.
+  (optionalAttrs (!isHomeManagerRunningAsASubmodule) {
+    home = {
+      inherit username homeDirectory;
+
+      packages = [ system-config-preview ];
+
+      # Show me what changed everytime I switch generations e.g. version updates or
+      # added/removed files.
+      activation = {
+        printGenerationDiff = hm.dag.entryAnywhere ''
+          # On the first activation, there won't be an old generation.
+          if [[ -n "''${oldGenPath+set}" ]] ; then
+            ${getExe pkgs.nvd} --color=never diff $oldGenPath $newGenPath
+          fi
+        '';
+      };
+    };
+
+    nix.package = pkgs.nix;
+
+    # Let Home Manager install and manage itself.
+    programs.home-manager.enable = true;
+
+    # Don't notify me of news updates when I switch generation. Ideally, I'd disable
+    # news altogether since I don't read it. There's an issue open for making this an
+    # option[1].
+    #
+    # [1]: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
+    news.display = "silent";
+  })
+
   {
     # The `man` in nixpkgs is only intended to be used for NixOS, it doesn't work
     # properly on other OS's so I'm disabling it.
@@ -269,6 +312,7 @@ mkMerge [
 
       packages = [
         system-config-apply
+        system-config-pull
       ];
     };
   }
@@ -355,42 +399,5 @@ mkMerge [
         };
       };
     };
-  })
-
-  # These are all things that don't need to be done when home manager is being run as
-  # a submodule inside of another system manager, like nix-darwin. They don't need to
-  # be done because the outer system manager will do them.
-  (optionalAttrs (!isHomeManagerRunningAsASubmodule) {
-    home = {
-      inherit username homeDirectory;
-
-      packages = [
-        system-config-preview
-        system-config-pull
-      ];
-
-      # Show me what changed everytime I switch generations e.g. version updates or
-      # added/removed files.
-      activation = {
-        printGenerationDiff = hm.dag.entryAnywhere ''
-          # On the first activation, there won't be an old generation.
-          if [[ -n "''${oldGenPath+set}" ]] ; then
-            ${getExe pkgs.nvd} --color=never diff $oldGenPath $newGenPath
-          fi
-        '';
-      };
-    };
-
-    nix.package = pkgs.nix;
-
-    # Let Home Manager install and manage itself.
-    programs.home-manager.enable = true;
-
-    # Don't notify me of news updates when I switch generation. Ideally, I'd disable
-    # news altogether since I don't read it. There's an issue open for making this an
-    # option[1].
-    #
-    # [1]: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
-    news.display = "silent";
   })
 ]
