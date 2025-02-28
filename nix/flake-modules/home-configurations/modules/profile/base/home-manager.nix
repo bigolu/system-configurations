@@ -102,59 +102,89 @@ let
 
   remote-changes-check =
     let
-      ghosttyConfig = fileset.toSource {
+      ghosttyConfigDir = fileset.toSource {
         root = projectRoot + /dotfiles;
-        fileset =
-          if isLinux then
-            (projectRoot + /dotfiles/ghostty)
-          else
-            fileset.difference (projectRoot + /dotfiles/ghostty) (projectRoot + /dotfiles/ghostty/linux-config);
+        fileset = projectRoot + /dotfiles/ghostty;
       };
+
+      ghosttyConfigFile = "${
+        fileset.toSource {
+          root = projectRoot + /dotfiles/ghostty;
+          fileset = projectRoot + /dotfiles/ghostty/config;
+        }
+      }/config";
     in
     writeShellApplication {
       name = "remote-changes-check";
 
-      runtimeInputs = with pkgs; [
-        coreutils
-        gitMinimal
-        libnotify
-        ghostty
-      ];
+      runtimeInputs =
+        with pkgs;
+        [
+          coreutils
+          gitMinimal
+          # For ping
+          toybox
+        ]
+        ++ (optionals isLinux [
+          libnotify
+          ghostty
+        ])
+        ++ (optionals isDarwin [ terminal-notifier ]);
 
       text = ''
-        log="$(mktemp --tmpdir 'home_manager_XXXXX')"
+        log="$(mktemp --tmpdir 'sys_config_XXXXX')"
         exec 2>"$log" 1>"$log"
         function failure_handler {
           if (($? == 0)); then
             return
           fi
-          notify-send --app-name 'Home Manager' "The check for changes failed. Check the logs in $log"
+
+          title='System Config'
+          message="The check for changes failed. Check the logs in $log"
+          if [[ $(uname) == 'Linux' ]]; then
+            notify-send --app-name "$title" "$message"
+          else
+            terminal-notifier -title "$title" -message "$message"
+          fi
         }
         trap failure_handler EXIT
+
+        attempts=0
+        while ! ping -c1 example.com && ((attempts < 60)); do
+          attempts=$((attempts + 1))
+          sleep 1
+        done
 
         cd ${repositoryDirectory}
 
         git fetch
         if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
-          # TODO: I want to use action buttons on the notification, but it isn't
-          # working.
-          #
-          # TODO: With `--wait`, `notify-send` only exits if the x button is
-          # clicked. I assume that I want to pull if I click the x button
-          # within one hour. Using `timeout` I can kill `notify-send` once one
-          # hour passes.  This behavior isn't correct based on the `notify-send`
-          # manpage, not sure if the bug is with `notify-send` or my desktop
-          # environment, COSMIC.
-          timeout_exit_code=124
-          set +o errexit
-          timeout 1h notify-send --wait --app-name 'Home Manager' \
-            'There are changes on the remote. To pull, click the "x" button now or after the notification has been dismissed.'
-          exit_code=$?
-          set -o errexit
-          if (( exit_code != timeout_exit_code )); then
-            XDG_CONFIG_HOME=${ghosttyConfig} ghostty \
-              --wait-after-command=true \
-              -e ${system-config-pull}/bin/system-config-pull
+          if [[ $(uname) == 'Linux' ]]; then
+            # TODO: I want to use action buttons on the notification, but it isn't
+            # working.
+            #
+            # TODO: With `--wait`, `notify-send` only exits if the x button is
+            # clicked. I assume that I want to pull if I click the x button
+            # within one hour. Using `timeout` I can kill `notify-send` once one
+            # hour passes.  This behavior isn't correct based on the `notify-send`
+            # manpage, not sure if the bug is with `notify-send` or my desktop
+            # environment, COSMIC.
+            timeout_exit_code=124
+            set +o errexit
+            timeout 1h notify-send --wait --app-name 'Home Manager' \
+              'There are changes on the remote. To pull, click the "x" button now or after the notification has been dismissed.'
+            exit_code=$?
+            set -o errexit
+            if (( exit_code != timeout_exit_code )); then
+              XDG_CONFIG_HOME=${ghosttyConfigDir} ghostty \
+                --wait-after-command=true \
+                -e ${system-config-pull}/bin/system-config-pull
+            fi
+          else
+            terminal-notifier \
+              -title "Nix Darwin" \
+              -message "There are changes on the remote, click here to pull." \
+              -execute 'open -n -a Ghostty --args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'
           fi
         fi
       '';
@@ -230,41 +260,85 @@ mkMerge [
   }
 
   (mkIf isLinux {
-    systemd.user.services.update-system-config-reminder = {
-      Unit = {
-        Description = "Reminder to update system-config dependencies";
+    systemd.user = {
+      services = {
+        update-system-config-reminder = {
+          Unit = {
+            Description = "Reminder to update system-config dependencies";
+          };
+          Service = {
+            ExecStart = getExe update-reminder;
+          };
+        };
+        system-config-change-check = {
+          Unit = {
+            Description = "Check for home-manager changes on the remote";
+          };
+          Service = {
+            Type = "oneshot";
+            ExecStart = getExe remote-changes-check;
+          };
+        };
       };
-      Service = {
-        ExecStart = getExe update-reminder;
-      };
-    };
-    systemd.user.timers.update-system-config-reminder = {
-      Unit = {
-        Description = "Reminder to update system-config dependencies";
-      };
-      Timer = {
-        OnCalendar = "weekly";
-        Persistent = true;
-      };
-      Install = {
-        WantedBy = [ "timers.target" ];
+
+      timers = {
+        update-system-config-reminder = {
+          Unit = {
+            Description = "Reminder to update system-config dependencies";
+          };
+          Timer = {
+            OnCalendar = "weekly";
+            Persistent = true;
+          };
+          Install = {
+            WantedBy = [ "timers.target" ];
+          };
+        };
+        system-config-change-check = {
+          Unit = {
+            Description = "Check for home-manager changes on the remote";
+          };
+          Timer = {
+            OnCalendar = "daily";
+            Persistent = true;
+          };
+          Install = {
+            WantedBy = [ "timers.target" ];
+          };
+        };
       };
     };
   })
 
   (mkIf isDarwin {
-    launchd.agents.update-system-config-reminder = {
-      enable = true;
-      config = {
-        ProgramArguments = [ (getExe update-reminder) ];
-        StartCalendarInterval = [
-          # weekly
-          {
-            Weekday = 1;
-            Hour = 0;
-            Minute = 0;
-          }
-        ];
+    launchd.agents = {
+      update-system-config-reminder = {
+        enable = true;
+        config = {
+          ProgramArguments = [ (getExe update-reminder) ];
+          StartCalendarInterval = [
+            # weekly
+            {
+              Weekday = 1;
+              Hour = 0;
+              Minute = 0;
+            }
+          ];
+        };
+      };
+      system-config-change-check = {
+        enable = true;
+        config = {
+          ProgramArguments = [ (getExe remote-changes-check) ];
+          StartCalendarInterval = [
+            # Since timers that go off when the computer is off never run, I try to
+            # give myself more chances to see the message.
+            # source: https://superuser.com/a/546353
+            { Hour = 10; }
+            { Hour = 16; }
+            { Hour = 20; }
+          ];
+        };
       };
     };
   })
@@ -274,8 +348,6 @@ mkMerge [
   # be done because the outer system manager will do them.
   (optionalAttrs (!isHomeManagerRunningAsASubmodule) {
     home = {
-      # Home Manager needs a bit of information about you and the
-      # paths it should manage.
       inherit username homeDirectory;
 
       packages = [
@@ -307,31 +379,5 @@ mkMerge [
     #
     # [1]: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
     news.display = "silent";
-
-    systemd.user = optionalAttrs isLinux {
-      services.home-manager-change-check = {
-        Unit = {
-          Description = "Check for home-manager changes on the remote";
-        };
-        Service = {
-          Type = "oneshot";
-          ExecStartPre = "/usr/bin/env sh -c 'until ping -c1 example.com; do sleep 1; done;'";
-          ExecStart = "${remote-changes-check}/bin/remote-changes-check";
-        };
-      };
-
-      timers.home-manager-change-check = {
-        Unit = {
-          Description = "Check for home-manager changes on the remote";
-        };
-        Timer = {
-          OnCalendar = "daily";
-          Persistent = true;
-        };
-        Install = {
-          WantedBy = [ "timers.target" ];
-        };
-      };
-    };
   })
 ]

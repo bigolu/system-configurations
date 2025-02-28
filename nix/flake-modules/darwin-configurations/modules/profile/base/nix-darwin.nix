@@ -2,7 +2,6 @@
   config,
   pkgs,
   lib,
-  utils,
   configName,
   homeDirectory,
   username,
@@ -10,8 +9,7 @@
   ...
 }:
 let
-  inherit (utils) projectRoot;
-  inherit (lib) fileset getExe;
+  inherit (lib) getExe;
   inherit (pkgs) writeShellApplication;
 
   system-config-preview = writeShellApplication {
@@ -98,54 +96,11 @@ let
       /usr/local/bin/brew cleanup
     '';
   };
-
-  remote-changes-check =
-    let
-      ghosttyConfigFile = "${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/ghostty;
-          fileset = projectRoot + /dotfiles/ghostty/config;
-        }
-      }/config";
-    in
-    writeShellApplication {
-      name = "remote-changes-check";
-
-      runtimeInputs = with pkgs; [
-        coreutils
-        gitMinimal
-        terminal-notifier
-      ];
-
-      text = ''
-        log="$(mktemp --tmpdir 'nix_darwin_XXXXX')"
-        exec 2>"$log" 1>"$log"
-        function send_failure_notification {
-          if (($? == 0)); then
-            return
-          fi
-          terminal-notifier -title "Nix Darwin" -message "The check for changes failed. Check the logs in $log"
-        }
-        trap send_failure_notification EXIT
-
-        cd "${repositoryDirectory}"
-
-        git fetch
-        if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
-          terminal-notifier \
-            -title "Nix Darwin" \
-            -message "There are changes on the remote, click here to pull." \
-            -execute 'open -n -a Ghostty --args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'
-        fi
-      '';
-    };
 in
 {
   configureLoginShellForNixDarwin = true;
 
-  users.users.${username} = {
-    home = homeDirectory;
-  };
+  users.users.${username}.home = homeDirectory;
 
   environment = {
     systemPackages = [
@@ -164,20 +119,5 @@ in
         ${getExe pkgs.nvd} --color=never diff /run/current-system "$systemConfig"
       fi
     '';
-  };
-
-  launchd.user.agents.nix-darwin-change-check = {
-    serviceConfig.RunAtLoad = false;
-
-    serviceConfig.StartCalendarInterval = [
-      # Since timers that go off when the computer is off never run, I try to
-      # give myself more chances to see the message.
-      # source: https://superuser.com/a/546353
-      { Hour = 10; }
-      { Hour = 16; }
-      { Hour = 20; }
-    ];
-
-    command = ''${remote-changes-check}/bin/remote-changes-check'';
   };
 }
