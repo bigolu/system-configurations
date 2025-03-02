@@ -119,6 +119,7 @@ name:
   gulpfile.js: "  "
   gulpfile.ls: "  "
   hidden: "  "
+  home: "  "
   hostname: "  "
   hosts: "  "
   htoprc: "  "
