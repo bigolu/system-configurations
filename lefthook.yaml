@@ -223,6 +223,10 @@ check:
                 - name: go-mod-tidy
                   glob: gozip/go.{mod,sum}
                   run: "{run_fix} go -C gozip mod tidy"
+                - name: golangci-lint
+                  glob: "*.go"
+                  root: "gozip/"
+                  run: "../{run_fix} golangci-lint run --fix"
                 - name: typos
                   glob:
                     - .editorconfig
@@ -275,10 +279,12 @@ check:
                     parallel: true
                     jobs:
                       - name: golangci-lint
-                        # TODO: Don't want to address these issues yet
-                        skip: true
                         glob: "*.go"
-                        run: golangci-lint run {files}
+                        root: "gozip/"
+                        run: golangci-lint run
+                      - name: gopls
+                        glob: "*.go"
+                        run: gopls check {files}
                       - name: ruff
                         glob: "*.py"
                         run: ruff check {files}

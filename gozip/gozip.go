@@ -84,7 +84,7 @@ func writeString(w io.Writer, str string) {
 	if f, ok := w.(*os.File); ok {
 		// ignore any errors in Sync(), as stdout can't be synced on
 		// some operating systems like Debian 9 (Stretch)
-		f.Sync()
+		f.Sync() //nolint:errcheck
 	}
 }
 func ClearProgressBar() {
@@ -100,9 +100,15 @@ func EndProgress() {
 	if currentBar != nil {
 		// So the spinner stops. We have to do this before calling clear or else the
 		// spinner will just render the bar again.
-		currentBar.Finish()
+		err := currentBar.Finish()
+		if err != nil {
+			log.Fatal("finish progress bar:", err)
+		}
 
-		currentBar.Clear()
+		err = currentBar.Clear()
+		if err != nil {
+			log.Fatal("cleat progress bar:", err)
+		}
 		ClearProgressBar()
 		currentBar = nil
 	}
@@ -174,7 +180,7 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 			continue
 		}
 
-		fs.WalkDir(rootDir, file, func(path string, d fs.DirEntry, err error) error {
+		err = fs.WalkDir(rootDir, file, func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
@@ -228,6 +234,9 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 
 			return nil
 		})
+		if err != nil {
+			return err
+		}
 	}
 
 	return
@@ -260,10 +269,10 @@ func cleanupDir(dir string) error {
 	return nil
 }
 
-func cleanupAndDie(dir string, v ...interface{}) {
+func cleanupAndDie(dir string, v ...any) {
 	err := cleanupDir(dir)
 	if err != nil {
-		log.Fatal(append([]interface{}{"got error:", err, "while cleaning up after:"}, v...))
+		log.Fatal(append([]any{"got error:", err, "while cleaning up after:"}, v...))
 	}
 	log.Fatal(v...)
 }
@@ -392,7 +401,10 @@ func Unzip(zippath string, destination string) (err error) {
 			cleanupAndDie(destination, "unsupported file type in tar", hdr.Typeflag)
 		}
 
-		progressBar.Add(1)
+		err = progressBar.Add(1)
+		if err != nil {
+			cleanupAndDie(destination, "adding to progress bar", err)
+		}
 	}
 
 	return
@@ -547,7 +559,10 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 		}
 		g.Go(func() error {
 			defer sem.Release(1)
-			progressBar.Add(1)
+			err = progressBar.Add(1)
+			if err != nil {
+				return err
+			}
 			if info.Mode()&os.ModeSymlink != 0 {
 				str, err := os.Readlink(path)
 				if err != nil {

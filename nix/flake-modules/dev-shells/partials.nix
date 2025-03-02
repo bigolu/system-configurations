@@ -275,6 +275,7 @@ let
           markdownlint-cli2
           desktop-file-utils
           golangci-lint
+          gopls
           config-file-validator
           ruff
           # for 'go mod tidy'

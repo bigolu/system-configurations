@@ -29,7 +29,10 @@ func main() {
 	flagSet.BoolVar(&create, "create", false, "create zip (arguments: zipfile [files...])")
 	flagSet.BoolVar(&list, "list", false, "list zip (arguments: zipfile)")
 	flagSet.BoolVar(&extract, "extract", false, "extract zip (arguments: zipfile [destination]")
-	flagSet.Parse(os.Args[1:])
+	err = flagSet.Parse(os.Args[1:])
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	args := flagSet.Args()
 	argc := len(args)

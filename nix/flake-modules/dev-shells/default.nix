@@ -66,6 +66,7 @@ moduleContext@{ lib, ... }:
           lefthook
           # This is needed for running lua-language-server
           luaLs
+          gozip
         ];
       };
 
