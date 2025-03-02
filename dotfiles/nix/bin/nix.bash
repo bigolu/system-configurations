@@ -19,13 +19,6 @@ reset='\e[0m'
 function main {
   local -ra nix_args=("$@")
 
-  # Avoid cycle
-  if [[ ${__NIX_WRAPPER:-} == true ]]; then
-    exit 127
-  else
-    export __NIX_WRAPPER=true
-  fi
-
   local real_nix
   real_nix="$(get_real_command)"
 
