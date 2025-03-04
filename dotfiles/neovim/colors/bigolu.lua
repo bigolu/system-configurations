@@ -242,6 +242,9 @@ local groups = {
   Underlined = { underline = true }, -- Text that stands out, HTML links
   Ignore = { ctermfg = 0, fg = colors[0] }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
   Todo = { bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
+  tutorLink = "Underlined",
+  tutorX = "DiagnosticError",
+  tutorOk = "DiagnosticOk",
   -- }}}
 
   -- nvim-treesitter-context {{{
