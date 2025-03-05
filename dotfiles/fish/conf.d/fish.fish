@@ -95,21 +95,14 @@ function _resume_job
     # this should be done whenever a binding produces output (see: man bind)
     commandline -f repaint
 end
-mybind --no-focus \cz _resume_job
+bind ctrl-z _resume_job
 
-# use shift+right-arrow to accept the next suggested word
-mybind \e\[1\;2C forward-word
+bind ctrl-b beginning-of-line
 
-# use ctrl+b to jump to beginning of line
-mybind \cb beginning-of-line
-
-# ctrl+r to refresh terminal, shell, and screen
-#
 # Set the binding on fish_prompt since something else was overriding it.
 function __set_reload_keybind --on-event fish_prompt
-    # I only want this to run once so delete the function.
     functions -e (status current-function)
-    mybind --no-focus \cr 'reset && exec fish && clear'
+    bind ctrl-r 'reset && exec fish && clear'
 end
 
 # search variables
@@ -280,10 +273,10 @@ end
 function __set_fzf_tab_complete --on-event fish_prompt
     # I only want this to run once so delete the function.
     functions -e (status current-function)
-    mybind --no-focus \t _fzf_complete
+    bind tab _fzf_complete
 end
 # Keep normal tab complete on shift+tab to expand wildcards.
-mybind -k btab complete
+bind shift-tab complete
 
 # Reload all fish instances
 function _reload_fish --on-variable _fish_reload_indicator
@@ -344,11 +337,11 @@ abbr --add bash_style_history_expansion \
     --regex '\!(\!|\^|\$|\-?\d+:?)' \
     --function _bash_style_history_expansion
 
-mybind --no-focus \ck __fish_man_page
+bind ctrl-k __fish_man_page
 
 # navigate history
-mybind --key f7 up-or-search
-mybind --key f8 down-or-search
+bind ctrl-\[ up-or-search
+bind ctrl-\] down-or-search
 
 # While the builtin edit_command_buffer retains the cursor position when going from
 # the command line to the editor, this one also retains the cursor position when
@@ -384,7 +377,7 @@ function __edit_commandline
     commandline "$(cat $temp)"
     commandline --cursor "$(cat $cursor_file)"
 end
-mybind \ee __edit_commandline
+bind alt-e __edit_commandline
 
 # fish loads builtin configs after user configs so I have to wait
 # for the builtin binds to be defined. This may change though:
@@ -392,7 +385,7 @@ mybind \ee __edit_commandline
 function __remove_paginate_keybind --on-event fish_prompt
     # I only want this to run once so delete the function.
     functions -e (status current-function)
-    bind --erase --preset \ep
+    bind --erase --preset alt-p
 end
 
 # ghostty

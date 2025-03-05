@@ -74,6 +74,8 @@ in
     overrides.global = {
       Context.filesystems = [
         "xdg-config/gtk-4.0:ro"
+        # Since some of my configs are symlinks to the nix store, flatpaks need
+        # access
         "/nix"
       ];
     };

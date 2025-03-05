@@ -78,7 +78,9 @@
       );
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # TODO: Go back nixpkgs-unstable when it has fish v4.0
+    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     # There's a higher chance that something builds on stable, since stable only

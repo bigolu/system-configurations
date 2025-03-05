@@ -86,7 +86,7 @@ function grep-widget --description 'Search by line, recursively, from current di
         'pattern: ' \
         "rg --no-config --colors=match:none --colors=match:fg:cyan --colors=path:none --colors=line:none --colors=line:fg:8 --colors=column:none --hidden --column --line-number --no-heading --color=always --smart-case --follow -- {q} $__directory_placeholder"
 end
-mybind --no-focus \cg grep-widget
+bind ctrl-g grep-widget
 
 function grep-all-widget --description 'Text search on text, and certain non-text, files, recursively, from current directory'
     set dir (__widgets_get_directory_from_current_token)
@@ -122,14 +122,14 @@ function grep-all-widget --description 'Text search on text, and certain non-tex
     # this should be done whenever a binding produces output (see: man bind)
     commandline -f repaint
 end
-mybind --no-focus \eg grep-all-widget
+bind alt-g grep-all-widget
 
 function ast-grep-widget --description 'Search by AST node, recursively, from current directory'
     __grep_widget \
         'AST pattern: ' \
         'ast-grep --pattern {q} --json=stream '$__directory_placeholder' | jq --raw-output \'"\(.file):\(.range.start.line + 1):\(.range.start.column + 1):\(.lines | gsub("\n"; "'(set_color bryellow)'␤'(set_color normal)'"))"\''
 end
-mybind --no-focus \ea ast-grep-widget
+bind alt-a ast-grep-widget
 
 function man-widget --description 'Search manpages'
     # This command turns 'manpage_name(section) - description' into 'section manpage_name'.
@@ -271,7 +271,7 @@ function file-widget --description 'Search files'
     # this should be done whenever a binding produces output (see: man bind)
     commandline -f repaint
 end
-mybind --no-focus \cf file-widget
+bind ctrl-f file-widget
 
 function directory-widget --description 'Search directories'
     set dir (__widgets_get_directory_from_current_token)
@@ -292,7 +292,7 @@ function directory-widget --description 'Search directories'
 
     commandline -f repaint
 end
-mybind --no-focus \ed directory-widget
+bind alt-d directory-widget
 
 function history-widget --description 'Search history'
     # I'm using the NUL character to delimit history entries since they may span
@@ -320,5 +320,5 @@ end
 function __set_fzf_history_keybind --on-event fish_prompt
     # I only want this to run once so delete the function.
     functions -e (status current-function)
-    mybind --no-focus \ch history-widget
+    bind ctrl-h history-widget
 end

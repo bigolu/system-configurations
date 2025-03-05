@@ -19,6 +19,11 @@ function _start_prompt_at_bottom --on-event fish_prompt
     functions --erase (status current-function)
     tput cup 200 0
 end
+# Set the binding on fish_prompt since something else was overriding it.
+function __set_clear_keybind --on-event fish_prompt
+    functions -e (status current-function)
+end
+bind ctrl-l 'clear && exec fish'
 
 function fish_prompt --description 'Print the prompt'
     # I want the value of $status and $pipestatus for the last command executed
@@ -65,7 +70,7 @@ function fish_prompt --description 'Print the prompt'
     set new_contexts $contexts
     set contexts
     for context in $new_contexts
-        if test -z $context
+        if test -z "$context"
             continue
         end
 
@@ -79,7 +84,7 @@ function fish_prompt --description 'Print the prompt'
 
     set prompt_lines
     for context in $contexts
-        if test -z $context
+        if test -z "$context"
             continue
         end
 

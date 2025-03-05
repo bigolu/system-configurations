@@ -126,8 +126,14 @@ usage = '''
   complete "jobs" run=#"mise run check-autocomplete"#
 '''
 run = '''
-  joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
-  joined_jobs="${joined_jobs::-1}"
+  jobs=({{arg(name="jobs")}})
+  # If an argument is optional and no value is given, the value will be 'false'
+  if [[ ${jobs[0]} == 'false' ]]; then
+    jobs=''
+  else
+    jobs="$(printf '%s,' "${jobs[@]}")"
+    jobs="${jobs::-1}"
+  fi
   # The first git command uses merge-base in case the current branch is behind the
   # default branch. The second git command prints untracked files
   {
@@ -154,8 +160,14 @@ usage = '''
   complete "jobs" run=#"mise run check-autocomplete"#
 '''
 run = '''
-  joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
-  joined_jobs="${joined_jobs::-1}"
+  jobs=({{arg(name="jobs")}})
+  # If an argument is optional and no value is given, the value will be 'false'
+  if [[ ${jobs[0]} == 'false' ]]; then
+    jobs=''
+  else
+    jobs="$(printf '%s,' "${jobs[@]}")"
+    jobs="${jobs::-1}"
+  fi
   # The second git command prints untracked files
   {
     git ls-files -z
@@ -217,8 +229,14 @@ usage = '''
   complete "jobs" run=#"fish -c 'complete --do-complete "lefthook run sync --jobs "'"#
 '''
 run = '''
-  joined_jobs="$(printf '%s,' {{arg(name="jobs")}})"
-  joined_jobs="${joined_jobs::-1}"
+  jobs=({{arg(name="jobs")}})
+  # If an argument is optional and no value is given, the value will be 'false'
+  if [[ ${jobs[0]} == 'false' ]]; then
+    jobs=''
+  else
+    jobs="$(printf '%s,' "${jobs[@]}")"
+    jobs="${jobs::-1}"
+  fi
   {{vars.lefthook_output_env_var}} lefthook run sync --force --jobs "$joined_jobs"
 '''
 

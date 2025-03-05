@@ -7,7 +7,7 @@ if test (uname) != Linux
 end
 
 abbr --add --global pipr 'pipr --no-isolation'
-mybind --no-focus \cp pipr-widget
+bind ctrl-p pipr-widget
 
 function pipr-widget
     set -l commandline (commandline -b)

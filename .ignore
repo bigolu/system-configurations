@@ -3,8 +3,8 @@ flake.lock
 dotfiles/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
 **/.gitkeep
 .vscode/ltex.hiddenFalsePositives.en-US.txt
-nix/flake-modules/bundler/gozip/gomod2nix.toml
-nix/flake-modules/bundler/gozip/go.sum
+gozip/gomod2nix.toml
+gozip/go.sum
 COPYING.txt
 dotfiles/cosmic/config/
 docs/tasks.html
