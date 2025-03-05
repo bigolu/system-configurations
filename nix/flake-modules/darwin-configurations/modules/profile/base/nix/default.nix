@@ -42,8 +42,6 @@ let
 in
 {
   nix = {
-    useDaemon = true;
-
     gc = {
       automatic = true;
       options = "--delete-old";

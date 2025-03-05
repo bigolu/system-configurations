@@ -15,6 +15,11 @@ function _prompt_max_length
     math max\($COLUMNS - 4, 1\)
 end
 
+function _start_prompt_at_bottom --on-event fish_prompt
+    functions --erase (status current-function)
+    tput cup 200 0
+end
+
 function fish_prompt --description 'Print the prompt'
     # I want the value of $status and $pipestatus for the last command executed
     # on the command line so I will store their values now before executing any
@@ -35,7 +40,7 @@ function fish_prompt --description 'Print the prompt'
     if set --query TRANSIENT
         set --erase TRANSIENT
         set -l spacer '  '
-        printf $separator\n(set_color --reverse brblack)' '(path basename (prompt_pwd))$spacer(date +"%T")$spacer(set_color normal; set_color --reverse brblack)''$_color_normal
+        printf \n(set_color --reverse brblack)' '(path basename (prompt_pwd))$spacer(date +"%T")$spacer(set_color normal; set_color --reverse brblack)\n$_color_normal
         return
     else if set --query TRANSIENT_EMPTY
         set --erase TRANSIENT_EMPTY
@@ -85,8 +90,8 @@ function fish_prompt --description 'Print the prompt'
         end
     end
     set --append prompt_lines (_make_line last)
-    set --prepend prompt_lines $separator
-    printf (string join '\n' $prompt_lines)
+    set --prepend prompt_lines '' (set_color brblack)(string repeat --count $COLUMNS -- '─')
+    printf (string join -- '\n' $prompt_lines)
 end
 
 function format_context --argument-names context

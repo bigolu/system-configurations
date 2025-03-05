@@ -75,7 +75,7 @@ abbr --add --position anywhere --global ll 'ls -l'
 # [su]="set-user-ID"
 # [tw]="sticky and other-writable directory"
 # From: https://askubuntu.com/a/884513/1497983
-set --global --export LS_COLORS 'di=0:ln=37:so=37:pi=37:ex=37:bd=37:cd=37:su=37:sg=37:tw=37:ow=37:or=31:mi=31:no=37:*=37'
+set --global --export LS_COLORS 'di=0:ln=37:so=37:pi=37:ex=37:bd=37:cd=37:su=37:sg=37:tw=37:ow=37:or=31:mi=31:no=37:st=37:*=37'
 
 # cd
 abbr --add --global -- - 'cd -'

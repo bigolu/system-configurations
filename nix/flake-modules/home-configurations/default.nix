@@ -7,12 +7,19 @@
 }:
 let
   inherit (utils.homeManager) moduleRoot baseModule;
-  inherit (builtins) attrValues mapAttrs listToAttrs;
+  inherit (builtins)
+    attrValues
+    mapAttrs
+    listToAttrs
+    length
+    ;
+  inherit (inputs.flake-utils.lib) system;
+  inherit (inputs.home-manager.lib) homeManagerConfiguration;
   inherit (lib)
     pipe
-    mergeAttrs
     nameValuePair
     mergeAttrsList
+    mkForce
     ;
 
   makeEmptyPackage =
@@ -24,7 +31,7 @@ let
   # these environment variables and overriding glibcLocales in an overlay would
   # cause too many rebuild so instead I overwrite the environment variables.
   # Now glibcLocales won't be a dependency.
-  emptySessionVariables = lib.mkForce {
+  emptySessionVariables = mkForce {
     LOCALE_ARCHIVE_2_27 = "";
     LOCALE_ARCHIVE_2_11 = "";
   };
@@ -52,13 +59,18 @@ let
 
   portableModule =
     { lib, pkgs, ... }:
+    let
+      inherit (lib) mkForce optionalAttrs;
+      inherit (pkgs) writeText;
+      inherit (pkgs.stdenv) isLinux;
+    in
     {
       # I want a self contained executable so I can't have symlinks that point
       # outside the Nix store.
-      repository.fileSettings.editableInstall = lib.mkForce false;
+      repository.fileSettings.editableInstall = mkForce false;
 
       programs = {
-        home-manager.enable = lib.mkForce false;
+        home-manager.enable = mkForce false;
         nix-index = {
           enable = false;
           symlinkToCacheHome = false;
@@ -66,9 +78,9 @@ let
       };
 
       home = {
-        sessionVariables = lib.attrsets.optionalAttrs pkgs.stdenv.isLinux emptySessionVariables;
+        sessionVariables = optionalAttrs isLinux emptySessionVariables;
 
-        file.".hammerspoon/Spoons/EmmyLua.spoon" = lib.mkForce {
+        file.".hammerspoon/Spoons/EmmyLua.spoon" = mkForce {
           source = makeEmptyPackage pkgs "stub-spoon";
           recursive = false;
         };
@@ -81,17 +93,17 @@ let
 
       systemd.user = {
         # This removes the dependency on `sd-switch`.
-        startServices = lib.mkForce "suggest";
-        sessionVariables = lib.attrsets.optionalAttrs pkgs.stdenv.isLinux emptySessionVariables;
+        startServices = mkForce "suggest";
+        sessionVariables = optionalAttrs isLinux emptySessionVariables;
       };
 
       xdg = {
-        mime.enable = lib.mkForce false;
+        mime.enable = mkForce false;
 
         dataFile = {
-          "fzf/fzf-history.txt".source = pkgs.writeText "fzf-history.txt" "";
+          "fzf/fzf-history.txt".source = writeText "fzf-history.txt" "";
 
-          "nvim/site/parser" = lib.mkForce {
+          "nvim/site/parser" = mkForce {
             source = makeEmptyPackage pkgs "parsers";
           };
         };
@@ -109,6 +121,8 @@ let
       ...
     }:
     {
+      services.flatpak.packages = [ "org.qbittorrent.qBittorrent" ];
+
       system = {
         file."/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/dotfiles/sysctl/local.conf";
 
@@ -151,21 +165,18 @@ let
     }:
     let
       getOutputNameForSystem =
-        system: if (builtins.length systems) == 1 then configName else "${configName}-${system}";
+        system: if (length systems) == 1 then configName else "${configName}-${system}";
 
       makeConfigForSystem =
         system:
         withSystem system (
           { pkgs, ... }:
           let
-            homePrefix = if pkgs.stdenv.isLinux then "/home" else "/Users";
-            homeDirectory =
-              if builtins.hasAttr "homeDirectory" spec then spec.homeDirectory else "${homePrefix}/${username}";
-            repositoryDirectory =
-              if builtins.hasAttr "repositoryDirectory" spec then
-                spec.repositoryDirectory
-              else
-                "${homeDirectory}/code/system-configurations";
+            inherit (pkgs.stdenv) isLinux;
+
+            homePrefix = if isLinux then "/home" else "/Users";
+            homeDirectory = spec.homeDirectory or "${homePrefix}/${username}";
+            repositoryDirectory = spec.repositoryDirectory or "${homeDirectory}/code/system-configurations";
             # SYNC: SPECIAL-ARGS
             extraSpecialArgs = {
               inherit
@@ -180,7 +191,7 @@ let
                 ;
             };
           in
-          inputs.home-manager.lib.homeManagerConfiguration {
+          homeManagerConfiguration {
             modules = modules ++ [ baseModule ];
             inherit extraSpecialArgs;
             pkgs = if overlay == null then pkgs else pkgs.extend overlay;
@@ -189,14 +200,14 @@ let
     in
     pipe systems [
       (map (system: nameValuePair (getOutputNameForSystem system) (makeConfigForSystem system)))
-      builtins.listToAttrs
+      listToAttrs
     ];
 
   makeOutputs = configSpecs: {
     # The 'flake' and 'homeConfigurations' keys need to be static to avoid infinite
     # recursion
     flake.homeConfigurations = pipe configSpecs [
-      (mapAttrs (configName: mergeAttrs { inherit configName; }))
+      (mapAttrs (configName: spec: spec // { inherit configName; }))
       attrValues
       (map makeOutputsForSpec)
       mergeAttrsList
@@ -205,7 +216,7 @@ let
 in
 makeOutputs {
   linux = {
-    systems = with inputs.flake-utils.lib.system; [ x86_64-linux ];
+    systems = with system; [ x86_64-linux ];
     modules = [
       "${moduleRoot}/profile/application-development"
       "${moduleRoot}/profile/speakers.nix"
@@ -214,7 +225,7 @@ makeOutputs {
   };
 
   portable-home = {
-    systems = with inputs.flake-utils.lib.system; [
+    systems = with system; [
       x86_64-linux
       x86_64-darwin
     ];

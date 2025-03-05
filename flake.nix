@@ -143,6 +143,7 @@
         nixpkgs-stable.follows = "nixpkgs-stable";
         # TODO: This doesn't seem to be used. I should see if they can remove it.
         nixpkgs-unstable.follows = "";
+        flake-utils.follows = "flake-utils";
       };
     };
 

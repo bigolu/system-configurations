@@ -1,5 +1,3 @@
-icon_theme = "nerdfont"
-
 # Show hidden files
 default_flags = "h"
 
