@@ -13,8 +13,7 @@ local function make_statusline(...)
   local item_separator_length = #item_separator
 
   local function has_space(index, item)
-    -- TODO: I need to remove aligners because they affect the width, but I
-    -- don't think they should.
+    -- Remove aligners so they don't affect the width
     local length = vim.api.nvim_eval_statusline(item:gsub("%%=", ""), {}).width
     space_remaining = space_remaining - length
     if index > 1 then

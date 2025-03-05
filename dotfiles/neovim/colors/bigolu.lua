@@ -224,6 +224,9 @@ local groups = {
   ["@label.yaml"] = { ctermfg = 7, fg = colors[7] },
   ["@keyword"] = "Keyword", -- Keyword
   ["@keyword.json5"] = { ctermfg = 7, fg = colors[7] },
+  ["@punctuation.delimiter.comment"] = "Comment",
+  ["@keyword.luadoc"] = "Comment",
+  ["@punctuation.delimiter.luadoc"] = "Comment",
   -- }}}
 
   -- misc. {{{
