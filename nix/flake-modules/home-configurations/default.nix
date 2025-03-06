@@ -61,7 +61,6 @@ let
     { lib, pkgs, ... }:
     let
       inherit (lib) mkForce optionalAttrs;
-      inherit (pkgs) writeText;
       inherit (pkgs.stdenv) isLinux;
     in
     {
@@ -99,14 +98,6 @@ let
 
       xdg = {
         mime.enable = mkForce false;
-
-        dataFile = {
-          "fzf/fzf-history.txt".source = writeText "fzf-history.txt" "";
-
-          "nvim/site/parser" = mkForce {
-            source = makeEmptyPackage pkgs "parsers";
-          };
-        };
       };
 
       # to remove the flake registry

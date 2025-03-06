@@ -145,7 +145,7 @@ run = '''
     # '\0' so a trailing one would result in an empty string being passed in as
     # a file name.
     head -c -1 |
-    lefthook run check --files-from-stdin --jobs "$joined_jobs"
+    lefthook run check --files-from-stdin --jobs "$jobs"
 '''
 
 [tasks.check-all]
@@ -178,7 +178,7 @@ run = '''
     # '\0' so a trailing one would result in an empty string being passed in as
     # a file name.
     head -c -1 |
-    lefthook run check --files-from-stdin --jobs "$joined_jobs"
+    lefthook run check --files-from-stdin --jobs "$jobs"
 '''
 
 [tasks.check-autocomplete]
@@ -237,7 +237,7 @@ run = '''
     jobs="$(printf '%s,' "${jobs[@]}")"
     jobs="${jobs::-1}"
   fi
-  {{vars.lefthook_output_env_var}} lefthook run sync --force --jobs "$joined_jobs"
+  {{vars.lefthook_output_env_var}} lefthook run sync --force --jobs "$jobs"
 '''
 
 # Debugging

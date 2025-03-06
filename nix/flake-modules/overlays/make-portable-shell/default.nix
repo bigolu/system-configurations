@@ -2,11 +2,18 @@ final: _prev:
 {
   homeConfig,
   shell,
-  init ? null,
+  activation ? [ ],
 }:
 let
+  inherit (builtins) attrValues catAttrs;
   inherit (final.stdenv) isLinux;
-  inherit (final.lib) fileset escapeShellArg;
+  inherit (final.lib)
+    fileset
+    escapeShellArg
+    getAttrs
+    concatStringsSep
+    pipe
+    ;
 
   # "C.UTF-8/UTF-8" is the locale that perl said wasn't supported so I added it
   # here. "en_US.UTF-8/UTF-8" is the default locale so I'm keeping it just in
@@ -26,7 +33,14 @@ let
   localeArchive =
     if isLinux then "export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive" else "";
 
-  initSnippet = if init != null then "INIT_SNIPPET=${escapeShellArg init}" else "";
+  activationSnippet = pipe activation [
+    (activation: getAttrs activation homeConfig.config.home.activation)
+    attrValues
+    (catAttrs "data")
+    (concatStringsSep "\n")
+    escapeShellArg
+    (snippet: "INIT_SNIPPET=${snippet}")
+  ];
 
   bootstrap = final.resholve.mkDerivation {
     pname = "bootstrap-home-shell";
@@ -72,7 +86,7 @@ in
   ACTIVATION_PACKAGE=${activationPackage}
   USER_SHELL=${escapeShellArg shell}
   ${localeArchive}
-  ${initSnippet}
+  ${activationSnippet}
   source ${bootstrap}/bin/bootstrap
 '')
 // {
