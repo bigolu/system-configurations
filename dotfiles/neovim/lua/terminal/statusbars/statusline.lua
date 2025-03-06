@@ -134,7 +134,7 @@ function StatusLine()
   }
   local diagnostic_list = {}
   for _, datum in ipairs(diagnostic_data) do
-    local count = vim.diagnostic.count(nil, { severity = datum.severity })[datum.severity] or 0
+    local count = vim.diagnostic.count(0, { severity = datum.severity })[datum.severity] or 0
     if count > 0 then
       table.insert(diagnostic_list, datum.icon .. count)
     end
