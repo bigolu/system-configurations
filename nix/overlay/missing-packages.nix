@@ -1,7 +1,7 @@
 { inputs, ... }:
 final: _prev:
 let
-  inherit (final) fetchzip fetchFromGitHub;
+  inherit (final) fetchzip;
   inherit (final.stdenv) isLinux mkDerivation;
   inherit (final.lib) getExe;
   inherit (inputs.flake-utils.lib) system;
@@ -35,14 +35,9 @@ let
   # Normally I'd use overrideAttrs, but that wouldn't affect keyd-application-mapper
   keyd =
     let
-      version = "2.5.0-2a86125";
+      version = "2.5.0-${inputs.keyd.shortRev}";
 
-      src = fetchFromGitHub {
-        owner = "rvaiya";
-        repo = "keyd";
-        rev = "2a86125f5e20532600183449ab610e924dfb536c";
-        hash = "sha256-Dy3zvp2nBMvWJcERVoU1ydaZoROZG+gWIIafyCBAz+U=";
-      };
+      src = inputs.keyd;
 
       pypkgs = final.python3.pkgs;
 

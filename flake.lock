@@ -169,6 +169,22 @@
         "type": "github"
       }
     },
+    "keyd": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1740897272,
+        "narHash": "sha256-GnEhIdh381/Lcn/EY3CBLFpwjgej6G8za2jalSgcPK0=",
+        "owner": "rvaiya",
+        "repo": "keyd",
+        "rev": "9d73e75e9a0dcea1e137ffb793b96bbe4f56e19f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rvaiya",
+        "repo": "keyd",
+        "type": "github"
+      }
+    },
     "neovim-nightly-overlay": {
       "inputs": {
         "flake-compat": [],
@@ -409,6 +425,7 @@
         "gomod2nix": "gomod2nix",
         "home-manager": "home-manager",
         "isd": "isd",
+        "keyd": "keyd",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nix-darwin": "nix-darwin",
         "nix-flatpak": "nix-flatpak",

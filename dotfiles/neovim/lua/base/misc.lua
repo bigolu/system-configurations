@@ -6,7 +6,6 @@ vim.o.swapfile = false
 vim.o.fileformats = "unix,dos,mac"
 vim.o.paragraphs = ""
 vim.o.sections = ""
-vim.g.mapleader = " "
 vim.keymap.set({ "i" }, "jk", "<Esc>")
 -- I use autosave so if trim_trailing_whitespace is enabled, it makes it very hard to
 -- type.
