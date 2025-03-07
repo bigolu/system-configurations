@@ -12,10 +12,6 @@ local has_ttyin = vim.fn.has("ttyin") == 1
 local has_ttyout = vim.fn.has("ttyout") == 1
 IsRunningInTerminal = has_ttyout or has_ttyin
 
--- My configuration is mixed in with my plugin definitions so I have to do
--- everything in here.
-require("plug").load_plugins(function()
-  require("base")
-  require("terminal")
-  require("_vscode")
-end)
+require("base")
+require("terminal")
+require("_vscode")

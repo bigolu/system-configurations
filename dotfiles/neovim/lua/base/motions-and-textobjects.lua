@@ -119,38 +119,33 @@ vim.keymap.set({ "n", "x" }, "[m", function()
   jump_to_long_line("prev")
 end, { remap = true, desc = "Previous long line [last,max]" })
 
+-- jeetsukumaran/vim-indentwise
 -- Motions for levels of indentation
-Plug("jeetsukumaran/vim-indentwise", function()
-  vim.keymap.set(
-    "",
-    "[-",
-    "<Plug>(IndentWisePreviousLesserIndent)",
-    { remap = true, desc = "Last line with lower indent" }
-  )
-  vim.keymap.set(
-    "",
-    "[+",
-    "<Plug>(IndentWisePreviousGreaterIndent)",
-    { remap = true, desc = "Last line with higher indent" }
-  )
-  vim.keymap.set(
-    "",
-    "[=",
-    "<Plug>(IndentWisePreviousEqualIndent)",
-    { remap = true, desc = "Last block with equal indent" }
-  )
-  vim.keymap.set("", "]-", "<Plug>(IndentWiseNextLesserIndent)", { remap = true, desc = "Next line with lower indent" })
-  vim.keymap.set(
-    "",
-    "]+",
-    "<Plug>(IndentWiseNextGreaterIndent)",
-    { remap = true, desc = "Next line with higher indent" }
-  )
-  vim.keymap.set("", "]=", "<Plug>(IndentWiseNextEqualIndent)", { remap = true, desc = "Next block with equal indent" })
-end)
+vim.keymap.set(
+  "",
+  "[-",
+  "<Plug>(IndentWisePreviousLesserIndent)",
+  { remap = true, desc = "Last line with lower indent" }
+)
+vim.keymap.set(
+  "",
+  "[+",
+  "<Plug>(IndentWisePreviousGreaterIndent)",
+  { remap = true, desc = "Last line with higher indent" }
+)
+vim.keymap.set(
+  "",
+  "[=",
+  "<Plug>(IndentWisePreviousEqualIndent)",
+  { remap = true, desc = "Last block with equal indent" }
+)
+vim.keymap.set("", "]-", "<Plug>(IndentWiseNextLesserIndent)", { remap = true, desc = "Next line with lower indent" })
+vim.keymap.set("", "]+", "<Plug>(IndentWiseNextGreaterIndent)", { remap = true, desc = "Next line with higher indent" })
+vim.keymap.set("", "]=", "<Plug>(IndentWiseNextEqualIndent)", { remap = true, desc = "Next block with equal indent" })
 vim.g.indentwise_suppress_keymaps = 1
 
-Plug("andymass/vim-matchup")
+-- andymass/vim-matchup
+--
 -- Don't display off-screen matches in my statusline or a popup window
 vim.g.matchup_matchparen_offscreen = {}
 -- These two highlight the surroundings that the cursor is currently contained within
@@ -162,10 +157,8 @@ vim.keymap.set({ "n", "x" }, "];", "]%", { remap = true })
 vim.keymap.set({ "n", "x" }, "[;", "[%", { remap = true })
 vim.keymap.set({ "n", "x" }, "z;", "z%", { remap = true })
 
-Plug("bkad/CamelCaseMotion")
+-- bkad/CamelCaseMotion
 vim.g.camelcasemotion_key = ","
-
-Plug("nvim-treesitter/nvim-treesitter-textobjects")
 
 local function marker_fold_object()
   -- excluded first and last lines for marker folds

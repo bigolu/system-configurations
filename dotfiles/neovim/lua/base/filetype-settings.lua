@@ -27,9 +27,6 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
   end,
 })
 
--- For indentexpr
-Plug("LnL7/vim-nix")
-
 -- Tweak iskeyword {{{
 vim.api.nvim_create_autocmd("FileType", {
   pattern = "txt",

@@ -8,7 +8,6 @@ vim.o.paragraphs = ""
 vim.o.sections = ""
 vim.g.mapleader = " "
 vim.keymap.set({ "i" }, "jk", "<Esc>")
-Plug("tpope/vim-repeat")
 -- I use autosave so if trim_trailing_whitespace is enabled, it makes it very hard to
 -- type.
 vim.g.editorconfig = false
@@ -232,13 +231,6 @@ vim.api.nvim_create_autocmd("User", {
 -- }}}
 
 -- Substitutions {{{
--- Commands/mappings for working with variants of words. In particular I use its
--- 'S' command for performing substitutions. It has more features than vim's
--- built-in :substitution
---
--- TODO: issue for `inccommand` support: https://github.com/tpope/vim-abolish/issues/107
-Plug("tpope/vim-abolish")
-
 -- Autocommands get executed without `smagic` so I make sure that I explicitly
 -- specify it on the commandline so if my autocommand has a substitute command
 -- it will use `smagic`.

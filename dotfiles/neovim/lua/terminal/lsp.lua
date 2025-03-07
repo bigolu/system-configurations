@@ -112,46 +112,40 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
-Plug("kosayoda/nvim-lightbulb", function()
-  require("nvim-lightbulb").setup({
-    autocmd = { enabled = true },
-    sign = { enabled = false },
-    virtual_text = {
-      enabled = true,
-      text = "",
-      hl = "CodeActionSign",
-    },
-  })
-end)
-
-Plug("neovim/nvim-lspconfig")
+require("nvim-lightbulb").setup({
+  autocmd = { enabled = true },
+  sign = { enabled = false },
+  virtual_text = {
+    enabled = true,
+    text = "",
+    hl = "CodeActionSign",
+  },
+})
 
 -- An error is printed if nix isn't available
 if vim.fn.executable("nix") == 1 then
-  Plug("dundalek/lazy-lsp.nvim", function()
-    local excluded_servers = {
-      "pylyzer",
-      "jedi_language_server",
-      "basedpyright",
-      "pylsp",
-      "nil_ls",
-      "quick_lint_js",
-    }
-    -- TODO: See if it makes sense to upstream this to nvim-lspconfig. Some of
-    -- these files are optional so it wouldn't make sense to upstream those.
-    local maybe_excluded_severs = {
-      denols = { "deno.json", "deno.jsonc" },
-      tailwindcss = { "tailwind.config.js" },
-    }
-    for name, files in pairs(maybe_excluded_severs) do
-      if not next(vim.fs.find(files, { upward = true })) then
-        table.insert(excluded_servers, name)
-      end
+  local excluded_servers = {
+    "pylyzer",
+    "jedi_language_server",
+    "basedpyright",
+    "pylsp",
+    "nil_ls",
+    "quick_lint_js",
+  }
+  -- TODO: See if it makes sense to upstream this to nvim-lspconfig. Some of
+  -- these files are optional so it wouldn't make sense to upstream those.
+  local maybe_excluded_severs = {
+    denols = { "deno.json", "deno.jsonc" },
+    tailwindcss = { "tailwind.config.js" },
+  }
+  for name, files in pairs(maybe_excluded_severs) do
+    if not next(vim.fs.find(files, { upward = true })) then
+      table.insert(excluded_servers, name)
     end
+  end
 
-    require("lazy-lsp").setup({
-      prefer_local = true,
-      excluded_servers = excluded_servers,
-    })
-  end)
+  require("lazy-lsp").setup({
+    prefer_local = true,
+    excluded_servers = excluded_servers,
+  })
 end
