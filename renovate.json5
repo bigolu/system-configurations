@@ -1,3 +1,5 @@
+// The goal with this config is to be able to update everything at once. Then I will
+// manually run the Renovate bot when I want to update.
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [

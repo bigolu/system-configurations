@@ -170,7 +170,7 @@ function _insert_entries_into_commandline
 
     # None of this applies if there are multiple entries
     if test (count $entries) -eq 1
-        # Don't add a space if the entry is an abbreviation.
+        # Don't add a space if the entry is an abbreviation so it can expand.
         #
         # TODO: This assumes that an abbreviation can only be expanded if
         # it's the first token in the commandline.  However, with the flag
@@ -239,6 +239,18 @@ function _fzf_complete
         _insert_entries_into_commandline $candidates
     else if test $candidate_count -gt 1
         set current_token (commandline --current-token --cut-at-cursor)
+
+        set current_token_flags
+        if test -n "$current_token"
+            # I set the current token as the delimiter so I can exclude from what
+            # gets searched.  Since the current token is in the beginning of the
+            # string, it will be the first field index so I'll start searching from
+            # 2.
+            set --append current_token_flags \
+                --delimiter '^'(string escape --style regex -- $current_token) \
+                --nth '2..'
+        end
+
         if set entries ( \
             printf %s\n $candidates \
             # Use a different color for the completion item description
@@ -252,16 +264,11 @@ function _fzf_complete
                 --bind 'backward-eof:abort,start:toggle-preview' \
                 --no-hscroll \
                 --tiebreak=begin,chunk \
-                # I set the current token as the delimiter so I can exclude
-                # from what gets searched.  Since the current token is in the
-                # beginning of the string, it will be the first field index so
-                # I'll start searching from 2.
-                --delimiter '^'(string escape --style regex -- $current_token) \
-                --nth '2..' \
                 --border rounded \
                 --margin 0,2,0,2 \
                 --prompt $current_token \
                 --no-separator \
+                $current_token_flags \
         )
             _insert_entries_into_commandline $entries
         end

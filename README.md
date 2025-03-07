@@ -73,7 +73,7 @@ format "\<config_name> / \<platform>":
    # NOTE: Comments can't go inside the command string because they would end the
    # string.
    nix shell \
-     --override-flake nixpkgs github:NixOS/nixpkgs/199169a2135e6b864a888e89a2ace345703c025d \
+     --override-flake nixpkgs github:NixOS/nixpkgs/02032da4af073d0f6110540c8677f16d4be0117f \
      nixpkgs#fish nixpkgs#gitMinimal nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
      --command fish --no-config --init-command '
        git clone \

@@ -78,9 +78,7 @@
       );
 
   inputs = {
-    # TODO: Go back nixpkgs-unstable when it has fish v4.0
-    # nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     # There's a higher chance that something builds on stable, since stable only
@@ -190,12 +188,6 @@
 
     # Vim Plugins
     # --------------------------------------------------------------------------
-
-    # Keep this until nixpkgs gets a commit from 2/9/25 or newer
-    "vim-plugin-nvim-treesitter-endwise" = {
-      url = "github:RRethy/nvim-treesitter-endwise";
-      flake = false;
-    };
 
     # TODO: Add the plugins below to nixpkgs
     "vim-plugin-vim-caser" = {
