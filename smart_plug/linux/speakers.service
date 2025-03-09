@@ -15,7 +15,7 @@ Before=sleep.target
 # the network.
 #
 # The network manager on my machine, NetworkManager, isn't always turned off through
-# systemd so a workaround is needed. See speakers.nix for details.
+# systemd so a workaround is needed. See turn-off-speakers.bash for details.
 Wants=network.target
 After=network.target
 
