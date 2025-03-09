@@ -31,8 +31,7 @@ if vim.o.background == "dark" then
     ok_bg = "#1e2915",
     inlay_bg = "#292d38",
     inlay_fg = "#abb4c4",
-    string = "#8FBCBB",
-    bracket = "#88C0D0",
+    accent = "#88C0D0",
   }
 else
   colors = {
@@ -61,8 +60,7 @@ else
     ok_bg = "#e8fbee",
     inlay_bg = "#e3e5e7",
     inlay_fg = "#666666",
-    string = "#a40e26",
-    bracket = "#652d90",
+    accent = "#652d90",
   }
 end
 
@@ -112,7 +110,7 @@ local groups = {
 
   -- float {{{
   FloatBorder = { ctermfg = 8, fg = colors[8] }, -- Border of floating windows.
-  FloatTitle = { ctermfg = 14, fg = colors.string, bold = true }, -- Title of floating windows.
+  FloatTitle = { ctermfg = 14, fg = colors.accent, bold = true }, -- Title of floating windows.
   -- }}}
 
   -- syntax groups {{{
@@ -125,9 +123,6 @@ local groups = {
   Label = "Conditional", --   case, default, etc.
   Keyword = "Conditional", --   any other keyword
   Exception = "Conditional", --   try, catch, throw
-
-  String = { ctermfg = 14, fg = colors.string }, --   A string constant: "this is a string"
-  Character = "String", --   A character constant: 'c', '\n'
   -- }}}
 
   -- diffs {{{
@@ -255,7 +250,7 @@ local groups = {
   -- }}}
 
   -- vim-matchup {{{
-  MatchParen = { ctermfg = 14, bold = true, fg = colors.bracket }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
+  MatchParen = { ctermfg = 14, bold = true, fg = colors.accent }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
   MatchWord = {},
   -- }}}
 
@@ -271,7 +266,7 @@ local groups = {
   MiniCursorword = { underline = not vim.o.termguicolors, bg = colors.bg2 },
   MiniCursorwordCurrent = {},
   MiniOperatorsExchangeFrom = "Visual",
-  MiniCompletionActiveParameter = { ctermfg = 14, fg = colors.bracket, },
+  MiniCompletionActiveParameter = { ctermfg = 14, fg = colors.accent, },
   MiniDiffSignAdd = { ctermfg = 2, fg = colors[2] },
   MiniDiffSignChange = { ctermfg = 3, fg = colors[3] },
   MiniDiffSignDelete = { ctermfg = 1, fg = colors[1] },
