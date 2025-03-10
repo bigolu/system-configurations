@@ -8,7 +8,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: cachix/install-nix-action@08dcb3a5e62fa31e2da3d490afc4176ef55ecd72 # v30
+    - uses: cachix/install-nix-action@91a071959513ca103b54280ac0bef5b825791d4d # v31
       with:
         # Use this until a new version of the action is released with nix v2.24.12+
         install_url: https://releases.nixos.org/nix/nix-2.25.3/install
