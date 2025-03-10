@@ -7,6 +7,9 @@
 # signal from logind. To work around this, I register this script to run before
 # NetworkManager turns off any network interface.
 #
+# TODO: I run this on shutdown to be safe, but I should test to see if it's actually
+# necessary.
+#
 # [1]: https://unix.stackexchange.com/a/687849
 if
   [[ $(systemctl is-system-running || true) == 'stopping' ]] ||
