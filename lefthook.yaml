@@ -338,7 +338,13 @@ check:
                         run: renovate-config-validator --strict {files}
                       - name: lua-ls
                         glob: dotfiles/neovim/*.lua
-                        run: ./lefthook/scripts/check-lint-lua-ls.bash
+                        run: |
+                          # --configpath is relative to the directory being checked
+                          # so I'm using an absolute path instead.
+                          lua-language-server \
+                            --logpath "${DIRENV_LAYOUT_DIR:?}/lua-ls-logs" \
+                            --check ./dotfiles/neovim \
+                            --configpath "$PWD/.luarc.json"
                 - name: test
                   group:
                     parallel: true
