@@ -10,8 +10,6 @@ runs:
   steps:
     - uses: cachix/install-nix-action@91a071959513ca103b54280ac0bef5b825791d4d # v31
       with:
-        # Use this until a new version of the action is released with nix v2.24.12+
-        install_url: https://releases.nixos.org/nix/nix-2.25.3/install
         extra_nix_config: |
           # Increase the buffer limit to 124MiB since the buffer would often reach
           # the default limit of 64MiB.
