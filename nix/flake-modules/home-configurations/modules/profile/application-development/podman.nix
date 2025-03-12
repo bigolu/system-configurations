@@ -136,8 +136,8 @@ in
           destination=/usr/local/bin/"$basename"
           sudo cp "$file" "$destination"
 
-          # This the user, group, and mode that was set on the newuidmap installed by
-          # APT.
+          # This is the user, group, and mode that was set on the newuidmap installed
+          # by APT.
           sudo chown root:root "$destination"
           sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
         done
