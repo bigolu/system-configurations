@@ -185,18 +185,13 @@ let
         if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
           if [[ $(uname) == 'Linux' ]]; then
             # TODO: I want to use action buttons on the notification, but it isn't
-            # working.
-            #
-            # TODO: With `--wait`, `notify-send` only exits if the x button is
-            # clicked. I assume that I want to pull if I click the x button
-            # within one hour. Using `timeout` I can kill `notify-send` once one
-            # hour passes.  This behavior isn't correct based on the `notify-send`
-            # manpage, not sure if the bug is with `notify-send` or my desktop
-            # environment, COSMIC.
+            # working. Instead, I assume that I want to pull if I click the
+            # notification within one hour. Using `timeout` I can kill `notify-send`
+            # once one hour passes.
             timeout_exit_code=124
             set +o errexit
             timeout 1h notify-send --wait --app-name 'Home Manager' \
-              'There are changes on the remote. To pull, click the "x" button now or after the notification has been dismissed.'
+              'There are changes on the remote, click here to pull.'
             exit_code=$?
             set -o errexit
             if (( exit_code != timeout_exit_code )); then
@@ -207,7 +202,7 @@ let
           else
             terminal-notifier \
               -title "Nix Darwin" \
-              -message "There are changes on the remote, click here to pull." \
+              -message 'There are changes on the remote, click here to pull.' \
               -execute 'open -n -a Ghostty --args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'
           fi
         fi
@@ -232,18 +227,13 @@ let
 
       if [[ $(uname) == 'Linux' ]]; then
         # TODO: I want to use action buttons on the notification, but it isn't
-        # working.
-        #
-        # TODO: With `--wait`, `notify-send` only exits if the x button is
-        # clicked. I assume that I want to pull if I click the x button
-        # within one hour. Using `timeout` I can kill `notify-send` once one
-        # hour passes.  This behavior isn't correct based on the `notify-send`
-        # manpage, not sure if the bug is with `notify-send` or my desktop
-        # environment, COSMIC.
+        # working. Instead, I assume that I want to pull if I click the notification
+        # within one hour. Using `timeout` I can kill `notify-send` once one hour
+        # passes.
         timeout_exit_code=124
         set +o errexit
         timeout 1h notify-send --wait --app-name 'System Configuration' \
-          'To update dependencies, click the "x" button now or after the notification has been dismissed.'
+          'Click here to update dependencies'
         exit_code=$?
         set -o errexit
         if (( exit_code != timeout_exit_code )); then
