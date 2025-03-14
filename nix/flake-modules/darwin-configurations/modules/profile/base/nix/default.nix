@@ -41,6 +41,8 @@ let
   linuxBuilderConfig = linuxBuilderConfigs.${linuxBuilderConfigName};
 in
 {
+  ids.gids.nixbld = 350;
+
   nix = {
     gc = {
       automatic = true;
