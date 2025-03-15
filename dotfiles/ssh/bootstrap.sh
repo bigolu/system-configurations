@@ -99,17 +99,6 @@ install_terminfo() {
   cp "$char_terminfo_path/$TERM" "$hex_terminfo_path/$TERM"
   export TERMINFO_DIRS="$prefix/terminfo"
 }
-
-show_free_space() {
-  printf '%s\n%s\n' 'Disk Usage' '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
-
-  # -h isn't POSIX so don't count on it
-  df -h 2>/dev/null || df
-
-  # separator line
-  echo
-}
-
 install_terminfo
 
 export BIGOLU_BOOTSTRAP_PREFIX="$prefix"
