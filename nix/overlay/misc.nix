@@ -182,8 +182,10 @@ in
     interpreter = final.bash-script;
   };
 
-  # TODO: Doesn't build on unstable, I should open an issue
-  inherit (inputs.nixpkgs-stable.legacyPackages.${prev.system}) doctoc;
+  # TODO: I should open an issue
+  doctoc = prev.doctoc.overrideAttrs (_old: {
+    dontCheckForBrokenSymlinks = true;
+  });
 
   inherit
     runAsAdmin
