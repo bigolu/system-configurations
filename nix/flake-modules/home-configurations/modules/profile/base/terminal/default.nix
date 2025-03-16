@@ -56,6 +56,8 @@ in
       less
       rsync
       gawkInteractive
+      # For ssh.fish
+      ncurses
     ]
     ++ optionals isLinux [
       trashy
