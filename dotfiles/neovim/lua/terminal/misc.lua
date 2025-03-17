@@ -32,13 +32,10 @@ fidget.setup({
 vim.notify = fidget.notify
 
 local mc = require("multicursor-nvim")
-
 mc.setup()
-
-local set_keymap = vim.keymap.set
-set_keymap("n", "<M-leftmouse>", mc.handleMouse)
-set_keymap({ "n", "v" }, "<c-c>", mc.toggleCursor)
-set_keymap("n", "<esc>", function()
+vim.keymap.set("n", "<M-leftmouse>", mc.handleMouse)
+vim.keymap.set({ "n", "v" }, "<c-c>", mc.toggleCursor)
+vim.keymap.set("n", "<esc>", function()
   if not mc.cursorsEnabled() then
     mc.enableCursors()
   elseif mc.hasCursors() then
