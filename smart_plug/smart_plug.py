@@ -106,29 +106,29 @@ class KasaPlug:
     @classmethod
     async def _discover_devices(cls) -> Iterable[Device]:
         # TODO: Kasa's discovery fails when I'm connected to a VPN. This is because
-        # the default broadcast address (255.255.255.255) is an alias for 'this
-        # network' which will mean that of my VPN's virtual network card when I'm
-        # connected to it and not that of my actual wifi/ethernet network card. To
-        # get around this, I run discovery on all my network cards' broadcast
-        # addresses.
-        devices_dicts_per_broadcast_address = await asyncio.gather(
+        # the default broadcast address (255.255.255.255) is a special address that
+        # means "the broadcast address of the network you're currently connected to".
+        # This will be my VPN's network when I'm connected to it, not my actual
+        # wifi/ethernet network that my smart plug is connected to. To get around
+        # this, I run discovery on the broadcast addresses for _all_ of my networks.
+        devices_dicts_per_network = await asyncio.gather(
             *(
                 Discover.discover(target=address)
                 for address in cls._get_broadcast_addresses()
             )
         )
-        devices_per_broadcast_address = (
-            device_dict.values() for device_dict in devices_dicts_per_broadcast_address
+        devices_per_network = (
+            device_dict.values() for device_dict in devices_dicts_per_network
         )
 
-        return itertools.chain(*devices_per_broadcast_address)
+        return itertools.chain(*devices_per_network)
 
     @classmethod
     def _get_broadcast_addresses(cls) -> Iterable[str]:
-        addresses_per_network_card = psutil.net_if_addrs().values()
+        addresses_per_network = psutil.net_if_addrs().values()
         return (
             address.broadcast
-            for addresses in addresses_per_network_card
+            for addresses in addresses_per_network
             for address in addresses
             if address.broadcast is not None
         )
