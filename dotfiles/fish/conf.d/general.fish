@@ -265,14 +265,4 @@ abbr --add --global run --function _task_runner
 abbr --add --global g git
 # TODO: My pre-commit hook doesn't run if I use an alias for 'commit'. Not sure if
 # that's a bug in git.
-function _git_commit
-    set command (commandline --tokens-expanded)[1]
-    if test "$command" = git
-        echo commit
-    else
-        return 1
-    end
-end
-abbr --add c \
-    --position anywhere \
-    --function _git_commit
+abbr --command git c commit
