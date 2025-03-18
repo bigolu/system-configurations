@@ -11,7 +11,7 @@
 #   - Users can add their configuration after the project's. This way, they can
 #     overwrite anything that doesn't work for them.
 #   - If the project doesn't already provide a way to get its dependencies, users can
-#     add configuration to get those dependencies using package manager like nix for
+#     add configuration to get those dependencies using package managers like nix for
 #     example.
 #
 # More reasons for not committing .envrc can be found in this GitHub issue[1].
