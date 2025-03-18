@@ -1,8 +1,5 @@
 if not status is-interactive
-    exit
-end
-
-if test (uname) != Linux
+    or not type --force-path pipr >/dev/null 2>&1
     exit
 end
 

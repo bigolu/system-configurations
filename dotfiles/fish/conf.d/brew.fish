@@ -1,6 +1,5 @@
 if not status is-interactive
-    or test (uname) != Darwin
-    or not type --query brew
+    or not type --force-path brew >/dev/null 2>&1
     exit
 end
 

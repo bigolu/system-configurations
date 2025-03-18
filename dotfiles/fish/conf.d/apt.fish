@@ -1,9 +1,5 @@
 if not status is-interactive
-    exit
-end
-
-if test (uname) != Linux
-    or not type --query apt
+    or not type --force-path apt >/dev/null 2>&1
     exit
 end
 
