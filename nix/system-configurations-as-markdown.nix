@@ -8,15 +8,13 @@ let
   homeManagerConfigNames = filter (name: !hasPrefix "portable-home" name) (
     attrNames outputs.homeConfigurations
   );
-  homeManagerPlatformFetcher = name: outputs.homeConfigurations.${name}.activationPackage.system;
 
   nixDarwinConfigNames = attrNames outputs.darwinConfigurations;
-  nixDarwinPlatformFetcher = name: outputs.darwinConfigurations.${name}.system.system;
 
   makeListItems =
-    platformFetcher: configNames:
+    configNames:
     let
-      makeListItem = name: "  - ${name} / ${platformFetcher name}";
+      makeListItem = name: "  - ${name}";
     in
     concatStringsSep "\n" (map makeListItem configNames);
 in
@@ -25,10 +23,10 @@ in
 
   - Home Manager
 
-  ${makeListItems homeManagerPlatformFetcher homeManagerConfigNames}
+  ${makeListItems homeManagerConfigNames}
 
   - nix-darwin
 
-  ${makeListItems nixDarwinPlatformFetcher nixDarwinConfigNames}
+  ${makeListItems nixDarwinConfigNames}
 
 ''

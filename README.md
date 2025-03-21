@@ -29,43 +29,39 @@ people who want to manage their systems similarly.
 
 ### Configs
 
-For reference, here are all the configs, grouped by system manager, in the
-format "\<config_name> / \<platform>":
+For reference, here are all the config names, grouped by system manager:
 
 <!-- START_CONFIGURATIONS -->
 
 - Home Manager
 
-  - linux / x86_64-linux
+  - linux
 
 - nix-darwin
 
-  - mac / x86_64-darwin
+  - mac
 
 <!-- END_CONFIGURATIONS -->
 
 ### Steps
 
-1. Install Nix using [Determinate Systems Nix
-   Installer][determinate-systems-installer]. You can use the `curl` command
-   below or download it from [the site][determinate-systems-installer-install].
-   After you download it, replace the platform (x86_64) in the URL below with
-   that of your system and then run the command:
+1. In the last command below, replace `<system_manager>` and `<config_name>`
+   based on the config chosen from the [config list](#configs). Then run the
+   commands which will install Nix, clone the repo, and apply the config.
+   Instead of using the `curl` command below, you can also download this Nix
+   installer from [their site][determinate-systems-installer-install].
 
    > NOTE: The installer may have changed since this was written so make sure
-   > everything below is still valid.
+   > the installation command below is still valid.
 
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
      sh -s -- install \
-     --nix-package-url https://releases.nixos.org/nix/nix-2.24.12/nix-2.24.12-x86_64-linux.tar.xz \
-     --extra-conf "extra-trusted-users = $(whoami)"
-   ```
+     --nix-package-url "https://releases.nixos.org/nix/nix-2.24.12/nix-2.24.12-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
+     --extra-conf "extra-trusted-users = $(whoami)" \
+     --no-confirm
+   . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
-2. Run the following command to get the repo, load the environment, and start
-   `fish`.
-
-   ```bash
    # Fish does not have a way to exit whenever a command fails so I am
    # manually adding `|| exit`.
    # https://github.com/fish-shell/fish-shell/issues/510
@@ -75,7 +71,7 @@ format "\<config_name> / \<platform>":
    nix shell \
      --override-flake nixpkgs github:NixOS/nixpkgs/02032da4af073d0f6110540c8677f16d4be0117f \
      nixpkgs#fish nixpkgs#gitMinimal nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
-     --command fish --no-config --init-command '
+     --command fish --no-config --command '
        git clone \
          https://github.com/bigolu/system-configurations.git \
          ~/code/system-configurations || exit
@@ -83,24 +79,15 @@ format "\<config_name> / \<platform>":
        direnv hook fish | source || exit
        cp direnv/local.bash .envrc || exit
        direnv allow || exit
+       mise run system-init <system_manager> <config_name> || exit
      '
    ```
 
-3. The next steps depend on the operating system you're using:
-
-   - Linux
-
-     1. Apply a Home Manager configuration by running
-        `mise run system-init home-manager <config_name>` where `<config_name>`
-        is any compatible config from the [config list](#configs).
+2. Post-Install steps:
 
    - macOS
 
-     1. Apply a nix-darwin configuration by running
-        `mise run system-init nix-darwin <config_name>` where `<config_name>` is
-        any compatible config from the [config list](#configs).
-
-     2. Keyboard:
+     1. Keyboard:
 
         - Set the keyboard input source to 'Others → (No Accent Keys)'.
 
@@ -118,8 +105,8 @@ format "\<config_name> / \<platform>":
             `cmd+]` respectively, "Mission Control" to `cmd+d`, "Mission Control
             → Switch to Desktop 1-9" `cmd+[1-9]`
 
-     3. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels,
-        Nightfall, Mac Mouse Fix, and Podman Desktop to configure them.
+     2. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels,
+        Nightfall, and Mac Mouse Fix to configure them.
 
 ## Running the Portable Home Configuration
 
@@ -144,8 +131,6 @@ pointed to by the environment variable `$TMPDIR`, if it's set. I found this idea
 in a [GitHub issue comment regarding a "rootless Nix"][rootless-nix] and decided
 to build it to learn more about Nix.
 
-[determinate-systems-installer]:
-  https://github.com/DeterminateSystems/nix-installer
 [determinate-systems-installer-install]:
   https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#install-nix
 [home-manager]: https://github.com/nix-community/home-manager
