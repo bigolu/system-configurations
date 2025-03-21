@@ -253,8 +253,8 @@ run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link 
 [tasks.debug-ci]
 description = "Start a Bash REPL in a direnv CI environment"
 usage = '''
-  arg "<dev_shell>" help="The dev shell that direnv should load"
-  complete "dev_shell" run=#"""
+  arg "<direnv_dev_shell>" help="The dev shell that direnv should load"
+  complete "direnv_dev_shell" run=#"""
     nix eval --impure --raw --apply \
       '
         with builtins;
@@ -275,7 +275,7 @@ run = '''
   bash_interactive="$(nix eval --raw --file nix/flake-package-set.nix 'bashInteractive')/bin/bash"
 
   environment_variables=(
-    DEV_SHELL={{arg(name="dev_shell")}}
+    DIRENV_DEV_SHELL={{arg(name="direnv_dev_shell")}}
     CI_DEBUG=true
 
     # direnv stores its cache in the directory specified in `direnv_layout_dir`.
@@ -293,7 +293,7 @@ run = '''
     --file nix/flake-package-set.nix nix
 
     --ignore-environment
-    --keep DEV_SHELL --keep CI_DEBUG --keep direnv_layout_dir --keep HOME
+    --keep DIRENV_DEV_SHELL --keep CI_DEBUG --keep direnv_layout_dir --keep HOME
     {{vars.nix_shell_keep_terminal_env_vars}}
 
     --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive" --noprofile --norc

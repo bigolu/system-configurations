@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         with:
-          dev-shell: ci-check-pull-request
+          direnv-dev-shell: ci-check-pull-request
       # TODO: According to the lefthook documentation, this variable should _extend_
       # the output values specified in the config file, but it seems to be
       # overwriting them instead. For now, I'm duplicating the values specified in my

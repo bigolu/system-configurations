@@ -18,5 +18,5 @@
 #
 # [1]: https://github.com/NixOS/nixpkgs/pull/325793#issuecomment-2219538799
 
-export DEV_SHELL='local'
+export DIRENV_DEV_SHELL='local'
 source direnv/base.bash

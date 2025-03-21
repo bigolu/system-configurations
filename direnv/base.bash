@@ -1,10 +1,11 @@
 # shellcheck shell=bash
 
-# This script sets up the direnv environment that is used in local development and
-# CI. There are local and CI specific configs that extend this.
+# This script sets up the direnv environment that is used in local development
+# and CI. It's called "base" since there are also scripts specific to the local
+# and CI environment that source this one.
 #
 # Environment Variables
-#   DEV_SHELL (required):
+#   DIRENV_DEV_SHELL (required):
 #     The name of the flake dev shell to load.
 
 function main {
@@ -62,7 +63,7 @@ function load_dev_shell {
     nix_direnv_manual_reload
   fi
 
-  use flake ".#${DEV_SHELL:?}"
+  use flake ".#${DIRENV_DEV_SHELL:?}"
 }
 
 function is_first_dev_shell_build {
