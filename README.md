@@ -62,23 +62,17 @@ For reference, here are all the config names, grouped by system manager:
      --no-confirm
    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
-   # Fish does not have a way to exit whenever a command fails so I am
-   # manually adding `|| exit`.
-   # https://github.com/fish-shell/fish-shell/issues/510
-   #
-   # NOTE: Comments can't go inside the command string because they would end the
-   # string.
    nix shell \
      --override-flake nixpkgs github:NixOS/nixpkgs/02032da4af073d0f6110540c8677f16d4be0117f \
-     nixpkgs#fish nixpkgs#gitMinimal nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
-     --command fish --no-config --command '
+     nixpkgs#gitMinimal nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
+     --command bash --noprofile --norc -euc '
        git clone \
          https://github.com/bigolu/system-configurations.git \
-         ~/code/system-configurations || exit
-       cd ~/code/system-configurations || exit
-       cp direnv/local.bash .envrc || exit
-       direnv allow || exit
-       direnv exec . mise run system-init <system_manager> <config_name> || exit
+         ~/code/system-configurations
+       cd ~/code/system-configurations
+       cp direnv/local.bash .envrc
+       direnv allow
+       direnv exec . mise run system-init <system_manager> <config_name>
      '
    ```
 

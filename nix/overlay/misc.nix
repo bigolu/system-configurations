@@ -172,7 +172,7 @@ let
       '';
       runtimeInputs = [ final.bash ];
       text = ''
-        exec bash --noprofile --norc --init-file ${initFile} "$@"
+        BASH_ENV=${initFile} exec bash --noprofile --norc "$@"
       '';
     };
 in

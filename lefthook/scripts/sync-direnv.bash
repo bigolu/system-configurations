@@ -14,8 +14,8 @@ shopt -s inherit_errexit
 
 function main {
   old_dev_shell="$(get_dev_shell_store_path)"
-  nix-direnv-reload |& nom
   direnv-reload
+  nix-direnv-reload |& nom
   new_dev_shell="$(get_dev_shell_store_path)"
   nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
 }
