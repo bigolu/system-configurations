@@ -76,10 +76,9 @@ For reference, here are all the config names, grouped by system manager:
          https://github.com/bigolu/system-configurations.git \
          ~/code/system-configurations || exit
        cd ~/code/system-configurations || exit
-       direnv hook fish | source || exit
        cp direnv/local.bash .envrc || exit
        direnv allow || exit
-       mise run system-init <system_manager> <config_name> || exit
+       direnv exec . mise run system-init <system_manager> <config_name> || exit
      '
    ```
 
