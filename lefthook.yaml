@@ -228,10 +228,6 @@ check:
                   root: "gozip/"
                   run: "../{run_fix} golangci-lint run --fix"
                 - name: typos
-                  glob:
-                    - .editorconfig
-                    - shellcheckrc
-                    - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
                   run: "{run_fix} typos --write-changes --format silent {files}"
           # Run formatting after lint fixes because sometimes a lint fix produces
           # code that doesn't comply with the formatting.
@@ -314,10 +310,6 @@ check:
                         glob: "*.nix"
                         run: nixpkgs-lint --include-unfinished-lints -- {files}
                       - name: typos
-                        glob:
-                          - .editorconfig
-                          - shellcheckrc
-                          - "*.{sh,bash,fish,go,ini,js,json,lua,nix,py,toml,yaml,zsh}"
                         run: typos {files}
                       - name: mypy
                         glob: smart_plug/*.py
