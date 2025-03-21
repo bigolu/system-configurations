@@ -149,11 +149,11 @@ let
   gozip = mkShellWrapperNoCC {
     packages = with pkgs; [ go ];
     shellHook = ''
-      # Go modules are immutable so they should be stored in a single location and
-      # shared between projects.
-      export GOPATH="$HOME/.cache/go"
+      export GOPATH="''${XDG_CACHE_HOME:-$HOME/.cache}/go"
       mkdir -p "$GOPATH"
 
+      # Binary names could conflict between projects so store them in a per-project
+      # directory.
       export GOBIN="$DIRENV_LAYOUT_DIR/go-bin"
       mkdir -p "$GOBIN"
       export PATH="''${GOBIN}''${PATH:+:$PATH}"
@@ -322,7 +322,7 @@ let
       ];
 
       shellHook = ''
-        export RUFF_CACHE_DIR="$DIRENV_LAYOUT_DIR/ruff-cache"
+        export RUFF_CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/ruff"
       '';
     };
 

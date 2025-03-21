@@ -141,8 +141,9 @@ let
       passthru.devShell = final.mkShellWrapperNoCC {
         packages = [ pythonEnv ];
         shellHook = ''
-          export PYTHONPYCACHEPREFIX="$DIRENV_LAYOUT_DIR/python-cache"
-          export MYPY_CACHE_DIR="$DIRENV_LAYOUT_DIR/mypy-cache"
+          xdg_cache_home="''${XDG_CACHE_HOME:-$HOME/.cache}"
+          export PYTHONPYCACHEPREFIX="$xdg_cache_home/python"
+          export MYPY_CACHE_DIR="$xdg_cache_home/mypy"
         '';
       };
 
