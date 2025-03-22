@@ -257,7 +257,7 @@ local groups = {
   -- fidget.nvim {{{
   FidgetNormal = { ctermbg = "NONE", ctermfg = 8, bg = "NONE", fg = colors[8] },
   FidgetAccent = { ctermbg = "NONE", ctermfg = 7, bg = "NONE", fg = colors[7] },
-  FidgetIcon = { ctermbg = "NONE", ctermfg = 5, fg = colors[5] },
+  FidgetIcon = { ctermbg = "NONE", ctermfg = 14, fg = colors.accent },
   -- }}}
 
   -- mini.nvim {{{
