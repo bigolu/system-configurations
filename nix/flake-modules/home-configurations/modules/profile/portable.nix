@@ -1,4 +1,4 @@
-# This modules tries to keep the size of the portable shell down by removing
+# This module tries to keep the size of the portable shell down by removing
 # dependencies on large packages.
 { lib, pkgs, ... }:
 let

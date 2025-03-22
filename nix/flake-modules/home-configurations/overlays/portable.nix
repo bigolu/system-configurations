@@ -1,13 +1,13 @@
-# This modules tries to keep the size of the portable shell down by removing large
-# packages or using their minimal variant.
+# This overlay tries to keep the size of the portable shell down by removing large
+# packages.
 final: prev:
 let
   inherit (builtins) listToAttrs;
   inherit (prev.lib) pipe nameValuePair;
 
   makeEmptyPackage =
-    pkgs: packageName:
-    pkgs.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
+    packageName:
+    final.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
 
   emptyPackages =
     pipe
@@ -22,7 +22,7 @@ let
         "nix"
       ]
       [
-        (map (packageName: nameValuePair packageName (makeEmptyPackage final packageName)))
+        (map (packageName: nameValuePair packageName (makeEmptyPackage packageName)))
         listToAttrs
       ];
 in
