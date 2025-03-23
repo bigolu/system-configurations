@@ -45,6 +45,9 @@ function publish_report {
       "Report path: $report_path" \
       'Contents:' \
       "$(<"$report_path")"
+    # Since this isn't being run in CI, we fail so lefthook can report the failure.
+    # In CI, a GitHub issue would be created instead.
+    exit 1
   fi
 }
 
