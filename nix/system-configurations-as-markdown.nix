@@ -21,7 +21,7 @@ in
 ''
 
 
-  - Home Manager
+  - home-manager
 
   ${makeListItems homeManagerConfigNames}
 

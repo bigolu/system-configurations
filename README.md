@@ -33,7 +33,7 @@ For reference, here are all the config names, grouped by system manager:
 
 <!-- START_CONFIGURATIONS -->
 
-- Home Manager
+- home-manager
 
   - linux
 
