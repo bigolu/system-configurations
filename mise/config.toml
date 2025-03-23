@@ -269,9 +269,6 @@ usage = '''
   """#
 '''
 run = '''
-  # Inside the direnv environment, the non-interactive Bash is shadowing the
-  # interactive one. We can't use bash-script either since it exits when a command
-  # fails.
   bash_interactive="$(nix eval --raw --file nix/flake-package-set.nix 'bashInteractive')/bin/bash"
 
   environment_variables=(

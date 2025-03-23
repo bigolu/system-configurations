@@ -162,6 +162,8 @@ let
           set -o pipefail
           shopt -s nullglob
           shopt -s inherit_errexit
+          # Prevent child Bash shells from loading these settings
+          unset BASH_ENV
         '';
       };
     in
