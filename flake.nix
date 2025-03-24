@@ -193,8 +193,8 @@
 
     # Vim Plugins
     # --------------------------------------------------------------------------
+    # TODO: Add these plugins to nixpkgs
 
-    # TODO: Add the plugins below to nixpkgs
     "vim-plugin-vim-caser" = {
       url = "github:arthurxavierx/vim-caser";
       flake = false;
