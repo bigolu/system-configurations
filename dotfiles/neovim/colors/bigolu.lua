@@ -32,6 +32,7 @@ if vim.o.background == "dark" then
     inlay_bg = "#292d38",
     inlay_fg = "#abb4c4",
     accent = "#88C0D0",
+    indent_guide = "#323742",
   }
 else
   colors = {
@@ -60,7 +61,8 @@ else
     ok_bg = "#e8fbee",
     inlay_bg = "#e3e5e7",
     inlay_fg = "#666666",
-    accent = "#652d90",
+    accent = "#a40e26",
+    indent_guide = "#d3d3d3",
   }
 end
 
@@ -177,7 +179,7 @@ local groups = {
   PmenuExtraSel = "PmenuKindSel", -- Popup menu: Selected item "extra text"
   PmenuSbar = "Pmenu", -- Popup menu: Scrollbar.
   PmenuThumb = { bg = colors.pmenu_thumb }, -- Popup menu: Thumb of the scrollbar.
-  PmenuMatch = { bold = true, fg = colors[6] },
+  PmenuMatch = { bold = true, fg = colors.accent },
   -- }}}
 
   -- Tree-Sitter {{{
@@ -261,7 +263,7 @@ local groups = {
   -- }}}
 
   -- mini.nvim {{{
-  MiniIndentscopeSymbol = { ctermfg = 15, fg = colors[15] },
+  MiniIndentscopeSymbol = { ctermfg = 15, fg = colors.indent_guide },
   Clear = "Identifier",
   MiniCursorword = { underline = not vim.o.termguicolors, bg = colors.bg2 },
   MiniCursorwordCurrent = {},
@@ -275,7 +277,7 @@ local groups = {
   MiniPickBorderBusy = 'MiniPickBorder',
   MiniPickBorderText = "MiniPickBorder",
   MiniPickPrompt = "MiniPickNormal",
-  MiniPickMatchRanges = "String",
+  MiniPickMatchRanges = { ctermfg = 14, fg = colors.accent, bold = true, },
   MiniPickMatchCurrent = {underline = not vim.o.termguicolors, bg = colors.bg2, },
   -- }}}
 }

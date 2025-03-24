@@ -105,7 +105,7 @@ require("mini.indentscope").setup({
   symbol = "│",
 })
 
-vim.g.miniindentscope_disable = true
+vim.g.miniindentscope_disable = false
 if IsRunningInTerminal then
   vim.keymap.set("n", [[\|]], function()
     vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable
