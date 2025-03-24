@@ -21,7 +21,7 @@ function ssh
 
         # source:
         # https://github.com/kovidgoyal/kitty/blob/d33afd4e96cb6b9f84512568ce97816257a256c4/kittens/ssh/main.go#L486
-        set encoded_script (tr \n\'! \r\v\b <$script | tr \\ \f 2>/dev/null)
+        set encoded_script (tr \n\'!\\ \r\v\b\f <$script 2>/dev/null)
         set decode_script 'eval "$(echo "$0" | tr "\r\v\b\f" "\n\047\041\134")"'
         set remote_command "sh -c '$decode_script' '$encoded_script'"
 
