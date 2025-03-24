@@ -32,7 +32,7 @@ if vim.o.background == "dark" then
     inlay_bg = "#292d38",
     inlay_fg = "#abb4c4",
     accent = "#88C0D0",
-    indent_guide = "#323742",
+    guide = "#323742",
   }
 else
   colors = {
@@ -62,7 +62,7 @@ else
     inlay_bg = "#e3e5e7",
     inlay_fg = "#666666",
     accent = "#a40e26",
-    indent_guide = "#d3d3d3",
+    guide = "#d3d3d3",
   }
 end
 
@@ -144,7 +144,7 @@ local groups = {
   -- }}}
 
   -- cursorline {{{
-  CursorLine = { underline = true, sp = colors[7] }, -- Screen-line at the cursor, when 'cursorline' is set. Low-priority if foreground (ctermfg OR guifg) is not set.
+  CursorLine = { underline = true, sp = colors.guide }, -- Screen-line at the cursor, when 'cursorline' is set. Low-priority if foreground (ctermfg OR guifg) is not set.
   CursorLineNr = { bold = true }, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
   -- }}}
 
@@ -263,7 +263,7 @@ local groups = {
   -- }}}
 
   -- mini.nvim {{{
-  MiniIndentscopeSymbol = { ctermfg = 15, fg = colors.indent_guide },
+  MiniIndentscopeSymbol = { ctermfg = 15, fg = colors.guide },
   Clear = "Identifier",
   MiniCursorword = { underline = not vim.o.termguicolors, bg = colors.bg2 },
   MiniCursorwordCurrent = {},
