@@ -102,7 +102,7 @@ require("mini.indentscope").setup({
     goto_top = "[I",
     goto_bottom = "]I",
   },
-  symbol = "│",
+  symbol = "▏",
 })
 
 vim.g.miniindentscope_disable = false
