@@ -139,11 +139,10 @@
     ghostty = {
       url = "github:ghostty-org/ghostty";
       inputs = {
-        flake-compat.follows = "";
         nixpkgs-stable.follows = "nixpkgs-stable";
-        # TODO: This doesn't seem to be used. I should see if they can remove it.
-        nixpkgs-unstable.follows = "";
+        nixpkgs-unstable.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";
+        flake-compat.follows = "";
       };
     };
 
