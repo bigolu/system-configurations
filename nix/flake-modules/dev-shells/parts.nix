@@ -173,8 +173,8 @@ rec {
       export GOPATH="''${XDG_CACHE_HOME:-$HOME/.cache}/go"
       mkdir -p "$GOPATH"
 
-      # Binary names could conflict between projects so store them in a per-project
-      # directory.
+      # Binary names could conflict between projects so store them in a
+      # project-specific directory.
       export GOBIN="$DIRENV_LAYOUT_DIR/go-bin"
       mkdir -p "$GOBIN"
       export PATH="''${GOBIN}''${PATH:+:$PATH}"
