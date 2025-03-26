@@ -17,22 +17,22 @@ moduleContext@{ lib, ... }:
         if condition then function arg else arg;
 
       includeCiEssentials =
-        shellSpec:
+        devShellSpec:
         let
           ciEssentials = with partials; [
             ciSetup
             scriptInterpreter
           ];
         in
-        shellSpec // { inputsFrom = (shellSpec.inputsFrom or [ ]) ++ ciEssentials; };
+        devShellSpec // { inputsFrom = (devShellSpec.inputsFrom or [ ]) ++ ciEssentials; };
 
       makeDevShellOutputs =
-        specs:
-        pipe specs [
+        devShellSpecs:
+        pipe devShellSpecs [
           (mapAttrs (name: spec: spec // { inherit name; }))
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) includeCiEssentials))
           (mapAttrs (_name: mkShellWrapperNoCC))
-          (shells: { devShells = shells; })
+          (devShells: { inherit devShells; })
         ];
     in
     makeDevShellOutputs rec {
