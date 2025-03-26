@@ -365,7 +365,7 @@ check:
             # variable, I'd rather just move this check to a separate hook, but I
             # want it to inherit the excludes that are set in the top-most job.
             only:
-              - run: '[ "$ENABLE_LYCHEE" = true ]'
+              - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
             exclude:
               - .lycheeignore
             run: ./lefthook/scripts/check-lychee.bash {files}

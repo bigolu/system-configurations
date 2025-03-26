@@ -10,7 +10,7 @@ moduleContext@{ lib, ... }:
         hasPrefix
         ;
 
-      partials = import ./partials.nix (moduleContext // perSystemContext);
+      parts = import ./parts.nix (moduleContext // perSystemContext);
 
       applyIf =
         condition: function: arg:
@@ -18,13 +18,10 @@ moduleContext@{ lib, ... }:
 
       includeCiEssentials =
         devShellSpec:
-        let
-          ciEssentials = with partials; [
-            ciSetup
-            scriptInterpreter
-          ];
-        in
-        devShellSpec // { inputsFrom = (devShellSpec.inputsFrom or [ ]) ++ ciEssentials; };
+        devShellSpec
+        // {
+          inputsFrom = (devShellSpec.inputsFrom or [ ]) ++ [ parts.ciEssentials ];
+        };
 
       makeDevShellOutputs =
         devShellSpecs:
@@ -39,16 +36,14 @@ moduleContext@{ lib, ... }:
       default = local;
 
       local = {
-        inputsFrom = with partials; [
+        inputsFrom = with parts; [
+          checks
+          gozip
+          scriptDependencies
           scriptInterpreter
           speakerctl
-          gozip
-          taskRunner
-          lefthook
           sync
-          scriptDependencies
-          luaLs
-          checks
+          taskRunner
           vsCode
         ];
       };
@@ -56,27 +51,16 @@ moduleContext@{ lib, ... }:
       ci-essentials = { };
 
       ci-check-pull-request = {
-        inputsFrom = with partials; [
-          checks
-          # This is needed for generating task documentation
-          taskRunner
-          # This is needed for running mypy
-          speakerctl
-          # Runs the checks
-          lefthook
-          # This is needed for running lua-language-server
-          luaLs
-          gozip
-        ];
+        inputsFrom = [ parts.checks ];
       };
 
       ci-check-for-broken-links = {
-        inputsFrom = with partials; [
+        inputsFrom = [
           # Runs the check
-          lefthook
+          parts.lefthook
         ];
         shellHook = ''
-          export ENABLE_LYCHEE='true'
+          export LEFTHOOK_ENABLE_LYCHEE='true'
         '';
       };
 

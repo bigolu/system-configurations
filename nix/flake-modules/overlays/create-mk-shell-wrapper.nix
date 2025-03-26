@@ -13,11 +13,12 @@ let
     concatStringsSep
     splitString
     concatLists
+    unique
     ;
 
   # Prevent nested nix shells from executing this shell's hook:
   # https://git.lix.systems/lix-project/lix/issues/344
-  makeSafeShellHook =
+  makeSafeShellHookAndDedupInputsFrom =
     args@{
       # I need a name that won't conflict with the default one set by mkShell
       name ? "__nix_shell",
@@ -32,6 +33,7 @@ let
       newInputsFrom = pipe inputsFrom [
         (catAttrs uniqueInputsFromKey)
         concatLists
+        unique
       ];
 
       escapedName = escapeShellArg name;
@@ -78,6 +80,6 @@ let
     // optionalAttrs (!hasAttr "name" args) { inherit name; };
 in
 pipe args [
-  makeSafeShellHook
+  makeSafeShellHookAndDedupInputsFrom
   mkShell
 ]
