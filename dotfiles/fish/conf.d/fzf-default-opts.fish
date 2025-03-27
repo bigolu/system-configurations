@@ -79,7 +79,6 @@ set flags \
     (__flag 'info' 'inline-right') \
     (__flag 'separator' '─') \
     (__flag 'history' "$xdg_data/fzf/fzf-history.txt") \
-    (__flag 'preview' 'printf %s\n {+}') \
     (__flag 'preview-window' 'wrap' 'bottom' '40%' 'border-top') \
     (__flag 'multi') \
     (__flag 'scrollbar' '🮉') \
