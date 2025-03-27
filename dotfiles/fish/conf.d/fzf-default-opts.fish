@@ -101,8 +101,8 @@ set flags \
         'marker:6:bold' \
         'header:8' \
         'spinner:yellow' \
-        "hl:$accent_color" \
-        "hl+:regular:$accent_color:underline" \
+        "hl:$accent_color:bold" \
+        "hl+:regular:$accent_color:underline:bold" \
         'scrollbar:8:dim' \
         'preview-scrollbar:8:dim' \
     ) \
