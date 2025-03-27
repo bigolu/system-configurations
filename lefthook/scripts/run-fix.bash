@@ -38,15 +38,13 @@ function main {
     git stash --include-untracked 1>/dev/null
   fi
 
-  # Why it should fail in CI:
-  #   - This failure will make lefthook fail which will cause the overall CI check
-  #     to fail.
-  #
-  # Why it should fail locally:
-  #   - This failure will cause the pre-commit hook to abort so I can see what
-  #     fixes were made and, if everything looks good, include them in the commit.
-  #   - The failures let me know which fix commands actually fixed anything since
+  # Why it should fail:
+  #   - The failure let me know which fix commands actually fixed anything since
   #     lefthook will highlight failed commands differently.
+  #   - When running locally, this failure will cause the pre-commit hook to abort so I can see what
+  #     fixes were made and, if everything looks good, include them in the commit.
+  #   - When running in CI, this failure will make lefthook fail which will cause the overall CI check
+  #     to fail.
   exit 1
 }
 
