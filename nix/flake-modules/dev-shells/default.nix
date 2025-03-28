@@ -24,16 +24,20 @@ moduleContext@{ lib, ... }:
         };
 
       makeDevShellOutputs =
-        devShellSpecs:
+        devShellOutputsInfo@{ default, ... }:
+        let
+          devShellSpecs = removeAttrs devShellOutputsInfo [ "default" ];
+        in
         pipe devShellSpecs [
           (mapAttrs (name: spec: spec // { inherit name; }))
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) includeCiEssentials))
           (mapAttrs (_name: mkShellWrapperNoCC))
+          (devShells: devShells // { default = devShells.${default}; })
           (devShells: { inherit devShells; })
         ];
     in
-    makeDevShellOutputs rec {
-      default = local;
+    makeDevShellOutputs {
+      default = "local";
 
       local = {
         inputsFrom = with parts; [
