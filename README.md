@@ -63,7 +63,7 @@ For reference, here are all the config names, grouped by system manager:
    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
    nix shell \
-     --override-flake nixpkgs github:NixOS/nixpkgs/02032da4af073d0f6110540c8677f16d4be0117f \
+     --override-flake nixpkgs github:NixOS/nixpkgs/bd3bac8bfb542dbde7ffffb6987a1a1f9d41699f \
      nixpkgs#gitMinimal nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
      --command bash --noprofile --norc -euc '
        git clone \

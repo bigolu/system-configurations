@@ -122,7 +122,7 @@ local defaults = {
   -- If the cursor is over one of the two digits in the red, green, or blue
   -- value, it only increments that color of the hex. To increment the red,
   -- green, and blue portions, the cursor must be over the '#'.
-  hex_rgb = augend.hexcolor.new({}),
+  hex_rgb = augend.hexcolor.new({ case = "prefer_lower" }),
   -- time: 14:30:00
   date_hms = augend.date.alias["%H:%M:%S"],
   -- time: 14:30
