@@ -312,8 +312,8 @@ check:
                       - name: typos
                         run: typos {files}
                       - name: mypy
-                        glob: smart_plug/*.py
-                        run: mypy smart_plug
+                        glob: "*.py"
+                        run: mypy {files}
                       - name: isutf8
                         run: isutf8 {files}
                       - name: editorconfig-checker
