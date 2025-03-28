@@ -5,10 +5,7 @@
 }:
 final: prev:
 let
-  inherit (builtins)
-    hasAttr
-    ;
-  inherit (utils) toNixpkgsAttr toNixpkgsPname;
+  inherit (utils) toNixpkgsPname;
 
   vimPluginsFromFlake =
     let
@@ -16,20 +13,11 @@ let
 
       vimPluginBuilder =
         repositoryName: repositorySourceCode: date:
-        let
-          nixpkgsAttrName = toNixpkgsAttr repositoryName;
-        in
-        if hasAttr nixpkgsAttrName prev.vimPlugins then
-          prev.vimPlugins.${nixpkgsAttrName}.overrideAttrs (_old: {
-            version = date;
-            src = repositorySourceCode;
-          })
-        else
-          final.vimUtils.buildVimPlugin {
-            pname = toNixpkgsPname repositoryName;
-            version = date;
-            src = repositorySourceCode;
-          };
+        final.vimUtils.buildVimPlugin {
+          pname = toNixpkgsPname repositoryName;
+          version = date;
+          src = repositorySourceCode;
+        };
     in
     makePluginPackages vimPluginRepositoryPrefix vimPluginBuilder;
 
