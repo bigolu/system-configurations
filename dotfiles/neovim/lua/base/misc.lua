@@ -190,25 +190,7 @@ vim.g.loaded_perl_provider = 0
 -- }}}
 
 -- Option overrides {{{
--- Vim's default filetype plugins get run when filetype detection is enabled
--- (i.e. ':filetype plugin on'). So in order to override settings from vim's
--- filetype plugins, these FileType autocommands need to be registered after
--- filetype detection is enabled. File type detection is turned on in plug_end()
--- so this function gets called at `PlugEndPost`, which is right after
--- plug_end() is called.
-vim.api.nvim_create_autocmd("User", {
-  pattern = "PlugEndPost",
-  callback = function()
-    vim.api.nvim_create_autocmd("FileType", {
-      callback = function()
-        vim.api.nvim_exec_autocmds("User", { pattern = "FileTypeOverride_" .. vim.o.filetype })
-      end,
-    })
-  end,
-})
-
-vim.api.nvim_create_autocmd("User", {
-  pattern = "FileTypeOverride_*",
+vim.api.nvim_create_autocmd("FileType", {
   callback = function()
     -- Don't automatically hard-wrap text
     vim.bo.wrapmargin = 0

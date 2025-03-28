@@ -268,6 +268,8 @@ require("mini.jump").setup({
 -- }}}
 
 if IsRunningInTerminal then
+  require("mini.misc").setup_restore_cursor({ center = false })
+
   -- misc {{{
   local misc = require("mini.misc")
   vim.keymap.set("n", "<C-m>", function()
@@ -491,11 +493,4 @@ if IsRunningInTerminal then
     vim.cmd.Pick("resume")
   end)
   -- }}}
-
-  vim.api.nvim_create_autocmd("User", {
-    pattern = "PlugEndPost",
-    callback = function()
-      require("mini.misc").setup_restore_cursor({ center = false })
-    end,
-  })
 end

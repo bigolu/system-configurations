@@ -82,8 +82,8 @@ local function c_x(buffer)
   })
 end
 c_x()
-vim.api.nvim_create_autocmd("User", {
-  pattern = "FileTypeOverride_gitrebase",
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "gitrebase",
   callback = function()
     c_x(true)
   end,
