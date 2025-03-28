@@ -43,7 +43,7 @@ in
     activationScripts.postActivation.text = ''
       if [[ -e /run/current-system ]]; then
         printf '\e[36m┃ [bigolu] Printing generation diff ❯\e(B\e[m\n' >&2
-        ${getExe pkgs.nvd} --color=never diff /run/current-system "$systemConfig"
+        ${getExe pkgs.nvd} --color=never diff "$(readlink -f /run/current-system)" "$systemConfig"
       fi
     '';
   };
