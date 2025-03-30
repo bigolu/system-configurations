@@ -125,9 +125,12 @@ func IsSymlink(path string) (bool, error) {
 func Zip(destinationPath string, filesToZip []string) (err error) {
 	destinationFile, err := os.OpenFile(destinationPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		return
+		return err
 	}
-	defer destinationFile.Close()
+
+	defer func() {
+		err = errors.Join(err, destinationFile.Close())
+	}()
 
 	// To make a self extracting archive, the `destinationPath` can be the
 	// executable that does the extraction.  For this reason, we set the
@@ -147,9 +150,13 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer zWrt.Close()
+	defer func() {
+		err = errors.Join(err, zWrt.Close())
+	}()
 	tarWrt := tar.NewWriter(zWrt)
-	defer tarWrt.Close()
+	defer func() {
+		err = errors.Join(err, tarWrt.Close())
+	}()
 
 	cd := "."
 	for _, file := range filesToZip {
@@ -229,7 +236,10 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 				if err != nil {
 					return err
 				}
-				wf.Close()
+				err = wf.Close()
+				if err != nil {
+					return err
+				}
 			}
 
 			return nil
@@ -239,7 +249,8 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 		}
 	}
 
-	return
+	// Return err in case a `defer`ed function sets it
+	return err
 }
 
 func createFile(path string) (*os.File, error) {
@@ -335,7 +346,9 @@ func Unzip(zippath string, destination string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer zipFile.Close()
+	defer func() {
+		err = errors.Join(err, zipFile.Close())
+	}()
 	SeekToTar(*zipFile)
 
 	zRdr, err := zstd.NewReader(zipFile)
@@ -345,7 +358,10 @@ func Unzip(zippath string, destination string) (err error) {
 	defer zRdr.Close()
 	tarRdr := tar.NewReader(zRdr)
 
-	os.RemoveAll(destination)
+	err = os.RemoveAll(destination)
+	if err != nil {
+		return err
+	}
 	err = os.Mkdir(destination, 0755)
 	if err != nil {
 		return err
@@ -382,7 +398,10 @@ func Unzip(zippath string, destination string) (err error) {
 				cleanupAndDie(destination, "setting mode of file:", err)
 			}
 
-			f.Close()
+			err = f.Close()
+			if err != nil {
+				cleanupAndDie(destination, "closing file:", err)
+			}
 		case tar.TypeDir:
 			// We choose to disregard directory permissions and use a default
 			// instead. Custom permissions (e.g. read-only directories) are
@@ -416,7 +435,9 @@ func UnzipList(path string) (list []string, err error) {
 	if err != nil {
 		return nil, err
 	}
-	defer zipFile.Close()
+	defer func() {
+		err = errors.Join(err, zipFile.Close())
+	}()
 	SeekToTar(*zipFile)
 
 	zRdr, err := zstd.NewReader(zipFile)
@@ -513,7 +534,9 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 	if err != nil {
 		return err
 	}
-	defer archiveContents.Close()
+	defer func() {
+		err = errors.Join(err, archiveContents.Close())
+	}()
 
 	// The top level files in the archive are the directories of the Nix
 	// packages so we can use those directory names to get a list of all the
@@ -816,7 +839,9 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	if err != nil {
 		return "", "", err
 	}
-	defer executable.Close()
+	defer func() {
+		err = errors.Join(err, executable.Close())
+	}()
 	hash := sha256.New()
 	_, err = io.Copy(hash, executable)
 	if err != nil {
@@ -934,7 +959,7 @@ func SelfExtractAndRunNixEntrypoint() (exitCode int, err error) {
 	defer func() {
 		deleteCacheEnvVariable := os.Getenv("NIX_ROOTLESS_BUNDLER_DELETE_CACHE")
 		if len(deleteCacheEnvVariable) > 0 {
-			os.RemoveAll(cachePath)
+			err = errors.Join(err, os.RemoveAll(cachePath))
 		}
 	}()
 
