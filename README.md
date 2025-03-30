@@ -86,7 +86,7 @@ For reference, here are all the config names, grouped by system manager:
 
         <!--
           TODO: I can automate shortcuts when this issue gets resolved:
-          https://github.com/LnL7/nix-darwin/issues/185
+          https://github.com/nix-darwin/nix-darwin/issues/185
         -->
 
         - Shortcuts:
@@ -127,6 +127,6 @@ to build it to learn more about Nix.
 [determinate-systems-installer-install]:
   https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#install-nix
 [home-manager]: https://github.com/nix-community/home-manager
-[nix-darwin]: https://github.com/LnL7/nix-darwin
+[nix-darwin]: https://github.com/nix-darwin/nix-darwin
 [rootless-nix]: https://github.com/NixOS/nix/issues/1971#issue-304578884
 [releases]: https://github.com/bigolu/system-configurations/releases/latest

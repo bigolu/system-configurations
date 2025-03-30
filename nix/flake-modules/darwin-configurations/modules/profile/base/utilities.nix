@@ -86,7 +86,7 @@ in
     # update[1]. Adapted from nix-darwin[2].
     #
     # [1]: https://determinate.systems/posts/nix-survival-mode-on-macos/
-    # [2]: https://github.com/LnL7/nix-darwin/blob/230a197063de9287128e2c68a7a4b0cd7d0b50a7/modules/services/activate-system/default.nix#L20
+    # [2]: https://github.com/nix-darwin/nix-darwin/blob/230a197063de9287128e2c68a7a4b0cd7d0b50a7/modules/services/activate-system/default.nix#L20
     launchd.daemons = optionalAttrs config.configureLoginShellForNixDarwin {
       restore-profile-changes = {
         serviceConfig.RunAtLoad = true;

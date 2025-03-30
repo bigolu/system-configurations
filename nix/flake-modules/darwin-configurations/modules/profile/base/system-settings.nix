@@ -37,7 +37,7 @@ _: {
       /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
 
       # TODO: Some settings may not apply without doing this:
-      # https://github.com/LnL7/nix-darwin/issues/658#issuecomment-1557604877
+      # https://github.com/nix-darwin/nix-darwin/issues/658#issuecomment-1557604877
       killall Dock
     '';
   };

@@ -26,7 +26,7 @@ let
       # changes[1]. Only do it when necessary since it would clear the VM's build
       # cache.
       #
-      # [1]: https://github.com/LnL7/nix-darwin/pull/850
+      # [1]: https://github.com/nix-darwin/nix-darwin/pull/850
       # ephemeral = true;
       config.virtualisation = {
         cores = 6;
@@ -67,7 +67,7 @@ in
       # nix docs, a string is also a valid value[2] so nix-darwin should be updated
       # to account for it.
       #
-      # [1]: https://github.com/LnL7/nix-darwin/blob/6ab392f626a19f1122d1955c401286e1b7cf6b53/modules/nix/linux-builder.nix#L127
+      # [1]: https://github.com/nix-darwin/nix-darwin/blob/6ab392f626a19f1122d1955c401286e1b7cf6b53/modules/nix/linux-builder.nix#L127
       # [2]: https://search.nixos.org/options?channel=24.11&show=nixpkgs.hostPlatform&from=0&size=50&sort=relevance&type=packages&query=nixpkgs.hostPlatform
       systems = [ (replaceStrings [ "darwin" ] [ "linux" ] system) ];
     } // linuxBuilderConfig;
@@ -84,7 +84,7 @@ in
   #
   # Also, this is an internal option so it may change without notice.
   #
-  # [1]: https://github.com/LnL7/nix-darwin/issues/149
+  # [1]: https://github.com/nix-darwin/nix-darwin/issues/149
   environment.etc."nix/nix.conf".knownSha256Hashes = [
     (removeSuffix "\n" (readFile ./nix-conf-hash.txt))
   ];
