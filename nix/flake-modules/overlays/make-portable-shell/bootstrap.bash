@@ -144,7 +144,13 @@ shell="$(which "${USER_SHELL:?}")"
 export SHELL="$shell"
 
 if [[ -n ${INIT_SNIPPET:-} ]]; then
-  eval "$INIT_SNIPPET"
+  XDG_CONFIG_HOME=$xdg_config_directory \
+    XDG_DATA_HOME=$xdg_data_directory \
+    XDG_STATE_HOME=$xdg_state_directory \
+    XDG_RUNTIME_DIR=$xdg_runtime_directory \
+    XDG_CACHE_HOME=$xdg_cache_directory \
+    BIGOLU_IN_PORTABLE_HOME=1 \
+    "$BASH_PATH" -c "$INIT_SNIPPET"
 fi
 
 # WARNING: don't exec so our cleanup function can run

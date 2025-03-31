@@ -72,6 +72,7 @@ let
         ];
         keep = {
           "$SHELL" = true;
+          "$BASH_PATH" = true;
         };
       };
     };
