@@ -2,28 +2,31 @@
 # packages.
 final: prev:
 let
-  inherit (builtins) listToAttrs;
+  inherit (builtins) listToAttrs attrNames;
   inherit (prev.lib) pipe nameValuePair;
 
   makeEmptyPackage =
     packageName:
     final.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
 
-  emptyPackages =
-    pipe
-      [
-        "comma"
-        "moreutils"
-        "timg"
-        "ripgrep-all"
-        "lesspipe"
-        "diffoscopeMinimal"
-        "difftastic"
-        "nix"
-      ]
-      [
-        (map (packageName: nameValuePair packageName (makeEmptyPackage packageName)))
-        listToAttrs
-      ];
+  makeEmptyPackageSet =
+    packageNames:
+    pipe packageNames [
+      (map (packageName: nameValuePair packageName (makeEmptyPackage packageName)))
+      listToAttrs
+    ];
+
+  emptyTopLevelPackages = makeEmptyPackageSet [
+    "comma"
+    "moreutils"
+    "timg"
+    "ripgrep-all"
+    "lesspipe"
+    "diffoscopeMinimal"
+    "difftastic"
+    "nix"
+  ];
+
+  emptyHomeManagerPackages = makeEmptyPackageSet (attrNames prev.homeManager);
 in
-emptyPackages
+emptyTopLevelPackages // { homeManager = emptyHomeManagerPackages; }

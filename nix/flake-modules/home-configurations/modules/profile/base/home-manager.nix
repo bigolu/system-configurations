@@ -5,247 +5,30 @@
   username,
   homeDirectory,
   isHomeManagerRunningAsASubmodule,
-  utils,
   repositoryDirectory,
   ...
 }:
 let
-  inherit (utils) projectRoot;
   inherit (lib)
-    fileset
     mkMerge
     mkIf
     hm
     getExe
-    optionals
-    makeBinPath
     ;
   inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs) writeShellApplication;
   inherit (pkgs.stdenv) isLinux isDarwin;
 
-  # Scripts for switching generations and upgrading flake inputs.
-  system-config-apply = writeShellApplication {
-    name = "system-config-apply";
-    runtimeInputs = with pkgs; [
-      nix
-      coreutils
-      home-manager
-      darwin-rebuild
-    ];
-    text = ''
-      if [[ $(uname) == 'Linux' ]]; then
-        home-manager \
-          switch \
-          -b backup \
-          --flake ${repositoryDirectory}#${configName} \
-          "$@" |& nom
-      else
-        darwin-rebuild \
-          switch \
-          --flake ${repositoryDirectory}#${configName} \
-          "$@" |& nom
-      fi
-    '';
-  };
-
-  system-config-preview = writeShellApplication {
-    name = "system-config-preview";
-    runtimeInputs = with pkgs; [
-      nix
-      nvd
-    ];
-    text = ''
-      oldGenerationPath="''${XDG_STATE_HOME:-$HOME/.local/state}/nix/profiles/home-manager"
-      newGenerationPath="$(
-        nix build --no-link --print-out-paths \
-          ${repositoryDirectory}#homeConfigurations.${configName}.activationPackage
-      )"
-      nvd --color=never diff "$oldGenerationPath" "$newGenerationPath"
-    '';
-  };
-
-  system-config-pull = writeShellApplication {
-    name = "system-config-pull";
-    runtimeInputs = with pkgs; [
-      coreutils
-      gitMinimal
-      less
-      nix
-    ];
-    text = ''
-      function exit_handler {
-        if (($? != 0)); then
-          echo 'Pull failed, run "mise run pull" to try again.' >&2
-        fi
-        if [[ ''${did_stash:-} == true ]]; then
-          git stash pop 1>/dev/null
-        fi
-      }
-      trap exit_handler EXIT
-
-      function direnv_wrapper {
-        ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
-      }
-
-      # TODO: So `mise` has access to `system-config-apply`. The problem is that
-      # the system-* programs are not available in the package set so I can't
-      # declare them as a dependency.
-      PATH="${makeBinPath [ system-config-apply ]}:$PATH"
-
-      cd ${repositoryDirectory}
-
-      if [[ -n "$(git status --porcelain)" ]]; then
-        git stash --include-untracked --message 'Stashed for system pull' 1>/dev/null
-        did_stash=true
-      fi
-
-      git fetch
-      if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
-        echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
-        direnv_wrapper exec . git pull
-        direnv_wrapper exec . mise run sync
-      else
-        # Something probably went wrong so we're trying to pull again even
-        # though there's nothing to pull. In which case, just sync.
-        direnv_wrapper exec . mise run sync
-      fi
-
-      if [[ $(uname) == 'Darwin' ]]; then
-        # HACK:
-        # https://stackoverflow.com/a/40473139
-        rm -rf "$(/usr/local/bin/brew --prefix)/var/homebrew/locks"
-
-        /usr/local/bin/brew update
-        /usr/local/bin/brew upgrade --greedy
-        /usr/local/bin/brew autoremove
-        /usr/local/bin/brew cleanup
-      fi
-    '';
-  };
-
-  remote-changes-check =
-    let
-      ghosttyConfigDir = fileset.toSource {
-        root = projectRoot + /dotfiles;
-        fileset = projectRoot + /dotfiles/ghostty;
-      };
-
-      ghosttyConfigFile = "${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/ghostty;
-          fileset = projectRoot + /dotfiles/ghostty/config;
-        }
-      }/config";
-    in
-    writeShellApplication {
-      name = "remote-changes-check";
-
-      runtimeInputs =
-        with pkgs;
-        [
-          coreutils
-          gitMinimal
-          # For ping
-          toybox
-        ]
-        ++ (optionals isLinux [
-          libnotify
-          ghostty
-        ])
-        ++ (optionals isDarwin [ terminal-notifier ]);
-
-      text = ''
-        log="$(mktemp --tmpdir 'sys_config_XXXXX')"
-        exec 2>"$log" 1>"$log"
-        function failure_handler {
-          if (($? == 0)); then
-            return
-          fi
-
-          title='System Config'
-          message="The check for changes failed. Check the logs in $log"
-          if [[ $(uname) == 'Linux' ]]; then
-            notify-send --app-name "$title" "$message"
-          else
-            terminal-notifier -title "$title" -message "$message"
-          fi
-        }
-        trap failure_handler EXIT
-
-        attempts=0
-        while ! ping -c1 example.com && ((attempts < 60)); do
-          attempts=$((attempts + 1))
-          sleep 1
-        done
-
-        cd ${repositoryDirectory}
-
-        git fetch
-        if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
-          if [[ $(uname) == 'Linux' ]]; then
-            # TODO: I want to use action buttons on the notification, but it isn't
-            # working. Instead, I assume that I want to pull if I click the
-            # notification within one hour. Using `timeout` I can kill `notify-send`
-            # once one hour passes.
-            timeout_exit_code=124
-            set +o errexit
-            timeout 1h notify-send --wait --app-name 'Home Manager' \
-              'There are changes on the remote, click here to pull.'
-            exit_code=$?
-            set -o errexit
-            if (( exit_code != timeout_exit_code )); then
-              XDG_CONFIG_HOME=${ghosttyConfigDir} ghostty \
-                --wait-after-command=true \
-                -e ${system-config-pull}/bin/system-config-pull
-            fi
-          else
-            terminal-notifier \
-              -title "Nix Darwin" \
-              -message 'There are changes on the remote, click here to pull.' \
-              -execute 'open -n -a Ghostty --args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'
-          fi
-        fi
-      '';
-    };
-
   update-reminder = writeShellApplication {
     name = "update-reminder";
-    runtimeInputs =
-      with pkgs;
-      [
-        coreutils
-        gitMinimal
-      ]
-      ++ (optionals isLinux [ libnotify ])
-      ++ (optionals isDarwin [ terminal-notifier ]);
-    text = ''
-      cd ${repositoryDirectory}
-      if [[ $(git log --since="1 month ago") == *'deps:'* ]]; then
-        exit
-      fi
+    runtimeInputs = [ pkgs.homeManager.update-reminder ];
+    text = "update-reminder ${repositoryDirectory}";
+  };
 
-      if [[ $(uname) == 'Linux' ]]; then
-        # TODO: I want to use action buttons on the notification, but it isn't
-        # working. Instead, I assume that I want to pull if I click the notification
-        # within one hour. Using `timeout` I can kill `notify-send` once one hour
-        # passes.
-        timeout_exit_code=124
-        set +o errexit
-        timeout 1h notify-send --wait --app-name 'System Configuration' \
-          'Click here to update dependencies'
-        exit_code=$?
-        set -o errexit
-        if (( exit_code != timeout_exit_code )); then
-          xdg-open 'https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml'
-        fi
-      else
-        terminal-notifier \
-          -title 'System Configuration' \
-          -message 'Click here to update dependencies' \
-          -execute 'open "https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml"'
-      fi
-    '';
+  remote-changes-check = writeShellApplication {
+    name = "remote-changes-check";
+    runtimeInputs = [ pkgs.homeManager.remote-changes-check ];
+    text = "remote-changes-check ${repositoryDirectory}";
   };
 in
 mkMerge [
@@ -271,9 +54,18 @@ mkMerge [
       # changes in each release.
       stateVersion = "23.11";
 
-      packages = [
-        system-config-apply
-        system-config-pull
+      packages = with pkgs.homeManager; [
+        (writeShellApplication {
+          name = "system-config-pull";
+          runtimeInputs = [ system-config-pull ];
+          text = "system-config-pull ${repositoryDirectory}";
+        })
+
+        (writeShellApplication {
+          name = "system-config-apply";
+          runtimeInputs = [ system-config-apply ];
+          text = "system-config-apply ${repositoryDirectory}#${configName}";
+        })
       ];
     };
   }
@@ -285,7 +77,13 @@ mkMerge [
     home = {
       inherit username homeDirectory;
 
-      packages = [ system-config-preview ];
+      packages = [
+        (writeShellApplication {
+          name = "system-config-preview";
+          runtimeInputs = with pkgs.homeManager; [ system-config-preview ];
+          text = "system-config-preview ${repositoryDirectory}#homeConfigurations.${configName}.activationPackage";
+        })
+      ];
 
       # Show me what changed everytime I switch generations e.g. version updates or
       # added/removed files.

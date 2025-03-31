@@ -14,6 +14,7 @@ let
         ./misc.nix
         ./gl-wrappers.nix
         ./fixes.nix
+        ./home-manager.nix
       ]
       [
         (map (path: import path { inherit inputs utils; }))
