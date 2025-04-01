@@ -29,6 +29,13 @@ import (
 	"golang.org/x/term"
 )
 
+// With this, I can distinguish my panics from other ones.
+type GozipError struct{ error }
+
+func GozipPanic(err error) {
+	panic(GozipError{err})
+}
+
 var currentBar *progressbar.ProgressBar = nil
 
 var writer = func() io.Writer {
@@ -951,10 +958,10 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	return archiveContentsPath, executableCachePath, nil
 }
 
-func SelfExtractAndRunNixEntrypoint() (exitCode int, err error) {
+func SelfExtractAndRunNixEntrypoint() (exitCode int) {
 	extractedArchivePath, cachePath, err := ExtractArchiveAndRewritePaths()
 	if err != nil {
-		return -1, err
+		GozipPanic(err)
 	}
 	defer func() {
 		deleteCacheEnvVariable := os.Getenv("NIX_ROOTLESS_BUNDLER_DELETE_CACHE")
@@ -978,9 +985,9 @@ func SelfExtractAndRunNixEntrypoint() (exitCode int, err error) {
 		// same exit code.
 		_, isExitError := err.(*exec.ExitError)
 		if !isExitError {
-			return -1, err
+			GozipPanic(err)
 		}
 	}
 
-	return cmd.ProcessState.ExitCode(), nil
+	return cmd.ProcessState.ExitCode()
 }

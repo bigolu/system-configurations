@@ -11,15 +11,22 @@ import (
 )
 
 func main() {
+	defer func() {
+		err := recover()
+		gozipErr, ok := err.(gozip.GozipError)
+		if ok {
+			log.Fatal(gozipErr)
+		} else if err != nil {
+			panic(err)
+		}
+	}()
+
 	executablePath, err := os.Executable()
 	if err != nil {
-		log.Fatal(err)
+		gozip.GozipPanic(err)
 	}
 	if gozip.HasBoundary(executablePath) {
-		exitCode, err := gozip.SelfExtractAndRunNixEntrypoint()
-		if err != nil {
-			log.Fatal(err)
-		}
+		exitCode := gozip.SelfExtractAndRunNixEntrypoint()
 		os.Exit(exitCode)
 	}
 
@@ -31,7 +38,7 @@ func main() {
 	flagSet.BoolVar(&extract, "extract", false, "extract zip (arguments: zipfile [destination]")
 	err = flagSet.Parse(os.Args[1:])
 	if err != nil {
-		log.Fatal(err)
+		gozip.GozipPanic(err)
 	}
 
 	args := flagSet.Args()
@@ -40,7 +47,7 @@ func main() {
 		path := args[0]
 		list, err := gozip.UnzipList(path)
 		if err != nil {
-			log.Fatal(err)
+			gozip.GozipPanic(err)
 		}
 		for _, f := range list {
 			fmt.Printf("%s\n", f)
@@ -53,12 +60,12 @@ func main() {
 		}
 		err := gozip.Unzip(path, dest)
 		if err != nil {
-			log.Fatal(err)
+			gozip.GozipPanic(err)
 		}
 	} else if create && argc > 1 {
 		err := gozip.Zip(args[0], args[1:])
 		if err != nil {
-			log.Fatal(err)
+			gozip.GozipPanic(err)
 		}
 	}
 }
