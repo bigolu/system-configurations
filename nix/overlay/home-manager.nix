@@ -22,13 +22,13 @@ let
           switch \
           -b backup \
           --flake "$1" \
-          "$@" \
+          "''${@:2}" \
           |& nom
       else
         darwin-rebuild \
           switch \
           --flake "$1" \
-          "$@" \
+          "''${@:2}" \
           |& nom
       fi
     '';

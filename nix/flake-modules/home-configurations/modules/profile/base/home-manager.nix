@@ -64,7 +64,9 @@ mkMerge [
         (writeShellApplication {
           name = "system-config-apply";
           runtimeInputs = [ system-config-apply ];
-          text = "system-config-apply ${repositoryDirectory}#${configName}";
+          text = ''
+            system-config-apply ${repositoryDirectory}#${configName} "$@"
+          '';
         })
       ];
     };
