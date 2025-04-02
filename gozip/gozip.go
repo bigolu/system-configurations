@@ -29,13 +29,6 @@ import (
 	"golang.org/x/term"
 )
 
-// With this, I can distinguish my panics from other ones.
-type GozipError struct{ error }
-
-func GozipPanic(err error) {
-	panic(GozipError{err})
-}
-
 var currentBar *progressbar.ProgressBar = nil
 
 var writer = func() io.Writer {
@@ -85,7 +78,7 @@ func NextStep(count int, name string, options ...progressbar.Option) *progressba
 // https://github.com/schollz/progressbar/blob/304f5f42a0a10315cae471d8530e13b6c1bdc4fe/progressbar.go#L1007
 func writeString(w io.Writer, str string) {
 	if _, err := io.WriteString(w, str); err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	if f, ok := w.(*os.File); ok {
@@ -97,7 +90,7 @@ func writeString(w io.Writer, str string) {
 func ClearProgressBar() {
 	width, _, err := term.GetSize(2)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	str := fmt.Sprintf("\r%s\r", strings.Repeat(" ", width))
 	writeString(writer, str)
@@ -109,12 +102,12 @@ func EndProgress() {
 		// spinner will just render the bar again.
 		err := currentBar.Finish()
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 
 		err = currentBar.Clear()
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 		ClearProgressBar()
 		currentBar = nil
@@ -124,7 +117,7 @@ func EndProgress() {
 func IsSymlink(path string) bool {
 	fileInfo, err := os.Lstat(path)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
 }
@@ -132,12 +125,12 @@ func IsSymlink(path string) bool {
 func Zip(destinationPath string, filesToZip []string) {
 	destinationFile, err := os.OpenFile(destinationPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer func() {
 		errFromDefer := destinationFile.Close()
 		if err != nil || errFromDefer != nil {
-			GozipPanic(errors.Join(err, errFromDefer))
+			panic(errors.Join(err, errFromDefer))
 		}
 	}()
 
@@ -148,28 +141,28 @@ func Zip(destinationPath string, filesToZip []string) {
 	// making a self-extracting archive.
 	_, err = destinationFile.Seek(0, io.SeekEnd)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	_, err = destinationFile.Write(boundary)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	zWrt, err := zstd.NewWriter(destinationFile, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer func() {
 		errFromDefer := zWrt.Close()
 		if err != nil || errFromDefer != nil {
-			GozipPanic(errors.Join(err, errFromDefer))
+			panic(errors.Join(err, errFromDefer))
 		}
 	}()
 	tarWrt := tar.NewWriter(zWrt)
 	defer func() {
 		errFromDefer := tarWrt.Close()
 		if err != nil || errFromDefer != nil {
-			GozipPanic(errors.Join(err, errFromDefer))
+			panic(errors.Join(err, errFromDefer))
 		}
 	}()
 
@@ -187,13 +180,13 @@ func Zip(destinationPath string, filesToZip []string) {
 			hdr.Typeflag = tar.TypeSymlink
 			target, err := filepath.EvalSymlinks((filepath.Join(cd, file)))
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 			hdr.Linkname = target
 
 			err = tarWrt.WriteHeader(&hdr)
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 
 			continue
@@ -231,7 +224,7 @@ func Zip(destinationPath string, filesToZip []string) {
 				hdr.Typeflag = tar.TypeReg
 				hdr.Size = info.Size()
 			default:
-				GozipPanic(fmt.Errorf("unsupported file type: %s", path))
+				panic(fmt.Errorf("unsupported file type: %s", path))
 			}
 
 			err = tarWrt.WriteHeader(&hdr)
@@ -257,7 +250,7 @@ func Zip(destinationPath string, filesToZip []string) {
 			return nil
 		})
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 	}
 }
@@ -266,11 +259,11 @@ func createFile(path string) *os.File {
 	dir := filepath.Dir(path)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	f, err := os.Create(path)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	return f
@@ -279,13 +272,13 @@ func createFile(path string) *os.File {
 func cleanup(dir string) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	for _, entry := range entries {
 		err := os.RemoveAll(filepath.Join(dir, entry.Name()))
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 	}
 }
@@ -293,7 +286,7 @@ func cleanup(dir string) {
 func GetBoundaryOffset(fileName string) int {
 	fileBytes, err := os.ReadFile(fileName)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	return bytes.Index(fileBytes, boundary)
@@ -312,14 +305,14 @@ func HasBoundary(fileName string) bool {
 func SeekToTar(file os.File) os.File {
 	boundaryOffset := GetBoundaryOffset(file.Name())
 	if boundaryOffset == -1 {
-		GozipPanic(errors.New("no boundary"))
+		panic(errors.New("no boundary"))
 	}
 
 	payloadOffset := boundaryOffset + len(boundary)
 
 	_, err := file.Seek(int64(payloadOffset), io.SeekStart)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	return file
@@ -343,30 +336,30 @@ func Unzip(zippath string, destination string) {
 
 	zipFile, err := os.Open(zippath)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer func() {
 		errFromDefer := zipFile.Close()
 		if err != nil || errFromDefer != nil {
-			GozipPanic(errors.Join(err, errFromDefer))
+			panic(errors.Join(err, errFromDefer))
 		}
 	}()
 	SeekToTar(*zipFile)
 
 	zRdr, err := zstd.NewReader(zipFile)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer zRdr.Close()
 	tarRdr := tar.NewReader(zRdr)
 
 	err = os.RemoveAll(destination)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	err = os.Mkdir(destination, 0755)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	defer func() {
@@ -383,7 +376,7 @@ func Unzip(zippath string, destination string) {
 			break
 		}
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 
 		name := filepath.Clean(hdr.Name)
@@ -397,17 +390,17 @@ func Unzip(zippath string, destination string) {
 
 			_, err = io.Copy(f, tarRdr)
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 
 			err = f.Chmod(os.FileMode(hdr.Mode))
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 
 			err = f.Close()
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 		case tar.TypeDir:
 			// We choose to disregard directory permissions and use a default
@@ -416,21 +409,21 @@ func Unzip(zippath string, destination string) {
 			// up the directory.
 			err := os.Mkdir(pathName, 0755)
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 		case tar.TypeSymlink:
 			err := os.Symlink(hdr.Linkname, pathName)
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 		default:
 			// unsupported file type
-			GozipPanic(err)
+			panic(err)
 		}
 
 		err = progressBar.Add(1)
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 	}
 }
@@ -439,19 +432,19 @@ func Unzip(zippath string, destination string) {
 func UnzipList(path string) (list []string) {
 	zipFile, err := os.Open(path)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer func() {
 		errFromDefer := zipFile.Close()
 		if err != nil || errFromDefer != nil {
-			GozipPanic(errors.Join(err, errFromDefer))
+			panic(errors.Join(err, errFromDefer))
 		}
 	}()
 	SeekToTar(*zipFile)
 
 	zRdr, err := zstd.NewReader(zipFile)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer zRdr.Close()
 	tarRdr := tar.NewReader(zRdr)
@@ -462,7 +455,7 @@ func UnzipList(path string) (list []string) {
 			break
 		}
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 
 		name := filepath.Clean(hdr.Name)
@@ -478,7 +471,7 @@ func UnzipList(path string) (list []string) {
 func CreateDirectoryIfNotExists(path string) {
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 }
 
@@ -521,7 +514,7 @@ func GetFileCount(path string) int {
 	}))
 
 	if err != nil {
-		GozipPanic(fmt.Errorf("getting file count: %s", err))
+		panic(fmt.Errorf("getting file count: %s", err))
 	}
 
 	return count
@@ -544,12 +537,12 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 	)
 	archiveContents, err := os.Open(archiveContentsPath)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer func() {
 		errFromDefer := archiveContents.Close()
 		if err != nil || errFromDefer != nil {
-			GozipPanic(errors.Join(err, errFromDefer))
+			panic(errors.Join(err, errFromDefer))
 		}
 	}()
 
@@ -561,7 +554,7 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 	// a max.
 	topLevelFilesInArchive, err := archiveContents.Readdir(0)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	var oldAndNewPackagePaths []string
 	extraSlashesCount := len(oldStorePath) - len(newStorePath)
@@ -640,12 +633,12 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 		return nil
 	}))
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	err = g.Wait()
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 }
 
@@ -668,8 +661,7 @@ func GetNewStorePath() (prefix string) {
 		}
 	}
 
-	GozipPanic(errors.New("unable to find a new store prefix"))
-	panic(errors.New("Won't get here since the line above panics"))
+	panic(errors.New("unable to find a new store prefix"))
 }
 
 func GetTempDir() (tempDir string) {
@@ -833,7 +825,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 
 	executablePath, err := os.Executable()
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 
 	executableName := filepath.Base(executablePath)
@@ -842,18 +834,18 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 
 	executable, err := os.Open(executablePath)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	defer func() {
 		errFromDefer := executable.Close()
 		if err != nil || errFromDefer != nil {
-			GozipPanic(errors.Join(err, errFromDefer))
+			panic(errors.Join(err, errFromDefer))
 		}
 	}()
 	hash := sha256.New()
 	_, err = io.Copy(hash, executable)
 	if err != nil {
-		GozipPanic(err)
+		panic(err)
 	}
 	expectedExecutableChecksum := []byte(hex.EncodeToString(hash.Sum(nil)))
 	archiveContentsPath := filepath.Join(executableCachePath, "archive-contents")
@@ -864,13 +856,13 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	if executableChecksumFileExists {
 		checksum, err := os.ReadFile(executableChecksumFile)
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 		if !bytes.Equal(checksum, expectedExecutableChecksum) {
 			Unzip(executablePath, archiveContentsPath)
 			err = os.WriteFile(executableChecksumFile, expectedExecutableChecksum, 0755)
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 			isNewExtraction = true
 		}
@@ -878,7 +870,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 		Unzip(executablePath, archiveContentsPath)
 		err = os.WriteFile(executableChecksumFile, expectedExecutableChecksum, 0755)
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 		isNewExtraction = true
 	}
@@ -891,7 +883,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	if doesLinkToCurrentStorePathExist {
 		currentStorePath, err = os.Readlink(linkToCurrentStorePath)
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 		// TODO: Should I worry about other programs making a file with
 		// the same name?
@@ -901,18 +893,18 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 			if currentStorePathTarget != archiveContentsPath {
 				err = os.Remove(linkToCurrentStorePath)
 				if err != nil {
-					GozipPanic(err)
+					panic(err)
 				}
 				// recreate it
 				err = os.Symlink(archiveContentsPath, currentStorePath)
 				if err != nil {
-					GozipPanic(err)
+					panic(err)
 				}
 			}
 		} else { // recreate it
 			err = os.Symlink(archiveContentsPath, currentStorePath)
 			if err != nil {
-				GozipPanic(err)
+				panic(err)
 			}
 		}
 
@@ -925,11 +917,11 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 		newStorePath = GetNewStorePath()
 		err = os.Symlink(archiveContentsPath, newStorePath)
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 		err = os.Symlink(newStorePath, linkToCurrentStorePath)
 		if err != nil {
-			GozipPanic(err)
+			panic(err)
 		}
 		isNewStorePath = true
 	}
@@ -950,7 +942,7 @@ func SelfExtractAndRunNixEntrypoint() (exitCode int) {
 		if len(deleteCacheEnvVariable) > 0 {
 			errFromDefer := os.RemoveAll(cachePath)
 			if err != nil || errFromDefer != nil {
-				GozipPanic(errors.Join(err, errFromDefer))
+				panic(errors.Join(err, errFromDefer))
 			}
 		}
 	}()
@@ -970,7 +962,7 @@ func SelfExtractAndRunNixEntrypoint() (exitCode int) {
 		// same exit code.
 		_, isExitError := err.(*exec.ExitError)
 		if !isExitError {
-			GozipPanic(err)
+			panic(err)
 		}
 	}
 

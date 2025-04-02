@@ -12,7 +12,7 @@ import (
 func main() {
 	executablePath, err := os.Executable()
 	if err != nil {
-		gozip.GozipPanic(err)
+		panic(err)
 	}
 	if gozip.HasBoundary(executablePath) {
 		exitCode := gozip.SelfExtractAndRunNixEntrypoint()
@@ -27,7 +27,7 @@ func main() {
 	flagSet.BoolVar(&extract, "extract", false, "extract zip (arguments: zipfile [destination]")
 	err = flagSet.Parse(os.Args[1:])
 	if err != nil {
-		gozip.GozipPanic(err)
+		panic(err)
 	}
 
 	args := flagSet.Args()
