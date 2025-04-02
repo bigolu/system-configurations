@@ -32,7 +32,7 @@ if vim.o.background == "dark" then
     inlay_bg = "#292d38",
     inlay_fg = "#abb4c4",
     accent = "#88C0D0",
-    guide = "#323742",
+    guide = "#373c47",
   }
 else
   colors = {
