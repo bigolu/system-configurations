@@ -85,7 +85,7 @@ func NextStep(count int, name string, options ...progressbar.Option) *progressba
 // https://github.com/schollz/progressbar/blob/304f5f42a0a10315cae471d8530e13b6c1bdc4fe/progressbar.go#L1007
 func writeString(w io.Writer, str string) {
 	if _, err := io.WriteString(w, str); err != nil {
-		log.Fatal("writing string:", err)
+		GozipPanic(err)
 	}
 
 	if f, ok := w.(*os.File); ok {
@@ -97,7 +97,7 @@ func writeString(w io.Writer, str string) {
 func ClearProgressBar() {
 	width, _, err := term.GetSize(2)
 	if err != nil {
-		log.Fatal("getting terminal width:", err)
+		GozipPanic(err)
 	}
 	str := fmt.Sprintf("\r%s\r", strings.Repeat(" ", width))
 	writeString(writer, str)
@@ -109,12 +109,12 @@ func EndProgress() {
 		// spinner will just render the bar again.
 		err := currentBar.Finish()
 		if err != nil {
-			log.Fatal("finish progress bar:", err)
+			GozipPanic(err)
 		}
 
 		err = currentBar.Clear()
 		if err != nil {
-			log.Fatal("cleat progress bar:", err)
+			GozipPanic(err)
 		}
 		ClearProgressBar()
 		currentBar = nil
@@ -124,19 +124,21 @@ func EndProgress() {
 func IsSymlink(path string) bool {
 	fileInfo, err := os.Lstat(path)
 	if err != nil {
-		return false, err
+		GozipPanic(err)
 	}
-	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink, nil
+	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink
 }
 
 func Zip(destinationPath string, filesToZip []string) {
 	destinationFile, err := os.OpenFile(destinationPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
-
 	defer func() {
-		err = errors.Join(err, destinationFile.Close())
+		errFromDefer := destinationFile.Close()
+		if err != nil || errFromDefer != nil {
+			GozipPanic(errors.Join(err, errFromDefer))
+		}
 	}()
 
 	// To make a self extracting archive, the `destinationPath` can be the
@@ -146,23 +148,29 @@ func Zip(destinationPath string, filesToZip []string) {
 	// making a self-extracting archive.
 	_, err = destinationFile.Seek(0, io.SeekEnd)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 	_, err = destinationFile.Write(boundary)
 	if err != nil {
-		log.Fatal("writing boundary to output file:", err)
+		GozipPanic(err)
 	}
 
 	zWrt, err := zstd.NewWriter(destinationFile, zstd.WithEncoderLevel(zstd.SpeedBestCompression))
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 	defer func() {
-		err = errors.Join(err, zWrt.Close())
+		errFromDefer := zWrt.Close()
+		if err != nil || errFromDefer != nil {
+			GozipPanic(errors.Join(err, errFromDefer))
+		}
 	}()
 	tarWrt := tar.NewWriter(zWrt)
 	defer func() {
-		err = errors.Join(err, tarWrt.Close())
+		errFromDefer := tarWrt.Close()
+		if err != nil || errFromDefer != nil {
+			GozipPanic(errors.Join(err, errFromDefer))
+		}
 	}()
 
 	cd := "."
@@ -171,10 +179,7 @@ func Zip(destinationPath string, filesToZip []string) {
 		file = filepath.Clean(file)
 
 		// If the input file is a symlink, don't dereference it.
-		isSymlink, err := IsSymlink(file)
-		if err != nil {
-			return err
-		}
+		isSymlink := IsSymlink(file)
 		if isSymlink {
 			var hdr tar.Header
 			hdr.Name = file
@@ -182,13 +187,13 @@ func Zip(destinationPath string, filesToZip []string) {
 			hdr.Typeflag = tar.TypeSymlink
 			target, err := filepath.EvalSymlinks((filepath.Join(cd, file)))
 			if err != nil {
-				return err
+				GozipPanic(err)
 			}
 			hdr.Linkname = target
 
 			err = tarWrt.WriteHeader(&hdr)
 			if err != nil {
-				return err
+				GozipPanic(err)
 			}
 
 			continue
@@ -226,7 +231,7 @@ func Zip(destinationPath string, filesToZip []string) {
 				hdr.Typeflag = tar.TypeReg
 				hdr.Size = info.Size()
 			default:
-				log.Fatalf("unsupported file type: %s", path)
+				GozipPanic(fmt.Errorf("unsupported file type: %s", path))
 			}
 
 			err = tarWrt.WriteHeader(&hdr)
@@ -252,53 +257,43 @@ func Zip(destinationPath string, filesToZip []string) {
 			return nil
 		})
 		if err != nil {
-			return err
+			GozipPanic(err)
 		}
 	}
-
-	// Return err in case a `defer`ed function sets it
-	return err
 }
 
 func createFile(path string) *os.File {
 	dir := filepath.Dir(path)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
-		return nil, err
+		GozipPanic(err)
 	}
 	f, err := os.Create(path)
 	if err != nil {
-		return nil, err
+		GozipPanic(err)
 	}
-	return f, nil
+
+	return f
 }
 
-func cleanupDir(dir string) {
+func cleanup(dir string) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
+
 	for _, entry := range entries {
 		err := os.RemoveAll(filepath.Join(dir, entry.Name()))
 		if err != nil {
-			return err
+			GozipPanic(err)
 		}
 	}
-	return nil
-}
-
-func cleanupAndDie(dir string, v ...any) {
-	err := cleanupDir(dir)
-	if err != nil {
-		log.Fatal(append([]any{"got error:", err, "while cleaning up after:"}, v...))
-	}
-	log.Fatal(v...)
 }
 
 func GetBoundaryOffset(fileName string) int {
 	fileBytes, err := os.ReadFile(fileName)
 	if err != nil {
-		log.Fatal("reading file:", err)
+		GozipPanic(err)
 	}
 
 	return bytes.Index(fileBytes, boundary)
@@ -317,14 +312,14 @@ func HasBoundary(fileName string) bool {
 func SeekToTar(file os.File) os.File {
 	boundaryOffset := GetBoundaryOffset(file.Name())
 	if boundaryOffset == -1 {
-		log.Fatal("no boundary")
+		GozipPanic(errors.New("no boundary"))
 	}
 
 	payloadOffset := boundaryOffset + len(boundary)
 
 	_, err := file.Seek(int64(payloadOffset), io.SeekStart)
 	if err != nil {
-		log.Fatal("seeking to start of payload:", err)
+		GozipPanic(err)
 	}
 
 	return file
@@ -337,10 +332,7 @@ func Unzip(zippath string, destination string) {
 		"Calculating archive size",
 		progressbar.OptionSpinnerType(14),
 	)
-	files, err := UnzipList(zippath)
-	if err != nil {
-		return err
-	}
+	files := UnzipList(zippath)
 	archiveCount = len(files)
 
 	progressBar := NextStep(
@@ -351,28 +343,39 @@ func Unzip(zippath string, destination string) {
 
 	zipFile, err := os.Open(zippath)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 	defer func() {
-		err = errors.Join(err, zipFile.Close())
+		errFromDefer := zipFile.Close()
+		if err != nil || errFromDefer != nil {
+			GozipPanic(errors.Join(err, errFromDefer))
+		}
 	}()
 	SeekToTar(*zipFile)
 
 	zRdr, err := zstd.NewReader(zipFile)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 	defer zRdr.Close()
 	tarRdr := tar.NewReader(zRdr)
 
 	err = os.RemoveAll(destination)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 	err = os.Mkdir(destination, 0755)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
+
+	defer func() {
+		recoverErr := recover()
+		if recoverErr != nil {
+			cleanup(destination)
+			panic(recoverErr)
+		}
+	}()
 
 	for {
 		hdr, err := tarRdr.Next()
@@ -380,7 +383,7 @@ func Unzip(zippath string, destination string) {
 			break
 		}
 		if err != nil {
-			return err
+			GozipPanic(err)
 		}
 
 		name := filepath.Clean(hdr.Name)
@@ -390,24 +393,21 @@ func Unzip(zippath string, destination string) {
 		pathName := filepath.Join(destination, name)
 		switch hdr.Typeflag {
 		case tar.TypeReg:
-			f, err := createFile(pathName)
-			if err != nil {
-				cleanupAndDie(destination, "creating file:", err)
-			}
+			f := createFile(pathName)
 
 			_, err = io.Copy(f, tarRdr)
 			if err != nil {
-				cleanupAndDie(destination, "writing file:", err)
+				GozipPanic(err)
 			}
 
 			err = f.Chmod(os.FileMode(hdr.Mode))
 			if err != nil {
-				cleanupAndDie(destination, "setting mode of file:", err)
+				GozipPanic(err)
 			}
 
 			err = f.Close()
 			if err != nil {
-				cleanupAndDie(destination, "closing file:", err)
+				GozipPanic(err)
 			}
 		case tar.TypeDir:
 			// We choose to disregard directory permissions and use a default
@@ -416,24 +416,23 @@ func Unzip(zippath string, destination string) {
 			// up the directory.
 			err := os.Mkdir(pathName, 0755)
 			if err != nil {
-				cleanupAndDie(destination, "creating directory", err)
+				GozipPanic(err)
 			}
 		case tar.TypeSymlink:
 			err := os.Symlink(hdr.Linkname, pathName)
 			if err != nil {
-				cleanupAndDie(destination, "creating symlink", err)
+				GozipPanic(err)
 			}
 		default:
-			cleanupAndDie(destination, "unsupported file type in tar", hdr.Typeflag)
+			// unsupported file type
+			GozipPanic(err)
 		}
 
 		err = progressBar.Add(1)
 		if err != nil {
-			cleanupAndDie(destination, "adding to progress bar", err)
+			GozipPanic(err)
 		}
 	}
-
-	return
 }
 
 // UnzipList Lists all the files in zip file
@@ -443,7 +442,10 @@ func UnzipList(path string) (list []string) {
 		GozipPanic(err)
 	}
 	defer func() {
-		err = errors.Join(err, zipFile.Close())
+		errFromDefer := zipFile.Close()
+		if err != nil || errFromDefer != nil {
+			GozipPanic(errors.Join(err, errFromDefer))
+		}
 	}()
 	SeekToTar(*zipFile)
 
@@ -474,28 +476,31 @@ func UnzipList(path string) (list []string) {
 }
 
 func CreateDirectoryIfNotExists(path string) {
-	return os.MkdirAll(path, 0755)
+	err := os.MkdirAll(path, 0755)
+	if err != nil {
+		GozipPanic(err)
+	}
 }
 
 func IsFileExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
-		return true, nil
+		return true
 	} else if errors.Is(err, fs.ErrNotExist) {
-		return false, nil
+		return false
 	} else {
-		return false, err
+		return false
 	}
 }
 
 func IsSymlinkExists(path string) bool {
 	_, err := os.Lstat(path)
 	if err == nil {
-		return true, nil
+		return true
 	} else if errors.Is(err, fs.ErrNotExist) {
-		return false, nil
+		return false
 	} else {
-		return false, err
+		return false
 	}
 }
 
@@ -516,7 +521,7 @@ func GetFileCount(path string) int {
 	}))
 
 	if err != nil {
-		log.Fatal("getting file count:", err)
+		GozipPanic(fmt.Errorf("getting file count: %s", err))
 	}
 
 	return count
@@ -539,10 +544,13 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 	)
 	archiveContents, err := os.Open(archiveContentsPath)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 	defer func() {
-		err = errors.Join(err, archiveContents.Close())
+		errFromDefer := archiveContents.Close()
+		if err != nil || errFromDefer != nil {
+			GozipPanic(errors.Join(err, errFromDefer))
+		}
 	}()
 
 	// The top level files in the archive are the directories of the Nix
@@ -553,7 +561,7 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 	// a max.
 	topLevelFilesInArchive, err := archiveContents.Readdir(0)
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 	var oldAndNewPackagePaths []string
 	extraSlashesCount := len(oldStorePath) - len(newStorePath)
@@ -632,10 +640,13 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 		return nil
 	}))
 	if err != nil {
-		return err
+		GozipPanic(err)
 	}
 
-	return g.Wait()
+	err = g.Wait()
+	if err != nil {
+		GozipPanic(err)
+	}
 }
 
 func GetNewStorePath() (prefix string) {
@@ -652,23 +663,20 @@ func GetNewStorePath() (prefix string) {
 			candidatePrefix = candidatePrefix + string(charset[random.Intn(len(charset))])
 		}
 
-		isFileExists, err := IsFileExists(candidatePrefix)
-		if err != nil {
-			return "", err
-		}
-		if !isFileExists {
-			return candidatePrefix, nil
+		if !IsFileExists(candidatePrefix) {
+			return candidatePrefix
 		}
 	}
 
-	return "", errors.New("unable to find a new store prefix")
+	GozipPanic(errors.New("unable to find a new store prefix"))
+	panic(errors.New("Won't get here since the line above panics"))
 }
 
 func GetTempDir() (tempDir string) {
 	return os.TempDir()
 }
 
-func IsDir(name string) bool {
+func IsDir(name string) (bool, error) {
 	// TODO: lstat?
 	fi, err := os.Stat(name)
 	if os.IsNotExist(err) {
@@ -773,7 +781,7 @@ func HasFilepathPrefix(path, prefix string) bool {
 	return true
 }
 
-func IsRunningOnUsb() bool {
+func IsPathOnUsb(path string) bool {
 	if runtime.GOOS == "linux" {
 		// On Linux, the go module 'gousbdrivedetector' needs the
 		// `udevadm` CLI and it may not be there so we'll check first.
@@ -788,12 +796,8 @@ func IsRunningOnUsb() bool {
 		return false
 	}
 
-	executablePath, err := os.Executable()
-	if err != nil {
-		return false
-	}
 	for _, usbPath := range usbDevicePaths {
-		if HasFilepathPrefix(executablePath, usbPath) {
+		if HasFilepathPrefix(path, usbPath) {
 			return true
 		}
 	}
@@ -801,15 +805,17 @@ func IsRunningOnUsb() bool {
 	return false
 }
 
-// If we are running on a usb device, store the cache there, for stronger
+// If we are running on a usb device, store the cache there, for better
 // isolation. Otherwise use a temporary directory.
 func GetCacheDirectory() (cacheDirectory string) {
-	if IsRunningOnUsb() {
-		executablePath, err := os.Executable()
-		if err != nil {
-			return GetTempDir()
-		}
-		return filepath.Dir(executablePath)
+	executablePath, err := os.Executable()
+	if err != nil {
+		return GetTempDir()
+	}
+	executableDirectory := filepath.Dir(executablePath)
+
+	if IsPathOnUsb(executableDirectory) {
+		return executableDirectory
 	} else {
 		return GetTempDir()
 	}

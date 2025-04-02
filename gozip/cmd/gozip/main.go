@@ -4,23 +4,12 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"os"
 
 	"github.com/sanderhahn/gozip"
 )
 
 func main() {
-	defer func() {
-		err := recover()
-		gozipErr, ok := err.(gozip.GozipError)
-		if ok {
-			log.Fatal(gozipErr)
-		} else if err != nil {
-			panic(err)
-		}
-	}()
-
 	executablePath, err := os.Executable()
 	if err != nil {
 		gozip.GozipPanic(err)
