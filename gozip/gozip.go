@@ -121,7 +121,7 @@ func EndProgress() {
 	}
 }
 
-func IsSymlink(path string) (bool, error) {
+func IsSymlink(path string) bool {
 	fileInfo, err := os.Lstat(path)
 	if err != nil {
 		return false, err
@@ -129,7 +129,7 @@ func IsSymlink(path string) (bool, error) {
 	return fileInfo.Mode()&os.ModeSymlink == os.ModeSymlink, nil
 }
 
-func Zip(destinationPath string, filesToZip []string) (err error) {
+func Zip(destinationPath string, filesToZip []string) {
 	destinationFile, err := os.OpenFile(destinationPath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		return err
@@ -260,7 +260,7 @@ func Zip(destinationPath string, filesToZip []string) (err error) {
 	return err
 }
 
-func createFile(path string) (*os.File, error) {
+func createFile(path string) *os.File {
 	dir := filepath.Dir(path)
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
@@ -273,7 +273,7 @@ func createFile(path string) (*os.File, error) {
 	return f, nil
 }
 
-func cleanupDir(dir string) error {
+func cleanupDir(dir string) {
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return err
@@ -331,7 +331,7 @@ func SeekToTar(file os.File) os.File {
 }
 
 // Unzip unzips the file zippath and puts it in destination
-func Unzip(zippath string, destination string) (err error) {
+func Unzip(zippath string, destination string) {
 	NextStep(
 		-1,
 		"Calculating archive size",
@@ -437,10 +437,10 @@ func Unzip(zippath string, destination string) (err error) {
 }
 
 // UnzipList Lists all the files in zip file
-func UnzipList(path string) (list []string, err error) {
+func UnzipList(path string) (list []string) {
 	zipFile, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		GozipPanic(err)
 	}
 	defer func() {
 		err = errors.Join(err, zipFile.Close())
@@ -449,7 +449,7 @@ func UnzipList(path string) (list []string, err error) {
 
 	zRdr, err := zstd.NewReader(zipFile)
 	if err != nil {
-		return nil, err
+		GozipPanic(err)
 	}
 	defer zRdr.Close()
 	tarRdr := tar.NewReader(zRdr)
@@ -460,7 +460,7 @@ func UnzipList(path string) (list []string, err error) {
 			break
 		}
 		if err != nil {
-			return nil, err
+			GozipPanic(err)
 		}
 
 		name := filepath.Clean(hdr.Name)
@@ -470,14 +470,14 @@ func UnzipList(path string) (list []string, err error) {
 		list = append(list, name)
 	}
 
-	return list, nil
+	return list
 }
 
-func CreateDirectoryIfNotExists(path string) (err error) {
+func CreateDirectoryIfNotExists(path string) {
 	return os.MkdirAll(path, 0755)
 }
 
-func IsFileExists(path string) (bool, error) {
+func IsFileExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -488,7 +488,7 @@ func IsFileExists(path string) (bool, error) {
 	}
 }
 
-func IsSymlinkExists(path string) (bool, error) {
+func IsSymlinkExists(path string) bool {
 	_, err := os.Lstat(path)
 	if err == nil {
 		return true, nil
@@ -522,7 +522,7 @@ func GetFileCount(path string) int {
 	return count
 }
 
-func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath string) error {
+func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath string) {
 	if archiveCount == 0 {
 		NextStep(
 			-1,
@@ -638,7 +638,7 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 	return g.Wait()
 }
 
-func GetNewStorePath() (prefix string, err error) {
+func GetNewStorePath() (prefix string) {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	charset := "abcdefghijklmnopqrstuvwxyz"
 	var candidatePrefix string
@@ -668,7 +668,7 @@ func GetTempDir() (tempDir string) {
 	return os.TempDir()
 }
 
-func IsDir(name string) (bool, error) {
+func IsDir(name string) bool {
 	// TODO: lstat?
 	fi, err := os.Stat(name)
 	if os.IsNotExist(err) {
@@ -815,78 +815,64 @@ func GetCacheDirectory() (cacheDirectory string) {
 	}
 }
 
-func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCachePath string, err error) {
+func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCachePath string) {
 	NextStep(
 		-1,
 		"Checking cache",
 		progressbar.OptionSpinnerType(14),
 	)
 
-	// TODO: if the cache directory is not on a USB, I should use mktemp to
-	// ensure the name is available
 	cachePath := filepath.Join(GetCacheDirectory(), "nix-rootless-bundler")
-	err = CreateDirectoryIfNotExists(cachePath)
-	if err != nil {
-		return "", "", err
-	}
+	CreateDirectoryIfNotExists(cachePath)
 
 	executablePath, err := os.Executable()
 	if err != nil {
-		return "", "", err
+		GozipPanic(err)
 	}
 
 	executableName := filepath.Base(executablePath)
 	executableCachePath = filepath.Join(cachePath, executableName)
-	err = CreateDirectoryIfNotExists(executableCachePath)
-	if err != nil {
-		return "", "", err
-	}
+	CreateDirectoryIfNotExists(executableCachePath)
 
 	executable, err := os.Open(executablePath)
 	if err != nil {
-		return "", "", err
+		GozipPanic(err)
 	}
 	defer func() {
-		err = errors.Join(err, executable.Close())
+		errFromDefer := executable.Close()
+		if err != nil || errFromDefer != nil {
+			GozipPanic(errors.Join(err, errFromDefer))
+		}
 	}()
 	hash := sha256.New()
 	_, err = io.Copy(hash, executable)
 	if err != nil {
-		return "", "", err
+		GozipPanic(err)
 	}
 	expectedExecutableChecksum := []byte(hex.EncodeToString(hash.Sum(nil)))
 	archiveContentsPath := filepath.Join(executableCachePath, "archive-contents")
 
 	isNewExtraction := false
 	executableChecksumFile := filepath.Join(executableCachePath, "checksum.txt")
-	executableChecksumFileExists, err := IsFileExists(executableChecksumFile)
-	if err != nil {
-		return "", "", err
-	}
+	executableChecksumFileExists := IsFileExists(executableChecksumFile)
 	if executableChecksumFileExists {
 		checksum, err := os.ReadFile(executableChecksumFile)
 		if err != nil {
-			return "", "", err
+			GozipPanic(err)
 		}
 		if !bytes.Equal(checksum, expectedExecutableChecksum) {
-			err = Unzip(executablePath, archiveContentsPath)
-			if err != nil {
-				return "", "", err
-			}
+			Unzip(executablePath, archiveContentsPath)
 			err = os.WriteFile(executableChecksumFile, expectedExecutableChecksum, 0755)
 			if err != nil {
-				return "", "", err
+				GozipPanic(err)
 			}
 			isNewExtraction = true
 		}
 	} else {
-		err = Unzip(executablePath, archiveContentsPath)
-		if err != nil {
-			return "", "", err
-		}
+		Unzip(executablePath, archiveContentsPath)
 		err = os.WriteFile(executableChecksumFile, expectedExecutableChecksum, 0755)
 		if err != nil {
-			return "", "", err
+			GozipPanic(err)
 		}
 		isNewExtraction = true
 	}
@@ -895,35 +881,32 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	var newStorePath string
 	isNewStorePath := false
 	linkToCurrentStorePath := filepath.Join(executableCachePath, "link-to-store")
-	doesLinkToCurrentStorePathExist, err := IsSymlinkExists(linkToCurrentStorePath)
-	if err != nil {
-		return "", "", err
-	}
+	doesLinkToCurrentStorePathExist := IsSymlinkExists(linkToCurrentStorePath)
 	if doesLinkToCurrentStorePathExist {
-		currentStorePath, _ = os.Readlink(linkToCurrentStorePath)
-		doesCurrentStorePathExist, err := IsSymlinkExists(currentStorePath)
+		currentStorePath, err = os.Readlink(linkToCurrentStorePath)
 		if err != nil {
-			return "", "", err
+			GozipPanic(err)
 		}
 		// TODO: Should I worry about other programs making a file with
 		// the same name?
+		doesCurrentStorePathExist := IsSymlinkExists(currentStorePath)
 		if doesCurrentStorePathExist {
 			currentStorePathTarget, _ := os.Readlink(currentStorePath)
 			if currentStorePathTarget != archiveContentsPath {
 				err = os.Remove(linkToCurrentStorePath)
 				if err != nil {
-					return "", "", err
+					GozipPanic(err)
 				}
 				// recreate it
 				err = os.Symlink(archiveContentsPath, currentStorePath)
 				if err != nil {
-					return "", "", err
+					GozipPanic(err)
 				}
 			}
 		} else { // recreate it
 			err = os.Symlink(archiveContentsPath, currentStorePath)
 			if err != nil {
-				return "", "", err
+				GozipPanic(err)
 			}
 		}
 
@@ -933,40 +916,36 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 		}
 	} else { // if there's no link-to-store we must not have ever made a new store path so assume it's the original store path
 		currentStorePath = "/nix/store"
-		newStorePath, err = GetNewStorePath()
-		if err != nil {
-			return "", "", err
-		}
+		newStorePath = GetNewStorePath()
 		err = os.Symlink(archiveContentsPath, newStorePath)
 		if err != nil {
-			return "", "", err
+			GozipPanic(err)
 		}
 		err = os.Symlink(newStorePath, linkToCurrentStorePath)
 		if err != nil {
-			return "", "", err
+			GozipPanic(err)
 		}
 		isNewStorePath = true
 	}
 
 	if isNewExtraction || isNewStorePath {
-		err = RewritePaths(archiveContentsPath, currentStorePath, newStorePath)
-		if err != nil {
-			return "", "", err
-		}
+		RewritePaths(archiveContentsPath, currentStorePath, newStorePath)
 	}
 
-	return archiveContentsPath, executableCachePath, nil
+	return archiveContentsPath, executableCachePath
 }
 
 func SelfExtractAndRunNixEntrypoint() (exitCode int) {
-	extractedArchivePath, cachePath, err := ExtractArchiveAndRewritePaths()
-	if err != nil {
-		GozipPanic(err)
-	}
+	var err error
+
+	extractedArchivePath, cachePath := ExtractArchiveAndRewritePaths()
 	defer func() {
 		deleteCacheEnvVariable := os.Getenv("NIX_ROOTLESS_BUNDLER_DELETE_CACHE")
 		if len(deleteCacheEnvVariable) > 0 {
-			err = errors.Join(err, os.RemoveAll(cachePath))
+			errFromDefer := os.RemoveAll(cachePath)
+			if err != nil || errFromDefer != nil {
+				GozipPanic(errors.Join(err, errFromDefer))
+			}
 		}
 	}()
 

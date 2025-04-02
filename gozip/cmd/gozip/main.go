@@ -45,10 +45,7 @@ func main() {
 	argc := len(args)
 	if list && argc == 1 {
 		path := args[0]
-		list, err := gozip.UnzipList(path)
-		if err != nil {
-			gozip.GozipPanic(err)
-		}
+		list := gozip.UnzipList(path)
 		for _, f := range list {
 			fmt.Printf("%s\n", f)
 		}
@@ -58,14 +55,8 @@ func main() {
 		if argc == 2 {
 			dest = args[1]
 		}
-		err := gozip.Unzip(path, dest)
-		if err != nil {
-			gozip.GozipPanic(err)
-		}
+		gozip.Unzip(path, dest)
 	} else if create && argc > 1 {
-		err := gozip.Zip(args[0], args[1:])
-		if err != nil {
-			gozip.GozipPanic(err)
-		}
+		gozip.Zip(args[0], args[1:])
 	}
 }
