@@ -280,7 +280,20 @@ check:
                         run: golangci-lint run
                       - name: gopls
                         glob: "*.go"
-                        run: gopls check {files}
+                        run: |
+                          function check {
+                            # TODO: gopls should have an option for failing if an
+                            # error was found.
+                            issues="$(gopls check "$@")"
+                            if [[ -n "$issues" ]]; then
+                              echo "$issues"
+                              exit 1
+                            fi
+                          }
+                          # I use a function because lefthook is assuming that the
+                          # {files} placeholder is not inside a string. So its
+                          # escaping may not work otherwise.
+                          check {files}
                       - name: ruff
                         glob: "*.py"
                         run: ruff check {files}

@@ -417,8 +417,7 @@ func Unzip(zippath string, destination string) {
 				panic(err)
 			}
 		default:
-			// unsupported file type
-			panic(err)
+			panic(errors.New("unsupported file type"))
 		}
 
 		err = progressBar.Add(1)
