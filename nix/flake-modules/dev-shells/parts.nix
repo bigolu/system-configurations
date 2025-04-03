@@ -279,10 +279,6 @@ rec {
             [[ ''${CI:-} == 'true' ]]
           }
 
-          function is_debugging_ci {
-            [[ ''${CI_DEBUG:-} == 'true' ]]
-          }
-
           # To avoid hard coding the path to the flake package set in every script's
           # nix-shell shebang, I export a variable with the path.
           export FLAKE_PACKAGE_SET_FILE=${source}/nix/flake-package-set.nix
@@ -301,13 +297,8 @@ rec {
           # but that shouldn't be a problem unless a breaking change is made to
           # runCommand.
           #
-          # I check to see if I'm debugging CI because this is one thing that is done
-          # in CI that I also want done when debugging CI locally. I don't want to
-          # set CI to true because then things like creating GitHub issues would
-          # happen locally.
-          #
           # [1]: https://github.com/nix-community/comma
-          if is_running_in_ci || is_debugging_ci; then
+          if is_running_in_ci; then
             export NIX_PATH="nixpkgs=${source}/nix/nixpkgs.nix''${NIX_PATH:+:$NIX_PATH}"
           fi
         '';

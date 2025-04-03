@@ -37,8 +37,8 @@ function main {
 function publish_report {
   local -r report_path="$1"
 
-  # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
-  if [[ ${CI:-} == 'true' ]]; then
+  # Most CI systems, e.g. GitHub Actions, set CI to 'true'
+  if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
     gh issue create --title 'Link Checker Report' --body-file "$report_path"
   else
     printf '%s\n' \

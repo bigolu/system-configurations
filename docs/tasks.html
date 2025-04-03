@@ -35,12 +35,19 @@
 <p>The package to build e.g. .#shell</p>
 <h2><code>debug-ci</code></h2>
 <ul>
-<li><strong>Usage</strong>: <code>debug-ci &lt;direnv_dev_shell&gt;</code></li>
+<li><strong>Usage</strong>: <code>debug-ci [FLAGS] &lt;event&gt;</code></li>
 </ul>
-<p>Start a Bash REPL in a direnv CI environment</p>
+<p>Run CI workflows locally</p>
 <h3>Arguments</h3>
-<h4><code>&lt;direnv_dev_shell&gt;</code></h4>
-<p>The dev shell that direnv should load</p>
+<h4><code>&lt;event&gt;</code></h4>
+<p>The event that should trigger the workflow(s)</p>
+<h3>Flags</h3>
+<h4><code>-f --force-container</code></h4>
+<p>Use a container even if it could be run natively</p>
+<h4><code>-w --workflow... &lt;workflow-file&gt;</code></h4>
+<p>Workflow(s) to run.</p>
+<h4><code>-j --job... &lt;job&gt;</code></h4>
+<p>Job(s) to run.</p>
 <h2><code>debug-shell</code></h2>
 <ul>
 <li><strong>Usage</strong>: <code>debug-shell</code></li>

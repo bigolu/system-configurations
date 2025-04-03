@@ -251,49 +251,93 @@ usage = '''
 run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link {{arg(name="package")}}'
 
 [tasks.debug-ci]
-description = "Start a Bash REPL in a direnv CI environment"
+description = "Run CI workflows locally"
 usage = '''
-  arg "<direnv_dev_shell>" help="The dev shell that direnv should load"
-  complete "direnv_dev_shell" run=#"""
-    nix eval --impure --raw --apply \
-      '
-        with builtins;
-        shells:
-          concatStringsSep
-            "\n"
-            (filter
-              (name: (substring 0 3 name) == "ci-")
-              (attrNames shells))
-      ' \
-      .#currentSystem.devShells 2>/dev/null
+  arg "<event>" help="The event that should trigger the workflow(s)"
+  complete "event" run=#"""
+    yq '.. | select(has("on")) | .on | keys | .[]' .github/workflows/*
+  """#
+
+  flag "-f --force-container" help="Use a container even if it could be run natively"
+
+  flag "-w --workflow <workflow-file>" var=#true help="Workflow(s) to run."
+  complete "workflow-file" run=#"""
+    printf '%s\n' .github/workflows/*
+  """#
+
+  flag "-j --job <job>" var=#true help="Job(s) to run."
+  complete "job" run=#"""
+    yq '.. | select(has("jobs")) | .jobs | keys | .[]' .github/workflows/*
   """#
 '''
 run = '''
-  bash_interactive="$(nix eval --raw --file nix/flake-package-set.nix 'bashInteractive')/bin/bash"
+  workflow_flags=()
+  if [[ {{arg(name="workflow")}} != false ]]; then
+    for workflow in {{arg(name="workflow")}}; do
+      workflow_flags+=(--workflows "$workflow")
+    done
+  fi
+
+  job_flags=()
+  if [[ {{arg(name="job")}} != false ]]; then
+    for job in {{arg(name="job")}}; do
+      job_flags+=(--job "$job")
+    done
+  fi
+
+  self_hosted_flags=()
+  if [[ {{arg(name="force-container")}} != true ]]; then
+    workflow_files=(.github/workflows/*)
+    readarray -t os_list < <(
+      {
+        yq '[.. | select(has("runs-on")) | .runs-on] | .[]' "${workflow_files[@]}"
+        yq '.. | select(has("os")) | .os | .[]' "${workflow_files[@]}"
+      } |
+        sort --unique
+    )
+
+    # e.g. 'Linux x86_64'
+    current_platform="$(uname -ms)"
+
+    self_hosted_os_list=()
+    for os in "${os_list[@]}"; do
+      if [[ $current_platform == 'Linux x86_64' ]]; then
+        pattern='ubuntu-*'
+        if [[ $os =~ $pattern ]] ; then
+          self_hosted_os_list+=($os)
+        fi
+      elif [[ $current_platform == 'Darwin x86_64' ]]; then
+        pattern='macos-*'
+        if [[ $os =~ $pattern ]] ; then
+          self_hosted_os_list+=($os)
+        fi
+      fi
+    done
+
+    for os in "${self_hosted_os_list[@]}"; do
+      self_hosted_flags+=(--platform "${os}=-self-hosted")
+    done
+  fi
 
   environment_variables=(
-    DIRENV_DEV_SHELL={{arg(name="direnv_dev_shell")}}
-    CI_DEBUG=true
-
-    # direnv stores its cache in the directory specified in `direnv_layout_dir`.
-    # If it's not set, .direnv is used. I'm changing it so nix-direnv doesn't
-    # overwrite the dev shell cached in .direnv with the one built here.
-    direnv_layout_dir="$(mktemp --directory)"
-
-    # direnv requires the `HOME` variable be set. I'm using a temporary
-    # directory to avoid accessing anything from the real `HOME` inside this
-    # environment.
+    # So `act` can access its cache directory, config directory, etc.
     HOME="$(mktemp --directory)"
   )
 
   nix_shell_flags=(
-    --file nix/flake-package-set.nix nix
+    --file nix/flake-package-set.nix nix act
+    # Dependencies for actions
+    nodejs coreutils bash
 
     --ignore-environment
-    --keep DIRENV_DEV_SHELL --keep CI_DEBUG --keep direnv_layout_dir --keep HOME
+    --keep HOME
     {{vars.nix_shell_keep_terminal_env_vars}}
 
-    --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive" --noprofile --norc
+    --command act
+    --artifact-server-path $PWD/.direnv/act-artifacts
+    --env CI_DEBUG=true
+    "${workflow_flags[@]}" ${job_flags[@]} "${self_hosted_flags[@]}"
+    {{arg(name="event")}}
   )
 
   env "${environment_variables[@]}" nix shell "${nix_shell_flags[@]}"
