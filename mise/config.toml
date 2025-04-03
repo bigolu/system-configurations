@@ -243,14 +243,78 @@ run = '''
 # Debugging
 # ------------------------------------------------------------------------------
 
-[tasks.debug]
+[tasks.debug-build]
 description = "Run `nix build` in debug mode"
 usage = '''
   arg "<package>" help="The package to build e.g. .#shell"
 '''
 run = 'nix build --impure --ignore-try  --debugger --print-out-paths  --no-link {{arg(name="package")}}'
 
-[tasks.debug-ci]
+[tasks.debug-shell]
+description = "Start `.#shell` in an empty environment"
+run = '''
+  nix_shell_flags=(
+    --ignore-environment
+    --keep HOME
+    {{vars.nix_shell_keep_terminal_env_vars}}
+
+    # Use '*' so I don't have to hard-code the program name
+    --command "$(nix build --print-out-paths  --no-link .#shell)/bin/"*
+  )
+
+  env HOME="$(mktemp --directory)" nix shell "${nix_shell_flags[@]}"
+'''
+
+[tasks.debug-ci-direnv]
+description = "Start a Bash shell in a direnv CI environment"
+usage = '''
+  arg "<direnv_dev_shell>" help="The dev shell that direnv should load"
+  complete "direnv_dev_shell" run=#"""
+    nix eval --impure --raw --apply \
+      '
+        with builtins;
+        shells:
+          concatStringsSep
+            "\n"
+            (filter
+              (name: (substring 0 3 name) == "ci-")
+              (attrNames shells))
+      ' \
+      .#currentSystem.devShells 2>/dev/null
+  """#
+'''
+run = '''
+  bash_interactive="$(nix eval --raw --file nix/flake-package-set.nix 'bashInteractive')/bin/bash"
+
+  environment_variables=(
+    DIRENV_DEV_SHELL={{arg(name="direnv_dev_shell")}}
+    CI_DEBUG=true
+
+    # direnv stores its cache in the directory specified in `direnv_layout_dir`.
+    # If it's not set, .direnv is used. I'm changing it so nix-direnv doesn't
+    # overwrite the dev shell cached in .direnv with the one built here.
+    direnv_layout_dir="$(mktemp --directory)"
+
+    # direnv requires the `HOME` variable be set. I'm using a temporary
+    # directory to avoid accessing anything from the real `HOME` inside this
+    # environment.
+    HOME="$(mktemp --directory)"
+  )
+
+  nix_shell_flags=(
+    --file nix/flake-package-set.nix nix
+
+    --ignore-environment
+    --keep DIRENV_DEV_SHELL --keep CI_DEBUG --keep direnv_layout_dir --keep HOME
+    {{vars.nix_shell_keep_terminal_env_vars}}
+
+    --command ./direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive" --noprofile --norc
+  )
+
+  env "${environment_variables[@]}" nix shell "${nix_shell_flags[@]}"
+'''
+
+[tasks.debug-ci-runner]
 description = "Run CI workflows locally"
 usage = '''
   arg "<event>" help="The event that should trigger the workflow(s)"
@@ -346,19 +410,4 @@ run = '''
   )
 
   env "${environment_variables[@]}" nix shell "${nix_shell_flags[@]}"
-'''
-
-[tasks.debug-shell]
-description = "Start `.#shell` in an empty environment"
-run = '''
-  nix_shell_flags=(
-    --ignore-environment
-    --keep HOME
-    {{vars.nix_shell_keep_terminal_env_vars}}
-
-    # Use '*' so I don't have to hard-code the program name
-    --command "$(nix build --print-out-paths  --no-link .#shell)/bin/"*
-  )
-
-  env HOME="$(mktemp --directory)" nix shell "${nix_shell_flags[@]}"
 '''
