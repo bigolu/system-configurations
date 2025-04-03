@@ -66,7 +66,10 @@ moduleContext@{ lib, ... }:
       };
 
       ci-renovate = {
-        packages = with pkgs; [ renovate ];
+        packages = with pkgs; [
+          renovate
+          gitMinimal
+        ];
         shellHook = ''
           export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
           export LOG_LEVEL='debug'
