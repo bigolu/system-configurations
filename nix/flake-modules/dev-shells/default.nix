@@ -59,10 +59,7 @@ moduleContext@{ lib, ... }:
       };
 
       ci-check-for-broken-links = {
-        inputsFrom = [
-          # Runs the check
-          parts.lefthook
-        ];
+        inputsFrom = [ parts.lefthook ];
         shellHook = ''
           export LEFTHOOK_ENABLE_LYCHEE='true'
         '';
@@ -73,6 +70,10 @@ moduleContext@{ lib, ... }:
         shellHook = ''
           export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
           export LOG_LEVEL='debug'
+          if [[ $CI_DEBUG == 'true' ]]; then
+            export RENOVATE_DRY_RUN='full'
+          fi
+
           # Post-Upgrade tasks are executed in the directory of the repo that's
           # currently being processed. I'm going to save the path to this repo so I
           # can run the scripts in it.

@@ -361,22 +361,22 @@ check:
                           - nix/*
                           - dotfiles/*
                           - gozip/*
-                        skip:
-                          # This would take a long time to run in GitHub Actions
-                          # since it would have to download all the dependencies.
-                          - run: '[ "$CI" = true ]'
                         run: nix flake check
                       - name: nix-config
-                        skip:
-                          - run: '[ "$CI" = true ]'
                         glob:
                           - "*.nix"
                           - flake.lock
                         run: nix config check
           - name: lychee
-            # This will be run on an interval in CI. Instead of using an environment
-            # variable, I'd rather just move this check to a separate hook, but I
-            # want it to inherit the excludes that are set in the top-most job.
+            # Lychee, a link checker, will be run periodically in CI. To ensure it
+            # doesn't run anywhere else, I only set LEFTHOOK_ENABLE_LYCHEE to true in
+            # the CI workflow for checking links. I'd prefer to move this check to a
+            # separate hook instead of disabling/enabling it with an environment
+            # variable, but I want it to inherit the excludes that are set in the
+            # top-most job for this hook.
+            #
+            # TODO: There's an open feature request for a global exclude list[1]. If
+            # that gets implemented, I can move this to a separate hook.
             only:
               - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
             exclude:

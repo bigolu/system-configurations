@@ -255,7 +255,7 @@ description = "Run CI workflows locally"
 usage = '''
   arg "<event>" help="The event that should trigger the workflow(s)"
   complete "event" run=#"""
-    yq '.. | select(has("on")) | .on | keys | .[]' .github/workflows/*
+    yq --no-doc '.. | select(has("on")) | .on | keys | .[]' .github/workflows/*
   """#
 
   flag "-f --force-container" help="Use a container even if it could be run natively"
@@ -267,7 +267,7 @@ usage = '''
 
   flag "-j --job <job>" var=#true help="Job(s) to run."
   complete "job" run=#"""
-    yq '.. | select(has("jobs")) | .jobs | keys | .[]' .github/workflows/*
+    yq --no-doc '.. | select(has("jobs")) | .jobs | keys | .[]' .github/workflows/*
   """#
 '''
 run = '''
@@ -290,8 +290,8 @@ run = '''
     workflow_files=(.github/workflows/*)
     readarray -t os_list < <(
       {
-        yq '[.. | select(has("runs-on")) | .runs-on] | .[]' "${workflow_files[@]}"
-        yq '.. | select(has("os")) | .os | .[]' "${workflow_files[@]}"
+        yq --no-doc '[.. | select(has("runs-on")) | .runs-on] | .[]' "${workflow_files[@]}"
+        yq --no-doc '.. | select(has("os")) | .os | .[]' "${workflow_files[@]}"
       } |
         sort --unique
     )
@@ -326,7 +326,8 @@ run = '''
 
   nix_shell_flags=(
     --file nix/flake-package-set.nix nix act
-    # Dependencies for actions
+    # Dependencies for actions. This is needed if we're self hosting, otherwise the
+    # container will have them.
     nodejs coreutils bash
 
     --ignore-environment
@@ -334,6 +335,10 @@ run = '''
     {{vars.nix_shell_keep_terminal_env_vars}}
 
     --command act
+    # TODO: Can remove this platform when this is resolved:
+    # https://github.com/nektos/act/issues/2329
+    -P ubuntu-24.04=catthehacker/ubuntu:act-latest
+    --reuse
     --artifact-server-path $PWD/.direnv/act-artifacts
     --env CI_DEBUG=true
     "${workflow_flags[@]}" ${job_flags[@]} "${self_hosted_flags[@]}"

@@ -1,6 +1,10 @@
-# Copy this to <project_root>/.envrc. .envrc should never be committed to version
-# control so users can make changes to it without accidentally committing those
-# changes. Here are some examples of the changes they could make:
+# For local development, create the file <project_root>/.envrc and add the following
+# line:
+#   source direnv/local.bash
+#
+# .envrc shouldn't be committed to version control so users can make changes to it
+# without accidentally committing them. Here are some examples of changes they could
+# make:
 #   - Users may want to apply configuration specific to themselves. For example,
 #     authentication tokens or shell aliases.
 #   - Users can set environment variables that influence the behavior of the project
@@ -18,5 +22,5 @@
 #
 # [1]: https://github.com/NixOS/nixpkgs/pull/325793#issuecomment-2219538799
 
-export DIRENV_DEV_SHELL='local'
+export DIRENV_DEV_SHELL="${DIRENV_DEV_SHELL:-local}"
 source direnv/base.bash
