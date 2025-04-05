@@ -21,6 +21,8 @@ runs:
       run: |
         ./direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
-        # GitHub Actions handles the PATH differently
+        # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
+        #
+        # [1]: https://github.com/actions/toolkit/issues/655
         ./direnv/direnv-wrapper.bash direnv/ci.bash \
           exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
