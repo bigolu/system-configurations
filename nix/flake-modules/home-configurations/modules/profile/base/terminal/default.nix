@@ -56,8 +56,6 @@ in
       less
       rsync
       gawkInteractive
-      # For ssh.fish
-      ncurses
     ]
     ++ optionals isLinux [
       trashy
@@ -78,7 +76,6 @@ in
         "lsd".source = "lsd";
         "lesskey".source = "less/lesskey";
         "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
-        "ssh/bootstrap.sh".source = "ssh/bootstrap.sh";
         "broot".source = "broot";
         "bat".source = "bat";
       }
