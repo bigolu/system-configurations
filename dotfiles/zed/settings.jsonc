@@ -27,8 +27,8 @@
     // https://github.com/zed-industries/zed/issues/21678
     "shell": {
       "with_arguments": {
-        "program": "/bin/sh",
-        "args": ["-c", "exec $SHELL"]
+        "program": "/usr/bin/env",
+        "args": ["sh", "-c", "exec $SHELL"]
       }
     }
   },
