@@ -17,8 +17,9 @@
 # doing this. My reason for using interactive mode can be found in
 # Speakers.spoon/init.lua.
 #
-# - Zed will launch the shell in interactive mode to resolve the environment. It sets
-# `ZED_TERM` when resolving the environment so I check for that.
+# - Zed will launch the shell in interactive mode to resolve the environment. Unlike
+#   VS Code, it doesn't set an environment variable to indicate that it's resolving
+#   the environment. Instead, I check if stdin is a terminal.
 #
 # [1]: https://code.visualstudio.com/docs/supporting/FAQ#_resolving-shell-environment-fails
 # [2]: https://github.com/microsoft/vscode/issues/177126#issuecomment-1630889619
@@ -26,7 +27,7 @@
 if
   (( ${+VSCODE_RESOLVING_ENVIRONMENT} )) \
     || (( ${+HAMMERSPOON_RESOLVING_ENVIRONMENT} )) \
-    || (( ${+ZED_TERM} ))
+    || [ ! -t 1 ]
 then
   return
 fi

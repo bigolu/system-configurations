@@ -28,6 +28,8 @@
         recursive = true;
       };
       "direnv/direnv.toml".source = "direnv/direnv.toml";
+      # Zed only recognizes the ".json" extension, but it's actually jsonc
+      "zed/settings.json".source = "zed/settings.jsonc";
     };
   };
 }

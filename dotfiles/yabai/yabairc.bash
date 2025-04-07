@@ -54,7 +54,7 @@ function set_padding {
 }
 call_set_padding="$(declare -pf set_padding)"$'\n''set_padding'
 eval "$call_set_padding"
-set_padding_events=(window_created window_destroyed window_minimized window_deminimized window_moved)
+set_padding_events=(window_created window_destroyed window_minimized window_deminimized window_moved window_resized)
 for event in "${set_padding_events[@]}"; do
   yabai -m signal --add "label=set_padding_$event" "event=$event" action="$call_set_padding"
 done

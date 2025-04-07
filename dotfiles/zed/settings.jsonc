@@ -1,0 +1,38 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run the `open default settings` command
+// from the command palette or from `Zed` application menu.
+{
+  "theme": {
+    "mode": "system",
+    "dark": "Nord",
+    "light": "Nord Light"
+  },
+  "vim_mode": true,
+  "ui_font_size": 15,
+  "buffer_font_size": 14,
+  "buffer_font_family": "JetBrains Mono NL",
+  "buffer_font_fallbacks": ["Symbols Nerd Font Mono"],
+  "autosave": {
+    "after_delay": {
+      "milliseconds": 1000
+    }
+  },
+  "terminal": {
+    // Zed shouldn't be using a login shell:
+    // https://github.com/zed-industries/zed/issues/21678
+    "shell": {
+      "with_arguments": {
+        "program": "/bin/sh",
+        "args": ["-c", "exec $SHELL"]
+      }
+    }
+  },
+  "gutter": {
+    "line_numbers": false
+  }
+}
