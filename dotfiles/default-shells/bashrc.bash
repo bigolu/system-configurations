@@ -38,13 +38,14 @@ fi
 # shell was started for shell resolution using the environment variable that VS Code
 # sets to indicate this[3].
 #
-# - Zed will launch the shell in interactive mode to resolve the environment. It sets
-# `ZED_TERM` when resolving the environment so I check for that.
+# - Zed will launch the shell in interactive mode to resolve the environment. Unlike
+#   VS Code, it doesn't set an environment variable to indicate that it's resolving
+#   the environment. Instead, I check if stdin isn't a terminal.
 #
 # [1]: https://code.visualstudio.com/docs/supporting/FAQ#_resolving-shell-environment-fails
 # [2]: https://github.com/microsoft/vscode/issues/177126#issuecomment-1630889619
 # [3]: https://github.com/microsoft/vscode/issues/163186
-if [[ -n ${VSCODE_RESOLVING_ENVIRONMENT+set} ]] || [[ -n ${ZED_TERM+set} ]]; then
+if [[ -n ${VSCODE_RESOLVING_ENVIRONMENT+set} ]] || [[ ! -t 1 ]]; then
   return
 fi
 

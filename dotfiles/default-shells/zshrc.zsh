@@ -19,7 +19,7 @@
 #
 # - Zed will launch the shell in interactive mode to resolve the environment. Unlike
 #   VS Code, it doesn't set an environment variable to indicate that it's resolving
-#   the environment. Instead, I check if stdin is a terminal.
+#   the environment. Instead, I check if stdin isn't a terminal.
 #
 # [1]: https://code.visualstudio.com/docs/supporting/FAQ#_resolving-shell-environment-fails
 # [2]: https://github.com/microsoft/vscode/issues/177126#issuecomment-1630889619
