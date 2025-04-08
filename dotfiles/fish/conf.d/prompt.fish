@@ -15,16 +15,6 @@ function _prompt_max_length
     math max\($COLUMNS - 4, 1\)
 end
 
-function _start_prompt_at_bottom --on-event fish_prompt
-    functions --erase (status current-function)
-    tput cup 200 0
-end
-# Set the binding on fish_prompt since something else was overriding it.
-function __set_clear_keybind --on-event fish_prompt
-    functions -e (status current-function)
-end
-bind ctrl-l 'clear && exec fish'
-
 function fish_prompt --description 'Print the prompt'
     # I want the value of $status and $pipestatus for the last command executed
     # on the command line so I will store their values now before executing any

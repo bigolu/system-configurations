@@ -1,4 +1,4 @@
-moduleContext@{ lib, ... }:
+moduleContext@{ lib, utils, ... }:
 {
   perSystem =
     perSystemContext@{ pkgs, ... }:
@@ -9,12 +9,9 @@ moduleContext@{ lib, ... }:
         pipe
         hasPrefix
         ;
+      inherit (utils) applyIf;
 
       parts = import ./parts.nix (moduleContext // perSystemContext);
-
-      applyIf =
-        condition: function: arg:
-        if condition then function arg else arg;
 
       includeCiEssentials =
         devShellSpec:

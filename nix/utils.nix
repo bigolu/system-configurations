@@ -50,6 +50,10 @@ let
   # Per nixpkgs' version conventions, it needs to start with a digit:
   # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#versioning
   unstableVersion = "0-unstable";
+
+  applyIf =
+    condition: function: arg:
+    if condition then function arg else arg;
 in
 {
   inherit
@@ -59,5 +63,6 @@ in
     toNixpkgsAttr
     toNixpkgsPname
     unstableVersion
+    applyIf
     ;
 }

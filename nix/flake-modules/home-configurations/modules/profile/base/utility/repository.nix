@@ -6,7 +6,13 @@
 # TODO: I probably wouldn't need this if Home Manager did what is suggested here:
 # https://github.com/nix-community/home-manager/issues/3032
 
-{ lib, config, ... }:
+{
+  lib,
+  config,
+  utils,
+  pkgs,
+  ...
+}:
 let
   inherit (lib)
     types
@@ -21,6 +27,7 @@ let
     foldlAttrs
     pipe
     splitString
+    getExe
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (config.lib.file) mkOutOfStoreSymlink;
@@ -31,7 +38,12 @@ let
     filter
     attrValues
     listToAttrs
+    readFile
+    replaceStrings
+    hasAttr
     ;
+  inherit (utils) applyIf;
+  inherit (pkgs) writeScript;
 in
 {
   options.repository =
@@ -212,6 +224,8 @@ in
           homeManagerSource = pipe file.source [
             makePathAbsolute
             symlinkOrCopy
+            # only executable options have "removeExtension"
+            (applyIf ((hasAttr "removeExtension" file) && !isEditableInstall) replaceShebangInterpreter)
           ];
 
           homeManagerTarget =
@@ -266,6 +280,14 @@ in
           in
           accumulator // homeManagerFileSet
         ) { } fileSet;
+
+      replaceShebangInterpreter =
+        file:
+        pipe file [
+          readFile
+          (replaceStrings [ "/usr/bin/env bash" ] [ (getExe pkgs.bash) ])
+          (writeScript "patched-xdg-executable")
+        ];
 
       assertions =
         let
