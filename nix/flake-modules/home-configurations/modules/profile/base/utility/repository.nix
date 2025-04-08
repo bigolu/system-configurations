@@ -327,6 +327,8 @@ in
           # assertion here since my error will be much clearer.  I think you can link
           # files from anywhere if you pass --impure to home-manager, but I want a
           # pure evaluation.
+          #
+          # TODO: Open an issue for making the error message clearer.
           {
             assertion = areAllSourcesInsideFlakeDirectory;
             message = "All file sources for config.repository.* must be within the directory of the flake. Offending paths: ${sourcesOutsideFlakeJoined}";

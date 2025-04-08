@@ -118,8 +118,6 @@ local groups = {
   -- syntax groups {{{
   Comment = { ctermfg = 8, fg = colors[8] }, -- Any comment
 
-  -- Have to use 7 instead of "NONE" because when one language is embedded in
-  -- another, like bash code in a github action yaml, the string color was being used
   Conditional = { ctermfg = 7, fg = colors[7], bold = true }, --   if, then, else, endif, switch, etc.
   Repeat = "Conditional", --   for, do, while, etc.
   Label = "Conditional", --   case, default, etc.
