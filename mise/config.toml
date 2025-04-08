@@ -321,6 +321,7 @@ usage = '''
     > WARNING: Nix builds may not work in a container due to this bug: \
     https://github.com/NixOS/nix/issues/11295.
   """
+
   arg "<event>" help="The event that should trigger the workflow(s)"
   complete "event" run=#"""
     yq --no-doc '.. | select(has("on")) | .on | keys | .[]' .github/workflows/*
