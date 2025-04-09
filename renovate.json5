@@ -1,4 +1,4 @@
-// The goal with this config is to be able to update everything at once. Then I will
+// The goal of this config is to be able to update everything at once. Then I will
 // manually run the Renovate bot when I want to update. I'm doing this because I have
 // no automated tests.
 {
@@ -10,7 +10,7 @@
   // Automerge even if no tests are run
   ignoreTests: true,
   packageRules: [
-    // Automerge everything since I only run renovate manually
+    // Automerge everything
     {
       matchPackageNames: ["*"],
 
@@ -27,6 +27,7 @@
         commands: [
           "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash",
           "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nixpkgs-commit-to-readme.bash",
+          "./direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/mergiraf.bash",
         ],
       },
     },

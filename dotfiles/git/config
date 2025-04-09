@@ -80,3 +80,6 @@
   cmd = code --wait --diff $LOCAL $REMOTE
 [status]
   showUntrackedFiles = all
+[merge "mergiraf"]
+  name = mergiraf
+  driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L

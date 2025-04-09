@@ -13,6 +13,7 @@ in
     gitMinimal
     delta
     difftastic
+    mergiraf
   ];
 
   services.flatpak = optionalAttrs (isLinux && isGui) {
@@ -31,6 +32,7 @@ in
     xdg = {
       configFile = {
         "git/config".source = "git/config";
+        "git/attributes".source = "git/attributes";
       };
 
       executable."git" = {

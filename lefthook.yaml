@@ -203,6 +203,9 @@ check:
                       --force \
                       --title 'Tasks' \
                       --html-path docs/tasks.html "$temp"
+                - name: mergiraf
+                  glob: flake.lock
+                  run: "{run_fix} ./lefthook/scripts/code-generation/mergiraf.bash"
           - name: fix-lint
             group:
               jobs:
