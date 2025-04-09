@@ -173,13 +173,13 @@ check:
                 - name: readme-table-of-contents
                   glob: README.md
                   run: "{run_fix} doctoc README.md --github"
-                - name: nix-version
+                - name: readme-nix-version
                   glob: flake.lock
                   run: "{run_fix} ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash"
-                - name: system-configs
+                - name: readme-config-names
                   glob: "*.nix"
-                  run: "{run_fix} ./lefthook/scripts/code-generation/add-system-configurations-to-readme.bash"
-                - name: nixpkgs-commit
+                  run: "{run_fix} ./lefthook/scripts/code-generation/add-config-names-to-readme.bash"
+                - name: readme-nixpkgs-commit
                   glob: flake.lock
                   run: "{run_fix} ./lefthook/scripts/code-generation/add-nixpkgs-commit-to-readme.bash"
                 - name: flake-lock

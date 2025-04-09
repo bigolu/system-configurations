@@ -9,14 +9,9 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-configs="$(
-  nix eval --raw --file nix/system-configurations-as-markdown.nix
-  # Add a character to the end of the output to preserve trailing newlines.
-  printf x
-)"
-configs="${configs::-1}"
+configs="$(nix eval --raw --file nix/config-names.nix)"
 
 perl -0777 -w -s -i -pe \
-  's{(<!-- START_CONFIGURATIONS -->).*(<!-- END_CONFIGURATIONS -->)}{$1$configs$2}igs' \
+  's{(system-init <).*?(>)}{$1$configs$2}igs' \
   -- -configs="$configs" \
   README.md

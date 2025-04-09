@@ -330,6 +330,7 @@ rec {
       yq-go
       coreutils
       bash-script
+      gomod2nix
     ];
     shellHook = ''
       mise trust --quiet

@@ -18,8 +18,6 @@ people who want to manage their systems similarly.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Applying a Configuration](#applying-a-configuration)
-  - [Configs](#configs)
-  - [Steps](#steps)
 - [Running the Portable Home Configuration](#running-the-portable-home-configuration)
   - [How it Works](#how-it-works)
 
@@ -27,29 +25,11 @@ people who want to manage their systems similarly.
 
 ## Applying a Configuration
 
-### Configs
-
-For reference, here are all the config names, grouped by system manager:
-
-<!-- START_CONFIGURATIONS -->
-
-- home-manager
-
-  - linux
-
-- nix-darwin
-
-  - mac
-
-<!-- END_CONFIGURATIONS -->
-
-### Steps
-
-1. In the last command below, replace `<system_manager>` and `<config_name>`
-   based on the config chosen from the [config list](#configs). Then run the
-   commands which will install Nix, clone the repo, and apply the config.
-   Instead of using the `curl` command below, you can also download this Nix
-   installer from [their site][determinate-systems-installer-install].
+1. In the last command below, replace `<config_names>` with only the name of the
+   config to apply. Then run the commands which will install Nix, clone the
+   repo, and apply the config. Instead of using the `curl` command below, you
+   can also download this Nix installer from [their
+   site][determinate-systems-installer-install].
 
    > NOTE: The installer may have changed since this was written so make sure
    > the installation command below is still valid.
@@ -70,9 +50,9 @@ For reference, here are all the config names, grouped by system manager:
          https://github.com/bigolu/system-configurations.git \
          ~/code/system-configurations
        cd ~/code/system-configurations
-       cp direnv/local.bash .envrc
+       echo 'source direnv/local.bash' >.envrc
        direnv allow
-       direnv exec . mise run system-init <system_manager> <config_name>
+       direnv exec . mise run system-init <linux|mac>
      '
    ```
 

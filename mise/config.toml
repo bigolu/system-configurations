@@ -71,15 +71,22 @@ run = 'gomod2nix --dir gozip generate'
 # ------------------------------------------------------------------------------
 
 [tasks.system-init]
+# This is only run once when following the instructions in the readme.
+hide = true
 description = 'Initialize the system'
 usage = '''
-  long_about """
-    You only need to run this when you first clone the repository.
-  """
-  arg "<manager>" help="The name of the system manager to use"
   arg "<configuration>" help="The name of the configuration to apply"
 '''
-run = 'mise run {{arg(name="manager")}} {{arg(name="configuration")}}'
+run = '''
+  system_manager=''
+  if [[ $(uname) == 'Linux' ]]; then
+    system_manager='home-manager'
+  else
+    system_manager='nix-darwin'
+  fi
+
+  mise run "$system_manager" {{arg(name="configuration")}}
+'''
 depends_post = 'sync-force'
 
 [tasks.home-manager]
