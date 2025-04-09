@@ -347,7 +347,7 @@ check:
                           # --configpath is relative to the directory being checked
                           # so I'm using an absolute path instead.
                           lua-language-server \
-                            --logpath "${DIRENV_LAYOUT_DIR:?}/lua-ls-logs" \
+                            --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
                             --check ./dotfiles/neovim \
                             --configpath "$PWD/.luarc.json"
                 - name: test

@@ -30,11 +30,7 @@ function create_layout_dir {
   # exist.
   mkdir -p "$layout_dir"
 
-  # So any tools called here, like nix, can also store their things in the layout
-  # dir.
-  export DIRENV_LAYOUT_DIR="$layout_dir"
-
-  local -r gitignore_path="${DIRENV_LAYOUT_DIR}/.gitignore"
+  local -r gitignore_path="${layout_dir}/.gitignore"
   if [[ ! -e $gitignore_path ]]; then
     echo '*' >"$gitignore_path"
   fi
@@ -75,7 +71,7 @@ function is_first_dev_shell_build {
     # behavior. I'm doing so in a subshell so it doesn't apply to the rest of the
     # script.
     shopt -s nullglob
-    echo "${DIRENV_LAYOUT_DIR}/flake-profile-"*
+    echo "${direnv_layout_dir:-.direnv}/flake-profile-"*
   )" ]]
 }
 

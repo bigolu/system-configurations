@@ -39,7 +39,7 @@ let
   lua = mkShellWrapperNoCC {
     packages = with pkgs; [ lua-language-server ];
     shellHook = ''
-      prefix="$DIRENV_LAYOUT_DIR/lua-libraries"
+      prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
       mkdir -p "$prefix"
 
       ln --force --no-dereference --symbolic \
@@ -175,7 +175,7 @@ rec {
 
       # Binary names could conflict between projects so store them in a
       # project-specific directory.
-      export GOBIN="$DIRENV_LAYOUT_DIR/go-bin"
+      export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
       mkdir -p "$GOBIN"
       export PATH="''${GOBIN}''${PATH:+:$PATH}"
     '';
@@ -385,7 +385,7 @@ rec {
         # python directory
         python_directory="$(dirname "$(dirname "$(which python)")")"
         ln --force --no-dereference --symbolic \
-          "$python_directory" "$DIRENV_LAYOUT_DIR/python"
+          "$python_directory" "''${direnv_layout_dir:-.direnv}/python"
       '';
     };
 }
