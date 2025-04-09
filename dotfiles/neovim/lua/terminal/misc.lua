@@ -43,6 +43,19 @@ vim.keymap.set("n", "<esc>", function()
   end
 end)
 
+-- Windows {{{
+-- open new horizontal and vertical panes to the right and bottom respectively
+vim.o.splitright = true
+vim.o.splitbelow = true
+vim.o.winminheight = 0
+vim.o.winminwidth = 0
+vim.keymap.set("n", "<C-\\>", vim.cmd.vsplit)
+vim.keymap.set("n", "<C-->", vim.cmd.split)
+vim.keymap.set("n", "<C-_>", "<C-->", { expr = true })
+vim.keymap.set("n", "<C-[>", vim.cmd.tabprevious)
+vim.keymap.set("n", "<C-]>", vim.cmd.tabnext)
+-- }}}
+
 -- Settings {{{
 vim.o.mouse = "a"
 vim.o.jumpoptions = "stack"

@@ -25,7 +25,6 @@ let
     bigolu.start = with final.vimPlugins; [
       # TODO: Per nixpkgs' package naming rules, they should lowercase this:
       # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
-      Navigator-nvim
       camelcasemotion
       dial-nvim
       direnv-vim
