@@ -63,6 +63,10 @@ usage = '''
 '''
 run = 'nix bundle --bundler .# {{arg(name="package")}}'
 
+[tasks.gomod2nix]
+description = 'Regenerate gomod2nix.toml'
+run = 'gomod2nix --dir gozip generate'
+
 # System Management
 # ------------------------------------------------------------------------------
 

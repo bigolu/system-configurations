@@ -173,9 +173,6 @@ check:
                 - name: readme-table-of-contents
                   glob: README.md
                   run: "{run_fix} doctoc README.md --github"
-                - name: gomod2nix
-                  glob: gozip/go.mod
-                  run: "{run_fix} gomod2nix --dir gozip generate"
                 - name: nix-version
                   glob: flake.lock
                   run: "{run_fix} ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash"
