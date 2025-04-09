@@ -31,7 +31,6 @@ let
       fidget-nvim
       lazy-lsp-nvim
       mini-nvim
-      multicursor-nvim
       nvim-autopairs
       nvim-lightbulb
       nvim-lspconfig

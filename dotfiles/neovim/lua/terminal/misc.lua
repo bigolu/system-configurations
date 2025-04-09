@@ -31,18 +31,6 @@ fidget.setup({
 })
 vim.notify = fidget.notify
 
-local mc = require("multicursor-nvim")
-mc.setup()
-vim.keymap.set("n", "<M-leftmouse>", mc.handleMouse)
-vim.keymap.set({ "n", "v" }, "<c-c>", mc.toggleCursor)
-vim.keymap.set("n", "<esc>", function()
-  if not mc.cursorsEnabled() then
-    mc.enableCursors()
-  elseif mc.hasCursors() then
-    mc.clearCursors()
-  end
-end)
-
 -- Windows {{{
 -- open new horizontal and vertical panes to the right and bottom respectively
 vim.o.splitright = true

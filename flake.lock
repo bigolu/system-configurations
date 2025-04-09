@@ -438,7 +438,6 @@
         "spoons": "spoons",
         "stackline": "stackline",
         "systems": "systems",
-        "vim-plugin-multicursor.nvim": "vim-plugin-multicursor.nvim",
         "vim-plugin-vim-caser": "vim-plugin-vim-caser"
       }
     },
@@ -511,22 +510,6 @@
       "original": {
         "owner": "pyproject-nix",
         "repo": "uv2nix",
-        "type": "github"
-      }
-    },
-    "vim-plugin-multicursor.nvim": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1742854584,
-        "narHash": "sha256-Fe22VBABH7O8Ga+uXnByoz4rG+PVVf2lmyiaTb3ra3Y=",
-        "owner": "jake-stewart",
-        "repo": "multicursor.nvim",
-        "rev": "7d3b16fbd86d0de77f7dc25bf2b923796eb37537",
-        "type": "github"
-      },
-      "original": {
-        "owner": "jake-stewart",
-        "repo": "multicursor.nvim",
         "type": "github"
       }
     },

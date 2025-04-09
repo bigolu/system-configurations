@@ -195,11 +195,6 @@
       flake = false;
     };
 
-    "vim-plugin-multicursor.nvim" = {
-      url = "github:jake-stewart/multicursor.nvim";
-      flake = false;
-    };
-
     # Follow Targets
     # --------------------------------------------------------------------------
     # These inputs are only here so I can set them as the target of a `follows`.
