@@ -50,7 +50,7 @@ people who want to manage their systems similarly.
          https://github.com/bigolu/system-configurations.git \
          ~/code/system-configurations
        cd ~/code/system-configurations
-       echo 'source direnv/local.bash' >.envrc
+       echo "source direnv/local.bash" >.envrc
        direnv allow
        direnv exec . mise run system-init <linux|mac>
      '
