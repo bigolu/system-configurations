@@ -58,7 +58,7 @@ let
     text = ''
       function exit_handler {
         if (($? != 0)); then
-          echo 'Pull failed, run "mise run pull" to try again.' >&2
+          echo 'Pull failed, run "system-config-pull" to try again.' >&2
         fi
         if [[ ''${did_stash:-} == true ]]; then
           git stash pop 1>/dev/null
@@ -66,8 +66,8 @@ let
       }
       trap exit_handler EXIT
 
-      function direnv_wrapper {
-        ./direnv/direnv-wrapper.bash direnv/local.bash "$@"
+      function direnv_local {
+        nix-shell direnv/direnv-wrapper.bash direnv/local.bash "$@"
       }
 
       # TODO: So `mise` has access to `system-config-apply`. The problem is that
@@ -85,12 +85,12 @@ let
       git fetch
       if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
         echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
-        direnv_wrapper exec . git pull
-        direnv_wrapper exec . mise run sync
+        direnv_local exec . git pull
+        direnv_local exec . mise run sync
       else
         # Something probably went wrong so we're trying to pull again even
         # though there's nothing to pull. In which case, just sync.
-        direnv_wrapper exec . mise run sync
+        direnv_local exec . mise run sync
       fi
 
       if [[ $(uname) == 'Darwin' ]]; then

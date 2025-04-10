@@ -11,7 +11,7 @@ people who want to manage their systems similarly.
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Applying a Configuration](#applying-a-configuration)
-- [Running the Portable Home Configuration](#running-the-portable-home-configuration)
+- [Running the Portable Configuration](#running-the-portable-configuration)
   - [How it Works](#how-it-works)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -45,7 +45,7 @@ people who want to manage their systems similarly.
        cd ~/code/system-configurations
        echo "source direnv/local.bash" >.envrc
        direnv allow
-       direnv exec . mise run system-init <linux|mac>
+       direnv exec . mise run system:init <comp_1|comp_2>
      '
    ```
 
@@ -74,10 +74,10 @@ people who want to manage their systems similarly.
      2. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels,
         Nightfall, and Mac Mouse Fix to configure them.
 
-## Running the Portable Home Configuration
+## Running the Portable Configuration
 
-You can also run a shell with a home configuration already loaded in it. This is
-helpful when you only need to use the configuration temporarily and not apply
+You can also run a shell with a Home Manager configuration loaded into it. This
+is helpful when you only need to use the configuration temporarily and not apply
 it, like when you're on a remote host or in a container. You can download it
 from the [releases page][releases].
 

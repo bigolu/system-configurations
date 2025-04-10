@@ -19,10 +19,10 @@ runs:
       env:
         DIRENV_DEV_SHELL: ${{ inputs.direnv-dev-shell }}
       run: |
-        ./direnv/direnv-wrapper.bash direnv/ci.bash \
+        nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
         # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
         #
         # [1]: https://github.com/actions/toolkit/issues/655
-        ./direnv/direnv-wrapper.bash direnv/ci.bash \
+        nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"

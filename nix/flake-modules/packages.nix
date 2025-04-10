@@ -18,7 +18,7 @@
         default = self'.packages.shell;
 
         shell = makePortableShell {
-          homeConfig = self.homeConfigurations."portable-home-${system}";
+          homeConfig = self.homeConfigurations."portable-${system}";
           shell = "fish";
           activation = [
             "fzfSetup"

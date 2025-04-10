@@ -5,7 +5,7 @@ let
   inherit (builtins) attrNames filter concatStringsSep;
   inherit (lib) hasPrefix;
 
-  homeManagerConfigNames = filter (name: !hasPrefix "portable-home" name) (
+  homeManagerConfigNames = filter (name: !hasPrefix "portable" name) (
     attrNames outputs.homeConfigurations
   );
 

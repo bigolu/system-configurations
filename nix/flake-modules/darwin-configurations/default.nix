@@ -104,7 +104,7 @@ let
   };
 in
 makeOutputs {
-  mac = {
+  comp_2 = {
     system = system.x86_64-darwin;
     modules = [ ./modules/profile/base ];
     homeModules = [

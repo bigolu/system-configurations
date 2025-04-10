@@ -83,16 +83,16 @@ let
   };
 in
 makeOutputs {
-  linux = {
+  comp_1 = {
     systems = with system; [ x86_64-linux ];
     modules = [
       "${moduleRoot}/profile/application-development"
       "${moduleRoot}/profile/speakers.nix"
-      "${moduleRoot}/profile/linux.nix"
+      "${moduleRoot}/profile/comp-1.nix"
     ];
   };
 
-  portable-home = {
+  portable = {
     systems = with system; [
       x86_64-linux
       x86_64-darwin

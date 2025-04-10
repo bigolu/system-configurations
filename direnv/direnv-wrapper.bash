@@ -11,7 +11,7 @@
 #   - Run `direnv allow`. There's an open issue for this[2].
 #
 # Usage:
-#   <direnv_wrapper> <path_to_envrc> <direnv_arguments>...
+#   nix-shell <this_script> <path_to_envrc> <direnv_arguments>...
 #
 # Since this script is not run from within the direnv environment, the shebang at the
 # top works differently than the ones in other scripts:

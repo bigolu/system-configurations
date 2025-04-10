@@ -45,15 +45,12 @@ moduleContext@{ lib, utils, ... }:
           speakerctl
           sync
           taskRunner
+          taskRunnerAutocomplete
           vsCode
         ];
       };
 
       ci-essentials = { };
-
-      ci-check-pull-request = {
-        inputsFrom = [ parts.checks ];
-      };
 
       ci-check-for-broken-links = {
         inputsFrom = [ parts.lefthook ];

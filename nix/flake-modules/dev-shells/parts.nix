@@ -323,18 +323,20 @@ rec {
   };
 
   taskRunner = mkShellWrapperNoCC {
-    packages = with pkgs; [
-      mise
-      # These get used in the mise config
-      fish
-      yq-go
-      coreutils
-      bash-script
-      gomod2nix
-    ];
+    packages = with pkgs; [ mise ];
     shellHook = ''
       mise trust --quiet
     '';
+  };
+
+  # These are the dependencies of the commands run within `complete` statements in
+  # mise tasks. I could use nix shell shebang scripts instead, but then autocomplete
+  # would be delayed by the time it takes to load a nix shell.
+  taskRunnerAutocomplete = mkShellWrapperNoCC {
+    packages = with pkgs; [
+      yq-go
+      fish
+    ];
   };
 
   # Everything needed by the VS Code extensions recommended in

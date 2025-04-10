@@ -5,8 +5,7 @@
   pager = delta
 [push]
   default = current
-[pull]
-  default = current
+  autoSetupRemote = true
 [alias]
   all = add -A
   unstage-all = reset
