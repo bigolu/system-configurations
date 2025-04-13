@@ -1,7 +1,7 @@
 #! /usr/bin/env cached-nix-shell
 #! nix-shell --keep FLAKE_PACKAGE_SET_FILE
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils curl darwin-rebuild nix-output-monitor gitMinimal]"
+#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils home-manager curl darwin-rebuild nix-output-monitor gitMinimal]"
 #MISE description='Initialize the system'
 #MISE hide=true
 #MISE depends_post='sync:force'
@@ -15,12 +15,10 @@ shopt -s inherit_errexit
 
 kernel="$(uname)"
 if [[ $kernel == 'Linux' ]]; then
-  nix run \
-    --file nix/flake-package-set.nix -- \
-    home-manager switch --flake .#"${usage_configuration:?}"
+  home-manager switch --flake .#"${usage_configuration:?}"
   bash dotfiles/firefox-developer-edition/set-default-browser.bash
   # shellcheck disable=2016
-  echo 'Consider syncing COSMIC settings by running `mise run sync:cosmic to-system`'
+  echo 'Consider copying COSMIC settings to the system by running `mise run copy-cosmic to-system`'
 else
   if ! [[ -x /usr/local/bin/brew ]]; then
     # Install homebrew. Source: https://brew.sh/
