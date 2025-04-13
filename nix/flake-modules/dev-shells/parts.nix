@@ -159,7 +159,8 @@ rec {
     in
     mkShellWrapperNoCC (
       {
-        inputsFrom = [ scriptInterpreter ];
+        inputsFrom = [ taskRunner ];
+        # For the `run` steps in CI workflows
         packages = [ pkgs.bash-script ];
       }
       // optionalAttrs isLinux {
@@ -190,18 +191,117 @@ rec {
     ];
   };
 
-  # This part contains the dependencies of all scripts. This is useful for two
-  # reasons:
-  #   - Having the dependencies for all scripts exposed in the environment makes
+  speakerctl = pkgs.speakerctl.devShell;
+
+  sync = mkShellWrapperNoCC {
+    inputsFrom = [
+      # Runs the syncs
+      lefthook
+    ];
+    packages = with pkgs; [
+      # These get called in the lefthook config
+      runAsAdmin
+    ];
+  };
+
+  taskRunner =
+    let
+      scriptInterpreter =
+        let
+          flakePackageSetHook =
+            let
+              # These are the files needed by flake-package-set.nix and nixpkgs.nix
+              #
+              # You may be wondering why I'm using a fileset instead of just using
+              # $PWD/nix/{flake-package-set,nixpkgs}.nix. cached-nix-shell traces the
+              # files accessed during the nix-shell invocation so it knows when to
+              # invalidate the cache. When I use $PWD, a lot more files, like
+              # $PWD/.git/index, become part of the trace, resulting in much more cache
+              # invalidations.
+              source =
+                pipe
+                  [
+                    "flake.nix"
+                    "flake.lock"
+                    "nix"
+                  ]
+                  [
+                    (map (relativePath: projectRoot + "/${relativePath}"))
+                    fileset.unions
+                    (
+                      union:
+                      fileset.toSource {
+                        root = projectRoot;
+                        fileset = union;
+                      }
+                    )
+                  ];
+            in
+            ''
+              function is_running_in_ci {
+                # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
+                [[ ''${CI:-} == 'true' ]]
+              }
+
+              # To avoid hard coding the path to the flake package set in every
+              # script's nix-shell shebang, I export a variable with the path.
+              export FLAKE_PACKAGE_SET_FILE=${source}/nix/flake-package-set.nix
+
+              # I need to set the nix path because my scripts' shebangs use nix-shell
+              # which looks up nixpkgs on the nix path so it can use nixpkgs.runCommand
+              # to run the script. You can also set the nixpkgs used by nix-shell by
+              # using the -I flag in the script shebang, but I don't do that since I
+              # would have to hardcode the path to nixpkgs.nix in every script.
+              #
+              # I'm not setting this locally so comma still works[1]. If I did
+              # set it, then comma would use this nixpkgs instead of the one for
+              # my system. Even if I were ok with that, I didn't build an index
+              # for this nixpkgs so comma wouldn't be able to use it anyway. The
+              # consequence of this is that the user's nixpkgs will be used instead,
+              # but that shouldn't be a problem unless a breaking change is made to
+              # runCommand.
+              #
+              # [1]: https://github.com/nix-community/comma
+              if is_running_in_ci; then
+                export NIX_PATH="nixpkgs=${source}/nix/nixpkgs.nix''${NIX_PATH:+:$NIX_PATH}"
+              fi
+            '';
+        in
+        mkShellWrapperNoCC {
+          # cached-nix-shell is used in script shebangs
+          packages = with pkgs; [ cached-nix-shell ];
+          shellHook = flakePackageSetHook;
+        };
+    in
+    mkShellWrapperNoCC {
+      inputsFrom = [ scriptInterpreter ];
+      packages = with pkgs; [ mise ];
+      shellHook = ''
+        mise trust --quiet
+      '';
+    };
+
+  # These are the dependencies of the commands run within `complete` statements in
+  # mise tasks. I could use nix shell shebang scripts instead, but then autocomplete
+  # would be delayed by the time it takes to load a nix shell.
+  taskAutocomplete = mkShellWrapperNoCC {
+    packages = with pkgs; [
+      yq-go
+      fish
+    ];
+  };
+
+  # This part contains the dependencies of all tasks. Though nix-shell will fetch the
+  # dependencies for a script when it's executed, it's useful to load them ahead of
+  # time for two reasons:
+  #   - Having the dependencies for all tasks exposed in the environment makes
   #     debugging a bit easier since you can easily call any commands referenced in a
-  #     script.
+  #     task.
   #   - Once the dev shell has been loaded, you can work offline since all the
   #     dependencies have already been fetched.
-  scriptDependencies = pipe projectRoot [
+  tasks = pipe (projectRoot + /mise/tasks) [
     # Get all nix-shell shebang scripts
     (fileset.fileFilter (file: file.hasExt "bash"))
-    # The scripts in dotfiles/ don't use nix-shell shebangs
-    (bashScripts: fileset.difference bashScripts (projectRoot + /dotfiles))
     (
       nixShellShebangScripts:
       fileset.toSource {
@@ -241,103 +341,6 @@ rec {
     (dependencies: [ pkgs.bashInteractive ] ++ dependencies)
     (dependencies: mkShellWrapperNoCC { packages = dependencies; })
   ];
-
-  scriptInterpreter =
-    let
-      flakePackageSetHook =
-        let
-          # These are the files needed by flake-package-set.nix and nixpkgs.nix
-          #
-          # You may be wondering why I'm using a fileset instead of just using
-          # $PWD/nix/{flake-package-set,nixpkgs}.nix. cached-nix-shell traces the
-          # files accessed during the nix-shell invocation so it knows when to
-          # invalidate the cache. When I use $PWD, a lot more files, like
-          # $PWD/.git/index, become part of the trace, resulting in much more cache
-          # invalidations.
-          source =
-            pipe
-              [
-                "flake.nix"
-                "flake.lock"
-                "nix"
-              ]
-              [
-                (map (relativePath: projectRoot + "/${relativePath}"))
-                fileset.unions
-                (
-                  union:
-                  fileset.toSource {
-                    root = projectRoot;
-                    fileset = union;
-                  }
-                )
-              ];
-        in
-        ''
-          function is_running_in_ci {
-            # Most CI systems, e.g. GitHub Actions, set this variable to 'true'.
-            [[ ''${CI:-} == 'true' ]]
-          }
-
-          # To avoid hard coding the path to the flake package set in every script's
-          # nix-shell shebang, I export a variable with the path.
-          export FLAKE_PACKAGE_SET_FILE=${source}/nix/flake-package-set.nix
-
-          # I need to set the nix path because my scripts' shebangs use nix-shell
-          # which looks up nixpkgs on the nix path so it can use nixpkgs.runCommand
-          # to run the script. You can also set the nixpkgs used by nix-shell by
-          # using the -I flag in the script shebang, but I don't do that since I
-          # would have to hardcode the path to nixpkgs.nix in every script.
-          #
-          # I'm not setting this locally so comma still works[1]. If I did
-          # set it, then comma would use this nixpkgs instead of the one for
-          # my system. Even if I were ok with that, I didn't build an index
-          # for this nixpkgs so comma wouldn't be able to use it anyway. The
-          # consequence of this is that the user's nixpkgs will be used instead,
-          # but that shouldn't be a problem unless a breaking change is made to
-          # runCommand.
-          #
-          # [1]: https://github.com/nix-community/comma
-          if is_running_in_ci; then
-            export NIX_PATH="nixpkgs=${source}/nix/nixpkgs.nix''${NIX_PATH:+:$NIX_PATH}"
-          fi
-        '';
-    in
-    mkShellWrapperNoCC {
-      # cached-nix-shell is used in script shebangs
-      packages = with pkgs; [ cached-nix-shell ];
-      shellHook = flakePackageSetHook;
-    };
-
-  speakerctl = pkgs.speakerctl.devShell;
-
-  sync = mkShellWrapperNoCC {
-    inputsFrom = [
-      # Runs the syncs
-      lefthook
-    ];
-    packages = with pkgs; [
-      # These get called in the lefthook config
-      runAsAdmin
-    ];
-  };
-
-  taskRunner = mkShellWrapperNoCC {
-    packages = with pkgs; [ mise ];
-    shellHook = ''
-      mise trust --quiet
-    '';
-  };
-
-  # These are the dependencies of the commands run within `complete` statements in
-  # mise tasks. I could use nix shell shebang scripts instead, but then autocomplete
-  # would be delayed by the time it takes to load a nix shell.
-  taskRunnerAutocomplete = mkShellWrapperNoCC {
-    packages = with pkgs; [
-      yq-go
-      fish
-    ];
-  };
 
   # Everything needed by the VS Code extensions recommended in
   # .vscode/extensions.json

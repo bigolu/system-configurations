@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
       - id: make-assets
-        run: ./.github/scripts/make-assets.bash
+        run: mise run github:make-assets
       - uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4
         with:
           name: assets-${{ matrix.os }}
@@ -35,6 +35,6 @@ jobs:
           merge-multiple: true
           # The destination
           path: assets
-      - run: ./.github/scripts/make-release.bash
+      - run: mise run github:make-release
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

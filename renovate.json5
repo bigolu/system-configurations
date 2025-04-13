@@ -25,9 +25,9 @@
       matchDepNames: ["nixpkgs"],
       postUpgradeTasks: {
         commands: [
-          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nix-version-to-readme.bash",
-          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/add-nixpkgs-commit-to-readme.bash",
-          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . ./lefthook/scripts/code-generation/mergiraf.bash",
+          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:check:generate:add-nix-version-to-readme",
+          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:check:generate:add-nixpkgs-commit-to-readme",
+          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:check:generate:mergiraf",
         ],
       },
     },

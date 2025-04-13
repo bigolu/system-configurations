@@ -18,7 +18,7 @@ if [[ $kernel == 'Linux' ]]; then
   nix run \
     --file nix/flake-package-set.nix -- \
     home-manager switch --flake .#"${usage_configuration:?}"
-  ./dotfiles/firefox-developer-edition/set-default-browser.bash
+  bash dotfiles/firefox-developer-edition/set-default-browser.bash
   # shellcheck disable=2016
   echo 'Consider syncing COSMIC settings by running `mise run sync:cosmic to-system`'
 else

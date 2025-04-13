@@ -2,6 +2,7 @@
 #! nix-shell --keep FLAKE_PACKAGE_SET_FILE
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils gh]"
+#MISE hide=true
 
 set -o errexit
 set -o nounset

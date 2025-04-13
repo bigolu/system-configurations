@@ -40,12 +40,11 @@ moduleContext@{ lib, utils, ... }:
         inputsFrom = with parts; [
           checks
           gozip
-          scriptDependencies
-          scriptInterpreter
           speakerctl
           sync
           taskRunner
-          taskRunnerAutocomplete
+          taskAutocomplete
+          tasks
           vsCode
         ];
       };
