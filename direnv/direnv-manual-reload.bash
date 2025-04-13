@@ -61,8 +61,10 @@ function direnv_manual_reload {
 function add_reload_program_to_path {
   local reload_program
   reload_program="$(get_direnv_bin)/direnv-reload"
+  local bash_path
+  bash_path="$(type -P bash)"
   {
-    echo '#!/usr/bin/env bash'
+    echo "#!$bash_path"
     printf 'touch %q\n' "$reload_file"
   } >"${reload_program}"
   chmod +x "${reload_program}"
