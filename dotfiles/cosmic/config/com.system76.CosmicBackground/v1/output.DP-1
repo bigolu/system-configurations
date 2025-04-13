@@ -1,6 +1,6 @@
 (
     output: "DP-1",
-    source: Path("/home/biggs/Pictures/bg.jpg"),
+    source: Path("/home/biggs/Pictures/pexels-nicole-avagliano-1132392-2312040-rotated-90.jpg"),
     filter_by_theme: false,
     rotation_frequency: 3600,
     filter_method: Lanczos,
