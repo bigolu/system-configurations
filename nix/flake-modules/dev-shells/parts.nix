@@ -206,7 +206,7 @@ rec {
 
   taskRunner =
     let
-      scriptRunner =
+      fileTaskRunner =
         let
           flakePackageSetHook =
             let
@@ -273,8 +273,12 @@ rec {
         };
     in
     mkShellWrapperNoCC {
-      inputsFrom = [ scriptRunner ];
-      packages = with pkgs; [ mise ];
+      inputsFrom = [ fileTaskRunner ];
+      packages = with pkgs; [
+        mise
+        # This is used to run inline tasks
+        bash-script
+      ];
       shellHook = ''
         mise trust --quiet
       '';
