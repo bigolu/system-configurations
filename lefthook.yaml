@@ -373,6 +373,8 @@ check:
             #
             # TODO: There's an open feature request for a global exclude list[1]. If
             # that gets implemented, I can move this to a separate hook.
+            #
+            # [1]: https://github.com/evilmartians/lefthook/issues/593
             only:
               - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
             exclude:
