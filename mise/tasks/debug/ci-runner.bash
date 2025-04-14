@@ -31,16 +31,18 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# I'm not using `<<<` because it would add a trailing newline
-readarray -t -d ' ' workflows < <(printf '%s' "${usage_workflow:-}")
+eval "workflows=(${usage_workflow:-})"
 workflow_flags=()
+# shellcheck disable=2154
+# `workflows` is defined in an `eval` statement above
 for workflow in "${workflows[@]}"; do
   workflow_flags+=(--workflows "$workflow")
 done
 
-# I'm not using `<<<` because it would add a trailing newline
-readarray -t -d ' ' jobs < <(printf '%s' "${usage_job:-}")
+eval "jobs=(${usage_job:-})"
 job_flags=()
+# shellcheck disable=2154
+# `jobs` is defined in an `eval` statement above
 for job in "${jobs[@]}"; do
   job_flags+=(--job "$job")
 done

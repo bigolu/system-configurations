@@ -3,7 +3,7 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils]"
 #MISE hide=true
-#USAGE flag "--var <var>" help="An environment variable to set in `env` format"
+#USAGE flag "--var <var>" var=#true help="An environment variable to set in `env` format"
 #USAGE arg "<nix_shell_args>" var=#true help="Arguments to pass to `nix shell`"
 
 # This is essentially `nix shell --ignore-environment`, but with the added ability to
@@ -21,17 +21,17 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# I'm not using `<<<` because it would add a trailing newline
-readarray -t -d ' ' env_vars < <(printf '%s' "${usage_var:-}")
+eval "env_vars=(${usage_var:-})"
 
 keep_flags=()
+# shellcheck disable=2154
+# `env_vars` is defined in an `eval` statement above
 for var in "${env_vars[@]}"; do
   var_name="$(cut -d'=' -f1 <<<"$var")"
   keep_flags+=(--keep "$var_name")
 done
 
-# I'm not using `<<<` because it would add a trailing newline
-readarray -t -d ' ' nix_shell_args < <(printf '%s' "${usage_nix_shell_args:-}")
+eval "nix_shell_args=(${usage_nix_shell_args:-})"
 nix_shell_args=(
   --ignore-environment
 

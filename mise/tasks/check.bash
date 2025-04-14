@@ -43,10 +43,11 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# I'm not using `<<<` because it would add a trailing newline
-readarray -t -d ' ' jobs < <(printf '%s' "${usage_jobs:-}")
+eval "jobs=(${usage_jobs:-})"
 
 job_flag=()
+# shellcheck disable=2154
+# `jobs` is defined in an `eval` statement above
 if ((${#jobs[@]} > 0)); then
   joined_jobs="$(printf '%s,' "${jobs[@]}")"
   joined_jobs="${joined_jobs::-1}"

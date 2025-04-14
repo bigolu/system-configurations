@@ -30,10 +30,11 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 function main {
-  # I'm not using `<<<` because it would add a trailing newline
-  readarray -t -d ' ' forced_jobs < <(printf '%s' "${usage_forced_jobs:-}")
+  eval "forced_jobs=(${usage_forced_jobs:-})"
 
   lefthook_forced_job_args=()
+  # shellcheck disable=2154
+  # `forced_jobs` is defined in an `eval` statement above
   if ((${#forced_jobs[@]} > 0)); then
     lefthook_forced_job_args+=(--force)
 
