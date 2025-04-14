@@ -135,7 +135,7 @@ sync:
       # to allow running it without a password.
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
-      run: sudo -- "$(which run-as-admin)" --path "$PATH" "$(which system-config-apply)"
+      run: sudo -- "$(command -v run-as-admin)" --path "$PATH" "$(command -v system-config-apply)"
     - name: fish
       glob: dotfiles/fish/conf.d/*.fish
       run: fish -c fish-reload
@@ -277,11 +277,11 @@ check:
                       - name: gopls
                         glob: "*.go"
                         run: |
-                          function check {
+                          check() {
                             # TODO: gopls should have an option for failing if an
                             # error was found.
                             issues="$(gopls check "$@")"
-                            if [[ -n "$issues" ]]; then
+                            if [ -n "$issues" ]; then
                               echo "$issues"
                               exit 1
                             fi

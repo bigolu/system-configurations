@@ -154,6 +154,7 @@ local function checktime()
 end
 ---@diagnostic disable-next-line: undefined-field
 local timer = vim.uv.new_timer()
+assert(timer ~= nil)
 timer:start(
   0,
   500,
