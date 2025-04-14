@@ -56,6 +56,64 @@ let
   };
 in
 rec {
+  lefthook = mkShellWrapperNoCC {
+    packages = [
+      pkgs.lefthook
+      # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
+      # it a dependency.
+      pkgs.gitMinimal
+    ];
+  };
+
+  ciEssentials =
+    let
+      # The full set of locales is pretty big (~220MB) so I'll only include the ones
+      # I need.
+      locales = pkgs.glibcLocales.override {
+        allLocales = false;
+        locales = [
+          "en_US.UTF-8/UTF-8"
+          "C.UTF-8/UTF-8"
+        ];
+      };
+
+      localeArchiveHook = ''
+        # Nix recommends setting this for non-NixOS Linux distributions[1] and
+        # Ubuntu is used in CI.
+        #
+        # TODO: See if Nix should do this as part of its setup script
+        #
+        # [1]: https://nixos.wiki/wiki/Locales
+        export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
+      '';
+    in
+    mkShellWrapperNoCC (
+      {
+        inputsFrom = [ taskRunner ];
+        # For the `run` steps in CI workflows
+        packages = [ pkgs.bash-script ];
+      }
+      // optionalAttrs isLinux {
+        shellHook = localeArchiveHook;
+      }
+    );
+
+  gozip = mkShellWrapperNoCC {
+    packages = with pkgs; [ go ];
+    shellHook = ''
+      export GOPATH="''${XDG_CACHE_HOME:-$HOME/.cache}/go"
+      mkdir -p "$GOPATH"
+
+      # Binary names could conflict between projects so store them in a
+      # project-specific directory.
+      export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
+      mkdir -p "$GOBIN"
+      export PATH="''${GOBIN}''${PATH:+:$PATH}"
+    '';
+  };
+
+  speakerctl = pkgs.speakerctl.devShell;
+
   checks =
     let
       linting = mkShellWrapperNoCC {
@@ -134,64 +192,6 @@ rec {
         export RUFF_CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/ruff"
       '';
     };
-
-  ciEssentials =
-    let
-      # The full set of locales is pretty big (~220MB) so I'll only include the ones
-      # I need.
-      locales = pkgs.glibcLocales.override {
-        allLocales = false;
-        locales = [
-          "en_US.UTF-8/UTF-8"
-          "C.UTF-8/UTF-8"
-        ];
-      };
-
-      # Nix recommends setting this for non-NixOS Linux distributions[1] and
-      # Ubuntu is used in CI.
-      #
-      # TODO: See if Nix should do this as part of its setup script
-      #
-      # [1]: https://nixos.wiki/wiki/Locales
-      localeArchiveHook = ''
-        export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
-      '';
-    in
-    mkShellWrapperNoCC (
-      {
-        inputsFrom = [ taskRunner ];
-        # For the `run` steps in CI workflows
-        packages = [ pkgs.bash-script ];
-      }
-      // optionalAttrs isLinux {
-        shellHook = localeArchiveHook;
-      }
-    );
-
-  gozip = mkShellWrapperNoCC {
-    packages = with pkgs; [ go ];
-    shellHook = ''
-      export GOPATH="''${XDG_CACHE_HOME:-$HOME/.cache}/go"
-      mkdir -p "$GOPATH"
-
-      # Binary names could conflict between projects so store them in a
-      # project-specific directory.
-      export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
-      mkdir -p "$GOBIN"
-      export PATH="''${GOBIN}''${PATH:+:$PATH}"
-    '';
-  };
-
-  lefthook = mkShellWrapperNoCC {
-    packages = [
-      pkgs.lefthook
-      # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
-      # it a dependency.
-      pkgs.gitMinimal
-    ];
-  };
-
-  speakerctl = pkgs.speakerctl.devShell;
 
   sync = mkShellWrapperNoCC {
     inputsFrom = [

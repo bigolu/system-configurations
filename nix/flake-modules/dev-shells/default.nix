@@ -38,9 +38,9 @@ moduleContext@{ lib, utils, ... }:
 
       local = {
         inputsFrom = with parts; [
-          checks
           gozip
           speakerctl
+          checks
           sync
           taskRunner
           taskAutocomplete
