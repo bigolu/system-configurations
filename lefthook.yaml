@@ -17,10 +17,7 @@ output:
   - execution_info
 
 templates:
-  # mise always runs tasks from the root of the repo, but I run some lefthook jobs in
-  # a different directory. To get this around this, I have mise run the task in the
-  # current directory i.e. wherever I configure the lefthook job to run.
-  run_fix: mise run --cd "$PWD" lefthook:run-fix
+  run_fix: mise run lefthook:run-fix
 
 # Git Hooks
 # -----------------------------------------------------------------------------------
