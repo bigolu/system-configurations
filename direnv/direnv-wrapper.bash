@@ -1,4 +1,4 @@
-#! /usr/bin/env nix-shell
+#! Though we don't use shebangs, nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -I nixpkgs=./nix/nixpkgs.nix
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"

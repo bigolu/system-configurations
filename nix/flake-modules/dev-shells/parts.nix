@@ -206,7 +206,7 @@ rec {
 
   taskRunner =
     let
-      scriptInterpreter =
+      scriptRunner =
         let
           flakePackageSetHook =
             let
@@ -268,13 +268,12 @@ rec {
             '';
         in
         mkShellWrapperNoCC {
-          # cached-nix-shell is used in script shebangs
           packages = with pkgs; [ cached-nix-shell ];
           shellHook = flakePackageSetHook;
         };
     in
     mkShellWrapperNoCC {
-      inputsFrom = [ scriptInterpreter ];
+      inputsFrom = [ scriptRunner ];
       packages = with pkgs; [ mise ];
       shellHook = ''
         mise trust --quiet
