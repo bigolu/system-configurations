@@ -75,7 +75,7 @@ function _resume_job
             # I'm using the NUL character to delimit entries since they may span
             # multiple lines.
             printf %s'\0' $entries \
-                | fzf  \
+                | fzf \
                     --read0 \
                     --delimiter $delimiter \
                     --with-nth '2..' \
@@ -173,7 +173,7 @@ function _insert_entries_into_commandline
         # Don't add a space if the entry is an abbreviation so it can expand.
         #
         # TODO: This assumes that an abbreviation can only be expanded if
-        # it's the first token in the commandline.  However, with the flag
+        # it's the first token in the commandline. However, with the flag
         # '--position anywhere', abbreviations can be expanded anywhere in the
         # commandline so I should check for that flag.
         #
@@ -243,7 +243,7 @@ function _fzf_complete
         set current_token_flags
         if test -n "$current_token"
             # I set the current token as the delimiter so I can exclude from what
-            # gets searched.  Since the current token is in the beginning of the
+            # gets searched. Since the current token is in the beginning of the
             # string, it will be the first field index so I'll start searching from
             # 2.
             set --append current_token_flags \

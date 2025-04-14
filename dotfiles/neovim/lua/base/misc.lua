@@ -51,7 +51,7 @@ function MyPaste(was_in_visual_mode, is_capital_p)
   local is_multi_line_paste = register_contents:find("\n")
 
   -- set globals with the region of the pasted text so I can select it with 'gp'
-  -- (above).  People usually use `[ and `] for this, but that gives you the
+  -- (above). People usually use `[ and `] for this, but that gives you the
   -- region of the last changed text and since I use autosave, it will always be
   -- the entire buffer.
   --

@@ -1,5 +1,5 @@
 # Switch into this mode if you want a shortcut to pass through without being
-# processed by skhd.  For example, if you wanted to input "cmd -a" directly,
+# processed by skhd. For example, if you wanted to input "cmd -a" directly,
 # instead of whatever you have it mapped to, you can do:
 # `skhd -k "hyper - 0x80"; skhd -k "cmd - a"; skhd -k "hyper - 0x80"`
 :: passthrough

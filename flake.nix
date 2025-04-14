@@ -170,7 +170,7 @@
     # Flake Utilities
     # --------------------------------------------------------------------------
 
-    flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/*.tar.gz";
+    flake-compat.url = "git+https://git.lix.systems/lix-project/flake-compat";
 
     flake-utils = {
       url = "github:numtide/flake-utils";

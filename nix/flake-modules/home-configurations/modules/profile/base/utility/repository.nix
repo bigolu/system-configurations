@@ -55,7 +55,7 @@ in
         type = types.nullOr types.bool;
         default = null;
         # Marked `internal` and `readOnly` since it needs to be passed to
-        # home-manager, but the user shouldn't set it.  This is because permissions
+        # home-manager, but the user shouldn't set it. This is because permissions
         # on a symlink are ignored, only the source's permissions are considered.
         # Also I got an error when I tried to set it to `true`.
         internal = true;
@@ -324,7 +324,7 @@ in
         [
           # If you try to link files from outside the flake you get a strange error
           # along the lines of 'no such file/directory' so instead I make an
-          # assertion here since my error will be much clearer.  I think you can link
+          # assertion here since my error will be much clearer. I think you can link
           # files from anywhere if you pass --impure to home-manager, but I want a
           # pure evaluation.
           #

@@ -74,7 +74,7 @@ end, {
 --}}}
 
 -- operators {{{
---  Do this before mini overwrites it
+-- Do this before mini overwrites it
 local default_gx = vim
   .iter(vim.api.nvim_get_keymap("n"))
   :filter(function(k)

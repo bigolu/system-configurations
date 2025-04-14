@@ -135,7 +135,7 @@ func Zip(destinationPath string, filesToZip []string) {
 	}()
 
 	// To make a self extracting archive, the `destinationPath` can be the
-	// executable that does the extraction.  For this reason, we set the
+	// executable that does the extraction. For this reason, we set the
 	// `startoffset` to `io.SeekEnd`. This way we append the contents of
 	// the archive after the executable. Check the README for an example of
 	// making a self-extracting archive.

@@ -18,7 +18,7 @@
 # --no-histdups - no duplicate entries in the search history
 # --save-marks - save marks before less exits
 # --clear-screen - Doing this so content that is less than one screen starts from the top.
-# --tilde -  Instead of putting a tilde on blank lines, leave them blank.
+# --tilde - Instead of putting a tilde on blank lines, leave them blank.
 # --LONG-PROMPT - Show the position in the file in the prompt.
 LESS = --RAW-CONTROL-CHARS --ignore-case --incsearch --quit-on-intr --jump-target=.5 --hilite-search --no-histdups --save-marks --clear-screen --tilde --LONG-PROMPT
 LESSOPEN = |lesspipe.sh %s

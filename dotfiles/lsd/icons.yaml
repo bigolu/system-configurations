@@ -14,7 +14,7 @@ filetype:
   special: " "
 
 # Remove default icons for files with certain names or extensions, for reasons
-# stated at the top of the file.  Some of these names are directories though so
+# stated at the top of the file. Some of these names are directories though so
 # they will be given an icon.
 #
 # TODO: This won"t cover icons that get added in the future for file

@@ -29,7 +29,7 @@ abbr --add --position anywhere --global page less
 set --global --export MANOPT --no-hyphenation
 
 # Set preferred editor. Programs check either of these variables for the
-# preferred editor so I'll set both.  For more information on the meaning of
+# preferred editor so I'll set both. For more information on the meaning of
 # these variables, see:
 # https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference/302391#302391
 begin
@@ -158,7 +158,7 @@ end
 # Launch a program and detach from it. Meaning it will be disowned and its
 # output will be suppressed
 #
-# TODO: Have it wrap sudo so it autocompletes program names.  I should write my
+# TODO: Have it wrap sudo so it autocompletes program names. I should write my
 # own completion script though since this will also autocomplete sudo flags.
 function detach --wraps sudo
     # Redirecting the i/o files on the command itself still resulted in some
