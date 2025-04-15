@@ -3,8 +3,8 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils]"
 #MISE description="Start a Bash shell in a direnv CI environment"
-#USAGE arg "<nix_shell>" help="The dev shell that direnv should load"
-#USAGE complete "nix_shell" run=#"""
+#USAGE arg "<nix_dev_shell>" help="The dev shell that direnv should load"
+#USAGE complete "nix_dev_shell" run=#"""
 #USAGE   nix eval --impure --raw --apply \
 #USAGE     '
 #USAGE       with builtins;
@@ -27,7 +27,7 @@ shopt -s inherit_errexit
 direnv_layout_dir="$(mktemp --directory)"
 home="$(mktemp --directory)"
 environment_variables=(
-  NIX_SHELL="${usage_nix_shell:?}"
+  NIX_DEV_SHELL="${usage_nix_dev_shell:?}"
   CI_DEBUG=true
 
   # direnv stores its cache in the directory specified in `direnv_layout_dir`.

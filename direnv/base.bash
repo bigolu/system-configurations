@@ -5,7 +5,7 @@
 # and CI environment that source this one.
 #
 # Environment Variables
-#   NIX_SHELL (required):
+#   NIX_DEV_SHELL (required):
 #     The name of the flake dev shell to load.
 
 function main {
@@ -59,7 +59,7 @@ function load_dev_shell {
     nix_direnv_manual_reload
   fi
 
-  use flake ".#${NIX_SHELL:?}"
+  use flake ".#${NIX_DEV_SHELL:?}"
 }
 
 function is_first_dev_shell_build {

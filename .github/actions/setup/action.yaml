@@ -1,7 +1,7 @@
 name: Setup
 description: Install Nix and load direnv.
 inputs:
-  nix-shell:
+  nix-dev-shell:
     description: The name of the devShell to activate
     required: false
     default: ""
@@ -17,7 +17,7 @@ runs:
           show-trace = true
     - shell: nix run --file nix/flake-package-set.nix bash-script -- {0}
       env:
-        NIX_SHELL: ${{ inputs.nix-shell }}
+        NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
       run: |
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
