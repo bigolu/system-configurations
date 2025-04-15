@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         with:
-          nix-dev-shell: ci-check-for-broken-links
+          nix-shell: ci-check-for-broken-links
       - env:
           # To avoid being rate-limited by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
