@@ -236,3 +236,6 @@ end
 
 vim.o.laststatus = 3
 vim.o.statusline = "%!v:lua.StatusLine()"
+
+vim.o.statuscolumn = "%l%s"
+vim.o.signcolumn = "yes:1"
