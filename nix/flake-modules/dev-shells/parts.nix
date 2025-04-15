@@ -197,10 +197,6 @@ rec {
       # Runs the syncs
       lefthook
     ];
-    packages = with pkgs; [
-      # These get called in the lefthook config
-      runAsAdmin
-    ];
   };
 
   taskRunner =

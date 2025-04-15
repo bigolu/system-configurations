@@ -130,9 +130,9 @@ sync:
         - nix/*
         - flake.nix
         - flake.lock
-      # Needs to be interactive so I can input my password when the path for
-      # run-as-admin changes. This is because I specify its path in my sudoers config
-      # to allow running it without a password.
+      # Needs to be interactive so I can input my password the first time I run this.
+      # I won't need it afterwards since I specify the path to run-as-admin in my
+      # sudoers config to allow running it without a password.
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       run: sudo -- "$(command -v run-as-admin)" --path "$PATH" "$(command -v system-config-apply)"
