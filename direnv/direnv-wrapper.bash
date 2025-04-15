@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -I nixpkgs=./nix/nixpkgs.nix
 #! nix-shell -i bash
-#! nix-shell --packages "with (import ../nix/flake-package-set.nix); [bash direnv coreutils]"
+#! nix-shell --packages "with (import ../nix/flake/internal-package-set.nix); [bash direnv coreutils]"
 
 # What this script does:
 #   - Get direnv and its dependencies, Bash and coreutils, using the nix-shell
@@ -16,7 +16,7 @@
 # Since this script is not run from within the direnv environment, the shebang at the
 # top works differently than the ones in other scripts:
 #   - A relative path is used to access the package set instead of the
-#     FLAKE_PACKAGE_SET_FILE environment variable. This is done because that variable
+#     FLAKE_INTERNAL_PACKAGE_SET environment variable. This is done because that variable
 #     comes from the direnv environment.
 #   - -I is used to set nixpkgs on the nix path. This is done because NIX_PATH is set
 #     by the direnv environment.

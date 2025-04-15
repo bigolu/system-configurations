@@ -16,14 +16,14 @@
         { self, ... }:
         {
           imports = [
-            ./nix/flake-modules/checks.nix
-            ./nix/flake-modules/dev-shells
-            ./nix/flake-modules/packages.nix
-            ./nix/flake-modules/bundlers.nix
-            ./nix/flake-modules/home-configurations
-            ./nix/flake-modules/darwin-configurations
-            ./nix/flake-modules/overlays
-            ./nix/flake-modules/public-flake-modules
+            ./nix/flake/modules/checks.nix
+            ./nix/flake/modules/dev-shells
+            ./nix/flake/modules/packages.nix
+            ./nix/flake/modules/bundlers.nix
+            ./nix/flake/modules/home-configurations
+            ./nix/flake/modules/darwin-configurations
+            ./nix/flake/modules/overlays
+            ./nix/flake/modules/public-modules
           ];
 
           systems = with flake-utils.lib.system; [
@@ -34,7 +34,7 @@
           # - For nixd[1]
           # - To get access to the flake's package set, i.e. the `pkgs` argument
           #   passed to perSystem[2], from outside the flake. See
-          #   flake-package-set.nix for an example of how it gets accessed.
+          #   flake/internal-package-set.nix for an example of how it gets accessed.
           #
           # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
           # [2]: https://flake.parts/module-arguments.html?highlight=pkgs#pkgs

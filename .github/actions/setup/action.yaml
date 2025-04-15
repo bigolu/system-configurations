@@ -15,7 +15,7 @@ runs:
           # the default limit of 64MiB.
           download-buffer-size = 134217728
           show-trace = true
-    - shell: nix run --file nix/flake-package-set.nix bash-script -- {0}
+    - shell: nix run --file nix/flake/internal-package-set.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
       run: |

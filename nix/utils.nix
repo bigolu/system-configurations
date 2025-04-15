@@ -23,7 +23,7 @@ let
 
   homeManager =
     let
-      moduleRoot = ./flake-modules/home-configurations/modules;
+      moduleRoot = ./flake/modules/home-configurations/modules;
       # This is the module that I always include.
       baseModule = "${moduleRoot}/profile/base";
     in

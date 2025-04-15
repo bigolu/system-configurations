@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
-#! nix-shell --keep FLAKE_PACKAGE_SET_FILE
+#! nix-shell --keep FLAKE_INTERNAL_PACKAGE_SET
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_PACKAGE_SET_FILE\")); [nix-shell-interpreter coreutils home-manager curl darwin-rebuild nix-output-monitor gitMinimal]"
+#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_INTERNAL_PACKAGE_SET\")); [nix-shell-interpreter coreutils home-manager curl darwin-rebuild nix-output-monitor gitMinimal]"
 #MISE description='Initialize the system'
 #MISE hide=true
 #MISE depends_post='sync:force'
@@ -28,7 +28,7 @@ else
 
   # Tell nix-darwin the hash of my nix.conf so it can overwrite it. You can find more
   # information in the comment where this file is read.
-  hash_file='nix/flake-modules/darwin-configurations/modules/nix/nix-conf-hash.txt'
+  hash_file='nix/flake/modules/darwin-configurations/modules/nix/nix-conf-hash.txt'
   shasum -a 256 /etc/nix/nix.conf | cut -d ' ' -f 1 >"$hash_file"
   function undo_hash_file_changes {
     git checkout -- "$hash_file"
@@ -36,7 +36,7 @@ else
   trap undo_hash_file_changes EXIT
 
   # Apply the config with the bootstrap builders.
-  builder_file='nix/flake-modules/darwin-configurations/modules/nix/linux-builder-config-name.txt'
+  builder_file='nix/flake/modules/darwin-configurations/modules/nix/linux-builder-config-name.txt'
   my_builder="$(<"$builder_file")"
   for builder in bootstrap1 bootstrap2; do
     echo "$builder" >"$builder_file"
