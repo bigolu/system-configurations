@@ -36,8 +36,8 @@ let
     ;
   inherit (pkgs.stdenv) isLinux;
 
-  lua = mkShellWrapperNoCC {
-    packages = with pkgs; [ lua-language-server ];
+  lua-language-server = mkShellWrapperNoCC {
+    packages = [ pkgs.lua-language-server ];
     shellHook = ''
       prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
       mkdir -p "$prefix"
@@ -118,8 +118,7 @@ rec {
     let
       linting = mkShellWrapperNoCC {
         inputsFrom = [
-          # This is needed for running lua-language-server
-          lua
+          lua-language-server
           # This is needed for running mypy
           speakerctl
           # This is needed for running `go mod tidy` and `gopls`
@@ -364,7 +363,7 @@ rec {
         # For "llllvvuu.llllvvuu-glspc"
         efmLanguageServer
         # For "sumneko.lua"
-        lua
+        lua-language-server
       ];
       packages = with pkgs; [
         # For "golang.go"
