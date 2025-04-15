@@ -51,6 +51,10 @@ people who want to manage their systems similarly.
 
 2. Post-Install steps:
 
+   - Linux
+
+     1. Logout and login so the login shell configuration can get applied.
+
    - macOS
 
      1. Keyboard:

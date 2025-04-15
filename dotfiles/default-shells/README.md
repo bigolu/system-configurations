@@ -22,8 +22,11 @@ set. For example:
   distributions that depend on the default shell being Bourne-compatible.
 
 Instead of changing the default shell, I made a configuration file for each of
-the default shells on the operating systems that I use. The config files `exec`
-into `fish` if the shell is interactive. You can find them in this directory.
+the default shells on the operating systems that I use. If the shell is launched
+interactively, it `exec`s into `fish`. If it's launched in login mode, it
+sources configuration code written in POSIX `sh`. I chose `sh` since all the
+default shells that I use understand it. You can find the config files in this
+directory.
 
 [mac-path]: https://gist.github.com/Linerre/f11ad4a6a934dcf01ee8415c9457e7b2
 [fish-path-helper]:

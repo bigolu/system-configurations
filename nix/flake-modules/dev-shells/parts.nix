@@ -101,9 +101,6 @@ rec {
   gozip = mkShellWrapperNoCC {
     packages = with pkgs; [ go ];
     shellHook = ''
-      export GOPATH="''${XDG_CACHE_HOME:-$HOME/.cache}/go"
-      mkdir -p "$GOPATH"
-
       # Binary names could conflict between projects so store them in a
       # project-specific directory.
       export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
@@ -186,10 +183,6 @@ rec {
         formatting
         codeGeneration
       ];
-
-      shellHook = ''
-        export RUFF_CACHE_DIR="''${XDG_CACHE_HOME:-$HOME/.cache}/ruff"
-      '';
     };
 
   sync = mkShellWrapperNoCC {
