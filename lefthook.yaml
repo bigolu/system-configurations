@@ -135,7 +135,10 @@ sync:
       # sudoers config to allow running it without a password.
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
-      run: sudo -- "$(command -v run-as-admin)" --path "$PATH" "$(command -v system-config-apply)"
+      #
+      # Use `chase` since the sudoers config specifies the path of `run-as-admin` in
+      # the nix store, but `command` will return the path in my user's profile
+      run: sudo -- "$(chase "$(command -v run-as-admin)")" --path "$PATH" "$(command -v system-config-apply)"
     - name: fish
       glob: dotfiles/fish/conf.d/*.fish
       run: fish -c fish-reload
