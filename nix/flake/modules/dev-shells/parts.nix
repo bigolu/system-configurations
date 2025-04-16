@@ -1,5 +1,5 @@
 # This function returns a map of dev shells that each represent a part of a full dev
-# shell. I do this for these reasons:
+# shell, similar to Dev Container Features[1]. I do this for these reasons:
 #   - Allows parts of a dev shell to be shared between two shells. For example, I can
 #     create one part with all the dependencies for checks (linters, formatters, etc.)
 #     and include that part in both the local development and CI dev shells. This
@@ -9,6 +9,8 @@
 #   - Makes it easier to provide alternate dev shells without certain parts. For
 #     example, people that don't use VS Code may not want the part that provides
 #     dependencies for it.
+#
+# [1]: https://github.com/devcontainers/features
 {
   utils,
   lib,
