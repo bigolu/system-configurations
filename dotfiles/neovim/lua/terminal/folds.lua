@@ -2,6 +2,8 @@ vim.o.foldlevelstart = 99
 vim.opt.fillchars:append("fold: ")
 vim.o.foldtext = ""
 vim.o.foldmethod = "indent"
+-- By default this is "#", but I want lines starting with "#" to get folded too.
+vim.o.foldignore = ""
 
 vim.keymap.set("n", "<Tab>", [[<Cmd>silent! normal! za<CR>]])
 

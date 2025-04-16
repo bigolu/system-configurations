@@ -133,8 +133,8 @@ if vim.fn.executable("nix") == 1 then
     "nil_ls",
     "quick_lint_js",
   }
-  -- TODO: See if it makes sense to upstream this to nvim-lspconfig. Some of
-  -- these files are optional so it wouldn't make sense to upstream those.
+  -- These language servers match a lot of file types so I'm only running them if
+  -- their config file is present.
   local maybe_excluded_severs = {
     denols = { "deno.json", "deno.jsonc" },
     tailwindcss = { "tailwind.config.js" },
