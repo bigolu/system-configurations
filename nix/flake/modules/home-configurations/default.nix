@@ -86,9 +86,9 @@ makeOutputs {
   comp_1 = {
     systems = with system; [ x86_64-linux ];
     modules = [
-      "${moduleRoot}/profile/application-development"
-      "${moduleRoot}/profile/speakers.nix"
-      "${moduleRoot}/profile/comp-1.nix"
+      "${moduleRoot}/application-development"
+      "${moduleRoot}/speakers.nix"
+      "${moduleRoot}/comp-1.nix"
     ];
   };
 
@@ -98,7 +98,7 @@ makeOutputs {
       x86_64-darwin
     ];
     modules = [
-      "${moduleRoot}/profile/portable.nix"
+      "${moduleRoot}/portable.nix"
     ];
     overlay = import ./overlays/portable.nix;
     isGui = false;

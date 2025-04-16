@@ -106,10 +106,10 @@ in
 makeOutputs {
   comp_2 = {
     system = system.x86_64-darwin;
-    modules = [ ./modules/profile/base ];
+    modules = [ ./modules/base ];
     homeModules = [
-      "${homeManagerModuleRoot}/profile/application-development"
-      "${homeManagerModuleRoot}/profile/speakers.nix"
+      "${homeManagerModuleRoot}/application-development"
+      "${homeManagerModuleRoot}/speakers.nix"
     ];
   };
 }
