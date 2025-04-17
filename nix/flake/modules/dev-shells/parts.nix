@@ -291,12 +291,14 @@ rec {
 
   # This part contains the dependencies of all tasks. Though nix-shell will fetch the
   # dependencies for a script when it's executed, it's useful to load them ahead of
-  # time for two reasons:
+  # time for these reasons:
   #   - Having the dependencies for all tasks exposed in the environment makes
   #     debugging a bit easier since you can easily call any commands referenced in a
   #     task.
   #   - Once the dev shell has been loaded, you can work offline since all the
   #     dependencies have already been fetched.
+  #   - Since the dev shell is a garbage collection root, these task dependencies
+  #     won't get garbage collected.
   tasks = pipe (projectRoot + /mise/tasks) [
     # Get all nix-shell shebang scripts
     (fileset.fileFilter (file: file.hasExt "bash"))
