@@ -33,6 +33,7 @@ if vim.o.background == "dark" then
     inlay_fg = "#abb4c4",
     accent = "#88C0D0",
     guide = "#373c47",
+    inactive_number = "#505c73",
   }
 else
   colors = {
@@ -63,6 +64,7 @@ else
     inlay_fg = "#666666",
     accent = "#a40e26",
     guide = "#d3d3d3",
+    inactive_number = "#8c8c8c",
   }
 end
 
@@ -136,7 +138,7 @@ local groups = {
   -- }}}
 
   -- line numbers {{{
-  LineNr = { ctermfg = 8, fg = colors[8] }, -- Line number for ":number" and ":#" commands, and when 'number' or 'relativenumber' option is set.
+  LineNr = { ctermfg = 8, fg = colors.inactive_number, }, -- Line number for ":number" and ":#" commands, and when 'number' or 'relativenumber' option is set.
   LineNrAbove = "LineNr", -- Line number for when the 'relativenumber' option is set, above the cursor line
   LineNrBelow = "LineNrAbove", -- Line number for when the 'relativenumber' option is set, below the cursor line
   -- }}}

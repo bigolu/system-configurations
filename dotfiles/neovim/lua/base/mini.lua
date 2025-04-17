@@ -441,7 +441,7 @@ if IsRunningInTerminal then
   -- }}}
 
   -- diff {{{
-  local sign = "▎"
+  local sign = "┃"
 
   require("mini.diff").setup({
     view = {
