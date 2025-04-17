@@ -32,6 +32,7 @@
     "hangxingliu.vscode-systemd-support",
     "ltex-plus.vscode-ltex-plus",
     "rogalmic.bash-debug",
+    "ndonfris.fish-lsp",
   ],
 
   "unwantedRecommendations": ["ms-python.vscode-pylance"],
