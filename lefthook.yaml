@@ -106,7 +106,9 @@ sync:
   jobs:
     - name: direnv
       glob:
+        - direnv/direnv-manual-reload.bash
         - direnv/base.bash
+        - direnv/local.bash
         - nix/*
         - flake.nix
         - flake.lock
