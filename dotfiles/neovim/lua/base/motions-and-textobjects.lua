@@ -26,29 +26,14 @@ vim.keymap.set({ "n" }, "]y", "']", {
   desc = "End of last yank",
 })
 
-local function move_cursor_vertically(direction)
-  -- TODO: When I use 'gk' at the top of the file it messes up the TUI so I'll
-  -- avoid that.
-  if IsRunningInTerminal and vim.fn.line(".") == 1 and direction == "k" then
-    return direction
-  end
+vim.keymap.set({ "n", "x" }, "j", "gj")
+vim.keymap.set({ "n", "x" }, "k", "gk")
 
-  return "g" .. direction
-end
-vim.keymap.set({ "n", "x" }, "j", function()
-  return move_cursor_vertically("j")
-end, { expr = true })
-vim.keymap.set({ "n", "x" }, "k", function()
-  return move_cursor_vertically("k")
-end, { expr = true })
-
--- move six lines at a time by holding ctrl and a directional key. Reasoning for
+-- move six lines/columns at a time by holding ctrl and a directional key. Reasoning for
 -- using 6 here:
 -- https://nanotipsforvim.prose.sh/vertical-navigation-%E2%80%93-without-relative-line-numbers
 vim.keymap.set({ "n", "x" }, "<C-j>", "6gj")
 vim.keymap.set({ "n", "x" }, "<C-k>", "6gk")
-
--- move ten columns at a time by holding ctrl and a directional key
 vim.keymap.set({ "n", "x" }, "<C-h>", "6h")
 vim.keymap.set({ "n", "x" }, "<C-l>", "6l")
 
@@ -85,39 +70,6 @@ vim.api.nvim_create_autocmd("FileType", {
     c_a(true)
   end,
 })
-
--- Move to next/last long line, m for max
-local function jump_to_long_line(direction)
-  local utilities = require("base.utilities")
-  local last_line = vim.fn.line("$")
-  local current_line = vim.fn.line(".")
-  local max_line_length = utilities.get_max_line_length()
-  local lines_to_search = nil
-  if direction == "next" then
-    lines_to_search =
-      utilities.table_concat(vim.fn.range(current_line + 1, last_line), vim.fn.range(1, current_line - 1))
-  else
-    lines_to_search =
-      utilities.table_concat(vim.fn.range(current_line - 1, 1, -1), vim.fn.range(last_line, current_line + 1, -1))
-  end
-  local long_line = vim
-    .iter(lines_to_search)
-    :filter(function(line)
-      return line >= 0 and line <= last_line
-    end)
-    :find(function(line)
-      return (vim.fn.col({ line, "$" }) - 1) > max_line_length
-    end)
-  if long_line ~= nil then
-    vim.cmd(tostring(long_line))
-  end
-end
-vim.keymap.set({ "n", "x" }, "]m", function()
-  jump_to_long_line("next")
-end, { remap = true, desc = "Next long line [max]" })
-vim.keymap.set({ "n", "x" }, "[m", function()
-  jump_to_long_line("prev")
-end, { remap = true, desc = "Previous long line [last,max]" })
 
 -- jeetsukumaran/vim-indentwise
 -- Motions for levels of indentation
