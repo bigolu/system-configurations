@@ -12,6 +12,8 @@ function main {
   # This should run first. The reason for this is in a comment at the top of
   # `direnv-manual-reload.bash`.
   enable_manual_reload
+  # Now I don't need to add checks everywhere to create this directory if it doesn't
+  # exist.
   create_layout_dir
   dotenv_if_exists secrets.env
   set_up_nix
@@ -26,8 +28,6 @@ function create_layout_dir {
   local layout_dir
   layout_dir="$(direnv_layout_dir)"
 
-  # Now I don't need to add checks everywhere to create this directory if it doesn't
-  # exist.
   mkdir -p "$layout_dir"
 
   local -r gitignore_path="${layout_dir}/.gitignore"

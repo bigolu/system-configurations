@@ -32,6 +32,12 @@ then
   return
 fi
 
+# If the shell is a login shell, source the login config now because normally, it
+# would run after this file, but that won't happen since I use exec below.
+if [[ -o login ]] &&  [ -f ~/.zlogin ]; then
+  source ~/.zlogin
+fi
+
 # If the current shell isn't fish, exec into fish. My reason for doing this is in
 # README.md
 if [ "$(basename "$SHELL")" != 'fish' ] && (( $+commands[fish] )); then
