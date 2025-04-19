@@ -87,6 +87,7 @@ set flags \
     (__flag 'ansi') \
     (__flag 'border' 'rounded') \
     (__flag 'wrap') \
+    (__flag 'marker-multi-line' '┏┃┗') \
     (__flag 'color' \
         '16' \
         'current-fg:-1:regular:underline' \
