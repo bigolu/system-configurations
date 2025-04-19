@@ -51,11 +51,13 @@
 # [3]: https://github.com/direnv/direnv-vscode
 
 function direnv_manual_reload {
-  # Intentionally global so it can be accessed in the exit handler
+  # Intentionally global so it can be accessed in the exit trap
   reload_file="$(create_reload_file)"
   watch_file "$reload_file"
   add_reload_program_to_path
-  run_before_exit remove_watched_files
+  # direnv already sets an exit trap so we'll prepend our command to it instead
+  # of overwriting it.
+  prepend_to_exit_trap remove_unwanted_watched_files
 }
 
 function add_reload_program_to_path {
@@ -106,7 +108,8 @@ function get_direnv_dir {
   echo "$layout_dir"
 }
 
-function remove_watched_files {
+function remove_unwanted_watched_files {
+  local -a watched_files
   # shellcheck disable=2312
   # TODO: The exit code of direnv is being masked by readarray, but it would be
   # tricky to avoid that. I can't use a pipeline since I want to unset the
@@ -137,18 +140,17 @@ function remove_watched_files {
   watch_file "${watched_files_to_keep[@]}"
 }
 
-function run_before_exit {
-  local -r command_to_run="$1"
+function prepend_to_exit_trap {
+  local -r command="$1"
 
-  # direnv sets an exit trap so we should prepend ours to it instead of overwriting
-  # it.
-  local current_trap_handler
-  current_trap_handler="$(get_exit_trap_handler)"
-  trap -- "$command_to_run"$'\n'"$current_trap_handler" EXIT
+  local current_trap
+  current_trap="$(get_exit_trap)"
+
+  trap -- "$command"$'\n'"$current_trap" EXIT
 }
 
-function get_exit_trap_handler {
-  # `trap -p EXIT` will print 'trap -- <old_handler> EXIT'. The output seems to be
+function get_exit_trap {
+  # `trap -p EXIT` will print 'trap -- <current_trap> EXIT'. The output seems to be
   # formatted the way the %q directive for printf formats variables[1]. Because of
   # this, we can use eval to tokenize it.
   #
