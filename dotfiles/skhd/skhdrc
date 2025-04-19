@@ -7,15 +7,16 @@ hyper - 0x80 ; passthrough
 passthrough < hyper - 0x80 ; default
 
 # OS shortcuts
-########################################
+# -----------------------------------------------------------------------------------
+
 # lock screen
 cmd - escape : skhd -k "cmd + ctrl - q"
 # cmd + / for spotlight
 cmd - 0x2C : skhd -k "cmd - space"
 
 # Yabai shortcuts
-# TODO: Put these in their own file
-########################################
+# -----------------------------------------------------------------------------------
+
 # refresh Hammerspoon
 cmd - r : hs -c 'hs.reload()'
 # reset window sizes to be equal
@@ -58,7 +59,8 @@ cmd + ctrl - k : yabai -m window --swap north
 cmd + ctrl - l : yabai -m window --swap east
 
 # App shortcuts
-########################################
+# -----------------------------------------------------------------------------------
+
 # Use hjkl as arrow keys when holding down Fn
 fn - h : skhd -k "left"
 fn - j : skhd -k "down"
