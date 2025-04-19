@@ -408,36 +408,6 @@ if IsRunningInTerminal then
       return "<S-Tab>"
     end
   end, { expr = true })
-
-  -- TODO: When I call the original `completion_confirm` through the <CR>
-  -- mapping, it doesn't return the right value. This has something to do
-  -- with the `esc` function that gets called by `completion_confirm`.
-  -- `esc` uses `nvim_replace_termcodes` to escape its input. If I instead
-  -- have `esc` return its input without calling `nvim_replace_termcodes`,
-  -- `completion_confirm` returns the right value.
-  --
-  -- On the other hand, mappings like <BS> only work with the original `esc`
-  -- so I have to restore the original `esc.
-  local function patched_completion_confirm()
-    local original_esc = require("nvim-autopairs.utils").esc
-    ---@diagnostic disable-next-line: duplicate-set-field
-    require("nvim-autopairs.utils").esc = function(x)
-      return x
-    end
-    local return_value = require("nvim-autopairs").completion_confirm()
-    require("nvim-autopairs.utils").esc = original_esc
-
-    return return_value
-  end
-
-  vim.keymap.set("i", "<CR>", function()
-    if is_completion_menu_open() then
-      -- <C-y> would occasionally remove the character under the cursor
-      return "<Esc>a"
-    else
-      return patched_completion_confirm()
-    end
-  end, { expr = true })
   -- }}}
 
   -- diff {{{

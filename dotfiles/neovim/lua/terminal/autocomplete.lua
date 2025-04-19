@@ -5,7 +5,6 @@ vim.o.completeopt = "menu,menuone,popup,fuzzy,noselect"
 require("nvim-autopairs").setup({
   -- Don't add bracket pairs after quote.
   enable_afterquote = false,
-  map_cr = false,
 })
 
 require("nvim-ts-autotag").setup()
