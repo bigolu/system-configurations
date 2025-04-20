@@ -56,7 +56,7 @@ function __grep_widget --argument-names title grep_command
     if not set choices ( \
         FZF_DEFAULT_COMMAND="echo -n ''" \
         FZF_HINTS='alt+e: edit in neovim' \
-        fzf-zoom \
+        fzf \
             --disabled \
             # We refresh-preview after executing vim in the event that the file
             # gets modified by vim. Tracking doesn't work when the input list is
@@ -105,7 +105,7 @@ function grep-all-widget --description 'Text search on text, and certain non-tex
 
     if not set choices ( \
         FZF_DEFAULT_COMMAND="echo -n ''" \
-        fzf-zoom \
+        fzf \
             --disabled \
             # tracking doesn't work when the input list is reloaded so I'm
             # binding it to a no-op.
@@ -138,7 +138,7 @@ function man-widget --description 'Search manpages'
 
     if not set choice ( \
         FZF_DEFAULT_COMMAND='man -k .' \
-          fzf-zoom \
+          fzf \
             --tiebreak=chunk,begin,end \
             --prompt 'manpages: ' \
             --preview "eval 'MANWIDTH=\$FZF_PREVIEW_COLUMNS man '($parse_entry_command {})" \
@@ -257,7 +257,7 @@ function file-widget --description 'Search files'
     if not set choices ( \
         FZF_HINTS='alt+e: edit in neovim' \
         FZF_DEFAULT_COMMAND="test '$dir' = '.' && set _args '--strip-cwd-prefix' || set _args '.' $dir; fd \$_args --follow --hidden --type file --type symlink" \
-        fzf-zoom \
+        fzf \
             --prompt "$prompt" \
             --preview "$preview_command" \
             --preview-window '75%,~1' \
@@ -279,7 +279,7 @@ function directory-widget --description 'Search directories'
 
     if not set choices ( \
         FZF_DEFAULT_COMMAND="test '$dir' = '.' && set _args '--strip-cwd-prefix' || set _args '.' $dir; fd \$_args --follow --hidden --type directory --type symlink" \
-        fzf-zoom \
+        fzf \
             --prompt "$prompt" \
             --preview 'echo -s (set_color brblack) "Directory: " {}; lsd --color always --hyperlink always {}' \
             --preview-window '75%,~1' \
@@ -299,7 +299,7 @@ function history-widget --description 'Search history'
     # multiple lines.
     if not set choices ( \
         FZF_DEFAULT_COMMAND="history --null" \
-        fzf-zoom \
+        fzf \
         --prompt 'history: ' \
         --no-preview \
         --scheme history \

@@ -21,7 +21,7 @@ if (($# == 0)); then
   merge_base="$(git merge-base origin/HEAD HEAD)"
   choice="$(
     git log "${merge_base}..HEAD" --oneline |
-      fzf-zoom \
+      fzf \
         --no-sort \
         --prompt 'Choose a commit to rebase from: ' \
         --preview 'git show --patch {1} | delta' \
