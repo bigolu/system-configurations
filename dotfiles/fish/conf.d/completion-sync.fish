@@ -34,17 +34,6 @@ function _complete_fish_post_load
 
     _complete_fish_debug 'Adding completions for these files:'\n"$(string join \n $xdg_files)"
     _complete_fish_add $xdg_files
-
-    # On startup, Fish will add XDG_DATA_DIRS to fish_complete_path so we'll
-    # remove the ones we're managing.
-    #
-    # Cases where we need to do this:
-    #   - A sub shell is started in a direnv environment
-    #   - `exec` is used in a direnv environment
-    #
-    # TODO: I should only be doing this if we're in one of the cases above, but
-    # I think it's safe to just always do it.
-    _complete_fish_remove_managed_files_from_complete_path
 end
 
 function _complete_fish_post_unload
@@ -110,19 +99,6 @@ end
 function _complete_fish_debug --argument-names message
     if test -n "$COMPLETE_FISH_DEBUG"
         echo "[completion-sync] $message" >&2
-    end
-end
-
-function _complete_fish_remove_managed_files_from_complete_path
-    set -l removed_paths
-    for addition_file in $_complete_fish_files
-        if set -l index (contains --index -- (path dirname $addition_file) $fish_complete_path)
-            set --append removed_paths $fish_complete_path[$index]
-            set --erase fish_complete_path[$index]
-        end
-    end
-    if test (count $removed_paths) -gt 0
-        _complete_fish_debug 'Paths removed from fish_complete_path:'\n"$(string join \n $removed_paths)"
     end
 end
 
