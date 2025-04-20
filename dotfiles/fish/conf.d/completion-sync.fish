@@ -141,7 +141,7 @@ function _complete_fish_add
         end
         if test (count $added_entries) -eq 0
             _complete_fish_debug "This file didn't add any completion entries, ignoring: $file"
-            return
+            continue
         end
 
         if set --query --global _complete_fish_files
