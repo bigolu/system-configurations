@@ -75,8 +75,8 @@ people who want to manage their systems similarly.
             `cmd+]` respectively, "Mission Control" to `cmd+d`, "Mission Control
             → Switch to Desktop 1-9" `cmd+[1-9]`
 
-     2. Open Hammerspoon, Finicky, MonitorControl, UnnaturalScrollWheels,
-        Nightfall, and Mac Mouse Fix to configure them.
+     2. Open Hammerspoon, MonitorControl, UnnaturalScrollWheels, Nightfall, and
+        Mac Mouse Fix to configure them.
 
 ## Running the Portable Configuration
 

@@ -16,7 +16,6 @@ shopt -s inherit_errexit
 kernel="$(uname)"
 if [[ $kernel == 'Linux' ]]; then
   home-manager switch --flake .#"${usage_configuration:?}"
-  bash dotfiles/firefox-developer-edition/set-default-browser.bash
   # shellcheck disable=2016
   echo 'Consider copying COSMIC settings to the system by running `mise run copy-cosmic to-system`'
 else

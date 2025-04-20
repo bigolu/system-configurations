@@ -4,7 +4,6 @@
 }:
 {
   imports = [
-    ./firefox-developer-edition.nix
     ./podman.nix
   ];
 
