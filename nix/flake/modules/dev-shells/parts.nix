@@ -87,6 +87,8 @@ rec {
         #
         # [1]: https://nixos.wiki/wiki/Locales
         export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
+        export LANG='en_US.UTF-8'
+        export LC_ALL="$LANG"
       '';
     in
     mkShellWrapperNoCC (
