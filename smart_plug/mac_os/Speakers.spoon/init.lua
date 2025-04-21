@@ -26,7 +26,8 @@ local function listen(speakerctl_path)
   end
 
   local function is_laptop_docked()
-    local exit_code = execute("/bin/sh", {
+    local exit_code = execute("/usr/bin/env", {
+        "sh",
         "-c",
         [[system_profiler SPUSBDataType | grep -q 'OWC Thunderbolt']],
       })
