@@ -132,6 +132,7 @@ sync:
         - nix/*
         - flake.nix
         - flake.lock
+        - smart_plug/*
       # Needs to be interactive so I can input my password the first time I run this.
       # I won't need it afterwards since I specify the path to run-as-admin in my
       # sudoers config to allow running it without a password.
