@@ -69,14 +69,11 @@ rec {
 
   ciEssentials =
     let
-      # The full set of locales is pretty big (~220MB) so I'll only include the ones
+      # The full set of locales is pretty big (~220MB) so I'll only include the one
       # I need.
       locales = pkgs.glibcLocales.override {
         allLocales = false;
-        locales = [
-          "en_US.UTF-8/UTF-8"
-          "C.UTF-8/UTF-8"
-        ];
+        locales = [ "en_US.UTF-8/UTF-8" ];
       };
 
       localeArchiveHook = ''
@@ -87,8 +84,7 @@ rec {
         #
         # [1]: https://nixos.wiki/wiki/Locales
         export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
-        export LANG='en_US.UTF-8'
-        export LC_ALL="$LANG"
+        export LC_ALL='en_US.UTF-8'
       '';
     in
     mkShellWrapperNoCC (
