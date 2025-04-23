@@ -237,5 +237,9 @@ end
 vim.o.laststatus = 3
 vim.o.statusline = "%!v:lua.StatusLine()"
 
-vim.o.statuscolumn = "%l%s"
+function CurrentLineMarker()
+  return ((vim.v.lnum == vim.fn.line(".")) and "▶ " or "  ")
+end
+
+vim.o.statuscolumn = "%l%s%{%v:lua.CurrentLineMarker()%}"
 vim.o.signcolumn = "yes:1"
