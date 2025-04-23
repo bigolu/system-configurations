@@ -411,7 +411,11 @@ if IsRunningInTerminal then
   -- }}}
 
   -- diff {{{
-  local sign = "▎"
+  -- Ghostty extends the background color to the edge of the terminal window so
+  -- instead of using a "left 1/4 block" I use a "right 3/4 block" and reverse
+  -- the highlight. I also add a "full block" afterwards since signs are given
+  -- two cells.
+  local sign = "🮋█"
 
   require("mini.diff").setup({
     view = {
