@@ -1,5 +1,3 @@
--- vim:foldmethod=marker
-
 local function make_statusline(...)
   local right_border = " "
   local right_border_length = vim.api.nvim_eval_statusline(right_border, {}).width
@@ -237,9 +235,5 @@ end
 vim.o.laststatus = 3
 vim.o.statusline = "%!v:lua.StatusLine()"
 
-function CurrentLineMarker()
-  return ((vim.v.lnum == vim.fn.line(".")) and "▶ " or "  ")
-end
-
-vim.o.statuscolumn = "%l%s%{%v:lua.CurrentLineMarker()%}"
+vim.o.statuscolumn = "%s%l%#Normal# "
 vim.o.signcolumn = "yes:1"
