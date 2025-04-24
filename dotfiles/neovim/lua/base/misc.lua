@@ -35,6 +35,9 @@ vim.keymap.set({ "n" }, "gF", "gf", {
 -- leave cursor at the end of yanked text
 vim.keymap.set({ "x" }, "y", "ygv<Esc>", { silent = true })
 
+-- This will get neovim to stop treating <Esc> as ctrl-[
+vim.keymap.set({ "n", "i", "v", "x" }, "<Esc>", "<Esc>", { noremap = true })
+
 -- paste {{{
 -- * re-indent the pasted text which will also move me to the end of the text.
 -- * set markers for the start and end of the pasted text so I can reselect it.
