@@ -27,7 +27,6 @@ let
       dial-nvim
       lazy-lsp-nvim
       mini-nvim
-      nvim-autopairs
       nvim-lightbulb
       nvim-lspconfig
       nvim-treesitter.withAllGrammars

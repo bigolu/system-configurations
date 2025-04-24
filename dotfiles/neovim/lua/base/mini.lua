@@ -270,6 +270,7 @@ require("mini.jump").setup({
 
 if IsRunningInTerminal then
   require("mini.misc").setup_restore_cursor({ center = false })
+  require("mini.pairs").setup()
 
   -- misc {{{
   local misc = require("mini.misc")
