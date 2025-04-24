@@ -481,14 +481,16 @@ if IsRunningInTerminal then
     },
     window = {
       winblend = 0,
-      config = {
-        title = "",
-        anchor = "SE",
-        col = vim.o.columns,
-        -- The subtraction is to clear the statusline
-        row = vim.o.lines - 1,
-        border = { "", "", "", "🮇", "", "", "", " " },
-      },
+      config = function()
+        return {
+          title = "",
+          anchor = "SE",
+          col = vim.o.columns,
+          -- The subtraction is to clear the statusline
+          row = vim.o.lines - 1,
+          border = { "", "", "", "🮇", "", "", "", " " },
+        }
+      end,
     },
   })
 
