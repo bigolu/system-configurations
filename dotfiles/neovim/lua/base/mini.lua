@@ -440,7 +440,9 @@ if IsRunningInTerminal then
   -- }}}
 
   -- pick {{{
-  require("mini.pick").setup({
+  local mini_pick = require("mini.pick")
+
+  mini_pick.setup({
     mappings = {
       move_down = "<Tab>",
       move_up = "<S-Tab>",
@@ -468,6 +470,18 @@ if IsRunningInTerminal then
   vim.keymap.set({ "n" }, "<leader><leader>", function()
     vim.cmd.Pick("resume")
   end)
+
+  ---@diagnostic disable-next-line: duplicate-set-field
+  vim.ui.select = function(items, opts, on_choice)
+    return mini_pick.ui_select(items, opts, on_choice, {
+      window = {
+        config = {
+          width = vim.o.columns,
+          height = 5,
+        },
+      },
+    })
+  end
   -- }}}
 
   -- notify {{{
