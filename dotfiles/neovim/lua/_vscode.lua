@@ -14,18 +14,6 @@ vim.g.clipboard = vim.g.vscode_clipboard
 -- see if I'll press another 'q'.
 vim.keymap.del({ "n" }, "gqq")
 
--- direnv/direnv.vim
---
--- TODO: Unlike other extensions, vscode-neovim is not picking up the
--- environment variables set by direnv-vscode, even after direnv restarts
--- all extensions. Based on my testing, it seems that this because I set an
--- `affinity` for it in my vscode settings. I need to open an issue with vscode
--- to see why setting an `affinity` on an extension would prevent it from
--- inheriting environment variables that other extensions are inheriting. In the
--- meantime, I'll use the extension below which applies the .envrc on VimEnter
--- and DirChanged events.
-vim.g.direnv_silent_load = 1
-
 -- There are three reasons why I'm disabling this:
 --
 -- 1. The readme for the vscode-neovim extension [1] recommends disabling any

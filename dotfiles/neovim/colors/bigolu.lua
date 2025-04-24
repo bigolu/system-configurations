@@ -34,6 +34,7 @@ if vim.o.background == "dark" then
     accent = "#88C0D0",
     guide = "#373c47",
     inactive_number = "#505c73",
+    notification = "#212530",
   }
 else
   colors = {
@@ -65,6 +66,7 @@ else
     accent = "#a40e26",
     guide = "#d3d3d3",
     inactive_number = "#8c8c8c",
+    notification = "#f6f8fa",
   }
 end
 
@@ -257,12 +259,6 @@ local groups = {
   MatchWord = {},
   -- }}}
 
-  -- fidget.nvim {{{
-  FidgetNormal = { ctermbg = "NONE", ctermfg = 8, bg = "NONE", fg = colors[8] },
-  FidgetAccent = { ctermbg = "NONE", ctermfg = 7, bg = "NONE", fg = colors[7] },
-  FidgetIcon = { ctermbg = "NONE", ctermfg = 14, fg = colors.accent },
-  -- }}}
-
   -- mini.nvim {{{
   MiniIndentscopeSymbol = { ctermfg = 15, fg = colors.guide },
   Clear = "Identifier",
@@ -280,6 +276,8 @@ local groups = {
   MiniPickPrompt = "MiniPickNormal",
   MiniPickMatchRanges = { ctermfg = 14, fg = colors.accent, bold = true, },
   MiniPickMatchCurrent = {underline = not vim.o.termguicolors, bg = colors.bg2, },
+  MiniNotifyBorder = { ctermfg = 8, fg = colors[8], bg = colors.notification, },
+  MiniNotifyNormal = { italic = not vim.o.termguicolors, bg = colors.notification },
   -- }}}
 }
 

@@ -468,4 +468,30 @@ if IsRunningInTerminal then
     vim.cmd.Pick("resume")
   end)
   -- }}}
+
+  -- notify {{{
+  local notify = require("mini.notify")
+
+  notify.setup({
+    content = {
+      format = function(data)
+        return data.msg
+      end,
+    },
+    window = {
+      winblend = 0,
+      config = {
+        title = "",
+        anchor = "SE",
+        col = vim.o.columns,
+        -- The subtraction is to clear the statusline
+        row = vim.o.lines - 1,
+        border = { "", "", "", "🮇", "", "", "", " " },
+      },
+    },
+  })
+
+  vim.notify = notify.make_notify()
+  vim.keymap.set({ "n" }, "<leader>h", notify.show_history)
+  -- }}}
 end
