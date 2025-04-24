@@ -477,7 +477,7 @@ if IsRunningInTerminal then
       window = {
         config = {
           width = vim.o.columns,
-          height = 5,
+          height = math.min(math.floor(vim.o.lines * 0.50), #items),
         },
       },
     })
