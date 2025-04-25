@@ -251,7 +251,8 @@ local groups = {
   -- }}}
 
   -- nvim-treesitter-context {{{
-  TreesitterContext = { italic = not vim.o.termguicolors, bg = colors.pmenu, nocombine = true }, -- Line used for closed folds
+  TreesitterContext = "Normal",
+  TreesitterContextBottom = { underline = true, sp = colors.guide },
   -- }}}
 
   -- vim-matchup {{{
