@@ -292,12 +292,15 @@ local function get_fold_sign()
 end
 
 function StatusColumn()
-  local line_number = "%l"
-  local git_sign = "%s"
-  local fold_sign = get_fold_sign()
+  local line_number_width = math.ceil(math.log(vim.fn.line("$"), 10))
+  local line_number_min_width = line_number_width + 1
+  local line_number = "%-" .. line_number_min_width .. "l"
+
+  local git = "%s"
+  local fold = get_fold_sign()
   local margin = "%#Normal# "
 
-  return git_sign .. line_number .. fold_sign .. margin
+  return git .. line_number .. fold .. margin
 end
 
 vim.o.laststatus = 3
