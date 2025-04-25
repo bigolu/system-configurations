@@ -292,7 +292,7 @@ local function get_fold_sign()
 end
 
 function StatusColumn()
-  local line_number_width = math.ceil(math.log(vim.fn.line("$"), 10))
+  local line_number_width = math.ceil(math.log(vim.fn.line("$", vim.g.statusline_winid), 10))
   local line_number_min_width = line_number_width + 1
   local line_number = "%-" .. line_number_min_width .. "l"
 
