@@ -13,7 +13,7 @@
 #USAGE   yq --no-doc '.. | select(has("on")) | .on | keys | .[]' .github/workflows/*
 #USAGE """#
 #USAGE
-#USAGE flag "-f --force_container" help="Use a container even if it could be run natively"
+#USAGE flag "-f --force-container" help="Use a container even if it could be run natively"
 #USAGE
 #USAGE flag "-w --workflow <workflow-file>" var=#true help="Workflow(s) to run."
 #USAGE complete "workflow-file" run=#"""

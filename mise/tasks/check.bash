@@ -35,7 +35,7 @@
 #USAGE     lefthook.yaml
 #USAGE """#
 #USAGE
-#USAGE flag "-a --all" help="Run on all files"
+#USAGE flag "-a --all-files" help="Run on all files"
 
 set -o errexit
 set -o nounset
@@ -56,7 +56,7 @@ if ((${#jobs[@]} > 0)); then
 fi
 
 {
-  if [[ ${usage_all:-} == 'true' ]]; then
+  if [[ ${usage_all_files:-} == 'true' ]]; then
     # Print all tracked files
     git ls-files -z
   else
