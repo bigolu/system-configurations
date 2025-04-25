@@ -34,7 +34,7 @@ if vim.o.background == "dark" then
     accent = "#88C0D0",
     guide = "#373c47",
     inactive_number = "#505c73",
-    notification = "#212530",
+    notification = "#242833",
   }
 else
   colors = {
