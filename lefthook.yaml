@@ -37,7 +37,23 @@ templates:
 commit-msg:
   jobs:
     - name: commit-msg-typos-check
-      run: typos {1}
+      run: |
+        if ! typos {1}; then
+          commit_msg_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
+          printf '%s\n' \
+            '' \
+            'To commit again with the commit message you just entered, run the following command:' \
+            '  git commit --edit --message "$(sed '"'"'/^#/d'"'"' '"$commit_msg_file"')"' \
+            'To create a git alias for running the command above, run the command below:' \
+            '  git config --global alias.recommit '"'"'!git commit --edit --message "$(sed "/^#/d" "$(git rev-parse --git-dir)/COMMIT_EDITMSG")"'"'" \
+            'Now you can use the alias by running:' \
+            '  git recommit' \
+            '' \
+            'If you think the errors reported by "commit-msg-typos-check" are false-positives, you skip the commit-msg hook by running the following command:' \
+            '  git commit --no-verify' \
+            'NOTE: This will also skip the pre-commit hook.'
+          exit 1
+        fi
 
 # Lefthook stashes unstaged changes before running this hook, but not untracked
 # files: https://github.com/evilmartians/lefthook/issues/833
