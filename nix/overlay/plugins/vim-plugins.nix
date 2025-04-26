@@ -42,7 +42,6 @@ let
       vim-matchup
       # For indentexpr
       vim-nix
-      vim-repeat
       vim-sleuth
     ];
   };
