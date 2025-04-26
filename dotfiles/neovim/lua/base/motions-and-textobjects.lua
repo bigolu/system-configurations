@@ -71,31 +71,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- jeetsukumaran/vim-indentwise
--- Motions for levels of indentation
-vim.keymap.set(
-  "",
-  "[-",
-  "<Plug>(IndentWisePreviousLesserIndent)",
-  { remap = true, desc = "Last line with lower indent" }
-)
-vim.keymap.set(
-  "",
-  "[+",
-  "<Plug>(IndentWisePreviousGreaterIndent)",
-  { remap = true, desc = "Last line with higher indent" }
-)
-vim.keymap.set(
-  "",
-  "[=",
-  "<Plug>(IndentWisePreviousEqualIndent)",
-  { remap = true, desc = "Last block with equal indent" }
-)
-vim.keymap.set("", "]-", "<Plug>(IndentWiseNextLesserIndent)", { remap = true, desc = "Next line with lower indent" })
-vim.keymap.set("", "]+", "<Plug>(IndentWiseNextGreaterIndent)", { remap = true, desc = "Next line with higher indent" })
-vim.keymap.set("", "]=", "<Plug>(IndentWiseNextEqualIndent)", { remap = true, desc = "Next block with equal indent" })
-vim.g.indentwise_suppress_keymaps = 1
-
 -- andymass/vim-matchup
 --
 -- Don't display off-screen matches in my statusline or a popup window

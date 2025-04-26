@@ -268,6 +268,79 @@ require("mini.jump").setup({
 })
 -- }}}
 
+-- bracketed {{{
+require("mini.bracketed").setup({
+  buffer = { suffix = "" },
+  comment = { suffix = "" },
+  conflict = { suffix = "" },
+  diagnostic = { suffix = "" },
+  file = { suffix = "" },
+  indent = { suffix = "" },
+  jump = { suffix = "" },
+  location = { suffix = "" },
+  oldfile = { suffix = "" },
+  quickfix = { suffix = "" },
+  treesitter = { suffix = "" },
+  window = { suffix = "" },
+  yank = { suffix = "" },
+})
+
+vim.keymap.set("", "[-", function()
+  MiniBracketed.indent("backward", { change_type = "less" })
+end)
+vim.keymap.set("", "[+", function()
+  MiniBracketed.indent("backward", { change_type = "more" })
+end)
+vim.keymap.set("", "]-", function()
+  MiniBracketed.indent("forward", { change_type = "less" })
+end)
+vim.keymap.set("", "]+", function()
+  MiniBracketed.indent("forward", { change_type = "more" })
+end)
+
+local make_nextprev_indent = function(advance_to_nonblank, increment)
+  return function(cur_lnum)
+    -- Correctly process initial blank line
+    cur_lnum = advance_to_nonblank(cur_lnum)
+    local init_indent = vim.fn.indent(cur_lnum)
+    local visited_different_indent = false
+
+    local new_lnum, new_indent = cur_lnum, init_indent
+    -- Check with `new_lnum > 0` because `nextnonblank()` returns -1 if line is
+    -- outside of line range
+    while new_lnum > 0 do
+      new_indent = vim.fn.indent(new_lnum)
+      visited_different_indent = visited_different_indent or new_indent ~= init_indent
+      if new_indent == init_indent and visited_different_indent then
+        return new_lnum
+      end
+      new_lnum = advance_to_nonblank(new_lnum + increment)
+    end
+  end
+end
+local indent_same = function(direction)
+  local iterator = {
+    next = make_nextprev_indent(vim.fn.nextnonblank, 1),
+    prev = make_nextprev_indent(vim.fn.prevnonblank, -1),
+    state = vim.fn.line("."),
+  }
+  local res_line_num = MiniBracketed.advance(iterator, direction, { wrap = false })
+  if res_line_num == nil then
+    return
+  end
+
+  -- Navigate to the first non-blank character of the target line
+  vim.api.nvim_win_set_cursor(0, { res_line_num, 0 })
+  vim.cmd("normal! zv^")
+end
+vim.keymap.set("", "[=", function()
+  indent_same("backward")
+end)
+vim.keymap.set("", "]=", function()
+  indent_same("forward")
+end)
+-- }}}
+
 if IsRunningInTerminal then
   require("mini.misc").setup_restore_cursor({ center = false })
   require("mini.pairs").setup()

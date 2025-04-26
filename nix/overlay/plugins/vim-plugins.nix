@@ -38,7 +38,6 @@ let
       treesj
       vim-abolish
       vim-caser
-      vim-indentwise
       vim-matchup
       # For indentexpr
       vim-nix
