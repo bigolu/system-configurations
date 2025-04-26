@@ -49,7 +49,7 @@ commit-msg:
             'Now you can use the alias by running:' \
             '  git recommit' \
             '' \
-            'If you think the errors reported by "commit-msg-typos-check" are false-positives, you skip the commit-msg hook by running the following command:' \
+            'If you think the errors reported by "commit-msg-typos-check" are false-positives, you can skip the commit-msg hook by running the following command:' \
             '  git commit --no-verify' \
             'NOTE: This will also skip the pre-commit hook.'
           exit 1
