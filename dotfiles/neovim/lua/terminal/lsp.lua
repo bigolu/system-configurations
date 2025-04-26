@@ -128,7 +128,7 @@ if vim.fn.executable("nix") == 1 then
   local excluded_servers = {
     "pylyzer",
     "jedi_language_server",
-    "basedpyright",
+    "pyright",
     "pylsp",
     "nil_ls",
     "quick_lint_js",
