@@ -11,7 +11,7 @@
 #USAGE   to run this manually since it runs during the git pre-commit hook, where it \
 #USAGE   only runs on staged files. The exception to this is when you make changes to how \
 #USAGE   any of the checks work, like modifying `lefthook.yaml` for example. In which \
-#USAGE   case, you should run this with the `--all` flag which forces the checks to \
+#USAGE   case, you should run this with the `--all-files` flag which forces the checks to \
 #USAGE   run on all files, even unchanged ones. The list of checks is in `lefthook.yaml`.
 #USAGE """
 #USAGE
