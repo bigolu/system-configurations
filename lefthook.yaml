@@ -168,12 +168,9 @@ check:
   files: ":"
   jobs:
     - name: _
-      # Don't run checks on files I didn't make. For example, generated files and
-      # licenses.
-      #
-      # This job only exists so the excludes can get inherited by all of its
-      # descendants. There's an open feature request for a global exclude list[1]. If
-      # that gets implemented, I won't need this extra job anymore.
+      # This job only exists so the excludes below can get inherited by all of
+      # its descendants. There's an open feature request for a global exclude
+      # list[1]. If that gets implemented, I won't need this extra job anymore.
       #
       # [1]: https://github.com/evilmartians/lefthook/issues/593
       exclude:
