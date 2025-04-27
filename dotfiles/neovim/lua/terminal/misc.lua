@@ -41,13 +41,14 @@ vim.o.shortmess = "ltToOFs"
 -- }}}
 
 -- Mappings {{{
+vim.keymap.set("", "<C-s>", vim.cmd.wall)
+
 local function c_x(buffer)
   vim.keymap.set("", "<C-x>", function()
     vim.cmd([[
-      confirm qall
+      confirm xall
     ]])
   end, {
-    desc = "Quit [exit,close]",
     buffer = buffer,
   })
 end
@@ -107,77 +108,12 @@ end, { silent = true, desc = "Close pane [split,window]" })
 -- }}}
 
 -- Autosave {{{
---
--- TODO: These issues may affect how I want to do this:
--- https://github.com/neovim/neovim/pull/20801
--- https://github.com/neovim/neovim/issues/1380
--- https://github.com/neovim/neovim/issues/12605
---
--- TODO: When I call checktime after pressing something like 'cin' in normal mode, I get
--- E565 which doesn't make sense since I don't think complete mode was active, mini.ai was
--- just prompting me for a char. In any case, I tried checking if completion mode was active
--- first, but it wasn't so I still got this error. So now I'm just using pcall which isn't ideal
--- since it will suppress other errors too.
-local function checktime()
-  return pcall(vim.cmd.checktime)
-end
----@diagnostic disable-next-line: undefined-field
-local timer = vim.uv.new_timer()
-assert(timer ~= nil)
-timer:start(
-  0,
-  500,
-  vim.schedule_wrap(function()
-    -- you can't run checktime in the commandline
-    if vim.fn.getcmdwintype() ~= "" then
-      return
-    end
-
-    -- check for changes made outside of vim
-    local success = checktime()
-    if not success then
-      return
-    end
-
-    -- Give buffers a chance to update via 'autoread' in response to the checktime done above by
-    -- deferring.
-    vim.defer_fn(function()
-      -- I'm saving this way instead of :wall because I want to filter out buffers with buftype
-      -- 'acwrite' because overseer.nvim uses that for floats that require user input and my
-      -- autosave was causing them to automatically close.
-      vim
-        .iter(vim.api.nvim_list_bufs())
-        :filter(function(buf)
-          -- TODO: Considering also checking filereadable, but not sure if that would cause
-          -- excessive disk reads
-          return vim.api.nvim_buf_is_loaded(buf)
-            and not vim.bo[buf].readonly
-            and vim.bo[buf].modified
-            and (vim.bo[buf].buftype == "")
-            and (#vim.api.nvim_buf_get_name(buf) > 0)
-        end)
-        :each(function(buf)
-          vim.api.nvim_buf_call(buf, function()
-            ---@diagnostic disable-next-line: param-type-mismatch
-            local was_successful = pcall(vim.cmd, "silent write")
-            if not was_successful then
-              vim.notify(string.format("Failed to write buffer #%s, disabling autosave...", buf), vim.log.levels.ERROR)
-              timer:stop()
-            end
-          end)
-        end)
-    end, 300)
-  end)
-)
--- Check for changes made outside of vim. Source:
--- https://unix.stackexchange.com/questions/149209/refresh-changed-content-of-file-opened-in-vim/383044#383044
-vim.api.nvim_create_autocmd({ "FocusGained", "BufEnter", "CursorHold", "CursorHoldI", "VimResume" }, {
-  callback = function()
-    -- you can't run checktime in the commandline
-    if vim.fn.getcmdwintype() ~= "" then
-      return
-    end
-    checktime()
+-- Emulates the behavior of VS Code's autosave "onFocusChange"
+vim.api.nvim_create_autocmd({ "FocusLost", "VimSuspend", "BufLeave" }, {
+  callback = function(_)
+    vim.cmd([[
+      silent wall
+    ]])
   end,
 })
 -- }}}

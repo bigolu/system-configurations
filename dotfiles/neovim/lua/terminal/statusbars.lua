@@ -106,6 +106,11 @@ function StatusLine()
   }
   local mode = "%#StatusLineMode#" .. mode_map[vim.api.nvim_get_mode().mode]
 
+  local modified = nil
+  if vim.o.modified then
+    modified = "%#StatusLine#●"
+  end
+
   local readonly = nil
   if vim.o.readonly then
     local indicator = "󰍁 "
@@ -216,6 +221,7 @@ function StatusLine()
 
   return make_statusline(
     mode,
+    modified,
     readonly,
     diagnostics,
     mixed_indentation,

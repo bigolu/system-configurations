@@ -7,9 +7,6 @@ vim.o.fileformats = "unix,dos,mac"
 vim.o.paragraphs = ""
 vim.o.sections = ""
 vim.keymap.set({ "i" }, "jk", "<Esc>")
--- I use autosave so if trim_trailing_whitespace is enabled, it makes it very hard to
--- type.
-vim.g.editorconfig = false
 
 -- Only use the system's clipboard when neovim is running locally.
 local is_ssh_active = #(os.getenv("SSH_TTY") or "") > 0
