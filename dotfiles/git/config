@@ -28,7 +28,6 @@
   undoamend = "!git reset --soft HEAD@{1}"
   some = add -u
   co = checkout
-  gui = "!gitkraken --path \"$(git rev-parse --show-toplevel)\" --log-file /dev/null --show-splash-screen false"
   l = log
   mt = mergetool
   f = fetch

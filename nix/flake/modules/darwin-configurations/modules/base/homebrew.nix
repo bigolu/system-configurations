@@ -13,7 +13,6 @@
       "xcodes"
       "hammerspoon"
       "visual-studio-code"
-      "gitkraken"
       "google-chrome"
       "unnaturalscrollwheels"
       "MonitorControl"
