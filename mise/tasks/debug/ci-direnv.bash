@@ -28,6 +28,7 @@ direnv_layout_dir="$(mktemp --directory)"
 home="$(mktemp --directory)"
 environment_variables=(
   NIX_DEV_SHELL="${usage_nix_dev_shell:?}"
+  CI=true
   CI_DEBUG=true
 
   # direnv stores its cache in the directory specified in `direnv_layout_dir`.
