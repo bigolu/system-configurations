@@ -10,6 +10,6 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-documentation='docs/tasks.html'
+documentation="$PWD/docs/tasks.html"
 # Linux uses xdg-open, macOS uses open
 xdg-open "$documentation" 2>/dev/null || open "$documentation"
