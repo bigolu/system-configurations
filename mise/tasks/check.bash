@@ -17,22 +17,7 @@
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
 #USAGE complete "jobs" run=#"""
-#USAGE   yq \
-#USAGE     '
-#USAGE       [
-#USAGE         # Get all job maps within the check map. Jobs are any maps with a "name" key.
-#USAGE         .check.jobs | .. | select(has("name")) |
-#USAGE
-#USAGE         # Exclude jobs that have child jobs, we only want the individual jobs
-#USAGE         select(has("group") | not) |
-#USAGE
-#USAGE         .name
-#USAGE       ] |
-#USAGE       sort |
-#USAGE       unique |
-#USAGE       .[]
-#USAGE     ' \
-#USAGE     lefthook.yaml
+#USAGE   fish -c 'complete --do-complete "lefthook run check --jobs "'
 #USAGE """#
 #USAGE
 #USAGE flag "-a --all-files" help="Run on all files"
