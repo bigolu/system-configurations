@@ -78,6 +78,10 @@ vim.keymap.set("n", [[\n]], function()
 end, { silent = true, desc = "Toggle line numbers" })
 
 vim.keymap.set("n", "<C-q>", function()
+  vim.cmd([[
+    silent wall
+  ]])
+
   local tab_count = vim.fn.tabpagenr("$")
 
   local function is_not_float(window)
