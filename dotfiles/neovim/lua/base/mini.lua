@@ -344,6 +344,14 @@ end)
 if IsRunningInTerminal then
   require("mini.misc").setup_restore_cursor({ center = false })
   require("mini.pairs").setup()
+  require("mini.snippets").setup({
+    mappings = {
+      expand = "",
+      jump_next = "<C-l>",
+      jump_prev = "<C-h>",
+      stop = "<Esc>",
+    },
+  })
 
   -- misc {{{
   local misc = require("mini.misc")
@@ -449,6 +457,20 @@ if IsRunningInTerminal then
       signature = window_info,
     },
   })
+
+  local keys = {
+    ["ctrl-y"] = vim.keycode("<C-y>"),
+    ["ctrl-y_cr"] = vim.keycode("<C-y><CR>"),
+  }
+  vim.keymap.set("i", "<CR>", function()
+    if vim.fn.pumvisible() ~= 0 then
+      -- If popup is visible, confirm selected item or add new line otherwise
+      local item_selected = vim.fn.complete_info()["selected"] ~= -1
+      return item_selected and keys["ctrl-y"] or keys["ctrl-y_cr"]
+    else
+      return require("mini.pairs").cr()
+    end
+  end, { expr = true })
 
   vim.api.nvim_create_autocmd("LspAttach", {
     callback = function(args)

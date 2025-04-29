@@ -109,7 +109,7 @@ function MyPaste(was_in_visual_mode, is_capital_p)
     LastPasteEndCol = (LastPasteStartCol + register_contents_length) - 1
   end
 
-  local enter_key = vim.api.nvim_replace_termcodes("<CR>", true, false, true)
+  local enter_key = vim.keycode("<CR>")
 
   -- This is flaky in vscode so I'll only use it in the terminal
   local set_lazy_redraw = IsRunningInTerminal and ":set lazyredraw" .. enter_key or ""
