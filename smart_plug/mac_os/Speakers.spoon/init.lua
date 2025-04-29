@@ -29,7 +29,7 @@ local function listen(speakerctl_path)
     local exit_code = execute("/usr/bin/env", {
         "sh",
         "-c",
-        [[system_profiler SPUSBDataType | grep -q 'OWC Thunderbolt']],
+        [[system_profiler SPUSBDataType | grep -q 'High-Speed hub']],
       })
       :waitUntilExit()
       :terminationStatus()
