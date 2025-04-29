@@ -7,6 +7,7 @@
   repositoryDirectory,
   inputs,
   utils,
+  config,
   ...
 }:
 let
@@ -49,7 +50,7 @@ in
   home = {
     packages =
       with pkgs;
-      [
+      optionals config.repository.fileSettings.editableInstall [
         # For my shebang scripts
         bashInteractive
       ]
