@@ -113,7 +113,10 @@ rec {
 
   commit-msg-hook = mkShellWrapperNoCC {
     # These are used in the lefthook config for the commit-msg hook
-    packages = with pkgs; [ gnused ];
+    packages = with pkgs; [
+      gnused
+      typos
+    ];
   };
 
   checks =
