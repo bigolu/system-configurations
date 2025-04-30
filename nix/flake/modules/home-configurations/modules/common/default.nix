@@ -53,14 +53,13 @@ in
         bashInteractive
       ]
       ++ optionals isLinuxGui [
-        # TODO: Only doing this because Pop!_OS doesn't come with it by default,
-        # but I think it should
+        # TODO: Only doing this because Pop!_OS doesn't come with it by default, but
+        # I think it should
         #
-        # I'm using the rust implementation because the C one caused issues with
-        # the COSMIC compositor[1].
+        # TODO: It causes issues with the COSMIC compositor[1].
         #
         # [1]: https://github.com/pop-os/cosmic-comp/issues/700
-        wl-clipboard-rs
+        wl-clipboard
       ];
 
     file = optionalAttrs isDarwin {
