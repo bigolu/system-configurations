@@ -12,7 +12,7 @@ let
   inherit (inputs.nix-darwin.lib) darwinSystem;
 
   homeManagerUtils = utils.homeManager;
-  homeManagerBaseModule = homeManagerUtils.baseModule;
+  homeManagerCommonModule = homeManagerUtils.commonModule;
   homeManagerModuleRoot = homeManagerUtils.moduleRoot;
 
   makeHomeManagerDarwinModules =
@@ -47,7 +47,7 @@ let
           useGlobalPkgs = true;
           backupFileExtension = "backup";
           users.${username} = {
-            imports = modules ++ [ homeManagerBaseModule ];
+            imports = modules ++ [ homeManagerCommonModule ];
           };
         };
       }
@@ -106,7 +106,7 @@ in
 makeOutputs {
   comp_2 = {
     system = system.x86_64-darwin;
-    modules = [ ./modules/base ];
+    modules = [ ./modules/comp-2 ];
     homeModules = [
       "${homeManagerModuleRoot}/application-development"
       "${homeManagerModuleRoot}/speakers.nix"

@@ -14,4 +14,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-system-config-preview
+system-config-preview-sync

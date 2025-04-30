@@ -25,10 +25,10 @@ let
     let
       moduleRoot = ./flake/modules/home-configurations/modules;
       # This is the module that I always include.
-      baseModule = "${moduleRoot}/base";
+      commonModule = "${moduleRoot}/common";
     in
     {
-      inherit moduleRoot baseModule;
+      inherit moduleRoot commonModule;
     };
 
   # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming

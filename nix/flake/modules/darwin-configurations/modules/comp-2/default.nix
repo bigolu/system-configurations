@@ -1,4 +1,3 @@
-# This module has the configuration that I always want applied.
 _: {
   imports = [
     ./homebrew.nix

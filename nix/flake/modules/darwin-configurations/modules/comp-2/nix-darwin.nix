@@ -12,8 +12,8 @@ let
   inherit (lib) getExe;
   inherit (pkgs) writeShellApplication;
 
-  system-config-preview = writeShellApplication {
-    name = "system-config-preview";
+  system-config-preview-sync = writeShellApplication {
+    name = "system-config-preview-sync";
     runtimeInputs = with pkgs; [
       nix
       nvd
@@ -34,7 +34,7 @@ in
   users.users.${username}.home = homeDirectory;
 
   environment.systemPackages = [
-    system-config-preview
+    system-config-preview-sync
   ];
 
   system = {

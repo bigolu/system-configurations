@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (utils.homeManager) moduleRoot baseModule;
+  inherit (utils.homeManager) moduleRoot commonModule;
   inherit (builtins)
     attrValues
     mapAttrs
@@ -60,7 +60,7 @@ let
             };
           in
           homeManagerConfiguration {
-            modules = modules ++ [ baseModule ];
+            modules = modules ++ [ commonModule ];
             inherit extraSpecialArgs;
             pkgs = if overlay == null then pkgs else pkgs.extend overlay;
           }

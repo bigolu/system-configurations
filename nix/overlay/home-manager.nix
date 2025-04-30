@@ -8,8 +8,8 @@ let
   inherit (final.lib) makeBinPath fileset optionals;
   inherit (utils) projectRoot;
 
-  system-config-apply = writeShellApplication {
-    name = "system-config-apply";
+  system-config-sync = writeShellApplication {
+    name = "system-config-sync";
     runtimeInputs = with final; [
       nix
       coreutils
@@ -34,8 +34,8 @@ let
     '';
   };
 
-  system-config-preview = writeShellApplication {
-    name = "system-config-preview";
+  system-config-preview-sync = writeShellApplication {
+    name = "system-config-preview-sync";
     runtimeInputs = with final; [
       nix
       nvd
@@ -70,10 +70,10 @@ let
         nix-shell direnv/direnv-wrapper.bash direnv/local.bash "$@"
       }
 
-      # TODO: So `mise` has access to `system-config-apply`. The problem is that
+      # TODO: So `mise` has access to `system-config-sync`. The problem is that
       # the system-* programs are not available in the package set so I can't
       # declare them as a dependency.
-      PATH="${makeBinPath [ system-config-apply ]}:$PATH"
+      PATH="${makeBinPath [ system-config-sync ]}:$PATH"
 
       cd "$1"
 
@@ -233,8 +233,8 @@ in
 {
   homeManager = {
     inherit
-      system-config-apply
-      system-config-preview
+      system-config-sync
+      system-config-preview-sync
       system-config-pull
       remote-changes-check
       update-reminder

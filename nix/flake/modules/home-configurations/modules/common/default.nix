@@ -1,5 +1,3 @@
-# This module has the configuration that I always want applied.
-
 {
   pkgs,
   lib,

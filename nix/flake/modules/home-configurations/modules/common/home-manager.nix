@@ -62,10 +62,10 @@ mkMerge [
         })
 
         (writeShellApplication {
-          name = "system-config-apply";
-          runtimeInputs = [ system-config-apply ];
+          name = "system-config-sync";
+          runtimeInputs = [ system-config-sync ];
           text = ''
-            system-config-apply ${repositoryDirectory}#${configName} "$@"
+            system-config-sync ${repositoryDirectory}#${configName} "$@"
           '';
         })
       ];
@@ -81,9 +81,9 @@ mkMerge [
 
       packages = [
         (writeShellApplication {
-          name = "system-config-preview";
-          runtimeInputs = with pkgs.homeManager; [ system-config-preview ];
-          text = "system-config-preview ${repositoryDirectory}#homeConfigurations.${configName}.activationPackage";
+          name = "system-config-preview-sync";
+          runtimeInputs = with pkgs.homeManager; [ system-config-preview-sync ];
+          text = "system-config-preview-sync ${repositoryDirectory}#homeConfigurations.${configName}.activationPackage";
         })
       ];
 
