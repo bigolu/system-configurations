@@ -111,6 +111,11 @@ rec {
 
   speakerctl = pkgs.speakerctl.devShell;
 
+  commit-msg-hook = mkShellWrapperNoCC {
+    # These are used in the lefthook config for the commit-msg hook
+    packages = with pkgs; [ gnused ];
+  };
+
   checks =
     let
       linting = mkShellWrapperNoCC {
