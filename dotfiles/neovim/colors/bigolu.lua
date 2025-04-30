@@ -187,6 +187,7 @@ local groups = {
 
   -- Tree-Sitter {{{
   ["@comment.documentation"] = "Comment",
+  ["@number.comment"] = "@comment.documentation",
   ["@comment.todo"] = {bold = true,},
   ["@comment.error"] = "@comment.todo",
   ["@comment.note"] = "@comment.todo",
