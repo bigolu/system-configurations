@@ -4,9 +4,6 @@
 #! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_INTERNAL_PACKAGE_SET\")); [nix-shell-interpreter coreutils fd nvd nix-output-monitor]"
 #MISE hide=true
 
-# This script reloads the direnv environment. Since I've disabled nix-direnv's auto
-# reload, I'll reload it here as well.
-
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -14,13 +11,8 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 function main {
-  direnv-reload
-  nix_direnv_reload
-}
-
-function nix_direnv_reload {
   old_dev_shell="$(get_dev_shell_store_path)"
-  nix-direnv-reload |& nom
+  direnv-reload |& nom
   new_dev_shell="$(get_dev_shell_store_path)"
   nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
 }

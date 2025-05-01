@@ -11,10 +11,14 @@
 #     source <path_to_this_script>
 #     direnv_manual_reload
 #   Why it should be at the top:
-#     nix-direnv[1] will only refresh its cache when a file watched by direnv
-#     changes. However, it only considers files that were on the watch list _before_
-#     the call to `use nix/flake`[2]. This means the reload file that gets created
-#     here needs to be on the watch list before calling `use nix/flake`.
+#     - nix-direnv[1] will only refresh its cache when a file watched by direnv
+#       changes. However, it only considers files that were on the watch list
+#       _before_ the call to `use nix/flake`[2]. This means the reload file that
+#       gets created here needs to be on the watch list before calling `use
+#       nix/flake`.
+#     - nix-direnv[1] adds files to the watch list. To prevent that, this script
+#       overrides the `watch_file` function from the direnv stdlib with a no-op
+#       function.
 #
 # Reasons why you may want to do this:
 #   - You may not want direnv to reload when a watched file changes. Like when using
@@ -51,24 +55,42 @@
 # [3]: https://github.com/direnv/direnv-vscode
 
 function direnv_manual_reload {
-  # Intentionally global so it can be accessed in the exit trap
+  remove_unwanted_watched_files
+
+  local reload_file
   reload_file="$(create_reload_file)"
   watch_file "$reload_file"
-  add_reload_program_to_path
-  # direnv already sets an exit trap so we'll prepend our command to it instead
-  # of overwriting it.
-  prepend_to_exit_trap remove_unwanted_watched_files
+  add_reload_program_to_path "$reload_file"
+
+  disable_adding_to_file_watch
+}
+
+function disable_adding_to_file_watch {
+  # Override the real `watch_file` function from the direnv stdlib with a no-op.
+  function watch_file {
+    # shellcheck disable=2317
+    :
+  }
 }
 
 function add_reload_program_to_path {
+  local -r reload_file="$1"
+
   local reload_program
   reload_program="$(get_direnv_bin)/direnv-reload"
+
   local bash_path
   bash_path="$(type -P bash)"
-  {
-    echo "#!$bash_path"
-    printf 'touch %q\n' "$reload_file"
-  } >"${reload_program}"
+
+  local reload_file_escaped
+  reload_file_escaped="$(printf '%q' "$reload_file")"
+
+  cat <<EOF >"$reload_program"
+#!$bash_path
+touch "$reload_file_escaped"
+direnv exec "\$PWD" true
+EOF
+
   chmod +x "${reload_program}"
 }
 
@@ -118,16 +140,15 @@ function remove_unwanted_watched_files {
   # directory I want to avoid doing anything slow.
   readarray -d '' watched_files < <(direnv watch-print --null)
 
-  # Keep our reload file and direnv's allow/deny files, so `direnv block/allow` still
-  # triggers a reload.
+  # Keep direnv's allow/deny files, so `direnv block/allow` still triggers a
+  # reload.
   local watched_files_to_keep=()
   local direnv_data_directory="${XDG_DATA_HOME:-$HOME/.local/share}/direnv"
   local file
   for file in "${watched_files[@]}"; do
     case "$file" in
       "$direnv_data_directory/deny"*) ;&
-      "$direnv_data_directory/allow"*) ;&
-      "$reload_file")
+      "$direnv_data_directory/allow"*)
         watched_files_to_keep+=("$file")
         ;;
       *)
@@ -138,27 +159,4 @@ function remove_unwanted_watched_files {
 
   unset DIRENV_WATCHES
   watch_file "${watched_files_to_keep[@]}"
-}
-
-function prepend_to_exit_trap {
-  local -r command="$1"
-
-  local current_trap
-  current_trap="$(get_exit_trap)"
-
-  trap -- "$command"$'\n'"$current_trap" EXIT
-}
-
-function get_exit_trap {
-  # `trap -p EXIT` will print 'trap -- <current_trap> EXIT'. The output seems to be
-  # formatted the way the %q directive for printf formats variables[1]. Because of
-  # this, we can use eval to tokenize it.
-  #
-  # [1]: https://www.gnu.org/software/coreutils/manual/html_node/printf-invocation.html#printf-invocation
-  local trap_output
-  trap_output="$(trap -p EXIT)"
-  eval "local -ra trap_output_tokens=($trap_output)"
-  # shellcheck disable=2154
-  # I declare `trap_output_tokens` in the eval statement above
-  echo "${trap_output_tokens[2]}"
 }
