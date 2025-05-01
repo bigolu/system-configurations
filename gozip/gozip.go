@@ -19,9 +19,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
-	"unicode"
 
-	"github.com/deepakjois/gousbdrivedetector"
 	"github.com/klauspost/compress/zstd"
 	"github.com/schollz/progressbar/v3"
 	"golang.org/x/sync/errgroup"
@@ -667,151 +665,6 @@ func GetTempDir() (tempDir string) {
 	return os.TempDir()
 }
 
-func IsDir(name string) (bool, error) {
-	// TODO: lstat?
-	fi, err := os.Stat(name)
-	if os.IsNotExist(err) {
-		return false, nil
-	}
-	if err != nil {
-		return false, err
-	}
-	if !fi.IsDir() {
-		return false, nil
-	}
-	return true, nil
-}
-
-func genTestFilename(str string) string {
-	flip := true
-	return strings.Map(func(r rune) rune {
-		if flip {
-			if unicode.IsLower(r) {
-				u := unicode.ToUpper(r)
-				if unicode.ToLower(u) == r {
-					r = u
-					flip = false
-				}
-			} else if unicode.IsUpper(r) {
-				l := unicode.ToLower(r)
-				if unicode.ToUpper(l) == r {
-					r = l
-					flip = false
-				}
-			}
-		}
-		return r
-	}, str)
-}
-
-func isCaseSensitiveFilesystem(dir string) bool {
-	alt := filepath.Join(filepath.Dir(dir),
-		genTestFilename(filepath.Base(dir)))
-
-	dInfo, err := os.Stat(dir)
-	if err != nil {
-		return true
-	}
-
-	aInfo, err := os.Stat(alt)
-	if err != nil {
-		return true
-	}
-
-	return !os.SameFile(dInfo, aInfo)
-}
-
-// The logic for this function, and all the functions it calls, was copied from
-// here: https://github.com/golang/dep/pull/395/files
-func HasFilepathPrefix(path, prefix string) bool {
-	if filepath.VolumeName(path) != filepath.VolumeName(prefix) {
-		return false
-	}
-
-	var dn string
-
-	if isDir, err := IsDir(path); err != nil {
-		return false
-	} else if isDir {
-		dn = path
-	} else {
-		dn = filepath.Dir(path)
-	}
-
-	dn = strings.TrimSuffix(dn, string(os.PathSeparator))
-	prefix = strings.TrimSuffix(prefix, string(os.PathSeparator))
-
-	dirs := strings.Split(dn, string(os.PathSeparator))[1:]
-	prefixes := strings.Split(prefix, string(os.PathSeparator))[1:]
-
-	if len(prefixes) > len(dirs) {
-		return false
-	}
-
-	var d, p string
-
-	for i := range prefixes {
-		// need to test each component of the path for
-		// case-sensitiveness because on Unix we could have
-		// something like ext4 filesystem mounted on FAT
-		// mountpoint, mounted on ext4 filesystem, i.e. the
-		// problematic filesystem is not the last one.
-		if isCaseSensitiveFilesystem(filepath.Join(d, dirs[i])) {
-			d = filepath.Join(d, dirs[i])
-			p = filepath.Join(p, prefixes[i])
-		} else {
-			d = filepath.Join(d, strings.ToLower(dirs[i]))
-			p = filepath.Join(p, strings.ToLower(prefixes[i]))
-		}
-
-		if p != d {
-			return false
-		}
-	}
-
-	return true
-}
-
-func IsPathOnUsb(path string) bool {
-	if runtime.GOOS == "linux" {
-		// On Linux, the go module 'gousbdrivedetector' needs the
-		// `udevadm` CLI and it may not be there so we'll check first.
-		path, err := exec.LookPath("udevadm")
-		if err != nil || path == "" {
-			return false
-		}
-	}
-
-	usbDevicePaths, err := usbdrivedetector.Detect()
-	if err != nil {
-		return false
-	}
-
-	for _, usbPath := range usbDevicePaths {
-		if HasFilepathPrefix(path, usbPath) {
-			return true
-		}
-	}
-
-	return false
-}
-
-// If we are running on a usb device, store the cache there, for better
-// isolation. Otherwise use a temporary directory.
-func GetCacheDirectory() (cacheDirectory string) {
-	executablePath, err := os.Executable()
-	if err != nil {
-		return GetTempDir()
-	}
-	executableDirectory := filepath.Dir(executablePath)
-
-	if IsPathOnUsb(executableDirectory) {
-		return executableDirectory
-	} else {
-		return GetTempDir()
-	}
-}
-
 func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCachePath string) {
 	NextStep(
 		-1,
@@ -819,7 +672,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 		progressbar.OptionSpinnerType(14),
 	)
 
-	cachePath := filepath.Join(GetCacheDirectory(), "nix-rootless-bundler")
+	cachePath := filepath.Join(GetTempDir(), "nix-rootless-bundler")
 	CreateDirectoryIfNotExists(cachePath)
 
 	executablePath, err := os.Executable()
