@@ -88,6 +88,9 @@ function add_reload_program_to_path {
   cat <<EOF >"$reload_program"
 #!$bash_path
 touch "$reload_file_escaped"
+# Have direnv reload now instead of waiting for its shell prompt hook. This
+# is useful if you want to capture direnv's stdout or run something after the
+# reload is finished.
 direnv exec "\$PWD" true
 EOF
 
