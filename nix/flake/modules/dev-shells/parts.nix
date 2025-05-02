@@ -292,6 +292,9 @@ rec {
     packages = with pkgs; [
       yq-go
       fish
+      coreutils
+      # For nix's fish shell autocomplete
+      (linkFarm "nix-share" { share = "${pkgs.nix}/share"; })
     ];
   };
 
