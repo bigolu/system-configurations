@@ -1,0 +1,8 @@
+require("server.filetype-settings")
+require("server.macros")
+require("server.mini")
+require("server.misc")
+require("server.motions-and-textobjects")
+require("server.operators")
+require("server.searching")
+require("server.treesitter")

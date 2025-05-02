@@ -1,8 +1,0 @@
-require("base.filetype-settings")
-require("base.macros")
-require("base.mini")
-require("base.misc")
-require("base.motions-and-textobjects")
-require("base.operators")
-require("base.searching")
-require("base.treesitter")
