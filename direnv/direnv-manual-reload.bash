@@ -55,46 +55,14 @@
 # [3]: https://github.com/direnv/direnv-vscode
 
 function direnv_manual_reload {
-  remove_unwanted_watched_files
-
   local reload_file
   reload_file="$(create_reload_file)"
-  watch_file "$reload_file"
+
+  set_watched_files "$reload_file"
+  # This way other code in the direnv config can't modify the file watch list
+  prevent_adding_to_watched_files
+
   add_reload_program_to_path "$reload_file"
-
-  disable_adding_to_file_watch
-}
-
-function disable_adding_to_file_watch {
-  # Override the real `watch_file` function from the direnv stdlib with a no-op.
-  function watch_file {
-    # shellcheck disable=2317
-    :
-  }
-}
-
-function add_reload_program_to_path {
-  local -r reload_file="$1"
-
-  local reload_program
-  reload_program="$(get_direnv_bin)/direnv-reload"
-
-  local bash_path
-  bash_path="$(type -P bash)"
-
-  local reload_file_escaped
-  reload_file_escaped="$(printf '%q' "$reload_file")"
-
-  cat <<EOF >"$reload_program"
-#!$bash_path
-touch "$reload_file_escaped"
-# Have direnv reload now instead of waiting for its shell prompt hook. This
-# is useful if you want to capture direnv's stdout or run something after the
-# reload is finished.
-direnv exec "\$PWD" true
-EOF
-
-  chmod +x "${reload_program}"
 }
 
 function create_reload_file {
@@ -109,21 +77,6 @@ function create_reload_file {
   echo "$reload_file"
 }
 
-function get_direnv_bin {
-  local direnv_bin
-  direnv_bin="$(get_direnv_dir)/bin"
-
-  if [[ ! -e $direnv_bin ]]; then
-    mkdir "$direnv_bin"
-  fi
-
-  # First try removing it so we don't add a duplicate entry to the PATH
-  PATH_rm "$direnv_bin"
-  PATH_add "$direnv_bin"
-
-  echo "$direnv_bin"
-}
-
 function get_direnv_dir {
   local layout_dir
   layout_dir="$(direnv_layout_dir)"
@@ -131,6 +84,13 @@ function get_direnv_dir {
     mkdir "$layout_dir"
   fi
   echo "$layout_dir"
+}
+
+function set_watched_files {
+  local -r reload_file="$1"
+
+  remove_unwanted_watched_files
+  watch_file "$reload_file"
 }
 
 function remove_unwanted_watched_files {
@@ -162,4 +122,51 @@ function remove_unwanted_watched_files {
 
   unset DIRENV_WATCHES
   watch_file "${watched_files_to_keep[@]}"
+}
+
+function prevent_adding_to_watched_files {
+  # Override the real `watch_file` function from the direnv stdlib with a no-op.
+  function watch_file {
+    # shellcheck disable=2317
+    :
+  }
+}
+
+function add_reload_program_to_path {
+  local -r reload_file="$1"
+
+  local reload_program
+  reload_program="$(get_direnv_bin)/direnv-reload"
+
+  local bash_path
+  bash_path="$(type -P bash)"
+
+  local reload_file_escaped
+  reload_file_escaped="$(printf '%q' "$reload_file")"
+
+  cat <<EOF >"$reload_program"
+#!$bash_path
+touch "$reload_file_escaped"
+# Have direnv reload now instead of waiting for its shell prompt hook. This
+# is useful if you want to capture direnv's stdout or run something after the
+# reload is finished.
+direnv exec "\$PWD" true
+EOF
+
+  chmod +x "${reload_program}"
+}
+
+function get_direnv_bin {
+  local direnv_bin
+  direnv_bin="$(get_direnv_dir)/bin"
+
+  if [[ ! -e $direnv_bin ]]; then
+    mkdir "$direnv_bin"
+  fi
+
+  # First try removing it so we don't add a duplicate entry to the PATH
+  PATH_rm "$direnv_bin"
+  PATH_add "$direnv_bin"
+
+  echo "$direnv_bin"
 }

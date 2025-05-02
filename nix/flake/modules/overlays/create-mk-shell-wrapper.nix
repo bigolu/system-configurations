@@ -18,6 +18,7 @@ let
 
   # Prevent nested nix shells from executing this shell's hook:
   # https://git.lix.systems/lix-project/lix/issues/344
+  # https://github.com/NixOS/nix/issues/8257
   makeSafeShellHookAndDedupInputsFrom =
     args@{
       # I need a name that won't conflict with the default one set by mkShell

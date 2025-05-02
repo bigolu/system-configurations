@@ -14,9 +14,10 @@ function main {
   source direnv/direnv-manual-reload.bash
   direnv_manual_reload
 
-  # Now I don't need to add checks everywhere to create this directory if it doesn't
-  # exist.
+  # Now I can store things in the layout directory without having to check if it
+  # exists first.
   create_direnv_layout_dir
+
   dotenv_if_exists secrets.env
   set_up_nix
 }
