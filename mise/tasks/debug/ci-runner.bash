@@ -83,11 +83,6 @@ if [[ ${usage_force_container:-} != true ]]; then
   done
 fi
 
-environment_variable_flags=(
-  # So `act` can access its cache directory, config directory, etc.
-  --var HOME="$(mktemp --directory)"
-)
-
 nix_shell_args=(
   --file nix/flake/internal-package-set.nix nix act
   # Dependencies for actions. This is needed if we're self hosting, otherwise the
@@ -105,4 +100,4 @@ nix_shell_args=(
   "${usage_event:?}"
 )
 
-mise run debug:make-isolated-env "${environment_variable_flags[@]}" -- "${nix_shell_args[@]}"
+mise run debug:make-isolated-env -- "${nix_shell_args[@]}"

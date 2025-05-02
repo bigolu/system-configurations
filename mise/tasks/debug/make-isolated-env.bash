@@ -21,9 +21,12 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-eval "env_vars=(${usage_var:-})"
+eval "user_env_vars=(${usage_var:-})"
+env_vars=(
+  HOME="$(mktemp --directory)"
+  "${user_env_vars[@]}"
+)
 
-keep_flags=()
 # shellcheck disable=2154
 # `env_vars` is defined in an `eval` statement above
 for var in "${env_vars[@]}"; do
@@ -31,7 +34,7 @@ for var in "${env_vars[@]}"; do
   keep_flags+=(--keep "$var_name")
 done
 
-eval "nix_shell_args=(${usage_nix_shell_args:-})"
+eval "user_nix_shell_args=(${usage_nix_shell_args:-})"
 nix_shell_args=(
   --ignore-environment
 
@@ -45,7 +48,7 @@ nix_shell_args=(
 
   # The user-provided args need to go last because they probably include `--command`
   # which must be last.
-  "${nix_shell_args[@]}"
+  "${user_nix_shell_args[@]}"
 )
 
 env "${env_vars[@]}" nix shell "${nix_shell_args[@]}"

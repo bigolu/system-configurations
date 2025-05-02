@@ -10,12 +10,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-home="$(mktemp --directory)"
-
 # Use '*' so I don't have to hard code the program name
 shell_path=("$(nix build --print-out-paths --no-link .#shell)/bin/"*)
 
-mise run debug:make-isolated-env \
-  --var HOME="$home" \
-  -- \
-  --command "${shell_path[@]}"
+mise run debug:make-isolated-env -- --command "${shell_path[@]}"

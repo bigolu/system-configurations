@@ -24,8 +24,6 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-direnv_layout_dir="$(mktemp --directory)"
-home="$(mktemp --directory)"
 environment_variables=(
   NIX_DEV_SHELL="${usage_nix_dev_shell:?}"
   CI=true
@@ -34,12 +32,7 @@ environment_variables=(
   # direnv stores its cache in the directory specified in `direnv_layout_dir`.
   # If it's not set, .direnv is used. I'm changing it so nix-direnv doesn't
   # overwrite the dev shell cached in .direnv with the one built here.
-  direnv_layout_dir="$direnv_layout_dir"
-
-  # direnv requires the `HOME` variable be set. I'm using a temporary
-  # directory to avoid accessing anything from the real `HOME` inside this
-  # environment.
-  HOME="$home"
+  direnv_layout_dir="$(mktemp --directory)"
 )
 environment_variable_flags=()
 for var in "${environment_variables[@]}"; do
