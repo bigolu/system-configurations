@@ -215,7 +215,7 @@ local function get_braces(char)
     return nil
   end
 end
-local utilities = require("utilities")
+local utilities = require("base.utilities")
 require("mini.surround").setup({
   n_lines = 50,
   search_method = "cover",

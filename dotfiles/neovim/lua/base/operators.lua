@@ -9,7 +9,7 @@ vim.keymap.set({ "n" }, "Y", "yg_", {
 })
 
 -- Formatting {{{
-local utilities = require("utilities")
+local utilities = require("base.utilities")
 
 vim.api.nvim_create_autocmd("BufNew", {
   callback = function()
@@ -159,7 +159,7 @@ local function make_table(acc, _, item)
   return acc
 end
 local function extend_defaults(tweaks)
-  return require("utilities").table_concat(
+  return require("base.utilities").table_concat(
     vim
       .iter(defaults)
       :filter(function(index, _)

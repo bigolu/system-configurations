@@ -15,6 +15,6 @@ IsRunningInTerminal = has_ttyout or has_ttyin
 -- This needs to be set before <leader> is used in a mapping
 vim.g.mapleader = " "
 
-require("server")
-require("clients.terminal")
-require("clients.vscode")
+require("base")
+require("terminal")
+require("_vscode")

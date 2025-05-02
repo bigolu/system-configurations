@@ -1,6 +1,6 @@
 -- vim:foldmethod=marker
 
-local utilities = require("utilities")
+local utilities = require("base.utilities")
 
 vim.keymap.set({ "n", "x" }, "Q", function()
   local last_recorded_register = vim.fn.reg_recorded()
