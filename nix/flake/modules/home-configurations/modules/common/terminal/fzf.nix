@@ -21,9 +21,12 @@ in
     fzfWithoutShellConfig
   ];
 
-  repository.xdg.executable."fzf" = {
-    source = "fzf/bin";
-    recursive = true;
+  repository.xdg = {
+    executable."fzf" = {
+      source = "fzf/bin";
+      recursive = true;
+    };
+    configFile."fzf/fzfrc.txt".source = "fzf/fzfrc.txt";
   };
 
   home.activation.fzfSetup = hm.dag.entryAfter [ "writeBoundary" ] ''

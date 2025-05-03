@@ -5,20 +5,9 @@
 set accent_color cyan
 
 set --local xdg_data (test -n "$XDG_DATA_HOME" && echo "$XDG_DATA_HOME" || echo "$HOME/.local/share")
+set --local xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HOME/.config")
 
 set _bigolu_fzf_help_text " $(set_color $accent_color)ctrl+h$(set_color normal) show help page "
-
-function __flag
-    set name $argv[1]
-    set values $argv[2..]
-
-    if test (count $values) -gt 0
-        set joined_values (string join -- ',' $values)
-        echo "--$name='$joined_values'"
-    else
-        echo "--$name"
-    end
-end
 
 # TODO: I use the indicator to tell which state we are in, but if fzf adds a
 # variable for the content of the 'info' section, I could just use that since
@@ -61,69 +50,5 @@ function _bigolu_fix_label
     echo "change-border-label($_bigolu_fzf_help_text)"
 end
 
-# TODO: fzf doesn't support `ctrl-[`, though there's an issue open for supporting the
-# kitty keyboard protocol[1]. When it does I, should bind ctrl+[/] to previous/next
-# history respectively.
-#
-# [1]: https://github.com/junegunn/fzf/issues/3208
-set flags \
-    (__flag 'cycle') \
-    (__flag 'ellipsis' '…') \
-    (__flag 'layout' 'reverse') \
-    (__flag 'border' 'none') \
-    (__flag 'margin' '5%') \
-    (__flag 'height' '100%') \
-    (__flag 'min-height' '4') \
-    (__flag 'prompt' '  ') \
-    (__flag 'tabstop' '2') \
-    (__flag 'info' 'inline-right') \
-    (__flag 'separator' '─') \
-    (__flag 'history' "$xdg_data/fzf/fzf-history.txt") \
-    (__flag 'preview-window' 'wrap' 'bottom' '40%' 'border-top') \
-    (__flag 'multi') \
-    (__flag 'scrollbar' '🮉') \
-    (__flag 'border-label' "$_bigolu_fzf_help_text") \
-    (__flag 'border-label-pos' '-3:bottom') \
-    (__flag 'ansi') \
-    (__flag 'border' 'rounded') \
-    (__flag 'wrap') \
-    (__flag 'marker-multi-line' '┏┃┗') \
-    (__flag 'color' \
-        '16' \
-        'current-fg:-1:regular:underline' \
-        'current-bg:-1' \
-        'info:8' \
-        'gutter:-1' \
-        'pointer:6:bold' \
-        'prompt:6:regular' \
-        'border:8' \
-        'query:-1:regular' \
-        'marker:6:bold' \
-        'header:8' \
-        'spinner:yellow' \
-        "hl:$accent_color:bold" \
-        "hl+:regular:$accent_color:underline:bold" \
-        'scrollbar:8:dim' \
-        'preview-scrollbar:8:dim' \
-    ) \
-    (__flag 'bind' \
-        'tab:down' \
-        'shift-tab:up' \
-        'ctrl-j:preview-down' \
-        'ctrl-k:preview-up' \
-        'change:first' \
-        'enter:accept' \
-        'ctrl-w:toggle-preview-wrap' \
-        'alt-w:toggle-wrap' \
-        'alt-enter:toggle' \
-        'ctrl-p:toggle-preview+transform(_bigolu_fix_label)' \
-        'alt-a:toggle-all' \
-        'ctrl-t:transform(_bigolu_track_toggle)' \
-        'ctrl-h:transform(_bigolu_help_toggle)' \
-        'ctrl-s:transform(_bigolu_selected_toggle)' \
-        'ctrl-r:refresh-preview+transform(_bigolu_fix_label)' \
-        'resize:refresh-preview+transform(_bigolu_fix_label)' \
-        'ctrl-o:change-preview-window(right,60%,border-left|bottom,75%,border-top)+refresh-preview+transform(_bigolu_fix_label)' \
-    )
-
-set --export FZF_DEFAULT_OPTS (string join -- ' ' $flags)
+set --export FZF_DEFAULT_OPTS_FILE "$xdg_config/fzf/fzfrc.txt"
+set --export FZF_DEFAULT_OPTS "--history=$xdg_data/fzf/fzf-history.txt"

@@ -44,7 +44,8 @@ let
             name,
           }:
           let
-            inherit (pkgs) buildGoApplication stdenv writeClosure;
+            inherit (pkgs) buildGoApplication writeClosure;
+            inherit (pkgs.stdenv) mkDerivation;
 
             gozipProjectRoot = projectRoot + /gozip;
 
@@ -62,26 +63,27 @@ let
               ];
             };
           in
-          stdenv.mkDerivation {
+          mkDerivation {
             inherit name;
             dontUnpack = true;
-            nativeBuildInputs = [
-              gozip
-              pkgs.which
-            ];
+            nativeBuildInputs = [ gozip ];
             installPhase = ''
-              mkdir deps
+              # I want an empty directory to store the closure and entrypoint of
+              # the input derivation. By default, the build directory contains
+              # the file "env-vars" so I'll move into a different directory.
+              mkdir closure
+              cd closure
 
-              cp --recursive $(cat ${writeClosure derivation}) ./deps/
-              cp ${entrypoint} ./deps/entrypoint
+              readarray -t closure_store_paths <${writeClosure derivation}
+              cp --recursive "''${closure_store_paths[@]}" ./
+              cp ${entrypoint} entrypoint
 
-              chmod -R 777 deps
+              # So gozip can rewrite the store paths after extraction
+              chmod -R +w .
 
-              cp --dereference "$(which gozip)" $out
+              cp --dereference "$(type -P gozip)" $out
               chmod +w $out
-
-              cd deps
-              gozip -create $out ./*
+              gozip -create $out *
             '';
           };
 

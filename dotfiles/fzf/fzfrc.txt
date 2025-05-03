@@ -1,0 +1,28 @@
+# TODO: fzf doesn't support `ctrl-[`, though there's an issue open for supporting the
+# kitty keyboard protocol[1]. When it does I, should bind ctrl+[/] to previous/next
+# history respectively.
+#
+# [1]: https://github.com/junegunn/fzf/issues/3208
+
+--cycle
+--ellipsis='…'
+--layout='reverse'
+--border='none'
+--margin='5%'
+--height='100%'
+--min-height='4'
+--prompt='  '
+--tabstop='2'
+--info='inline-right'
+--separator='─'
+--preview-window='wrap,bottom,40%,border-top'
+--multi
+--scrollbar='🮉'
+--border-label=' [36mctrl+h(B[m show help page '
+--border-label-pos='-3:bottom'
+--ansi
+--border='rounded'
+--wrap
+--marker-multi-line='┏┃┗'
+--color='16,current-fg:-1:regular:underline,current-bg:-1,info:8,gutter:-1,pointer:6:bold,prompt:6:regular,border:8,query:-1:regular,marker:6:bold,header:8,spinner:yellow,hl:cyan:bold,hl+:regular:cyan:underline:bold,scrollbar:8:dim,preview-scrollbar:8:dim'
+--bind='tab:down,shift-tab:up,ctrl-j:preview-down,ctrl-k:preview-up,change:first,enter:accept,ctrl-w:toggle-preview-wrap,alt-w:toggle-wrap,alt-enter:toggle,ctrl-p:toggle-preview+transform(_bigolu_fix_label),alt-a:toggle-all,ctrl-t:transform(_bigolu_track_toggle),ctrl-h:transform(_bigolu_help_toggle),ctrl-s:transform(_bigolu_selected_toggle),ctrl-r:refresh-preview+transform(_bigolu_fix_label),resize:refresh-preview+transform(_bigolu_fix_label),ctrl-o:change-preview-window(right,60%,border-left|bottom,75%,border-top)+refresh-preview+transform(_bigolu_fix_label)'

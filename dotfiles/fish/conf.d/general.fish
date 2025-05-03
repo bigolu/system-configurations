@@ -17,6 +17,10 @@ if test (uname) = Linux
 end
 
 # less
+# This isn't in the portable home
+if type --query lesspipe.sh
+    set --global --export LESSOPEN '|lesspipe.sh %s'
+end
 set --global --export PAGER less
 # TODO: lesspipe requires this to be set to enable syntax highlighting. I should open
 # an issue to have it read lesskey
