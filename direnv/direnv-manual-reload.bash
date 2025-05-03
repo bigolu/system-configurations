@@ -1,5 +1,3 @@
-# shellcheck shell=bash
-
 # This script will disable direnv's automatic reloading. It will still automatically
 # load when you first enter the directory, but it will not reload after that. If you
 # want to reload the environment, you can instead use the command `direnv-reload`

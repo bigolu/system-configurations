@@ -1,5 +1,3 @@
-# shellcheck shell=bash
-
 # This script sets up the direnv environment that is used in local development
 # and CI. It's called "base" since there are also scripts specific to the local
 # and CI environment that source this one.
@@ -16,21 +14,28 @@ function main {
 
   # Now I can store things in the layout directory without having to check if it
   # exists first.
-  create_direnv_layout_dir
+  create_direnv_layout_directory
 
   dotenv_if_exists secrets.env
   set_up_nix
 }
 
-function create_direnv_layout_dir {
-  local layout_dir
-  layout_dir="$(direnv_layout_dir)"
+function create_direnv_layout_directory {
+  local directory
+  directory="$(direnv_layout_dir)"
 
-  mkdir -p "$layout_dir"
+  if [[ ! -e $directory ]]; then
+    mkdir "$directory"
+  fi
+  add_directory_to_gitignore "$directory"
+}
 
-  local -r gitignore_path="${layout_dir}/.gitignore"
-  if [[ ! -e $gitignore_path ]]; then
-    echo '*' >"$gitignore_path"
+function add_directory_to_gitignore {
+  local -r directory="$1"
+
+  local -r gitignore="${directory}/.gitignore"
+  if [[ ! -e $gitignore ]]; then
+    echo '*' >"$gitignore"
   fi
 }
 
@@ -46,7 +51,21 @@ function set_up_nix {
 
 function load_nix_config_file {
   local -r config_file="$1"
-  export NIX_CONFIG="${NIX_CONFIG:+$NIX_CONFIG$'\n'}include ${config_file}"
+  add_line_to_nix_config "include ${config_file}"
+}
+
+function add_line_to_nix_config {
+  local -r line="$1"
+
+  if [[ -z ${NIX_CONFIG+set} ]]; then
+    export NIX_CONFIG=''
+  fi
+
+  if [[ -z $NIX_CONFIG ]]; then
+    NIX_CONFIG="$line"
+  else
+    NIX_CONFIG+=$'\n'"$line"
+  fi
 }
 
 main
