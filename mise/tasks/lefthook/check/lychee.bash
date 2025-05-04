@@ -21,10 +21,11 @@ function main {
   set +o errexit
   lychee \
     -vv --no-progress \
-    --archive wayback --suggest \
+    --cache \
+    --suggest --archive wayback \
     --format markdown --output "$report_path" \
-    --include-fragments \
-    --hidden --include-verbatim "${files[@]}"
+    --include-verbatim --include-fragments \
+    "${files[@]}"
   local -r lychee_exit_code=$?
   set -o errexit
 
