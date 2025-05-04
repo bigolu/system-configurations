@@ -31,7 +31,7 @@ vim.keymap.set({ "n", "x" }, "k", "gk")
 
 -- move six lines/columns at a time by holding ctrl and a directional key. Reasoning for
 -- using 6 here:
--- https://nanotipsforvim.prose.sh/vertical-navigation-%E2%80%93-without-relative-line-numbers
+-- https://web.archive.org/web/20250121083948/https://nanotipsforvim.prose.sh/vertical-navigation-%E2%80%93-without-relative-line-numbers
 vim.keymap.set({ "n", "x" }, "<C-j>", "6gj")
 vim.keymap.set({ "n", "x" }, "<C-k>", "6gk")
 vim.keymap.set({ "n", "x" }, "<C-h>", "6h")
