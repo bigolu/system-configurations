@@ -40,7 +40,7 @@ function publish_report {
 
   # Most CI systems, e.g. GitHub Actions, set CI to 'true'
   if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
-    gh issue create --title 'Link Checker Report' --body-file "$report_path"
+    make_github_issue_for_report "$report_path"
   else
     printf '%s\n' \
       "Report path: $report_path" \
@@ -49,6 +49,23 @@ function publish_report {
     # Since this isn't being run in CI, we fail so lefthook can report the failure.
     # In CI, a GitHub issue would be created instead.
     exit 1
+  fi
+}
+
+function make_github_issue_for_report {
+  local -r report_path="$1"
+  local -r issue_title='Link Checker Report'
+  local existing_issue_number
+  existing_issue_number="$(
+    gh issue list \
+      --json title,number \
+      --jq ".[] | select(.title == '$issue_title') | .number"
+  )"
+
+  if [[ -n $existing_issue_number ]]; then
+    gh issue edit --body-file "$report_path" "$existing_issue_number"
+  else
+    gh issue create --title "$issue_title" --body-file "$report_path"
   fi
 }
 
