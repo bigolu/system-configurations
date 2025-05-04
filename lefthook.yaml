@@ -200,6 +200,9 @@ check:
                 - name: flake-lock
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
+                - name: gomod2nix
+                  glob: gozip/go.mod
+                  run: "{run_fix} gomod2nix --dir gozip generate"
                 - name: task-docs
                   glob: mise/*
                   # TODO: markdown2html-converter hasn't been updated in a couple
