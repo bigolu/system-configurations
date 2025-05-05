@@ -10,6 +10,8 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+github_issue_title='Link Checker Report'
+
 function main {
   local -ra files=("$@")
 
@@ -21,7 +23,7 @@ function main {
   set +o errexit
   lychee \
     -vv --no-progress \
-    --cache \
+    --cache --cache-exclude-status '403,429' \
     --suggest --archive wayback \
     --format markdown --output "$report_path" \
     --include-verbatim --include-fragments \
@@ -29,44 +31,76 @@ function main {
   local -r lychee_exit_code=$?
   set -o errexit
 
-  if ((lychee_exit_code == 2)); then
-    publish_report "$report_path"
+  if ((lychee_exit_code == 0)); then
+    close_existing_github_issue
+  elif ((lychee_exit_code == 2)); then
+    add_workflow_url "$report_path"
+    make_github_issue "$report_path"
   else
     exit $lychee_exit_code
   fi
 }
 
-function publish_report {
+function add_workflow_url {
+  local -r report_path="$1"
+  echo \
+    "<footer><a href=\"${GITHUB_WORKFLOW_RUN_URL:-}\">Workflow run</a></footer>" \
+    >>"$report_path"
+}
+
+function make_github_issue {
   local -r report_path="$1"
 
-  # Most CI systems, e.g. GitHub Actions, set CI to 'true'
-  if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
-    make_github_issue_for_report "$report_path"
-  else
+  local running_in_ci
+  running_in_ci="$(is_running_in_ci)"
+  if [[ $running_in_ci != 'true' ]]; then
     printf '%s\n' \
       "Report path: $report_path" \
       'Contents:' \
       "$(<"$report_path")"
     # Since this isn't being run in CI, we fail so lefthook can report the failure.
-    # In CI, a GitHub issue would be created instead.
     exit 1
   fi
-}
 
-function make_github_issue_for_report {
-  local -r report_path="$1"
-  local -r issue_title='Link Checker Report'
   local existing_issue_number
-  existing_issue_number="$(
-    gh issue list \
-      --json title,number \
-      --jq ".[] | select(.title == '$issue_title') | .number"
-  )"
-
+  existing_issue_number="$(find_existing_github_issue)"
   if [[ -n $existing_issue_number ]]; then
     gh issue edit --body-file "$report_path" "$existing_issue_number"
   else
-    gh issue create --title "$issue_title" --body-file "$report_path"
+    gh issue create --title "$github_issue_title" --body-file "$report_path"
+  fi
+}
+
+function close_existing_github_issue {
+  local existing_issue_number
+  existing_issue_number="$(find_existing_github_issue)"
+  if [[ -n $existing_issue_number ]]; then
+    gh close "$existing_issue_number" \
+      --reason 'not planned' \
+      --comment "This issue was closed due to a [subsequent, successful, workflow run](${GITHUB_WORKFLOW_RUN_URL:-})."
+  fi
+}
+
+function find_existing_github_issue {
+  gh issue list \
+    --json title,number \
+    --jq ".[] | select(.title == \"$github_issue_title\") | .number"
+}
+
+function gh {
+  local running_in_ci
+  running_in_ci="$(is_running_in_ci)"
+  if [[ $running_in_ci == 'true' ]]; then
+    command gh "$@"
+  else
+    echo 'gh spy:' "$@" >&2
+  fi
+}
+
+function is_running_in_ci {
+  # Most CI systems, e.g. GitHub Actions, set CI to 'true'
+  if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
+    echo true
   fi
 }
 

@@ -18,4 +18,11 @@ jobs:
       - env:
           # To avoid being rate-limited by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: lefthook run check --jobs lychee --all-files --no-tty --colors on
+          GITHUB_WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          # TODO: According to the lefthook documentation, this variable should
+          # _extend_ the output values specified in the config file, but it seems to
+          # be overwriting them instead. For now, I'm duplicating the values
+          # specified in my config here. I should open an issue.
+          LEFTHOOK_OUTPUT='execution_info,execution_out' \
+            lefthook run check --jobs lychee --all-files --no-tty --colors on
