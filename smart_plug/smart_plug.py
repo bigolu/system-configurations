@@ -14,7 +14,8 @@ import itertools
 import sys
 import traceback
 from argparse import ArgumentParser, Namespace
-from typing import Iterable, Optional, Self
+from collections.abc import Iterable
+from typing import Self, final
 
 import psutil
 from diskcache import Cache
@@ -26,6 +27,7 @@ from typing_extensions import cast
 CLI_NAME = "speakerctl"
 
 
+@final
 class KasaPlug:
     # Key: plug alias, Value: IP address
     _ip_address_cache = Cache(user_cache_dir(CLI_NAME))
@@ -72,7 +74,7 @@ class KasaPlug:
         cls._ip_address_cache[plug.alias] = plug.host
 
     @classmethod
-    async def _get_plug_from_cache(cls) -> Optional[IotPlug]:
+    async def _get_plug_from_cache(cls) -> IotPlug | None:
         if cls._alias not in cls._ip_address_cache:
             return None
 
@@ -95,8 +97,8 @@ class KasaPlug:
             return None
 
     @classmethod
-    async def _discover_plug(cls, attempts: int) -> Optional[IotPlug]:
-        for unused in range(attempts):
+    async def _discover_plug(cls, attempts: int) -> IotPlug | None:
+        for _unused in range(attempts):
             for device in await cls._discover_devices():
                 if isinstance(device, IotPlug) and device.alias == cls._alias:
                     return device
@@ -145,13 +147,13 @@ def parse_args() -> Namespace:
         formatter_class=MaxWidthHelpFormatter,
     )
 
-    parser.add_argument(
+    _unused = parser.add_argument(
         "--attempts",
         type=int,
         default=1,
         help="The number of discovery attempts to make",
     )
-    parser.add_argument(
+    _unused = parser.add_argument(
         "command",
         nargs="?",
         choices=["status", "on", "off"],
