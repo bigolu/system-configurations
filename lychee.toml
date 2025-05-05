@@ -1,0 +1,57 @@
+no_progress = true
+verbose = 'debug'
+
+cache = true
+cache_exclude_status = [
+  # The cache is valid for 1 day and a rate limit may be lifted sooner than that so
+  # we should have the ability to try again.
+  '429',
+]
+
+suggest = true
+archive = 'wayback'
+
+require_https = true
+accept = [
+  # These are lychee's default values
+  '100..=103',
+  '200..=299',
+
+  # TODO: Some sites that use CloudFlare for protection reject lychee's request with
+  # 403. If this happens, we'll just assume the link still works. There's an open
+  # issue for bypassing CloudFlare protection[1].
+  #
+  # [1]: https://github.com/lycheeverse/lychee/issues/1439
+  '403',
+
+  # TODO: I get rate-limited by GitHub so lychee uses my GitHub token to access the
+  # web API instead, which returns 200. Despite getting a 200 from the API, lychee
+  # still reports the 429 from the original endpoint that was accessed without the
+  # token. I should look into this and possibly file an issue.
+  '429',
+]
+
+include_verbatim = true
+include_fragments = true
+
+exclude_all_private = true
+exclude = [
+  '^mailto:',
+  '^https://web\.archive\.org/web/',
+
+  # These aren't actually URLs
+  'https\://raw\.githubusercontent\.com/nix-community/nix-direnv/\.\*/direnvrc',
+  'https://github\.com/Boeing/config-file-validator/releases/download/v1\.8\.0/validator-v1\.8\.0-\$',
+  'https://raw/',
+  'https://github\.com/edolstra/flake-compat/archive/\$%7Block\.nodes\.flake-compat\.locked\.rev%7D\.tar\.gz',
+  'https://github\.com/\$owner/\$repo/tree/\%s',
+  'file://\$\(pwd/',
+  'https://releases\.nixos\.org/nix/nix-2\.24\.12/nix-2\.24\.12-\$\(uname',
+
+  # It seems I can't send more than one request at a time to gnu.org without being
+  # rate-limited. When lychee supports per-site concurrency limits[1], I'll use it.
+  # Until then, I'll disable checks on the site.
+  #
+  # [1]: https://github.com/lycheeverse/lychee/issues/1605
+  '^https://www\.gnu\.org/',
+]

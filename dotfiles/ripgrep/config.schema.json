@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$schema": "https://json-schema.org/draft-07/schema#",
   "title": "rga configuration",
   "description": "this is kind of a \"polyglot\" struct, since it serves three functions\n\n1. describing the command line arguments using structopt+clap and for man page / readme generation 2. describing the config file format (output as JSON schema via schemars)",
   "type": "object",

@@ -10,9 +10,9 @@
   all = add -A
   unstage-all = reset
   unstage = reset HEAD --
-  commit-all = commit -am
   p = pull
   p-sub = submodule update
+  d-sub = diff --submodule=diff
   s = status
   ss = status --short
   C = commit --no-verify
@@ -22,11 +22,10 @@
   lp = log -p
   dt = -c diff.external='difft --syntax-highlight off' diff
   lpt = -c diff.external='difft --syntax-highlight off' log -p --ext-diff
-  d-sub = diff --submodule=diff
   undo = checkout --
   undocommit = reset "HEAD^"
   undoamend = "!git reset --soft HEAD@{1}"
-  some = add -u
+  all-tracked = add -u
   co = checkout
   l = log
   mt = mergetool

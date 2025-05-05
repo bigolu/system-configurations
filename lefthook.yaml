@@ -400,5 +400,5 @@ check:
             only:
               - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
             exclude:
-              - .lycheeignore
+              - lychee.toml
             run: mise run lefthook:check:lychee {files}

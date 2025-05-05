@@ -21,13 +21,7 @@ function main {
   # lychee exits with 2 if it finds broken links, but I don't want this script to
   # exit if that happens.
   set +o errexit
-  lychee \
-    -vv --no-progress \
-    --cache --cache-exclude-status '403,429' \
-    --suggest --archive wayback \
-    --format markdown --output "$report_path" \
-    --include-verbatim --include-fragments \
-    "${files[@]}"
+  lychee --format markdown --output "$report_path" "${files[@]}"
   local -r lychee_exit_code=$?
   set -o errexit
 
@@ -77,7 +71,7 @@ function close_existing_github_issue {
   if [[ -n $existing_issue_number ]]; then
     gh close "$existing_issue_number" \
       --reason 'not planned' \
-      --comment "This issue was closed due to a [subsequent, successful, workflow run](${GITHUB_WORKFLOW_RUN_URL:-})."
+      --comment "This issue was closed due to a [subsequent, successful workflow run](${GITHUB_WORKFLOW_RUN_URL:-})."
   fi
 }
 
