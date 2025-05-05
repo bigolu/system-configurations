@@ -45,17 +45,6 @@ function add_workflow_url {
 function make_github_issue {
   local -r report_path="$1"
 
-  local running_in_ci
-  running_in_ci="$(is_running_in_ci)"
-  if [[ $running_in_ci != 'true' ]]; then
-    printf '%s\n' \
-      "Report path: $report_path" \
-      'Contents:' \
-      "$(<"$report_path")"
-    # Since this isn't being run in CI, we fail so lefthook can report the failure.
-    exit 1
-  fi
-
   local existing_issue_number
   existing_issue_number="$(find_existing_github_issue)"
   if [[ -n $existing_issue_number ]]; then
@@ -82,19 +71,11 @@ function find_existing_github_issue {
 }
 
 function gh {
-  local running_in_ci
-  running_in_ci="$(is_running_in_ci)"
-  if [[ $running_in_ci == 'true' ]]; then
+  # Most CI systems, e.g. GitHub Actions, set CI to 'true'
+  if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
     command gh "$@"
   else
     echo 'gh spy:' "$@" >&2
-  fi
-}
-
-function is_running_in_ci {
-  # Most CI systems, e.g. GitHub Actions, set CI to 'true'
-  if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
-    echo true
   fi
 }
 
