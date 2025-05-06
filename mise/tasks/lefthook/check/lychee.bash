@@ -60,7 +60,7 @@ function close_existing_github_issue {
   if [[ -n $existing_issue_number ]]; then
     gh issue close "$existing_issue_number" \
       --reason 'not planned' \
-      --comment "This issue was closed due to a [subsequent, successful workflow run](${GITHUB_WORKFLOW_RUN_URL:-})."
+      --comment "This issue was closed by a [subsequent, successful workflow run](${GITHUB_WORKFLOW_RUN_URL:-})."
   fi
 }
 

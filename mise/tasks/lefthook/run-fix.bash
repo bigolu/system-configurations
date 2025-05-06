@@ -23,13 +23,13 @@ function main {
   "$@"
   diff_after_running_fix="$(diff_including_untracked)"
 
-  # If no files changed then nothing was fixed
+  # If no files changed, then nothing was fixed.
   if [[ $diff_before_running_fix == "$diff_after_running_fix" ]]; then
     return
   fi
 
   if [[ ${CI:-} == 'true' ]]; then
-    # Print the diff so people can see it in the CI console
+    # Print the diff so people can see it in the CI console.
     diff_including_untracked
 
     # Remove the changes to keep the git repository in a clean state for the next fix
@@ -41,7 +41,7 @@ function main {
   fi
 
   # Why it should fail:
-  #   - The failure let me know which fix commands actually fixed anything since
+  #   - The failure lets me know which fix commands actually fixed anything since
   #     lefthook will highlight failed commands differently.
   #   - When running locally, this failure will cause the pre-commit hook to abort so
   #     I can see what fixes were made and, if everything looks good, include them in
