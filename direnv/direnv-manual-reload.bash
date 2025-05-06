@@ -57,7 +57,7 @@ function direnv_manual_reload {
   reload_file="$(create_reload_file)"
 
   set_watched_files "$reload_file"
-  # This way other code in the direnv config can't modify the file watch list
+  # This way, subsequent code in `.envrc` can't modify the file watch list
   prevent_adding_to_watched_files
 
   add_reload_program_to_path "$reload_file"
@@ -144,7 +144,7 @@ function add_reload_program_to_path {
 
   cat <<EOF >"$reload_program"
 #!$bash_path
-touch "$reload_file_escaped"
+touch $reload_file_escaped
 # Have direnv reload now instead of waiting for its shell prompt hook. This
 # is useful if you want to capture direnv's stdout or run something after the
 # reload is finished.
