@@ -1,6 +1,6 @@
-# This script sets up the direnv environment that is used in local development
-# and CI. It's called "base" since there are also scripts specific to the local
-# and CI environment that source this one.
+# This script sets up the direnv environment that is used in development
+# and CI. It's called "base" since there are also scripts specific to the
+# development and CI environment that source this one.
 #
 # Environment Variables
 #   NIX_DEV_SHELL (required):

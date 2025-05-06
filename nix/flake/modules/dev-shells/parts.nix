@@ -2,7 +2,7 @@
 # shell, similar to Dev Container Features[1]. I do this for these reasons:
 #   - Allows parts of a dev shell to be shared between two shells. For example, I can
 #     create one part with all the dependencies for checks (linters, formatters, etc.)
-#     and include that part in both the local development and CI dev shells. This
+#     and include that part in both the development and CI dev shells. This
 #     way they can stay in sync.
 #   - Makes it easier to organize the dev shell since it can be broken down into
 #     smaller groups.

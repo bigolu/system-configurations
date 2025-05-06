@@ -1,6 +1,6 @@
-# For local development, create the file <project_root>/.envrc and add the following
+# For development, create the file <project_root>/.envrc and add the following
 # line:
-#   source direnv/local.bash
+#   source direnv/development.bash
 #
 # .envrc shouldn't be committed to version control so users can make changes to it
 # without accidentally committing them. Here are some examples of changes they could
@@ -22,5 +22,5 @@
 #
 # [1]: https://github.com/NixOS/nixpkgs/pull/325793#issuecomment-2219538799
 
-export NIX_DEV_SHELL="${NIX_DEV_SHELL:-local}"
+export NIX_DEV_SHELL="${NIX_DEV_SHELL:-development}"
 source direnv/base.bash

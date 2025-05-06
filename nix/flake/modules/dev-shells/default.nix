@@ -34,9 +34,9 @@ moduleContext@{ lib, utils, ... }:
         ];
     in
     makeDevShellOutputs {
-      default = "local";
+      default = "development";
 
-      local = {
+      development = {
         inputsFrom = with parts; [
           gozip
           speakerctl

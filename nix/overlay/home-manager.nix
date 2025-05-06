@@ -66,8 +66,8 @@ let
       }
       trap exit_handler EXIT
 
-      function direnv_local {
-        nix-shell direnv/direnv-wrapper.bash direnv/local.bash "$@"
+      function direnv_development {
+        nix-shell direnv/direnv-wrapper.bash direnv/development.bash "$@"
       }
 
       # TODO: So `mise` has access to `system-config-sync`. The problem is that
@@ -85,12 +85,12 @@ let
       git fetch
       if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
         echo "$(echo 'Commits made since last pull:'$'\n'; git log '..@{u}')" | less
-        direnv_local exec . git pull
-        direnv_local exec . mise run sync
+        direnv_development exec . git pull
+        direnv_development exec . mise run sync
       else
         # Something probably went wrong so we're trying to pull again even
         # though there's nothing to pull. In which case, just sync.
-        direnv_local exec . mise run sync
+        direnv_development exec . mise run sync
       fi
 
       if [[ $(uname) == 'Darwin' ]]; then
