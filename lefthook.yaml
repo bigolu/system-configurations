@@ -74,34 +74,6 @@ pre-commit:
           # tasks and stalls. For now, I use `ifne` to do that.
           ifne lefthook run check --files-from-stdin
 
-post-merge:
-  jobs:
-    - name: mark-sync-point
-      run: |
-        printf ORIG_HEAD >.git/sync-point-1.txt
-        printf HEAD >.git/sync-point-2.txt
-
-post-rewrite:
-  jobs:
-    - name: mark-sync-point
-      only: rebase
-      run: |
-        printf ORIG_HEAD >.git/sync-point-1.txt
-        printf HEAD >.git/sync-point-2.txt
-
-post-checkout:
-  jobs:
-    - name: mark-sync-point
-      # TODO: Open an issue for passing the git hook arguments to the only/skip
-      # commands, or add new skip/only conditions e.g. 'file' and 'branch'. Then
-      # I could remove this conditional.
-      run: |
-        # Ensure this isn't a file checkout.
-        if [ {3} != '0' ]; then
-          printf {1} >.git/sync-point-1.txt
-          printf {2} >.git/sync-point-2.txt
-        fi
-
 # Custom Hooks
 # -----------------------------------------------------------------------------------
 # Lefthook only applies a job's glob if it, or the hook it belongs to, has a 'files'
@@ -119,41 +91,21 @@ sync:
   follow: true
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
-  files: |
-    if [ -f .git/sync-point-1.txt -a -f .git/sync-point-2.txt ]; then
-      git diff-tree -r --name-only --no-commit-id \
-        "$(cat .git/sync-point-1.txt)" "$(cat .git/sync-point-2.txt)"
-    fi
+  files: ":"
   jobs:
     - name: direnv
-      glob:
-        - direnv/direnv-manual-reload.bash
-        - direnv/base.bash
-        - direnv/local.bash
-        - nix/*
-        - flake.nix
-        - flake.lock
-        # This is so task dependencies can be reloaded into the dev shell.
-        - mise/tasks/*.bash
       run: mise run lefthook:sync:direnv
+    # TODO: Currently, this is only needed on the first sync that's done after
+    # cloning the repo. This is because lefthook syncs hooks automatically. There's
+    # an issue for disabling this behavior[1]. I want it disabled because I don't
+    # always want to run the hooks of another branch. For example, when I create a
+    # new hook and want to test it on another branch, but then it installs the
+    # hooks of the other branch.
+    #
+    # [1]: https://github.com/evilmartians/lefthook/issues/840
     - name: lefthook
-      # TODO: Currently, this is only needed on the first sync that's done after
-      # cloning the repo. This is because lefthook syncs hooks automatically. There's
-      # an issue for disabling this behavior[1]. I want it disabled because I don't
-      # always want to run the hooks of another branch. For example, when I create a
-      # new hook and want to test it on another branch, but then it installs the
-      # hooks of the other branch.
-      #
-      # [1]: https://github.com/evilmartians/lefthook/issues/840
-      glob: "lefthook.yaml"
       run: lefthook install --force
     - name: system
-      glob:
-        - dotfiles/*
-        - nix/*
-        - flake.nix
-        - flake.lock
-        - smart_plug/*
       # Needs to be interactive so I can input my password the first time I run this.
       # I won't need it afterwards since I specify the path to run-as-admin in my
       # sudoers config to allow running it without a password.
@@ -164,7 +116,6 @@ sync:
       # the nix store, but `command` will return the path in my user's profile
       run: sudo -- "$(chase "$(command -v run-as-admin)")" --path "$PATH" "$(command -v system-config-sync)"
     - name: fish
-      glob: dotfiles/fish/conf.d/*.fish
       run: fish -c fish-reload
 
 check:

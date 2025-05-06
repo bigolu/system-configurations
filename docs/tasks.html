@@ -79,15 +79,14 @@
 </ul>
 <p>Display task documentation</p>
 <h2><code>sync</code></h2>
-<p>Run jobs to synchronize your environment with the code. For example, running database migrations whenever the schema changes. Run this anytime you incorporate someone else's changes. For example, after running <code>git pull</code> or checking out someone else's branch. The jobs to run will be automatically determined based on what files changed since the last pull, checkout, etc.</p>
-<p>You can also force one or more sync jobs to run by passing their names. If you pass the special name <code>all</code>, then all of the jobs will be forced to run. Use this when you're the one making the change or you have a problem with the regular syncing. The list of jobs is in <code>lefthook.yaml</code>.</p>
+<p>Run jobs to synchronize your environment with the code. For example, running database migrations whenever the schema changes. Run this anytime you incorporate someone else's changes. Such as running <code>git pull</code> or checking out another branch. The jobs to run will be automatically determined based on what files changed since the last pull, checkout, etc. The list of jobs is in <code>lefthook.yaml</code>.</p>
 <ul>
-<li><strong>Usage</strong>: <code>sync [forced_jobs]...</code></li>
+<li><strong>Usage</strong>: <code>sync [jobs]...</code></li>
 </ul>
 <p>Synchronize your environment with the code</p>
 <h3>Arguments</h3>
-<h4><code>[forced_jobs]...</code></h4>
-<p>Jobs to forcibly run</p>
+<h4><code>[jobs]...</code></h4>
+<p>Jobs to run. If none are passed then all of them will be run</p>
 <h2><code>system:preview-sync</code></h2>
 <p>Show a preview of what changes would be made to the system if you applied the current configuration.</p>
 <ul>
