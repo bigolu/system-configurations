@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
-#! nix-shell --keep FLAKE_INTERNAL_PACKAGE_SET
+#! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_INTERNAL_PACKAGE_SET\")); [nix-shell-interpreter coreutils moreutils]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils moreutils]"
 #MISE description="Report/Fix issues"
 #USAGE long_about """
 #USAGE   Run checks on the code, automatically fixing issues if possible. It runs \

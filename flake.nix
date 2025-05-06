@@ -10,74 +10,26 @@
     flake-parts.lib.mkFlake
       {
         inherit inputs;
-        specialArgs.utils = import ./nix/utils.nix inputs;
+        specialArgs.utils = import ./nix/utils.nix;
       }
-      (
-        { self, ... }:
-        {
-          imports = [
-            ./nix/flake/modules/checks.nix
-            ./nix/flake/modules/dev-shells
-            ./nix/flake/modules/packages.nix
-            ./nix/flake/modules/bundlers.nix
-            ./nix/flake/modules/home-configurations
-            ./nix/flake/modules/darwin-configurations
-            ./nix/flake/modules/overlays
-            ./nix/flake/modules/public-modules
-          ];
+      {
+        imports = [ ./nix/flake/modules ];
 
-          systems = with flake-utils.lib.system; [
-            x86_64-linux
-            x86_64-darwin
-          ];
+        systems = with flake-utils.lib.system; [
+          x86_64-linux
+          x86_64-darwin
+        ];
 
-          # - For nixd[1]
-          # - To get access to the flake's package set, i.e. the `pkgs` argument
-          #   passed to perSystem[2], from outside the flake. See
-          #   flake/internal-package-set.nix for an example of how it gets accessed.
-          #
-          # [1]: https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
-          # [2]: https://flake.parts/module-arguments.html?highlight=pkgs#pkgs
-          debug = true;
+        perSystem =
+          { system, ... }:
+          {
+            _module.args.pkgs = import ./nix/packages-for-system.nix system;
+          };
 
-          perSystem =
-            { system, inputs', ... }:
-            let
-              privateOverlay = import ./nix/overlay inputs;
-              publicOverlays = builtins.attrValues self.overlays;
-
-              makeOverlay =
-                {
-                  input,
-                  package ? input,
-                }:
-                _final: _prev: { ${package} = inputs'.${input}.packages.${package}; };
-            in
-            {
-              _module.args.pkgs = import inputs.nixpkgs {
-                inherit system;
-                overlays =
-                  [
-                    inputs.gomod2nix.overlays.default
-                    inputs.nix-darwin.overlays.default
-                    inputs.nix-gl-host.overlays.default
-                    inputs.ghostty.overlays.default
-                    (makeOverlay { input = "home-manager"; })
-                    (makeOverlay { input = "isd"; })
-                    # An overlay is available, but to reuse their cache, they
-                    # recommend you use their package instead:
-                    # https://github.com/nix-community/neovim-nightly-overlay#to-use-the-overlay
-                    (makeOverlay {
-                      input = "neovim-nightly-overlay";
-                      package = "neovim";
-                    })
-                  ]
-                  ++ publicOverlays
-                  ++ [ privateOverlay ];
-              };
-            };
-        }
-      );
+        # For nixd:
+        # https://github.com/nix-community/nixd/blob/c38702b17580a31e84c958b5feed3d8c7407f975/nixd/docs/configuration.md#options-options
+        debug = true;
+      };
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";

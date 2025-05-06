@@ -1,5 +1,5 @@
-inputs:
 let
+  inherit (import ./flake/compat.nix) inputs;
   inherit (inputs.nixpkgs) lib;
   inherit (lib)
     concatStringsSep

@@ -21,7 +21,7 @@
   "nix.serverSettings": {
     "nixd": {
       "nixpkgs": {
-        "expr": "import ./nix/flake/internal-package-set.nix",
+        "expr": "import ./nix/packages.nix",
       },
       "options": {
         "comp_2": {

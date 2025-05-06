@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
-#! nix-shell --keep FLAKE_INTERNAL_PACKAGE_SET
+#! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_INTERNAL_PACKAGE_SET\")); [nix-shell-interpreter yq-go coreutils]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter yq-go coreutils]"
 #MISE description="Run CI workflows locally"
 #USAGE long_about """
 #USAGE   > WARNING: Nix builds may not work in a container due to this bug: \
@@ -84,7 +84,7 @@ if [[ ${usage_force_container:-} != true ]]; then
 fi
 
 nix_shell_args=(
-  --file nix/flake/internal-package-set.nix nix act
+  --file nix/packages.nix nix act
   # Dependencies for actions. This is needed if we're self hosting, otherwise the
   # container will have them.
   nodejs coreutils bash

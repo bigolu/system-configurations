@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
-#! nix-shell --keep FLAKE_INTERNAL_PACKAGE_SET
+#! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_INTERNAL_PACKAGE_SET\")); [nix-shell-interpreter coreutils]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils]"
 #MISE description="Start a Bash shell in a direnv CI environment"
 #USAGE arg "<nix_dev_shell>" help="The dev shell that direnv should load"
 #USAGE complete "nix_dev_shell" run=#"""
@@ -29,10 +29,10 @@ for var in "${environment_variables[@]}"; do
   environment_variable_flags+=(--var "$var")
 done
 
-bash_interactive="$(nix eval --raw --file nix/flake/internal-package-set.nix 'bashInteractive')/bin/bash"
+bash_interactive="$(nix eval --raw --file nix/packages.nix 'bashInteractive')/bin/bash"
 
 mise run debug:make-isolated-env \
   "${environment_variable_flags[@]}" \
   -- \
-  --file nix/flake/internal-package-set.nix nix \
+  --file nix/packages.nix nix \
   --command nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive" --noprofile --norc

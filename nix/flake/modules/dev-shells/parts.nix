@@ -219,10 +219,10 @@ rec {
         let
           flakePackageSetHook =
             let
-              # These are the files needed by flake/internal-package-set.nix and nixpkgs.nix
+              # These are the files needed by packages.nix and nixpkgs.nix
               #
               # You may be wondering why I'm using a fileset instead of just using
-              # $PWD/nix/{flake/internal-package-set,nixpkgs}.nix. cached-nix-shell traces the
+              # $PWD/nix/{packages,nixpkgs}.nix. cached-nix-shell traces the
               # files accessed during the nix-shell invocation so it knows when to
               # invalidate the cache. When I use $PWD, a lot more files, like
               # $PWD/.git/index, become part of the trace, resulting in much more cache
@@ -254,7 +254,7 @@ rec {
 
               # To avoid hard coding the path to the flake package set in every
               # script's nix-shell shebang, I export a variable with the path.
-              export FLAKE_INTERNAL_PACKAGE_SET=${source}/nix/flake/internal-package-set.nix
+              export NIX_PACKAGES=${source}/nix/packages.nix
 
               # I need to set the nix path because my scripts' shebangs use nix-shell
               # which looks up nixpkgs on the nix path so it can use nixpkgs.runCommand
