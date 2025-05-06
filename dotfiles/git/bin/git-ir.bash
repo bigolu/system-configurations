@@ -12,7 +12,10 @@ run_pre_commit_flags=()
 if type -P lefthook >/dev/null; then
   run_pre_commit_flags=(
     --exec
-    'git diff -z --diff-filter=d --name-only HEAD~1 HEAD | lefthook run pre-commit --files-from-stdin'
+    # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is used and
+    # nothing is passed through stdin. Instead, it tries to run tasks and stalls. For
+    # now, I use `ifne` to do that.
+    'git diff -z --diff-filter=d --name-only HEAD~1 HEAD | ifne lefthook run pre-commit --files-from-stdin'
   )
 fi
 

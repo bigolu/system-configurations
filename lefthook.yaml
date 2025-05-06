@@ -66,8 +66,13 @@ pre-commit:
           # necessary because lefthook expects the file names to be separated by a
           # '\0' so a trailing one would result in an empty string being passed in as
           # a file name.
+          #
+          # TODO: See if lefthook can support this
           head -c -1 |
-          lefthook run check --files-from-stdin
+          # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is
+          # used and nothing is passed through stdin. Instead, it tries to run
+          # tasks and stalls. For now, I use `ifne` to do that.
+          ifne lefthook run check --files-from-stdin
 
 post-merge:
   jobs:

@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell --keep FLAKE_INTERNAL_PACKAGE_SET
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_INTERNAL_PACKAGE_SET\")); [nix-shell-interpreter coreutils]"
+#! nix-shell --packages "with (import (builtins.getEnv \"FLAKE_INTERNAL_PACKAGE_SET\")); [nix-shell-interpreter coreutils moreutils]"
 #MISE description="Report/Fix issues"
 #USAGE long_about """
 #USAGE   Run checks on the code, automatically fixing issues if possible. It runs \
@@ -58,5 +58,10 @@ fi
   # necessary because lefthook expects the file names to be separated by a
   # '\0' so a trailing one would result in an empty string being passed in as
   # a file name.
+  #
+  # TODO: See if lefthook can support this
   head -c -1 |
-  lefthook run check --files-from-stdin "${job_flag[@]}"
+  # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is used and
+  # nothing is passed through stdin. Instead, it tries to run tasks and stalls. For
+  # now, I use `ifne` to do that.
+  ifne lefthook run check --files-from-stdin "${job_flag[@]}"
