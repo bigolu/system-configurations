@@ -324,6 +324,16 @@ check:
                             --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
                             --check ./dotfiles/neovim \
                             --configpath "$PWD/.luarc.json"
+                      - name: lychee
+                        # Lychee, a link checker, will be run periodically in CI. To
+                        # ensure it doesn't run in the development environment, I
+                        # gave this job a tag and added the tag to the
+                        # LEFTHOOK_EXCLUDE environment variable.
+                        tags:
+                          - lychee
+                        exclude:
+                          - lychee.toml
+                        run: mise run lefthook:check:lychee {files}
                 - name: test
                   group:
                     parallel: true
@@ -341,20 +351,3 @@ check:
                           - "*.nix"
                           - flake.lock
                         run: nix config check
-          - name: lychee
-            # Lychee, a link checker, will be run periodically in CI. To ensure it
-            # doesn't run anywhere else, I only set LEFTHOOK_ENABLE_LYCHEE to true in
-            # the CI workflow for checking links. I'd prefer to move this check to a
-            # separate hook instead of disabling/enabling it with an environment
-            # variable, but I want it to inherit the excludes that are set in the
-            # top-most job for this hook.
-            #
-            # TODO: There's an open feature request for a global exclude list[1]. If
-            # that gets implemented, I can move this to a separate hook.
-            #
-            # [1]: https://github.com/evilmartians/lefthook/issues/593
-            only:
-              - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
-            exclude:
-              - lychee.toml
-            run: mise run lefthook:check:lychee {files}

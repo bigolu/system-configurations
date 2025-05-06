@@ -8,6 +8,7 @@ moduleContext@{ lib, utils, ... }:
       inherit (lib)
         pipe
         hasPrefix
+        escapeShellArg
         ;
       inherit (utils) applyIf;
 
@@ -32,6 +33,20 @@ moduleContext@{ lib, utils, ... }:
           (devShells: devShells // { default = devShells.${default}; })
           (devShells: { inherit devShells; })
         ];
+
+      addTagToLefthookExclude = tag: ''
+        tag=${escapeShellArg tag}
+
+        if [[ -z ''${LEFTHOOK_EXCLUDE+set} ]]; then
+          export LEFTHOOK_EXCLUDE=""
+        fi
+
+        if [[ -z $LEFTHOOK_EXCLUDE ]]; then
+          LEFTHOOK_EXCLUDE="$tag"
+        else
+          LEFTHOOK_EXCLUDE+=",$tag"
+        fi
+      '';
     in
     makeDevShellOutputs {
       default = "development";
@@ -49,15 +64,13 @@ moduleContext@{ lib, utils, ... }:
           tasks
           vsCode
         ];
+        shellHook = addTagToLefthookExclude "lychee";
       };
 
       ci-essentials = { };
 
       ci-check-for-broken-links = {
         inputsFrom = [ parts.lefthook ];
-        shellHook = ''
-          export LEFTHOOK_ENABLE_LYCHEE='true'
-        '';
       };
 
       ci-renovate = {
