@@ -157,6 +157,14 @@ check:
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
                 - name: gomod2nix
+                  tags:
+                    # TODO: There's an open issue[1] for adding a subcommand to
+                    # gomod2nix that only  checks to see if the lock file is up to
+                    # date. This way it could be run without an internet connection
+                    # and included in CI checks.
+                    #
+                    # [1]: https://github.com/nix-community/gomod2nix/issues/169
+                    - requires-internet
                   glob: gozip/go.mod
                   run: "{run_fix} gomod2nix --dir gozip generate"
                 - name: task-docs
@@ -195,6 +203,11 @@ check:
                   glob: "*.md"
                   run: "{run_fix} markdownlint-cli2 --fix {files}"
                 - name: go-mod-tidy
+                  tags:
+                    # TODO: There should be an option for only doing the parts that
+                    # don't require the internet so it can be run as part of CI
+                    # checks.
+                    - requires-internet
                   glob: gozip/go.{mod,sum}
                   run: "{run_fix} go -C gozip mod tidy"
                 - name: golangci-lint
