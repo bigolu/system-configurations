@@ -59,6 +59,8 @@ let
       fi
     '';
   };
+
+  goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
 in
 rec {
   lefthook = mkShellWrapperNoCC {
@@ -105,6 +107,28 @@ rec {
     let
       goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
 
+      setGoBin = ''
+        # Binary names could conflict between projects so store them in a
+        # project-specific directory.
+        export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
+        mkdir -p "$GOBIN"
+        export PATH="''${GOBIN}''${PATH:+:$PATH}"
+      '';
+    in
+    mkShellWrapperNoCC {
+      packages = [ goEnv ];
+      shellHook = setGoBin;
+    };
+
+  # This should be used when running checks without internet access since Go won't be
+  # able to download modules. I don't use this for development since Go either reads
+  # all dependencies from GOPATH or vendor so a change to go.mod would require
+  # reloading the dev shell. There's an open issue partial vendoring[1]. If this is
+  # done, then I could use this for development.
+  #
+  # [1]: https://github.com/golang/go/issues/52604
+  gozipVendor =
+    let
       # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
         # TODO: `builtins.match` is inconsistent across platforms[1] so I'll use grep
@@ -126,19 +150,8 @@ rec {
           ln --force --no-dereference --symbolic ${vendor} gozip/vendor
         '')
       ];
-
-      setGoBin = ''
-        # Binary names could conflict between projects so store them in a
-        # project-specific directory.
-        export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
-        mkdir -p "$GOBIN"
-        export PATH="''${GOBIN}''${PATH:+:$PATH}"
-      '';
     in
-    mkShellWrapperNoCC {
-      packages = [ goEnv ];
-      shellHook = linkVendoredModules + setGoBin;
-    };
+    mkShellWrapperNoCC { shellHook = linkVendoredModules; };
 
   speakerctl = pkgs.speakerctl.devShell;
 
