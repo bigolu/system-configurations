@@ -1,5 +1,16 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/evilmartians/lefthook/master/schema.json
 
+# Tag Meanings
+# -----------------------------------------------------------------------------------
+# lychee:
+#   Lychee, a link checker, will be run periodically in CI. To ensure it doesn't run
+#   in the development environment, I gave the lychee job this tag and add the tag to
+#   the LEFTHOOK_EXCLUDE environment variable during development.
+# requires-internet:
+#   This is for any check that requires an internet connection. To avoid flaky
+#   checks, I run them inside a sandbox where there's no access to the internet.
+#   When I do that, I exclude any checks with this tag.
+
 # TODO: Lefthook sets its colors based on the background color of the terminal to
 # ensure good contrast[1], but it doesn't seem to be working for me so I'm using ANSI
 # colors instead. I should report this.
@@ -338,10 +349,6 @@ check:
                             --check ./dotfiles/neovim \
                             --configpath "$PWD/.luarc.json"
                       - name: lychee
-                        # Lychee, a link checker, will be run periodically in CI. To
-                        # ensure it doesn't run in the development environment, I
-                        # gave this job a tag and added the tag to the
-                        # LEFTHOOK_EXCLUDE environment variable.
                         tags:
                           - lychee
                         exclude:

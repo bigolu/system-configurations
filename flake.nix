@@ -23,7 +23,8 @@
         perSystem =
           { system, ... }:
           {
-            _module.args.pkgs = import ./nix/packages-for-system.nix system;
+            _module.args.pkgs =
+              if builtins ? "currentSystem" then import ./nix/packages.nix else import ./nix/packages.nix system;
           };
 
         # For nixd:

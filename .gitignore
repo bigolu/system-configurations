@@ -2,6 +2,7 @@
 .envrc
 secrets.env
 .lycheecache
+gozip/vendor
 # TODO: This directory is only here to work around an issue with lua-language-server.
 # This directory has a .gitignore inside of it, but lua-language-server seems to only
 # respect the top-level .gitignore and .git/info/exclude. I should open an issue for

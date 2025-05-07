@@ -35,6 +35,7 @@ let
     ;
   inherit (pkgs)
     mkShellWrapperNoCC
+    linkFarm
     ;
   inherit (pkgs.stdenv) isLinux;
 
@@ -98,16 +99,35 @@ rec {
       }
     );
 
-  gozip = mkShellWrapperNoCC {
-    packages = with pkgs; [ go ];
-    shellHook = ''
-      # Binary names could conflict between projects so store them in a
-      # project-specific directory.
-      export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
-      mkdir -p "$GOBIN"
-      export PATH="''${GOBIN}''${PATH:+:$PATH}"
-    '';
-  };
+  gozip =
+    let
+      goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
+
+      # TODO: Maybe this could be upstreamed to gomod2nix
+      linkVendoredModules = pipe goEnv.buildPhase [
+        # TODO: Instead of having to do this, gomod2nix should expose the mkVendorEnv
+        # function in their public API.
+        (match ".* (/nix/store/[^/]*?vendor-env).*")
+        (matches: elemAt matches 0)
+        (vendor: ''
+          export GOFLAGS='-mod=vendor'
+          export GO_NO_VENDOR_CHECKS='1'
+          ln --force --no-dereference --symbolic ${vendor} gozip/vendor
+        '')
+      ];
+
+      setGoBin = ''
+        # Binary names could conflict between projects so store them in a
+        # project-specific directory.
+        export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
+        mkdir -p "$GOBIN"
+        export PATH="''${GOBIN}''${PATH:+:$PATH}"
+      '';
+    in
+    mkShellWrapperNoCC {
+      packages = [ goEnv ];
+      shellHook = linkVendoredModules + setGoBin;
+    };
 
   speakerctl = pkgs.speakerctl.devShell;
 
@@ -162,6 +182,11 @@ rec {
       };
 
       formatting = mkShellWrapperNoCC {
+        inputsFrom = [
+          # For gofmt
+          gozip
+        ];
+
         packages = with pkgs; [
           nixfmt-rfc-style
           nodePackages.prettier
@@ -169,8 +194,6 @@ rec {
           stylua
           taplo
           ruff
-          # for gofmt
-          go
           # for fish_indent
           fish
         ];
@@ -379,10 +402,10 @@ rec {
         efmLanguageServer
         # For "sumneko.lua"
         lua-language-server
+        # For "golang.go"
+        gozip
       ];
       packages = with pkgs; [
-        # For "golang.go"
-        go
         golangci-lint
         # For "tamasfe.even-better-toml"
         taplo

@@ -8,7 +8,6 @@ moduleContext@{ lib, utils, ... }:
       inherit (lib)
         pipe
         hasPrefix
-        escapeShellArg
         ;
       inherit (utils) applyIf;
 
@@ -34,8 +33,8 @@ moduleContext@{ lib, utils, ... }:
           (devShells: { inherit devShells; })
         ];
 
-      addTagToLefthookExclude = tag: ''
-        tag=${escapeShellArg tag}
+      addLycheeToLefthookExclude = ''
+        tag='lychee'
 
         if [[ -z ''${LEFTHOOK_EXCLUDE+set} ]]; then
           export LEFTHOOK_EXCLUDE=""
@@ -64,7 +63,7 @@ moduleContext@{ lib, utils, ... }:
           tasks
           vsCode
         ];
-        shellHook = addTagToLefthookExclude "lychee";
+        shellHook = addLycheeToLefthookExclude;
       };
 
       ci-essentials = { };
