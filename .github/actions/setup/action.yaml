@@ -26,6 +26,7 @@ runs:
           # the default limit of 64MiB.
           download-buffer-size = 134217728
           show-trace = true
+    # Test
     - uses: nix-community/cache-nix-action@v6
       with:
         primary-key: nix-${{ runner.os }}-${{ github.workflow }}-${{ github.job }}-${{ inputs.cache-key-suffix }}
