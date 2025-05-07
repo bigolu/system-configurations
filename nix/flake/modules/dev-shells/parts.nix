@@ -32,10 +32,12 @@ let
     unique
     concatLists
     splitString
+    removeSuffix
     ;
   inherit (pkgs)
     mkShellWrapperNoCC
     linkFarm
+    writeText
     ;
   inherit (pkgs.stdenv) isLinux;
 
@@ -105,10 +107,19 @@ rec {
 
       # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
-        # TODO: Instead of having to do this, gomod2nix should expose the mkVendorEnv
-        # function in their public API.
-        (match ".* (/nix/store/[^/]*?vendor-env).*")
-        (matches: elemAt matches 0)
+        # TODO: `builtins.match` is inconsistent across platforms[1] so I'll use grep
+        # instead.
+        #
+        # [1]: https://github.com/NixOS/nix/issues/1537
+        (
+          phase:
+          pkgs.runCommand "vendor" { } ''
+            grep -o '/nix/store/[^/]*vendor-env' <${writeText "phase" phase} >$out
+          ''
+        )
+        readFile
+        (removeSuffix "\n")
+
         (vendor: ''
           export GOFLAGS='-mod=vendor'
           export GO_NO_VENDOR_CHECKS='1'
