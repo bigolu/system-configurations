@@ -29,6 +29,8 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # The action run after this, nix-community/cache-nix-action, depends on this
+    # specific nix installer
     - uses: nixbuild/nix-quick-install-action@v30
       with:
         nix_conf: |
