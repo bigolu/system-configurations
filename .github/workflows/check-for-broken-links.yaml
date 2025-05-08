@@ -20,10 +20,9 @@ jobs:
         with:
           nix-dev-shell: ci-check-for-broken-links
           cache: "true"
-          # The first '*' in each pattern matches the repository directory
-          cache-key-suffix: ${{ hashFiles('*/flake.lock', '*/nix/**') }}
+          cache-key-suffix: ${{ hashFiles('flake.lock', 'nix/**') }}
       - env:
           # To avoid being rate-limited by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: echo ${{ hashFiles('*/nix/**') }} # DEBUG # lefthook run check --jobs lychee --all-files --no-tty --colors on
+        run: ls $GITHUB_WORKSPACE # DEBUG # lefthook run check --jobs lychee --all-files --no-tty --colors on

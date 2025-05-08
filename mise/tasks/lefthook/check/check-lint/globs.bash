@@ -22,8 +22,6 @@ quoted_globs="$(
     rg ', *' --replace ' '
 )"
 eval "globs=($quoted_globs)"
-# Since GitHub Action evaluates globs from the parent directory of the repository
-cd ..
 # shellcheck disable=2154
 # I assigned `globs` in the eval statement above
 for glob in "${globs[@]}"; do
