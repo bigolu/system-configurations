@@ -30,7 +30,8 @@ runs:
   using: "composite"
   steps:
     # The action run after this, nix-community/cache-nix-action, depends on this
-    # specific nix installer
+    # specific nix installer. Though there's an open issue for using a different
+    # installer: https://github.com/nix-community/cache-nix-action/issues/60
     - uses: nixbuild/nix-quick-install-action@v30
       with:
         nix_conf: |
