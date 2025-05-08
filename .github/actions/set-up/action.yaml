@@ -43,6 +43,9 @@ runs:
         CACHE_KEY_PREFIX: nix-${{ runner.os }}-${{ github.workflow }}-${{ github.job }}-
       uses: nix-community/cache-nix-action@v6
       with:
+        # The default is 32 MiB. Assuming the network connection between the runner
+        # and cache is reliable, 256 MiB should also work while being faster.
+        upload-chunk-size: 268435456
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key-suffix }}
         # If there's no cache hit, restore a cache by this prefix.
         restore-prefixes-first-match: ${{ env.CACHE_KEY_PREFIX }}
