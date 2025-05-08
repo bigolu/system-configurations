@@ -51,6 +51,14 @@ runs:
         # If there's no cache hit, restore the most recently used cache with this
         # prefix.
         restore-prefixes-first-match: ${{ env.CACHE_KEY_PREFIX }}
+        # The combination of the purge inputs below gives us the following behavior:
+        # Delete all caches with a key whose prefix is `env.CACHE_KEY_PREFIX`, unless
+        # the key is what we specified for the `primary-key` input. In other words,
+        # we only keep the cache created by the current job run and delete the ones
+        # made by previous job runs.
+        purge: true
+        purge-primary-key: never
+        purge-prefixes: ${{ env.CACHE_KEY_PREFIX }}
     - shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
