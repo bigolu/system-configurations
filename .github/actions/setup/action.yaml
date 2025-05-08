@@ -5,16 +5,26 @@ inputs:
     description: The name of the devShell to activate
     required: false
     default: ""
+  cache:
+    description: Whether the cache should be enabled. Pass "true" to enable it
+    required: false
+    default: ""
   cache-key-suffix:
-    description: Can be provided to optimize cache hits
+    description: >
+      Can be provided to optimize cache hits. Usually it's something like
+      ${{ hashFiles(<pattern>) }} where <pattern> matches any file that could change
+      the version of a package (e.g. flake.lock) or which packages are included in
+      the devShell.
     required: false
     # By using the SHA, we err on the side of excessive cache saves as opposed to
     # excessive pulls from the Nix foundation's cache. In other words, we'll assume
     # that a cache is invalid more often than it actually is and unnecessarily push a
     # new cache to GitHub Actions. If we didn't, then we would instead assume a cache
     # is valid more often than it actually is and have to pull Nix's cache when we're
-    # wrong. This seems reasonable since I assume that pushing to the GHA cache is
-    # faster than pulling from Nix's cache.
+    # wrong. This trade-off seems reasonable since I assume that pushing to GHA's
+    # cache is faster than pulling from Nix's cache. I assume this because I also
+    # assume that the GHA runners are geographically closer to GHA's cache than Nix's
+    # cache.
     default: ${{ github.sha }}
 runs:
   using: "composite"
@@ -26,7 +36,8 @@ runs:
           # the default limit of 64MiB.
           download-buffer-size = 134217728
           show-trace = true
-    - uses: nix-community/cache-nix-action@v6
+    - if: ${{ inputs.cache == 'true' }}
+      uses: nix-community/cache-nix-action@v6
       with:
         primary-key: nix-${{ runner.os }}-${{ github.workflow }}-${{ github.job }}-${{ inputs.cache-key-suffix }}
         # If there's no cache hit, restore a cache by this prefix.
