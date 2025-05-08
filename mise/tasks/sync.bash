@@ -37,13 +37,4 @@ if ((${#jobs[@]} > 0)); then
   lefthook_job_args+=(--jobs "$joined_jobs")
 fi
 
-# TODO: For any job that has 'follows' enabled, 'execution_out' needs to be enabled
-# or else nothing will show. I have it off by default so this will enable it. I
-# should open an issue for allowing output to be configured per job, the same way
-# 'follows' is.
-#
-# TODO: According to the lefthook documentation, this variable should _extend_ the
-# output values specified in the config file, but it seems to be overwriting them
-# instead. For now, I'm duplicating the values specified in my config here. I should
-# open an issue.
-LEFTHOOK_OUTPUT='execution_info,execution_out' lefthook run sync "${lefthook_job_args[@]}"
+lefthook run sync "${lefthook_job_args[@]}"

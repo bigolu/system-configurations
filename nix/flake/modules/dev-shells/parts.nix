@@ -246,6 +246,12 @@ rec {
         formatting
         codeGeneration
       ];
+      packages = with pkgs; [
+        # TODO: I use `chronic` to hide the output of commands that produce a lot of
+        # output even when they exit successfully. I should see if I could change
+        # this upstream.
+        moreutils
+      ];
     };
 
   sync = mkShellWrapperNoCC {

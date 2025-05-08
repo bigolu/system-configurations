@@ -26,6 +26,11 @@ colors:
 output:
   # Print a header for each job
   - execution_info
+  # Print command output. This is particularly useful for jobs like 'flake' and
+  # 'system' since they can take a long time and having the output would show me what
+  # the bottlenecks are.
+  - execution_out
+  - failure
 
 templates:
   run_fix: mise run lefthook:run-fix
@@ -97,8 +102,11 @@ pre-commit:
 # [2]: https://github.com/evilmartians/lefthook/pull/595
 
 sync:
-  # So we can see the output of the direnv and system tasks. They can take a
-  # while so it's nice to see their progress.
+  # This setting is useful for the 'direnv' and 'system' jobs:
+  #   - They can take a while so being able to see the output in real time will
+  #     reveal bottlenecks.
+  #   - I can spot accidental nix cache misses and cancel the job instead of waiting
+  #     for nix rebuild the package.
   follow: true
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
@@ -240,7 +248,7 @@ check:
                   exclude:
                     # Don't format these since VS Code will
                     - ".vscode/*.json"
-                  run: "{run_fix} prettier --write {files}"
+                  run: "{run_fix} chronic prettier --write {files}"
                 - name: shfmt
                   glob: "*.{sh,bash}"
                   run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
@@ -339,7 +347,7 @@ check:
                         exclude:
                           # These aren't actually JSON files they're JSONC
                           - ".vscode/*.json"
-                        run: validator -groupby pass-fail {files}
+                        run: chronic validator -groupby pass-fail {files}
                       - name: renovate-config-validator
                         glob:
                           - renovate.json5
@@ -366,16 +374,29 @@ check:
                   group:
                     parallel: true
                     jobs:
-                      - name: flake
-                        glob:
-                          - flake.nix
-                          - flake.lock
-                          - nix/*
-                          - dotfiles/*
-                          - gozip/*
-                        run: nix flake check
                       - name: nix-config
                         glob:
                           - "*.nix"
                           - flake.lock
                         run: nix config check
+          - name: flake
+            # TODO: I actually want to use the 'follow' option, so I can see
+            # the output of the command in real time, but that can only be set
+            # for an entire hook. I noticed that 'interactive' would also show
+            # output in real time and unlike follow, it can be set on
+            # individual jobs. I should open an issue for setting 'follow' on
+            # jobs.
+            #
+            # I'm doing this so I can spot accidental cache misses and cancel
+            # the job instead of waiting for nix rebuild the package. Ideally,
+            # I would run this job in parallel with the other jobs in the
+            # 'test' group, but then the output of the commands would get
+            # interleaved.
+            interactive: true
+            glob:
+              - flake.nix
+              - flake.lock
+              - nix/*
+              - dotfiles/*
+              - gozip/*
+            run: nix flake check
