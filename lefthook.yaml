@@ -142,7 +142,7 @@ check:
       # [1]: https://github.com/evilmartians/lefthook/issues/593
       exclude:
         - gozip/gomod2nix.toml
-        - ".vscode/*.json"
+        - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
         - dotfiles/cosmic/config/*
         - docs/tasks.html
@@ -237,6 +237,9 @@ check:
                   run: "{run_fix} taplo format {files}"
                 - name: prettier
                   glob: "*.{md,js,json,json{5,c},yaml}"
+                  exclude:
+                    # Don't format these since VS Code will
+                    - ".vscode/*.json"
                   run: "{run_fix} prettier --write {files}"
                 - name: shfmt
                   glob: "*.{sh,bash}"
@@ -333,6 +336,9 @@ check:
                         run: editorconfig-checker --disable-indent-size {files}
                       - name: config-file-validator
                         glob: "*.{editorconfig,json,ini,yaml,toml}"
+                        exclude:
+                          # These aren't actually JSON files they're JSONC
+                          - ".vscode/*.json"
                         run: validator -groupby pass-fail {files}
                       - name: renovate-config-validator
                         glob:
