@@ -37,11 +37,13 @@ runs:
           download-buffer-size = 134217728
           show-trace = true
     - if: ${{ inputs.cache == 'true' }}
+      env:
+        CACHE_KEY_PREFIX: nix-${{ runner.os }}-${{ github.workflow }}-${{ github.job }}-
       uses: nix-community/cache-nix-action@v6
       with:
-        primary-key: nix-${{ runner.os }}-${{ github.workflow }}-${{ github.job }}-${{ inputs.cache-key-suffix }}
+        primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key-suffix }}
         # If there's no cache hit, restore a cache by this prefix.
-        restore-prefixes-first-match: nix-${{ runner.os }}-${{ github.workflow }}-${{ github.job }}-
+        restore-prefixes-first-match: ${{ env.CACHE_KEY_PREFIX }}
     - shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
