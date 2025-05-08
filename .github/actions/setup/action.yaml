@@ -12,7 +12,7 @@ inputs:
   cache-key-suffix:
     description: >
       Can be provided to optimize cache hits. Usually it's something like
-      ${{ hashFiles(<pattern>) }} where <pattern> matches any file that could change
+      `hashFiles(<pattern>)` where <pattern> matches any file that could change
       the version of a package (e.g. flake.lock) or which packages are included in
       the devShell.
     required: false
