@@ -105,8 +105,6 @@ rec {
 
   gozip =
     let
-      goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
-
       setGoBin = ''
         # Binary names could conflict between projects so store them in a
         # project-specific directory.
