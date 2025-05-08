@@ -48,7 +48,8 @@ runs:
         # and cache is reliable, 256 MiB should also work while being faster.
         upload-chunk-size: 268435456
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key-suffix }}
-        # If there's no cache hit, restore a cache by this prefix.
+        # If there's no cache hit, restore the most recently used cache with this
+        # prefix.
         restore-prefixes-first-match: ${{ env.CACHE_KEY_PREFIX }}
     - shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
