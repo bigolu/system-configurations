@@ -32,9 +32,7 @@ inputs:
     #      cache, even though it contains exactly what the old cache entry had. Since
     #      we restore from the old cache entry on a cache miss, we won't have to pull
     #      from Nix's cache. We just pull the old cache entry from GHA and push it
-    #      back at the end of the job. TODO: You could optimize this by comparing the
-    #      checksum of the old cache and the new one before saving the new one. If
-    #      they're the same, don't save the new one.
+    #      back at the end of the job.
     #   2. We assume a cache entry is valid more often than it actually is. In this
     #      case, we will end up having to pull from Nix's cache since the cache entry
     #      won't have what we need. The problem with this is that we won't create a
