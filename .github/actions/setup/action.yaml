@@ -68,6 +68,8 @@ runs:
         # SYNC: CACHE_SCOPE
         CACHE_KEY_PREFIX: nix-store-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
       with:
+        # See `direnv/ci.bash` for why this is being cached
+        paths: ".direnv"
         # The key used to store/restore a cache entry
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key }}
         # If there's a cache miss, restore from the most recently used cache entry
