@@ -27,7 +27,7 @@ jobs:
         with:
           nix-dev-shell: ci-check-for-broken-links
           cache-nix-store: "true"
-          cache-key: ${{ hashFiles('flake.lock', 'nix/**') }}
+          cache-key: ${{ hashFiles('flake.lock', 'nix/**', '.github/**') }}
       - name: Run lychee
         env:
           # To avoid being rate-limited by GitHub
