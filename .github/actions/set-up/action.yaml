@@ -59,7 +59,8 @@ runs:
         purge: true
         purge-primary-key: never
         purge-prefixes: ${{ env.CACHE_KEY_PREFIX }}
-        # debug
+        # TODO: Caches are only purged if I add these, but they shouldn't be
+        # necessary. I should open an issue.
         purge-created: 0
         purge-last-accessed: 0
     - shell: nix run --file nix/packages.nix bash-script -- {0}
