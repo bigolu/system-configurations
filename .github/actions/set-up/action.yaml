@@ -42,7 +42,7 @@ runs:
     - if: ${{ inputs.cache == 'true' }}
       env:
         CACHE_KEY_PREFIX: nix-${{ runner.os }}-${{ github.workflow }}-${{ github.job }}-
-      uses: nix-community/cache-nix-action@v6.1.3
+      uses: nix-community/cache-nix-action@v6
       with:
         # The default is 32 MiB. Assuming the network connection between the runner
         # and cache is reliable, 256 MiB should also work while being faster.
