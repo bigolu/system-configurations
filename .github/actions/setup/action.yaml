@@ -1,0 +1,103 @@
+name: Setup
+description: Install Nix and load the direnv environment
+inputs:
+  nix-dev-shell:
+    description: The name of the Nix devShell to load with direnv
+    required: false
+    default: ""
+  cache-nix-store:
+    description: >
+      If you set this to "true", the Nix store will be cached at the end of the job
+      and restored when this action runs next.
+    required: false
+    default: ""
+  cache-key:
+    # SYNC: CACHE_SCOPE
+    description: >
+      A cache entry is considered valid if its key matches the `cache-key`. An ideal
+      `cache-key` is usually something like `hashFiles(<glob>)` where <glob> matches
+      any file that could affect the contents of the cache entry i.e. Nix store. For
+      example, files that affect which packages are included in the `nix-dev-shell`
+      or files that affect their versions, like `flake.lock`. Cache entries are
+      scoped by workflow, job, and operating system. `cache-key` is only used if
+      `cache-nix-store` is "true".
+    required: false
+    # It would be difficult to come up with a cache key that perfectly represents
+    # whether a cache entry is valid. To do so, you would have to keep track of the
+    # exact set of files that could affect the Nix store. And even then it wouldn't
+    # be perfect since something like adding a comment to one of those files would
+    # still invalidate the cache. This leaves us with two options:
+    #   1. We assume a cache entry is invalid more often than it actually is. This
+    #      results in unnecessary pushes of a new cache entry to GitHub Action's
+    #      cache, even though it contains exactly what the old cache entry had. Since
+    #      we restore from the old cache entry on a cache miss, we won't have to pull
+    #      from Nix's cache. We just pull the old cache entry from GHA and push it
+    #      back at the end of the job.
+    #   2. We assume a cache entry is valid more often than it actually is. In this
+    #      case, we will end up having to pull from Nix's cache since the cache entry
+    #      won't have what we need. The problem with this is that we won't create a
+    #      new cache entry with what we fetched from Nix's cache, since we assumed
+    #      that what we got from GHA was still valid. This means we'll keep pulling
+    #      from Nix's cache without ever updating the GHA cache.
+    #
+    # By using the commit hash, we err on the side of option #1, since the commit
+    # hash is usually different for every job run. Based on my observations, pushing
+    # to the GHA cache is much faster than pulling from the Nix cache so this
+    # trade-off seems reasonable.
+    default: ${{ github.sha }}
+runs:
+  using: "composite"
+  steps:
+    # The action run after this, nix-community/cache-nix-action, depends on this
+    # specific Nix installer. Though there's an open issue for supporting a different
+    # installer: https://github.com/nix-community/cache-nix-action/issues/60
+    - uses: nixbuild/nix-quick-install-action@v30
+      with:
+        nix_conf: |
+          # Increase the buffer limit to 124MiB since the buffer would often reach
+          # the default limit of 64MiB.
+          download-buffer-size = 134217728
+          show-trace = true
+    - uses: nix-community/cache-nix-action@v6
+      if: ${{ inputs.cache-nix-store == 'true' }}
+      env:
+        # The `cache-key` input will be prefixed by this value. This way, cache
+        # entries will be scoped by type (nix-store), workflow, job, and operating
+        # system.
+        #
+        # SYNC: CACHE_SCOPE
+        CACHE_KEY_PREFIX: nix-store-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
+      with:
+        # The default is 32 MiB. Assuming the network connection between the runner
+        # and cache is reliable, 256 MiB should also work while being faster.
+        upload-chunk-size: 268435456
+        # The key used to store/restore a cache entry
+        primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key }}
+        # If there's a cache miss, restore from the most recently used cache entry
+        # with this prefix. In other words, the last cache entry that was used with
+        # this job.
+        restore-prefixes-first-match: ${{ env.CACHE_KEY_PREFIX }}
+        # The combination of the three purge inputs below gives us the following
+        # behavior: Delete all cache entries with a key whose prefix is
+        # `env.CACHE_KEY_PREFIX`, unless that key is the same as `primary-key`. In
+        # other words, we only keep the cache entry created by the current job run
+        # and delete the ones made by previous job runs.
+        purge: true
+        purge-primary-key: never
+        purge-prefixes: ${{ env.CACHE_KEY_PREFIX }}
+        # TODO: Cache entries are only purged if I add these two inputs, but they
+        # shouldn't be necessary. I should open an issue.
+        purge-created: 0
+        purge-last-accessed: 0
+    - name: Load the direnv Environment
+      shell: nix run --file nix/packages.nix bash-script -- {0}
+      env:
+        NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
+      run: |
+        nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
+          export gha >> "$GITHUB_ENV"
+        # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
+        #
+        # [1]: https://github.com/actions/toolkit/issues/655
+        nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
+          exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"

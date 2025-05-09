@@ -4,10 +4,17 @@ on:
   schedule:
     # Run once every 6 days. I'd prefer to run it once a week, but GitHub Actions
     # evicts all cache entries that haven't been accessed in more than a week[1] so
-    # I'm choosing 6 days to be safe.
+    # I'm choosing 6 days to be safe since the precise start time of a scheduled
+    # workflow is not guaranteed.
+    #
+    # I've also chosen minute 43 for the workflow to run to avoid running at
+    # the start of the hour. This is because GitHub sees high load at the start of
+    # every hour and when that happens, some queued jobs may be delayed or
+    # dropped[2].
     #
     # [1]: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/caching-dependencies-to-speed-up-workflows#usage-limits-and-eviction-policy
-    - cron: "0 0 */6 * *"
+    # [2]: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule
+    - cron: "43 0 */6 * *"
 defaults:
   run:
     shell: bash-script {0}
@@ -16,12 +23,13 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-      - uses: ./.github/actions/set-up
+      - uses: ./.github/actions/setup
         with:
           nix-dev-shell: ci-check-for-broken-links
-          cache: "true"
-          cache-key-suffix: ${{ hashFiles('flake.lock', 'nix/**') }}
-      - env:
+          cache-nix-store: "true"
+          cache-key: ${{ hashFiles('flake.lock', 'nix/**') }}
+      - name: Run lychee
+        env:
           # To avoid being rate-limited by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}

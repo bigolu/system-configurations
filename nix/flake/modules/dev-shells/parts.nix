@@ -119,10 +119,11 @@ rec {
     };
 
   # This should be used when running checks without internet access since Go won't be
-  # able to download modules. I don't use this for development since Go either reads
-  # all dependencies from GOPATH or vendor so a change to go.mod would require
-  # reloading the dev shell. There's an open issue partial vendoring[1]. If this is
-  # done, then I could use this for development.
+  # able to download modules. I don't use this for development because it would be
+  # too inconvenient: Go either reads all dependencies from GOPATH or vendor so a
+  # change to go.mod would require reloading the dev shell. There's an open issue for
+  # partial vendoring[1]. If this is done, then I could start using this for
+  # development.
   #
   # [1]: https://github.com/golang/go/issues/52604
   gozipVendor =
