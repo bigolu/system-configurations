@@ -59,6 +59,9 @@ runs:
         purge: true
         purge-primary-key: never
         purge-prefixes: ${{ env.CACHE_KEY_PREFIX }}
+        # debug
+        purge-created: 0
+        purge-last-accessed: 0
     - shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
