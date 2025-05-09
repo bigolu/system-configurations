@@ -32,7 +32,9 @@ inputs:
     #      cache, even though it contains exactly what the old cache entry had. Since
     #      we restore from the old cache entry on a cache miss, we won't have to pull
     #      from Nix's cache. We just pull the old cache entry from GHA and push it
-    #      back at the end of the job.
+    #      back at the end of the job. TODO: You could optimize this by comparing the
+    #      checksum of the old cache and the new one before saving the new one. If
+    #      they're the same, don't save the new one.
     #   2. We assume a cache entry is valid more often than it actually is. In this
     #      case, we will end up having to pull from Nix's cache since the cache entry
     #      won't have what we need. The problem with this is that we won't create a
@@ -68,9 +70,6 @@ runs:
         # SYNC: CACHE_SCOPE
         CACHE_KEY_PREFIX: nix-store-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
       with:
-        # The default is 32 MiB. Assuming the network connection between the runner
-        # and cache is reliable, 256 MiB should also work while being faster.
-        upload-chunk-size: 268435456
         # The key used to store/restore a cache entry
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key }}
         # If there's a cache miss, restore from the most recently used cache entry
