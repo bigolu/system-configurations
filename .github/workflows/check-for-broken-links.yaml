@@ -33,4 +33,4 @@ jobs:
           # To avoid being rate-limited by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: printf '|%s|' "$(</home/runner/.config/nix/nix.conf)" # debug: lefthook run check --jobs lychee --all-files --no-tty --colors on
+        run: lefthook run check --jobs lychee --all-files --no-tty --colors on
