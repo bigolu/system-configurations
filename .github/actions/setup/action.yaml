@@ -9,10 +9,10 @@ inputs:
     # SYNC: CACHE_SCOPE
     description: >
       If you set this to "true", the Nix store will be cached at the end of the job
-      and restored when this action runs next. The cache is scoped by workflow, job,
-      and operating system.
+      and restored when this action runs next. Set to "" to disable caching. The
+      cache is scoped by workflow, job, and operating system.
     required: false
-    default: ""
+    default: "true"
   cache-key:
     description: |
       `cache-key` is only used if `cache-nix-store` is "true".
@@ -50,17 +50,21 @@ inputs:
         1. Use something like `hashFiles(<glob>)` where <glob> matches
            any file that could affect the contents of the cache entry i.e. Nix store.
            For example, files that affect which packages are included in the
-           `nix-dev-shell`, files that affect their versions, like `flake.lock`, or
-           files that affect the workflow itself, like this one. Getting the exact
-           set of files that could affect the cache is tedious and will probably
-           change over time so aim for a superset.
+           `nix-dev-shell`, files that affect their versions, like `flake.lock`,
+           files that affect the workflow itself, like this one, or any tasks that
+           called in the workflow since they load their dependencies dynamically.
+           Getting the exact set of files that could affect the cache is tedious and
+           will probably change over time so aim for a superset.
         2. Use the commit hash, `github.sha`. Since the commit hash is usually
            different for every job run, this will probably result in more
            invalidations than the approach above. This approach has the advantage of
            being very simple.
+
+      Valid options for this input are:
+        "hashed-files" - See idea #1 above
+        "commit-hash" - See idea #2 above
     required: false
-    # The rationale for this value can be found in the description for this input.
-    default: ${{ github.sha }}
+    default: commit-hash
 runs:
   using: "composite"
   steps:
@@ -91,7 +95,7 @@ runs:
         # See `direnv/ci.bash` for why this is being cached
         paths: ".direnv"
         # The key used to store/restore a cache entry
-        primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key }}
+        primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key == 'commit-hash' && github.sha || hashFiles('flake.lock', 'nix/**', '.github/**', 'mise/**') }}
         # If there's a cache miss, restore from the most recently used cache entry
         # with this prefix. In other words, the last cache entry that was used with
         # this job.

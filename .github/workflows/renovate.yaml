@@ -12,6 +12,7 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           nix-dev-shell: ci-renovate
+          cache-key: hashed-files
       - uses: actions/create-github-app-token@67e27a7eb7db372a1c61a7f9bdab8699e9ee57f7 # v1
         id: bot-token
         with:
