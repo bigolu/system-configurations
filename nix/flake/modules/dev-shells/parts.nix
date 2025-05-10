@@ -28,7 +28,7 @@ let
   inherit (lib)
     pipe
     fileset
-    optionalAttrs
+    optionalString
     unique
     concatLists
     splitString
@@ -92,16 +92,16 @@ rec {
         export LC_ALL='en_US.UTF-8'
       '';
     in
-    mkShellWrapperNoCC (
-      {
-        inputsFrom = [ taskRunner ];
-        # For the `run` steps in CI workflows
-        packages = [ pkgs.bash-script ];
-      }
-      // optionalAttrs isLinux {
-        shellHook = localeArchiveHook;
-      }
-    );
+    mkShellWrapperNoCC {
+      inputsFrom = [ taskRunner ];
+      # For the `run` steps in CI workflows
+      packages = [ pkgs.bash-script ];
+      shellHook =
+        ''
+          export NIX_SHEBANG_GC_ROOTS_DIR="''${direnv_layout_dir:-$PWD/.direnv}/nix-shebang-dependencies"
+        ''
+        + optionalString isLinux localeArchiveHook;
+    };
 
   gozip =
     let

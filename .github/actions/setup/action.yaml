@@ -35,7 +35,9 @@ inputs:
            cache, even though it contains exactly what the old cache entry had. Since
            we restore from the old cache entry on a cache miss, we won't have to pull
            from Nix's cache. We just pull the old cache entry from GHA and push it
-           back at the end of the job, except with a different key.
+           back at the end of the job, except with a different key. One thing to look
+           out for is the accumulation of unnecessary store paths in the cache entry.
+           This can be mitigated by running garbage collection.
         2. We assume a cache entry is valid more often than it actually is. In this
            case, we will end up having to pull from Nix's cache since the cache entry
            won't have what we need. The problem with this is that we won't create a
@@ -82,18 +84,37 @@ runs:
         # changes every job run and since this token gets put in the nix.conf, it
         # invalidates cached-nix-shell's cache.
         github_access_token: ""
+    - name: Get Year
+      id: get-year
+      shell: bash
+      run: echo "year=$(date '+%Y')" >>"${GITHUB_OUTPUT}"
     - uses: nix-community/cache-nix-action@v6
+      id: cache-nix-action
       if: ${{ inputs.cache-nix-store == 'true' }}
       env:
         # The `cache-key` input will be prefixed by this value. This way, cache
         # entries will be scoped by type (nix-store), workflow, job, and operating
         # system.
         #
+        # I also added the year to the prefix because otherwise, the `.direnv`
+        # directory would continue to grow indefinitely. This happens because on a
+        # cache miss, we restore from the most recently accessed cache entry that
+        # matches this prefix so we have to avoid accumulating data from old cache
+        # entries over time. See `direnv/ci.bash` for what type of data would be in
+        # `.direnv`.
+        #
         # SYNC: CACHE_SCOPE
-        CACHE_KEY_PREFIX: nix-store-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
+        CACHE_KEY_PREFIX: nix-store-${{ steps.get-year.outputs.year }}-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
       with:
-        # See `direnv/ci.bash` for why this is being cached
-        paths: ".direnv"
+        paths: |
+          # See `direnv/ci.bash` for why this is being cached. See the definition of
+          # `CACHE_KEY_PREFIX` for how we prevent this directory from growing
+          # indefinitely.
+          .direnv
+          # By not caching this, only dependencies for shebang scripts executed in
+          # _this_ job run will be considered GC roots. In other words, it won't
+          # accumulate over time.
+          !.direnv/nix-shebang-dependencies
         # The key used to store/restore a cache entry
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key == 'commit-hash' && github.sha || hashFiles('flake.lock', 'nix/**', '.github/**', 'mise/**') }}
         # If there's a cache miss, restore from the most recently used cache entry
@@ -112,11 +133,31 @@ runs:
         # shouldn't be necessary. I should open an issue.
         purge-created: 0
         purge-last-accessed: 0
+        # SYNC: CACHE_SCOPE
+        #
+        # On a cache miss, we restore from the most recently used cache entry that
+        # matches a prefix. Then we possibly add new paths to the Nix store and cache
+        # the entire store, including the paths from the old cache entry. This means
+        # the Nix store would continue to grow indefinitely. To mitigate this, we'll
+        # run garbage collection.
+        #
+        # I want as much garbage to be collected as possible so I've set it to
+        # collect garbage until the store reaches a size of 1 kibibyte or there's no
+        # garbage left to collect.
+        gc-max-store-size: 1K
     - name: Load the direnv Environment
       shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
+        HIT_FIRST_MATCH: ${{ steps.cache-nix-action.outputs.hit-first-match }}
       run: |
+        # We don't want to use the dev shell in the nix-direnv cache when we restore
+        # from a prefix match.
+        if [[ $HIT_FIRST_MATCH == 'true' ]] ; then
+          nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
+            exec . direnv-reload
+        fi
+
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
         # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
