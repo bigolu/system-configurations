@@ -58,6 +58,10 @@ runs:
           # the default limit of 64MiB.
           download-buffer-size = 134217728
           show-trace = true
+        # By default this is ${{ github.token }}. This is a problem because the token
+        # changes every job run and since this token gets put in the nix.conf, it
+        # invalidates cached-nix-shell's cache.
+        github_access_token: ""
     - uses: nix-community/cache-nix-action@v6
       if: ${{ inputs.cache-nix-store == 'true' }}
       env:
