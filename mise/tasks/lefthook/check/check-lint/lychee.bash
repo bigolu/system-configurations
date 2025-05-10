@@ -10,6 +10,8 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+exit
+
 github_issue_title='Link Checker Report'
 
 function main {
