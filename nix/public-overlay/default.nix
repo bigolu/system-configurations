@@ -32,6 +32,21 @@ in
         # [1]: https://github.com/NixOS/nixpkgs/pull/330822
         unset TMPDIR TEMPDIR TMP TEMP
 
+        # Make GC roots for script dependencies
+        # TODO: CI guard
+        dependency_directory="''${direnv_layout_dir:-$PWD/.direnv}/nix-shebang-dependencies"
+        if [[ ! -e "$dependency_directory" ]]; then
+          ${final.coreutils}/bin/mkdir "$dependency_directory"
+        fi
+        nix-store --add-root "$dependency_directory" --realise
+        readarray -t -d ' ' script_dependency_store_paths <<<"''${buildInputs:?}"
+        for path in "''${script_dependency_store_paths[@]}"; do
+          ${final.coreutils}/bin/ln \
+            --symbolic --no-dereference --force \
+            "$path" \
+            "$(${final.coreutils}/bin/basename "$dependency_directory/$path")"
+        done
+
         exec ${getExe interpreter} "$@"
       '';
     };

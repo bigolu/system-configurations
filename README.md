@@ -30,13 +30,13 @@ people who want to manage their systems similarly.
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
      sh -s -- install \
-     --nix-package-url "https://releases.nixos.org/nix/nix-2.24.12/nix-2.24.12-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
+     --nix-package-url "https://releases.nixos.org/nix/nix-2.28.3/nix-2.28.3-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
      --extra-conf "extra-trusted-users = $(whoami)" \
      --no-confirm
    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
    nix shell \
-     --override-flake nixpkgs github:NixOS/nixpkgs/6c5963357f3c1c840201eda129a99d455074db04 \
+     --override-flake nixpkgs github:NixOS/nixpkgs/b3582c75c7f21ce0b429898980eddbbf05c68e55 \
      nixpkgs#gitMinimal nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
      --command bash --noprofile --norc -euc '
        git clone \

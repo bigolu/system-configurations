@@ -1,4 +1,5 @@
 *.java merge=mergiraf
+*.properties merge=mergiraf
 *.kt merge=mergiraf
 *.rs merge=mergiraf
 *.go merge=mergiraf
@@ -18,6 +19,10 @@
 *.cc merge=mergiraf
 *.cpp merge=mergiraf
 *.hpp merge=mergiraf
+*.cxx merge=mergiraf
+*.mpp merge=mergiraf
+*.cppm merge=mergiraf
+*.ixx merge=mergiraf
 *.cs merge=mergiraf
 *.dart merge=mergiraf
 *.dts merge=mergiraf
@@ -34,3 +39,4 @@
 *.nix merge=mergiraf
 *.sv merge=mergiraf
 *.svh merge=mergiraf
+
