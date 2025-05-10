@@ -6,44 +6,60 @@ inputs:
     required: false
     default: ""
   cache-nix-store:
+    # SYNC: CACHE_SCOPE
     description: >
       If you set this to "true", the Nix store will be cached at the end of the job
-      and restored when this action runs next.
+      and restored when this action runs next. The cache is scoped by workflow, job,
+      and operating system.
     required: false
     default: ""
   cache-key:
-    # SYNC: CACHE_SCOPE
-    description: >
-      A cache entry is considered valid if its key matches the `cache-key`. An ideal
-      `cache-key` is usually something like `hashFiles(<glob>)` where <glob> matches
-      any file that could affect the contents of the cache entry i.e. Nix store. For
-      example, files that affect which packages are included in the `nix-dev-shell`
-      or files that affect their versions, like `flake.lock`. Cache entries are
-      scoped by workflow, job, and operating system. `cache-key` is only used if
-      `cache-nix-store` is "true".
+    description: |
+      `cache-key` is only used if `cache-nix-store` is "true".
+
+      The `cache-key` is used to identify a cache entry. When a cache entry is saved,
+      the `cache-key` is used as its key. When this action is looking for a cache
+      entry to restore from, it looks for one whose key matches `cache-key`. In
+      other words, a cache entry is considered valid if its key matches `cache-key`.
+
+      It would be difficult to come up with a cache key that perfectly represents
+      whether a cache entry is valid. To do so, you would have to keep track of the
+      exact set of files that could affect a cache entry, i.e. Nix store, and use the
+      checksum of all of these files to create the `cache-key`. And even then it
+      wouldn't be perfect since something like adding a comment to one of those files
+      would still invalidate the cache, despite not affecting the Nix store. This
+      leaves us with two strategies:
+
+        1. We assume a cache entry is invalid more often than it actually is. This
+           results in unnecessary pushes of a new cache entry to GitHub Action's
+           cache, even though it contains exactly what the old cache entry had. Since
+           we restore from the old cache entry on a cache miss, we won't have to pull
+           from Nix's cache. We just pull the old cache entry from GHA and push it
+           back at the end of the job, except with a different key.
+        2. We assume a cache entry is valid more often than it actually is. In this
+           case, we will end up having to pull from Nix's cache since the cache entry
+           won't have what we need. The problem with this is that we won't create a
+           new cache entry with what we just fetched from Nix's cache, since we
+           assumed that what we got from GHA was still valid. This means we'll keep
+           pulling from Nix's cache without ever updating the GHA cache.
+
+      Based on my observations, pushing to the GHA cache is much faster than pulling
+      from the Nix cache so strategy #1 seems better. Below are two ideas for
+      implementing strategy #1:
+
+        1. Use something like `hashFiles(<glob>)` where <glob> matches
+           any file that could affect the contents of the cache entry i.e. Nix store.
+           For example, files that affect which packages are included in the
+           `nix-dev-shell`, files that affect their versions, like `flake.lock`, or
+           files that affect the workflow itself, like this one. Getting the exact
+           set of files that could affect the cache is tedious and will probably
+           change over time so aim for a superset.
+        2. Use the commit hash, `github.sha`. Since the commit hash is usually
+           different for every job run, this will probably result in more
+           invalidations than the approach above. This approach has the advantage of
+           being very simple.
     required: false
-    # It would be difficult to come up with a cache key that perfectly represents
-    # whether a cache entry is valid. To do so, you would have to keep track of the
-    # exact set of files that could affect the Nix store. And even then it wouldn't
-    # be perfect since something like adding a comment to one of those files would
-    # still invalidate the cache. This leaves us with two options:
-    #   1. We assume a cache entry is invalid more often than it actually is. This
-    #      results in unnecessary pushes of a new cache entry to GitHub Action's
-    #      cache, even though it contains exactly what the old cache entry had. Since
-    #      we restore from the old cache entry on a cache miss, we won't have to pull
-    #      from Nix's cache. We just pull the old cache entry from GHA and push it
-    #      back at the end of the job.
-    #   2. We assume a cache entry is valid more often than it actually is. In this
-    #      case, we will end up having to pull from Nix's cache since the cache entry
-    #      won't have what we need. The problem with this is that we won't create a
-    #      new cache entry with what we fetched from Nix's cache, since we assumed
-    #      that what we got from GHA was still valid. This means we'll keep pulling
-    #      from Nix's cache without ever updating the GHA cache.
-    #
-    # By using the commit hash, we err on the side of option #1, since the commit
-    # hash is usually different for every job run. Based on my observations, pushing
-    # to the GHA cache is much faster than pulling from the Nix cache so this
-    # trade-off seems reasonable.
+    # The rationale for this value can be found in the description for this input.
     default: ${{ github.sha }}
 runs:
   using: "composite"
@@ -84,7 +100,7 @@ runs:
         # behavior: Delete all cache entries with a key whose prefix is
         # `env.CACHE_KEY_PREFIX`, unless that key is the same as `primary-key`. In
         # other words, we only keep the cache entry created by the current job run
-        # and delete the ones made by previous job runs.
+        # and delete all of the older ones.
         purge: true
         purge-primary-key: never
         purge-prefixes: ${{ env.CACHE_KEY_PREFIX }}

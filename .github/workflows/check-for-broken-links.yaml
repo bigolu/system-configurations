@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   schedule:
     # Run once every 6 days. I'd prefer to run it once a week, but GitHub Actions
-    # evicts all cache entries that haven't been accessed in more than a week[1] so
+    # evicts all cache entries that haven't been accessed in more than a week[1].
     # I'm choosing 6 days to be safe since the precise start time of a scheduled
     # workflow is not guaranteed.
     #
@@ -27,6 +27,8 @@ jobs:
         with:
           nix-dev-shell: ci-check-for-broken-links
           cache-nix-store: "true"
+          # The rationale for this value can be found in the description for this
+          # input.
           cache-key: ${{ hashFiles('flake.lock', 'nix/**', '.github/**') }}
       - name: Run lychee
         env:
