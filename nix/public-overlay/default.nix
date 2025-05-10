@@ -39,24 +39,33 @@ in
         # https://github.com/xzfc/cached-nix-shell/issues/34
         if
           [[ -n "''${NIX_SHEBANG_GC_ROOTS_DIR:-}" ]] &&
-            [[ ! -e "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/''${out:?}" ]]
+            [[ ! -e "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${final.coreutils}/bin/basename "''${out:?}")" ]]
         then
           if [[ ! -e "$NIX_SHEBANG_GC_ROOTS_DIR" ]]; then
             mkdir "$NIX_SHEBANG_GC_ROOTS_DIR"
           fi
 
-          nix build \
-            --out-link "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${final.coreutils}/bin/basename "''${stdenv:?}")" \
-            "''${stdenv:?}"
           printf '%s' "''${buildInputs:?}" |
             {
               readarray -t -d ' ' script_dependency_store_paths
+
+              script_dependency_store_paths+=("''${stdenv:?}")
+
+              shopt -s nullglob
+              for drv in "''${XDG_CACHE_HOME:-$HOME/.cache}/cached-nix-shell"/*.drv; do
+                if [[ -e $drv ]]; then
+                  script_dependency_store_paths+=("$(${final.coreutils}/bin/readlink --canonicalize "$drv")")
+                fi
+              done
+
               for path in "''${script_dependency_store_paths[@]}"; do
                 nix build \
                   --out-link "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${final.coreutils}/bin/basename "$path")" \
                   "$path"
               done
             }
+
+          touch "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${final.coreutils}/bin/basename "''${out:?}")"
         fi
 
         exec ${getExe interpreter} "$@"
