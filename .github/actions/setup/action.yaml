@@ -145,19 +145,20 @@ runs:
         # collect garbage until the store reaches a size of 1 kibibyte or there's no
         # garbage left to collect.
         gc-max-store-size: 1K
+    # We shouldn't use the dev shell in the nix-direnv cache when we restore
+    # from a prefix-matched cache entry on a cache miss. Since we missed the
+    # cache, we can't be sure that the dev shell is still valid.
+    - name: Invalidate the nix-direnv Cache
+      if: ${{ steps.cache-nix-action.outputs.hit-first-match == 'true' }}
+      shell: nix run --file nix/packages.nix bash-script -- {0}
+      env:
+        NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
+      run: nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . direnv-reload
     - name: Load the direnv Environment
       shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
-        HIT_FIRST_MATCH: ${{ steps.cache-nix-action.outputs.hit-first-match }}
       run: |
-        # We don't want to use the dev shell in the nix-direnv cache when we restore
-        # from a prefix match.
-        if [[ $HIT_FIRST_MATCH == 'true' ]] ; then
-          nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
-            exec . direnv-reload
-        fi
-
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
         # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
