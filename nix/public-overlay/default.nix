@@ -1,6 +1,6 @@
 final: prev:
 let
-  inherit (final.lib) getExe;
+  inherit (final.lib) getExe getExe';
   createMkShellWrapper = import ./create-mk-shell-wrapper.nix final prev;
 in
 {
@@ -14,6 +14,15 @@ in
       name ? "nix-shell-interpreter",
       interpreter,
     }:
+    let
+      # I'm not adding these to `runtimeInputs` because I don't want them to be put
+      # on the `PATH`.
+      inherit (final) coreutils;
+      basename = getExe' coreutils "basename";
+      readlink = getExe' coreutils "readlink";
+      mkdir = getExe' coreutils "mkdir";
+      touch = getExe' coreutils "touch";
+    in
     final.writeShellApplication {
       inherit name;
       runtimeInputs = [ interpreter ];
@@ -37,35 +46,37 @@ in
         #
         # TODO: Maybe comment here with this workaround:
         # https://github.com/xzfc/cached-nix-shell/issues/34
-        if
-          [[ -n "''${NIX_SHEBANG_GC_ROOTS_DIR:-}" ]] &&
-            [[ ! -e "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${final.coreutils}/bin/basename "''${out:?}")" ]]
-        then
-          if [[ ! -e "$NIX_SHEBANG_GC_ROOTS_DIR" ]]; then
-            mkdir "$NIX_SHEBANG_GC_ROOTS_DIR"
-          fi
+        #
+        # I create this file after making the roots so I know not to do it again the
+        # next time the script is run.
+        completion_marker="''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${basename} "''${out:?}")"
+        if [[ -n "''${NIX_SHEBANG_GC_ROOTS_DIR:-}" ]] && [[ ! -e "$completion_marker" ]]; then
+          ${mkdir} --parents "$NIX_SHEBANG_GC_ROOTS_DIR"
 
+          # Normally, I'd use a herestring (<<<), but that adds a newline to the end
+          # of the string and since I split the string on spaces, the last piece
+          # would have a newline at the end.
           printf '%s' "''${buildInputs:?}" |
             {
-              readarray -t -d ' ' script_dependency_store_paths
+              readarray -t -d ' ' gc_roots_to_make
 
-              script_dependency_store_paths+=("''${stdenv:?}")
+              gc_roots_to_make+=("''${stdenv:?}")
 
               shopt -s nullglob
-              for drv in "''${XDG_CACHE_HOME:-$HOME/.cache}/cached-nix-shell"/*.drv; do
-                if [[ -e $drv ]]; then
-                  script_dependency_store_paths+=("$(${final.coreutils}/bin/readlink --canonicalize "$drv")")
+              for drv_symlink in "''${XDG_CACHE_HOME:-$HOME/.cache}/cached-nix-shell"/*.drv; do
+                if [[ -e $drv_symlink ]]; then
+                  gc_roots_to_make+=("$(${readlink} --canonicalize "$drv_symlink")")
                 fi
               done
 
-              for path in "''${script_dependency_store_paths[@]}"; do
+              for store_path in "''${gc_roots_to_make[@]}"; do
                 nix build \
-                  --out-link "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${final.coreutils}/bin/basename "$path")" \
-                  "$path"
+                  --out-link "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${basename} "$store_path")" \
+                  "$store_path"
               done
             }
 
-          touch "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${final.coreutils}/bin/basename "''${out:?}")"
+          ${touch} "$completion_marker"
         fi
 
         exec ${getExe interpreter} "$@"
