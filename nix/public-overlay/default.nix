@@ -46,37 +46,39 @@ in
         #
         # TODO: Maybe comment here with this workaround:
         # https://github.com/xzfc/cached-nix-shell/issues/34
-        #
-        # I create this file after making the roots so I know not to do it again the
-        # next time the script is run.
-        completion_marker="''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${basename} "''${out:?}")"
-        if [[ -n "''${NIX_SHEBANG_GC_ROOTS_DIR:-}" ]] && [[ ! -e "$completion_marker" ]]; then
-          ${mkdir} --parents "$NIX_SHEBANG_GC_ROOTS_DIR"
+        if [[ -n "''${NIX_SHEBANG_GC_ROOTS_DIR:-}" ]]; then
+          # I create this file after making the roots so I know not to do it again the
+          # next time the script is run.
+          completion_marker="$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "''${out:?}")"
 
-          # Normally, I'd use a herestring (<<<), but that adds a newline to the end
-          # of the string and since I split the string on spaces, the last piece
-          # would have a newline at the end.
-          printf '%s' "''${buildInputs:?}" |
-            {
-              readarray -t -d ' ' gc_roots_to_make
+          if [[ ! -e "$completion_marker" ]]; then
+            ${mkdir} --parents "$NIX_SHEBANG_GC_ROOTS_DIR"
 
-              gc_roots_to_make+=("''${stdenv:?}")
+            # Normally, I'd use a herestring (<<<), but that adds a newline to the end
+            # of the string and since I split the string on spaces, the last piece
+            # would have a newline at the end.
+            printf '%s' "''${buildInputs:?}" |
+              {
+                readarray -t -d ' ' gc_roots_to_make
 
-              shopt -s nullglob
-              for drv_symlink in "''${XDG_CACHE_HOME:-$HOME/.cache}/cached-nix-shell"/*.drv; do
-                if [[ -e $drv_symlink ]]; then
-                  gc_roots_to_make+=("$(${readlink} --canonicalize "$drv_symlink")")
-                fi
-              done
+                gc_roots_to_make+=("''${stdenv:?}")
 
-              for store_path in "''${gc_roots_to_make[@]}"; do
-                nix build \
-                  --out-link "''${NIX_SHEBANG_GC_ROOTS_DIR:?}/$(${basename} "$store_path")" \
-                  "$store_path"
-              done
-            }
+                shopt -s nullglob
+                for drv_symlink in "''${XDG_CACHE_HOME:-$HOME/.cache}/cached-nix-shell"/*.drv; do
+                  if [[ -e $drv_symlink ]]; then
+                    gc_roots_to_make+=("$(${readlink} --canonicalize "$drv_symlink")")
+                  fi
+                done
 
-          ${touch} "$completion_marker"
+                for store_path in "''${gc_roots_to_make[@]}"; do
+                  nix build \
+                    --out-link "$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "$store_path")" \
+                    "$store_path"
+                done
+              }
+
+            ${touch} "$completion_marker"
+          fi
         fi
 
         exec ${getExe interpreter} "$@"
