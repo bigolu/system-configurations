@@ -34,37 +34,18 @@ yabai -m rule --add label=installer app="^Installer$" title=".*" manage=off
 yabai -m rule --add label=finder app="^Finder$" title="^Copy$" manage=off
 yabai -m rule --add label=firefox app="^Firefox$" title="^Log in to your PayPal account$" manage=off
 
-# Only add padding for a space if there is more than one window in it
-function set_padding {
-  window_count=$(
-    yabai -m query --windows --space |
-      jq 'map(select(."is-visible" == true and ."is-floating" == false)) | length'
-  )
-  if ((window_count > 1)); then
-    value=10
-  else
-    value=0
-  fi
+padding=10
+yabai -m config --space mouse bottom_padding "$padding"
+yabai -m config --space mouse top_padding "$padding"
+yabai -m config --space mouse left_padding "$padding"
+yabai -m config --space mouse right_padding "$padding"
+yabai -m config --space mouse window_gap "$padding"
 
-  yabai -m config --space mouse bottom_padding "$value"
-  yabai -m config --space mouse top_padding "$value"
-  yabai -m config --space mouse left_padding "$value"
-  yabai -m config --space mouse right_padding "$value"
-  yabai -m config --space mouse window_gap "$value"
-}
-call_set_padding="$(declare -pf set_padding)"$'\n''set_padding'
-eval "$call_set_padding"
-set_padding_events=(window_created window_destroyed window_minimized window_deminimized window_moved window_resized)
-for event in "${set_padding_events[@]}"; do
-  yabai -m signal --add "label=set_padding_$event" "event=$event" action="$call_set_padding"
-done
-
-# Hide the stackline stack indicators if the current window is fullscreen or
-# maximized and not in a stack.
+# Hide the stack indicators if the current window is maximized and not in a stack.
 function hide_stackline {
   if
     yabai -m query --windows --window |
-      jq --exit-status '."is-native-fullscreen" or (."has-fullscreen-zoom" and ."stack-index" == 0)' 1>/dev/null 2>&1
+      jq --exit-status '."has-fullscreen-zoom" and ."stack-index" == 0' 1>/dev/null 2>&1
   then
     alpha=0
   else
