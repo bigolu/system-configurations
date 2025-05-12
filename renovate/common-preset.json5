@@ -151,6 +151,14 @@
       enabled: false,
     },
     {
+      // Unlike the package rule below, this matches updates to _individual_ flake
+      // inputs. I disable this because inputs like nixpkgs are shared by many other
+      // inputs so if it gets updated, anything that uses it should get updated too.
+      matchManagers: ["nix"],
+      matchUpdateTypes: ["digest"],
+      enabled: false,
+    },
+    {
       // This matches flake input updates which may be breaking so don't automerge
       matchManagers: ["nix"],
       matchUpdateTypes: ["lockFileMaintenance"],
