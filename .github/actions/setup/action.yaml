@@ -100,16 +100,16 @@ runs:
         # directory would continue to grow indefinitely. This happens because on a
         # cache miss, we restore from the most recently accessed cache entry that
         # matches this prefix so we have to avoid accumulating data from old cache
-        # entries over time. See `direnv/ci.bash` for what type of data would be in
-        # `.direnv`.
+        # entries over time. See the definition of `XDG_CACHE_HOME` further down for
+        # what type of data would be in `.direnv`.
         #
         # SYNC: CACHE_SCOPE
         CACHE_KEY_PREFIX: nix-store-${{ steps.get-year.outputs.year }}-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
       with:
         paths: |
-          # See `direnv/ci.bash` for why this is being cached. See the definition of
-          # `CACHE_KEY_PREFIX` for how we prevent this directory from growing
-          # indefinitely.
+          # See the definition of `XDG_CACHE_HOME` further down for why this is being
+          # cached. See the definition of `CACHE_KEY_PREFIX` for how we prevent this
+          # directory from growing indefinitely.
           .direnv
           # By not caching this, only dependencies for shebang scripts executed in
           # _this_ job run will be considered GC roots. In other words, it won't
@@ -145,19 +145,35 @@ runs:
         # collect garbage until the store reaches a size of 1 kibibyte or there's no
         # garbage left to collect.
         gc-max-store-size: 1K
+    # Composite actions don't support a top-level env key so I'm using GITHUB_ENV
+    # instead.
+    - name: Set Common Environment Variables
+      shell: nix run --file nix/packages.nix bash-script -- {0}
+      env:
+        NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
+        NIX_SHEBANG_GC_ROOTS_DIR: ${{ env.GITHUB_WORKSPACE }}/.direnv/nix-shebang-dependencies
+        # This way, any programs launched within the direnv environment will store
+        # their cache in the direnv layout directory. That entire directory will then
+        # be cached in CI, along with the Nix store. Examples of what will be in the
+        # cache:
+        #   - Any scripts direnv fetches when `source_url` is used e.g. nix-direnv
+        #   - nix-direnv's cache
+        #   - cached-nix-shell's cache
+        #   - Nix's flake evaluation cache
+        XDG_CACHE_HOME: ${{ env.GITHUB_WORKSPACE }}/.direnv/xdg-cache-home
+      run: |
+        echo "NIX_DEV_SHELL=$NIX_DEV_SHELL" >>"$GITHUB_ENV"
+        echo "NIX_SHEBANG_GC_ROOTS_DIR=$NIX_SHEBANG_GC_ROOTS_DIR" >>"$GITHUB_ENV"
+        echo "XDG_CACHE_HOME=$XDG_CACHE_HOME" >>"$GITHUB_ENV"
     # We shouldn't use the dev shell in the nix-direnv cache when we restore
     # from a prefix-matched cache entry on a cache miss. Since we missed the
     # cache, we can't be sure that the dev shell is still valid.
     - name: Invalidate the nix-direnv Cache
       if: ${{ steps.cache-nix-action.outputs.hit-first-match == 'true' }}
       shell: nix run --file nix/packages.nix bash-script -- {0}
-      env:
-        NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
       run: nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . direnv-reload
     - name: Load the direnv Environment
       shell: nix run --file nix/packages.nix bash-script -- {0}
-      env:
-        NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
       run: |
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"

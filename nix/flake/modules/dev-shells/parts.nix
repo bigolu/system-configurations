@@ -96,11 +96,7 @@ rec {
       inputsFrom = [ taskRunner ];
       # For the `run` steps in CI workflows
       packages = [ pkgs.bash-script ];
-      shellHook =
-        ''
-          export NIX_SHEBANG_GC_ROOTS_DIR="''${direnv_layout_dir:-$PWD/.direnv}/nix-shebang-dependencies"
-        ''
-        + optionalString isLinux localeArchiveHook;
+      shellHook = optionalString isLinux localeArchiveHook;
     };
 
   gozip =
