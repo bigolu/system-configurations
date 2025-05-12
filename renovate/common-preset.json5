@@ -100,6 +100,7 @@
   nix: {
     // Nix support is currently in beta so you have to opt in.
     enabled: true,
+    lockFileMaintenance: { enabled: true },
   },
   packageRules: [
     // This rule enables auto merge for all post-1.0, minor/patch version changes.
