@@ -100,7 +100,11 @@
   nix: {
     // Nix support is currently in beta so you have to opt in.
     enabled: true,
-    lockFileMaintenance: { enabled: true },
+    lockFileMaintenance: {
+      enabled: true,
+      // Updates to the flake.lock may be breaking so don't automerge
+      automerge: false,
+    },
   },
   packageRules: [
     // This rule enables auto merge for all post-1.0, minor/patch version changes.
@@ -158,12 +162,6 @@
       matchManagers: ["nix"],
       matchUpdateTypes: ["digest"],
       enabled: false,
-    },
-    {
-      // This matches flake input updates which may be breaking so don't automerge
-      matchManagers: ["nix"],
-      matchUpdateTypes: ["lockFileMaintenance"],
-      automerge: false,
     },
   ],
 }
