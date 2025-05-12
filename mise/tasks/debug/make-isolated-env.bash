@@ -23,7 +23,7 @@ shopt -s inherit_errexit
 
 eval "user_env_vars=(${usage_var:-})"
 env_vars=(
-  HOME="$(mktemp --directory)"
+  HOME="$HOME"
   "${user_env_vars[@]}"
 )
 

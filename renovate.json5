@@ -13,6 +13,7 @@
     // Automerge everything
     {
       matchPackageNames: ["*"],
+      matchUpdateTypes: ["lockFileMaintenance"],
 
       automerge: true,
       // I'm using the branch type, instead of the pull request type, for auto merge

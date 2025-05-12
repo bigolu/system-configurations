@@ -76,6 +76,7 @@ moduleContext@{ lib, utils, ... }:
         packages = with pkgs; [
           renovate
           gitMinimal
+          go
         ];
         shellHook = ''
           export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
