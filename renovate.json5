@@ -9,21 +9,21 @@
   ],
   // Automerge even if no tests are run
   ignoreTests: true,
+  // Automerge everything
+  lockFileMaintenance: {
+    enabled: true,
+
+    automerge: true,
+    // I'm using the branch type, instead of the pull request type, for auto merge
+    // so I don't get notifications for them.
+    automergeType: "branch",
+    // The `common-preset` adds this prefix to certain update types so I'll remove
+    // it.
+    additionalBranchPrefix: "",
+  },
   packageRules: [
-    // Automerge everything
     {
       matchPackageNames: ["*"],
-
-      automerge: true,
-      // I'm using the branch type, instead of the pull request type, for auto merge
-      // so I don't get notifications for them.
-      automergeType: "branch",
-      // The `common-preset` adds this prefix to certain update types so I'll remove
-      // it.
-      additionalBranchPrefix: "",
-    },
-    {
-      matchUpdateTypes: ["lockFileMaintenance"],
 
       automerge: true,
       // I'm using the branch type, instead of the pull request type, for auto merge
