@@ -156,9 +156,14 @@
       enabled: false,
     },
     {
-      // Unlike the package rule below, this matches updates to _individual_ flake
-      // inputs. I disable this because inputs like nixpkgs are shared by many other
-      // inputs so if it gets updated, anything that uses it should get updated too.
+      // This disables updates to individual flake inputs. For certain inputs, like
+      // nixpkgs, I have their dependents all use the same version/commit of them. I
+      // do this because having multiple versions of them would cost more space and
+      // evaluation time[1]. Since I do this, I don't want to update those inputs
+      // without updating all of their dependents since they will now have to use the
+      // new version of the input.
+      //
+      // [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
       matchManagers: ["nix"],
       matchUpdateTypes: ["digest"],
       enabled: false,
