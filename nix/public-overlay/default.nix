@@ -64,6 +64,13 @@ in
                 gc_roots_to_make+=("''${stdenv:?}")
 
                 shopt -s nullglob
+                # TODO: I only want the derivation for the nix shell of the currently
+                # running shebang script, but the file name of the derivation is
+                # derived from the flags specified in the shebang[1], which I can't
+                # easily get from here. Instead, I just make GC roots for all
+                # derivations.
+                #
+                # [1]: https://github.com/xzfc/cached-nix-shell/blob/62e282be819646e3cdcd458af3f222e8f09e62ca/src/main.rs#L456
                 for drv_symlink in "''${XDG_CACHE_HOME:-$HOME/.cache}/cached-nix-shell"/*.drv; do
                   if [[ -e $drv_symlink ]]; then
                     gc_roots_to_make+=("$(${readlink} --canonicalize "$drv_symlink")")
