@@ -100,10 +100,6 @@
   nix: {
     // Nix support is currently in beta so you have to opt in.
     enabled: true,
-    // Flake inputs don't support version constraints so lockFileMaintenance would
-    // update all inputs to their latest version. As such, I'd rather update the
-    // inputs separately.
-    lockFileMaintenance: { enabled: false },
   },
   packageRules: [
     // This rule enables auto merge for all post-1.0, minor/patch version changes.
@@ -153,6 +149,12 @@
       matchDepNames: ["macos"],
       matchCurrentVersion: "13",
       enabled: false,
+    },
+    {
+      // This matches flake input updates which may be breaking so don't automerge
+      matchManagers: ["nix"],
+      matchUpdateTypes: ["lockFileMaintenance"],
+      automerge: false,
     },
   ],
 }
