@@ -23,6 +23,8 @@
       additionalBranchPrefix: "",
     },
     {
+      // For `lockFileMaintenance`, there is not `packageName`, I have to use a
+      // separate package rule to match it.
       matchUpdateTypes: ["lockFileMaintenance"],
 
       // The "group:all" preset disables lockFileMaintenance so I'm enabling it and
