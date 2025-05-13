@@ -181,3 +181,8 @@ vim.api.nvim_create_autocmd("TermOpen", {
   end,
 })
 -- }}}
+
+-- Breakopt {{{
+vim.o.breakindent = true
+vim.o.showbreak = "↳"
+-- }}}
