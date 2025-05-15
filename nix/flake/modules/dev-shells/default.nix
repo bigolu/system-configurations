@@ -32,20 +32,6 @@ moduleContext@{ lib, utils, ... }:
           (devShells: devShells // { default = devShells.${default}; })
           (devShells: { inherit devShells; })
         ];
-
-      addLycheeToLefthookExclude = ''
-        tag='lychee'
-
-        if [[ -z ''${LEFTHOOK_EXCLUDE+set} ]]; then
-          export LEFTHOOK_EXCLUDE=""
-        fi
-
-        if [[ -z $LEFTHOOK_EXCLUDE ]]; then
-          LEFTHOOK_EXCLUDE="$tag"
-        else
-          LEFTHOOK_EXCLUDE+=",$tag"
-        fi
-      '';
     in
     makeDevShellOutputs {
       default = "development";
@@ -63,7 +49,9 @@ moduleContext@{ lib, utils, ... }:
           tasks
           vsCode
         ];
-        shellHook = addLycheeToLefthookExclude;
+        shellHook = ''
+          export LEFTHOOK_EXCLUDE='lychee'
+        '';
       };
 
       ci-essentials = { };
