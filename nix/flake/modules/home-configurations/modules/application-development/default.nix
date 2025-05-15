@@ -1,16 +1,28 @@
 {
   pkgs,
+  lib,
   ...
 }:
+let
+  inherit (lib) optionalAttrs;
+  inherit (pkgs.stdenv) isLinux;
+in
 {
   imports = [
     ./podman.nix
   ];
 
+  services.flatpak = optionalAttrs isLinux {
+    packages = [
+      "sh.loft.devpod"
+    ];
+  };
+
   home.packages = with pkgs; [
     cloudflared
     doppler
     direnv
+    devpod
   ];
 
   repository = {
