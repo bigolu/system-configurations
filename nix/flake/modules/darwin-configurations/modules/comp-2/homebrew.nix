@@ -19,6 +19,7 @@
       "element"
       "nightfall"
       "podman-desktop"
+      "devpod"
     ];
 
     caskArgs = {
