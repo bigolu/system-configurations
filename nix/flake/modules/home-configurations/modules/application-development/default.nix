@@ -22,7 +22,6 @@ in
     cloudflared
     doppler
     direnv
-    devpod
   ];
 
   repository = {
