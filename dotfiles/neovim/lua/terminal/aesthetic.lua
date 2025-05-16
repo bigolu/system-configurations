@@ -3,7 +3,7 @@ vim.o.breakat = " ^I"
 vim.o.cursorline = true
 vim.o.cursorlineopt = "number"
 vim.o.wrap = true
-vim.o.listchars = "tab:¬-,space:·"
+vim.o.listchars = "tab: ,space:·"
 vim.opt.fillchars:append("eob: ,lastline:>")
 
 vim.cmd.colorscheme("bigolu")
