@@ -89,7 +89,6 @@ runs:
       shell: bash
       run: echo "year=$(date '+%Y')" >>"${GITHUB_OUTPUT}"
     - uses: nix-community/cache-nix-action@v6
-      id: cache-nix-action
       if: ${{ inputs.cache-nix-store == 'true' }}
       env:
         # The `cache-key` input will be prefixed by this value. This way, cache
@@ -111,10 +110,18 @@ runs:
           # cached. See the definition of `CACHE_KEY_PREFIX` for how we prevent this
           # directory from growing indefinitely.
           .direnv
+
           # By not caching this, only dependencies for shebang scripts executed in
           # _this_ job run will be considered GC roots. In other words, it won't
           # accumulate over time.
           !.direnv/nix-shebang-dependencies
+
+          # Don't cache the dev shell stored by nix-direnv. Since our cache
+          # invalidation isn't perfect, we may consider a cache valid when it
+          # actually isn't. In the case of the Nix store, this is fine since any
+          # missing dependencies will just be downloaded, but with nix-direnv we
+          # risk loading the wrong dev shell.
+          !.direnv/flake-profile-**
         # The key used to store/restore a cache entry
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key == 'commit-hash' && github.sha || hashFiles('flake.lock', 'nix/**', '.github/**', 'mise/**') }}
         # If there's a cache miss, restore from the most recently used cache entry
@@ -143,9 +150,7 @@ runs:
         # collect garbage until the store reaches a size of 1 kibibyte or there's no
         # garbage left to collect.
         gc-max-store-size: 1K
-    # Composite actions don't support a top-level env key so I'm using GITHUB_ENV
-    # instead.
-    - name: Set Common Environment Variables
+    - name: Load the direnv Environment
       shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
@@ -158,19 +163,6 @@ runs:
         #   - cached-nix-shell's cache
         #   - Nix's flake evaluation cache
         XDG_CACHE_HOME: ${{ github.workspace }}/.direnv/xdg-cache-home
-      run: |
-        echo "NIX_DEV_SHELL=$NIX_DEV_SHELL" >>"$GITHUB_ENV"
-        echo "NIX_SHEBANG_GC_ROOTS_DIR=$NIX_SHEBANG_GC_ROOTS_DIR" >>"$GITHUB_ENV"
-        echo "XDG_CACHE_HOME=$XDG_CACHE_HOME" >>"$GITHUB_ENV"
-    # We shouldn't use the dev shell in the nix-direnv cache when we restore
-    # from a prefix-matched cache entry on a cache miss. Since we missed the
-    # cache, we can't be sure that the dev shell is still valid.
-    - name: Invalidate the nix-direnv Cache
-      if: ${{ steps.cache-nix-action.outputs.hit-first-match == 'true' }}
-      shell: nix run --file nix/packages.nix bash-script -- {0}
-      run: nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . direnv-reload
-    - name: Load the direnv Environment
-      shell: nix run --file nix/packages.nix bash-script -- {0}
       run: |
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
