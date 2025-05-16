@@ -8,6 +8,10 @@
       extraFlags = [ "--quiet" ];
     };
 
+    brews = [
+      "podman"
+    ];
+
     casks = [
       "ghostty"
       "xcodes"

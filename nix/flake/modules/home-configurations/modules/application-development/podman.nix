@@ -53,7 +53,8 @@ in
         in
         lib.hm.dag.entryAfter [ "writeBoundary" ] ''
           OLD_PATH="$PATH"
-          PATH="${dependencies}:$PATH"
+          # /usr/bin is required since podman needs `ssh-keygen`
+          PATH="${dependencies}:$PATH:/usr/bin"
 
           machine_count=$(podman machine list --format json | jq length)
           if (($machine_count == 0)); then
