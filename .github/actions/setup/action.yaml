@@ -67,14 +67,6 @@ inputs:
         "commit-hash" - See idea #2 above
     required: false
     default: commit-hash
-  direnv-layout-dir:
-    required: false
-    default: ${{ github.workspace }}/.direnv
-    description: Don't set this input, it's only for internal use.
-  nix-shebang-gc-roots-dir:
-    required: false
-    default: ${{ inputs.direnv-layout-dir }}/nix-shebang-dependencies
-    description: Don't set this input, it's only for internal use.
 runs:
   using: "composite"
   steps:
@@ -103,33 +95,19 @@ runs:
         # entries will be scoped by type (nix-store), workflow, job, and operating
         # system.
         #
-        # I also added the year to the prefix because otherwise, the `.direnv`
-        # directory would continue to grow indefinitely. This happens because on a
-        # cache miss, we restore from the most recently accessed cache entry that
-        # matches this prefix so we have to avoid accumulating data from old cache
-        # entries over time. See the definition of `XDG_CACHE_HOME` further down for
-        # what type of data would be in `.direnv`.
+        # I also added the year to the prefix because otherwise, some cached
+        # directories, like ~/.cache/cached-nix-shell, would continue to grow
+        # indefinitely. This happens because on a cache miss, we restore from the
+        # most recently accessed cache entry that matches this prefix so we have to
+        # avoid accumulating data from old cache entries over time.
         #
         # SYNC: CACHE_SCOPE
-        CACHE_KEY_PREFIX: nix-store-${{ steps.get-year.outputs.year }}-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
+        CACHE_KEY_PREFIX: ${{ steps.get-year.outputs.year }}-nix-store-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
       with:
         paths: |
-          # See the definition of `XDG_CACHE_HOME` further down for why this is being
-          # cached. See the definition of `CACHE_KEY_PREFIX` for how we prevent this
-          # directory from growing indefinitely.
-          ${{ inputs.direnv-layout-dir }}
-
-          # By not caching this, only dependencies for shebang scripts executed in
-          # _this_ job run will be considered GC roots. In other words, it won't
-          # accumulate over time.
-          !${{ inputs.nix-shebang-gc-roots-dir }}
-
-          # Don't cache the dev shell stored by nix-direnv. Since our cache
-          # invalidation isn't perfect, we may consider a cache valid when it
-          # actually isn't. In the case of the Nix store, this is fine since any
-          # missing dependencies will just be downloaded, but with nix-direnv we
-          # risk loading the wrong dev shell.
-          !${{ inputs.direnv-layout-dir }}/flake-profile-**
+          ~/.cache/nix
+          ~/.cache/cached-nix-shell
+          ~/.cache/direnv
         # The key used to store/restore a cache entry
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key == 'commit-hash' && github.sha || hashFiles('flake.lock', 'nix/**', '.github/**', 'mise/**') }}
         # If there's a cache miss, restore from the most recently used cache entry
@@ -162,15 +140,7 @@ runs:
       shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
-        NIX_SHEBANG_GC_ROOTS_DIR: ${{ inputs.nix-shebang-gc-roots-dir }}
-        # This way, any programs launched within the direnv environment will store
-        # their cache in the direnv layout directory. That entire directory will then
-        # be cached. Examples of what will be in the cache:
-        #   - Any scripts direnv fetches when `source_url` is used e.g. nix-direnv
-        #   - nix-direnv's cache
-        #   - cached-nix-shell's cache
-        #   - Nix's flake evaluation cache
-        XDG_CACHE_HOME: ${{ inputs.direnv-layout-dir }}/xdg-cache-home
+        NIX_SHEBANG_GC_ROOTS_DIR: ${{ github.workspace }}/.direnv/nix-shebang-dependencies
       run: |
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"

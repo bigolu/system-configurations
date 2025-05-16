@@ -14,6 +14,9 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+red='\e[31m'
+reset='\e[0m'
+
 # GitHub Actions globs
 quoted_globs="$(
   rg --no-filename --only-matching 'hashFiles\((.*?)\)' --replace '$1' .github |
@@ -22,8 +25,15 @@ quoted_globs="$(
     rg ', *' --replace ' '
 )"
 eval "globs=($quoted_globs)"
+found_error=
 # shellcheck disable=2154
 # I assigned `globs` in the eval statement above
 for glob in "${globs[@]}"; do
-  rg --quiet --max-count 1 --glob "$glob" '.*'
+  if ! rg --quiet --max-count 1 --glob "$glob" '.*'; then
+    echo -e "${red}[error] This glob no longer matches any files: ${glob}${reset}" >&2
+    found_error='true'
+  fi
 done
+if [[ $found_error == 'true' ]]; then
+  exit 1
+fi
