@@ -67,6 +67,14 @@ inputs:
         "commit-hash" - See idea #2 above
     required: false
     default: commit-hash
+  direnv-layout-dir:
+    required: false
+    default: ${{ github.workspace }}/.direnv
+    description: Don't set this input, it's only for internal use.
+  nix-shebang-gc-roots-dir:
+    required: false
+    default: ${{ inputs.direnv-layout-dir }}/nix-shebang-dependencies
+    description: Don't set this input, it's only for internal use.
 runs:
   using: "composite"
   steps:
@@ -109,19 +117,19 @@ runs:
           # See the definition of `XDG_CACHE_HOME` further down for why this is being
           # cached. See the definition of `CACHE_KEY_PREFIX` for how we prevent this
           # directory from growing indefinitely.
-          .direnv
+          ${{ inputs.direnv-layout-dir }}
 
           # By not caching this, only dependencies for shebang scripts executed in
           # _this_ job run will be considered GC roots. In other words, it won't
           # accumulate over time.
-          !.direnv/nix-shebang-dependencies
+          !${{ inputs.nix-shebang-gc-roots-dir }}
 
           # Don't cache the dev shell stored by nix-direnv. Since our cache
           # invalidation isn't perfect, we may consider a cache valid when it
           # actually isn't. In the case of the Nix store, this is fine since any
           # missing dependencies will just be downloaded, but with nix-direnv we
           # risk loading the wrong dev shell.
-          !.direnv/flake-profile-**
+          !${{ inputs.direnv-layout-dir }}/flake-profile-**
         # The key used to store/restore a cache entry
         primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key == 'commit-hash' && github.sha || hashFiles('flake.lock', 'nix/**', '.github/**', 'mise/**') }}
         # If there's a cache miss, restore from the most recently used cache entry
@@ -154,7 +162,7 @@ runs:
       shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
-        NIX_SHEBANG_GC_ROOTS_DIR: ${{ github.workspace }}/.direnv/nix-shebang-dependencies
+        NIX_SHEBANG_GC_ROOTS_DIR: ${{ inputs.nix-shebang-gc-roots-dir }}
         # This way, any programs launched within the direnv environment will store
         # their cache in the direnv layout directory. That entire directory will then
         # be cached. Examples of what will be in the cache:
@@ -162,7 +170,7 @@ runs:
         #   - nix-direnv's cache
         #   - cached-nix-shell's cache
         #   - Nix's flake evaluation cache
-        XDG_CACHE_HOME: ${{ github.workspace }}/.direnv/xdg-cache-home
+        XDG_CACHE_HOME: ${{ inputs.direnv-layout-dir }}/xdg-cache-home
       run: |
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
