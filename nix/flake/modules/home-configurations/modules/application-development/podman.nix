@@ -7,6 +7,7 @@
 let
   inherit (lib)
     optionalAttrs
+    optionals
     hm
     makeBinPath
     ;
@@ -18,9 +19,11 @@ in
     "containers/registries.conf".source = "containers/registries.conf";
   };
 
-  home.packages = with pkgs; [
-    podman
-  ];
+  home.packages =
+    with pkgs;
+    optionals isLinux [
+      podman
+    ];
 
   services.flatpak = optionalAttrs isLinux {
     packages = [
@@ -102,45 +105,29 @@ in
       '';
     });
 
-  system.activation =
-    {
-      # TODO: Podman Desktop looks in a static list of directories for its dependencies
-      # so I'll make symlinks to the dependencies inside of one of the directories.
-      # Maybe they could launch a login shell to get the PATH instead or respect the
-      # `engine.helper_binaries_dir` field in
-      # `$XDG_CONFIG_HOME/containers/containers.conf`.
-      linkPodmanPrograms = hm.dag.entryAfter [ "writeBoundary" ] ''
-        for path in "${pkgs.podman}/bin" "${pkgs.podman}/libexec/podman"; do
-          sudo ${pkgs.coreutils}/bin/ln \
-            --symbolic --no-dereference --force \
-            "$path/"* \
-            /usr/local/bin/
-        done
-      '';
-    }
-    // optionalAttrs isLinux {
-      # For rootless containers, my user needs to be able to create {u,g}id maps in
-      # its child processes[1]. `apt-get install uidmap` would also do this, but I
-      # want to manage my entire configuration with nix.
-      #
-      # [1]: https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
-      configureSubIds = hm.dag.entryAfter [ "writeBoundary" ] ''
-        sudo "${pkgs.shadow}/bin/usermod" \
-          --add-subuids 100000-165535 \
-          --add-subgids 100000-165535 \
-          ${username}
+  system.activation = optionalAttrs isLinux {
+    # For rootless containers, my user needs to be able to create {u,g}id maps in
+    # its child processes[1]. `apt-get install uidmap` would also do this, but I
+    # want to manage my entire configuration with nix.
+    #
+    # [1]: https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
+    configureSubIds = hm.dag.entryAfter [ "writeBoundary" ] ''
+      sudo "${pkgs.shadow}/bin/usermod" \
+        --add-subuids 100000-165535 \
+        --add-subgids 100000-165535 \
+        ${username}
 
-        # The programs below need setuid
-        for file in ${pkgs.shadow}/bin/new[ug]idmap; do
-          basename="''${file##*/}"
-          destination=/usr/local/bin/"$basename"
-          sudo cp "$file" "$destination"
+      # The programs below need setuid
+      for file in ${pkgs.shadow}/bin/new[ug]idmap; do
+        basename="''${file##*/}"
+        destination=/usr/local/bin/"$basename"
+        sudo cp "$file" "$destination"
 
-          # This is the user, group, and mode that was set on the newuidmap installed
-          # by APT.
-          sudo chown root:root "$destination"
-          sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
-        done
-      '';
-    };
+        # This is the user, group, and mode that was set on the newuidmap installed
+        # by APT.
+        sudo chown root:root "$destination"
+        sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
+      done
+    '';
+  };
 }
