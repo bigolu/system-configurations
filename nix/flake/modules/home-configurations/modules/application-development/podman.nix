@@ -23,6 +23,7 @@ in
     with pkgs;
     optionals isLinux [
       podman
+      podman-compose
     ];
 
   services.flatpak = optionalAttrs isLinux {

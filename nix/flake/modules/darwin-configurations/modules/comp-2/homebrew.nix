@@ -10,6 +10,7 @@
 
     brews = [
       "podman"
+      "podman-compose"
     ];
 
     casks = [
