@@ -44,8 +44,8 @@ function set_up_nix {
 
   # renovate: nix-direnv
   source_url \
-    'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.6/direnvrc' \
-    'sha256-RYcUJaRMf8oF5LznDrlCXbkOQrywm0HDv1VjYGaJGdM='
+    'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.7/direnvrc' \
+    'sha256-bn8WANE5a91RusFmRI7kS751ApelG02nMcwRekC/qzc='
   use flake ".#${NIX_DEV_SHELL:?}"
 }
 

@@ -122,11 +122,6 @@ function __create_cd_function --on-event fish_prompt
     alias cdh __zoxide_zi
 end
 
-# direnv
-# Hide logs
-set --global --export DIRENV_LOG_FORMAT ''
-set -g direnv_fish_mode disable_arrow # trigger direnv at prompt only
-
 # vscode
 #
 # Clear SHELL because my config for the OS default shell only launches fish if the current

@@ -172,6 +172,57 @@ let
         BASH_ENV=${initFile} exec bash --noprofile --norc "$@"
       '';
     };
+
+  cached-nix-shell =
+    let
+      # These are the files needed by packages.nix and nixpkgs.nix
+      source =
+        final.lib.pipe
+          [
+            "flake.nix"
+            "flake.lock"
+            "nix"
+          ]
+          [
+            (map (relativePath: projectRoot + "/${relativePath}"))
+            fileset.unions
+            (
+              union:
+              fileset.toSource {
+                root = projectRoot;
+                fileset = union;
+              }
+            )
+          ];
+    in
+    final.writeShellApplication {
+      name = "cached-nix-shell";
+      meta.description = ''
+        A wrapper for cached-nix-shell that adds a nixpkgs entry to NIX_PATH before
+        calling the real cached-nix-shell.
+      '';
+      text = ''
+        # cached-nix-shell looks up nixpkgs on the nix path so it can use
+        # nixpkgs.runCommandNoCC to run the script. You can also set the nixpkgs used
+        # by nix-shell by using the -I flag in the script shebang, but I don't do
+        # that since I would have to specify the path to nixpkgs.nix in every script.
+        #
+        # I intentionally set this variable through a wrapper and not through a
+        # devShell to avoid breaking `comma`[1] in a development environment. If I
+        # did set it, then comma would use this nixpkgs instead of the one for my
+        # system. Even if I were ok with that, I didn't build an index for this
+        # nixpkgs so comma wouldn't be able to use it anyway.
+        #
+        # [1]: https://github.com/nix-community/comma
+        export NIX_PATH="nixpkgs=${source}/nix/nixpkgs.nix''${NIX_PATH:+:$NIX_PATH}"
+
+        # To avoid specifying the package set path in every script's nix shebang, I
+        # export a variable with the path.
+        export NIX_PACKAGES=${source}/nix/packages.nix
+
+        ${final.lib.getExe prev.cached-nix-shell} "$@"
+      '';
+    };
 in
 {
   neovim = neovimWithDependencies;
@@ -190,5 +241,6 @@ in
     myFonts
     speakerctl
     bash-script
+    cached-nix-shell
     ;
 }
