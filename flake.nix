@@ -23,6 +23,9 @@
         perSystem =
           { system, ... }:
           {
+            # In pure evaluation mode, `currentSystem` won't be available, but it
+            # will be when the flake is evaluated impurely, like through
+            # `flake/compat.nix`.
             _module.args.pkgs =
               if builtins ? "currentSystem" then import ./nix/packages.nix else import ./nix/packages.nix system;
           };
