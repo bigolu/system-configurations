@@ -326,7 +326,16 @@ rec {
         in
         mkShellWrapperNoCC {
           packages = with pkgs; [ cached-nix-shell ];
-          shellHook = flakePackageSetHook;
+          shellHook = ''
+            ${flakePackageSetHook}
+
+            # I don't want to make GC roots when debugging because unlike actual CI,
+            # where new virtual machines are created for each run, they'll just
+            # accumulate.
+            if [[ ''${CI_DEBUG:-} != 'true' ]]; then
+              export NIX_SHEBANG_GC_ROOTS_DIR="''${PWD}/.direnv/nix-shebang-dependencies"
+            fi
+          '';
         };
     in
     mkShellWrapperNoCC {

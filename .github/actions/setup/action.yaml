@@ -140,7 +140,6 @@ runs:
       shell: nix run --file nix/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
-        NIX_SHEBANG_GC_ROOTS_DIR: ${{ github.workspace }}/.direnv/nix-shebang-dependencies
       run: |
         nix-shell direnv/direnv-wrapper.bash direnv/ci.bash \
           export gha >> "$GITHUB_ENV"
