@@ -276,6 +276,8 @@ local groups = {
   MiniPickBorderBusy = 'MiniPickBorder',
   MiniPickBorderText = "MiniPickBorder",
   MiniPickPrompt = "MiniPickNormal",
+  MiniPickPromptCaret = "MiniPickPrompt",
+  MiniPickPromptPrefix = "MiniPickPrompt",
   MiniPickMatchRanges = { ctermfg = 14, fg = colors.accent, bold = true, },
   MiniPickMatchCurrent = {underline = not vim.o.termguicolors, bg = colors.bg2, },
   MiniNotifyBorder = { ctermfg = 8, fg = colors[8], bg = colors.notification, },
