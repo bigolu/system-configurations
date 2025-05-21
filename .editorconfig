@@ -13,7 +13,7 @@ trim_trailing_whitespace = true
 [*.{fish,py}]
 indent_size = 4
 
-[{go.mod,go.sum,*.go}]
+[{go.{mod,sum},*.go}]
 indent_style = tab
 
 [*.md]
