@@ -2,22 +2,22 @@
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils moreutils]"
-#MISE description="Report/Fix issues"
+#MISE description="Run quality assurance jobs to find/fix issues"
 #USAGE long_about """
-#USAGE   Run checks on the code, automatically fixing issues if possible. It runs \
+#USAGE   Run jobs to find/fix issues with the code. It runs \
 #USAGE   on all files that differ between the current branch and the default branch, \
 #USAGE   and untracked files. This is usually what you want since you can assume any \
-#USAGE   files merged into the default branch have been checked. You usually don't have \
+#USAGE   files merged into the default branch have no issues. You usually don't have \
 #USAGE   to run this manually since it runs during the git pre-commit hook, where it \
 #USAGE   only runs on staged files. The exception to this is when you make changes to how \
-#USAGE   any of the checks work, like modifying `lefthook.yaml` for example. In which \
-#USAGE   case, you should run this with the `--all-files` flag which forces the checks to \
-#USAGE   run on all files, even unchanged ones. The list of checks is in `lefthook.yaml`.
+#USAGE   any of the jobs work, like modifying `lefthook.yaml` for example. In which \
+#USAGE   case, you should run this with the `--all-files` flag which forces the jobs to \
+#USAGE   run on all files, even unchanged ones. The list of jobs is in `lefthook.yaml`.
 #USAGE """
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
 #USAGE complete "jobs" run=#"""
-#USAGE   fish -c 'complete --do-complete "lefthook run check --jobs "'
+#USAGE   fish -c 'complete --do-complete "lefthook run qa --jobs "'
 #USAGE """#
 #USAGE
 #USAGE flag "-a --all-files" help="Run on all files"
@@ -64,4 +64,4 @@ fi
   # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is used and
   # nothing is passed through stdin. Instead, it tries to run tasks and stalls. For
   # now, I use `ifne` to do that.
-  ifne lefthook run check --files-from-stdin "${job_flag[@]}"
+  ifne lefthook run qa --files-from-stdin "${job_flag[@]}"

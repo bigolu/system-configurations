@@ -8,9 +8,8 @@
 # Usage: {this script} [fix_command]...
 #
 # This script runs the given fix command and reports any fixed problems appropriately
-# depending on whether it's run locally or in CI. This should be used for running
-# fixes in lefthook. A fix is any check that modifies files like a formatter or code
-# generator.
+# depending on whether it's run locally or in CI. This should be used for running the
+# jobs in the "fix" group in lefthook.
 
 set -o errexit
 set -o nounset

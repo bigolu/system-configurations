@@ -1,7 +1,7 @@
 # This function returns a map of dev shells that each represent a part of a full dev
 # shell, similar to Dev Container Features[1]. I do this for these reasons:
 #   - Allows parts of a dev shell to be shared between two shells. For example, I can
-#     create one part with all the dependencies for checks (linters, formatters, etc.)
+#     create one part with all the dependencies for QA (linters, formatters, etc.)
 #     and include that part in both the development and CI dev shells. This
 #     way they can stay in sync.
 #   - Makes it easier to organize the dev shell since it can be broken down into
@@ -114,8 +114,8 @@ rec {
       shellHook = setGoBin;
     };
 
-  # This should be used when running checks without internet access since Go won't be
-  # able to download modules. I don't use this for development because it would be
+  # This should be used when running QA jobs without internet access since Go won't
+  # be able to download modules. I don't use this for development because it would be
   # too inconvenient: Go either reads all dependencies from GOPATH or vendor so a
   # change to go.mod would require reloading the dev shell. There's an open issue for
   # partial vendoring[1]. If this is done, then I could start using this for
@@ -166,7 +166,7 @@ rec {
     ];
   };
 
-  checks =
+  qa =
     let
       linting = mkShellWrapperNoCC {
         inputsFrom = [
@@ -234,7 +234,7 @@ rec {
     in
     mkShellWrapperNoCC {
       inputsFrom = [
-        # Runs the checks
+        # Runs the QA jobs
         lefthook
 
         linting

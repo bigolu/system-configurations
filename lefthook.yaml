@@ -52,7 +52,7 @@ templates:
 
 commit-msg:
   jobs:
-    - name: commit-msg-typos-check
+    - name: typos
       run: |
         if ! typos {1}; then
           commit_msg_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
@@ -91,7 +91,7 @@ pre-commit:
           # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is
           # used and nothing is passed through stdin. Instead, it tries to run
           # tasks and stalls. For now, I use `ifne` to do that.
-          ifne lefthook run check --files-from-stdin
+          ifne lefthook run qa --files-from-stdin
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
@@ -140,7 +140,7 @@ sync:
     - name: fish
       run: fish -c fish-reload
 
-check:
+qa:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: ":"
@@ -160,7 +160,7 @@ check:
         - COPYING.txt
       group:
         jobs:
-          - name: generate
+          - name: fix
             group:
               jobs:
                 - name: readme-table-of-contents
@@ -168,13 +168,13 @@ check:
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:generate:add-nix-version-to-readme"
+                  run: "{run_fix} mise run lefthook:qa:fix:add-nix-version-to-readme"
                 - name: readme-config-names
                   glob: "*.nix"
-                  run: "{run_fix} mise run lefthook:check:generate:add-config-names-to-readme"
+                  run: "{run_fix} mise run lefthook:qa:fix:add-config-names-to-readme"
                 - name: readme-nixpkgs-commit
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:generate:add-nixpkgs-commit-to-readme"
+                  run: "{run_fix} mise run lefthook:qa:fix:add-nixpkgs-commit-to-readme"
                 - name: flake-lock
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
@@ -194,6 +194,7 @@ check:
                   # TODO: markdown2html-converter hasn't been updated in a couple
                   # years. I'd like to switch to markdown-to-html-cli[1], but it
                   # isn't in nixpkgs. Maybe I can add it or make a request.
+                  #
                   # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
                   run: |
                     # markdown2html-converter only accepts files that end in .md so I
@@ -206,10 +207,7 @@ check:
                       --html-path docs/tasks.html "$temp"
                 - name: mergiraf
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:generate:mergiraf"
-          - name: fix-lint
-            group:
-              jobs:
+                  run: "{run_fix} mise run lefthook:qa:fix:mergiraf"
                 - name: deadnix
                   glob: "*.nix"
                   run: "{run_fix} deadnix --quiet --edit {files}"
@@ -238,52 +236,54 @@ check:
                   run: "{run_fix} golangci-lint run --fix"
                 - name: typos
                   run: "{run_fix} typos --write-changes --format silent {files}"
-          # Run formatting after lint fixes because sometimes a lint fix produces
-          # code that doesn't comply with the formatting.
-          - name: format
-            group:
-              jobs:
-                - name: taplo
-                  glob: "*.toml"
-                  run: "{run_fix} taplo format {files}"
-                - name: prettier
-                  glob: "*.{md,js,json,json{5,c},yaml}"
-                  exclude:
-                    # Don't format these since VS Code will
-                    - ".vscode/*.json"
-                  run: "{run_fix} chronic prettier --write {files}"
-                - name: shfmt
-                  glob: "*.{sh,bash}"
-                  run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
-                - name: fish_indent
-                  glob: "*.fish"
-                  run: "{run_fix} fish_indent --write {files}"
-                - name: nixfmt
-                  glob: "*.nix"
-                  # --verify confirms that the formatted code parses the same as the
-                  # input code.
-                  run: "{run_fix} nixfmt --verify {files}"
-                - name: stylua
-                  glob: "*.lua"
-                  run: "{run_fix} stylua {files}"
-                - name: gofmt
-                  glob: "*.go"
-                  run: "{run_fix} gofmt -w {files}"
-                - name: ruff-format
-                  glob: "*.py"
-                  run: "{run_fix} ruff format {files}"
-                - name: ruff-format-sort-imports
-                  glob: "*.py"
-                  run: "{run_fix} ruff check --select I --fix-only {files}"
-          # I'm putting the check-lint and test groups in their own group so I can
-          # run them in parallel. It's safe to do so because they don't modify any
-          # files.
-          - name: _
-            group:
-              parallel: true
-              jobs:
-                - name: check-lint
+                # Formatters should run after the other fixes since some fixes
+                # produce code that doesn't comply with the formatting.
+                - name: format
                   group:
+                    jobs:
+                      - name: taplo
+                        glob: "*.toml"
+                        run: "{run_fix} taplo format {files}"
+                      - name: prettier
+                        glob: "*.{md,js,json,json{5,c},yaml}"
+                        exclude:
+                          # Don't format these since VS Code will
+                          - ".vscode/*.json"
+                        run: "{run_fix} chronic prettier --write {files}"
+                      - name: shfmt
+                        glob: "*.{sh,bash}"
+                        run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
+                      - name: fish_indent
+                        glob: "*.fish"
+                        run: "{run_fix} fish_indent --write {files}"
+                      - name: nixfmt
+                        glob: "*.nix"
+                        # --verify confirms that the formatted code parses the same
+                        # as the input code.
+                        run: "{run_fix} nixfmt --verify {files}"
+                      - name: stylua
+                        glob: "*.lua"
+                        run: "{run_fix} stylua {files}"
+                      - name: gofmt
+                        glob: "*.go"
+                        run: "{run_fix} gofmt -w {files}"
+                      - name: ruff-format
+                        glob: "*.py"
+                        run: "{run_fix} ruff format {files}"
+                      - name: ruff-format-sort-imports
+                        glob: "*.py"
+                        run: "{run_fix} ruff check --select I --fix-only {files}"
+          # Checks should be run after fixes in case a fix produces code that would
+          # fail a check.
+          - name: check
+            group:
+              jobs:
+                # This group has all of the check jobs besides "flake". See the
+                # comment above the "flake" job for why this is done.
+                - name: _
+                  group:
+                    # It's safe to run these in parallel because they don't modify
+                    # any files.
                     parallel: true
                     jobs:
                       - name: golangci-lint
@@ -366,40 +366,36 @@ check:
                             --check ./dotfiles/neovim \
                             --configpath "$PWD/.luarc.json"
                       - name: globs
-                        run: mise run lefthook:check:check-lint:globs
+                        run: mise run lefthook:qa:check:globs
                       - name: lychee
                         tags:
                           - lychee
                         exclude:
                           - lychee.toml
-                        run: mise run lefthook:check:check-lint:lychee {files}
-                - name: test
-                  group:
-                    parallel: true
-                    jobs:
+                        run: mise run lefthook:qa:check:lychee {files}
                       - name: nix-config
                         glob:
                           - "*.nix"
                           - flake.lock
                         run: nix config check
-          - name: flake
-            # TODO: I actually want to use the 'follow' option, so I can see
-            # the output of the command in real time, but that can only be set
-            # for an entire hook. I noticed that 'interactive' would also show
-            # output in real time and unlike follow, it can be set on
-            # individual jobs. I should open an issue for setting 'follow' on
-            # jobs.
-            #
-            # I'm doing this so I can spot accidental cache misses and cancel
-            # the job instead of waiting for nix rebuild the package. Ideally,
-            # I would run this job in parallel with the other jobs in the
-            # 'test' group, but then the output of the commands would get
-            # interleaved.
-            interactive: true
-            glob:
-              - flake.nix
-              - flake.lock
-              - nix/*
-              - dotfiles/*
-              - gozip/*
-            run: nix flake check
+                - name: flake
+                  # TODO: I actually want to use the 'follow' option, so I can see
+                  # the output of the command in real time, but that can only be set
+                  # for an entire hook. I noticed that 'interactive' would also show
+                  # output in real time and unlike follow, it can be set on
+                  # individual jobs. I should open an issue for setting 'follow' on
+                  # jobs.
+                  #
+                  # I'm doing this so I can spot accidental cache misses and cancel
+                  # the job instead of waiting for nix rebuild the package. Ideally,
+                  # I would run this job in parallel with the other jobs in the
+                  # "check" group, but then the output of the commands would get
+                  # interleaved.
+                  interactive: true
+                  glob:
+                    - flake.nix
+                    - flake.lock
+                    - nix/*
+                    - dotfiles/*
+                    - gozip/*
+                  run: nix flake check
