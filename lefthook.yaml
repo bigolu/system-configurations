@@ -145,13 +145,12 @@ qa:
   # "Custom Hooks" heading for why that is.
   files: ":"
   jobs:
-    - name: _
-      # This job only exists so the excludes below can get inherited by all of
-      # its descendants. There's an open feature request for a global exclude
-      # list[1]. If that gets implemented, I won't need this extra job anymore.
-      #
-      # [1]: https://github.com/evilmartians/lefthook/issues/593
-      exclude:
+    # This job only exists so the excludes below can get inherited by all of
+    # its descendants. There's an open feature request for a global exclude
+    # list[1]. If that gets implemented, I won't need this extra job anymore.
+    #
+    # [1]: https://github.com/evilmartians/lefthook/issues/593
+    - exclude:
         - gozip/gomod2nix.toml
         - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
@@ -280,8 +279,7 @@ qa:
               jobs:
                 # This group has all of the check jobs besides "flake". See the
                 # comment above the "flake" job for why this is done.
-                - name: _
-                  group:
+                - group:
                     # It's safe to run these in parallel because they don't modify
                     # any files.
                     parallel: true
