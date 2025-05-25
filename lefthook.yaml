@@ -145,9 +145,9 @@ qa:
   # "Custom Hooks" heading for why that is.
   files: ":"
   jobs:
-    # This job only exists so the excludes below can get inherited by all of
-    # its descendants. There's an open feature request for a global exclude
-    # list[1]. If that gets implemented, I won't need this extra job anymore.
+    # This job only exists so the excludes below can get inherited by all of its
+    # descendants. There's an open feature request for a global exclude list[1]. If
+    # that gets implemented, I won't need this extra job anymore.
     #
     # [1]: https://github.com/evilmartians/lefthook/issues/593
     - exclude:
@@ -272,16 +272,34 @@ qa:
                       - name: ruff-format-sort-imports
                         glob: "*.py"
                         run: "{run_fix} ruff check --select I --fix-only {files}"
-          # Checks should be run after fixes in case a fix produces code that would
-          # fail a check.
+          # Why checks should be run after fixes:
+          #   - A fix could produce code that would fail a check
+          #   - A fix could fix an issue that would have been found by a check
           - name: check
             group:
               jobs:
-                # This group has all of the check jobs besides "flake". See the
-                # comment above the "flake" job for why this is done.
+                # Ideally, I would run this job in parallel with the other jobs
+                # below, but then the output of their commands would get interleaved
+                # since I enabled "interactive" for this job.
+                - name: flake
+                  # TODO: I actually want to use the 'follow' option, so I can see
+                  # the output of the command in real time, but that can only be set
+                  # for an entire hook. I noticed that 'interactive' would also show
+                  # output in real time and unlike follow, it can be set on
+                  # individual jobs. I should open an issue for setting 'follow' on
+                  # jobs.
+                  #
+                  # I'm doing this so I can spot accidental cache misses and cancel
+                  # the job instead of waiting for nix rebuild the package.
+                  interactive: true
+                  glob:
+                    - flake.nix
+                    - flake.lock
+                    - nix/*
+                    - dotfiles/*
+                    - gozip/*
+                  run: nix flake check
                 - group:
-                    # It's safe to run these in parallel because they don't modify
-                    # any files.
                     parallel: true
                     jobs:
                       - name: golangci-lint
@@ -376,24 +394,3 @@ qa:
                           - "*.nix"
                           - flake.lock
                         run: nix config check
-                - name: flake
-                  # TODO: I actually want to use the 'follow' option, so I can see
-                  # the output of the command in real time, but that can only be set
-                  # for an entire hook. I noticed that 'interactive' would also show
-                  # output in real time and unlike follow, it can be set on
-                  # individual jobs. I should open an issue for setting 'follow' on
-                  # jobs.
-                  #
-                  # I'm doing this so I can spot accidental cache misses and cancel
-                  # the job instead of waiting for nix rebuild the package. Ideally,
-                  # I would run this job in parallel with the other jobs in the
-                  # "check" group, but then the output of the commands would get
-                  # interleaved.
-                  interactive: true
-                  glob:
-                    - flake.nix
-                    - flake.lock
-                    - nix/*
-                    - dotfiles/*
-                    - gozip/*
-                  run: nix flake check

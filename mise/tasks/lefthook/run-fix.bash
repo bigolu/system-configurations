@@ -54,7 +54,6 @@ function main {
       # I don't want to permanently delete anyone's changes.
       git stash --include-untracked 1>/dev/null
 
-      # Why it should fail:
       # - This failure lets me know which fix commands actually fixed anything since
       #   lefthook will highlight failed commands differently.
       # - This failure will make lefthook fail which will cause the overall CI check
