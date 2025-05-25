@@ -10,6 +10,8 @@ local vscode = require("vscode")
 
 vim.g.clipboard = vim.g.vscode_clipboard
 
+vim.o.laststatus = 0
+
 -- I use `gq` to format my comments so I'm removing this so nvim won't wait to
 -- see if I'll press another 'q'.
 vim.keymap.del({ "n" }, "gqq")
