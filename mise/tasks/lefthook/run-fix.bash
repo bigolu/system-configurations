@@ -26,12 +26,12 @@ shopt -s inherit_errexit
 function main {
   local -ra fix_command=("$@")
 
-  diff_before_running_fix="$(diff_including_untracked)"
+  diff_before_fix="$(diff_including_untracked)"
   "${fix_command[@]}"
-  diff_after_running_fix="$(diff_including_untracked)"
+  diff_after_fix="$(diff_including_untracked)"
 
   # If no files changed, then nothing was fixed.
-  if [[ $diff_before_running_fix == "$diff_after_running_fix" ]]; then
+  if [[ $diff_before_fix == "$diff_after_fix" ]]; then
     return
   fi
 

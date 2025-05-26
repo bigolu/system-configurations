@@ -97,16 +97,39 @@
       ],
     },
   ],
-  nix: {
-    // Nix support is currently in beta so you have to opt in.
-    enabled: true,
-    lockFileMaintenance: {
-      enabled: true,
-      // Updates to the flake.lock may be breaking so don't automerge
-      automerge: false,
-    },
-  },
+  // Nix support is currently in beta so you have to opt in.
+  nix: { enabled: true },
   packageRules: [
+    // I prefer updating all flake inputs together. I prefer this because for certain
+    // inputs, like nixpkgs, I have their dependents all use the same version/commit
+    // of them. I do this because having multiple versions of them would cost more
+    // space and evaluation time[1]. Since I do this, I don't want to update those
+    // inputs without updating all of their dependents since they will now have to
+    // use the new version of the input.
+    //
+    // I could use Lock file maintenance (LFM) for this, but LFM can't be grouped
+    // with other updates[2]. Since I may want to group flake input updates together
+    // with other updates, I'll disable LFM. Instead of LFM, I group all individual
+    // flake input updates together, which is effectively the same as LFM.
+    //
+    // [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
+    // [2]: https://github.com/renovatebot/renovate/discussions/13355#discussioncomment-1910497
+    {
+      matchManagers: ["nix"],
+      matchUpdateTypes: ["lockFileMaintenance"],
+      enabled: false,
+    },
+    {
+      // I'm only matching the manager so I can match the two different types of
+      // flake input updates. One type is only for nixpkgs channel inputs[1] and the
+      // other type is for the rest[2].
+      //
+      // [1]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L31
+      // [2]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L64
+      matchManagers: ["nix"],
+      groupName: "flake inputs",
+    },
+
     // This rule enables auto merge for all post-1.0, minor/patch version changes.
     // These changes won't be breaking so passing CI checks is sufficient to merge
     // them.
@@ -131,6 +154,7 @@
       // name.
       additionalBranchPrefix: "branch-automerge/",
     },
+
     {
       matchManagers: ["gomod"],
       postUpgradeTasks: {
@@ -153,19 +177,6 @@
       matchDepTypes: ["github-runner"],
       matchDepNames: ["macos"],
       matchCurrentVersion: "13",
-      enabled: false,
-    },
-    {
-      // This disables updates to individual flake inputs. For certain inputs, like
-      // nixpkgs, I have their dependents all use the same version/commit of them. I
-      // do this because having multiple versions of them would cost more space and
-      // evaluation time[1]. Since I do this, I don't want to update those inputs
-      // without updating all of their dependents since they will now have to use the
-      // new version of the input.
-      //
-      // [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-      matchManagers: ["nix"],
-      matchUpdateTypes: ["digest"],
       enabled: false,
     },
   ],

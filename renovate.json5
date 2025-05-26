@@ -1,6 +1,6 @@
-// The goal of this config is to be able to update everything at once. Then I
-// will manually run the Renovate bot when I want to update. I'm doing this
-// because I have no automated tests.
+// The goal of this config is to be able to update everything at once. Then I will
+// manually run the Renovate bot when I want to update. I'm doing this because I have
+// no automated tests.
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   extends: [
@@ -13,10 +13,6 @@
     {
       matchPackageNames: ["*"],
 
-      // Lock file maintenance will set this to "lock file maintenance", but I want
-      // it to remain the default, "Update".
-      commitMessageAction: "Update",
-
       // Automerge everything
       automerge: true,
       // I'm using the branch type, instead of the pull request type, so I don't
@@ -26,34 +22,8 @@
       // remove it.
       additionalBranchPrefix: "",
     },
-    {
-      // For `lockFileMaintenance`, there is no `packageName` so I have to use a
-      // separate package rule to match it.
-      matchUpdateTypes: ["lockFileMaintenance"],
-
-      // The "group:all" preset disables lockFileMaintenance so I'm enabling it
-      // and adding it to the same group as the rest of the dependencies.
-      enabled: true,
-      groupName: "all dependencies",
-      groupSlug: "all",
-
-      // Lock file maintenance will set this to "lock file maintenance", but I want
-      // it to remain the default, "Update".
-      commitMessageAction: "Update",
-
-      // Automerge everything
-      automerge: true,
-      // I'm using the branch type, instead of the pull request type, so I don't
-      // get notifications for a merge.
-      automergeType: "branch",
-      // The `common-preset` adds a prefix to certain update types so I'll
-      // remove it.
-      additionalBranchPrefix: "",
-    },
-
     {
       matchManagers: ["nix"],
-      matchUpdateTypes: ["lockFileMaintenance"],
       postUpgradeTasks: {
         commands: [
           "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:qa:fix:add-nix-version-to-readme",
