@@ -2,8 +2,8 @@ schema = 3
 
 [mod]
   [mod."github.com/klauspost/compress"]
-    version = "v1.18.0"
-    hash = "sha256-jc5pMU/HCBFOShMcngVwNMhz9wolxjOb579868LtOuk="
+    version = "v1.17.11"
+    hash = "sha256-LFSIWy0C4VbiuPve0eKHr7Q7s4XtaGzsZ3qpO+6bEgc="
   [mod."github.com/mitchellh/colorstring"]
     version = "v0.0.0-20190213212951-d06e56a500db"
     hash = "sha256-dg5havre+NkxU85tbWXgdhjVtVnkNfTVa999HX+JVbQ="
@@ -14,11 +14,11 @@ schema = 3
     version = "v3.18.0"
     hash = "sha256-Y0sGKTmX8r/OfzGrotDQ9HAAx19Mr2JzW7Mu50Hvnk4="
   [mod."golang.org/x/sync"]
-    version = "v0.14.0"
-    hash = "sha256-YNQLeFMeXN9y0z4OyXV/LJ4hA54q+ljm1ytcy80O6r4="
+    version = "v0.11.0"
+    hash = "sha256-5ZBfDJvNaUBM4Vhk0fgYblCGL3eBxiJL85nIE8LiKl0="
   [mod."golang.org/x/sys"]
-    version = "v0.33.0"
-    hash = "sha256-wlOzIOUgAiGAtdzhW/KPl/yUVSH/lvFZfs5XOuJ9LOQ="
+    version = "v0.29.0"
+    hash = "sha256-qfsodJQ1H1CBI8yQWOvsXJgY5qHmiuw566HrrIseYHI="
   [mod."golang.org/x/term"]
-    version = "v0.32.0"
-    hash = "sha256-4cM/vhb8EUrlfHidBRfjYEQlUQehXiydJN77YkQvAic="
+    version = "v0.28.0"
+    hash = "sha256-1/iWqndBRFgDL+/tVokkaGHpO/jdyjZ0dN2YWuBdiXQ="
