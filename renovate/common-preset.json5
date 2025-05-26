@@ -127,6 +127,11 @@
       enabled: false,
     },
     {
+      matchManagers: ["nix"],
+      matchDepNames: ["home-manager"],
+      enabled: true,
+    },
+    {
       // I'm only matching the manager so I can match the two different types of
       // flake input updates. One type is only for nixpkgs channel inputs[1] and the
       // other type is for the rest[2].
