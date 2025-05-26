@@ -10,10 +10,14 @@
   // Automerge even if no tests are run
   ignoreTests: true,
   packageRules: [
-    // Automerge everything
     {
       matchPackageNames: ["*"],
 
+      // Lock file maintenance will set this to "lock file maintenance", but I want
+      // it to remain the default, "Update".
+      commitMessageAction: "Update",
+
+      // Automerge everything
       automerge: true,
       // I'm using the branch type, instead of the pull request type, so I don't
       // get notifications for a merge.
@@ -33,6 +37,11 @@
       groupName: "all dependencies",
       groupSlug: "all",
 
+      // Lock file maintenance will set this to "lock file maintenance", but I want
+      // it to remain the default, "Update".
+      commitMessageAction: "Update",
+
+      // Automerge everything
       automerge: true,
       // I'm using the branch type, instead of the pull request type, so I don't
       // get notifications for a merge.
