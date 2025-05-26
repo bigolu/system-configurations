@@ -36,13 +36,20 @@
       };
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
-
     # There's a higher chance that something builds on stable, since stable only
     # provides conservative updates e.g. security patches, so I'll keep this just in
     # case.
-    nixpkgs-stable.url = "https://flakehub.com/f/NixOS/nixpkgs/*.tar.gz";
+    #
+    # TODO: This has to be before "nixpkgs-unstable" because Renovate only supports
+    # updating a single nixpkgs ref. I should open an issue for supporting multiple
+    # refs. The relevant code is here[1]. I should also open an issue for ignoring
+    # nixpkgs-unstable since it isn't versioned.
+    #
+    # [1]: https://github.com/renovatebot/renovate/blob/84c32c7c95012cabc5cb126775b9c6ae15261ca1/lib/modules/manager/nix/extract.ts#L28
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
 
     stackline = {
       url = "github:AdamWagner/stackline";
