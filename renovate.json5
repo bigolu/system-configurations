@@ -22,15 +22,15 @@
       // remove it.
       additionalBranchPrefix: "",
     },
-    // {
-    //   matchManagers: ["nix"],
-    //   postUpgradeTasks: {
-    //     commands: [
-    //       "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:qa:fix:add-nix-version-to-readme",
-    //       "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:qa:fix:add-nixpkgs-commit-to-readme",
-    //       "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:qa:fix:mergiraf",
-    //     ],
-    //   },
-    // },
+    {
+      matchManagers: ["nix"],
+      postUpgradeTasks: {
+        commands: [
+          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:qa:fix:add-nix-version-to-readme",
+          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:qa:fix:add-nixpkgs-commit-to-readme",
+          "nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . mise run lefthook:qa:fix:mergiraf",
+        ],
+      },
+    },
   ],
 }

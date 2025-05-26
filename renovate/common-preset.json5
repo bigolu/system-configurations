@@ -127,16 +127,16 @@
       matchDepNames: ["nixpkgs", "nixpkgs-stable"],
       enabled: false,
     },
-    // {
-    //   // I'm only matching the manager so I can match the two different types of
-    //   // flake input updates. One type is only for nixpkgs channel inputs[1] and the
-    //   // other type is for the rest[2].
-    //   //
-    //   // [1]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L31
-    //   // [2]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L64
-    //   matchManagers: ["nix"],
-    //   groupName: "flake inputs",
-    // },
+    {
+      // I'm only matching the manager so I can match the two different types of
+      // flake input updates. One type is only for nixpkgs channel inputs[1] and the
+      // other type is for the rest[2].
+      //
+      // [1]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L31
+      // [2]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L64
+      matchManagers: ["nix"],
+      groupName: "flake inputs",
+    },
 
     // This rule enables auto merge for all post-1.0, minor/patch version changes.
     // These changes won't be breaking so passing CI checks is sufficient to merge
