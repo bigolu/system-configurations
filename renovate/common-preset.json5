@@ -123,8 +123,8 @@
       // Avoid a conflict with the nixpkgs channel input update[1].
       //
       // [1]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L31
+      matchManagers: ["nix"],
       matchUpdateTypes: ["digest", "major"],
-      matchDepNames: ["nixpkgs", "nixpkgs-stable"],
       enabled: false,
     },
     // {
