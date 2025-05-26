@@ -128,7 +128,7 @@
     },
     {
       matchManagers: ["nix"],
-      matchDepNames: ["home-manager"],
+      matchDepNames: ["home-manager", "nixpkgs"],
       enabled: true,
     },
     {
