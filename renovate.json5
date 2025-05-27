@@ -7,13 +7,14 @@
     "local>bigolu/system-configurations//renovate/common-preset.json5",
     "group:all",
   ],
-  // Automerge even if no tests are run
+  // Auto-Merge even if no tests are run
   ignoreTests: true,
   packageRules: [
     {
+      description: "Auto-Merge everything",
+
       matchPackageNames: ["*"],
 
-      // Automerge everything
       automerge: true,
       // I'm using the branch type, instead of the pull request type, so I don't
       // get notifications for a merge.
