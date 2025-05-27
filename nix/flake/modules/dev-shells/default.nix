@@ -51,7 +51,7 @@ moduleContext@{ lib, utils, ... }:
         ];
         shellHook = ''
           export LEFTHOOK_EXCLUDE='lychee'
-          export FIX_MODE='DEVELOPMENT'
+          export LEFTHOOK_POST_FIX='fail'
         '';
       };
 

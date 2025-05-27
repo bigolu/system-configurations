@@ -5,17 +5,19 @@
 #MISE hide=true
 #MISE dir="{{cwd}}"
 
-# This script runs the given fix command and behaves according to the specified
-# `FIX_MODE`. It's used for running the jobs in the "fix" group in lefthook.
+# This script runs the given fix command and allows you to specify certain actions to
+# take after running the fix. It's used for running the jobs in the "fix" group in
+# lefthook.
 #
 # Usage: <this_script> [fix_command]...
 #
 # Environment Variables
-#   FIX_MODE (required):
-#     Determines how this script should behave after running the fix. Options:
-#       - DEVELOPMENT
-#       - CI_CHECK_PULL_REQUEST
-#       - CI_FIX_PULL_REQUEST
+#   LEFTHOOK_POST_FIX (optional):
+#     An action to take after running the fix. This is only used if the fix actually
+#     fixes anything, which is determined by checking for changed files after running
+#     it. Options:
+#       - fail
+#       - ci_fail
 
 set -o errexit
 set -o nounset
@@ -30,20 +32,23 @@ function main {
   "${fix_command[@]}"
   diff_after_fix="$(diff_including_untracked)"
 
-  # If no files changed, then nothing was fixed.
-  if [[ $diff_before_fix == "$diff_after_fix" ]]; then
+  if
+    # No files changed
+    [[ $diff_before_fix == "$diff_after_fix" ]] ||
+      [[ -z ${LEFTHOOK_POST_FIX:-} ]]
+  then
     return
   fi
 
-  case "${FIX_MODE:?}" in
-    'DEVELOPMENT')
+  case "$LEFTHOOK_POST_FIX" in
+    'fail')
       # - This failure lets me know which fix commands actually fixed anything since
       #   lefthook will highlight failed commands differently.
       # - This failure will cause the pre-commit hook to abort so I can see what
       #   fixes were made and, if everything looks good, include them in the commit.
       exit 1
       ;;
-    'CI_CHECK_PULL_REQUEST')
+    'ci_fail')
       # Print the diff so people can see it in the CI console.
       diff_including_untracked
 
@@ -60,11 +65,8 @@ function main {
       #   to fail.
       exit 1
       ;;
-    'CI_FIX_PULL_REQUEST')
-      # There's nothing to do in this case
-      ;;
     *)
-      echo "Error, invalid FIX_MODE: $FIX_MODE" >&2
+      echo "Error, invalid LEFTHOOK_POST_FIX: $LEFTHOOK_POST_FIX" >&2
       exit 1
       ;;
   esac
