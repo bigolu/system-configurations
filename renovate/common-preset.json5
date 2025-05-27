@@ -16,39 +16,14 @@
   commitMessagePrefix: "deps:",
   postUpdateOptions: ["gomodTidy"],
   separateMultipleMajor: true,
+  // These shouldn't be breaking changes, but I'm not adding lock file maintenance to
+  // the non-breaking group further down because Renovate doesn't support grouping
+  // lock file maintenance with other updates[1].
+  //
+  // [1]: https://github.com/renovatebot/renovate/discussions/13355#discussioncomment-1910497
   lockFileMaintenance: {
     enabled: true,
 
-    automerge: true,
-    // I'm using the branch type, instead of the pull request type, for auto merge so I
-    // don't get notifications for them.
-    automergeType: "branch",
-    // Normally, I only run CI checks for pull requests, but since I'm configuring
-    // Renovate to merge directly from a branch I need to run checks on those branches.
-    // To identify these branches in CI, I'm adding a prefix to their name.
-    additionalBranchPrefix: "branch-automerge/",
-  },
-  digest: {
-    automerge: true,
-    // I'm using the branch type, instead of the pull request type, for auto merge so I
-    // don't get notifications for them.
-    automergeType: "branch",
-    // Normally, I only run CI checks for pull requests, but since I'm configuring
-    // Renovate to merge directly from a branch I need to run checks on those branches.
-    // To identify these branches in CI, I'm adding a prefix to their name.
-    additionalBranchPrefix: "branch-automerge/",
-  },
-  pin: {
-    automerge: true,
-    // I'm using the branch type, instead of the pull request type, for auto merge so I
-    // don't get notifications for them.
-    automergeType: "branch",
-    // Normally, I only run CI checks for pull requests, but since I'm configuring
-    // Renovate to merge directly from a branch I need to run checks on those branches.
-    // To identify these branches in CI, I'm adding a prefix to their name.
-    additionalBranchPrefix: "branch-automerge/",
-  },
-  pinDigest: {
     automerge: true,
     // I'm using the branch type, instead of the pull request type, for auto merge so I
     // don't get notifications for them.
@@ -66,8 +41,10 @@
       fileMatch: ["(^|/)direnv/.*$"],
       matchStrings: [
         // This will match text with the following pattern:
+        //
         //   # renovate: nix-direnv
         //   source_url<separator><nix-direnv-url>
+        //
         // Where <separator> is anything that can separate two tokens in Bash i.e. a
         // ' ' or a backslash followed by a newline, which allows you to continue a
         // statement on another line.
@@ -97,70 +74,28 @@
       ],
     },
   ],
-  // Nix support is currently in beta so you have to opt in.
-  nix: { enabled: true },
+  nix: {
+    // Nix support is currently in beta so you have to opt in.
+    enabled: true,
+    lockFileMaintenance: { enabled: false },
+  },
   packageRules: [
-    // I prefer updating all flake inputs together. I prefer this because for certain
-    // inputs, like nixpkgs, I have their dependents all use the same version/commit
-    // of them. I do this because having multiple versions of them would cost more
-    // space and evaluation time[1]. Since I do this, I don't want to update those
-    // inputs without updating all of their dependents since they will now have to
-    // use the new version of the input.
-    //
-    // I could use Lock file maintenance (LFM) for this, but LFM can't be grouped
-    // with other updates[2]. Since I may want to group flake input updates together
-    // with other updates, I'll disable LFM. Instead of LFM, I group all individual
-    // flake input updates together, which is effectively the same as LFM.
-    //
-    // [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-    // [2]: https://github.com/renovatebot/renovate/discussions/13355#discussioncomment-1910497
     {
+      description: "Use nixpkgs versioning for inputs of the form 'nixos-YY.MM'",
+
       matchManagers: ["nix"],
-      matchUpdateTypes: ["lockFileMaintenance"],
-      enabled: false,
-    },
-    {
-      // Avoid a conflict with the nixpkgs channel input update[1].
-      //
-      // [1]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L31
-      matchManagers: ["nix"],
-      enabled: false,
-    },
-    {
-      matchManagers: ["nix"],
-      matchDepNames: ["home-manager"],
-      enabled: true,
-    },
-    {
-      matchManagers: ["nix"],
-      matchDepNames: ["nixpkgs-stable"],
+      matchCurrentValue: "/nixos-[0-9]{2}\\.[0-9]{2}/i",
+
       versioning: "nixpkgs",
-      enabled: true,
-    },
-    {
-      // I'm only matching the manager so I can match the two different types of
-      // flake input updates. One type is only for nixpkgs channel inputs[1] and the
-      // other type is for the rest[2].
-      //
-      // [1]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L31
-      // [2]: https://github.com/renovatebot/renovate/blob/855a486e783d5478549f1dc9393fe128fa5a6b43/lib/modules/manager/nix/extract.ts#L64
-      matchManagers: ["nix"],
-      groupName: "flake inputs",
     },
 
-    // This rule enables auto merge for all post-1.0, minor/patch version changes.
-    // These changes won't be breaking so passing CI checks is sufficient to merge
-    // them.
     {
-      matchUpdateTypes: ["minor", "patch"],
-      // Don't auto merge if the major version is 0, in which case a minor/patch
-      // update may be a breaking change. The '[~^]?' is to account for version
-      // specifiers like '~0.1.2'. Renovate is planning to introduce the concept of
-      // breaking/non-breaking version changes[1] so I should use that when it's
-      // available.
-      //
-      // [1]: https://github.com/renovatebot/renovate/issues/24513
-      matchCurrentVersion: "!/^[~^]?0/",
+      description: "Group non-breaking updates together and auto-merge them",
+
+      matchUpdateTypes: ["minor", "patch", "pin", "pinDigest", "digest"],
+      matchJsonata: ["isBreaking != true"],
+
+      groupName: "Non-breaking updates",
 
       automerge: true,
       // I'm using the branch type, instead of the pull request type, for auto merge
@@ -172,7 +107,6 @@
       // name.
       additionalBranchPrefix: "branch-automerge/",
     },
-
     {
       matchManagers: ["gomod"],
       postUpgradeTasks: {
