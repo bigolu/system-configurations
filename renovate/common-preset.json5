@@ -9,11 +9,10 @@
 {
   $schema: "https://docs.renovatebot.com/renovate-schema.json",
   description: "This preset contains all of the settings that I usually add to a configuration. I use this as a starting point for my projects.",
-  extends: ["config:best-practices", ":semanticCommitsDisabled"],
+  extends: ["config:best-practices"],
   // This is an experimental feature that may be removed at any time so you have to
   // opt in: https://github.com/renovatebot/renovate/discussions/20542
   osvVulnerabilityAlerts: true,
-  commitMessagePrefix: "deps:",
   postUpdateOptions: ["gomodTidy"],
   separateMultipleMajor: true,
   // These shouldn't be breaking changes, but I'm not adding lock file maintenance to
