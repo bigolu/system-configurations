@@ -74,11 +74,8 @@
       ],
     },
   ],
-  nix: {
-    // Nix support is currently in beta so you have to opt in.
-    enabled: true,
-    lockFileMaintenance: { enabled: false },
-  },
+  // Nix support is currently in beta so you have to opt in.
+  nix: { enabled: true },
   packageRules: [
     {
       description: "Use nixpkgs versioning for inputs of the form 'nixos-YY.MM'",
