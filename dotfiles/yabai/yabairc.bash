@@ -18,7 +18,7 @@ fi
 until ! yabai -m signal --remove 0 1>/dev/null 2>&1; do :; done
 
 yabai -m config auto_balance off
-yabai -m config focus_follows_mouse autofocus
+yabai -m config focus_follows_mouse autoraise
 yabai -m config mouse_follows_focus on
 yabai -m config window_origin_display cursor
 yabai -m config window_opacity on
