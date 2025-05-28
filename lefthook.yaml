@@ -74,11 +74,11 @@ commit-msg:
 # Lefthook stashes unstaged changes before running this hook, but not untracked
 # files: https://github.com/evilmartians/lefthook/issues/833
 pre-commit:
-  # I use `follow`/`interactive` for some of the jobs in the 'check' group so I need
-  # `follow` here as well or I won't be able to see the output.
-  follow: true
   jobs:
     - name: pre-commit-check
+      # I enable `interactive` for some of the jobs in the 'qa' group so I need
+      # `interactive` here as well or it won't work.
+      interactive: true
       run: |
         printf '%s\0' {staged_files} |
           # This removes the final character, which is the null byte '\0'. This is
