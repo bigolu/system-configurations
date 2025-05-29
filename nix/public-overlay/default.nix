@@ -17,11 +17,12 @@ in
     let
       # I'm not adding these to `runtimeInputs` because I don't want them to be put
       # on the `PATH`.
-      inherit (final) coreutils;
+      inherit (final) coreutils sqlite;
       basename = getExe' coreutils "basename";
-      readlink = getExe' coreutils "readlink";
       mkdir = getExe' coreutils "mkdir";
       touch = getExe' coreutils "touch";
+      dirname = getExe' coreutils "dirname";
+      sqlite3 = getExe sqlite;
     in
     final.writeShellApplication {
       inherit name;
@@ -63,19 +64,20 @@ in
 
                 gc_roots_to_make+=("''${stdenv:?}")
 
-                shopt -s nullglob
-                # TODO: I only want the derivation for the nix shell of the currently
-                # running shebang script, but the file name of the derivation is
-                # derived from the flags specified in the shebang[1], which I can't
-                # easily get from here. Instead, I just make GC roots for all
-                # derivations.
-                #
-                # [1]: https://github.com/xzfc/cached-nix-shell/blob/62e282be819646e3cdcd458af3f222e8f09e62ca/src/main.rs#L456
-                for drv_symlink in "''${XDG_CACHE_HOME:-$HOME/.cache}/cached-nix-shell"/*.drv; do
-                  if [[ -e $drv_symlink ]]; then
-                    gc_roots_to_make+=("$(${readlink} --canonicalize "$drv_symlink")")
-                  fi
-                done
+                # cached-nix-shell stores a symlink to the nix-shell derivation and
+                # will invalidate its cache if the derivation doesn't exist so we
+                # need to make a GC root for it. I tried to use `nix-store --query
+                # --deriver $out`, but it didn't work since $out is not a valid store
+                # path.
+                db="$(${dirname} "$NIX_STORE")/var/nix/db/db.sqlite"
+                query="
+                  SELECT ValidPaths.path
+                  FROM ValidPaths
+                  INNER JOIN DerivationOutputs ON ValidPaths.id=DerivationOutputs.drv
+                  WHERE DerivationOutputs.path='$out'
+                "
+                derivation="$(${sqlite3} "$db" "$query")"
+                gc_roots_to_make+=("$derivation")
 
                 for store_path in "''${gc_roots_to_make[@]}"; do
                   nix build \
