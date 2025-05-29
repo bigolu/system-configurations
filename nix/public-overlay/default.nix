@@ -21,7 +21,6 @@ in
       basename = getExe' coreutils "basename";
       mkdir = getExe' coreutils "mkdir";
       touch = getExe' coreutils "touch";
-      dirname = getExe' coreutils "dirname";
       sqlite3 = getExe sqlite;
     in
     final.writeShellApplication {
@@ -69,7 +68,7 @@ in
                 # need to make a GC root for it. I tried to use `nix-store --query
                 # --deriver $out`, but it didn't work since $out is not a valid store
                 # path.
-                db="$(${dirname} "$NIX_STORE")/var/nix/db/db.sqlite"
+                db="$NIX_STORE/../var/nix/db/db.sqlite"
                 query="
                   SELECT ValidPaths.path
                   FROM ValidPaths

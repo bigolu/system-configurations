@@ -402,9 +402,9 @@ rec {
       # have to update "python.defaultInterpreterPath" in settings.json when the nix
       # store path for python changes.
       shellHook = ''
-        # python is in <python_directory>/bin/python so 2 dirnames will get me the
-        # python directory
-        python_directory="$(dirname "$(dirname "$(which python)")")"
+        # python is in <python_directory>/bin/python so moving up once from bin/ will
+        # get me to the python directory
+        python_directory="$(dirname "$(which python)")/.."
         ln --force --no-dereference --symbolic \
           "$python_directory" "''${direnv_layout_dir:-.direnv}/python"
       '';
