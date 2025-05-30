@@ -27,7 +27,10 @@
             # will be when the flake is evaluated impurely, like through
             # `flake/compat.nix`.
             _module.args.pkgs =
-              if builtins ? "currentSystem" then import ./nix/packages.nix else import ./nix/packages.nix system;
+              let
+                packages = import ./nix/packages.nix;
+              in
+              if builtins ? "currentSystem" then packages else packages system;
           };
 
         # For nixd:
