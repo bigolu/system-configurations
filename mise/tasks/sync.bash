@@ -23,11 +23,8 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+lefthook_job_args=()
 eval "jobs=(${usage_jobs:-})"
-
-# lefthook doesn't run any jobs if no files are passed in so we use force to make
-# them run.
-lefthook_job_args=(--force)
 # shellcheck disable=2154
 # `jobs` is defined in an `eval` statement above
 if ((${#jobs[@]} > 0)); then
@@ -37,4 +34,6 @@ if ((${#jobs[@]} > 0)); then
   lefthook_job_args+=(--jobs "$joined_jobs")
 fi
 
-lefthook run sync "${lefthook_job_args[@]}"
+# lefthook doesn't run any jobs if no files are passed in so we use `--force` to make
+# them run.
+lefthook run sync --force "${lefthook_job_args[@]}"
