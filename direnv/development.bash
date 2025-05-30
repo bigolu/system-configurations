@@ -22,5 +22,4 @@
 #
 # [1]: https://github.com/NixOS/nixpkgs/pull/325793#issuecomment-2219538799
 
-export NIX_DEV_SHELL="${NIX_DEV_SHELL:-development}"
-source direnv/base.bash
+NIX_DEV_SHELL="${NIX_DEV_SHELL:-development}" source direnv/base.bash
