@@ -85,7 +85,19 @@
 
       versioning: "nixpkgs",
     },
-
+    {
+      // I prefer updating all flake inputs together. I prefer this because for
+      // certain inputs, like nixpkgs, I have their dependents all use the same
+      // version/commit of them (i.e. nixpkgs.follows = "nixpkgs"). I do this because
+      // having multiple versions of inputs like nixpkgs would cost more space and
+      // evaluation time[1]. Since I do this, I don't want to update those inputs
+      // without updating all of their dependents since they will now have to use the
+      // new version of the input.
+      //
+      // [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
+      matchManagers: ["nix"],
+      groupName: "flake inputs",
+    },
     {
       description: "Group non-breaking updates together and auto-merge them",
 
