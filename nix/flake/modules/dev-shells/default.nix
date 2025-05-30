@@ -42,7 +42,7 @@ moduleContext@{ lib, utils, ... }:
           speakerctl
           commitMsgHook
           preCommitHook
-          qa
+          check
           sync
           taskRunner
           taskAutocomplete

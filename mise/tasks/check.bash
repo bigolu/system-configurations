@@ -17,7 +17,7 @@
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
 #USAGE complete "jobs" run=#"""
-#USAGE   fish -c 'complete --do-complete "lefthook run qa --jobs "'
+#USAGE   fish -c 'complete --do-complete "lefthook run check --jobs "'
 #USAGE """#
 #USAGE
 #USAGE flag "-a --all-files" help="Run on all files"
@@ -64,4 +64,4 @@ fi
   # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is used and
   # nothing is passed through stdin. Instead, it tries to run tasks and stalls. For
   # now, I use `ifne` to do that.
-  ifne lefthook run qa --files-from-stdin "${job_flag[@]}"
+  ifne lefthook run check --files-from-stdin "${job_flag[@]}"

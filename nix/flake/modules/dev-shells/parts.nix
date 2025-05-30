@@ -1,9 +1,9 @@
 # This function returns a map of dev shells that each represent a part of a full dev
 # shell, similar to Dev Container Features[1]. I do this for these reasons:
 #   - Allows parts of a dev shell to be shared between two shells. For example, I can
-#     create one part with all the dependencies for QA (linters, formatters, etc.)
-#     and include that part in both the development and CI dev shells. This
-#     way they can stay in sync.
+#     create one part with all the dependencies for checks (linters, formatters,
+#     etc.) and include that part in both the development and CI dev shells. This way
+#     they can stay in sync.
 #   - Makes it easier to organize the dev shell since it can be broken down into
 #     smaller groups.
 #   - Makes it easier to provide alternate dev shells without certain parts. For
@@ -40,25 +40,6 @@ let
     writeText
     ;
   inherit (pkgs.stdenv) isLinux;
-
-  lua-language-server = mkShellWrapperNoCC {
-    packages = [ pkgs.lua-language-server ];
-    shellHook = ''
-      prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
-      mkdir -p "$prefix"
-
-      ln --force --no-dereference --symbolic \
-        ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
-      ln --force --no-dereference --symbolic \
-        ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
-
-      hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
-      if [[ -e $hammerspoon_annotations ]]; then
-        ln --force --no-dereference --symbolic \
-          "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
-      fi
-    '';
-  };
 
   goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
 in
@@ -114,7 +95,7 @@ rec {
       shellHook = setGoBin;
     };
 
-  # This should be used when running QA jobs without internet access since Go won't
+  # This should be used when running checks without internet access since Go won't
   # be able to download modules. I don't use this for development because it would be
   # too inconvenient: Go either reads all dependencies from GOPATH or vendor so a
   # change to go.mod would require reloading the dev shell. There's an open issue for
@@ -166,95 +147,84 @@ rec {
     ];
   };
 
-  qa =
+  check =
     let
-      linting = mkShellWrapperNoCC {
-        inputsFrom = [
-          lua-language-server
-          # This is needed for running mypy
-          speakerctl
-          # This is needed for running `go mod tidy` and `gopls`
-          gozip
-        ];
+      lua-language-server = mkShellWrapperNoCC {
+        packages = [ pkgs.lua-language-server ];
+        shellHook = ''
+          prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
+          mkdir -p "$prefix"
 
-        packages = with pkgs; [
-          actionlint
-          deadnix
-          fish
-          # for renovate-config-validator
-          renovate
-          shellcheck
-          statix
-          markdownlint-cli2
-          desktop-file-utils
-          golangci-lint
-          gopls
-          config-file-validator
-          ruff
-          typos
-          editorconfig-checker
-          nixpkgs-lint-community
-          # For isutf8 and parallel. parallel isn't a linter, but it's used to run
-          # any linter that doesn't support multiple file arguments.
-          moreutils
-        ];
-      };
+          ln --force --no-dereference --symbolic \
+            ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
+          ln --force --no-dereference --symbolic \
+            ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
 
-      formatting = mkShellWrapperNoCC {
-        inputsFrom = [
-          # For gofmt
-          gozip
-        ];
-
-        packages = with pkgs; [
-          nixfmt-rfc-style
-          nodePackages.prettier
-          shfmt
-          stylua
-          taplo
-          ruff
-          # for fish_indent
-          fish
-        ];
-      };
-
-      codeGeneration = mkShellWrapperNoCC {
-        inputsFrom = [
-          # This is needed for generating task documentation
-          taskRunner
-        ];
-
-        packages = with pkgs; [
-          doctoc
-          gomod2nix
-          coreutils
-          markdown2html-converter
-        ];
+          hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
+          if [[ -e $hammerspoon_annotations ]]; then
+            ln --force --no-dereference --symbolic \
+              "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
+          fi
+        '';
       };
     in
     mkShellWrapperNoCC {
       inputsFrom = [
-        # Runs the QA jobs
+        # Runs the checks
         lefthook
-
-        linting
-        formatting
-        codeGeneration
+        # This is needed for generating task documentation
+        taskRunner
+        # For `gofmt`, `go mod tidy`, and `gopls`
+        gozip
+        # This is needed for running mypy
+        speakerctl
+        lua-language-server
       ];
       packages = with pkgs; [
         # TODO: I use `chronic` to hide the output of commands that produce a lot of
         # output even when they exit successfully. I should see if I could change
         # this upstream.
+        #
+        # I also use this for `isutf8` and `parallel`. `parallel` is used to run any
+        # check that doesn't support multiple file arguments.
         moreutils
+        doctoc
+        gomod2nix
+        markdown2html-converter
+        # For `mktemp` in the `task-docs` job
+        coreutils
+        nixfmt-rfc-style
+        nodePackages.prettier
+        shfmt
+        stylua
+        taplo
+        ruff
+        # for fish_indent
+        fish
+        actionlint
+        deadnix
+        fish
+        # for renovate-config-validator
+        renovate
+        shellcheck
+        statix
+        markdownlint-cli2
+        desktop-file-utils
+        golangci-lint
+        gopls
+        config-file-validator
+        ruff
+        typos
+        editorconfig-checker
+        nixpkgs-lint-community
       ];
     };
 
   sync = mkShellWrapperNoCC {
     inputsFrom = [
-      # Runs the syncs
+      # Runs the sync jobs
       lefthook
     ];
-
     packages = with pkgs; [
       # These get called in the lefthook config
       chase
@@ -365,8 +335,7 @@ rec {
       efmLanguageServer = mkShellWrapperNoCC {
         packages = with pkgs; [
           efm-langserver
-
-          # These aren't linters, but get used in some of the linting commands.
+          # These get used in some of the commands in the efm-langserver config.
           bash
           jq
         ];
@@ -376,24 +345,12 @@ rec {
       inputsFrom = [
         # For "llllvvuu.llllvvuu-glspc"
         efmLanguageServer
-        # For "sumneko.lua"
-        lua-language-server
-        # For "golang.go"
-        gozip
       ];
       packages = with pkgs; [
-        golangci-lint
-        # For "tamasfe.even-better-toml"
-        taplo
         # For "jnoortheen.nix-ide"
         nixd
-        # For "mads-hartmann.bash-ide-vscode"
-        shellcheck
-        # For "charliermarsh.ruff"
-        ruff
-        # For "bmalehorn.vscode-fish"
-        fish
-        # For "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and pkill
+        # These are for "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and
+        # pkill
         bashInteractive
         coreutils
         partialPackages.pkill

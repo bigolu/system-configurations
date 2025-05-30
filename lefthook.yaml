@@ -2,14 +2,10 @@
 
 # Tag Meanings
 # -----------------------------------------------------------------------------------
-# lychee:
-#   Lychee, a link checker, will be run periodically in CI. To ensure it doesn't run
-#   in the development environment, I gave the lychee job this tag and add the tag to
-#   the LEFTHOOK_EXCLUDE environment variable during development.
 # requires-internet:
-#   This is for any check that requires an internet connection. To avoid flaky
-#   checks, I run them inside a sandbox where there's no access to the internet.
-#   When I do that, I exclude any checks with this tag.
+#   This is for any job in the "check" group that requires an internet connection. To
+#   avoid flaky checks, I run them inside a sandbox where there's no access to the
+#   internet. When I do that, I exclude any jobs with this tag.
 
 # TODO: Lefthook sets its colors based on the background color of the terminal to
 # ensure good contrast[1], but it doesn't seem to be working for me so I'm using ANSI
@@ -76,7 +72,7 @@ commit-msg:
 pre-commit:
   jobs:
     - name: pre-commit-check
-      # I enable `interactive` for some of the jobs in the 'qa' group so I need
+      # I enable `interactive` for some of the jobs in the 'check' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
       run: |
@@ -91,7 +87,7 @@ pre-commit:
           # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is
           # used and nothing is passed through stdin. Instead, it tries to run
           # tasks and stalls. For now, I use `ifne` to do that.
-          ifne lefthook run qa --files-from-stdin
+          ifne lefthook run check --files-from-stdin
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
@@ -140,7 +136,7 @@ sync:
     - name: fish
       run: fish -c fish-reload
 
-qa:
+check:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: ":"
@@ -159,6 +155,9 @@ qa:
         - COPYING.txt
       group:
         jobs:
+          # Why fixes should run before other checks:
+          #   - A fix could produce code that would fail another check
+          #   - A fix could fix an issue that would have been found by another check
           - name: fix
             group:
               jobs:
@@ -167,13 +166,13 @@ qa:
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:qa:fix:add-nix-version-to-readme"
+                  run: "{run_fix} mise run lefthook:check:fix:add-nix-version-to-readme"
                 - name: readme-config-names
                   glob: "*.nix"
-                  run: "{run_fix} mise run lefthook:qa:fix:add-config-names-to-readme"
+                  run: "{run_fix} mise run lefthook:check:fix:add-config-names-to-readme"
                 - name: readme-nixpkgs-commit
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:qa:fix:add-nixpkgs-commit-to-readme"
+                  run: "{run_fix} mise run lefthook:check:fix:add-nixpkgs-commit-to-readme"
                 - name: flake-lock
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
@@ -206,7 +205,7 @@ qa:
                       --html-path docs/tasks.html "$temp"
                 - name: mergiraf
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:qa:fix:mergiraf"
+                  run: "{run_fix} mise run lefthook:check:fix:mergiraf"
                 - name: deadnix
                   glob: "*.nix"
                   run: "{run_fix} deadnix --quiet --edit {files}"
@@ -272,125 +271,124 @@ qa:
                       - name: ruff-format-sort-imports
                         glob: "*.py"
                         run: "{run_fix} ruff check --select I --fix-only {files}"
-          # Why checks should be run after fixes:
-          #   - A fix could produce code that would fail a check
-          #   - A fix could fix an issue that would have been found by a check
-          - name: check
-            group:
+          # Ideally, I would run this job in parallel with the other jobs below, but
+          # then the output of their commands would get interleaved since I enabled
+          # "interactive" for this job.
+          - name: flake
+            # TODO: I actually want to use the 'follow' option, so I can see the
+            # output of the command in real time, but that can only be set for an
+            # entire hook. I noticed that 'interactive' would also show output in
+            # real time and unlike follow, it can be set on individual jobs. I should
+            # open an issue for setting 'follow' on jobs.
+            #
+            # I'm doing this so I can spot accidental cache misses and cancel the job
+            # instead of waiting for nix rebuild the package.
+            interactive: true
+            glob:
+              - flake.nix
+              - flake.lock
+              - nix/*
+              - dotfiles/*
+              - gozip/*
+            run: nix flake check
+          - group:
+              # It's safe to run these checks in parallel since they don't modify any
+              # files
+              parallel: true
               jobs:
-                # Ideally, I would run this job in parallel with the other jobs
-                # below, but then the output of their commands would get interleaved
-                # since I enabled "interactive" for this job.
-                - name: flake
-                  # TODO: I actually want to use the 'follow' option, so I can see
-                  # the output of the command in real time, but that can only be set
-                  # for an entire hook. I noticed that 'interactive' would also show
-                  # output in real time and unlike follow, it can be set on
-                  # individual jobs. I should open an issue for setting 'follow' on
-                  # jobs.
-                  #
-                  # I'm doing this so I can spot accidental cache misses and cancel
-                  # the job instead of waiting for nix rebuild the package.
-                  interactive: true
+                - name: golangci-lint
+                  glob: "*.go"
+                  root: "gozip/"
+                  run: golangci-lint run
+                - name: gopls
+                  glob: "*.go"
+                  run: |
+                    check() {
+                      # TODO: gopls should have an option for failing if an error was
+                      # found.
+                      issues="$(gopls check "$@")"
+                      if [ -n "$issues" ]; then
+                        echo "$issues"
+                        exit 1
+                      fi
+                    }
+                    # I use a function because lefthook is assuming that the {files}
+                    # placeholder is not inside a string. So its escaping may not
+                    # work otherwise.
+                    check {files}
+                - name: ruff
+                  glob: "*.py"
+                  run: ruff check {files}
+                - name: fish
+                  glob: "*.fish"
+                  # TODO: Fish doesn't support passing multiple files, I should open
+                  # an issue.
+                  run: "parallel fish --no-execute -- {files}"
+                - name: desktop-file-validate
+                  glob: "*.desktop"
+                  run: desktop-file-validate {files}
+                - name: markdownlint-cli2
+                  glob: "*.md"
+                  run: markdownlint-cli2 {files}
+                - name: shellcheck
+                  glob: "*.{sh,bash}"
+                  run: shellcheck {files}
+                - name: actionlint
+                  glob: ".github/workflows/*.yaml"
+                  run: actionlint {files}
+                - name: statix
+                  glob: "*.nix"
+                  # statix doesn't support passing multiple files yet:
+                  # https://github.com/oppiliappan/statix/issues/69
+                  run: "parallel statix check -- {files}"
+                - name: nixpkgs-lint
+                  glob: "*.nix"
+                  run: nixpkgs-lint --include-unfinished-lints -- {files}
+                - name: typos
+                  run: typos {files}
+                - name: mypy
+                  glob: "*.py"
+                  run: mypy {files}
+                - name: isutf8
+                  run: isutf8 {files}
+                - name: editorconfig-checker
+                  # I'm disabling the indentation size check because it applies to
+                  # comments as well and I don't want it to.
+                  run: editorconfig-checker --disable-indent-size {files}
+                - name: config-file-validator
+                  glob: "*.{editorconfig,json,ini,yaml,toml}"
+                  exclude:
+                    # These aren't actually JSON files they're JSONC
+                    - ".vscode/*.json"
+                  run: chronic validator -groupby pass-fail {files}
+                - name: renovate-config-validator
                   glob:
-                    - flake.nix
+                    - renovate.json5
+                    - renovate/*.json5
+                  run: renovate-config-validator --strict {files}
+                - name: lua-ls
+                  glob: dotfiles/neovim/*.lua
+                  run: |
+                    # --configpath is relative to the directory being checked so I'm
+                    # using an absolute path instead.
+                    lua-language-server \
+                      --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
+                      --check ./dotfiles/neovim \
+                      --configpath "$PWD/.luarc.json"
+                - name: globs
+                  run: mise run lefthook:check:globs
+                - name: lychee
+                  tags:
+                    # Lychee, a link checker, will be run periodically in CI. To
+                    # ensure it doesn't run in the development environment, I give
+                    # this job a tag and add the tag to the LEFTHOOK_EXCLUDE
+                    # environment variable during development.
+                    - lychee
+                  exclude:
+                    - lychee.toml
+                  run: mise run lefthook:check:lychee {files}
+                - name: nix-config
+                  glob:
+                    - "*.nix"
                     - flake.lock
-                    - nix/*
-                    - dotfiles/*
-                    - gozip/*
-                  run: nix flake check
-                - group:
-                    parallel: true
-                    jobs:
-                      - name: golangci-lint
-                        glob: "*.go"
-                        root: "gozip/"
-                        run: golangci-lint run
-                      - name: gopls
-                        glob: "*.go"
-                        run: |
-                          check() {
-                            # TODO: gopls should have an option for failing if an
-                            # error was found.
-                            issues="$(gopls check "$@")"
-                            if [ -n "$issues" ]; then
-                              echo "$issues"
-                              exit 1
-                            fi
-                          }
-                          # I use a function because lefthook is assuming that the
-                          # {files} placeholder is not inside a string. So its
-                          # escaping may not work otherwise.
-                          check {files}
-                      - name: ruff
-                        glob: "*.py"
-                        run: ruff check {files}
-                      - name: fish
-                        glob: "*.fish"
-                        # TODO: Fish doesn't support passing multiple files, I should
-                        # open an issue.
-                        run: "parallel fish --no-execute -- {files}"
-                      - name: desktop-file-validate
-                        glob: "*.desktop"
-                        run: desktop-file-validate {files}
-                      - name: markdownlint-cli2
-                        glob: "*.md"
-                        run: markdownlint-cli2 {files}
-                      - name: shellcheck
-                        glob: "*.{sh,bash}"
-                        run: shellcheck {files}
-                      - name: actionlint
-                        glob: ".github/workflows/*.yaml"
-                        run: actionlint {files}
-                      - name: statix
-                        glob: "*.nix"
-                        # statix doesn't support passing multiple files yet:
-                        # https://github.com/oppiliappan/statix/issues/69
-                        run: "parallel statix check -- {files}"
-                      - name: nixpkgs-lint
-                        glob: "*.nix"
-                        run: nixpkgs-lint --include-unfinished-lints -- {files}
-                      - name: typos
-                        run: typos {files}
-                      - name: mypy
-                        glob: "*.py"
-                        run: mypy {files}
-                      - name: isutf8
-                        run: isutf8 {files}
-                      - name: editorconfig-checker
-                        # I'm disabling the indentation size check because it applies
-                        # to comments as well and I don't want it to.
-                        run: editorconfig-checker --disable-indent-size {files}
-                      - name: config-file-validator
-                        glob: "*.{editorconfig,json,ini,yaml,toml}"
-                        exclude:
-                          # These aren't actually JSON files they're JSONC
-                          - ".vscode/*.json"
-                        run: chronic validator -groupby pass-fail {files}
-                      - name: renovate-config-validator
-                        glob:
-                          - renovate.json5
-                          - renovate/*.json5
-                        run: renovate-config-validator --strict {files}
-                      - name: lua-ls
-                        glob: dotfiles/neovim/*.lua
-                        run: |
-                          # --configpath is relative to the directory being checked
-                          # so I'm using an absolute path instead.
-                          lua-language-server \
-                            --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
-                            --check ./dotfiles/neovim \
-                            --configpath "$PWD/.luarc.json"
-                      - name: globs
-                        run: mise run lefthook:qa:check:globs
-                      - name: lychee
-                        tags:
-                          - lychee
-                        exclude:
-                          - lychee.toml
-                        run: mise run lefthook:qa:check:lychee {files}
-                      - name: nix-config
-                        glob:
-                          - "*.nix"
-                          - flake.lock
-                        run: nix config check
+                  run: nix config check

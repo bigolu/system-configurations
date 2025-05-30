@@ -7,6 +7,18 @@
 <h3>Arguments</h3>
 <h4><code>&lt;package&gt;</code></h4>
 <p>The package to build e.g. .#shell</p>
+<h2><code>check</code></h2>
+<p>Run jobs to find/fix issues with the code. It runs on all files that differ between the current branch and the default branch, and untracked files. This is usually what you want since you can assume any files merged into the default branch have no issues. You usually don't have to run this manually since it runs during the git pre-commit hook, where it only runs on staged files. The exception to this is when you make changes to how any of the jobs work, like modifying <code>lefthook.yaml</code> for example. In which case, you should run this with the <code>--all-files</code> flag which forces the jobs to run on all files, even unchanged ones. The list of jobs is in <code>lefthook.yaml</code>.</p>
+<ul>
+<li><strong>Usage</strong>: <code>check [-a --all-files] [jobs]…</code></li>
+</ul>
+<p>Run quality assurance jobs to find/fix issues</p>
+<h3>Arguments</h3>
+<h4><code>[jobs]…</code></h4>
+<p>Jobs to run. If none are passed then all of them will be run</p>
+<h3>Flags</h3>
+<h4><code>-a --all-files</code></h4>
+<p>Run on all files</p>
 <h2><code>copy-cosmic</code></h2>
 <ul>
 <li><strong>Usage</strong>: <code>copy-cosmic &lt;destination&gt;</code></li>
@@ -48,18 +60,6 @@
 <li><strong>Usage</strong>: <code>help</code></li>
 </ul>
 <p>Display task documentation</p>
-<h2><code>qa</code></h2>
-<p>Run jobs to find/fix issues with the code. It runs on all files that differ between the current branch and the default branch, and untracked files. This is usually what you want since you can assume any files merged into the default branch have no issues. You usually don't have to run this manually since it runs during the git pre-commit hook, where it only runs on staged files. The exception to this is when you make changes to how any of the jobs work, like modifying <code>lefthook.yaml</code> for example. In which case, you should run this with the <code>--all-files</code> flag which forces the jobs to run on all files, even unchanged ones. The list of jobs is in <code>lefthook.yaml</code>.</p>
-<ul>
-<li><strong>Usage</strong>: <code>qa [-a --all-files] [jobs]…</code></li>
-</ul>
-<p>Run quality assurance jobs to find/fix issues</p>
-<h3>Arguments</h3>
-<h4><code>[jobs]…</code></h4>
-<p>Jobs to run. If none are passed then all of them will be run</p>
-<h3>Flags</h3>
-<h4><code>-a --all-files</code></h4>
-<p>Run on all files</p>
 <h2><code>sync</code></h2>
 <p>Run jobs to synchronize your environment with the code. For example, running database migrations whenever the schema changes. Run this anytime you incorporate someone else's changes. Such as running <code>git pull</code> or checking out another branch. The jobs to run will be automatically determined based on what files changed since the last pull, checkout, etc. The list of jobs is in <code>lefthook.yaml</code>.</p>
 <ul>
