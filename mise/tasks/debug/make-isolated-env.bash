@@ -27,8 +27,6 @@ env_vars=(
   "${user_env_vars[@]}"
 )
 
-# shellcheck disable=2154
-# `env_vars` is defined in an `eval` statement above
 for var in "${env_vars[@]}"; do
   var_name="$(cut -d'=' -f1 <<<"$var")"
   keep_flags+=(--keep "$var_name")
