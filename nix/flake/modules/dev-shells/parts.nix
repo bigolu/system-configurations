@@ -89,22 +89,7 @@ rec {
         mkdir -p "$GOBIN"
         export PATH="''${GOBIN}''${PATH:+:$PATH}"
       '';
-    in
-    mkShellWrapperNoCC {
-      packages = [ goEnv ];
-      shellHook = setGoBin;
-    };
 
-  # This should be used when running checks without internet access since Go won't
-  # be able to download modules. I don't use this for development because it would be
-  # too inconvenient: Go either reads all dependencies from GOPATH or vendor so a
-  # change to go.mod would require reloading the dev shell. There's an open issue for
-  # partial vendoring[1]. If this is done, then I could start using this for
-  # development.
-  #
-  # [1]: https://github.com/golang/go/issues/52604
-  gozipVendor =
-    let
       # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
         # TODO: `builtins.match` is inconsistent across platforms[1] so I'll use grep
@@ -121,13 +106,30 @@ rec {
         (removeSuffix "\n")
 
         (vendor: ''
-          export GOFLAGS='-mod=vendor'
-          export GO_NO_VENDOR_CHECKS='1'
-          ln --force --no-dereference --symbolic ${vendor} gozip/vendor
+          # Most CI systems, e.g. GitHub Actions, set CI to 'true'.
+          #
+          # I only use this in CI because it would it would be too inconvenient to
+          # use during development: Go either reads all dependencies from GOPATH or
+          # the vendor directory so a change to go.mod would require regenerating the
+          # gomod2nix lock and reloading the dev shell. There's an open issue for
+          # partial vendoring[1]. If this is done, then I could start using this for
+          # development. It's especially important that this is used in CI because in
+          # CI, checks (e.g. `gopls check`) are run without internet access so Go
+          # wouldn't be able to download modules.
+          #
+          # [1]: https://github.com/golang/go/issues/52604
+          if [[ ''${CI:-} == 'true' ]]; then
+            export GOFLAGS='-mod=vendor'
+            export GO_NO_VENDOR_CHECKS='1'
+            ln --force --no-dereference --symbolic ${vendor} gozip/vendor
+          fi
         '')
       ];
     in
-    mkShellWrapperNoCC { shellHook = linkVendoredModules; };
+    mkShellWrapperNoCC {
+      packages = [ goEnv ];
+      shellHook = setGoBin + linkVendoredModules;
+    };
 
   speakerctl = pkgs.speakerctl.devShell;
 
@@ -259,6 +261,8 @@ rec {
       packages = with pkgs; [ mise ];
       shellHook = ''
         mise trust --quiet
+        # For any tasks that use ripgrep.
+        export RIPGREP_CONFIG_PATH="$PWD/ripgreprc"
       '';
     };
 
