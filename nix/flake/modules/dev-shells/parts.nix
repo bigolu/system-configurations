@@ -193,19 +193,17 @@ rec {
         doctoc
         gomod2nix
         markdown2html-converter
-        # For `mktemp` in the `task-docs` job
+        # For `mktemp`
         coreutils
         nixfmt-rfc-style
         nodePackages.prettier
         shfmt
         stylua
         taplo
-        ruff
-        # for fish_indent
+        # For `fish_indent` and `fish`
         fish
         actionlint
         deadnix
-        fish
         # for renovate-config-validator
         renovate
         shellcheck
