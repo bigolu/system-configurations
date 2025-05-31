@@ -207,9 +207,6 @@ check:
                       --force \
                       --title 'Tasks' \
                       --html-path docs/tasks.html "$temp"
-                - name: mergiraf
-                  glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:fix:mergiraf"
                 - name: deadnix
                   glob: "*.nix"
                   run: "{run_fix} deadnix --quiet --edit {files}"

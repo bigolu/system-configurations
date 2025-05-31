@@ -40,6 +40,7 @@
 [init]
   defaultBranch = master
 [merge]
+  # Recommended by mergiraf: https://mergiraf.org/usage.html#enabling-diff3-conflict-style
   conflictstyle = diff3
   tool = vscode
 [diff]
