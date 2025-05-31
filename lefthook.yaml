@@ -2,6 +2,10 @@
 
 # Tag Meanings
 # -----------------------------------------------------------------------------------
+# lychee:
+#   Lychee, a link checker, will be run periodically in CI. To ensure it doesn't run
+#   in the development environment, I give the lychee job this tag and add the tag to
+#   the LEFTHOOK_EXCLUDE environment variable during development.
 # requires-internet:
 #   This is for any job in the "check" group that requires an internet connection. To
 #   avoid flaky checks, I run them inside a sandbox where there's no access to the
@@ -379,10 +383,6 @@ check:
                   run: mise run lefthook:check:globs
                 - name: lychee
                   tags:
-                    # Lychee, a link checker, will be run periodically in CI. To
-                    # ensure it doesn't run in the development environment, I give
-                    # this job a tag and add the tag to the LEFTHOOK_EXCLUDE
-                    # environment variable during development.
                     - lychee
                   exclude:
                     - lychee.toml
