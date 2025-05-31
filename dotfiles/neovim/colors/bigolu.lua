@@ -258,14 +258,15 @@ local groups = {
 
   -- vim-matchup {{{
   MatchParen = { ctermfg = 14, bold = true, fg = colors.accent }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
-  MatchWord = {},
+  MatchWord = "MatchParen",
+  MatchParenCur = "MatchParen",
+  MatchWordCur = "MatchWord",
   -- }}}
 
   -- mini.nvim {{{
   MiniIndentscopeSymbol = { ctermfg = 15, fg = colors.guide },
   Clear = "Identifier",
   MiniCursorword = { underline = not vim.o.termguicolors, bg = colors.bg2 },
-  MiniCursorwordCurrent = {},
   MiniOperatorsExchangeFrom = "Visual",
   MiniCompletionActiveParameter = { ctermfg = 14, fg = colors.accent, },
   MiniDiffSignAdd = { ctermfg = 2, fg = colors[2], reverse = true },

@@ -400,37 +400,14 @@ if IsRunningInTerminal then
     vim.opt_local.winhighlight:remove(cursorword_highlight_name)
   end
 
-  -- Don't highlight keywords
-  vim.api.nvim_create_autocmd("CursorHold", {
-    callback = function()
-      if vim.b.minicursorword_disable_permanent then
-        return
-      end
-
-      local is_cursorword_keyword = false
-      for _, capture in ipairs(vim.treesitter.get_captures_at_cursor()) do
-        if capture:find("keyword") then
-          is_cursorword_keyword = true
-          break
-        end
-      end
-
-      if is_cursorword_keyword then
-        disable_cursorword()
-      else
-        enable_cursorword()
-      end
-    end,
-  })
-
   -- Don't highlight in inactive windows
   vim.api.nvim_create_autocmd("WinLeave", {
-    callback = function()
+    callback = function(_)
       disable_cursorword()
     end,
   })
   vim.api.nvim_create_autocmd("WinEnter", {
-    callback = function()
+    callback = function(_)
       enable_cursorword()
     end,
   })
