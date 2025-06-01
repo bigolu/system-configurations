@@ -2,7 +2,7 @@
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils moreutils]"
-#MISE description="Run quality assurance jobs to find/fix issues"
+#MISE description="Run jobs to find/fix issues"
 #USAGE long_about """
 #USAGE   Run jobs to find/fix issues with the code. It runs \
 #USAGE   on all files that differ between the current branch and the default branch, \
