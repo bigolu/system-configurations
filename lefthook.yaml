@@ -1,16 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/evilmartians/lefthook/master/schema.json
 
-# Tag Meanings
-# -----------------------------------------------------------------------------------
-# lychee:
-#   Lychee, a link checker, will be run periodically in CI. To ensure it doesn't run
-#   in the development environment, I give the lychee job this tag and add the tag to
-#   the LEFTHOOK_EXCLUDE environment variable during development.
-# requires-internet:
-#   This is for any job in the "check" group that requires an internet connection. To
-#   avoid flaky checks, I run them inside a sandbox where there's no access to the
-#   internet. When I do that, I exclude any jobs with this tag.
-
 # TODO: Lefthook sets its colors based on the background color of the terminal to
 # ensure good contrast[1], but it doesn't seem to be working for me so I'm using ANSI
 # colors instead. I should report this.
@@ -181,14 +170,14 @@ check:
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
                 - name: gomod2nix
-                  tags:
+                  only:
                     # TODO: There's an open issue[1] for adding a subcommand to
-                    # gomod2nix that only  checks to see if the lock file is up to
+                    # gomod2nix that only checks to see if the lock file is up to
                     # date. This way it could be run without an internet connection
                     # and included in CI checks.
                     #
                     # [1]: https://github.com/nix-community/gomod2nix/issues/169
-                    - requires-internet
+                    - run: '[ "$CI" != true ]'
                   glob: gozip/go.mod
                   run: "{run_fix} gomod2nix --dir gozip generate"
                 - name: task-docs
@@ -222,11 +211,11 @@ check:
                   glob: "*.md"
                   run: "{run_fix} markdownlint-cli2 --fix {files}"
                 - name: go-mod-tidy
-                  tags:
+                  only:
                     # TODO: There should be an option for only doing the parts that
                     # don't require the internet so it can be run as part of CI
                     # checks.
-                    - requires-internet
+                    - run: '[ "$CI" != true ]'
                   glob: gozip/go.{mod,sum}
                   run: "{run_fix} go -C gozip mod tidy"
                 - name: golangci-lint
@@ -379,8 +368,13 @@ check:
                 - name: globs
                   run: mise run lefthook:check:globs
                 - name: lychee
-                  tags:
-                    - lychee
+                  only:
+                    # Lychee, a link checker, will be run periodically in a CI
+                    # workflow. To ensure it doesn't run outside of that workflow, I
+                    # only run this job if the environment variable below is set to
+                    # true. The reason this is a job at all is so it can inherit the
+                    # file exclude list that's set in the root job.
+                    - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
                   exclude:
                     - lychee.toml
                   run: mise run lefthook:check:lychee {files}

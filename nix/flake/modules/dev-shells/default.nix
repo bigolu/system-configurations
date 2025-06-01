@@ -50,7 +50,6 @@ moduleContext@{ lib, utils, ... }:
           vsCode
         ];
         shellHook = ''
-          export LEFTHOOK_EXCLUDE='lychee'
           export LEFTHOOK_POST_FIX='fail'
         '';
       };
@@ -59,6 +58,9 @@ moduleContext@{ lib, utils, ... }:
 
       ci-check-for-broken-links = {
         inputsFrom = [ parts.lefthook ];
+        shellHook = ''
+          export LEFTHOOK_ENABLE_LYCHEE='true'
+        '';
       };
 
       ci-renovate = {
