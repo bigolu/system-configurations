@@ -115,9 +115,11 @@ rec {
           # partial vendoring[1]. If this is done, then I could start using this for
           # development. It's especially important that this is used in CI because in
           # CI, checks (e.g. `gopls check`) are run without internet access so Go
-          # wouldn't be able to download modules.
+          # wouldn't be able to download modules. Another alternative would be using
+          # GOCACHEPROG with gobuild.nix[2].
           #
           # [1]: https://github.com/golang/go/issues/52604
+          # [2]: https://github.com/katexochen/gobuild.nix
           if [[ ''${CI:-} == 'true' ]]; then
             export GOFLAGS='-mod=vendor'
             export GO_NO_VENDOR_CHECKS='1'
