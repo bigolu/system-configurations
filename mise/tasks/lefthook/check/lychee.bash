@@ -75,7 +75,7 @@ function gh {
   if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
     command gh "$@"
   else
-    echo 'gh spy:' "$@" >&2
+    echo 'gh:' "$@" >&2
   fi
 }
 
