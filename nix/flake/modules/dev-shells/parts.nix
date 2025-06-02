@@ -211,7 +211,6 @@ rec {
         shellcheck
         statix
         markdownlint-cli2
-        desktop-file-utils
         golangci-lint
         gopls
         config-file-validator
@@ -261,7 +260,8 @@ rec {
       packages = with pkgs; [ mise ];
       shellHook = ''
         mise trust --quiet
-        # For any tasks that use ripgrep.
+        # For any tasks that use ripgrep. This ensures our config is loaded and a
+        # user's personal config isn't.
         export RIPGREP_CONFIG_PATH="$PWD/ripgreprc"
       '';
     };
@@ -271,9 +271,7 @@ rec {
   # would be delayed by the time it takes to load a nix shell.
   taskAutocomplete = mkShellWrapperNoCC {
     packages = with pkgs; [
-      yq-go
       fish
-      coreutils
       # For nix's fish shell autocomplete
       (linkFarm "nix-share" { share = "${pkgs.nix}/share"; })
     ];

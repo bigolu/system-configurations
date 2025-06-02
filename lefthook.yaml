@@ -142,10 +142,9 @@ check:
     - exclude:
         - gozip/gomod2nix.toml
         - ".vscode/ltex*"
-        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
-        - dotfiles/cosmic/config/*
+        - dotfiles/keyboard/US keyboard - no accent keys.bundle/**
+        - dotfiles/cosmic/config/**
         - docs/tasks.html
-        - COPYING.txt
       group:
         jobs:
           # Why fixes should run before other checks:
@@ -233,7 +232,7 @@ check:
                         glob: "*.toml"
                         run: "{run_fix} taplo format {files}"
                       - name: prettier
-                        glob: "*.{md,js,json,json{5,c},yaml}"
+                        glob: "*.{md,js,json,json5,jsonc,yaml}"
                         exclude:
                           # Don't format these since VS Code will
                           - ".vscode/*.json"
@@ -278,7 +277,7 @@ check:
               - flake.nix
               - flake.lock
               - nix/*
-              - dotfiles/*
+              - dotfiles/**
               - gozip/*
             run: nix flake check
           - group:
@@ -314,9 +313,6 @@ check:
                   # TODO: Fish doesn't support passing multiple files, I should open
                   # an issue.
                   run: "parallel fish --no-execute -- {files}"
-                - name: desktop-file-validate
-                  glob: "*.desktop"
-                  run: desktop-file-validate {files}
                 - name: markdownlint-cli2
                   glob: "*.md"
                   run: markdownlint-cli2 {files}

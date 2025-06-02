@@ -5,7 +5,7 @@
 #MISE description="Start a Bash shell in a direnv CI environment"
 #USAGE arg "<nix_dev_shell>" help="The dev shell that direnv should load"
 #USAGE complete "nix_dev_shell" run=#"""
-#USAGE   fish -c 'complete --do-complete "nix develop .#ci-"' | cut -c 3-
+#USAGE   fish -c 'complete --do-complete "nix develop .#ci-" | string sub --start 3'
 #USAGE """#
 
 set -o errexit
