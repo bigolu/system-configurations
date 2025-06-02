@@ -1,10 +1,1 @@
 .git
-flake.lock
-dotfiles/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
-**/.gitkeep
-.vscode/ltex.hiddenFalsePositives.en-US.txt
-gozip/gomod2nix.toml
-gozip/go.sum
-COPYING.txt
-dotfiles/cosmic/config/
-docs/tasks.html

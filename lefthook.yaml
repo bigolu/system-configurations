@@ -26,14 +26,14 @@ templates:
 
 # Git Hooks
 # -----------------------------------------------------------------------------------
-# Do not specify globs for any jobs that belong to a git hook because they
-# won't be applied unless their run command uses `{files}`. You could get around this
-# by adding something like `: {files};` to the beginning of every run command, but
-# that would lead to a subtle bug if you ever forgot to add it. For custom hooks, I
-# get around this by always specifying a `files` command at the hook level since per
-# the documentation[1], globs will always be applied if a `files` command is used.
-# This does not seem to apply to git hooks though and I think that's a bug. I should
-# report it. There was a pull request for always applying globs, but it was
+# Do not specify globs for any jobs that belong to a git hook because they won't be
+# applied unless their run command uses `{files}`. You could get around this by
+# adding something like `: {files};` to the beginning of every run command, but that
+# would lead to a subtle bug if you ever forgot to add it. For custom hooks, I get
+# around this by always specifying a `files` command at the hook level since the
+# documentation[1] states that globs will always be applied if a `files` command is
+# used. This does not seem to apply to git hooks though and I think that's a bug so I
+# should report it. There was a pull request for always applying globs, but it was
 # closed[2].
 #
 # [1]: https://lefthook.dev/configuration/glob.html
