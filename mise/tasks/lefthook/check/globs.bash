@@ -40,9 +40,8 @@ for file in .github/**/*.yaml; do
   fi
 done
 
-# lefthook
 file='lefthook.yaml'
-globs="$(
+globs_by_file["$file"]="$(
   yq '
     # Remove comments
     ... comments="" |
@@ -56,11 +55,8 @@ globs="$(
     .[]
   ' "$file"
 )"
-globs_by_file["$file"]="$globs"
 
 found_error=
-# shellcheck disable=2154
-# I assigned `globs` in the eval statement above
 for file in "${!globs_by_file[@]}"; do
   readarray -t globs <<<"${globs_by_file[$file]}"
   for glob in "${globs[@]}"; do
