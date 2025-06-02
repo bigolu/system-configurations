@@ -258,12 +258,7 @@ rec {
         inlineTaskRunner
       ];
       packages = with pkgs; [ mise ];
-      shellHook = ''
-        mise trust --quiet
-        # For any tasks that use ripgrep. This ensures our config is loaded and a
-        # user's personal config isn't.
-        export RIPGREP_CONFIG_PATH="$PWD/ripgreprc"
-      '';
+      shellHook = "mise trust --quiet";
     };
 
   # These are the dependencies of the commands run within `complete` statements in

@@ -17,55 +17,65 @@ shopt -s inherit_errexit
 red='\e[31m'
 reset='\e[0m'
 
-# key: filename
-# value: globs separated by a newline
-declare -A globs_by_file
+function main {
+  # key: filename
+  # value: globs separated by a newline
+  declare -A globs_by_file
 
-# GitHub Actions
-shopt -s globstar
-for file in .github/**/*.yaml; do
-  quoted_globs="$(
-    # If there are no matches, rg exits with 1, but i don't want the script to fail
-    # in that case.
-    set +o errexit
-    rg --no-filename --only-matching 'hashFiles\((.*?)\)' --replace '$1' "$file" |
-      # This one isn't actually a glob so filter it out
-      rg --no-filename --invert-match '<pattern>' |
-      rg ', *' --replace ' '
-    set -o errexit
-  )"
-  eval "globs=($quoted_globs)"
-  if ((${#globs[@]} > 0)); then
-    IFS=$'\n' globs_by_file["$file"]="${globs[*]}"
-  fi
-done
-
-file='lefthook.yaml'
-globs_by_file["$file"]="$(
-  yq '
-    # Remove comments
-    ... comments="" |
-    # Recurse into sub maps
-    .. |
-    # These are the keys that contain globs
-    select(has("glob") or has("exclude")) |
-    # The values will either be strings or arrays so force them all to be arrays
-    [.glob] + [.exclude] |
-    flatten |
-    .[]
-  ' "$file"
-)"
-
-found_error=
-for file in "${!globs_by_file[@]}"; do
-  readarray -t globs <<<"${globs_by_file[$file]}"
-  for glob in "${globs[@]}"; do
-    if ! rg --quiet --max-count 1 --glob "$glob" '.*'; then
-      echo -e "${red}[error] The following glob in '$file' no longer matches any files: ${glob}${reset}" >&2
-      found_error='true'
+  # GitHub Actions
+  shopt -s globstar
+  for file in .github/**/*.yaml; do
+    quoted_globs="$(
+      # If there are no matches, rg exits with 1, but i don't want the script to fail
+      # in that case.
+      set +o errexit
+      rg --no-filename --only-matching 'hashFiles\((.*?)\)' --replace '$1' "$file" |
+        # This one isn't actually a glob so filter it out
+        rg --no-filename --invert-match '<pattern>' |
+        rg ', *' --replace ' '
+      set -o errexit
+    )"
+    eval "globs=($quoted_globs)"
+    if ((${#globs[@]} > 0)); then
+      IFS=$'\n' globs_by_file["$file"]="${globs[*]}"
     fi
   done
-done
-if [[ $found_error == 'true' ]]; then
-  exit 1
-fi
+
+  file='lefthook.yaml'
+  globs_by_file["$file"]="$(
+    yq '
+      # Remove comments
+      ... comments="" |
+      # Recurse into sub maps
+      .. |
+      # These are the keys that contain globs
+      select(has("glob") or has("exclude")) |
+      # The values will either be strings or arrays so force them all to be arrays
+      [.glob] + [.exclude] |
+      flatten |
+      .[]
+    ' "$file"
+  )"
+
+  found_error=
+  for file in "${!globs_by_file[@]}"; do
+    readarray -t globs <<<"${globs_by_file[$file]}"
+    for glob in "${globs[@]}"; do
+      # shellcheck disable=2310
+      # Using the `rg` function in a conditional is fine since it's one line.
+      if ! rg --quiet --max-count 1 --glob "$glob" '.*'; then
+        echo -e "${red}[error] The following glob in '$file' no longer matches any files: ${glob}${reset}" >&2
+        found_error='true'
+      fi
+    done
+  done
+  if [[ $found_error == 'true' ]]; then
+    exit 1
+  fi
+}
+
+function rg {
+  command rg --no-config --hidden --no-ignore "$@"
+}
+
+main
