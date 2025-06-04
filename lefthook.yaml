@@ -145,6 +145,17 @@ check:
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/**
         - dotfiles/cosmic/config/**
         - docs/tasks.html
+      # Enabling `piped` is useful for the scenario where there are issues found by
+      # fast checks, but not slow ones. Without `piped` you would run all the checks
+      # only to find an issue with a fast check and then have to run all the checks
+      # again once that issue is fixed. With `piped`, the slow ones won't run since
+      # an issue was found in one of the faster ones. Once you fix the issues found
+      # by the fast checks, then the slower ones will run. On the other hand, it
+      # would be frustrating if lefthook stopped after the first issue was found
+      # because then you would have to keep rerunning all the checks to discover
+      # issues one at a time. To mitigate this, we run the checks in groups with
+      # faster groups running before slower ones.
+      piped: true
       group:
         jobs:
           # Why fixes should run before other checks:
@@ -260,26 +271,6 @@ check:
                       - name: ruff-format-sort-imports
                         glob: "*.py"
                         run: "{run_fix} ruff check --select I --fix-only {files}"
-          # Ideally, I would run this job in parallel with the other jobs below, but
-          # then the output of their commands would get interleaved since I enabled
-          # "interactive" for this job.
-          - name: flake
-            # TODO: I actually want to use the 'follow' option, so I can see the
-            # output of the command in real time, but that can only be set for an
-            # entire hook. I noticed that 'interactive' would also show output in
-            # real time and unlike follow, it can be set on individual jobs. I should
-            # open an issue for setting 'follow' on jobs.
-            #
-            # I'm doing this so I can spot accidental cache misses and cancel the job
-            # instead of waiting for nix rebuild the package.
-            interactive: true
-            glob:
-              - flake.nix
-              - flake.lock
-              - nix/*
-              - dotfiles/**
-              - gozip/*
-            run: nix flake check
           - group:
               # It's safe to run these checks in parallel since they don't modify any
               # files
@@ -383,3 +374,24 @@ check:
                     - "*.nix"
                     - flake.lock
                   run: nix config check
+          - name: flake
+            # TODO: I actually want to use the 'follow' option, so I can see the
+            # output of the command in real time, but that can only be set for an
+            # entire hook. I noticed that 'interactive' would also show output in
+            # real time and unlike follow, it can be set on individual jobs. I should
+            # open an issue for setting 'follow' on jobs.
+            #
+            # I'm doing this so I can spot accidental cache misses and cancel the job
+            # instead of waiting for nix rebuild the package.
+            #
+            # Since 'interactive' is enabled, this job can't be run in parallel with
+            # other jobs. Otherwise, the output of their commands would get
+            # interleaved.
+            interactive: true
+            glob:
+              - flake.nix
+              - flake.lock
+              - nix/*
+              - dotfiles/**
+              - gozip/*
+            run: nix flake check
