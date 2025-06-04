@@ -153,8 +153,8 @@ check:
       # by the fast checks, then the slower ones will run. On the other hand, it
       # would be frustrating if lefthook stopped after the first issue was found
       # because then you would have to keep rerunning all the checks to discover
-      # issues one at a time. To mitigate this, we run the checks in groups with
-      # faster groups running before slower ones.
+      # issues one at a time. To mitigate this, we put the checks in groups and order
+      # faster groups before slower ones.
       piped: true
       group:
         jobs:
