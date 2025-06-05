@@ -197,7 +197,6 @@ rec {
         golangci-lint
         gomod2nix
         gopls
-        markdown2html-converter
         markdownlint-cli2
         # TODO: I use `chronic` to hide the output of commands that produce a lot of
         # output even when they exit successfully. I should see if I could change
@@ -229,6 +228,7 @@ rec {
     packages = with pkgs; [
       # These get called in the lefthook config
       chase
+      markdown2html-converter
     ];
   };
 

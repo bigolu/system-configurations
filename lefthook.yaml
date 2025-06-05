@@ -152,6 +152,18 @@ sync:
       run: sudo -- "$(chase "$(command -v run-as-admin)")" --path "$PATH" "$(command -v system-config-sync)"
     - name: fish
       run: fish -c fish-reload
+    - name: task-docs-html
+      run: |
+        # TODO: markdown2html-converter hasn't been updated in a couple
+        # years. I'd like to switch to markdown-to-html-cli[1], but it
+        # isn't in nixpkgs. Maybe I can add it or make a request.
+        #
+        # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
+        markdown2html-converter \
+          --force \
+          --title 'Tasks' \
+          --html-path docs/tasks.html \
+          docs/tasks.md
 
 check:
   # Custom hooks should always have a files command. See the comment below the
@@ -168,26 +180,26 @@ check:
         - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/**
         - dotfiles/cosmic/config/**
-        - docs/tasks.html
-      # Enabling `piped` is useful for the scenario where there are issues found by
-      # fast checks, but not slow ones. Without `piped`, you would run all the checks
-      # only to find an issue with a fast check and then have to run all the checks
-      # again once that issue is fixed. With `piped`, the slow ones won't run since
-      # an issue was found by one of the faster ones. Once you fix the issue found by
-      # the fast check, then the slower ones will run. On the other hand, this means
-      # you'll have to keep rerunning checks that have already passed just to see the
-      # issues found by subsequent checks. To mitigate this, some of the checks are
-      # put in groups.
-      #
-      # One example of when this is useful is when there's a formatting issue, which
-      # is common if you aren't formatting the code in your IDE, but all of the other
-      # checks are successful. Without `piped`, you'd have to wait for all checks to
-      # complete, commit the formatted code, then run all the checks again. With
-      # `piped`, the checks stop after the group that contains the formatters
-      # finishes. This way, you can commit the formatted code and the next time you
-      # run the checks, all of them will run.
-      piped: true
+        - docs/tasks.md
       group:
+        # Enabling `piped` is useful for the scenario where there are issues found by
+        # fast checks, but not slow ones. Without `piped`, you would run all the checks
+        # only to find an issue with a fast check and then have to run all the checks
+        # again once that issue is fixed. With `piped`, the slow ones won't run since
+        # an issue was found by one of the faster ones. Once you fix the issue found by
+        # the fast check, then the slower ones will run. On the other hand, this means
+        # you'll have to keep rerunning checks that have already passed just to see the
+        # issues found by subsequent checks. To mitigate this, some of the checks are
+        # put in groups.
+        #
+        # One example of when this is useful is when there's a formatting issue, which
+        # is common if you aren't formatting the code in your IDE, but all of the other
+        # checks are successful. Without `piped`, you'd have to wait for all checks to
+        # complete, commit the formatted code, then run all the checks again. With
+        # `piped`, the checks stop after the group that contains the formatters
+        # finishes. This way, you can commit the formatted code and the next time you
+        # run the checks, all of them will run.
+        piped: true
         jobs:
           # Why fixes should run before other checks:
           #   - A fix could produce code that would fail another check
@@ -221,22 +233,9 @@ check:
                     - run: '[ "$CI" != true ]'
                   glob: gozip/go.mod
                   run: "{run_fix} gomod2nix --dir gozip generate"
-                - name: task-docs
+                - name: task-docs-markdown
                   glob: mise/*
-                  # TODO: markdown2html-converter hasn't been updated in a couple
-                  # years. I'd like to switch to markdown-to-html-cli[1], but it
-                  # isn't in nixpkgs. Maybe I can add it or make a request.
-                  #
-                  # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
-                  run: |
-                    # markdown2html-converter only accepts files that end in .md so I
-                    # can't use process substitution
-                    temp="$(mktemp --suffix '.md')"
-                    mise generate task-docs --style detailed --output "$temp"
-                    {run_fix} markdown2html-converter \
-                      --force \
-                      --title 'Tasks' \
-                      --html-path docs/tasks.html "$temp"
+                  run: mise generate task-docs --style detailed --output docs/tasks.md
                 - name: deadnix
                   glob: "*.nix"
                   run: "{run_fix} deadnix --quiet --edit {files}"
