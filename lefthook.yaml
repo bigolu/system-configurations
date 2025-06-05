@@ -146,15 +146,22 @@ check:
         - dotfiles/cosmic/config/**
         - docs/tasks.html
       # Enabling `piped` is useful for the scenario where there are issues found by
-      # fast checks, but not slow ones. Without `piped` you would run all the checks
+      # fast checks, but not slow ones. Without `piped`, you would run all the checks
       # only to find an issue with a fast check and then have to run all the checks
       # again once that issue is fixed. With `piped`, the slow ones won't run since
-      # an issue was found in one of the faster ones. Once you fix the issues found
-      # by the fast checks, then the slower ones will run. On the other hand, it
-      # would be frustrating if lefthook stopped after the first issue was found
-      # because then you would have to keep rerunning all the checks to discover
-      # issues one at a time. To avoid this, we put the checks in groups and order
-      # faster groups before slower ones.
+      # an issue was found by one of the faster ones. Once you fix the issue found by
+      # the fast check, then the slower ones will run. On the other hand, this means
+      # you'll have to keep rerunning checks that have already passed just to see the
+      # issues found by subsequent checks. To mitigate this, some of the checks are
+      # put in groups.
+      #
+      # One example of when this is useful is when there's a formatting issue, which
+      # is common if you aren't formatting the code in your IDE, but all of the other
+      # checks are successful. Without `piped`, you'd have to wait for all checks to
+      # complete, commit the formatted code, then run all the checks again. With
+      # `piped`, the checks stop after the group that contains the formatters
+      # finishes. This way, you can commit the formatted code and the next time you
+      # run the checks, all of them will run.
       piped: true
       group:
         jobs:
