@@ -28,7 +28,7 @@ let
   inherit (lib)
     pipe
     fileset
-    optionalString
+    optionals
     unique
     concatLists
     splitString
@@ -55,29 +55,42 @@ rec {
 
   ciEssentials =
     let
-      # The full set of locales is pretty big (~220MB) so I'll only include the one
-      # I need.
-      locales = pkgs.glibcLocales.override {
-        allLocales = false;
-        locales = [ "en_US.UTF-8/UTF-8" ];
+      # Nix recommends setting this for non-NixOS Linux distributions[1] and
+      # Ubuntu is used in CI.
+      #
+      # TODO: See if Nix should do this as part of its setup script
+      #
+      # [1]: https://nixos.wiki/wiki/Locales
+      locale = mkShellWrapperNoCC {
+        packages = [
+          # The full set of locales is pretty big (~220MB) so I'll only include the
+          # one I need.
+          #
+          # We don't need to set LOCALE_ARCHIVE as the wiki article linked above
+          # suggests because `glibcLocales` has a setup-hook that will do it.
+          (pkgs.glibcLocales.override {
+            allLocales = false;
+            locales = [ "en_US.UTF-8/UTF-8" ];
+          })
+        ];
+        shellHook = ''
+          # This tells programs to use the locale we provided above
+          export LC_ALL='en_US.UTF-8'
+        '';
       };
-
-      localeArchiveHook = ''
-        # Nix recommends setting this for non-NixOS Linux distributions[1] and
-        # Ubuntu is used in CI.
-        #
-        # TODO: See if Nix should do this as part of its setup script
-        #
-        # [1]: https://nixos.wiki/wiki/Locales
-        export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
-        export LC_ALL='en_US.UTF-8'
-      '';
     in
     mkShellWrapperNoCC {
-      inputsFrom = [ taskRunner ];
-      # For the `run` steps in CI workflows
-      packages = [ pkgs.bash-script ];
-      shellHook = optionalString isLinux localeArchiveHook;
+      inputsFrom =
+        [
+          taskRunner
+        ]
+        ++ optionals isLinux [
+          locale
+        ];
+      packages = [
+        # For the `run` steps in CI workflows
+        pkgs.bash-script
+      ];
     };
 
   gozip =
