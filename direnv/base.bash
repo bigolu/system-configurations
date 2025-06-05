@@ -50,7 +50,10 @@ function set_up_nix {
 }
 
 # TODO: This wouldn't be necessary if nix supported project/directory-specific config
-# files: https://github.com/NixOS/nix/issues/10258
+# files[1]. The `nixConfig` field on a flake isn't a good alternative because it only
+# supports flakes so it doesn't apply to nix shebang scripts for example.
+#
+# https://github.com/NixOS/nix/issues/10258
 function load_nix_config_file {
   local -r config_file="$1"
   add_line_to_nix_config "include ${config_file}"
