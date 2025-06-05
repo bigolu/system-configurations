@@ -185,6 +185,20 @@ rec {
         lua-language-server
       ];
       packages = with pkgs; [
+        actionlint
+        config-file-validator
+        # For `mktemp`
+        coreutils
+        deadnix
+        doctoc
+        editorconfig-checker
+        # For `fish_indent` and `fish`
+        fish
+        golangci-lint
+        gomod2nix
+        gopls
+        markdown2html-converter
+        markdownlint-cli2
         # TODO: I use `chronic` to hide the output of commands that produce a lot of
         # output even when they exit successfully. I should see if I could change
         # this upstream.
@@ -192,32 +206,18 @@ rec {
         # I also use this for `isutf8` and `parallel`. `parallel` is used to run any
         # check that doesn't support multiple file arguments.
         moreutils
-        doctoc
-        gomod2nix
-        markdown2html-converter
-        # For `mktemp`
-        coreutils
         nixfmt-rfc-style
+        nixpkgs-lint-community
         nodePackages.prettier
-        shfmt
-        stylua
-        taplo
-        # For `fish_indent` and `fish`
-        fish
-        actionlint
-        deadnix
         # for renovate-config-validator
         renovate
-        shellcheck
-        statix
-        markdownlint-cli2
-        golangci-lint
-        gopls
-        config-file-validator
         ruff
+        shellcheck
+        shfmt
+        statix
+        stylua
+        taplo
         typos
-        editorconfig-checker
-        nixpkgs-lint-community
       ];
     };
 
