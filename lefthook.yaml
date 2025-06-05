@@ -82,6 +82,30 @@ pre-commit:
           # tasks and stalls. For now, I use `ifne` to do that.
           ifne lefthook run check --files-from-stdin
 
+post-rewrite: &post-pull-sync
+  # I enabled `follow` on the 'sync' group so I need `follow` here as well or it
+  # won't work.
+  follow: true
+  jobs:
+    - name: post-pull-sync
+      only:
+        # We'll assume we're at the end of a pull if the last action in the reflog is
+        # pull. Here are some examples of log entries with the pull action:
+        #   - a75c67a9 (HEAD -> one) HEAD@{0}: pull . two (finish): returning to refs/heads/one
+        #   - d1fa029d (HEAD -> one, two) HEAD@{0}: pull . two: Fast-forward
+        #   - 43964ed6 (origin/master, origin/HEAD) HEAD@{38}: pull: Fast-forward
+        - run: |
+            echo "$(git reflog show --max-count 1)" |
+              grep -q -E '^.*?: pull( .*?)?: .+'
+      # I enabled `interactive` on some of the jobs in the 'sync' group so I need
+      # `interactive` here as well or it won't work.
+      interactive: true
+      # lefthook doesn't run any jobs if no files are passed in so we use `--force`
+      # to make them run.
+      run: lefthook run sync --force
+
+post-merge: *post-pull-sync
+
 # Custom Hooks
 # -----------------------------------------------------------------------------------
 # Lefthook only applies a job's glob if it, or the hook it belongs to, has a 'files'
