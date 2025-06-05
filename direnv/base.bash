@@ -16,7 +16,6 @@ function main {
   # exists first.
   create_direnv_layout_directory
 
-  dotenv_if_exists secrets.env
   set_up_nix
 }
 
