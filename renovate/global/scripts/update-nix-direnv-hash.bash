@@ -44,12 +44,7 @@ function replace_nix_direnv_hash {
   local -r new_hash="$2"
 
   local original_envrc
-  original_envrc="$(
-    cat "$envrc_path"
-    # Add a character to the end of the output to preserve trailing newlines.
-    printf x
-  )"
-  original_envrc="${original_envrc::-1}"
+  original_envrc="$(<"$envrc_path")"
 
   # \\\\\n matches a backslash followed by a newline. This allows you to continue a
   # statement on a newline in Bash
@@ -59,14 +54,14 @@ function replace_nix_direnv_hash {
   local -r everything_before_nix_direnv_hash=".*source_url${separator}${quote}${nix_direnv_url_pattern}${quote}${separator}${quote}"
   local -r everything_after_nix_direnv_hash="${quote}.*"
   local -r replacement_regex="($everything_before_nix_direnv_hash)${nix_direnv_hash}($everything_after_nix_direnv_hash)"
+
   if ! [[ $original_envrc =~ $replacement_regex ]]; then
     echo 'Error: Could not find the nix-direnv hash' >&2
     exit 1
   fi
   local -r new_envrc="${BASH_REMATCH[1]}${new_hash}${BASH_REMATCH[4]}"
 
-  # Use printf to avoid adding a newline to the file
-  printf '%s' "$new_envrc" >"$envrc_path"
+  echo "$new_envrc" >"$envrc_path"
 }
 
 main "$@"
