@@ -66,7 +66,7 @@ moduleContext@{ lib, utils, ... }:
       ci-renovate = {
         packages = with pkgs; [
           renovate
-          gitMinimal
+          git
           go
         ];
         shellHook = ''
