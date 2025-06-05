@@ -61,7 +61,7 @@
 </ul>
 <p>Display task documentation</p>
 <h2><code>sync</code></h2>
-<p>Run jobs to synchronize your environment with the code. For example, running database migrations whenever the schema changes. Run this anytime you incorporate someone else's changes. Such as running <code>git pull</code> or checking out another branch. The jobs to run will be automatically determined based on what files changed since the last pull, checkout, etc. The list of jobs is in <code>lefthook.yaml</code>.</p>
+<p>Run jobs to synchronize your environment with the code. For example, running database migrations whenever the schema changes. Run this anytime you incorporate someone else's changes, like when running <code>git checkout</code>. A git hook is provided to automatically run this after <code>git pull</code>. The list of jobs is in <code>lefthook.yaml</code>.</p>
 <ul>
 <li><strong>Usage</strong>: <code>sync [jobs]…</code></li>
 </ul>

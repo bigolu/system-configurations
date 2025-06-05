@@ -6,10 +6,9 @@
 #USAGE long_about """
 #USAGE   Run jobs to synchronize your environment with the code. For example, \
 #USAGE   running database migrations whenever the schema changes. Run this anytime \
-#USAGE   you incorporate someone else's changes. Such as running `git pull` \
-#USAGE   or checking out another branch. The jobs to run will be automatically \
-#USAGE   determined based on what files changed since the last pull, checkout, etc. \
-#USAGE   The list of jobs is in `lefthook.yaml`.
+#USAGE   you incorporate someone else's changes, like when running `git checkout`. \
+#USAGE   A git hook is provided to automatically run this after `git pull`. The \
+#USAGE   list of jobs is in `lefthook.yaml`.
 #USAGE """
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
