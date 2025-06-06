@@ -111,7 +111,7 @@ post-checkout:
   # won't work.
   follow: true
   jobs:
-    - name: post-pull-sync
+    - name: post-checkout-sync
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
