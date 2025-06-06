@@ -8,8 +8,9 @@ shopt -s inherit_errexit
 
 # The pre-commit hook is not run when you do `git rebase --continue`. This adds
 # an exec line after each commit to run the pre-commit hook.
+pre_commit_hook="$(git rev-parse --absolute-git-dir)/hooks/pre-commit"
 run_pre_commit_flags=()
-if type -P lefthook >/dev/null; then
+if type -P lefthook >/dev/null && [[ -e $pre_commit_hook ]]; then
   run_pre_commit_flags=(
     --exec
     # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is used and
