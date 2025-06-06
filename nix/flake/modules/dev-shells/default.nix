@@ -42,6 +42,7 @@ moduleContext@{ lib, utils, ... }:
           speakerctl
           commitMsgHook
           preCommitHook
+          postCheckoutHook
           check
           sync
           taskRunner

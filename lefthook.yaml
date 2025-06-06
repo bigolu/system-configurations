@@ -106,6 +106,71 @@ post-rewrite: &post-pull-sync
 
 post-merge: *post-pull-sync
 
+post-checkout:
+  # I enabled `follow` on the 'sync' group so I need `follow` here as well or it
+  # won't work.
+  follow: true
+  jobs:
+    - name: post-pull-sync
+      # I enabled `interactive` on some of the jobs in the 'sync' group so I need
+      # `interactive` here as well or it won't work.
+      interactive: true
+      run: |
+        # I don't know a command that can tell you if the previous HEAD was detached
+        # so instead I'm using the reflog. The reflog contained the following entry
+        # after I moved from a detached HEAD to a normal HEAD:
+        #   9e618529 HEAD@{9}: checkout: moving from 424cebdb0e76f9573bfb8c37559633c0782b8893 to one
+        # From this we see that the log will contain the commit hash if HEAD was
+        # detached. So to see if the previous HEAD was detached, we'll search for a
+        # commit hash after "moving from" in the last reflog entry.
+        was_previous_head_detached='false'
+        last_reflog_entry="$(git reflog show --max-count 1)"
+        maybe_hash="$(
+          echo "$last_reflog_entry" |
+            # Use `--replace` so only the hash is printed
+            rg \
+              --no-config \
+              --replace '$hash' \
+              '^.*?: checkout( .*?)?: .*moving from (?<hash>[0-9a-f]{5,40}).*'
+        )"
+        # If the regex doesn't match, the result will be empty.
+        if [ -n "$maybe_hash" ]; then
+          # Since a branch name could also match the regex for a git hash we ensure
+          # it's a commit hash by getting the symbolic name for the possible hash. If
+          # it's a branch name `name-rev` will just return the same name.
+          symbolic_name="$(git name-rev --name-only "$maybe_hash")"
+          if [ "$maybe_hash" != "$symbolic_name" ]; then
+            was_previous_head_detached='true'
+          fi
+        fi
+
+        # The goal is to only sync if we are moving from one branch to another and
+        # they don't both point to the same commit.
+        #
+        # TODO: Open an issue for passing the git hook arguments to only/skip
+        # commands. This way, lefthook wouldn't print that this command is being run
+        # when we're really just checking to see if it should run.
+        if
+          # Ensure this is a branch checkout.
+          [ {3} == '1' ] &&
+
+            # If the commit we're coming from is the same one we're checking out,
+            # there's no reason to sync so here we ensure they're different. One
+            # example of when they would be the same is when a new branch is made.
+            [ {1} != {2} ] &&
+
+            # Ensure that both the previous and current HEAD aren't detached. If
+            # either is detached then we're probably going through the commit history
+            # to debug. In which case, we may not want to sync the environment.
+            [ "$was_previous_head_detached" != 'true' ] &&
+            # The exit code is 0 if HEAD isn't detached
+            git symbolic-ref --quiet HEAD
+        then
+          # lefthook doesn't run any jobs if no files are passed in so we use
+          # `--force` to make them run.
+          lefthook run sync --force
+        fi
+
 # Custom Hooks
 # -----------------------------------------------------------------------------------
 # Lefthook only applies a job's glob if it, or the hook it belongs to, has a 'files'

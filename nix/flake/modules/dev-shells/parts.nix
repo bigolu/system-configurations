@@ -164,6 +164,13 @@ rec {
     ];
   };
 
+  postCheckoutHook = mkShellWrapperNoCC {
+    # These are used in the lefthook config for the post-checkout hook
+    packages = with pkgs; [
+      ripgrep
+    ];
+  };
+
   check =
     let
       lua-language-server = mkShellWrapperNoCC {
