@@ -55,19 +55,19 @@ rec {
 
   ciEssentials =
     let
-      # Nix recommends setting this for non-NixOS Linux distributions[1] and
-      # Ubuntu is used in CI.
+      # Nix recommends setting the LOCALE_ARCHIVE environment variable for non-NixOS
+      # Linux distributions[1] and Ubuntu is used in CI. Though, we don't need to
+      # explicitly set LOCALE_ARCHIVE since `glibcLocales` has a setup-hook that will
+      # do it.
+      #
+      # The full set of locales is pretty big (~220MB) so I'll only include the one
+      # that will be used.
       #
       # TODO: See if Nix should do this as part of its setup script
       #
       # [1]: https://nixos.wiki/wiki/Locales
       locale = mkShellWrapperNoCC {
         packages = [
-          # The full set of locales is pretty big (~220MB) so I'll only include the
-          # one I need.
-          #
-          # We don't need to set LOCALE_ARCHIVE as the wiki article linked above
-          # suggests because `glibcLocales` has a setup-hook that will do it.
           (pkgs.glibcLocales.override {
             allLocales = false;
             locales = [ "en_US.UTF-8/UTF-8" ];
