@@ -5,10 +5,9 @@
 #MISE description="Synchronize your environment with the code"
 #USAGE long_about """
 #USAGE   Run jobs to synchronize your environment with the code. For example, \
-#USAGE   running database migrations whenever the schema changes. Run this anytime \
-#USAGE   you incorporate someone else's changes, like when running `git checkout`. \
-#USAGE   A git hook is provided to automatically run this after `git pull`. The \
-#USAGE   list of jobs is in `lefthook.yaml`.
+#USAGE   running database migrations whenever the schema changes. You shouldn't have \
+#USAGE   to run this manually since a git hook is provided to automatically run this \
+#USAGE   after `git pull` and `git checkout`. The list of jobs is in `lefthook.yaml`.
 #USAGE """
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"

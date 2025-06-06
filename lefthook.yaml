@@ -300,7 +300,7 @@ check:
                   run: "{run_fix} gomod2nix --dir gozip generate"
                 - name: task-docs-markdown
                   glob: mise/*
-                  run: mise generate task-docs --style detailed --output docs/tasks.md
+                  run: "{run_fix} mise generate task-docs --style detailed --output docs/tasks.md"
                 - name: deadnix
                   glob: "*.nix"
                   run: "{run_fix} deadnix --quiet --edit {files}"
