@@ -27,7 +27,8 @@
   undoamend = "!git reset --soft HEAD@{1}"
   all-tracked = add -u
   co = checkout
-  l = log
+  sl = log --oneline --graph --all
+  l = log --graph --all
   mt = mergetool
   f = fetch
   # A safer force push. For more info read this:
