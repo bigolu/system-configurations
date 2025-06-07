@@ -101,9 +101,7 @@ post-rewrite: &post-pull-sync
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      # lefthook doesn't run any jobs if no files are passed in so we use `--force`
-      # to make them run.
-      run: lefthook run sync --force
+      run: git diff -z --name-only ORIG_HEAD HEAD | lefthook run sync --files-from-stdin
 
 post-merge: *post-pull-sync
 
@@ -155,21 +153,15 @@ post-checkout:
           # Ensure this is a branch checkout.
           [ {3} == '1' ] &&
 
-            # If the commit we're coming from is the same one we're checking out,
-            # there's no reason to sync so here we ensure they're different. One
-            # example of when they would be the same is when a new branch is made.
-            [ {1} != {2} ] &&
-
             # Ensure that both the previous and current HEAD aren't detached. If
             # either is detached then we're probably going through the commit history
             # to debug. In which case, we may not want to sync the environment.
             [ "$was_previous_head_detached" != 'true' ] &&
-            # The exit code is 0 if HEAD isn't detached
-            git symbolic-ref --quiet HEAD
+            # The exit code is 0 if HEAD isn't detached. `--quiet` only suppresses
+            # error messages so we redirect stdout to suppress normal messages.
+            git symbolic-ref --quiet HEAD >/dev/null
         then
-          # lefthook doesn't run any jobs if no files are passed in so we use
-          # `--force` to make them run.
-          lefthook run sync --force
+          git diff -z --name-only {1} {2} | lefthook run sync --files-from-stdin
         fi
 
 # Custom Hooks
@@ -195,6 +187,23 @@ sync:
   files: ":"
   jobs:
     - name: direnv
+      glob:
+        - direnv/**
+
+        # So task dependencies can be reloaded into the dev shell.
+        - mise/tasks/**
+
+        # If the task we run changes
+        - mise/tasks/lefthook/sync/direnv.bash
+
+        # - These affect nix-direnv
+        # - If the version of any program that gets called here changes
+        - nix/**
+        - flake.nix
+        - flake.lock
+
+        # If this configuration changes
+        - lefthook.yaml
       run: mise run lefthook:sync:direnv
     - name: lefthook
       only:
@@ -205,6 +214,18 @@ sync:
         lefthook install --force
         touch "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete"
     - name: system
+      glob:
+        - smart_plug/**
+        - dotfiles/**
+
+        # - These affect the system configuration
+        # - If the version of any program that gets called here changes
+        - nix/**
+        - flake.nix
+        - flake.lock
+
+        # If this configuration changes
+        - lefthook.yaml
       # Needs to be interactive so I can input my password the first time I run this.
       # I won't need it afterwards since I specify the path to run-as-admin in my
       # sudoers config to allow running it without a password.
@@ -215,6 +236,16 @@ sync:
       # the nix store, but `command` will return the path in my user's profile
       run: sudo -- "$(chase "$(command -v run-as-admin)")" --path "$PATH" "$(command -v system-config-sync)"
     - name: fish
+      glob:
+        - dotfiles/fish/conf.d/*.fish
+
+        # - If the version of any program that gets called here changes
+        - nix/**
+        - flake.nix
+        - flake.lock
+
+        # If this configuration changes
+        - lefthook.yaml
       run: fish -c fish-reload
 
 check:
