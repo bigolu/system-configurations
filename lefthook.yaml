@@ -56,7 +56,7 @@ commit-msg:
   jobs:
     - name: typos
       run: |
-        if ! typos {1}; then
+        if ! sed '/^#/d' <{1} | typos -; then
           commit_msg_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
           printf '%s\n' \
             '' \
