@@ -206,8 +206,6 @@ rec {
       packages = with pkgs; [
         actionlint
         config-file-validator
-        # For `mktemp`
-        coreutils
         deadnix
         doctoc
         editorconfig-checker
