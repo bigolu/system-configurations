@@ -61,7 +61,4 @@ fi
   #
   # TODO: See if lefthook can support this
   head -c -1 |
-  # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is used and
-  # nothing is passed through stdin. Instead, it tries to run tasks and stalls. For
-  # now, I use `ifne` to do that.
-  ifne lefthook run check --files-from-stdin "${job_flag[@]}"
+  lefthook run check --files-from-stdin "${job_flag[@]}"

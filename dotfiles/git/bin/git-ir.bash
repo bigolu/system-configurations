@@ -17,12 +17,9 @@ if type -P lefthook >/dev/null && [[ -e $pre_commit_hook ]]; then
     # necessary because lefthook expects the file names to be separated by a
     # '\0' so a trailing one would result in an empty string being passed in as
     # a file name.
-    # TODO: See if lefthook can support this
     #
-    # TODO: lefthook shouldn't run any tasks if `--files-from-stdin` is used and
-    # nothing is passed through stdin. Instead, it tries to run tasks and stalls. For
-    # now, I use `ifne` to do that.
-    'git diff -z --diff-filter=d --name-only HEAD~1 HEAD | head -c -1 | ifne lefthook run pre-commit --files-from-stdin'
+    # TODO: See if lefthook can support this
+    'git diff -z --diff-filter=d --name-only HEAD~1 HEAD | head -c -1 | lefthook run pre-commit --files-from-stdin'
   )
 fi
 

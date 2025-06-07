@@ -160,7 +160,6 @@ rec {
     # These are used in the lefthook config for the pre-commit hook
     packages = with pkgs; [
       coreutils
-      moreutils
     ];
   };
 
