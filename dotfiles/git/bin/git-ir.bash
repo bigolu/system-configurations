@@ -13,13 +13,7 @@ run_pre_commit_flags=()
 if type -P lefthook >/dev/null && [[ -e $pre_commit_hook ]]; then
   run_pre_commit_flags=(
     --exec
-    # `head` removes the final character, which is the null byte '\0'. This is
-    # necessary because lefthook expects the file names to be separated by a
-    # '\0' so a trailing one would result in an empty string being passed in as
-    # a file name.
-    #
-    # TODO: See if lefthook can support this
-    'git diff -z --diff-filter=d --name-only HEAD~1 HEAD | head -c -1 | lefthook run pre-commit --files-from-stdin'
+    'git diff -z --diff-filter=d --name-only HEAD~1 HEAD | lefthook run pre-commit --files-from-stdin'
   )
 fi
 

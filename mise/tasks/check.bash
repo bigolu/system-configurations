@@ -54,11 +54,4 @@ fi
   # Print untracked files
   git ls-files -z --others --exclude-standard
 } |
-  # This removes the final character, which is the null byte '\0'. This is
-  # necessary because lefthook expects the file names to be separated by a
-  # '\0' so a trailing one would result in an empty string being passed in as
-  # a file name.
-  #
-  # TODO: See if lefthook can support this
-  head -c -1 |
   lefthook run check --files-from-stdin "${job_flag[@]}"

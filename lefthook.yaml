@@ -81,16 +81,7 @@ pre-commit:
       # I enable `interactive` for some of the jobs in the 'check' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      run: |
-        printf '%s\0' {staged_files} |
-          # This removes the final character, which is the null byte '\0'. This is
-          # necessary because lefthook expects the file names to be separated by a
-          # '\0' so a trailing one would result in an empty string being passed in as
-          # a file name.
-          #
-          # TODO: See if lefthook can support this
-          head -c -1 |
-          lefthook run check --files-from-stdin
+      run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
 
 post-rewrite: &post-pull-sync
   # I enabled `follow` on the 'sync' group so I need `follow` here as well or it
