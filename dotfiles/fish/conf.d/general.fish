@@ -261,3 +261,4 @@ abbr --add --global g git
 # TODO: My pre-commit hook doesn't run if I use an alias for 'commit'. Not sure if
 # that's a bug in git.
 abbr --command git c commit
+abbr --command git ca add -A '&&' git commit
