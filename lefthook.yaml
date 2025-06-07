@@ -196,16 +196,14 @@ sync:
   jobs:
     - name: direnv
       run: mise run lefthook:sync:direnv
-    # TODO: Currently, this is only needed on the first sync that's done after
-    # cloning the repo. This is because lefthook syncs hooks automatically. There's
-    # an issue for disabling this behavior[1]. I want it disabled because I don't
-    # always want to run the hooks of another branch. For example, when I create a
-    # new hook and want to test it on another branch, but then it installs the
-    # hooks of the other branch.
-    #
-    # [1]: https://github.com/evilmartians/lefthook/issues/840
     - name: lefthook
-      run: lefthook install --force
+      only:
+        # TODO: We only need to sync this once since lefthook resynchronizes hooks
+        # automatically.
+        - run: '[ ! -e "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete" ]'
+      run: |
+        lefthook install --force
+        touch "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete"
     - name: system
       # Needs to be interactive so I can input my password the first time I run this.
       # I won't need it afterwards since I specify the path to run-as-admin in my
