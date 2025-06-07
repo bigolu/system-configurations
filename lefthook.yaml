@@ -110,8 +110,8 @@ post-checkout:
         # commands. This way, lefthook wouldn't print that this command is being run
         # when we're really just checking to see if it should run.
         if
-          # If either commit has been pushed to the default branch, we shouldn't
-          # sync.
+          # If either commit has been pushed to the default branch, I assume the user
+          # is going through the history to debug. As such, we shouldn't sync.
           git merge-base --is-ancestor {1} origin/HEAD ||
             git merge-base --is-ancestor {2} origin/HEAD
         then
@@ -342,6 +342,9 @@ check:
                 - name: typos
                   run: |
                     {exit_if_no_files} {files}
+                    # TODO: typos should offer a way to only run fixes without
+                    # performing checks. This way, I can run fixes and not have this
+                    # fail if it finds something it can't fix.
                     {run_fix} typos --write-changes {files}
                 # Formatters should run after the other fixes since some fixes
                 # produce code that doesn't comply with the formatting.
