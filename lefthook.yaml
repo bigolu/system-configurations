@@ -217,18 +217,6 @@ sync:
       run: sudo -- "$(chase "$(command -v run-as-admin)")" --path "$PATH" "$(command -v system-config-sync)"
     - name: fish
       run: fish -c fish-reload
-    - name: task-docs-html
-      run: |
-        # TODO: markdown2html-converter hasn't been updated in a couple
-        # years. I'd like to switch to markdown-to-html-cli[1], but it
-        # isn't in nixpkgs. Maybe I can add it or make a request.
-        #
-        # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
-        markdown2html-converter \
-          --force \
-          --title 'Tasks' \
-          --html-path docs/tasks.html \
-          docs/tasks.md
 
 check:
   # Custom hooks should always have a files command. See the comment below the
@@ -245,7 +233,7 @@ check:
         - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/**
         - dotfiles/cosmic/config/**
-        - docs/tasks.md
+        - docs/**
       group:
         # Enabling `piped` is useful for the scenario where there are issues found by
         # fast checks, but not slow ones. Without `piped`, you would run all the checks
@@ -298,9 +286,22 @@ check:
                     - run: '[ "$CI" != true ]'
                   glob: gozip/go.mod
                   run: "{run_fix} gomod2nix --dir gozip generate"
-                - name: task-docs-markdown
+                - name: task-docs
                   glob: mise/*
-                  run: "{run_fix} mise generate task-docs --style detailed --output docs/tasks.md"
+                  # TODO: markdown2html-converter hasn't been updated in a couple
+                  # years. I'd like to switch to markdown-to-html-cli[1], but it
+                  # isn't in nixpkgs. Maybe I can add it or make a request.
+                  #
+                  # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
+                  run: |
+                    {run_fix} sh -c '
+                      mise generate task-docs --style detailed --output docs/tasks.md
+                      markdown2html-converter \
+                        --force \
+                        --title 'Tasks' \
+                        --html-path docs/tasks.html \
+                        docs/tasks.md
+                    '
                 - name: deadnix
                   glob: "*.nix"
                   run: "{run_fix} deadnix --quiet --edit {files}"
@@ -328,7 +329,7 @@ check:
                   root: "gozip/"
                   run: "{run_fix} golangci-lint run --fix"
                 - name: typos
-                  run: "{run_fix} typos --write-changes --format silent {files}"
+                  run: "{run_fix} typos --write-changes --format brief {files}"
                 # Formatters should run after the other fixes since some fixes
                 # produce code that doesn't comply with the formatting.
                 - name: format
