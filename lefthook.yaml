@@ -85,89 +85,40 @@ pre-commit:
 
 post-rewrite:
   jobs:
-    - &post-pull-sync
-      name: post-pull-sync
-      only:
-        # We'll assume we're at the end of a pull if the last action in the reflog is
-        # pull. Here are some examples of log entries with the pull action:
-        #   - a75c67a9 (HEAD -> one) HEAD@{0}: pull . two (finish): returning to refs/heads/one
-        #   - d1fa029d (HEAD -> one, two) HEAD@{0}: pull . two: Fast-forward
-        #   - 43964ed6 (origin/master, origin/HEAD) HEAD@{38}: pull: Fast-forward
-        - run: |
-            echo "$(git reflog show --max-count 1)" |
-              grep -q -E '^.*?: pull( .*?)?: .+'
+    - &sync
+      name: sync
+      skip:
+        # Don't run when a commit has been amended
+        - run: git reflog show --max-count 1 | grep -q '(amend)'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      # lefthook doesn't run any jobs if no files are passed in so we use `--force`
-      # to make them run.
-      run: lefthook run sync --force
+      run: lefthook run sync
 
 post-merge:
   jobs:
-    - *post-pull-sync
+    - *sync
 
 post-checkout:
   jobs:
-    - name: post-checkout-sync
+    - name: sync
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
       run: |
-        # I don't know a command that can tell you if the previous HEAD was detached
-        # so instead I'm using the reflog. The reflog contained the following entry
-        # after I moved from a detached HEAD to a normal HEAD:
-        #   9e618529 HEAD@{9}: checkout: moving from 424cebdb0e76f9573bfb8c37559633c0782b8893 to one
-        # From this we see that the log will contain the commit hash if HEAD was
-        # detached. So to see if the previous HEAD was detached, we'll search for a
-        # commit hash after "moving from" in the last reflog entry.
-        was_previous_head_detached='false'
-        last_reflog_entry="$(git reflog show --max-count 1)"
-        maybe_hash="$(
-          echo "$last_reflog_entry" |
-            # Use `--replace` so only the hash is printed
-            rg \
-              --no-config \
-              --replace '$hash' \
-              '^.*?: checkout( .*?)?: .*moving from (?<hash>[0-9a-f]{5,40}).*'
-        )"
-        # If the regex doesn't match, the result will be empty.
-        if [ -n "$maybe_hash" ]; then
-          # Since a branch name could also match the regex for a git hash we ensure
-          # it's a commit hash by getting the symbolic name for the possible hash. If
-          # it's a branch name `name-rev` will just return the same name.
-          symbolic_name="$(git name-rev --name-only "$maybe_hash")"
-          if [ "$maybe_hash" != "$symbolic_name" ]; then
-            was_previous_head_detached='true'
-          fi
-        fi
-
-        # The goal is to only sync if we are moving from one branch to another and
-        # they don't both point to the same commit.
-        #
         # TODO: Open an issue for passing the git hook arguments to only/skip
         # commands. This way, lefthook wouldn't print that this command is being run
         # when we're really just checking to see if it should run.
         if
-          # Ensure this is a branch checkout.
-          [ {3} == '1' ] &&
-
-            # If the commit we're coming from is the same one we're checking out,
-            # there's no reason to sync so here we ensure they're different. One
-            # example of when they would be the same is when a new branch is made.
-            [ {1} != {2} ] &&
-
-            # Ensure that both the previous and current HEAD aren't detached. If
-            # either is detached then we're probably going through the commit history
-            # to debug. In which case, we may not want to sync the environment.
-            [ "$was_previous_head_detached" != 'true' ] &&
-            # The exit code is 0 if HEAD isn't detached
-            git symbolic-ref --quiet HEAD
+          # If either commit has been pushed to the default branch, we shouldn't
+          # sync.
+          git merge-base --is-ancestor {1} origin/HEAD ||
+            git merge-base --is-ancestor {2} origin/HEAD
         then
-          # lefthook doesn't run any jobs if no files are passed in so we use
-          # `--force` to make them run.
-          lefthook run sync --force
+          exit
         fi
+
+        lefthook run sync
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
@@ -183,8 +134,18 @@ post-checkout:
 sync:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
-  files: ":"
+  files: |
+    if [ -e "${direnv_layout_dir:-.direnv}/last-sync-commit" ]; then
+      git diff --name-only "$(cat "${direnv_layout_dir:-.direnv}/last-sync-commit")" HEAD
+    fi
   jobs:
+    - name: track-sync
+      # I don't want lefthook to print this job in the terminal when it runs so I'm
+      # putting the real `run` command inside `skip` so lefthook thinks it's being
+      # skipped.
+      skip:
+        - run: git rev-parse HEAD >"${direnv_layout_dir:-.direnv}/last-sync-commit"
+      run: ":"
     - name: direnv
       # TODO: I actually want to use the 'follow' option, so I can see the output of
       # the command in real time, but that can only be set for an entire hook. I
@@ -197,6 +158,23 @@ sync:
       # - If I can see the output in real time, I can spot accidental nix cache
       #   misses and cancel the job instead of waiting for nix rebuild the package.
       interactive: true
+      glob:
+        - direnv/**
+
+        # So task dependencies can be reloaded into the dev shell.
+        - mise/tasks/**
+
+        # If the task we run changes
+        - mise/tasks/lefthook/sync/direnv.bash
+
+        # - These affect nix-direnv
+        # - If the version of any program that gets called here changes
+        - nix/**
+        - flake.nix
+        - flake.lock
+
+        # If this configuration changes
+        - lefthook.yaml
       run: mise run lefthook:sync:direnv
     - name: lefthook
       only:
@@ -207,6 +185,18 @@ sync:
         lefthook install --force
         touch "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete"
     - name: system
+      glob:
+        - smart_plug/**
+        - dotfiles/**
+
+        # - These affect the system configuration
+        # - If the version of any program that gets called here changes
+        - nix/**
+        - flake.nix
+        - flake.lock
+
+        # If this configuration changes
+        - lefthook.yaml
       # TODO: I actually want to use the 'follow' option, so I can see the output of
       # the command in real time, but that can only be set for an entire hook. I
       # noticed that 'interactive' would also show output in real time and unlike
@@ -227,6 +217,16 @@ sync:
       # the nix store, but `command` will return the path in my user's profile
       run: sudo -- "$(chase "$(command -v run-as-admin)")" --path "$PATH" "$(command -v system-config-sync)"
     - name: fish
+      glob:
+        - dotfiles/fish/conf.d/*.fish
+
+        # - If the version of any program that gets called here changes
+        - nix/**
+        - flake.nix
+        - flake.lock
+
+        # If this configuration changes
+        - lefthook.yaml
       run: fish -c fish-reload
 
 check:

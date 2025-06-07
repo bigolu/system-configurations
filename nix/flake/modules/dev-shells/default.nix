@@ -41,8 +41,6 @@ moduleContext@{ lib, utils, ... }:
           gozip
           speakerctl
           commitMsgHook
-          preCommitHook
-          postCheckoutHook
           check
           sync
           taskRunner
