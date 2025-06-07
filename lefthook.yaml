@@ -83,12 +83,10 @@ pre-commit:
       interactive: true
       run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
 
-post-rewrite: &post-pull-sync
-  # I enabled `follow` on the 'sync' group so I need `follow` here as well or it
-  # won't work.
-  follow: true
+post-rewrite:
   jobs:
-    - name: post-pull-sync
+    - &post-pull-sync
+      name: post-pull-sync
       only:
         # We'll assume we're at the end of a pull if the last action in the reflog is
         # pull. Here are some examples of log entries with the pull action:
@@ -99,18 +97,17 @@ post-rewrite: &post-pull-sync
             echo "$(git reflog show --max-count 1)" |
               grep -q -E '^.*?: pull( .*?)?: .+'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
-      # `interactive` here as well or it won't work.
+      # `interactive` here as well or they won't work.
       interactive: true
       # lefthook doesn't run any jobs if no files are passed in so we use `--force`
       # to make them run.
       run: lefthook run sync --force
 
-post-merge: *post-pull-sync
+post-merge:
+  jobs:
+    - *post-pull-sync
 
 post-checkout:
-  # I enabled `follow` on the 'sync' group so I need `follow` here as well or it
-  # won't work.
-  follow: true
   jobs:
     - name: post-checkout-sync
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
@@ -184,17 +181,22 @@ post-checkout:
 # [2]: https://github.com/evilmartians/lefthook/pull/595
 
 sync:
-  # This setting is useful for the 'direnv' and 'system' jobs:
-  #   - They can take a while so being able to see the output in real time will
-  #     reveal bottlenecks.
-  #   - I can spot accidental nix cache misses and cancel the job instead of waiting
-  #     for nix rebuild the package.
-  follow: true
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: ":"
   jobs:
     - name: direnv
+      # TODO: I actually want to use the 'follow' option, so I can see the output of
+      # the command in real time, but that can only be set for an entire hook. I
+      # noticed that 'interactive' would also show output in real time and unlike
+      # follow, it can be set on individual jobs. I should open an issue for setting
+      # 'follow' on jobs.
+      #
+      # - It can take a while so being able to see the output in real time will
+      #   reveal bottlenecks.
+      # - If I can see the output in real time, I can spot accidental nix cache
+      #   misses and cancel the job instead of waiting for nix rebuild the package.
+      interactive: true
       run: mise run lefthook:sync:direnv
     - name: lefthook
       only:
@@ -205,9 +207,19 @@ sync:
         lefthook install --force
         touch "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete"
     - name: system
-      # Needs to be interactive so I can input my password the first time I run this.
-      # I won't need it afterwards since I specify the path to run-as-admin in my
-      # sudoers config to allow running it without a password.
+      # TODO: I actually want to use the 'follow' option, so I can see the output of
+      # the command in real time, but that can only be set for an entire hook. I
+      # noticed that 'interactive' would also show output in real time and unlike
+      # follow, it can be set on individual jobs. I should open an issue for setting
+      # 'follow' on jobs.
+      #
+      # - Needs to be interactive so I can input my password the first time I run
+      #   this. I won't need it afterwards since I specify the path to run-as-admin
+      #   in my sudoers config to allow running it without a password.
+      # - It can take a while so being able to see the output in real time will
+      #   reveal bottlenecks.
+      # - If I can see the output in real time, I can spot accidental nix cache
+      #   misses and cancel the job instead of waiting for nix rebuild the package.
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       #
