@@ -89,12 +89,12 @@ Open this page
 
 ## `sync`
 
-Run jobs to synchronize your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since a git hook is provided to automatically run this after `git pull` and `git checkout`. The list of jobs is in `lefthook.yaml`.
+Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since git hooks are provided to automatically run this after rebases, merges, and checkouts. The list of jobs is in `lefthook.yaml`.
 
 
 - **Usage**: `sync [jobs]…`
 
-Synchronize your environment with the code
+Sync your environment with the code
 
 ### Arguments
 

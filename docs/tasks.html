@@ -61,11 +61,11 @@
 </ul>
 <p>Open this page</p>
 <h2><code>sync</code></h2>
-<p>Run jobs to synchronize your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since a git hook is provided to automatically run this after <code>git pull</code> and <code>git checkout</code>. The list of jobs is in <code>lefthook.yaml</code>.</p>
+<p>Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since git hooks are provided to automatically run this after rebases, merges, and checkouts. The list of jobs is in <code>lefthook.yaml</code>.</p>
 <ul>
 <li><strong>Usage</strong>: <code>sync [jobs]…</code></li>
 </ul>
-<p>Synchronize your environment with the code</p>
+<p>Sync your environment with the code</p>
 <h3>Arguments</h3>
 <h4><code>[jobs]…</code></h4>
 <p>Jobs to run. If none are passed then all of them will be run</p>

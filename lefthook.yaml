@@ -103,7 +103,8 @@ post-checkout:
   jobs:
     - name: sync
       skip:
-        # Don't run when if we're in the middle of a pull
+        # Don't run when we're in the middle of a pull, post-merge/post-rewrite will
+        # run when the pull is finished.
         - run: |
             git reflog show --max-count 1 | grep -q -E '^.*?: pull( .*?)?: .+'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
@@ -175,7 +176,7 @@ sync:
       run: mise run lefthook:sync:direnv
     - name: lefthook
       only:
-        # TODO: We only need to sync this once since lefthook resynchronizes hooks
+        # TODO: We only need to sync this once since lefthook re-syncs hooks
         # automatically.
         - run: '[ ! -e "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete" ]'
       run: |
@@ -227,10 +228,13 @@ sync:
       run: fish -c fish-reload
 
     # WARNING: This has to be last since the `files` command for this hook is run
-    # once per job and we don't want to update the last synced commit until all the
-    # sync jobs have run.
+    # once per job and this job will change the output of the `files` command.
+    #
+    # This job keeps track of the last commit we synced with. This way, the next time
+    # we sync, the `files` command for this hook will get the files that differ
+    # between the new commit we want to sync with and the last one.
     - name: track-sync
-      # I don't want lefthook to print this job in the terminal when it runs so I'm
+      # I don't want lefthook to print this job to the terminal when it runs so I'm
       # putting the real `run` command inside `skip` so lefthook thinks it's being
       # skipped.
       skip:

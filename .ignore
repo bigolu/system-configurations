@@ -2,4 +2,4 @@
 **/.gitkeep
 dotfiles/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
 dotfiles/cosmic/config/
-docs/tasks.html
+docs/tasks.{html,md}
