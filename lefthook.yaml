@@ -23,9 +23,11 @@ output:
 
 templates:
   run_fix: mise run lefthook:run-fix
-  # Some of my jobs don't specify a glob because they apply to all files. However, I
-  # also want at least one file to be passed into them. To ensure the file list isn't
-  # empty, I use this template.
+  # Some of the jobs in the 'check' hook don't specify a glob because they apply to
+  # all files. However, I also want at least one file to be passed into them. If you
+  # use `lefthook run check --files-from-stdin` and stdin is empty, jobs without a
+  # glob will still be run. To stop those jobs from running when no files are passed
+  # in, I use this template.
   exit_if_no_files: |
     exit_if_no_files() {
       if [ $# -eq 0 ]; then
