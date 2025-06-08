@@ -32,6 +32,4 @@ if ((${#jobs[@]} > 0)); then
   lefthook_job_args+=(--jobs "$joined_jobs")
 fi
 
-# lefthook doesn't run any jobs if no files are passed in so we use `--force` to make
-# them run.
 lefthook run sync --force "${lefthook_job_args[@]}"
