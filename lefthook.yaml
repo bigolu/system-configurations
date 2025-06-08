@@ -536,10 +536,6 @@ check:
             #
             # I'm doing this so I can spot accidental cache misses and cancel the job
             # instead of waiting for nix rebuild the package.
-            #
-            # Since 'interactive' is enabled, this job can't be run in parallel with
-            # other jobs. Otherwise, the output of their commands would get
-            # interleaved.
             interactive: true
             glob:
               - flake.nix
