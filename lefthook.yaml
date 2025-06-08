@@ -139,13 +139,6 @@ sync:
       git diff --name-only "$(cat "${direnv_layout_dir:-.direnv}/last-sync-commit")" HEAD
     fi
   jobs:
-    - name: track-sync
-      # I don't want lefthook to print this job in the terminal when it runs so I'm
-      # putting the real `run` command inside `skip` so lefthook thinks it's being
-      # skipped.
-      skip:
-        - run: git rev-parse HEAD >"${direnv_layout_dir:-.direnv}/last-sync-commit"
-      run: ":"
     - name: direnv
       # TODO: I actually want to use the 'follow' option, so I can see the output of
       # the command in real time, but that can only be set for an entire hook. I
@@ -228,6 +221,17 @@ sync:
         # If this configuration changes
         - lefthook.yaml
       run: fish -c fish-reload
+
+    # WARNING: This has to be last since the `files` command for this hook is run
+    # once per job and we don't want to update the last synced commit until all the
+    # sync jobs have run.
+    - name: track-sync
+      # I don't want lefthook to print this job in the terminal when it runs so I'm
+      # putting the real `run` command inside `skip` so lefthook thinks it's being
+      # skipped.
+      skip:
+        - run: git rev-parse HEAD >"${direnv_layout_dir:-.direnv}/last-sync-commit"
+      run: ":"
 
 check:
   # Custom hooks should always have a files command. See the comment below the
