@@ -102,6 +102,10 @@ post-merge:
 post-checkout:
   jobs:
     - name: sync
+      skip:
+        # Don't run when if we're in the middle of a pull
+        - run: |
+            git reflog show --max-count 1 | grep -q -E '^.*?: pull( .*?)?: .+'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
