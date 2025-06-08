@@ -97,8 +97,10 @@ post-rewrite:
     - &sync
       name: sync
       skip:
-        # Don't run when a commit has been amended
-        - run: git reflog show --max-count 1 | grep -q '(amend)'
+        # Don't run after a commit has been amended
+        - run: |
+            git reflog show --max-count 1 |
+              grep -q '(amend)'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
@@ -115,20 +117,27 @@ post-checkout:
         # Don't run when we're in the middle of a pull, post-merge/post-rewrite will
         # run when the pull is finished.
         - run: |
-            git reflog show --max-count 1 | grep -q -E '^.*?: pull( .*?)?: .+'
+            git reflog show --max-count 1 |
+              grep -q -E '^.*?: pull( .*?)?: .+'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
+      # TODO: Open an issue for passing the git hook arguments to only/skip commands.
+      # This way, lefthook wouldn't print that this command is being run when we're
+      # really just checking to see if it should run.
       run: |
-        # TODO: Open an issue for passing the git hook arguments to only/skip
-        # commands. This way, lefthook wouldn't print that this command is being run
-        # when we're really just checking to see if it should run.
         if
           # If either commit has been pushed to the default branch, I assume the user
           # is going through the history to debug. As such, we shouldn't sync.
           git merge-base --is-ancestor {1} origin/HEAD ||
             git merge-base --is-ancestor {2} origin/HEAD
         then
+          exit
+        fi
+
+        # We should only sync if this is a branch checkout. The third argument to the
+        # hook is '1' if it's a branch checkout.
+        if [ {3} != '1' ]; then
           exit
         fi
 
