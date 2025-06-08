@@ -240,10 +240,7 @@ function file-widget --description 'Search files'
     set preview_command '
         # TODO: timg cannot detect the line and column count of the screen in fzf
         if file --brief --mime-type {} | grep -q -i image
-            if test "$TERM_PROGRAM" = ghostty
-                # TODO: timg can detect ghostty outside of fzf, but not in it
-                timg -p kitty --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-            else if set --export --names | string match --quiet --regex \'^VSCODE_.*\'
+            if set --export --names | string match --quiet --regex \'^VSCODE_.*\'
                 # TODO: timg should use iterm2 image mode for vscode
                 timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
             else

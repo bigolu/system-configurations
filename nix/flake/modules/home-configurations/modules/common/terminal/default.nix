@@ -16,7 +16,6 @@ in
   imports = [
     ./fish.nix
     ./fzf.nix
-    ./ghostty.nix
     ./git.nix
     ./neovim.nix
     ./ripgrep-all.nix

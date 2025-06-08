@@ -24,12 +24,6 @@ let
     runtimeInputs = [ pkgs.homeManager.update-reminder ];
     text = "update-reminder ${repositoryDirectory}";
   };
-
-  remote-changes-check = writeShellApplication {
-    name = "remote-changes-check";
-    runtimeInputs = [ pkgs.homeManager.remote-changes-check ];
-    text = "remote-changes-check ${repositoryDirectory}";
-  };
 in
 mkMerge [
   {
@@ -123,15 +117,6 @@ mkMerge [
             ExecStart = getExe update-reminder;
           };
         };
-        system-config-change-check = {
-          Unit = {
-            Description = "Check for home-manager changes on the remote";
-          };
-          Service = {
-            Type = "oneshot";
-            ExecStart = getExe remote-changes-check;
-          };
-        };
       };
 
       timers = {
@@ -176,20 +161,6 @@ mkMerge [
               Hour = 0;
               Minute = 0;
             }
-          ];
-        };
-      };
-      system-config-change-check = {
-        enable = true;
-        config = {
-          ProgramArguments = [ (getExe remote-changes-check) ];
-          StartCalendarInterval = [
-            # Since timers that go off when the computer is off never run, I try to
-            # give myself more chances to see the message.
-            # source: https://superuser.com/a/546353
-            { Hour = 10; }
-            { Hour = 16; }
-            { Hour = 20; }
           ];
         };
       };

@@ -97,16 +97,6 @@
       };
     };
 
-    ghostty = {
-      url = "github:ghostty-org/ghostty";
-      inputs = {
-        nixpkgs-stable.follows = "nixpkgs-stable";
-        nixpkgs-unstable.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-        flake-compat.follows = "";
-      };
-    };
-
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
       # This flake's packages are available in a cache. I'm intentionally not setting

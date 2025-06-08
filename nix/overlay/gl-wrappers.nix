@@ -54,4 +54,4 @@ let
       mergeAttrsList
     ];
 in
-optionalAttrs isLinux (wrapPackages [ "ghostty" ])
+optionalAttrs isLinux (wrapPackages [ ])

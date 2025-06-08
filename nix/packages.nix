@@ -21,7 +21,6 @@ let
           inputs.gomod2nix.overlays.default
           inputs.nix-darwin.overlays.default
           inputs.nix-gl-host.overlays.default
-          inputs.ghostty.overlays.default
           (makeOverlay { input = "home-manager"; })
           (makeOverlay { input = "isd"; })
           # An overlay is available, but to reuse their cache, they

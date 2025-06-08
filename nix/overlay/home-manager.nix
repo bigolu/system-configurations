@@ -1,12 +1,10 @@
 # Adding these packages to pkgs so I can override them in the portable home config
 
-{ utils, ... }:
-final: _prev:
+_: final: _prev:
 let
   inherit (final) writeShellApplication;
   inherit (final.stdenv) isLinux isDarwin;
-  inherit (final.lib) makeBinPath fileset optionals;
-  inherit (utils) projectRoot;
+  inherit (final.lib) makeBinPath optionals;
 
   system-config-sync = writeShellApplication {
     name = "system-config-sync";
@@ -106,91 +104,6 @@ let
     '';
   };
 
-  remote-changes-check =
-    let
-      ghosttyConfigDir = fileset.toSource {
-        root = projectRoot + /dotfiles;
-        fileset = projectRoot + /dotfiles/ghostty;
-      };
-
-      ghosttyConfigFile = "${
-        fileset.toSource {
-          root = projectRoot + /dotfiles/ghostty;
-          fileset = projectRoot + /dotfiles/ghostty/config;
-        }
-      }/config";
-    in
-    writeShellApplication {
-      name = "remote-changes-check";
-
-      runtimeInputs =
-        with final;
-        [
-          coreutils
-          gitMinimal
-          # For ping
-          toybox
-        ]
-        ++ (optionals isLinux [
-          libnotify
-          ghostty
-        ])
-        ++ (optionals isDarwin [ terminal-notifier ]);
-
-      text = ''
-        log="$(mktemp --tmpdir 'sys_config_XXXXX')"
-        exec 2>"$log" 1>"$log"
-        function failure_handler {
-          if (($? == 0)); then
-            return
-          fi
-
-          title='System Config'
-          message="The check for changes failed. Check the logs in $log"
-          if [[ $(uname) == 'Linux' ]]; then
-            notify-send --app-name "$title" "$message"
-          else
-            terminal-notifier -title "$title" -message "$message"
-          fi
-        }
-        trap failure_handler EXIT
-
-        attempts=0
-        while ! ping -c1 example.com && ((attempts < 60)); do
-          attempts=$((attempts + 1))
-          sleep 1
-        done
-
-        cd "$1"
-
-        git fetch
-        if [[ -n "$(git log 'HEAD..@{u}' --oneline)" ]]; then
-          if [[ $(uname) == 'Linux' ]]; then
-            # TODO: I want to use action buttons on the notification, but it isn't
-            # working. Instead, I assume that I want to pull if I click the
-            # notification within one hour. Using `timeout` I can kill `notify-send`
-            # once one hour passes.
-            timeout_exit_code=124
-            set +o errexit
-            timeout 1h notify-send --wait --app-name 'Home Manager' \
-              'There are changes on the remote, click here to pull.'
-            exit_code=$?
-            set -o errexit
-            if (( exit_code != timeout_exit_code )); then
-              XDG_CONFIG_HOME=${ghosttyConfigDir} ghostty \
-                --wait-after-command=true \
-                -e ${system-config-pull}/bin/system-config-pull "$1"
-            fi
-          else
-            terminal-notifier \
-              -title "Nix Darwin" \
-              -message 'There are changes on the remote, click here to pull.' \
-              -execute 'open -n -a Ghostty --args --config-default-files=false --config-file=${ghosttyConfigFile} --wait-after-command=true -e ${system-config-pull}/bin/system-config-pull'" $1"
-          fi
-        fi
-      '';
-    };
-
   update-reminder = writeShellApplication {
     name = "update-reminder";
     runtimeInputs =
@@ -236,7 +149,6 @@ in
       system-config-sync
       system-config-preview-sync
       system-config-pull
-      remote-changes-check
       update-reminder
       ;
   };

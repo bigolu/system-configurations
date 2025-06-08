@@ -14,7 +14,6 @@
     ];
 
     casks = [
-      "ghostty"
       "xcodes"
       "hammerspoon"
       "visual-studio-code"

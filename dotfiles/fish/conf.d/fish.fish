@@ -395,9 +395,4 @@ function __remove_paginate_keybind --on-event fish_prompt
     bind --erase --preset alt-p
 end
 
-# ghostty
-if set --query GHOSTTY_RESOURCES_DIR
-    source "$GHOSTTY_RESOURCES_DIR/shell-integration/fish/vendor_conf.d/ghostty-shell-integration.fish"
-end
-
 functions --erase fish_command_not_found
