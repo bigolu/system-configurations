@@ -13,7 +13,7 @@ shopt -s inherit_errexit
 hook_name="$1"
 
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
-output="$(git config --get-all "auto-sync.$hook_name.branch")"
+output="$(git config --get-all "auto-sync.skip.$hook_name.branch")"
 readarray -t branches <<<"$output"
 for branch in "${branches[@]}"; do
   if [[ $branch == "$current_branch" ]]; then
@@ -21,7 +21,7 @@ for branch in "${branches[@]}"; do
   fi
 done
 
-output="$(git config --get-all "auto-sync.$hook_name.shell")"
+output="$(git config --get-all "auto-sync.skip.$hook_name.shell")"
 readarray -t shell_commands <<<"$output"
 for shell_command in "${shell_commands[@]}"; do
   if eval "$shell_command"; then
