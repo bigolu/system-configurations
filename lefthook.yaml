@@ -147,8 +147,8 @@ post-checkout:
         if
           # If either commit has been pushed to the default branch, I assume the user
           # is going through the history to debug. As such, we shouldn't sync.
-          git merge-base --is-ancestor "$(git rev-parse {1})" origin/HEAD ||
-            git merge-base --is-ancestor "$(git rev-parse {2})" origin/HEAD
+          git merge-base --is-ancestor {1} origin/HEAD ||
+            git merge-base --is-ancestor {2} origin/HEAD
         then
           exit
         fi
