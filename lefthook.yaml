@@ -174,16 +174,11 @@ sync:
     fi
   jobs:
     - name: direnv
-      # TODO: I actually want to use the 'follow' option, so I can see the output of
-      # the command in real time, but that can only be set for an entire hook. I
-      # noticed that 'interactive' would also show output in real time and unlike
-      # follow, it can be set on individual jobs. I should open an issue for setting
-      # 'follow' on jobs.
-      #
-      # - It can take a while so being able to see the output in real time will
-      #   reveal bottlenecks.
-      # - If I can see the output in real time, I can spot accidental nix cache
-      #   misses and cancel the job instead of waiting for nix rebuild the package.
+      # Why `interactive` should be enabled:
+      #   - This job can take a while so being able to see the output in real time
+      #     will reveal bottlenecks.
+      #   - If I can see the output in real time, I can spot accidental nix cache
+      #     misses and cancel the job instead of waiting for nix rebuild the package.
       interactive: true
       glob:
         - direnv/**
@@ -223,19 +218,12 @@ sync:
 
         # If this configuration changes
         - lefthook.yaml
-      # TODO: I actually want to use the 'follow' option, so I can see the output of
-      # the command in real time, but that can only be set for an entire hook. I
-      # noticed that 'interactive' would also show output in real time and unlike
-      # follow, it can be set on individual jobs. I should open an issue for setting
-      # 'follow' on jobs.
-      #
-      # - Needs to be interactive so I can input my password the first time I run
-      #   this. I won't need it afterwards since I specify the path to run-as-admin
-      #   in my sudoers config to allow running it without a password.
-      # - It can take a while so being able to see the output in real time will
-      #   reveal bottlenecks.
-      # - If I can see the output in real time, I can spot accidental nix cache
-      #   misses and cancel the job instead of waiting for nix rebuild the package.
+      # Why `interactive` should be enabled:
+      #   - So I can input my password for `sudo`
+      #   - This job can take a while so being able to see the output in real time
+      #     will reveal bottlenecks.
+      #   - If I can see the output in real time, I can spot accidental nix cache
+      #     misses and cancel the job instead of waiting for nix rebuild the package.
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       #
@@ -546,14 +534,12 @@ check:
                     - flake.lock
                   run: nix config check
           - name: flake
-            # TODO: I actually want to use the 'follow' option, so I can see the
-            # output of the command in real time, but that can only be set for an
-            # entire hook. I noticed that 'interactive' would also show output in
-            # real time and unlike follow, it can be set on individual jobs. I should
-            # open an issue for setting 'follow' on jobs.
-            #
-            # I'm doing this so I can spot accidental cache misses and cancel the job
-            # instead of waiting for nix rebuild the package.
+            # Why `interactive` should be enabled:
+            #   - This job can take a while so being able to see the output in real
+            #     time will reveal bottlenecks.
+            #   - If I can see the output in real time, I can spot accidental nix
+            #     cache misses and cancel the job instead of waiting for nix rebuild
+            #     the package.
             interactive: true
             glob:
               - flake.nix
