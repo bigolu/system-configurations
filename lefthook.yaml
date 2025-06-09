@@ -131,11 +131,11 @@ post-checkout:
   jobs:
     - name: sync
       skip:
-        # Don't run when we're in the middle of a pull, post-merge/post-rewrite will
-        # run when the pull is finished.
+        # Don't run when we're in the middle of a pull/rebase,
+        # post-merge/post-rewrite will run when the pull/rebase is finished.
         - run: |
             git reflog show --max-count 1 |
-              grep -q -E '^.*?: pull( .*?)?: .+'
+              grep -q -E '^.*?: (pull|rebase)( .*?)?: .+'
         - run: mise run lefthook:auto-sync-user-skip 'post-checkout'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
