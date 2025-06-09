@@ -40,8 +40,6 @@ let
     writeText
     ;
   inherit (pkgs.stdenv) isLinux;
-
-  goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
 in
 rec {
   lefthook = mkShellWrapperNoCC {
@@ -60,14 +58,13 @@ rec {
       # explicitly set LOCALE_ARCHIVE since `glibcLocales` has a setup-hook that will
       # do it.
       #
-      # The full set of locales is pretty big (~220MB) so I'll only include the one
-      # that will be used.
-      #
       # TODO: See if Nix should do this as part of its setup script
       #
       # [1]: https://nixos.wiki/wiki/Locales
       locale = mkShellWrapperNoCC {
         packages = [
+          # The full set of locales is pretty big (~220MB) so I'll only include the
+          # one that will be used.
           (pkgs.glibcLocales.override {
             allLocales = false;
             locales = [ "en_US.UTF-8/UTF-8" ];
@@ -102,6 +99,8 @@ rec {
         mkdir -p "$GOBIN"
         export PATH="''${GOBIN}''${PATH:+:$PATH}"
       '';
+
+      goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
 
       # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
@@ -149,7 +148,8 @@ rec {
   speakerctl = pkgs.speakerctl.devShell;
 
   commitMsgHook = mkShellWrapperNoCC {
-    # These are used in the lefthook config for the commit-msg hook
+    # These are used in the lefthook config for the commit-msg and
+    # check-commit-message hooks.
     packages = with pkgs; [
       gnused
       typos
