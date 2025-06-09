@@ -37,7 +37,7 @@
   add-intent-untracked = "!git ls-files --others --exclude-standard | xargs -I FILE git add --intent-to-add FILE"
   graph = log --oneline --graph --all
   rc = rebase --continue
-  recommit = "!git commit --edit --message \"$(sed '/^#/d' \"$(git rev-parse --git-dir)/COMMIT_EDITMSG\")\""
+  recommit = "!git commit --edit --message \"$(sed -e \"/# ------------------------ >8 ------------------------/,$d\" -e \"/^#/d\" \"$(git rev-parse --git-dir)/COMMIT_EDITMSG\")\""
 [init]
   defaultBranch = master
 [merge]
