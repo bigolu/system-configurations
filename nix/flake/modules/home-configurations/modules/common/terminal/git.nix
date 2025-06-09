@@ -4,7 +4,7 @@
 }:
 {
   home.packages = with pkgs; [
-    gitMinimal
+    git
     delta
     difftastic
     mergiraf

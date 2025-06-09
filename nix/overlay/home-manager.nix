@@ -49,7 +49,7 @@ let
     name = "system-config-pull";
     runtimeInputs = with final; [
       coreutils
-      gitMinimal
+      git
       less
       nix
     ];
@@ -110,7 +110,7 @@ let
       with final;
       [
         coreutils
-        gitMinimal
+        git
       ]
       ++ (optionals isLinux [ libnotify ])
       ++ (optionals isDarwin [ terminal-notifier ]);
