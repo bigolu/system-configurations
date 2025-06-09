@@ -13,24 +13,22 @@ shopt -s inherit_errexit
 hook_name="$1"
 
 current_branch="$(git rev-parse --abbrev-ref HEAD)"
-git config --get-all "auto-sync.$hook_name.branch" |
-  {
-    readarray -t branches
-    for branch in "${branches[@]}"; do
-      if [[ $branch == "$current_branch" ]]; then
-        exit 0
-      fi
-    done
-  }
+# shellcheck disable=2312
+# I can't use a pipeline because I want to be able to `exit` this process.
+readarray -t branches <(git config --get-all "auto-sync.$hook_name.branch")
+for branch in "${branches[@]}"; do
+  if [[ $branch == "$current_branch" ]]; then
+    exit 0
+  fi
+done
 
-git config --get-all "auto-sync.$hook_name.shell" |
-  {
-    readarray -t shell_commands
-    for shell_command in "${shell_commands[@]}"; do
-      if eval "$shell_command"; then
-        exit 0
-      fi
-    done
-  }
+# shellcheck disable=2312
+# I can't use a pipeline because I want to be able to `exit` this process.
+readarray -t shell_commands <(git config --get-all "auto-sync.$hook_name.shell")
+for shell_command in "${shell_commands[@]}"; do
+  if eval "$shell_command"; then
+    exit 0
+  fi
+done
 
 exit 1
