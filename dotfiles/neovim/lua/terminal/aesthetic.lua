@@ -5,14 +5,11 @@ vim.o.cursorlineopt = "number"
 vim.o.wrap = true
 vim.o.listchars = "tab: ,space:·"
 vim.opt.fillchars:append("eob: ,lastline:>")
-
+-- Neovim sets termguicolors asynchronously, since querying the terminal could be
+-- slow over SSH, so it usually isn't set by the time I set the colorscheme. Instead,
+-- I'll just set it now.
+vim.o.termguicolors = true
 vim.cmd.colorscheme("bigolu")
-vim.api.nvim_create_autocmd({ "OptionSet" }, {
-  pattern = "termguicolors",
-  callback = function(_)
-    vim.cmd.colorscheme("bigolu")
-  end,
-})
 
 -- cursor
 -- I don't think I'll need to reset/restore the cursor once this issue is resolved:
