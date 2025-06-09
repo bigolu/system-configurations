@@ -105,13 +105,13 @@ pre-commit:
 
 post-rewrite:
   jobs:
-    - &sync
-      name: sync
+    - name: sync
       skip:
         # Don't run after a commit has been amended
         - run: |
             git reflog show --max-count 1 |
               grep -q '(amend)'
+        - run: mise run lefthook:auto-sync-user-skip 'post-rewrite'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
@@ -119,7 +119,13 @@ post-rewrite:
 
 post-merge:
   jobs:
-    - *sync
+    - name: sync
+      skip:
+        - run: mise run lefthook:auto-sync-user-skip 'post-merge'
+      # I enabled `interactive` on some of the jobs in the 'sync' group so I need
+      # `interactive` here as well or they won't work.
+      interactive: true
+      run: lefthook run sync
 
 post-checkout:
   jobs:
@@ -130,6 +136,7 @@ post-checkout:
         - run: |
             git reflog show --max-count 1 |
               grep -q -E '^.*?: pull( .*?)?: .+'
+        - run: mise run lefthook:auto-sync-user-skip 'post-checkout'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
