@@ -18,8 +18,8 @@ people who want to manage their systems similarly.
 
 ## Applying a Configuration
 
-1. In the last command below, replace `<config_names>` with only the name of the
-   config to apply. Then run the commands which will install Nix, clone the
+1. In the last command below, replace `<comp_1|comp_2>` with only the name of
+   the config to apply. Then run the commands which will install Nix, clone the
    repo, and apply the config. Instead of using the `curl` command below, you
    can also download this Nix installer from [their
    site][determinate-systems-installer-install].

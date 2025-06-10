@@ -13,7 +13,7 @@ shopt -s inherit_errexit
 configs="$(nix eval --raw --file nix/config-names.nix)"
 
 perl -0777 -wsi \
-  -pe '$count += s{(system:init <).*?(>)}{$1$configs$2}s;' \
+  -pe '$count += s{(below, replace `<).*?(>.*system:init <).*?(>)}{$1$configs$2$configs$3}s;' \
   -e 'END { die "failed to substitute" if $count != 1 }' \
   -- \
   -configs="$configs" \
