@@ -53,7 +53,9 @@ function should_sync {
 
   # User-Specified, branch-based skips
   local output
-  output="$(git config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch")"
+  # If the config option isn't set, git returns a non-zero code so the `|| true`
+  # stops it from failing.
+  output="$(git config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch" || true)"
   local -a branches
   readarray -t branches <<<"$output"
   for branch in "${branches[@]}"; do
@@ -63,7 +65,10 @@ function should_sync {
   done
 
   # User-Specified, command-based skips
-  output="$(git config --get-all "auto-sync.skip.$AUTO_SYNC_HOOK_NAME.command")"
+  #
+  # If the config option isn't set, git returns a non-zero code so the `|| true`
+  # stops it from failing.
+  output="$(git config --get-all "auto-sync.skip.$AUTO_SYNC_HOOK_NAME.command" || true)"
   local -a commands
   readarray -t commands <<<"$output"
   for command in "${commands[@]}"; do
@@ -83,11 +88,14 @@ function should_sync {
       sed -n '/HEAD branch/s/.*: //p'
   )"
   if
-    # The `|| ...` serves two purposes:
-    #   - If the config option isn't set, git returns a non-zero code, but the
-    #     `|| ...` stops it from failing.
-    #   - It provides a default value
-    ! git config --get-all "auto-sync.allowed-branches" || echo "$default_branch" |
+    ! {
+      # The `|| ...` serves two purposes:
+      #   - If the config option isn't set, git returns a non-zero code, but the
+      #     `|| ...` stops it from failing.
+      #   - It provides a default value
+      git config --get-all 'auto-sync.allowed-branches' ||
+        echo "$default_branch"
+    } |
       # If none of the allowed branches are the current branch or the special value
       # "all", we shouldn't sync.
       grep -q -E "^($current_branch|all)\$"
