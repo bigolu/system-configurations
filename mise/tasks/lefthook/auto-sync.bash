@@ -135,12 +135,9 @@ function should_sync {
         result='false'
       fi
 
-      # If either commit has been pushed to the default branch, I assume the user is
-      # going through the history to debug. As such, we shouldn't sync.
-      if
-        git merge-base --is-ancestor "$1" origin/HEAD ||
-          git merge-base --is-ancestor "$2" origin/HEAD
-      then
+      # If the destination commit has been pushed to the default branch, I assume the
+      # user is going through the history to debug. As such, we shouldn't sync.
+      if git merge-base --is-ancestor "$2" origin/HEAD; then
         result='false'
       fi
       ;;
