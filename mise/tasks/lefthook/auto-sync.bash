@@ -37,8 +37,8 @@ shopt -s inherit_errexit
 #   auto-sync.skip.branch (optional):
 #     A list of branches that shouldn't be synced.
 #   auto-sync.skip.command (optional):
-#     A POSIX shell command that determines if sync should be skipped. If it exits
-#     with 0, sync will skipped.
+#     A Bash command that determines if sync should be skipped. If it exits with 0,
+#     sync will skipped.
 #   auto-sync.allow.all (optional):
 #     Set this to 'true' if syncing should be allowed on all branches.
 #   auto-sync.allow.branch (optional):
