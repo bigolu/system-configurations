@@ -37,8 +37,8 @@ shopt -s inherit_errexit
 #   auto-sync.skip.branch (optional):
 #     A list of branches that shouldn't be synced.
 #   auto-sync.skip.command (optional):
-#     A list of POSIX shell commands for determining if sync should be skip. If the
-#     exit with 0, sync will skipped.
+#     A POSIX shell command that determines if sync should be skipped. If it exits
+#     with 0, sync will skipped.
 #   auto-sync.allow.all (optional):
 #     Set this to 'true' if syncing should be allowed on all branches.
 #   auto-sync.allow.branch (optional):
@@ -101,17 +101,11 @@ function should_sync {
     should_sync='false'
   fi
 
-  # User-Specified, command-based skips
-  local command_skip_output
-  command_skip_output="$(safe_git_config --get-all 'auto-sync.skip.command')"
-  if [[ -n $command_skip_output ]]; then
-    local -a commands
-    readarray -t commands <<<"$command_skip_output"
-    for command in "${commands[@]}"; do
-      if eval "$command"; then
-        should_sync='false'
-      fi
-    done
+  # User-Specified, command-based skip
+  local command
+  command="$(safe_git_config --get 'auto-sync.skip.command')"
+  if [[ -n $command ]] && eval "$command"; then
+    should_sync='false'
   fi
 
   # By default, auto-syncing is only enabled for the default branch since other
