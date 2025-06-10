@@ -106,7 +106,7 @@ function should_sync {
   local default_branch
   # The command for getting the default branch is a bit slow. To avoid slowing down
   # the git hook, I cache the result.
-  local default_branch_cache="${direnv_layout_dir:-.direnv}/default-branch"
+  local default_branch_cache='.git/info/default-branch'
   if [[ ! -e $default_branch_cache ]]; then
     default_branch="$(
       LC_ALL='C' git remote show origin |
