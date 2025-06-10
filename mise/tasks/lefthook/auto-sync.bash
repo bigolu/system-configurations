@@ -50,7 +50,7 @@ shopt -s inherit_errexit
 #     Set a boolean value with:
 #       git config <option_name> <true|false>
 #     Examples:
-#       git config --add auto-sync.skip.post-rewrite.branch my-feature-branch
+#       git config --add auto-sync.skip.branch my-feature-branch
 #       git config auto-sync.allow.all true
 
 function main {
