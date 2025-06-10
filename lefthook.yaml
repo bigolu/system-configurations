@@ -101,65 +101,33 @@ pre-commit:
       #
       # [1]: https://github.com/evilmartians/lefthook/pull/925
       # [2]: https://github.com/evilmartians/lefthook/blob/d1eb3be2522a2afa0da6cfa255d7843935af6812/internal/git/repository.go#L35
-      run: git diff -z --name-only --cached --diff-filter=ACMR | lefthook run check --files-from-stdin
+      run: |
+        git diff -z --name-only --cached --diff-filter=ACMR |
+          lefthook run check --files-from-stdin
 
 post-rewrite:
   jobs:
     - name: sync
-      skip:
-        # Don't run after a commit has been amended
-        - run: |
-            git reflog show --max-count 1 |
-              grep -q '(amend)'
-        - run: mise run lefthook:auto-sync-user-skip 'post-rewrite'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run lefthook:auto-sync {1}
 
 post-merge:
   jobs:
     - name: sync
-      skip:
-        - run: mise run lefthook:auto-sync-user-skip 'post-merge'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run lefthook:auto-sync {1}
 
 post-checkout:
   jobs:
     - name: sync
-      skip:
-        # Don't run when we're in the middle of a pull/rebase,
-        # post-merge/post-rewrite will run when the pull/rebase is finished.
-        - run: |
-            git reflog show --max-count 1 |
-              grep -q -E '^.*?: (pull|rebase)( .*?)?: .+'
-        - run: mise run lefthook:auto-sync-user-skip 'post-checkout'
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      # TODO: Open an issue for passing the git hook arguments to only/skip commands.
-      # This way, lefthook wouldn't print that this command is being run when we're
-      # really just checking to see if it should run.
-      run: |
-        if
-          # If either commit has been pushed to the default branch, I assume the user
-          # is going through the history to debug. As such, we shouldn't sync.
-          git merge-base --is-ancestor {1} origin/HEAD ||
-            git merge-base --is-ancestor {2} origin/HEAD
-        then
-          exit
-        fi
-
-        # We should only sync if this is a branch checkout. The third argument to the
-        # hook is '1' if it's a branch checkout.
-        if [ {3} != '1' ]; then
-          exit
-        fi
-
-        lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run lefthook:auto-sync {1} {2} {3}
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
