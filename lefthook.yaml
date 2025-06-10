@@ -164,11 +164,9 @@ sync:
       glob:
         - direnv/**
 
-        # So task dependencies can be reloaded into the dev shell.
+        # - So task dependencies can be reloaded into the dev shell.
+        # - If the task we run in the `run` command changes
         - mise/tasks/**
-
-        # If the task we run changes
-        - mise/tasks/lefthook/sync/direnv.bash
 
         # - These affect nix-direnv
         # - If the version of any program that gets called here changes
