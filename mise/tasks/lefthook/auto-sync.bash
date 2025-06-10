@@ -135,9 +135,6 @@ function should_sync {
   fi
 
   case "$AUTO_SYNC_HOOK_NAME" in
-    'post-merge')
-      # There's nothing to do in this case
-      ;;
     'post-rewrite')
       # Don't run after a commit has been amended
       if [[ $1 == 'amend' ]]; then
