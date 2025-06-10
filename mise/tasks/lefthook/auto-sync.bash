@@ -118,12 +118,10 @@ function should_sync {
   fi
   if
     ! {
-      # The `|| ...` serves two purposes:
-      #   - If the config option isn't set, git returns a non-zero code, but the
-      #     `|| ...` stops it from failing.
-      #   - It provides a default value
-      git config --get-all 'auto-sync.allowed-branches' ||
-        echo "$default_branch"
+      echo "$default_branch"
+      # If the config option isn't set, git returns a non-zero code so the `|| true`
+      # stops it from failing.
+      git config --get-all 'auto-sync.allowed-branches' || true
     } |
       # If none of the allowed branches are the current branch or the special value
       # "all", we shouldn't sync.
