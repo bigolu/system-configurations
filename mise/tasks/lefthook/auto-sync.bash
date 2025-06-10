@@ -57,12 +57,14 @@ function should_sync {
   # stops it from failing.
   output="$(git config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch" || true)"
   local -a branches
-  readarray -t branches <<<"$output"
-  for branch in "${branches[@]}"; do
-    if [[ $branch == "$current_branch" ]]; then
-      result='false'
-    fi
-  done
+  if [[ -n $output ]]; then
+    readarray -t branches <<<"$output"
+    for branch in "${branches[@]}"; do
+      if [[ $branch == "$current_branch" ]]; then
+        result='false'
+      fi
+    done
+  fi
 
   # User-Specified, command-based skips
   #
@@ -70,12 +72,14 @@ function should_sync {
   # stops it from failing.
   output="$(git config --get-all "auto-sync.skip.$AUTO_SYNC_HOOK_NAME.command" || true)"
   local -a commands
-  readarray -t commands <<<"$output"
-  for command in "${commands[@]}"; do
-    if eval "$command"; then
-      result='false'
-    fi
-  done
+  if [[ -n $output ]]; then
+    readarray -t commands <<<"$output"
+    for command in "${commands[@]}"; do
+      if eval "$command"; then
+        result='false'
+      fi
+    done
+  fi
 
   # By default, auto-syncing is only enabled for the default branch since other
   # branches may be a security concern. For example, if you're working on an open
