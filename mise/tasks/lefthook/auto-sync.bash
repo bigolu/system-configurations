@@ -63,7 +63,7 @@ function should_sync {
   # commands we execute happen to print to stdout, the caller won't capture it.
   exec {stdout_copy}>&1
   exec 1>&2
-  local result='true'
+  local should_sync='true'
 
   local current_branch
   current_branch="$(git rev-parse --abbrev-ref HEAD)"
@@ -78,7 +78,7 @@ function should_sync {
     readarray -t branches <<<"$output"
     for branch in "${branches[@]}"; do
       if [[ $branch == "$current_branch" ]]; then
-        result='false'
+        should_sync='false'
       fi
     done
   fi
@@ -93,7 +93,7 @@ function should_sync {
     readarray -t commands <<<"$output"
     for command in "${commands[@]}"; do
       if eval "$command"; then
-        result='false'
+        should_sync='false'
       fi
     done
   fi
@@ -127,7 +127,7 @@ function should_sync {
       # "all", we shouldn't sync.
       grep -q -E "^($current_branch|all)\$"
   then
-    result='false'
+    should_sync='false'
   fi
 
   case "$AUTO_SYNC_HOOK_NAME" in
@@ -137,7 +137,7 @@ function should_sync {
     'post-rewrite')
       # Don't run after a commit has been amended
       if [[ $1 == 'amend' ]]; then
-        result='false'
+        should_sync='false'
       fi
       ;;
     'post-checkout')
@@ -146,7 +146,7 @@ function should_sync {
       # it's a branch checkout, but this seems to include checkouts to arbitrary
       # commits as well.
       if (($3 != 1)); then
-        result='false'
+        should_sync='false'
       fi
 
       # Don't run when we're in the middle of a pull/rebase, post-merge/post-rewrite
@@ -155,13 +155,13 @@ function should_sync {
         git reflog show --max-count 1 |
           grep -q -E '^.*?: (pull|rebase)( .*?)?: .+'
       then
-        result='false'
+        should_sync='false'
       fi
 
       # If the destination commit has been pushed to the default branch, I assume the
       # user is going through the history to debug. As such, we shouldn't sync.
       if git merge-base --is-ancestor "$2" origin/HEAD; then
-        result='false'
+        should_sync='false'
       fi
       ;;
     *)
@@ -171,7 +171,7 @@ function should_sync {
   esac
 
   exec 1>&$stdout_copy
-  echo "$result"
+  echo "$should_sync"
 }
 
 main "$@"
