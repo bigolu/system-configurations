@@ -10,11 +10,13 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Usage: <this_script> <git_hook_args>...
+# Usage: <this_script> <git_hook_args>... -- <sync_command>...
 #
 # Arguments:
 #   git_hook_args (required):
 #     The arguments that were passed to the git hook.
+#   sync_command (required):
+#     The command, and its arguments, to run for syncing
 #
 # Environment Variables
 #   AUTO_SYNC_HOOK_NAME (required):
@@ -37,8 +39,23 @@ function main {
   fi
 
   if [[ $should_sync == 'true' ]]; then
-    lefthook run sync
+    get_sync_command "$@" |
+      {
+        readarray -d '' sync_command
+        "${sync_command[@]}"
+      }
   fi
+}
+
+function get_sync_command {
+  local seen_delimiter='false'
+  for arg in "$@"; do
+    if [[ $seen_delimiter == 'true' ]]; then
+      printf '%s\0' "$arg"
+    elif [[ $arg == '--' ]]; then
+      seen_delimiter='true'
+    fi
+  done
 }
 
 function should_sync {

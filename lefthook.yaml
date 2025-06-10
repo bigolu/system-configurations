@@ -111,7 +111,9 @@ post-rewrite:
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run lefthook:auto-sync {1}
+      run: |
+        AUTO_SYNC_HOOK_NAME='post-rewrite' \
+          mise run lefthook:auto-sync {1} -- lefthook run sync
 
 post-merge:
   jobs:
@@ -119,7 +121,9 @@ post-merge:
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run lefthook:auto-sync {1}
+      run: |
+        AUTO_SYNC_HOOK_NAME='post-merge' \
+          mise run lefthook:auto-sync {1} -- lefthook run sync
 
 post-checkout:
   jobs:
@@ -127,7 +131,9 @@ post-checkout:
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run lefthook:auto-sync {1} {2} {3}
+      run: |
+        AUTO_SYNC_HOOK_NAME='post-checkout' \
+          mise run lefthook:auto-sync {1} {2} {3} -- lefthook run sync
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
