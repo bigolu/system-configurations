@@ -104,10 +104,18 @@ function should_sync {
   # checking out a pull request that contains malicious synchronization code could
   # compromise your system.
   local default_branch
-  default_branch="$(
-    LC_ALL='C' git remote show origin |
-      sed -n '/HEAD branch/s/.*: //p'
-  )"
+  # The command for getting the default branch is a bit slow. To avoid slowing down
+  # the git hook, I cache the result.
+  local default_branch_cache="${direnv_layout_dir:-.direnv}/default-branch"
+  if [[ ! -e $default_branch_cache ]]; then
+    default_branch="$(
+      LC_ALL='C' git remote show origin |
+        sed -n '/HEAD branch/s/.*: //p'
+    )"
+    echo "$default_branch" >"$default_branch_cache"
+  else
+    default_branch="$(<"$default_branch_cache")"
+  fi
   if
     ! {
       # The `|| ...` serves two purposes:
