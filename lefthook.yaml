@@ -113,7 +113,7 @@ post-rewrite:
       interactive: true
       run: |
         AUTO_SYNC_HOOK_NAME='post-rewrite' \
-          mise run lefthook:auto-sync {1} -- lefthook run sync
+          mise run lefthook:auto-sync {0} -- lefthook run sync
 
 post-merge:
   jobs:
@@ -123,7 +123,7 @@ post-merge:
       interactive: true
       run: |
         AUTO_SYNC_HOOK_NAME='post-merge' \
-          mise run lefthook:auto-sync {1} -- lefthook run sync
+          mise run lefthook:auto-sync {0} -- lefthook run sync
 
 post-checkout:
   jobs:
@@ -133,7 +133,7 @@ post-checkout:
       interactive: true
       run: |
         AUTO_SYNC_HOOK_NAME='post-checkout' \
-          mise run lefthook:auto-sync {1} {2} {3} -- lefthook run sync
+          mise run lefthook:auto-sync {0} -- lefthook run sync
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
