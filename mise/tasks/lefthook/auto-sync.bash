@@ -34,9 +34,9 @@ shopt -s inherit_errexit
 #     sync, it will exit with 0 if it would have synced and non-zero otherwise.
 #
 # Git Config Options:
-#   auto-sync.skip.<hook_name>.branch (optional):
+#   auto-sync.skip.branch (optional):
 #     A list of branches that shouldn't be synced.
-#   auto-sync.skip.<hook_name>.command (optional):
+#   auto-sync.skip.command (optional):
 #     A list of POSIX shell commands for determining if sync should be skip. If the
 #     exit with 0, sync will skipped.
 #   auto-sync.allow.all (optional):
@@ -96,14 +96,14 @@ function should_sync {
 
   # User-Specified, branch-based skips
   local skipped_branches
-  skipped_branches="$(safe_git_config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch")"
+  skipped_branches="$(safe_git_config --get-all 'auto-sync.skip.branch')"
   if grep -q -E "^$current_branch\$" <<<"$skipped_branches"; then
     should_sync='false'
   fi
 
   # User-Specified, command-based skips
   local command_skip_output
-  command_skip_output="$(safe_git_config --get-all "auto-sync.skip.$AUTO_SYNC_HOOK_NAME.command")"
+  command_skip_output="$(safe_git_config --get-all 'auto-sync.skip.command')"
   if [[ -n $command_skip_output ]]; then
     local -a commands
     readarray -t commands <<<"$command_skip_output"
@@ -134,7 +134,7 @@ function should_sync {
     should_sync='false'
   fi
 
-  case "$AUTO_SYNC_HOOK_NAME" in
+  case "${AUTO_SYNC_HOOK_NAME:?}" in
     'post-merge')
       # There's nothing to do in this case
       ;;
