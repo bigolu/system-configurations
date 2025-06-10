@@ -10,7 +10,13 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Usage: <this_script> <git_hook_args>... -- <sync_command>...
+# A script for syncing your environment with the code during certain git hooks. Read
+# the comments to learn more about how it works.
+#
+# Usage:
+#   Call this script from the post-merge, post-rewrite, and post-checkout git hooks.
+#   Format: <this_script> <git_hook_args>... -- <sync_command>...
+#   Example: ./this-script git hook args -- uv sync
 #
 # Arguments:
 #   git_hook_args (required):
@@ -18,7 +24,7 @@ shopt -s inherit_errexit
 #   sync_command (required):
 #     The command, and its arguments, to run for syncing
 #
-# Environment Variables
+# Environment Variables:
 #   AUTO_SYNC_HOOK_NAME (required):
 #     This variable should be set to the name of the git hook that is currently being
 #     run. The only supported hooks are 'post-rewrite', 'post-merge', and
@@ -26,6 +32,26 @@ shopt -s inherit_errexit
 #   AUTO_SYNC_CHECK_ONLY (optional):
 #     If this variable is set to 'true', then instead of actually performing the
 #     sync, it will exit with 0 if it would have synced and non-zero otherwise.
+#
+# Git Config Options:
+#   auto-sync.skip.<hook_name>.branch (optional):
+#     A list of branches that shouldn't be synced.
+#   auto-sync.skip.<hook_name>.command (optional):
+#     A list of POSIX shell commands for determining if sync should be skip. If the
+#     exit with 0, sync will skipped.
+#   auto-sync.allow.all (optional):
+#     Set this to 'true' if syncing should be allowed on all branches.
+#   auto-sync.allow.branch (optional):
+#     A list of branches that should be synced.
+#
+#   Usage:
+#     Set a list option with:
+#       git config --add <option_name> <option_value>
+#     Set a boolean value with:
+#       git config <option_name> <true|false>
+#     Examples:
+#       git config --add auto-sync.skip.post-rewrite.branch my-feature-branch
+#       git config auto-sync.allow.all true
 
 function main {
   should_sync="$(should_sync "$@")"
@@ -69,28 +95,18 @@ function should_sync {
   current_branch="$(git rev-parse --abbrev-ref HEAD)"
 
   # User-Specified, branch-based skips
-  local output
-  # If the config option isn't set, git returns a non-zero code so the `|| true`
-  # stops it from failing.
-  output="$(git config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch" || true)"
-  local -a branches
-  if [[ -n $output ]]; then
-    readarray -t branches <<<"$output"
-    for branch in "${branches[@]}"; do
-      if [[ $branch == "$current_branch" ]]; then
-        should_sync='false'
-      fi
-    done
+  local skipped_branches
+  skipped_branches="$(safe_git_config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch")"
+  if grep -q -E "^$current_branch\$" <<<"$skipped_branches"; then
+    should_sync='false'
   fi
 
   # User-Specified, command-based skips
-  #
-  # If the config option isn't set, git returns a non-zero code so the `|| true`
-  # stops it from failing.
-  output="$(git config --get-all "auto-sync.skip.$AUTO_SYNC_HOOK_NAME.command" || true)"
-  local -a commands
-  if [[ -n $output ]]; then
-    readarray -t commands <<<"$output"
+  local command_skip_output
+  command_skip_output="$(safe_git_config --get-all "auto-sync.skip.$AUTO_SYNC_HOOK_NAME.command")"
+  if [[ -n $command_skip_output ]]; then
+    local -a commands
+    readarray -t commands <<<"$command_skip_output"
     for command in "${commands[@]}"; do
       if eval "$command"; then
         should_sync='false'
@@ -104,28 +120,16 @@ function should_sync {
   # checking out a pull request that contains malicious synchronization code could
   # compromise your system.
   local default_branch
-  # The command for getting the default branch is a bit slow. To avoid slowing down
-  # the git hook, I cache the result.
-  local default_branch_cache='.git/info/default-branch'
-  if [[ ! -e $default_branch_cache ]]; then
-    default_branch="$(
-      LC_ALL='C' git remote show origin |
-        sed -n '/HEAD branch/s/.*: //p'
-    )"
-    echo "$default_branch" >"$default_branch_cache"
-  else
-    default_branch="$(<"$default_branch_cache")"
-  fi
+  default_branch="$(get_default_branch)"
+  local allowed_branches
+  allowed_branches="$(safe_git_config --get-all 'auto-sync.allow.branch')"
+  local should_allow_all_branches
+  should_allow_all_branches="$(safe_git_config --get 'auto-sync.allow.all')"
   if
-    ! {
-      echo "$default_branch"
-      # If the config option isn't set, git returns a non-zero code so the `|| true`
-      # stops it from failing.
-      git config --get-all 'auto-sync.allowed-branches' || true
-    } |
-      # If none of the allowed branches are the current branch or the special value
-      # "all", we shouldn't sync.
-      grep -q -E "^($current_branch|all)\$"
+    # The first command checks if none of the allowed branches match the current
+    # branch. The default branch is always allowed.
+    ! grep -q -E "^$current_branch\$" <<<"$default_branch"$'\n'"$allowed_branches" &&
+      [[ $should_allow_all_branches != 'true' ]]
   then
     should_sync='false'
   fi
@@ -172,6 +176,24 @@ function should_sync {
 
   exec 1>&$stdout_copy
   echo "$should_sync"
+}
+
+function safe_git_config {
+  # If a config option isn't set, git exits with a non-zero code so the `|| true`
+  # stops the statement from failing.
+  git config "$@" || true
+}
+
+function get_default_branch {
+  # The command for getting the default branch is a bit slow. To avoid slowing down
+  # the git hook, I cache the result.
+  local default_branch_cache='.git/info/default-branch'
+  if [[ ! -e $default_branch_cache ]]; then
+    LC_ALL='C' git remote show origin |
+      sed -n '/HEAD branch/s/.*: //p' >"$default_branch_cache"
+  fi
+
+  cat "$default_branch_cache"
 }
 
 main "$@"
