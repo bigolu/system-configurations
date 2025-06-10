@@ -11,6 +11,9 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 version="$(nix eval --raw --file nix/packages.nix 'nix.version')"
-sed --regexp-extended --in-place \
-  "s/\/nix-[0-9]+(\.[0-9]+){0,2}/\/nix-$version/g" \
+perl -0777 -wsi \
+  -pe '$count += s{(nix-)[0-9]+(?:\.[0-9]+){0,2}}{$1$version}gs;' \
+  -e 'END { die "failed to substitute" if $count != 2 }' \
+  -- \
+  -version="$version" \
   README.md

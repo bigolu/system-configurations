@@ -28,7 +28,7 @@ eval_environment = ["fish", "-c"]
 # Snippets can be used to quickly insert common bits of shell
 # use || (two pipes) where you want your cursor to be after insertion
 [snippets]
-s = " | sed -r 's/||//g'"
+s = " | sed --regexp-extended 's/||//g'"
 
 [help_viewers]
 'm' = "man ??"

@@ -61,8 +61,8 @@ commit-msg:
         filtered_commit_message_file="$(mktemp --tmpdir commit_message_XXXXX)"
         # Remove the diff, if `git commit --verbose` is used, and any commented lines
         sed \
-          -e '/# ------------------------ >8 ------------------------/,$d' \
-          -e '/^#/d' \
+          --expression '/# ------------------------ >8 ------------------------/,$d' \
+          --expression '/^#/d' \
           <{1} \
           >"$filtered_commit_message_file"
 

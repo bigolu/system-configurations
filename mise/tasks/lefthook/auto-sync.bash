@@ -169,7 +169,7 @@ function should_sync {
       fi
       ;;
     *)
-      echo "Error, invalid AUTO_SYNC_HOOK_NAME: $AUTO_SYNC_HOOK_NAME" >&2
+      echo "auto-sync: Error, invalid AUTO_SYNC_HOOK_NAME: $AUTO_SYNC_HOOK_NAME" >&2
       exit 1
       ;;
   esac
@@ -189,8 +189,17 @@ function get_default_branch {
   # the git hook, I cache the result.
   local default_branch_cache='.git/info/default-branch'
   if [[ ! -e $default_branch_cache ]]; then
-    LC_ALL='C' git remote show origin |
-      sed -n '/HEAD branch/s/.*: //p' >"$default_branch_cache"
+    local default_branch
+    default_branch="$(
+      LC_ALL='C' git remote show origin |
+        sed --silent '/HEAD branch/s/.*: //p'
+    )"
+    if [[ -z $default_branch ]]; then
+      echo 'auto-sync: Error, unable to get default branch' >&2
+      exit 1
+    fi
+
+    echo "$default_branch" >"$default_branch_cache"
   fi
 
   cat "$default_branch_cache"
