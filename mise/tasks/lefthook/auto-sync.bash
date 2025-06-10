@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter git coreutils gnused]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter git]"
 #MISE hide=true
 
 set -o errexit
@@ -96,9 +96,17 @@ function should_sync {
 
   # User-Specified, branch-based skips
   local skipped_branches
-  skipped_branches="$(safe_git_config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch")"
-  if grep -q -E "^$current_branch\$" <<<"$skipped_branches"; then
-    should_sync='false'
+  skipped_branches_output="$(safe_git_config --get-all "auto-sync.skip.${AUTO_SYNC_HOOK_NAME:?}.branch")"
+  if [[ -n $skipped_branches_output ]]; then
+    local -a skipped_branches
+    readarray -t skipped_branches <<<"$skipped_branches_output"
+
+    local should_skip_branch
+    should_skip_branch="$(contains "$branch" "${skipped_branches[@]}")"
+
+    if [[ $should_skip_branch == 'true' ]]; then
+      should_sync='false'
+    fi
   fi
 
   # User-Specified, command-based skips
@@ -114,23 +122,9 @@ function should_sync {
     done
   fi
 
-  # By default, auto-syncing is only enabled for the default branch since other
-  # branches may be a security concern. For example, if you're working on an open
-  # source project and your synchronization code can execute arbitrary code, then
-  # checking out a pull request that contains malicious synchronization code could
-  # compromise your system.
-  local default_branch
-  default_branch="$(get_default_branch)"
-  local allowed_branches
-  allowed_branches="$(safe_git_config --get-all 'auto-sync.allow.branch')"
-  local should_allow_all_branches
-  should_allow_all_branches="$(safe_git_config --get 'auto-sync.allow.all')"
-  if
-    # The first command checks if none of the allowed branches match the current
-    # branch. The default branch is always allowed.
-    ! grep -q -E "^$current_branch\$" <<<"$default_branch"$'\n'"$allowed_branches" &&
-      [[ $should_allow_all_branches != 'true' ]]
-  then
+  local is_current_branch_allowed
+  is_current_branch_allowed="$(is_branch_allowed "$current_branch")"
+  if [[ $is_current_branch_allowed != 'true' ]]; then
     should_sync='false'
   fi
 
@@ -155,10 +149,10 @@ function should_sync {
 
       # Don't run when we're in the middle of a pull/rebase, post-merge/post-rewrite
       # will run when the pull/rebase is finished.
-      if
-        git reflog show --max-count 1 |
-          grep -q -E '^.*?: (pull|rebase)( .*?)?: .+'
-      then
+      local last_reflog_entry
+      last_reflog_entry="$(git reflog show --max-count 1)"
+      local -r pull_rebase_regex='^.*: (pull|rebase)( .*)?: .+'
+      if [[ $last_reflog_entry =~ $pull_rebase_regex ]]; then
         should_sync='false'
       fi
 
@@ -178,6 +172,38 @@ function should_sync {
   echo "$should_sync"
 }
 
+# By default, auto-syncing is only enabled for the default branch since other
+# branches may be a security concern. For example, if you're working on an open
+# source project and your synchronization code can execute arbitrary code, then
+# checking out a pull request that contains malicious synchronization code could
+# compromise your system.
+function is_branch_allowed {
+  local -r branch="$1"
+
+  # The default branch is always allowed
+  local -a allowed_branches=("$(get_default_branch)")
+
+  local user_allowed_branches_output
+  user_allowed_branches_output="$(safe_git_config --get-all 'auto-sync.allow.branch')"
+  if [[ -n $user_allowed_branches_output ]]; then
+    local -a user_allowed_branches
+    readarray -t user_allowed_branches <<<"$user_allowed_branches_output"
+    allowed_branches+=("${user_allowed_branches[@]}")
+  fi
+
+  local does_allowed_branches_contain_branch
+  does_allowed_branches_contain_branch="$(contains "$branch" "${allowed_branches[@]}")"
+
+  local should_allow_all_branches
+  should_allow_all_branches="$(safe_git_config --get 'auto-sync.allow.all')"
+
+  if [[ $does_allowed_branches_contain_branch == 'true' || $should_allow_all_branches == 'true' ]]; then
+    echo 'true'
+  else
+    echo 'false'
+  fi
+}
+
 function safe_git_config {
   # If a config option isn't set, git exits with a non-zero code so the `|| true`
   # stops the statement from failing.
@@ -189,11 +215,32 @@ function get_default_branch {
   # the git hook, I cache the result.
   local default_branch_cache='.git/info/default-branch'
   if [[ ! -e $default_branch_cache ]]; then
-    LC_ALL='C' git remote show origin |
-      sed -n '/HEAD branch/s/.*: //p' >"$default_branch_cache"
+    local -r branch_regex='.*HEAD branch: ([^'$'\n'']+).*'
+
+    local output
+    output="$(LC_ALL='C' git remote show origin)"
+    if ! [[ $output =~ $branch_regex ]]; then
+      echo 'auto-sync: Unable to find default branch name' >&2
+      exit 1
+    fi
+    echo "${BASH_REMATCH[1]}" >"$default_branch_cache"
   fi
 
   cat "$default_branch_cache"
+}
+
+function contains {
+  local -r target="$1"
+  local -ra items=("${@:2}")
+
+  for item in "${items[@]}"; do
+    if [[ $item == "$target" ]]; then
+      echo 'true'
+      exit
+    fi
+  done
+
+  echo 'false'
 }
 
 main "$@"
