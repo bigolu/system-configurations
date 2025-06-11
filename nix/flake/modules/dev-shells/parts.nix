@@ -153,8 +153,6 @@ rec {
     packages = with pkgs; [
       gnused
       typos
-      # For `mktemp`
-      coreutils
     ];
   };
 
