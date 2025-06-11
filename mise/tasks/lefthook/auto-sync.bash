@@ -34,8 +34,6 @@ shopt -s inherit_errexit
 #     sync, it will exit with 0 if it would have synced and non-zero otherwise.
 #
 # Git Config Options:
-#   auto-sync.skip.branch (optional):
-#     A list of branches that shouldn't be synced.
 #   auto-sync.skip.command (optional):
 #     A Bash command that determines if sync should be skipped. If it exits with 0,
 #     sync will skipped.
@@ -91,17 +89,6 @@ function should_sync {
   exec 1>&2
   local should_sync='true'
 
-  local current_branch
-  current_branch="$(git rev-parse --abbrev-ref HEAD)"
-
-  # User-Specified, branch-based skips
-  local skipped_branches
-  skipped_branches="$(safe_git_config --get-all 'auto-sync.skip.branch')"
-  if grep -q -E "^$current_branch\$" <<<"$skipped_branches"; then
-    should_sync='false'
-  fi
-
-  # User-Specified, command-based skip
   local command
   command="$(safe_git_config --get 'auto-sync.skip.command')"
   if [[ -n $command ]] && eval "$command"; then
@@ -113,17 +100,12 @@ function should_sync {
   # source project and your synchronization code can execute arbitrary code, then
   # checking out a pull request that contains malicious synchronization code could
   # compromise your system.
-  local default_branch
-  default_branch="$(get_default_branch)"
-  local allowed_branches
-  allowed_branches="$(safe_git_config --get-all 'auto-sync.allow.branch')"
   local should_allow_all_branches
   should_allow_all_branches="$(safe_git_config --get 'auto-sync.allow.all')"
+  local is_head_in_allowed_branches
+  is_head_in_allowed_branches="$(is_head_in_allowed_branches)"
   if
-    # The first command checks if none of the allowed branches match the current
-    # branch. The default branch is always allowed.
-    ! grep -q -E "^$current_branch\$" <<<"$default_branch"$'\n'"$allowed_branches" &&
-      [[ $should_allow_all_branches != 'true' ]]
+    [[ $should_allow_all_branches != 'true' && $is_head_in_allowed_branches != 'true' ]]
   then
     should_sync='false'
   fi
@@ -172,31 +154,31 @@ function should_sync {
   echo "$should_sync"
 }
 
+function is_head_in_allowed_branches {
+  local -a allowed_branches
+  local allowed_branches_output
+  allowed_branches_output="$(safe_git_config --get-all 'auto-sync.allow.branch')"
+  if [[ -n $allowed_branches_output ]]; then
+    readarray -t allowed_branches <<<"$allowed_branches_output"
+  fi
+  # The default branch is always allowed
+  allowed_branches+=('origin/HEAD')
+
+  local is_head_in_allowed_branches='false'
+  for allowed_branch in "${allowed_branches[@]}"; do
+    if git merge-base --is-ancestor HEAD "$allowed_branch"; then
+      is_head_in_allowed_branches='true'
+      break
+    fi
+  done
+
+  echo "$is_head_in_allowed_branches"
+}
+
 function safe_git_config {
   # If a config option isn't set, git exits with a non-zero code so the `|| true`
   # stops the statement from failing.
   git config "$@" || true
-}
-
-function get_default_branch {
-  # The command for getting the default branch is a bit slow. To avoid slowing down
-  # the git hook, I cache the result.
-  local default_branch_cache='.git/info/default-branch'
-  if [[ ! -e $default_branch_cache ]]; then
-    local default_branch
-    default_branch="$(
-      LC_ALL='C' git remote show origin |
-        sed --silent '/HEAD branch/s/.*: //p'
-    )"
-    if [[ -z $default_branch ]]; then
-      echo 'auto-sync: Error, unable to get default branch' >&2
-      exit 1
-    fi
-
-    echo "$default_branch" >"$default_branch_cache"
-  fi
-
-  cat "$default_branch_cache"
 }
 
 main "$@"
