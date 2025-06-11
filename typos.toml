@@ -1,5 +1,14 @@
-[default.extend-words]
-iterm = "iterm"
+[default]
+extend-words.iterm = "iterm"
+# TODO: This ignores the diff that's added to a commit file if `git commit --verbose`
+# is used. Ideally, I'd only enable this on git commit files, but typos does not have
+# a file type for it yet[1]. Also, when the file type is added, I can match all
+# commented lines in the commit file, not just the ones for the diff.
+#
+# [1]: https://github.com/crate-ci/typos/issues/1117
+extend-ignore-re = [
+  '(?sm)^# ------------------------ >8 ------------------------$.*',
+]
 
 [type.yaml]
 extend-glob = ["dotfiles/lsd/icons.yaml"]

@@ -58,16 +58,8 @@ commit-msg:
   jobs:
     - name: commit-msg-check
       run: |
-        filtered_commit_message_file="$(mktemp --tmpdir commit_message_XXXXX)"
-        # Remove the diff, if `git commit --verbose` is used, and any commented lines
-        sed \
-          --expression '/# ------------------------ >8 ------------------------/,$d' \
-          --expression '/^#/d' \
-          <{1} \
-          >"$filtered_commit_message_file"
-
         if
-          ! printf '%s\0' "$filtered_commit_message_file" |
+          ! printf '%s\0' {1} |
             lefthook run check-commit-message --files-from-stdin
         then
           old_commit_message_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
