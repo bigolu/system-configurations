@@ -12,7 +12,7 @@ shopt -s inherit_errexit
 
 commit="$(nix eval --raw --file nix/flake/compat.nix 'inputs.nixpkgs.rev')"
 
-perl -0777 -wsi \
+perl -wsi \
   -pe '$count += s{(nixpkgs/)[^\s]{40}( )}{$1$commit$2}s;' \
   -e 'END { die "failed to substitute" if $count != 1 }' \
   -- \
