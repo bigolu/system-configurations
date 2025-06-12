@@ -14,8 +14,3 @@ extend-ignore-re = [
 extend-glob = ["dotfiles/lsd/icons.yaml"]
 [type.yaml.extend-words]
 styl = "styl"
-
-[type.lua]
-extend-glob = ["dotfiles/neovim/*.lua"]
-[type.lua.extend-words]
-enew = "enew"
