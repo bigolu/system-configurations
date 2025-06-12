@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter git coreutils]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter git]"
 #MISE hide=true
 
 set -o errexit
@@ -131,10 +131,10 @@ function should_sync {
 
       # Don't run when we're in the middle of a pull/rebase, post-merge/post-rewrite
       # will run when the pull/rebase is finished.
-      if
-        git reflog show --max-count 1 |
-          grep -q -E '^.*?: (pull|rebase)( .*?)?: .+'
-      then
+      local last_reflog_entry
+      last_reflog_entry="$(git reflog show --max-count 1)"
+      local -r pull_rebase_regex='^.*: (pull|rebase)( .*)?: .+'
+      if [[ $last_reflog_entry =~ $pull_rebase_regex ]]; then
         should_sync='false'
       fi
 
