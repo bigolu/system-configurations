@@ -48,10 +48,10 @@ shopt -s inherit_errexit
 #   Usage:
 #     Set a list option with:
 #       git config --add <option_name> <option_value>
-#     Set a boolean value with:
-#       git config <option_name> <true|false>
+#     Set a string option with:
+#       git config <option_name> <option_value>
 #     Examples:
-#       git config --add auto-sync.skip.branch my-feature-branch
+#       git config --add auto-sync.allow.branch-pattern '^my_username/.*$'
 #       git config auto-sync.allow.all true
 #
 # [1]: https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html#index-_005b_005b
