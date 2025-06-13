@@ -37,6 +37,13 @@ shopt -s inherit_errexit
 #   auto-sync.skip.command (optional):
 #     A Bash command that determines if sync should be skipped. If it exits with 0,
 #     sync will skipped.
+#   auto-sync.skip.checkouts-and-non-default-branch-pulls:
+#     If you only want to allow syncing on your branches and the default branch, but
+#     don't want to specify an `auto-sync.allow.branch-pattern` to match your
+#     branches, you can enable this setting and `auto-sync.allow.all`. With those two
+#     settings enabled, syncing will only happen when you pull the default branch or
+#     do a non-pull rebase/merge. This works off the assumption that you would only
+#     do a non-pull rebase/merge on your own branches.
 #   auto-sync.allow.all (optional):
 #     Set this to 'true' if syncing should be allowed on all branches.
 #   auto-sync.allow.branch (optional):
@@ -106,6 +113,31 @@ function should_sync {
     should_sync='false'
   fi
 
+  local last_reflog_entry
+  last_reflog_entry="$(git reflog show --max-count 1)"
+
+  local skip_checkouts_and_non_default_branch_pulls
+  skip_checkouts_and_non_default_branch_pulls="$(
+    safe_git_config --get 'auto-sync.skip.checkouts-and-non-default-branch-pulls'
+  )"
+  if [[ ${skip_checkouts_and_non_default_branch_pulls:-} == 'true' ]]; then
+    local current_branch
+    current_branch="$(git rev-parse --abbrev-ref HEAD)"
+    local default_branch
+    default_branch="$(get_default_branch)"
+    local -r pull_regex='^.*: pull( .*)?: .+'
+    if
+      [[ $AUTO_SYNC_HOOK_NAME == 'post-checkout' ]] ||
+        {
+          [[ $AUTO_SYNC_HOOK_NAME == 'post-merge' || $AUTO_SYNC_HOOK_NAME == 'post-rewrite' ]] &&
+            [[ $last_reflog_entry =~ $pull_regex ]] &&
+            [[ $current_branch != "$default_branch" ]]
+        }
+    then
+      should_sync='false'
+    fi
+  fi
+
   # By default, auto-syncing is only enabled for the default branch since other
   # branches may be a security concern. For example, if you're working on an open
   # source project and your synchronization code can execute arbitrary code, then
@@ -121,6 +153,7 @@ function should_sync {
     should_sync='false'
   fi
 
+  # Some heuristics for skipping sync
   case "${AUTO_SYNC_HOOK_NAME:?}" in
     'post-merge')
       # There's nothing to do in this case
@@ -142,8 +175,6 @@ function should_sync {
 
       # Don't run when we're in the middle of a pull/rebase, post-merge/post-rewrite
       # will run when the pull/rebase is finished.
-      local last_reflog_entry
-      last_reflog_entry="$(git reflog show --max-count 1)"
       local -r pull_rebase_regex='^.*: (pull|rebase)( .*)?: .+'
       if [[ $last_reflog_entry =~ $pull_rebase_regex ]]; then
         should_sync='false'
@@ -169,12 +200,7 @@ function is_head_in_allowed_branches {
   local -a allowed_branches=()
 
   # The default branch is always allowed
-  local default_branch_path
-  default_branch_path="$(git symbolic-ref refs/remotes/origin/HEAD)"
-  # This gets the characters after the last '/'. `default_branch_path` will resemble
-  # 'refs/remotes/origin/master' so this would return 'master'.
-  local -r default_branch="${default_branch_path##*/}"
-  allowed_branches+=("$default_branch")
+  allowed_branches+=("$(get_default_branch)")
 
   local allowed_branches_string
   allowed_branches_string="$(safe_git_config --get-all 'auto-sync.allow.branch')"
@@ -226,6 +252,14 @@ function get_allowed_branches_from_patterns {
   if ((${#allowed_branches_from_patterns[@]} > 0)); then
     printf '%s\n' "${allowed_branches_from_patterns[@]}"
   fi
+}
+
+function get_default_branch {
+  local default_branch_path
+  default_branch_path="$(git symbolic-ref refs/remotes/origin/HEAD)"
+  # This gets the characters after the last '/'. `default_branch_path` will resemble
+  # 'refs/remotes/origin/master' so this would return 'master'.
+  echo "${default_branch_path##*/}"
 }
 
 function safe_git_config {
