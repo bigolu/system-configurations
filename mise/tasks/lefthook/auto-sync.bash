@@ -51,6 +51,12 @@ shopt -s inherit_errexit
 #       git config --add auto-sync.skip.branch my-feature-branch
 #       git config auto-sync.allow.all true
 
+if [[ ${AUTO_SYNC_DEBUG:-} == 'true' ]]; then
+  echo "AUTO_SYNC_HOOK_NAME: ${AUTO_SYNC_HOOK_NAME:?}"
+  echo "Last reflog entry: $(git --no-pager reflog show --max-count 1 || true)"
+  set -o xtrace
+fi
+
 function main {
   should_sync="$(should_sync "$@")"
 
