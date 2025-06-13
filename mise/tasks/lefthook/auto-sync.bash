@@ -41,6 +41,9 @@ shopt -s inherit_errexit
 #     Set this to 'true' if syncing should be allowed on all branches.
 #   auto-sync.allow.branch (optional):
 #     A list of branches that should be synced.
+#   auto-sync.allow.branch-pattern (optional):
+#     A list of POSIX extended regular expressions[1] that match branches that should
+#     be synced.
 #
 #   Usage:
 #     Set a list option with:
@@ -50,6 +53,8 @@ shopt -s inherit_errexit
 #     Examples:
 #       git config --add auto-sync.skip.branch my-feature-branch
 #       git config auto-sync.allow.all true
+#
+# [1]: https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html#index-_005b_005b
 
 if [[ ${AUTO_SYNC_DEBUG:-} == 'true' ]]; then
   echo "AUTO_SYNC_HOOK_NAME: ${AUTO_SYNC_HOOK_NAME:?}"
@@ -161,12 +166,8 @@ function should_sync {
 }
 
 function is_head_in_allowed_branches {
-  local -a allowed_branches
-  local allowed_branches_string
-  allowed_branches_string="$(safe_git_config --get-all 'auto-sync.allow.branch')"
-  if [[ -n $allowed_branches_string ]]; then
-    readarray -t allowed_branches <<<"$allowed_branches_string"
-  fi
+  local -a allowed_branches=()
+
   # The default branch is always allowed
   local default_branch_path
   default_branch_path="$(git symbolic-ref refs/remotes/origin/HEAD)"
@@ -175,6 +176,22 @@ function is_head_in_allowed_branches {
   local -r default_branch="${default_branch_path##*/}"
   allowed_branches+=("$default_branch")
 
+  local allowed_branches_string
+  allowed_branches_string="$(safe_git_config --get-all 'auto-sync.allow.branch')"
+  if [[ -n $allowed_branches_string ]]; then
+    local -a allowed_branches_temp
+    readarray -t allowed_branches_temp <<<"$allowed_branches_string"
+    allowed_branches+=("${allowed_branches_temp[@]}")
+  fi
+
+  local allowed_branches_from_patterns_string
+  allowed_branches_from_patterns_string="$(get_allowed_branches_from_patterns)"
+  if [[ -n $allowed_branches_from_patterns_string ]]; then
+    local -a allowed_branches_from_patterns
+    readarray -t allowed_branches_from_patterns <<<"$allowed_branches_from_patterns_string"
+    allowed_branches+=("${allowed_branches_from_patterns[@]}")
+  fi
+
   local is_head_in_allowed_branches='false'
   for allowed_branch in "${allowed_branches[@]}"; do
     if git merge-base --is-ancestor HEAD "$allowed_branch"; then
@@ -182,8 +199,33 @@ function is_head_in_allowed_branches {
       break
     fi
   done
-
   echo "$is_head_in_allowed_branches"
+}
+
+function get_allowed_branches_from_patterns {
+  branches_string="$(git for-each-ref --format='%(refname:short)' refs/heads/)"
+  local -a branches
+  readarray branches -t <<<"$branches_string"
+
+  local -a allowed_branch_patterns
+  local allowed_branch_patterns_string
+  allowed_branch_patterns_string="$(safe_git_config --get-all 'auto-sync.allow.branch-pattern')"
+  if [[ -n $allowed_branch_patterns_string ]]; then
+    readarray -t allowed_branch_patterns <<<"$allowed_branch_patterns_string"
+  fi
+
+  local -a allowed_branches_from_patterns=()
+  for branch in "${branches[@]}"; do
+    for pattern in "${allowed_branch_patterns[@]}"; do
+      if [[ $branch =~ $pattern ]]; then
+        allowed_branches_from_patterns+=("$branch")
+      fi
+    done
+  done
+
+  if ((${#allowed_branches_from_patterns[@]} > 0)); then
+    printf '%s\n' "${allowed_branches_from_patterns[@]}"
+  fi
 }
 
 function safe_git_config {
