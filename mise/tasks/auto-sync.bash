@@ -152,7 +152,7 @@ function should_sync {
     should_sync='false'
   fi
 
-  # Some heuristics for skipping sync
+  # Disable sync in scenarios where the user probably doesn't want to run it.
   case "${AUTO_SYNC_HOOK_NAME:?}" in
     'post-merge')
       # There's nothing to do in this case
