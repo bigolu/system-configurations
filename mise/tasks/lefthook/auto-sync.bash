@@ -168,7 +168,12 @@ function is_head_in_allowed_branches {
     readarray -t allowed_branches <<<"$allowed_branches_string"
   fi
   # The default branch is always allowed
-  allowed_branches+=('origin/HEAD')
+  local default_branch_path
+  default_branch_path="$(git symbolic-ref refs/remotes/origin/HEAD)"
+  # This gets the characters after the last '/'. `default_branch_path` will resemble
+  # 'refs/remotes/origin/master' so this would return 'master'.
+  local -r default_branch="${default_branch_path##*/}"
+  allowed_branches+=("$default_branch")
 
   local is_head_in_allowed_branches='false'
   for allowed_branch in "${allowed_branches[@]}"; do
