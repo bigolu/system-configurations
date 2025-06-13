@@ -49,7 +49,7 @@ moduleContext@{ lib, utils, ... }:
           vsCode
         ];
         shellHook = ''
-          export POST_FIX_ACTIONS='fail'
+          export RUN_FIX_ACTIONS='fail'
         '';
       };
 

@@ -15,7 +15,7 @@
 # Example: run-fix prettier --write some-file.js
 #
 # Environment Variables:
-#   POST_FIX_ACTIONS (optional):
+#   RUN_FIX_ACTIONS (optional):
 #     A list of comma-separated actions to take after running the fix. This is only
 #     used if the fix actually fixes anything, which is determined by checking for
 #     changed files after running it. Actions:
@@ -53,14 +53,14 @@ function main {
   if
     # No files changed
     [[ $diff_before_fix == "$diff_after_fix" ]] ||
-      [[ -z ${POST_FIX_ACTIONS:-} ]]
+      [[ -z ${RUN_FIX_ACTIONS:-} ]]
   then
     return
   fi
 
   # It's easier to split a newline-delimited string than a comma-delimited one since
   # herestring (<<<) adds a newline to the end of the string.
-  local actions_string="${POST_FIX_ACTIONS//,/$'\n'}"
+  local actions_string="${RUN_FIX_ACTIONS//,/$'\n'}"
   local actions
   readarray -t actions <<<"$actions_string"
 
