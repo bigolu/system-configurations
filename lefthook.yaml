@@ -22,7 +22,7 @@ output:
   - failure
 
 templates:
-  run_fix: mise run lefthook:run-fix
+  run_fix: mise run run-fix
   # Some of the jobs in the 'check' hook don't specify a glob because they apply to
   # all files. However, I also want at least one file to be passed into them. If you
   # use `lefthook run check --files-from-stdin` and stdin is empty, jobs without a
@@ -105,7 +105,7 @@ post-rewrite:
       interactive: true
       run: |
         AUTO_SYNC_HOOK_NAME='post-rewrite' \
-          mise run lefthook:auto-sync {0} -- lefthook run sync
+          mise run auto-sync {0} -- lefthook run sync
 
 post-merge:
   jobs:
@@ -115,7 +115,7 @@ post-merge:
       interactive: true
       run: |
         AUTO_SYNC_HOOK_NAME='post-merge' \
-          mise run lefthook:auto-sync {0} -- lefthook run sync
+          mise run auto-sync {0} -- lefthook run sync
 
 post-checkout:
   jobs:
@@ -125,7 +125,7 @@ post-checkout:
       interactive: true
       run: |
         AUTO_SYNC_HOOK_NAME='post-checkout' \
-          mise run lefthook:auto-sync {0} -- lefthook run sync
+          mise run auto-sync {0} -- lefthook run sync
 
 post-commit:
   jobs:
