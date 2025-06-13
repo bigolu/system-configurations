@@ -10,7 +10,7 @@
 # correct an issue. This includes things like formatters, code generators, and lint
 # fixers.
 #
-# Usage: <this_script> [fix_command]...
+# Usage: run-fix [fix_command]...
 #
 # Example: run-fix prettier --write some-file.js
 #

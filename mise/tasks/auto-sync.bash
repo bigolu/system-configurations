@@ -15,8 +15,8 @@ shopt -s inherit_errexit
 #
 # Usage:
 #   Call this script from the post-merge, post-rewrite, and post-checkout git hooks.
-#   Format: <this_script> <git_hook_args>... -- <sync_command>...
-#   Example: ./this-script git hook args -- uv sync
+#   Format: auto-sync <git_hook_args>... -- <sync_command>...
+#   Example: auto-sync git hook args -- uv sync
 #
 # Arguments:
 #   git_hook_args (required):
