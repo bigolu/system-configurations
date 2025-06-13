@@ -6,7 +6,8 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-branch="${1:-master}"
+default_branch_path="$(git symbolic-ref refs/remotes/origin/HEAD)"
+branch="${1:-${default_branch_path##*/}}"
 
 merged_branches=$(git branch --merged "$branch" | grep -v " $branch$" || true)
 
