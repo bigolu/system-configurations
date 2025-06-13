@@ -129,8 +129,7 @@ function should_sync {
     if
       [[ $AUTO_SYNC_HOOK_NAME == 'post-checkout' ]] ||
         {
-          [[ $AUTO_SYNC_HOOK_NAME == 'post-merge' || $AUTO_SYNC_HOOK_NAME == 'post-rewrite' ]] &&
-            [[ $last_reflog_entry =~ $pull_regex ]] &&
+          [[ $last_reflog_entry =~ $pull_regex ]] &&
             [[ $current_branch != "$default_branch" ]]
         }
     then
