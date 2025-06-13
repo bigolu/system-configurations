@@ -127,6 +127,18 @@ post-checkout:
         AUTO_SYNC_HOOK_NAME='post-checkout' \
           mise run lefthook:auto-sync {0} -- lefthook run sync
 
+post-commit:
+  jobs:
+    # We'll consider the repository synced with any commit made locally. This handles
+    # the case where a user may run sync before committing their changes.
+    - name: track-last-sync
+      skip:
+        # Don't run after a commit has been amended
+        - run: |
+            git reflog show --max-count 1 |
+              grep -q '(amend)'
+      run: git rev-parse HEAD >"${direnv_layout_dir:-.direnv}/last-sync-commit"
+
 # Custom Hooks
 # -----------------------------------------------------------------------------------
 # Lefthook only applies a job's glob if it, or the hook it belongs to, has a 'files'
