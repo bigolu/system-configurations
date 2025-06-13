@@ -156,10 +156,10 @@ function should_sync {
 
 function is_head_in_allowed_branches {
   local -a allowed_branches
-  local allowed_branches_output
-  allowed_branches_output="$(safe_git_config --get-all 'auto-sync.allow.branch')"
-  if [[ -n $allowed_branches_output ]]; then
-    readarray -t allowed_branches <<<"$allowed_branches_output"
+  local allowed_branches_string
+  allowed_branches_string="$(safe_git_config --get-all 'auto-sync.allow.branch')"
+  if [[ -n $allowed_branches_string ]]; then
+    readarray -t allowed_branches <<<"$allowed_branches_string"
   fi
   # The default branch is always allowed
   allowed_branches+=('origin/HEAD')
