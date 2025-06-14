@@ -14,9 +14,13 @@ shopt -s inherit_errexit
 # the comments to learn more about how it works.
 #
 # Usage:
-#   Call this script from the post-merge, post-rewrite, and post-checkout git hooks.
-#   Format: auto-sync <git_hook_args>... -- <sync_command>...
-#   Example: auto-sync git hook args -- uv sync
+#   Call this script from the post-merge, post-rewrite, post-checkout, and
+#   post-commit git hooks.
+#     Format: auto-sync <git_hook_args>... -- <sync_command>...
+#     Example: auto-sync git hook args -- uv sync
+#   NOTE: When you call it from the post-commit hook, you don't have to provide any
+#   arguments.
+#     Example: auto-sync
 #
 # Arguments:
 #   git_hook_args (required):
@@ -30,8 +34,14 @@ shopt -s inherit_errexit
 #     run. The only supported hooks are 'post-rewrite', 'post-merge', and
 #     'post-checkout'.
 #   AUTO_SYNC_CHECK_ONLY (optional):
-#     If this variable is set to 'true', then instead of actually performing the
-#     sync, it will exit with 0 if it would have synced and non-zero otherwise.
+#     If this variable is set to 'true', then instead of performing the sync, it will
+#     exit with 0 if it would have synced and non-zero otherwise.
+#   AUTO_SYNC_LAST_COMMIT (optional):
+#     If this variable is set to 'true', then instead of performing the sync, it will
+#     print the hash of last synced commit or nothing if no commit has been synced.
+#     This can be used by the sync command to calculate the files that differ between
+#     a new commit that's being synced with and the last one. Then it can use this
+#     file list to more granularly determine what needs to be synced.
 #
 # Git Config Options:
 #   auto-sync.skip.command (optional):
@@ -70,6 +80,30 @@ if [[ ${AUTO_SYNC_DEBUG:-} == 'true' ]]; then
 fi
 
 function main {
+  if [[ ${AUTO_SYNC_LAST_COMMIT:-} == 'true' ]]; then
+    local last_commit_path
+    last_commit_path="$(get_last_commit_path)"
+
+    if [[ -e $last_commit_path ]]; then
+      echo "$(<"$last_commit_path")"
+    fi
+
+    exit
+  fi
+
+  # We'll consider the repository synced with any commit made locally.
+  if [[ $AUTO_SYNC_HOOK_NAME == 'post-commit' ]]; then
+    local last_reflog_entry
+    last_reflog_entry="$(git reflog show --max-count 1)"
+    local -r amend_regex='(amend)'
+    # Don't track if the commit was an amendment
+    if ! [[ $last_reflog_entry =~ $amend_regex ]]; then
+      track_last_synced_commit
+    fi
+
+    exit
+  fi
+
   should_sync="$(should_sync "$@")"
 
   if [[ ${AUTO_SYNC_CHECK_ONLY:-} == 'true' ]]; then
@@ -81,12 +115,30 @@ function main {
   fi
 
   if [[ $should_sync == 'true' ]]; then
+    # This needs to run first in case the sync doesn't succeed. Even if the sync
+    # doesn't succeed, we'll still consider the repository synced against the current
+    # commit since the user will probably fix whatever wasn't working and rerun the
+    # sync.
+    track_last_synced_commit
+
     get_sync_command "$@" |
       {
         readarray -d '' sync_command
         "${sync_command[@]}"
       }
   fi
+}
+
+function track_last_synced_commit {
+  local last_commit_path
+  last_commit_path="$(get_last_commit_path)"
+  git rev-parse HEAD >"$last_commit_path"
+}
+
+function get_last_commit_path {
+  local git_directory
+  git_directory="$(git rev-parse --absolute-git-dir)"
+  echo "$git_directory/info/auto-sync-last-commit"
 }
 
 function get_sync_command {

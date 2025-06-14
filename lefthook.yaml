@@ -99,45 +99,32 @@ pre-commit:
 
 post-rewrite:
   jobs:
-    - name: sync
+    - name: auto-sync
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: |
-        AUTO_SYNC_HOOK_NAME='post-rewrite' \
-          mise run auto-sync {0} -- lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run auto-sync {0} -- lefthook run sync
 
 post-merge:
   jobs:
-    - name: sync
+    - name: auto-sync
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: |
-        AUTO_SYNC_HOOK_NAME='post-merge' \
-          mise run auto-sync {0} -- lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run auto-sync {0} -- lefthook run sync
 
 post-checkout:
   jobs:
-    - name: sync
+    - name: auto-sync
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      run: |
-        AUTO_SYNC_HOOK_NAME='post-checkout' \
-          mise run auto-sync {0} -- lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run auto-sync {0} -- lefthook run sync
 
 post-commit:
   jobs:
-    # We'll consider the repository synced with any commit made locally. This handles
-    # the case where a user may run sync before committing their changes.
-    - name: track-last-sync
-      skip:
-        # Don't run after a commit has been amended
-        - run: |
-            git reflog show --max-count 1 |
-              grep -q '(amend)'
-      run: git rev-parse HEAD >"${direnv_layout_dir:-.direnv}/last-sync-commit"
+    - name: auto-sync
+      run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
@@ -154,8 +141,9 @@ sync:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: |
-    if [ -e "${direnv_layout_dir:-.direnv}/last-sync-commit" ]; then
-      git diff --name-only "$(cat "${direnv_layout_dir:-.direnv}/last-sync-commit")" HEAD
+    last_synced_commit="$(AUTO_SYNC_LAST_COMMIT=true mise run auto-sync)"
+    if [ -n "$last_synced_commit" ]; then
+      git diff --name-only "$last_synced_commit" HEAD
     fi
   jobs:
     - name: direnv
@@ -225,15 +213,6 @@ sync:
         # If this configuration changes
         - lefthook.yaml
       run: fish -c fish-reload
-
-    # WARNING: This has to be last since the `files` command for this hook is run
-    # once per job and this job will change the output of the `files` command.
-    #
-    # This job keeps track of the last commit we synced with. This way, the next time
-    # we sync, the `files` command for this hook will get the files that differ
-    # between the new commit we want to sync with and the last one.
-    - name: track-last-sync
-      run: git rev-parse HEAD >"${direnv_layout_dir:-.direnv}/last-sync-commit"
 
 check-commit-message:
   # Custom hooks should always have a files command. See the comment below the
