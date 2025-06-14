@@ -40,18 +40,4 @@ if ((${#jobs[@]} > 0)); then
   job_flag=(--jobs "$joined_jobs")
 fi
 
-{
-  if [[ ${usage_all_files:-} == 'true' ]]; then
-    # Print all tracked files
-    git ls-files -z
-  else
-    # Print the files that differ between the current branch and the default branch.
-    # Use the merge base in case the current branch is behind the default branch.
-    merge_base="$(git merge-base origin/HEAD HEAD)"
-    git diff -z --diff-filter=d --name-only "$merge_base"
-  fi
-
-  # Print untracked files
-  git ls-files -z --others --exclude-standard
-} |
-  lefthook run check --files-from-stdin "${job_flag[@]}"
+LEFTHOOK_CHECK_ALL_FILES="${usage_all_files:-}" lefthook run check "${job_flag[@]}"

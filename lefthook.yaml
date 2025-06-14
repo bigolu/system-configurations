@@ -226,7 +226,18 @@ check-commit-message:
 check:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
-  files: ":"
+  files: |
+    if [ "$LEFTHOOK_CHECK_ALL_FILES" = 'true' ]; then
+      git ls-files
+    else
+      # These are the files that differ between the current branch and the default
+      # branch. We use the merge base in case the current branch is behind the
+      # default branch.
+      git diff --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"
+    fi
+
+    # Untracked files
+    git ls-files --others --exclude-standard
   jobs:
     # This job only exists so the excludes below can get inherited by all of its
     # descendants. There's an open feature request for a global exclude list[1]. If
