@@ -83,15 +83,14 @@ fi
 
 function main {
   # We'll consider the repository synced with any commit made locally.
-  if [[ $AUTO_SYNC_HOOK_NAME == 'post-commit' ]]; then
-    local last_reflog_entry
-    last_reflog_entry="$(git reflog show --max-count 1)"
-    local -r amend_regex='(amend)'
-    # Don't track if the commit was an amendment
-    if ! [[ $last_reflog_entry =~ $amend_regex ]]; then
-      track_last_synced_commit
-    fi
-
+  if
+    [[ $AUTO_SYNC_HOOK_NAME == 'post-commit' ]] ||
+      {
+        [[ $AUTO_SYNC_HOOK_NAME == 'post-rewrite' ]] &&
+          [[ $1 == 'amend' ]]
+      }
+  then
+    track_last_synced_commit
     exit
   fi
 
@@ -212,10 +211,7 @@ function should_sync {
       # There's nothing to do in this case
       ;;
     'post-rewrite')
-      # Don't run after a commit has been amended
-      if [[ $1 == 'amend' ]]; then
-        should_sync='false'
-      fi
+      # There's nothing to do in this case
       ;;
     'post-checkout')
       # We should only sync if this is a branch/commit checkout and not a file
