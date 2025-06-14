@@ -36,12 +36,14 @@ shopt -s inherit_errexit
 #   AUTO_SYNC_CHECK_ONLY (optional):
 #     If this variable is set to 'true', then instead of performing the sync, it will
 #     exit with 0 if it would have synced and non-zero otherwise.
-#   AUTO_SYNC_LAST_COMMIT (optional):
-#     If this variable is set to 'true', then instead of performing the sync, it will
-#     print the hash of last synced commit or nothing if no commit has been synced.
-#     This can be used by the sync command to calculate the files that differ between
-#     a new commit that's being synced with and the last one. Then it can use this
-#     file list to more granularly determine what needs to be synced.
+#
+# Environment Variables Set by auto-sync:
+#   AUTO_SYNC_LAST_COMMIT:
+#     This variable will be set to the hash of last synced commit or unset if no
+#     commit has been synced. This can be used by the sync command to calculate the
+#     files that differ between a new commit that's being synced with and the last
+#     one. Then it can use this file list to more granularly determine what needs to
+#     be synced.
 #
 # Git Config Options:
 #   auto-sync.skip.command (optional):
@@ -80,17 +82,6 @@ if [[ ${AUTO_SYNC_DEBUG:-} == 'true' ]]; then
 fi
 
 function main {
-  if [[ ${AUTO_SYNC_LAST_COMMIT:-} == 'true' ]]; then
-    local last_commit_path
-    last_commit_path="$(get_last_commit_path)"
-
-    if [[ -e $last_commit_path ]]; then
-      echo "$(<"$last_commit_path")"
-    fi
-
-    exit
-  fi
-
   # We'll consider the repository synced with any commit made locally.
   if [[ $AUTO_SYNC_HOOK_NAME == 'post-commit' ]]; then
     local last_reflog_entry
@@ -124,7 +115,14 @@ function main {
     get_sync_command "$@" |
       {
         readarray -d '' sync_command
-        "${sync_command[@]}"
+
+        local last_commit_path
+        last_commit_path="$(get_last_commit_path)"
+        if [[ -e $last_commit_path ]]; then
+          AUTO_SYNC_LAST_COMMIT="$(<"$last_commit_path")" "${sync_command[@]}"
+        else
+          "${sync_command[@]}"
+        fi
       }
   fi
 }

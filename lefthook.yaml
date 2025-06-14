@@ -141,9 +141,10 @@ sync:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: |
-    last_synced_commit="$(AUTO_SYNC_LAST_COMMIT=true mise run auto-sync)"
-    if [ -n "$last_synced_commit" ]; then
-      git diff --name-only "$last_synced_commit" HEAD
+    if [ -n "$AUTO_SYNC_LAST_COMMIT" ]; then
+      git diff --name-only "$AUTO_SYNC_LAST_COMMIT" HEAD
+    else
+      git ls-files
     fi
   jobs:
     - name: direnv
