@@ -58,25 +58,8 @@ commit-msg:
   jobs:
     - name: commit-msg-check
       run: |
-        if
-          ! printf '%s\0' {1} |
-            lefthook run check-commit-message --files-from-stdin
-        then
-          old_commit_message_file="$(git rev-parse --git-dir)/COMMIT_EDITMSG"
-          printf '%s\n' \
-            '' \
-            'To commit again with the commit message you just entered, run the following command:' \
-            '  git commit --edit --message "$(sed -e '"'"'/# ------------------------ >8 ------------------------/,$d'"'"' -e '"'"'/^#/d'"'"' '"$old_commit_message_file"')"' \
-            'To create a git alias for running the command above, run the command below:' \
-            '  git config --global alias.recommit '"'"'!git commit --edit --message "$(sed -e "/# ------------------------ >8 ------------------------/,$d" -e "/^#/d" "$(git rev-parse --git-dir)/COMMIT_EDITMSG")"'"'" \
-            'Now you can use the alias by running:' \
-            '  git recommit' \
-            '' \
-            'If you think the errors reported are false-positives, you can skip the commit-msg hook by running the following command:' \
-            '  git commit --no-verify' \
-            'NOTE: This will also skip the pre-commit hook.'
-          exit 1
-        fi
+        mise run recommit {1} \
+          sh -c 'printf "%s\0" "$1" | lefthook run check-commit-message --files-from-stdin' -- {1}
 
 pre-commit:
   jobs:

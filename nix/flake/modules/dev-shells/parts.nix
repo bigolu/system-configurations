@@ -147,11 +147,8 @@ rec {
 
   speakerctl = pkgs.speakerctl.devShell;
 
-  commitMsgHook = mkShellWrapperNoCC {
-    # These are used in the lefthook config for the commit-msg and
-    # check-commit-message hooks.
+  checkCommitMessage = mkShellWrapperNoCC {
     packages = with pkgs; [
-      gnused
       typos
     ];
   };

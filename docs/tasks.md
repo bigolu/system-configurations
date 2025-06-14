@@ -87,6 +87,16 @@ Start `.#shell` in an empty environment
 
 Open this page
 
+## `recommit`
+
+If you use the git commit-msg hook and it fails, you can run this command to
+commit again using the last commit message you entered.
+
+
+- **Usage**: `recommit`
+
+Commit again with the last commit message used
+
 ## `sync`
 
 Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since git hooks are provided to automatically run this after rebases, merges, and checkouts. The list of jobs is in `lefthook.yaml`.
