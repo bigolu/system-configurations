@@ -28,15 +28,12 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-eval "jobs=(${usage_jobs:-})"
-
 job_flag=()
+eval "jobs=(${usage_jobs:-})"
 # shellcheck disable=2154
 # `jobs` is defined in an `eval` statement above
 if ((${#jobs[@]} > 0)); then
-  joined_jobs="$(printf '%s,' "${jobs[@]}")"
-  joined_jobs="${joined_jobs::-1}"
-
+  IFS=',' joined_jobs="${jobs[*]}"
   job_flag=(--jobs "$joined_jobs")
 fi
 

@@ -21,15 +21,13 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-lefthook_job_args=()
+job_flag=()
 eval "jobs=(${usage_jobs:-})"
 # shellcheck disable=2154
 # `jobs` is defined in an `eval` statement above
 if ((${#jobs[@]} > 0)); then
-  joined_jobs="$(printf '%s,' "${jobs[@]}")"
-  joined_jobs="${joined_jobs::-1}"
-
-  lefthook_job_args+=(--jobs "$joined_jobs")
+  IFS=',' joined_jobs="${jobs[*]}"
+  job_flag=(--jobs "$joined_jobs")
 fi
 
-lefthook run sync --force "${lefthook_job_args[@]}"
+lefthook run sync --force "${job_flag[@]}"
