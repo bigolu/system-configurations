@@ -106,24 +106,28 @@ function main {
   fi
 
   if [[ $should_sync == 'true' ]]; then
-    # This needs to run first in case the sync doesn't succeed. Even if the sync
-    # doesn't succeed, we'll still consider the repository synced against the current
-    # commit since the user will probably fix whatever wasn't working and rerun the
-    # sync.
-    track_last_synced_commit
-
     get_sync_command "$@" |
       {
         readarray -d '' sync_command
 
         local last_commit_path
         last_commit_path="$(get_last_commit_path)"
+
+        # Even if the sync doesn't succeed, we still want to consider the
+        # repository synced against the current commit since the user will probably
+        # fix whatever wasn't working and rerun the sync. Therefore, we need to
+        # make sure the script continues even if the sync command fails so we can
+        # track that last synced commit.
+        set +o errexit
         if [[ -e $last_commit_path ]]; then
           AUTO_SYNC_LAST_COMMIT="$(<"$last_commit_path")" "${sync_command[@]}"
         else
           "${sync_command[@]}"
         fi
+        set -o errexit
       }
+
+    track_last_synced_commit
   fi
 }
 
