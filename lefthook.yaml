@@ -59,7 +59,7 @@ commit-msg:
     - name: commit-msg-check
       run: |
         mise run recommit {1} \
-          sh -c 'printf "%s\0" "$1" | lefthook run check-commit-message --files-from-stdin' -- {1}
+          bash -c 'printf "%s\0" "$1" | lefthook run check-commit-message --files-from-stdin' -- {1}
 
 pre-commit:
   jobs:
@@ -296,7 +296,7 @@ check:
                   #
                   # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
                   run: |
-                    {run_fix} sh -c '
+                    {run_fix} bash -c '
                       mise generate task-docs --style detailed --output docs/tasks.md
                       markdown2html-converter \
                         --force \
