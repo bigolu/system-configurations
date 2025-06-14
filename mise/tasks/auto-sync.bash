@@ -10,8 +10,8 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# A script for syncing your environment with the code during certain git hooks. Read
-# the comments to learn more about how it works.
+# A script that automatically syncs your environment with the code during certain
+# git hooks.
 #
 # Usage:
 #   Call this script from the post-merge, post-rewrite, post-checkout, and
