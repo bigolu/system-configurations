@@ -53,8 +53,13 @@
 # [3]: https://github.com/direnv/direnv-vscode
 
 function direnv_manual_reload {
-  local reload_file
-  reload_file="$(create_reload_file)"
+  # Intentionally global
+  direnv_dir="$(get_direnv_dir)"
+
+  local -r reload_file="$direnv_dir/reload"
+  if [[ ! -e $reload_file ]]; then
+    touch "$reload_file"
+  fi
 
   set_watched_files "$reload_file"
   # This way, subsequent code in `.envrc` can't modify the file watch list
@@ -63,21 +68,8 @@ function direnv_manual_reload {
   add_reload_program_to_path "$reload_file"
 }
 
-function create_reload_file {
-  local direnv_dir
-  direnv_dir="$(get_direnv_dir)"
-
-  local reload_file="$direnv_dir/reload"
-  if [[ ! -e $reload_file ]]; then
-    touch "$reload_file"
-  fi
-
-  echo "$reload_file"
-}
-
 function get_direnv_dir {
-  local layout_dir
-  layout_dir="$(direnv_layout_dir)"
+  local -r layout_dir="${direnv_layout_dir:-.direnv}"
   if [[ ! -e $layout_dir ]]; then
     mkdir "$layout_dir"
   fi
@@ -94,7 +86,7 @@ function set_watched_files {
 function remove_unwanted_watched_files {
   local -a watched_files
   # shellcheck disable=2312
-  # TODO: The exit code of direnv is being masked by readarray, but it would be
+  # perf: The exit code of direnv is being masked by readarray, but it would be
   # tricky to avoid that. I can't use a pipeline since I want to unset the
   # DIRENV_WATCHES environment variable below. I could put the output of the direnv
   # command in a temporary file, but since this runs every time you enter the project
@@ -142,6 +134,10 @@ function add_reload_program_to_path {
   local reload_file_escaped
   reload_file_escaped="$(printf '%q' "$reload_file")"
 
+  # TODO(perf): To avoid always remaking this file, we could add the version of this
+  # script to the file name and make a symlink to it without the version. This way,
+  # we could do a `-e` check to avoid creating the file again. This isn't done
+  # because this script currently isn't versioned.
   cat >"$reload_program" <<EOF
 #!$bash_path
 touch $reload_file_escaped
@@ -151,20 +147,24 @@ touch $reload_file_escaped
 direnv exec . true
 EOF
 
-  chmod +x "${reload_program}"
+  if [[ ! -x $reload_program ]]; then
+    chmod +x "$reload_program"
+  fi
+
+  # This way, we can avoid adding the same directory to the PATH twice.
+  #
+  # perf: This is faster than `PATH_rm` followed by `PATH_add`.
+  if ! type -P "$reload_program"; then
+    PATH_add "$direnv_bin"
+  fi
 }
 
 function get_direnv_bin {
-  local direnv_bin
-  direnv_bin="$(get_direnv_dir)/bin"
+  local -r direnv_bin="$direnv_dir/bin"
 
   if [[ ! -e $direnv_bin ]]; then
     mkdir "$direnv_bin"
   fi
-
-  # First try removing it so we don't add a duplicate entry to the PATH
-  PATH_rm "$direnv_bin"
-  PATH_add "$direnv_bin"
 
   echo "$direnv_bin"
 }

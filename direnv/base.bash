@@ -21,9 +21,7 @@ function main {
 }
 
 function create_direnv_layout_directory {
-  local directory
-  directory="$(direnv_layout_dir)"
-
+  local -r directory="${direnv_layout_dir:-.direnv}"
   if [[ ! -e $directory ]]; then
     mkdir "$directory"
   fi
