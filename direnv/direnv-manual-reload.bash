@@ -125,12 +125,8 @@ function prevent_adding_to_watched_files {
 function add_reload_program_to_path {
   local -r reload_file="$1"
 
-  local direnv_bin
-  direnv_bin="$(get_direnv_bin)"
-
-  local -r reload_program_base_name='direnv-reload'
   local reload_program
-  reload_program="$direnv_bin/$reload_program_base_name"
+  reload_program="$(get_direnv_bin)/direnv-reload"
 
   local bash_path
   bash_path="$(type -P bash)"
@@ -154,13 +150,6 @@ EOF
   if [[ ! -x $reload_program ]]; then
     chmod +x "$reload_program"
   fi
-
-  # This way, we can avoid adding the same directory to the PATH twice.
-  #
-  # perf: This is faster than `PATH_rm` followed by `PATH_add`.
-  if ! type -P "$reload_program_base_name" >/dev/null; then
-    PATH_add "$direnv_bin"
-  fi
 }
 
 function get_direnv_bin {
@@ -169,6 +158,10 @@ function get_direnv_bin {
   if [[ ! -e $direnv_bin ]]; then
     mkdir "$direnv_bin"
   fi
+
+  # This way, we can avoid adding the same directory to the PATH twice.
+  PATH_rm "$direnv_bin"
+  PATH_add "$direnv_bin"
 
   echo "$direnv_bin"
 }
