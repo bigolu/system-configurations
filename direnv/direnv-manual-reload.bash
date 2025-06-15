@@ -154,7 +154,7 @@ EOF
   # This way, we can avoid adding the same directory to the PATH twice.
   #
   # perf: This is faster than `PATH_rm` followed by `PATH_add`.
-  if ! type -P "$reload_program"; then
+  if ! type -P "$reload_program" >/dev/null; then
     PATH_add "$direnv_bin"
   fi
 }
