@@ -105,28 +105,29 @@ function main {
   fi
 
   if [[ $should_sync == 'true' ]]; then
-    get_sync_command "$@" |
-      {
-        readarray -d '' sync_command
+    # Even if the sync doesn't succeed, we still want to consider the repository
+    # synced against the current commit since the user will probably fix whatever
+    # wasn't working and rerun the sync.
+    trap track_last_synced_commit EXIT
 
-        local last_commit_path
-        last_commit_path="$(get_last_commit_path)"
+    local -a sync_command
+    local seen_delimiter='false'
+    for arg in "$@"; do
+      if [[ $seen_delimiter == 'true' ]]; then
+        sync_command+=("$arg")
+      elif [[ $arg == '--' ]]; then
+        seen_delimiter='true'
+      fi
+    done
 
-        # Even if the sync doesn't succeed, we still want to consider the
-        # repository synced against the current commit since the user will probably
-        # fix whatever wasn't working and rerun the sync. Therefore, we need to
-        # make sure the script continues even if the sync command fails so we can
-        # track that last synced commit.
-        set +o errexit
-        if [[ -e $last_commit_path ]]; then
-          AUTO_SYNC_LAST_COMMIT="$(<"$last_commit_path")" "${sync_command[@]}"
-        else
-          "${sync_command[@]}"
-        fi
-        set -o errexit
-      }
+    local -a last_commit_env=()
+    local last_commit_path
+    last_commit_path="$(get_last_commit_path)"
+    if [[ -e $last_commit_path ]]; then
+      last_commit_env+=(env AUTO_SYNC_LAST_COMMIT="$(<"$last_commit_path")")
+    fi
 
-    track_last_synced_commit
+    "${last_commit_env[@]}" "${sync_command[@]}"
   fi
 }
 
@@ -140,17 +141,6 @@ function get_last_commit_path {
   local git_directory
   git_directory="$(git rev-parse --absolute-git-dir)"
   echo "$git_directory/info/auto-sync-last-commit"
-}
-
-function get_sync_command {
-  local seen_delimiter='false'
-  for arg in "$@"; do
-    if [[ $seen_delimiter == 'true' ]]; then
-      printf '%s\0' "$arg"
-    elif [[ $arg == '--' ]]; then
-      seen_delimiter='true'
-    fi
-  done
 }
 
 function should_sync {
