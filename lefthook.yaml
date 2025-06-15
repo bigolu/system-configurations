@@ -23,6 +23,9 @@ output:
 
 templates:
   run_fix: mise run run-fix
+  # Sync tasks are run with this since they may depend on the newly synced direnv
+  # environment.
+  direnv_exec: direnv exec .
   # Some of the jobs in the 'check' hook don't specify a glob because they apply to
   # all files. However, I also want at least one file to be passed into them. If you
   # use `lefthook run check --files-from-stdin` and stdin is empty, jobs without a
@@ -130,6 +133,8 @@ sync:
       git ls-files
     fi
   jobs:
+    # This job should be first since other sync tasks may depend on the newly synced
+    # direnv environment.
     - name: direnv
       # Why `interactive` should be enabled:
       #   - This job can take a while so being able to see the output in real time
@@ -153,6 +158,7 @@ sync:
         # If this configuration changes
         - lefthook.yaml
       run: mise run lefthook:sync:direnv
+
     - name: lefthook
       only:
         # We only need to sync this once since lefthook re-syncs hooks automatically.
@@ -184,7 +190,11 @@ sync:
       #
       # Use `chase` since the sudoers config specifies the path of `run-as-admin` in
       # the nix store, but `command` will return the path in my user's profile
-      run: sudo -- "$(chase "$(command -v run-as-admin)")" --path "$PATH" "$(command -v system-config-sync)"
+      run: |
+        {direnv_exec} sudo -- \
+          "$(chase "$(command -v run-as-admin)")" \
+          --path "$PATH" \
+          "$(command -v system-config-sync)"
     - name: fish
       glob:
         - dotfiles/fish/conf.d/*.fish
@@ -196,7 +206,7 @@ sync:
 
         # If this configuration changes
         - lefthook.yaml
-      run: fish -c fish-reload
+      run: "{direnv_exec} fish -c fish-reload"
 
 check-commit-message:
   # Custom hooks should always have a files command. See the comment below the

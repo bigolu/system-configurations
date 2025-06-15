@@ -42,11 +42,36 @@ function add_directory_to_gitignore {
 function set_up_nix {
   load_nix_config_file "${PWD}/nix/nix.conf"
 
-  # renovate: nix-direnv
-  source_url \
-    'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.7/direnvrc' \
-    'sha256-bn8WANE5a91RusFmRI7kS751ApelG02nMcwRekC/qzc='
-  use flake ".#${NIX_DEV_SHELL:?}"
+  # Even when a dev shell is cached nix-direnv is a bit slow so I'm doing my own
+  # caching.
+  local -r last_reload_time_file="${direnv_layout_dir:-.direnv}/last-reload-time"
+  local -r reload_file="${direnv_layout_dir:-.direnv}/reload"
+  local reload_file_last_modified_time
+  reload_file_last_modified_time="$(stat --format=%Y "$reload_file")"
+  local dev_shell_setup_script
+  dev_shell_setup_script="$(
+    # By default, if there are no matches for a glob, Bash prints the glob itself. I
+    # don't want anything to be printed if there's no match so I'm disabling this
+    # behavior. I'm doing so in a subshell so it doesn't apply to the rest of the
+    # script.
+    shopt -s nullglob
+    echo "${direnv_layout_dir:-.direnv}/flake-profile-"*.rc
+  )"
+  if
+    [[ -e $dev_shell_setup_script ]] &&
+      [[ -e $last_reload_time_file ]] &&
+      (($(<"$last_reload_time_file") == reload_file_last_modified_time))
+  then
+    # shellcheck disable=1090
+    source "$dev_shell_setup_script"
+  else
+    # renovate: nix-direnv
+    source_url \
+      'https://raw.githubusercontent.com/nix-community/nix-direnv/3.0.7/direnvrc' \
+      'sha256-bn8WANE5a91RusFmRI7kS751ApelG02nMcwRekC/qzc='
+    use flake ".#${NIX_DEV_SHELL:?}"
+    echo "$reload_file_last_modified_time" >"$last_reload_time_file"
+  fi
 }
 
 # TODO: This wouldn't be necessary if nix supported project/directory-specific config
