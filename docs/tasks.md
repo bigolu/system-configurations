@@ -3,28 +3,28 @@
 Create a bundle for the specified package using the bundler in this repository.
 
 
-- **Usage**: `bundle <package>`
+- **Usage**: `bundle <flakeref>`
 
 Create a bundle
 
 ### Arguments
 
-#### `<package>`
+#### `<flakeref>`
 
-The package to build e.g. .#shell
+The flakeref of the package to build e.g. .#shell
 
 ## `check`
 
 Run jobs to find/fix issues with the code. It runs on all files that differ between the current branch and the default branch, and untracked files. This is usually what you want since you can assume any files merged into the default branch have no issues. You usually don't have to run this manually since it runs during the git pre-commit hook, where it only runs on staged files. The exception to this is when you make changes to how any of the jobs work, like modifying `lefthook.yaml` for example. In which case, you should run this with the `--all-files` flag which forces the jobs to run on all files, even unchanged ones. The list of jobs is in `lefthook.yaml`.
 
 
-- **Usage**: `check [-a --all-files] [jobs]…`
+- **Usage**: `check [-a --all-files] [jobs]...`
 
 Run jobs to find/fix issues
 
 ### Arguments
 
-#### `[jobs]…`
+#### `[jobs]...`
 
 Jobs to run. If none are passed then all of them will be run
 
@@ -102,13 +102,13 @@ Commit again with the last commit message used
 Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since git hooks are provided to automatically run this after rebases, merges, and checkouts. The list of jobs is in `lefthook.yaml`.
 
 
-- **Usage**: `sync [jobs]…`
+- **Usage**: `sync [jobs]...`
 
 Sync your environment with the code
 
 ### Arguments
 
-#### `[jobs]…`
+#### `[jobs]...`
 
 Jobs to run. If none are passed then all of them will be run
 

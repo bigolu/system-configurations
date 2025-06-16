@@ -236,6 +236,8 @@ in
     dontCheckForBrokenSymlinks = true;
   });
 
+  inherit (inputs.nixpkgs-mise.legacyPackages.${final.system}) mise;
+
   inherit
     runAsAdmin
     myFonts

@@ -7,7 +7,10 @@
 #USAGE   Create a bundle for the specified package using the bundler in this \
 #USAGE   repository.
 #USAGE """
-#USAGE arg "<package>" help="The package to build e.g. .#shell"
+#USAGE arg "<flakeref>" help="The flakeref of the package to build e.g. .#shell"
+#USAGE complete "flakeref" run=#"""
+#USAGE   fish -c 'complete --do-complete "nix bundle --bundler .# {{words[CURRENT]}}"'
+#USAGE """#
 
 set -o errexit
 set -o nounset
@@ -15,4 +18,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-nix bundle --bundler .# "${usage_package:?}"
+nix bundle --bundler .# "${usage_flakeref:?}"
