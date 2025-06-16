@@ -391,7 +391,7 @@ extension:
   sql: "  "
   sqlite3: "  "
   srt: "  "
-  styl: "  "
+  styl: "  " # typos:ignore
   stylus: "  "
   sub: "  "
   sublime-package: "  "

@@ -15,8 +15,8 @@
   d-sub = diff --submodule=diff
   s = status
   ss = status --short
-  C = commit --no-verify
-  Push = push --no-verify
+  cn = commit --no-verify
+  pn = push --no-verify # typos:ignore
   a = add
   d = diff
   lp = log -p

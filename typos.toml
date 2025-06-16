@@ -1,10 +1,13 @@
 [default]
 extend-words.iterm = "iterm"
-
-[type.yaml]
-extend-glob = ["dotfiles/lsd/icons.yaml"]
-[type.yaml.extend-words]
-styl = "styl"
+extend-ignore-re = [
+  # TODO: This way, I can have typos ignore lines by adding the comment `#
+  # typos:ignore` to the end of the line. There's an open issue for supporting inline
+  # exclusions[1].
+  #
+  # [1]: https://github.com/crate-ci/typos/issues/316
+  "(?Rm)^.*(#|//)\\s*typos:ignore$",
+]
 
 # TODO: There's an open issue for adding file types to typos for git's files, like
 # the commit file.
