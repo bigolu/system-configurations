@@ -31,8 +31,8 @@ shopt -s inherit_errexit
 # Environment Variables:
 #   AUTO_SYNC_HOOK_NAME (required):
 #     This variable should be set to the name of the git hook that is currently being
-#     run. The only supported hooks are 'post-rewrite', 'post-merge', and
-#     'post-checkout'.
+#     run. The only supported hooks are post-rewrite, post-merge, post-checkout, and
+#     post-commit.
 #   AUTO_SYNC_CHECK_ONLY (optional):
 #     If this variable is set to 'true', then instead of performing the sync, it will
 #     exit with 0 if it would have synced and non-zero otherwise.
