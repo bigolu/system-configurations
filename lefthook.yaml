@@ -306,7 +306,7 @@ check:
                   #
                   # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
                   run: |
-                    {run_fix} bash -c '
+                    {run_fix} bash -ec '
                       mise generate task-docs --style detailed --output docs/tasks.md
                       markdown2html-converter \
                         --force \
