@@ -37,7 +37,12 @@ function main {
 
   backup "$commit_file"
 
-  if ! "${check_command[@]}"; then
+  set +o errexit
+  "${check_command[@]}"
+  local -r check_command_exit_code=$?
+  set -o errexit
+
+  if ((check_command_exit_code != 0)); then
     printf '%s\n' \
       '' \
       'To commit again with the commit message you just entered, run the following command:' \
@@ -45,8 +50,9 @@ function main {
       'If you think the errors reported are false-positives, you can skip the commit-msg hook by running the following command:' \
       '  RECOMMIT_NO_VERIFY=true mise run recommit' \
       'NOTE: This will also skip the pre-commit hook.'
-    exit 1
   fi
+
+  exit $check_command_exit_code
 }
 
 function backup {
