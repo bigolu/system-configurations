@@ -159,38 +159,26 @@ function should_sync {
   local last_reflog_entry
   last_reflog_entry="$(git reflog show --max-count 1)"
 
-  local skip_checkouts_and_non_default_branch_pulls
-  skip_checkouts_and_non_default_branch_pulls="$(
-    safe_git_config --get 'auto-sync.skip.checkouts-and-non-default-branch-pulls'
-  )"
-  if [[ ${skip_checkouts_and_non_default_branch_pulls:-} == 'true' ]]; then
-    local current_branch
-    current_branch="$(git rev-parse --abbrev-ref HEAD)"
-    local default_branch
-    default_branch="$(get_default_branch)"
-    local -r pull_regex='^.*: pull( .*)?: .+'
-    if
-      [[ $AUTO_SYNC_HOOK_NAME == 'post-checkout' ]] ||
-        {
-          [[ $last_reflog_entry =~ $pull_regex ]] &&
-            [[ $current_branch != "$default_branch" ]]
-        }
-    then
-      should_sync='false'
-    fi
-  fi
-
   # By default, auto-syncing is only enabled for the default branch since other
   # branches may be a security concern. For example, if you're working on an open
   # source project and your synchronization code can execute arbitrary code, then
   # checking out a pull request that contains malicious synchronization code could
   # compromise your system.
+  #
+  # The exception to this is a non-pull merge/rebase. I assume that those are ok
+  # since I only expect people to do a merge/rebase on a branch they trust, unless
+  # it's part of a pull. For example, rebasing a feature branch on master.
   local should_allow_all_branches
   should_allow_all_branches="$(safe_git_config --get 'auto-sync.allow.all')"
   local is_head_in_allowed_branches
   is_head_in_allowed_branches="$(is_head_in_allowed_branches)"
+  local -r pull_regex='^.*: pull( .*)?: .+'
   if
-    [[ $should_allow_all_branches != 'true' && $is_head_in_allowed_branches != 'true' ]]
+    [[ $should_allow_all_branches != 'true' && $is_head_in_allowed_branches != 'true' ]] &&
+      ! {
+        [[ $AUTO_SYNC_HOOK_NAME == 'post-merge' || $AUTO_SYNC_HOOK_NAME == 'post-rewrite' ]] &&
+          [[ ! $last_reflog_entry =~ $pull_regex ]]
+      }
   then
     should_sync='false'
   fi
