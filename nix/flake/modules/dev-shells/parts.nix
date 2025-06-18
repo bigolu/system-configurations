@@ -262,7 +262,7 @@ rec {
     };
 
   # These are the dependencies of the commands run within `complete` statements in
-  # mise tasks. I could use nix shell shebang scripts instead, but then autocomplete
+  # mise tasks. I could use nix shebang scripts instead, but then autocomplete
   # would be delayed by the time it takes to load a nix shell.
   taskAutocomplete = mkShellWrapperNoCC {
     packages = with pkgs; [
@@ -283,13 +283,13 @@ rec {
   #   - Since the dev shell is a garbage collection root, these task dependencies
   #     won't get garbage collected.
   tasks = pipe (projectRoot + /mise/tasks) [
-    # Get all nix-shell shebang scripts
+    # Get all nix shebang scripts
     (fileset.fileFilter (file: file.hasExt "bash"))
     (
-      nixShellShebangScripts:
+      nixShebangScripts:
       fileset.toSource {
         root = projectRoot;
-        fileset = nixShellShebangScripts;
+        fileset = nixShebangScripts;
       }
     )
 
@@ -299,7 +299,7 @@ rec {
     (map (splitString "\n"))
     concatLists
 
-    # Extract script dependencies from their nix-shell shebangs.
+    # Extract script dependencies from their nix shebangs.
     #
     # The shebang looks something like:
     #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
