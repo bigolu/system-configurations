@@ -23,8 +23,10 @@ output:
 
 templates:
   run_fix: mise run run-fix
-  # Sync tasks are run with this since they may depend on the newly synced direnv
-  # environment.
+  # When `auto-sync` runs, some of the sync jobs may depend on something from the
+  # newly synced direnv environment. To ensure those sync jobs run with the newly
+  # synced direnv environment, we sync direnv first and run the rest of the jobs with
+  # this template.
   direnv_exec: direnv exec .
   # Some of the jobs in the 'check' hook don't specify a glob because they apply to
   # all files. However, I also want at least one file to be passed into them. If you
