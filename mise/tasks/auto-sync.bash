@@ -49,20 +49,11 @@ shopt -s inherit_errexit
 #   auto-sync.skip.command (optional):
 #     A Bash command that determines if sync should be skipped. If it exits with 0,
 #     sync will skipped.
-#   auto-sync.skip.checkouts-and-non-default-branch-pulls:
-#     If you only want to allow syncing on your branches and the default branch, but
-#     don't want to specify an `auto-sync.allow.branch-pattern` to match your
-#     branches, you can enable this setting and `auto-sync.allow.all`. With those two
-#     settings enabled, syncing will only happen when you pull the default branch or
-#     do a non-pull rebase/merge. This works off the assumption that you would only
-#     do a non-pull rebase/merge on your own branches.
-#   auto-sync.allow.all (optional):
-#     Set this to 'true' if syncing should be allowed on all branches.
-#   auto-sync.allow.branch (optional):
-#     A list of branches that should be synced.
 #   auto-sync.allow.branch-pattern (optional):
 #     A list of POSIX extended regular expressions[1] that match branches that should
 #     be synced.
+#   auto-sync.allow.all (optional):
+#     Set this to 'true' if syncing should be allowed on all branches.
 #
 #   Usage:
 #     Set a list option with:
@@ -225,24 +216,10 @@ function should_sync {
 
 function is_head_in_allowed_branches {
   local -a allowed_branches=()
-
-  # The default branch is always allowed
-  allowed_branches+=("$(get_default_branch)")
-
   local allowed_branches_string
-  allowed_branches_string="$(safe_git_config --get-all 'auto-sync.allow.branch')"
+  allowed_branches_string="$(get_allowed_branches)"
   if [[ -n $allowed_branches_string ]]; then
-    local -a allowed_branches_temp
-    readarray -t allowed_branches_temp <<<"$allowed_branches_string"
-    allowed_branches+=("${allowed_branches_temp[@]}")
-  fi
-
-  local allowed_branches_from_patterns_string
-  allowed_branches_from_patterns_string="$(get_allowed_branches_from_patterns)"
-  if [[ -n $allowed_branches_from_patterns_string ]]; then
-    local -a allowed_branches_from_patterns
-    readarray -t allowed_branches_from_patterns <<<"$allowed_branches_from_patterns_string"
-    allowed_branches+=("${allowed_branches_from_patterns[@]}")
+    readarray -t allowed_branches <<<"$allowed_branches_string"
   fi
 
   local is_head_in_allowed_branches='false'
@@ -252,12 +229,19 @@ function is_head_in_allowed_branches {
       break
     fi
   done
+
   echo "$is_head_in_allowed_branches"
 }
 
-function get_allowed_branches_from_patterns {
-  branches_string="$(git for-each-ref --format='%(refname:short)' refs/heads/)"
+function get_allowed_branches {
+  local -a allowed_branches=()
+
+  # The default branch is always allowed
+  allowed_branches+=("$(get_default_branch)")
+
   local -a branches
+  local branches_string
+  branches_string="$(git for-each-ref --format='%(refname:short)' refs/heads/)"
   readarray branches -t <<<"$branches_string"
 
   local -a allowed_branch_patterns
@@ -267,18 +251,15 @@ function get_allowed_branches_from_patterns {
     readarray -t allowed_branch_patterns <<<"$allowed_branch_patterns_string"
   fi
 
-  local -a allowed_branches_from_patterns=()
   for branch in "${branches[@]}"; do
     for pattern in "${allowed_branch_patterns[@]}"; do
       if [[ $branch =~ $pattern ]]; then
-        allowed_branches_from_patterns+=("$branch")
+        allowed_branches+=("$branch")
       fi
     done
   done
 
-  if ((${#allowed_branches_from_patterns[@]} > 0)); then
-    printf '%s\n' "${allowed_branches_from_patterns[@]}"
-  fi
+  printf '%s\n' "${allowed_branches[@]}"
 }
 
 function get_default_branch {
