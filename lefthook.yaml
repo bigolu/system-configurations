@@ -74,7 +74,7 @@ pre-commit:
       # a pre-commit job if the only staged files are deleted files and
       # `{staged_files}` is used in the `run` command[1]. The reason I want this job
       # to run in that case is because the 'task-docs' job in the 'check' hook should
-      # run in this case. Instead, I'll just get the list of files myself using the
+      # run in that case. Instead, I'll just get the list of files myself using the
       # same command lefthook would use[2].
       #
       # [1]: https://github.com/evilmartians/lefthook/pull/925
