@@ -291,6 +291,14 @@ in
 
       assertions =
         let
+          isBaseDirectoryInsideFlakeDirectory = hasPrefix flakeRootPath relativePathRoot;
+
+          doesSourceExist =
+            source:
+            pipe source [
+              convertToPathBuiltin
+              pathExists
+            ];
           fileSets = with config.repository; [
             home.file
             xdg.configFile
@@ -301,38 +309,11 @@ in
           files = flatten fileLists;
           getSource = getAttr "source";
           sources = map getSource files;
-          # relative paths are assumed to be relative to
-          # `config.repository.fileSettings.relativePathRoot`, which we already
-          # assert is within the flake directory, so no need to check them.
-          absoluteSources = filter (source: !isRelativePath source) sources;
-          isPathWithinFlakeDirectory = path: hasPrefix flakeRootPath path;
-          sourcesOutsideFlake = filter (path: !isPathWithinFlakeDirectory path) absoluteSources;
-          sourcesOutsideFlakeJoined = concatStringsSep " " sourcesOutsideFlake;
-          areAllSourcesInsideFlakeDirectory = sourcesOutsideFlake == [ ];
-          isBaseDirectoryInsideFlakeDirectory = hasPrefix flakeRootPath relativePathRoot;
-
-          doesSourceExist =
-            source:
-            pipe source [
-              convertToPathBuiltin
-              pathExists
-            ];
           nonexistentSources = filter (s: !(doesSourceExist s)) sources;
           doAllSymlinkSourcesExist = nonexistentSources == [ ];
           brokenSymlinksJoined = concatStringsSep " " nonexistentSources;
         in
         [
-          # If you try to link files from outside the flake you get a strange error
-          # along the lines of 'no such file/directory' so instead I make an
-          # assertion here since my error will be much clearer. I think you can link
-          # files from anywhere if you pass --impure to home-manager, but I want a
-          # pure evaluation.
-          #
-          # TODO: Open an issue for making the error message clearer.
-          {
-            assertion = areAllSourcesInsideFlakeDirectory;
-            message = "All file sources for config.repository.* must be within the directory of the flake. Offending paths: ${sourcesOutsideFlakeJoined}";
-          }
           {
             assertion = isBaseDirectoryInsideFlakeDirectory;
             message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${config.repository.fileSettings.relativePathRoot}";
