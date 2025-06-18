@@ -197,19 +197,6 @@ in
           (pathRelativeToFlake: flakeRootStorePath + pathRelativeToFlake)
         ];
 
-      removeExtension =
-        path:
-        let
-          basename = baseNameOf path;
-          basenamePieces = splitString "." basename;
-          baseNameWithoutExtension =
-            if length basenamePieces == 1 then
-              basename
-            else
-              concatStringsSep "." (sublist 0 ((length basenamePieces) - 1) basenamePieces);
-        in
-        if basename == path then baseNameWithoutExtension else "${dirOf path}/${baseNameWithoutExtension}";
-
       convertFileToHomeManagerFile =
         file:
         let
@@ -220,6 +207,27 @@ in
               # Flake evaluation automatically makes copies of all Paths so we just
               # have to make it a Path.
               convertToPathBuiltin;
+
+          replaceShebangInterpreter =
+            file:
+            pipe file [
+              readFile
+              (replaceStrings [ "/usr/bin/env bash" ] [ (getExe pkgs.bash) ])
+              (writeScript "patched-xdg-executable")
+            ];
+
+          removeExtension =
+            path:
+            let
+              basename = baseNameOf path;
+              basenamePieces = splitString "." basename;
+              baseNameWithoutExtension =
+                if length basenamePieces == 1 then
+                  basename
+                else
+                  concatStringsSep "." (sublist 0 ((length basenamePieces) - 1) basenamePieces);
+            in
+            if basename == path then baseNameWithoutExtension else "${dirOf path}/${baseNameWithoutExtension}";
 
           homeManagerSource = pipe file.source [
             makePathAbsolute
@@ -280,14 +288,6 @@ in
           in
           accumulator // homeManagerFileSet
         ) { } fileSet;
-
-      replaceShebangInterpreter =
-        file:
-        pipe file [
-          readFile
-          (replaceStrings [ "/usr/bin/env bash" ] [ (getExe pkgs.bash) ])
-          (writeScript "patched-xdg-executable")
-        ];
 
       assertions =
         let
