@@ -85,7 +85,7 @@ Start `.#shell` in an empty environment
 
 - **Usage**: `help`
 
-Open this page
+Open task documentation
 
 ## `sync`
 

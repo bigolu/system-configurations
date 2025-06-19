@@ -2,7 +2,7 @@
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils]"
-#MISE description="Open this page"
+#MISE description="Open task documentation"
 
 set -o errexit
 set -o nounset
