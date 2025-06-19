@@ -112,10 +112,10 @@ function main {
     done
 
     local -a last_commit_env=()
-    local last_commit_path
-    last_commit_path="$(get_last_commit_path)"
-    if [[ -e $last_commit_path ]]; then
-      last_commit_env+=(env AUTO_SYNC_LAST_COMMIT="$(<"$last_commit_path")")
+    local last_commit
+    last_commit="$(get_last_commit)"
+    if [[ -n $last_commit ]]; then
+      last_commit_env+=(env AUTO_SYNC_LAST_COMMIT="$last_commit")
     fi
 
     "${last_commit_env[@]}" "${sync_command[@]}"
@@ -134,12 +134,31 @@ function get_last_commit_path {
   echo "$git_directory/info/auto-sync-last-commit"
 }
 
+function get_last_commit {
+  local last_commit_path
+  last_commit_path="$(get_last_commit_path)"
+  if [[ -e $last_commit_path ]]; then
+    echo "$(<"$last_commit_path")"
+  fi
+}
+
 function should_sync {
   # Redirect stdout to stderr until we're ready to print the result. This way, if any
   # commands we execute happen to print to stdout, the caller won't capture it.
   exec {stdout_copy}>&1
   exec 1>&2
   local should_sync='true'
+
+  local last_commit
+  last_commit="$(get_last_commit)"
+  # If there are no differences between the last commit we synced with and the
+  # current one, then we shouldn't sync.
+  if
+    [[ -n $last_commit ]] &&
+      git diff --exit-code --quiet "$last_commit" HEAD
+  then
+    should_sync='false'
+  fi
 
   local command
   command="$(safe_git_config --get 'auto-sync.skip.command')"

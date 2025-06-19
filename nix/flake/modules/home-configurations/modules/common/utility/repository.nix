@@ -179,12 +179,10 @@ in
       flakeRootStorePath = config.repository.fileSettings.flake.root.storePath;
       inherit (config.repository.fileSettings) relativePathRoot;
       isEditableInstall = config.repository.fileSettings.editableInstall;
-
       isRelativePath = path: !hasPrefix "/" path;
-
       makePathAbsolute = path: if isRelativePath path then "${relativePathRoot}/${path}" else path;
-
       removeFlakePrefixFromPath = removePrefix flakeRootPath;
+      isExecutable = hasAttr "removeExtension";
 
       convertToPathBuiltin =
         path:
@@ -229,18 +227,18 @@ in
             in
             if basename == path then baseNameWithoutExtension else "${dirOf path}/${baseNameWithoutExtension}";
 
+          removeNonHomeManagerAttrs = file: removeAttrs file [ "removeExtension" ];
+
           homeManagerSource = pipe file.source [
             makePathAbsolute
             symlinkOrCopy
-            # only executable options have "removeExtension"
-            (applyIf ((hasAttr "removeExtension" file) && !isEditableInstall) replaceShebangInterpreter)
+            (applyIf (isExecutable file && !isEditableInstall) replaceShebangInterpreter)
           ];
 
-          homeManagerTarget =
-            if (file.removeExtension or false) then (removeExtension file.target) else file.target;
+          homeManagerTarget = applyIf (file.removeExtension or false) removeExtension file.target;
         in
         pipe file [
-          (file: removeAttrs file [ "removeExtension" ])
+          removeNonHomeManagerAttrs
           (
             file:
             file
@@ -252,10 +250,10 @@ in
         ];
 
       listRelativeFilesRecursive =
-        dir:
-        pipe dir [
+        directory:
+        pipe directory [
           listFilesRecursive
-          (map (path: removePrefix "${toString dir}/" (toString path)))
+          (map (path: removePrefix "${toString directory}/" (toString path)))
         ];
 
       getHomeManagerFileSetForFilesInDirectory =
@@ -275,19 +273,17 @@ in
           listToAttrs
         ];
 
-      convertToHomeManagerFileSet =
-        fileSet:
-        foldlAttrs (
-          accumulator: target: file:
-          let
-            homeManagerFileSet =
-              if file.recursive or false then
-                getHomeManagerFileSetForFilesInDirectory file
-              else
-                { ${target} = convertFileToHomeManagerFile file; };
-          in
-          accumulator // homeManagerFileSet
-        ) { } fileSet;
+      convertToHomeManagerFileSet = foldlAttrs (
+        accumulator: target: file:
+        let
+          homeManagerFileSet =
+            if file.recursive or false then
+              getHomeManagerFileSetForFilesInDirectory file
+            else
+              { ${target} = convertFileToHomeManagerFile file; };
+        in
+        accumulator // homeManagerFileSet
+      ) { };
 
       assertions =
         let
