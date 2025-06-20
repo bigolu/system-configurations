@@ -19,15 +19,22 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+repo='dotfiles/cosmic/config/'
+system="$HOME/.config/cosmic/"
+
 case "${usage_destination:?}" in
   'to-repo')
-    rsync --recursive ~/.config/cosmic/ dotfiles/cosmic/config/
+    source="$system"
+    destination="$repo"
     ;;
   'to-system')
-    rsync --recursive dotfiles/cosmic/config/ ~/.config/cosmic/
+    source="$repo"
+    destination="$system"
     ;;
   *)
     # It shouldn't ever reach this case
     exit 1
     ;;
 esac
+
+rsync --recursive "$source" "$destination"
