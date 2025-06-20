@@ -39,11 +39,11 @@ shopt -s inherit_errexit
 #
 # Environment Variables Set by auto-sync:
 #   AUTO_SYNC_LAST_COMMIT:
-#     This variable will be set to the hash of last synced commit or unset if no
-#     commit has been synced. This can be used by the sync command to calculate the
-#     files that differ between a new commit that's being synced with and the last
-#     one. Then it can use this file list to more granularly determine what needs to
-#     be synced.
+#     This variable will be set to the hash of last synced commit or an empty string
+#     if no commit has been synced. This can be used by the sync command to calculate
+#     the files that differ between a new commit that's being synced with and the
+#     last one. Then it can use this file list to more granularly determine what
+#     needs to be synced.
 #
 # Git Config Options:
 #   auto-sync.skip.command (optional):
@@ -111,14 +111,10 @@ function main {
       fi
     done
 
-    local -a last_commit_env=()
     local last_commit
     last_commit="$(get_last_commit)"
-    if [[ -n $last_commit ]]; then
-      last_commit_env+=(env AUTO_SYNC_LAST_COMMIT="$last_commit")
-    fi
 
-    "${last_commit_env[@]}" "${sync_command[@]}"
+    AUTO_SYNC_LAST_COMMIT="$last_commit" "${sync_command[@]}"
   fi
 }
 
