@@ -23,13 +23,14 @@ shopt -s inherit_errexit
 
 eval "user_env_vars=(${usage_var:-})"
 env_vars=(
+  # To be able to reuse nix's cache in ~/.cache/nix
   HOME="$HOME"
+
   "${user_env_vars[@]}"
 )
 
 for var in "${env_vars[@]}"; do
-  var_name="$(cut -d'=' -f1 <<<"$var")"
-  keep_flags+=(--keep "$var_name")
+  keep_flags+=(--keep "${var%=*}")
 done
 
 eval "user_nix_shell_args=(${usage_nix_shell_args:-})"

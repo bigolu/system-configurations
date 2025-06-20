@@ -276,13 +276,13 @@ check:
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:fix:add-nix-version-to-readme"
+                  run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
                 - name: readme-config-names
                   glob: "*.nix"
-                  run: "{run_fix} mise run lefthook:check:fix:add-config-names-to-readme"
+                  run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
                 - name: readme-nixpkgs-commit
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:fix:add-nixpkgs-commit-to-readme"
+                  run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
                 - name: flake-lock
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
