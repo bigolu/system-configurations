@@ -72,18 +72,7 @@ pre-commit:
       # I enable `interactive` for some of the jobs in the 'check' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      # I am intentionally not using `{staged_files}` here because lefthook won't run
-      # a pre-commit job if the only staged files are deleted files and
-      # `{staged_files}` is used in the `run` command[1]. The reason I want this job
-      # to run in that case is because the 'task-docs' job in the 'check' hook should
-      # run in that case. Instead, I'll just get the list of files myself using the
-      # same command lefthook would use[2].
-      #
-      # [1]: https://github.com/evilmartians/lefthook/pull/925
-      # [2]: https://github.com/evilmartians/lefthook/blob/d1eb3be2522a2afa0da6cfa255d7843935af6812/internal/git/repository.go#L35
-      run: |
-        git diff -z --name-only --cached --diff-filter=ACMR |
-          lefthook run check --files-from-stdin
+      run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
 
 post-rewrite:
   jobs:
