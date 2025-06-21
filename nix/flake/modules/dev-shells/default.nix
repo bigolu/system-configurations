@@ -40,7 +40,6 @@ moduleContext@{ lib, utils, ... }:
         inputsFrom = with parts; [
           gozip
           speakerctl
-          checkCommitMessage
           check
           sync
           taskRunner

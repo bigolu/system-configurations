@@ -61,13 +61,6 @@ templates:
 # [1]: https://lefthook.dev/configuration/glob.html
 # [2]: https://github.com/evilmartians/lefthook/pull/595
 
-commit-msg:
-  jobs:
-    - name: commit-msg-check
-      run: |
-        mise run recommit {1} \
-          bash -c 'printf "%s\0" "$1" | lefthook run check-commit-message --files-from-stdin' -- {1}
-
 pre-commit:
   jobs:
     - name: pre-commit-check
@@ -200,14 +193,6 @@ sync:
         # If this configuration changes
         - lefthook.yaml
       run: "{direnv_exec} fish -c fish-reload"
-
-check-commit-message:
-  # Custom hooks should always have a files command. See the comment below the
-  # "Custom Hooks" heading for why that is.
-  files: ":"
-  jobs:
-    - name: typos
-      run: typos {files}
 
 check:
   # Custom hooks should always have a files command. See the comment below the

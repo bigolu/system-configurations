@@ -147,12 +147,6 @@ rec {
 
   speakerctl = pkgs.speakerctl.devShell;
 
-  checkCommitMessage = mkShellWrapperNoCC {
-    packages = with pkgs; [
-      typos
-    ];
-  };
-
   check =
     let
       lua-language-server = mkShellWrapperNoCC {
