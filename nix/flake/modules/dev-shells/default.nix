@@ -14,26 +14,22 @@ moduleContext@{ lib, utils, ... }:
       parts = import ./parts.nix (moduleContext // perSystemContext);
 
       addCiEssentials =
-        devShellSpec:
-        devShellSpec
+        devShellArgs:
+        devShellArgs
         // {
-          inputsFrom = (devShellSpec.inputsFrom or [ ]) ++ [ parts.ciEssentials ];
+          inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ parts.ciEssentials ];
         };
 
       makeDevShellOutputs =
-        devShellOutputsInfo@{ default, ... }:
-        let
-          devShellSpecs = removeAttrs devShellOutputsInfo [ "default" ];
-        in
-        pipe devShellSpecs [
-          # We add the name to the spec so the caller doesn't have to specify it
-          # twice.
-          (mapAttrs (name: spec: spec // { inherit name; }))
-
-          # The spec is empty since ci essentials will be added below
-          (devShellSpecs: devShellSpecs // { ci-essentials = { }; })
+        { default, devShells }:
+        pipe devShells [
+          # There are no dev shell arguments since the CI essentials will be added
+          # to the arguments below.
+          (devShells: devShells // { ci-essentials = { }; })
+          # We add the name to the dev shell arguments so the caller doesn't have to
+          # specify it twice.
+          (mapAttrs (name: devShellArgs: devShellArgs // { inherit name; }))
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
-
           (mapAttrs (_name: mkShellWrapperNoCC))
           (devShells: devShells // { default = devShells.${default}; })
           (devShells: { inherit devShells; })
@@ -42,49 +38,51 @@ moduleContext@{ lib, utils, ... }:
     makeDevShellOutputs {
       default = "development";
 
-      development = {
-        inputsFrom = with parts; [
-          gozip
-          speakerctl
-          check
-          sync
-          taskRunner
-          taskAutocomplete
-          tasks
-          vsCode
-        ];
-        shellHook = ''
-          export RUN_FIX_ACTIONS='fail'
-        '';
-      };
+      devShells = {
+        development = {
+          inputsFrom = with parts; [
+            gozip
+            speakerctl
+            check
+            sync
+            taskRunner
+            taskAutocomplete
+            tasks
+            vsCode
+          ];
+          shellHook = ''
+            export RUN_FIX_ACTIONS='fail'
+          '';
+        };
 
-      ci-check-for-broken-links = {
-        inputsFrom = [ parts.lefthook ];
-        shellHook = ''
-          export LEFTHOOK_ENABLE_LYCHEE='true'
-        '';
-      };
+        ci-check-for-broken-links = {
+          inputsFrom = [ parts.lefthook ];
+          shellHook = ''
+            export LEFTHOOK_ENABLE_LYCHEE='true'
+          '';
+        };
 
-      ci-renovate = {
-        packages = with pkgs; [
-          renovate
-          # Needed by Renovate
-          git
-          # Needed for the Renovate config option `postUpdateOptions: ["gomodTidy"]`
-          go
-        ];
-        shellHook = ''
-          export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
-          export LOG_LEVEL='debug'
-          if [[ $CI_DEBUG == 'true' ]]; then
-            export RENOVATE_DRY_RUN='full'
-          fi
+        ci-renovate = {
+          packages = with pkgs; [
+            renovate
+            # Needed by Renovate
+            git
+            # Needed for the Renovate config option `postUpdateOptions: ["gomodTidy"]`
+            go
+          ];
+          shellHook = ''
+            export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
+            export LOG_LEVEL='debug'
+            if [[ $CI_DEBUG == 'true' ]]; then
+              export RENOVATE_DRY_RUN='full'
+            fi
 
-          # Post-Upgrade tasks are executed in the directory of the repo that's
-          # currently being processed. I'm going to save the path to this repo so I
-          # can run the scripts in it.
-          export RENOVATE_BOT_REPO="$PWD"
-        '';
+            # Post-Upgrade tasks are executed in the directory of the repo that's
+            # currently being processed. I'm going to save the path to this repo so I
+            # can run the scripts in it.
+            export RENOVATE_BOT_REPO="$PWD"
+          '';
+        };
       };
     };
 }
