@@ -64,7 +64,9 @@ moduleContext@{ lib, utils, ... }:
       ci-renovate = {
         packages = with pkgs; [
           renovate
+          # Needed by Renovate
           git
+          # Needed for the Renovate config option `postUpdateOptions: ["gomodTidy"]`
           go
         ];
         shellHook = ''
