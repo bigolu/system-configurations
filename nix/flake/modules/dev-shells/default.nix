@@ -13,7 +13,7 @@ moduleContext@{ lib, utils, ... }:
 
       parts = import ./parts.nix (moduleContext // perSystemContext);
 
-      includeCiEssentials =
+      addCiEssentials =
         devShellSpec:
         devShellSpec
         // {
@@ -26,8 +26,14 @@ moduleContext@{ lib, utils, ... }:
           devShellSpecs = removeAttrs devShellOutputsInfo [ "default" ];
         in
         pipe devShellSpecs [
+          # We add the name to the spec so the caller doesn't have to specify it
+          # twice.
           (mapAttrs (name: spec: spec // { inherit name; }))
-          (mapAttrs (name: applyIf (hasPrefix "ci-" name) includeCiEssentials))
+
+          # The spec is empty since ci essentials will be added below
+          (devShellSpecs: devShellSpecs // { ci-essentials = { }; })
+          (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
+
           (mapAttrs (_name: mkShellWrapperNoCC))
           (devShells: devShells // { default = devShells.${default}; })
           (devShells: { inherit devShells; })
@@ -51,8 +57,6 @@ moduleContext@{ lib, utils, ... }:
           export RUN_FIX_ACTIONS='fail'
         '';
       };
-
-      ci-essentials = { };
 
       ci-check-for-broken-links = {
         inputsFrom = [ parts.lefthook ];
