@@ -27,7 +27,9 @@ templates:
   # newly synced direnv environment. To ensure those sync jobs run with the newly
   # synced direnv environment, we sync direnv first and run the rest of the jobs with
   # this template.
-  direnv_exec: direnv exec .
+  #
+  # Setting `DIRENV_LOG_FORMAT` to an empty string hides direnv's logs.
+  direnv_exec: DIRENV_LOG_FORMAT='' direnv exec .
   # Some of the jobs in the 'check' hook don't specify a glob because they apply to
   # all files. However, I also want at least one file to be passed into them. If you
   # use `lefthook run check --files-from-stdin` and stdin is empty, jobs without a
