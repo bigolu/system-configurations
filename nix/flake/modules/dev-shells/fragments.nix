@@ -1,16 +1,14 @@
-# This function returns a map of dev shells that each represent a part of a full dev
-# shell, similar to Dev Container Features[1]. I do this for these reasons:
-#   - Allows parts of a dev shell to be shared between two shells. For example, I can
-#     create one part with all the dependencies for checks (linters, formatters,
-#     etc.) and include that part in both the development and CI dev shells. This way
-#     they can stay in sync.
+# This function returns a map of dev shells that each represent a piece of a full dev
+# shell. I do this for these reasons:
+#   - Fragments can be shared between full dev shells. For example, I can
+#     create one fragment with all the dependencies for checks (linters, formatters,
+#     etc.) and include that fragment in both the development and CI dev shells. This
+#     way, they can stay in sync.
 #   - Makes it easier to organize the dev shell since it can be broken down into
-#     smaller groups.
-#   - Makes it easier to provide alternate dev shells without certain parts. For
-#     example, people that don't use VS Code may not want the part that provides
+#     smaller parts.
+#   - Makes it easier to provide alternate dev shells without certain fragments. For
+#     example, people that don't use VS Code may not want the fragment that provides
 #     dependencies for it.
-#
-# [1]: https://github.com/devcontainers/features
 {
   utils,
   lib,
@@ -266,9 +264,9 @@ rec {
     ];
   };
 
-  # This part contains the dependencies of all tasks. Though nix-shell will fetch the
-  # dependencies for a script when it's executed, it's useful to load them ahead of
-  # time for these reasons:
+  # This fragment contains the dependencies of all tasks. Though nix-shell will fetch
+  # the dependencies for a script when it's executed, it's useful to load them ahead
+  # of time for these reasons:
   #   - Having the dependencies for all tasks exposed in the environment makes
   #     debugging a bit easier since you can easily call any commands referenced in a
   #     task.

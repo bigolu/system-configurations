@@ -11,13 +11,13 @@ moduleContext@{ lib, utils, ... }:
         ;
       inherit (utils) applyIf;
 
-      parts = import ./parts.nix (moduleContext // perSystemContext);
+      fragments = import ./fragments.nix (moduleContext // perSystemContext);
 
       addCiEssentials =
         devShellArgs:
         devShellArgs
         // {
-          inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ parts.ciEssentials ];
+          inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ fragments.ciEssentials ];
         };
 
       makeDevShellOutputs =
@@ -40,7 +40,7 @@ moduleContext@{ lib, utils, ... }:
 
       devShells = {
         development = {
-          inputsFrom = with parts; [
+          inputsFrom = with fragments; [
             gozip
             speakerctl
             check
@@ -56,7 +56,7 @@ moduleContext@{ lib, utils, ... }:
         };
 
         ci-check-for-broken-links = {
-          inputsFrom = [ parts.lefthook ];
+          inputsFrom = [ fragments.lefthook ];
           shellHook = ''
             export LEFTHOOK_ENABLE_LYCHEE='true'
           '';
