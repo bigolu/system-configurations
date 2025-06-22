@@ -20,12 +20,16 @@ moduleContext@{ lib, utils, ... }:
           inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ fragments.ciEssentials ];
         };
 
-      makeDevShellOutputs =
-        { default, devShells }:
-        pipe devShells [
+      makeOutputs =
+        outputInfo:
+        let
+          inherit (outputInfo) default;
+          devShellArgsByName = outputInfo.devShells;
+        in
+        pipe devShellArgsByName [
           # There are no dev shell arguments since the CI essentials will be added
           # to the arguments below.
-          (devShells: devShells // { ci-essentials = { }; })
+          (devShellArgsByName: devShellArgsByName // { ci-essentials = { }; })
           # We add the name to the dev shell arguments so the caller doesn't have to
           # specify it twice.
           (mapAttrs (name: devShellArgs: devShellArgs // { inherit name; }))
@@ -35,7 +39,7 @@ moduleContext@{ lib, utils, ... }:
           (devShells: { inherit devShells; })
         ];
     in
-    makeDevShellOutputs {
+    makeOutputs {
       default = "development";
 
       devShells = {
