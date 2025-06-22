@@ -211,6 +211,7 @@ rec {
         stylua
         taplo
         typos
+        markdown2html-converter
       ];
     };
 
@@ -222,7 +223,6 @@ rec {
     packages = with pkgs; [
       # These get called in the lefthook config
       chase
-      markdown2html-converter
     ];
   };
 
