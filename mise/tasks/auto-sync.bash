@@ -46,9 +46,6 @@ shopt -s inherit_errexit
 #     needs to be synced.
 #
 # Git Config Options:
-#   auto-sync.skip.command (optional):
-#     A Bash command that determines if sync should be skipped. If it exits with 0,
-#     sync will skipped.
 #   auto-sync.allow.branch-pattern (optional):
 #     A list of POSIX extended regular expressions[1] that match branches that should
 #     be synced.
@@ -153,12 +150,6 @@ function should_sync {
     [[ -n $last_commit ]] &&
       git diff --exit-code --quiet "$last_commit" HEAD
   then
-    should_sync='false'
-  fi
-
-  local command
-  command="$(safe_git_config --get 'auto-sync.skip.command')"
-  if [[ -n $command ]] && eval "$command"; then
     should_sync='false'
   fi
 
