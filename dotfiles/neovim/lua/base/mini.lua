@@ -105,14 +105,6 @@ require("mini.indentscope").setup({
   symbol = "▏",
 })
 
-vim.g.miniindentscope_disable = false
-if IsRunningInTerminal then
-  vim.keymap.set("n", [[\|]], function()
-    vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable
-    return "lh"
-  end, { silent = true, expr = true, desc = "Toggle indent guide" })
-end
-
 local new_opts = {
   options = { indent_at_cursor = false },
 }
@@ -158,6 +150,12 @@ end, {
 })
 
 if IsRunningInTerminal then
+  vim.g.miniindentscope_disable = true
+  vim.keymap.set("n", [[\|]], function()
+    vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable
+    return "lh"
+  end, { silent = true, expr = true, desc = "Toggle indent guide" })
+
   vim.api.nvim_create_autocmd("FileType", {
     pattern = { "python", "yaml" },
     callback = function()
@@ -175,7 +173,6 @@ if IsRunningInTerminal then
       vim.b.miniindentscope_disable_permanent = true
     end,
   })
-  -- TODO: I want to disable this per window, but mini only supports disabling per buffer
   vim.api.nvim_create_autocmd("BufEnter", {
     callback = function()
       if not vim.b.miniindentscope_disable_permanent then
