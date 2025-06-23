@@ -106,6 +106,8 @@ runs:
       with:
         paths: |
           ~/.cache/nix
+          # We don't need this directory and it can get pretty large
+          !~/.cache/nix/tarball-cache
           ~/.cache/cached-nix-shell
           ~/.cache/direnv
         # The key used to store/restore a cache entry
