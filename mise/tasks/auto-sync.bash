@@ -46,20 +46,11 @@ shopt -s inherit_errexit
 #     needs to be synced.
 #
 # Git Config Options:
-#   auto-sync.allow.branch-pattern (optional):
-#     A list of POSIX extended regular expressions[1] that match branches that should
-#     be synced.
 #   auto-sync.allow.all (optional):
 #     Set this to 'true' if syncing should be allowed on all branches.
 #
 #   Usage:
-#     Set a list option with:
-#       git config --add <option_name> <option_value>
-#     Set a string option with:
-#       git config <option_name> <option_value>
-#     Examples:
-#       git config --add auto-sync.allow.branch-pattern '^my_username/.*$'
-#       git config auto-sync.allow.all true
+#     git config auto-sync.allow.all true
 #
 # [1]: https://www.gnu.org/software/bash/manual/html_node/Conditional-Constructs.html#index-_005b_005b
 
@@ -167,11 +158,11 @@ function should_sync {
   # it's part of a pull. For example, rebasing a feature branch on master.
   local should_allow_all_branches
   should_allow_all_branches="$(safe_git_config --get 'auto-sync.allow.all')"
-  local is_head_in_allowed_branches
-  is_head_in_allowed_branches="$(is_head_in_allowed_branches)"
+  local is_head_in_default_branch
+  is_head_in_default_branch="$(is_head_in_default_branch)"
   local -r pull_regex='^.*: pull( .*)?: .+'
   if
-    [[ $should_allow_all_branches != 'true' && $is_head_in_allowed_branches != 'true' ]] &&
+    [[ $should_allow_all_branches != 'true' && $is_head_in_default_branch != 'true' ]] &&
       ! {
         [[ $AUTO_SYNC_HOOK_NAME == 'post-merge' || $AUTO_SYNC_HOOK_NAME == 'post-rewrite' ]] &&
           [[ ! $last_reflog_entry =~ $pull_regex ]]
@@ -220,52 +211,15 @@ function should_sync {
   echo "$should_sync"
 }
 
-function is_head_in_allowed_branches {
-  local -a allowed_branches=()
-  local allowed_branches_string
-  allowed_branches_string="$(get_allowed_branches)"
-  if [[ -n $allowed_branches_string ]]; then
-    readarray -t allowed_branches <<<"$allowed_branches_string"
+function is_head_in_default_branch {
+  local default_branch
+  default_branch="$(get_default_branch)"
+
+  if git merge-base --is-ancestor HEAD "$default_branch"; then
+    echo 'true'
+  else
+    echo 'false'
   fi
-
-  local is_head_in_allowed_branches='false'
-  for allowed_branch in "${allowed_branches[@]}"; do
-    if git merge-base --is-ancestor HEAD "$allowed_branch"; then
-      is_head_in_allowed_branches='true'
-      break
-    fi
-  done
-
-  echo "$is_head_in_allowed_branches"
-}
-
-function get_allowed_branches {
-  local -a allowed_branches=()
-
-  # The default branch is always allowed
-  allowed_branches+=("$(get_default_branch)")
-
-  local -a branches
-  local branches_string
-  branches_string="$(git for-each-ref --format='%(refname:short)' refs/heads/)"
-  readarray branches -t <<<"$branches_string"
-
-  local -a allowed_branch_patterns
-  local allowed_branch_patterns_string
-  allowed_branch_patterns_string="$(safe_git_config --get-all 'auto-sync.allow.branch-pattern')"
-  if [[ -n $allowed_branch_patterns_string ]]; then
-    readarray -t allowed_branch_patterns <<<"$allowed_branch_patterns_string"
-  fi
-
-  for branch in "${branches[@]}"; do
-    for pattern in "${allowed_branch_patterns[@]}"; do
-      if [[ $branch =~ $pattern ]]; then
-        allowed_branches+=("$branch")
-      fi
-    done
-  done
-
-  printf '%s\n' "${allowed_branches[@]}"
 }
 
 function get_default_branch {
