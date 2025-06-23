@@ -28,7 +28,7 @@ function main {
 }
 
 function get_real_command {
-  if [[ -n ${BIGOLU_IN_PORTABLE_HOME+set} ]]; then
+  if [[ ${PORTABLE_HOME:-} == 'true' ]]; then
     # Since I wrap and exec my scripts in portable home, I won't find this program on
     # the PATH, it's wrapper will be, so just get the last one on the path.
     get_last_command_on_path

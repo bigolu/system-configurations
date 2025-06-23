@@ -16,41 +16,45 @@ let
     ;
 
   bashPath = "${final.bash}/bin/bash";
-
   inherit (homeConfig) activationPackage;
 
-  # Nix recommends setting the LOCALE_ARCHIVE environment variable for non-NixOS
-  # Linux distributions[1].
-  #
-  # [1]: https://nixos.wiki/wiki/Locales
-  localeArchive =
+  initSnippet =
     let
-      # The full set of locales is pretty big (~220MB) so I'll only include the one
-      # that will be used.
-      locales = final.glibcLocales.override {
-        allLocales = false;
-        locales = [ "en_US.UTF-8/UTF-8" ];
-      };
-    in
-    if isLinux then
-      ''
-        if [[ -z ''${LOCALE_ARCHIVE:-} ]]; then
-          export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
-          # This tells programs to use the locale from our archive
-          export LC_ALL='en_US.UTF-8'
-        fi
-      ''
-    else
-      "";
+      # Nix recommends setting the LOCALE_ARCHIVE environment variable for non-NixOS
+      # Linux distributions[1].
+      #
+      # [1]: https://nixos.wiki/wiki/Locales
+      localeSnippet =
+        let
+          # The full set of locales is pretty big (~220MB) so I'll only include the
+          # one that will be used.
+          locales = final.glibcLocales.override {
+            allLocales = false;
+            locales = [ "en_US.UTF-8/UTF-8" ];
+          };
+        in
+        if isLinux then
+          ''
+            if [[ -z ''${LOCALE_ARCHIVE:-} ]]; then
+              export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
+              # This tells programs to use the locale from our archive
+              export LC_ALL='en_US.UTF-8'
+            fi
+          ''
+        else
+          "";
 
-  activationSnippet = pipe activation [
-    (activation: getAttrs activation homeConfig.config.home.activation)
-    attrValues
-    (catAttrs "data")
-    (concatStringsSep "\n")
-    escapeShellArg
-    (snippet: "INIT_SNIPPET=${snippet}")
-  ];
+      activationSnippet = pipe activation [
+        (activation: getAttrs activation homeConfig.config.home.activation)
+        attrValues
+        (catAttrs "data")
+        (concatStringsSep "\n")
+      ];
+    in
+    ''
+      ${localeSnippet}
+      ${activationSnippet}
+    '';
 
   bootstrap = final.resholve.mkDerivation {
     pname = "bootstrap-home-shell";
@@ -83,6 +87,7 @@ let
         keep = {
           "$SHELL" = true;
           "$BASH_PATH" = true;
+          "$set_xdg_env" = true;
         };
       };
     };
@@ -96,8 +101,7 @@ in
   BASH_PATH=${bashPath}
   ACTIVATION_PACKAGE=${activationPackage}
   USER_SHELL=${escapeShellArg shell}
-  ${localeArchive}
-  ${activationSnippet}
+  INIT_SNIPPET=${escapeShellArg initSnippet}
   source ${bootstrap}/bin/bootstrap
 '')
 // {

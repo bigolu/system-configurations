@@ -4,15 +4,13 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Inputs, via shell (i.e. unexported) variables:
+# Inputs, via unexported variables:
 # ACTIVATION_PACKAGE
 # BASH_PATH
 # INIT_SNIPPET (optional)
 # USER_SHELL
 
-if [[ -t 2 ]]; then
-  printf 'Bootstrapping portable home...'
-fi
+echo 'Bootstrapping portable home...'
 
 prefix_directory="$(mktemp --tmpdir --directory 'home_shell_XXXXX')"
 
@@ -29,7 +27,7 @@ function make_directory_in_prefix {
 
   local new_directory="$prefix_directory/$new_directory_basename"
   mkdir "$new_directory"
-  printf '%s' "$new_directory"
+  echo "$new_directory"
 }
 
 xdg_state_directory="$(make_directory_in_prefix 'state')"
@@ -58,6 +56,16 @@ else
   ln --symbolic "$xdg_data_directory" "$data_in_prefix"
 fi
 
+set_xdg_env=(
+  export
+  XDG_CONFIG_HOME="$xdg_config_directory"
+  XDG_DATA_HOME="$xdg_data_directory"
+  XDG_STATE_HOME="$xdg_state_directory"
+  XDG_RUNTIME_DIR="$xdg_runtime_directory"
+  XDG_CACHE_HOME="$xdg_cache_directory"
+)
+set_xdg_env_escaped="$(printf '%q ' "${set_xdg_env[@]}")"
+
 function add_directory_to_path {
   local directory="$1"
   local new_directory_basename="$2"
@@ -80,12 +88,7 @@ function add_directory_to_path {
         # I unexport the XDG Base directories so host programs pick up the host's XDG
         # directories.
         printf >"$new_directory/$program_basename" '%s' "#!${BASH_PATH:?}
-XDG_CONFIG_HOME=$xdg_config_directory \
-XDG_DATA_HOME=$xdg_data_directory \
-XDG_STATE_HOME=$xdg_state_directory \
-XDG_RUNTIME_DIR=$xdg_runtime_directory \
-XDG_CACHE_HOME=$xdg_cache_directory \
-BIGOLU_IN_PORTABLE_HOME=1 \
+$set_xdg_env_escaped
 exec $program \
   --init-command 'set --unexport XDG_CONFIG_HOME' \
   --init-command 'set --unexport XDG_DATA_HOME' \
@@ -98,12 +101,7 @@ exec $program \
         # I unexport the XDG Base directories so host programs pick up the host's XDG
         # directories.
         printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
-XDG_CONFIG_HOME=$xdg_config_directory \
-XDG_DATA_HOME=$xdg_data_directory \
-XDG_STATE_HOME=$xdg_state_directory \
-XDG_RUNTIME_DIR=$xdg_runtime_directory \
-XDG_CACHE_HOME=$xdg_cache_directory \
-BIGOLU_IN_PORTABLE_HOME=1 \
+$set_xdg_env_escaped
 exec $program \
   -c 'unlet \$XDG_CONFIG_HOME' \
   -c 'unlet \$XDG_DATA_HOME' \
@@ -114,12 +112,7 @@ exec $program \
         ;;
       *)
         printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
-XDG_CONFIG_HOME=$xdg_config_directory \
-XDG_DATA_HOME=$xdg_data_directory \
-XDG_STATE_HOME=$xdg_state_directory \
-XDG_RUNTIME_DIR=$xdg_runtime_directory \
-XDG_CACHE_HOME=$xdg_cache_directory \
-BIGOLU_IN_PORTABLE_HOME=1 \
+$set_xdg_env_escaped
 exec $program \"\$@\""
         ;;
     esac
@@ -132,25 +125,18 @@ exec $program \"\$@\""
 
 add_directory_to_path "$ACTIVATION_PACKAGE/home-path/bin" 'bin'
 add_directory_to_path "$ACTIVATION_PACKAGE/home-files/.local/bin" 'bin-local'
-
 export XDG_DATA_DIRS="${XDG_DATA_DIRS+${XDG_DATA_DIRS}:}$ACTIVATION_PACKAGE/home-path/share"
-
-# Clear the message we printed earlier
-if [[ -t 2 ]]; then
-  printf '\33[2K\r'
-fi
-
+export PORTABLE_HOME='true'
 shell="$(which "${USER_SHELL:?}")"
 export SHELL="$shell"
 
 if [[ -n ${INIT_SNIPPET:-} ]]; then
-  XDG_CONFIG_HOME=$xdg_config_directory \
-    XDG_DATA_HOME=$xdg_data_directory \
-    XDG_STATE_HOME=$xdg_state_directory \
-    XDG_RUNTIME_DIR=$xdg_runtime_directory \
-    XDG_CACHE_HOME=$xdg_cache_directory \
-    BIGOLU_IN_PORTABLE_HOME=1 \
+  # Use a subshell so the XDG environment variables are only set while we run
+  # `INIT_SNIPPET`.
+  (
+    "${set_xdg_env[@]}"
     "$BASH_PATH" -c "$INIT_SNIPPET"
+  )
 fi
 
 # WARNING: don't exec so our cleanup function can run
