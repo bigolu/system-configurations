@@ -15,23 +15,33 @@ let
     pipe
     ;
 
-  # "C.UTF-8/UTF-8" is the locale that perl said wasn't supported so I added it
-  # here. "en_US.UTF-8/UTF-8" is the default locale so I'm keeping it just in
-  # case.
-  locales = final.glibcLocales.override {
-    allLocales = false;
-    locales = [
-      "en_US.UTF-8/UTF-8"
-      "C.UTF-8/UTF-8"
-    ];
-  };
-
   bashPath = "${final.bash}/bin/bash";
 
   inherit (homeConfig) activationPackage;
 
+  # Nix recommends setting the LOCALE_ARCHIVE environment variable for non-NixOS
+  # Linux distributions[1].
+  #
+  # [1]: https://nixos.wiki/wiki/Locales
   localeArchive =
-    if isLinux then "export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive" else "";
+    let
+      # The full set of locales is pretty big (~220MB) so I'll only include the one
+      # that will be used.
+      locales = final.glibcLocales.override {
+        allLocales = false;
+        locales = [ "en_US.UTF-8/UTF-8" ];
+      };
+    in
+    if isLinux then
+      ''
+        if [[ -z ''${LOCALE_ARCHIVE:-} ]]; then
+          export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
+          # This tells programs to use the locale from our archive
+          export LC_ALL='en_US.UTF-8'
+        fi
+      ''
+    else
+      "";
 
   activationSnippet = pipe activation [
     (activation: getAttrs activation homeConfig.config.home.activation)
