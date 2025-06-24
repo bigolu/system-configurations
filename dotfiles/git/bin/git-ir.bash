@@ -6,34 +6,26 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# The pre-commit hook is not run when you do `git rebase --continue`. This adds
-# an exec line after each commit to run the pre-commit hook.
-pre_commit_hook="$(git rev-parse --absolute-git-dir)/hooks/pre-commit"
-run_pre_commit_flags=()
-if type -P lefthook >/dev/null && [[ -e $pre_commit_hook ]]; then
-  run_pre_commit_flags=(
-    --exec
-    'git diff -z --diff-filter=d --name-only HEAD~1 HEAD | lefthook run pre-commit --files-from-stdin'
-  )
-fi
+check_command="$(
+  # If a config option isn't set, git exits with a non-zero code so the `||`
+  # both stops the statement from failing and provides a default value.
+  git config --get 'bigolu.check-command' ||
+    echo 'false'
+)"
 
 start_commit=''
 if (($# == 0)); then
-  merge_base="$(git merge-base origin/HEAD HEAD)"
-  choice="$(
-    git log "${merge_base}..HEAD" --oneline |
-      fzf \
-        --no-sort \
-        --prompt 'Choose a commit to rebase from: ' \
-        --preview 'git show --patch {1} | delta' \
-        --preview-window '60%'
-  )"
-  hash="$(cut -d ' ' -f 1 <<<"$choice")"
-  start_commit="$hash^"
+  current_branch="$(git symbolic-ref -q HEAD)"
+  tracking_branch="$(git for-each-ref --format='%(upstream:short)' "$current_branch")"
+  if [[ -z $tracking_branch ]]; then
+    echo 'Error: No tracking branch' >&2
+    exit 1
+  fi
+  start_commit="$(git merge-base "$tracking_branch" HEAD)"
 elif ((${#1} <= 2)); then
   start_commit="HEAD~$1"
 else
   start_commit="$1^"
 fi
 
-git rebase --interactive "${run_pre_commit_flags[@]}" "$start_commit"
+git rebase --interactive --exec "$check_command" "$start_commit"
