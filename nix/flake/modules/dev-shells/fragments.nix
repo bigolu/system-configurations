@@ -64,6 +64,15 @@ rec {
           ln --force --no-dereference --symbolic "$target" "$symlink_path"
         fi
       }
+
+      # perf: This is faster than always running `mkdir -p`
+      function mkdir_if_not_extant {
+        local -r dir="$1"
+
+        if [[ ! -d $dir ]]; then
+          mkdir -p "$dir"
+        fi
+      }
     '';
   };
 
@@ -112,7 +121,7 @@ rec {
         # Binary names could conflict between projects so store them in a
         # project-specific directory.
         export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
-        mkdir -p "$GOBIN"
+        mkdir_if_not_extant "$GOBIN"
         export PATH="''${GOBIN}''${PATH:+:$PATH}"
       '';
 
@@ -169,7 +178,7 @@ rec {
         packages = [ pkgs.lua-language-server ];
         shellHook = ''
           prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
-          mkdir -p "$prefix"
+          mkdir_if_not_extant "$prefix"
 
           symlink_if_target_changed \
             ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
