@@ -1,8 +1,9 @@
 # For development, create the file <project_root>/.envrc and add the following
 # line:
 #   source direnv/development.bash
-# Or just run the following command in Bash, or a shell with similar syntax:
-#   echo 'source direnv/development.bash' >../.envrc
+# Or just run the following command, from the root of the project, in Bash or a
+# shell with similar syntax:
+#   echo 'source direnv/development.bash' >.envrc
 #
 # .envrc shouldn't be committed to version control so users can make changes to it
 # without accidentally committing them. Here are some examples of changes they could
