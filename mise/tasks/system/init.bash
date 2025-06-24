@@ -4,7 +4,7 @@
 #! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils home-manager curl darwin-rebuild nix-output-monitor git]"
 #MISE description='Initialize the system'
 #MISE hide=true
-#MISE depends_post='sync:force'
+#MISE depends_post='sync'
 #USAGE arg "<configuration>" help="The name of the configuration to apply"
 
 set -o errexit
