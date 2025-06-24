@@ -52,10 +52,12 @@ rec {
   shellHookHelpers = mkShellWrapperNoCC {
     shellHook = ''
       # We could just always recreate the symlink, even if the target of the symlink
-      # is the same, but we don't for these reasons:
-      #   - Performance
+      # is the same, but since we use direnv, this would happen every time we load
+      # the environment. This causes the following the problems:
+      #   - It's slower so there would be a little lag when you enter the directory.
       #   - Some of these symlinks are being watched by programs and recreating them
-      #     causes those programs to reload.
+      #     causes those programs to reload. For example, VS Code watches the symlink
+      #     to Python.
       function symlink_if_target_changed {
         local -r target="$1"
         local -r symlink_path="$2"
@@ -65,7 +67,9 @@ rec {
         fi
       }
 
-      # perf: This is faster than always running `mkdir -p`
+      # We could just always run `mkdir -p`, but since we use direnv, this would
+      # happen every time we load the environment and it's slower than checking if
+      # the directory exists.
       function mkdir_if_not_extant {
         local -r dir="$1"
 
