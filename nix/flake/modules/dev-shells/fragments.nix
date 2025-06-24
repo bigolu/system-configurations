@@ -49,6 +49,24 @@ rec {
     ];
   };
 
+  shellHookHelpers = mkShellWrapperNoCC {
+    shellHook = ''
+      # We could just always recreate the symlink, even if the target of the symlink
+      # is the same, but we don't for these reasons:
+      #   - Performance
+      #   - Some of these symlinks are being watched by programs and recreating them
+      #     causes those programs to reload.
+      function symlink_if_target_changed {
+        local -r target="$1"
+        local -r symlink_path="$2"
+
+        if [[ ! $target -ef $symlink_path ]]; then
+          ln --force --no-dereference --symbolic "$target" "$symlink_path"
+        fi
+      }
+    '';
+  };
+
   ciEssentials =
     let
       # Nix recommends setting the LOCALE_ARCHIVE environment variable for non-NixOS
@@ -133,7 +151,7 @@ rec {
           if [[ ''${CI:-} == 'true' ]]; then
             export GOFLAGS='-mod=vendor'
             export GO_NO_VENDOR_CHECKS='1'
-            ln --force --no-dereference --symbolic ${vendor} gozip/vendor
+            symlink_if_target_changed ${vendor} gozip/vendor
           fi
         '')
       ];
@@ -153,14 +171,14 @@ rec {
           prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
           mkdir -p "$prefix"
 
-          ln --force --no-dereference --symbolic \
+          symlink_if_target_changed \
             ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
-          ln --force --no-dereference --symbolic \
+          symlink_if_target_changed \
             ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
 
           hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
           if [[ -e $hammerspoon_annotations ]]; then
-            ln --force --no-dereference --symbolic \
+            symlink_if_target_changed \
               "$hammerspoon_annotations" "$prefix/hammerspoon-annotations"
           fi
         '';
@@ -351,7 +369,7 @@ rec {
         # python is in <python_directory>/bin/python so moving up once from bin/ will
         # get me to the python directory
         python_directory="$(dirname "$(which python)")/.."
-        ln --force --no-dereference --symbolic \
+        symlink_if_target_changed \
           "$python_directory" "''${direnv_layout_dir:-.direnv}/python"
       '';
     };

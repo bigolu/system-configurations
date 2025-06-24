@@ -20,6 +20,13 @@ moduleContext@{ lib, utils, ... }:
           inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ fragments.ciEssentials ];
         };
 
+      addShellHookHelpers =
+        devShellArgs:
+        devShellArgs
+        // {
+          inputsFrom = [ fragments.shellHookHelpers ] ++ (devShellArgs.inputsFrom or [ ]);
+        };
+
       makeOutputs =
         outputInfo:
         let
@@ -33,6 +40,7 @@ moduleContext@{ lib, utils, ... }:
           # We add the name to the dev shell arguments so the caller doesn't have to
           # specify it twice.
           (mapAttrs (name: devShellArgs: devShellArgs // { inherit name; }))
+          (mapAttrs (_name: addShellHookHelpers))
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
           (mapAttrs (_name: mkShellWrapperNoCC))
           (devShells: devShells // { default = devShells.${default}; })
