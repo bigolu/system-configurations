@@ -6,6 +6,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+# To set the check command run: git config bigolu.check-command 'the command'
 check_command="$(
   # If a config option isn't set, git exits with a non-zero code so the `||`
   # both stops the statement from failing and provides a default value.
