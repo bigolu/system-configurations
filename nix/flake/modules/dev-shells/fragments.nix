@@ -67,9 +67,9 @@ rec {
         fi
       }
 
-      # We could just always run `mkdir -p`, but since we use direnv, this would
-      # happen every time we load the environment and it's slower than checking if
-      # the directory exists.
+      # perf: We could just always run `mkdir -p`, but since we use direnv, this
+      # would happen every time we load the environment and it's slower than checking
+      # if the directory exists.
       function mkdir_if_not_extant {
         local -r dir="$1"
 
@@ -281,7 +281,16 @@ rec {
         inlineTaskRunner
       ];
       packages = with pkgs; [ mise ];
-      shellHook = "mise trust --quiet";
+      shellHook = ''
+        # perf: We could just always run `mise trust --quiet`, but since we use
+        # direnv, this would happen every time we load the environment and it's
+        # slower than checking if a file exists.
+        trust_marker="''${direnv_layout_dir:-.direnv}/mise-config-trusted"
+        if [[ ! -e $trust_marker ]]; then
+          mise trust --quiet
+          touch "$trust_marker"
+        fi
+      '';
     };
 
   # These are the dependencies of the commands run within `complete` statements in
