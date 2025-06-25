@@ -13,7 +13,7 @@
 # [1]: https://unix.stackexchange.com/a/687849
 if
   [[ $(systemctl is-system-running || true) == 'stopping' ]] ||
-    grep -q 'suspend' <<<"$(journalctl --since '10 seconds ago' || true)"
+    grep -q 'suspend now' <<<"$(journalctl --since '10 seconds ago' || true)"
 then
   sudo systemctl stop speakers.service
 fi
