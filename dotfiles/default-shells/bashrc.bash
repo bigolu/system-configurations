@@ -51,7 +51,7 @@ fi
 
 # If the current shell isn't fish, exec into fish. My reason for doing this is in
 # README.md
-if [[ "$(basename "$SHELL")" != 'fish' ]] && type -P fish >/dev/null; then
-  fish_path="$(command -v fish)"
+fish_path="$(type -P fish)"
+if [[ ${SHELL##*/} != 'fish' ]] && [[ -n $fish_path ]]; then
   SHELL="$fish_path" exec fish
 fi

@@ -11,7 +11,7 @@ shopt -s inherit_errexit
 # https://github.com/Byron/trash-rs/issues/8
 
 function main {
-  name="$(basename "$0")"
+  name="${0##*/}"
 
   if (($# == 0)); then
     printf 'usage: %s [FILES...]\n' "$name" 1>&2

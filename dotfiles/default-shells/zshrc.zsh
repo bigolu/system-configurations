@@ -40,6 +40,6 @@ fi
 
 # If the current shell isn't fish, exec into fish. My reason for doing this is in
 # README.md
-if [ "$(basename "$SHELL")" != 'fish' ] && (( $+commands[fish] )); then
+if [ "$SHELL:t" != 'fish' ] && (( $+commands[fish] )); then
   SHELL="$(command -v fish)" exec fish
 fi

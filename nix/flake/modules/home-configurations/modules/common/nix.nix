@@ -24,7 +24,8 @@ let
   nix-daemon-reload = writeShellApplication {
     name = "nix-daemon-reload";
     text = ''
-      if uname | grep -q Linux; then
+      kernel="$(uname)"
+      if [[ $kernel == 'Linux' ]]; then
         sudo systemctl restart nix-daemon.service
       else
         sudo launchctl kickstart -k system/org.nixos.nix-daemon

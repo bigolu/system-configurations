@@ -149,7 +149,7 @@ function touchx
     chmod +x "$filename"
 end
 function touchp --description 'Create file and make parent directories' --argument-names filepath
-    set -l parent_folder (dirname $filepath)
+    set -l parent_folder (path dirname $filepath)
     mkdir -p $parent_folder
     touch $filepath
 end
@@ -241,7 +241,7 @@ if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
 end
 function elevate
-    sudo -- (which run-as-admin) sudo --preserve-env=PATH,SHLVL,HOME --shell
+    sudo -- (type --force-path run-as-admin) sudo --preserve-env=PATH,SHLVL,HOME --shell
 end
 
 # Task runner

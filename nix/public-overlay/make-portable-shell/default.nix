@@ -72,14 +72,10 @@ let
       default = {
         scripts = [ "bin/bootstrap" ];
         interpreter = bashPath;
-        inputs = with final; [
-          coreutils
-          which
-        ];
+        inputs = with final; [ coreutils ];
         execer = [
           "cannot:${final.coreutils}/bin/mktemp"
           "cannot:${final.coreutils}/bin/mkdir"
-          "cannot:${final.coreutils}/bin/basename"
           "cannot:${final.coreutils}/bin/ln"
           "cannot:${final.coreutils}/bin/chmod"
           "cannot:${final.coreutils}/bin/cp"

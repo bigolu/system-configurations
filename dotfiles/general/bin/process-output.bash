@@ -10,20 +10,21 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 if (($# == 0)); then
-  echo "Invalid usage. Correct usage: $(basename "$0") <pid>" >&2
+  echo "Invalid usage. Correct usage: ${0##*/} <pid>" >&2
   exit 1
 fi
 
 pid="$1"
-if uname | grep -q Darwin; then
+kernel="$(uname)"
+if [[ $kernel == 'Darwin' ]]; then
   sudo dtrace -p "$pid" -qn '
-      syscall::write*:entry
-      /pid == $target && (arg0 == 1 || arg0 == 2)/ {
-        printf("%s", copyinstr(arg1, arg2));
-      }
-    '
+    syscall::write*:entry
+    /pid == $target && (arg0 == 1 || arg0 == 2)/ {
+      printf("%s", copyinstr(arg1, arg2));
+    }
+  '
 else
-  strace="$(which strace)"
+  strace="$(type -P strace)"
   sudo "$strace" \
     --attach "$pid" --follow-forks \
     --string-limit 9999999 \

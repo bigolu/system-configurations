@@ -75,7 +75,7 @@ function add_directory_to_path {
 
   new_directory="$(make_directory_in_prefix "$new_directory_basename")"
   for program in "$directory"/*; do
-    program_basename="$(basename "$program")"
+    program_basename="${program##*/}"
 
     case "$program_basename" in
       env)
@@ -127,7 +127,7 @@ add_directory_to_path "$ACTIVATION_PACKAGE/home-path/bin" 'bin'
 add_directory_to_path "$ACTIVATION_PACKAGE/home-files/.local/bin" 'bin-local'
 export XDG_DATA_DIRS="${XDG_DATA_DIRS+${XDG_DATA_DIRS}:}$ACTIVATION_PACKAGE/home-path/share"
 export PORTABLE_HOME='true'
-shell="$(which "${USER_SHELL:?}")"
+shell="$(type -P "${USER_SHELL:?}")"
 export SHELL="$shell"
 
 if [[ -n ${INIT_SNIPPET:-} ]]; then

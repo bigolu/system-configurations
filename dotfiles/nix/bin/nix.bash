@@ -44,11 +44,11 @@ function get_real_command {
 function get_last_command_on_path {
   local -r program_basename="${0##*/}"
 
-  local which_output
-  which_output="$(which -a "$program_basename")"
+  local type_output
+  type_output="$(type -Pa "$program_basename")"
 
   local -a command_entries
-  readarray -t command_entries <<<"$which_output"
+  readarray -t command_entries <<<"$type_output"
 
   if ((${#command_entries[@]} > 1)); then
     echo "${command_entries[-1]}"
@@ -60,11 +60,11 @@ function get_last_command_on_path {
 function get_next_command_on_path {
   local -r program_basename="${0##*/}"
 
-  local which_output
-  which_output="$(which -a "$program_basename")"
+  local type_output
+  type_output="$(type -Pa "$program_basename")"
 
   local -a command_entries
-  readarray -t command_entries <<<"$which_output"
+  readarray -t command_entries <<<"$type_output"
 
   local this_command_index
   this_command_index="$(index_of "$0" "${command_entries[@]}")"

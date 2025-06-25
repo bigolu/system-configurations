@@ -31,7 +31,7 @@ in
 
   home.activation.fzfSetup = hm.dag.entryAfter [ "writeBoundary" ] ''
     history_file="''${XDG_DATA_HOME:-$HOME/.local/share}/fzf/fzf-history.txt"
-    mkdir -p "$(dirname "$history_file")"
+    mkdir -p "''${history_file%/*}"
     touch "$history_file"
   '';
 }

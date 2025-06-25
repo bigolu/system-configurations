@@ -86,7 +86,8 @@ let
       fi
 
       temp="$(mktemp)"
-      if uname | grep -q Linux; then
+      kernel="$(uname)"
+      if [[ $kernel == 'Linux' ]]; then
         group='sudo'
       else
         group='admin'
@@ -98,7 +99,7 @@ let
 
       set +o errexit
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
-      sudo -u "$SUDO_USER" "$(which env)" "PATH=$PATH" "$@"
+      sudo -u "$SUDO_USER" "$(type -P env)" "PATH=$PATH" "$@"
       exit_code=$?
       set -o errexit
 

@@ -7,8 +7,8 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 # Need sudo since nix won't show a user the PID of processes it doesn't own
-run_as_admin="$(which run-as-admin)"
-nix_store="$(which nix-store)"
+run_as_admin="$(type -P run-as-admin)"
+nix_store="$(type -P nix-store)"
 gc_roots_output="$(sudo -- "$run_as_admin" sudo "$nix_store" --gc --print-roots)"
 readarray -t roots <<<"$gc_roots_output"
 

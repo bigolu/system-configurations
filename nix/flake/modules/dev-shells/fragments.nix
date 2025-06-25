@@ -390,7 +390,8 @@ rec {
       shellHook = ''
         # python is in <python_directory>/bin/python so moving up once from bin/ will
         # get me to the python directory
-        python_directory="$(dirname "$(which python)")/.."
+        python_path="$(type -P python)"
+        python_directory="''${python_path%/*}/.."
         symlink_if_target_changed \
           "$python_directory" "''${direnv_layout_dir:-.direnv}/python"
       '';
