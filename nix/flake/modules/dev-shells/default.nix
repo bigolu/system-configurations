@@ -79,7 +79,8 @@ moduleContext@{ lib, utils, ... }:
             renovate
             # Needed by Renovate
             git
-            # Needed for the Renovate config option `postUpdateOptions: ["gomodTidy"]`
+            # Needed for the values "gomodTidy" and "gomodUpdateImportPaths" of the
+            # Renovate config setting "postUpdateOptions".
             go
           ];
           shellHook = ''
