@@ -33,4 +33,4 @@ shell_path="$(echo "$shell_directory"/*)"
 
 mise run debug:make-isolated-env \
   --var HOME="$home" -- \
-  --command "${shell_path[@]}"
+  --command "$shell_path"
