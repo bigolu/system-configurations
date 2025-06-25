@@ -56,13 +56,16 @@ else
   ln --symbolic "$xdg_data_directory" "$data_in_prefix"
 fi
 
-set_xdg_env=(
-  export
+xdg_env_vars=(
   XDG_CONFIG_HOME="$xdg_config_directory"
   XDG_DATA_HOME="$xdg_data_directory"
   XDG_STATE_HOME="$xdg_state_directory"
   XDG_RUNTIME_DIR="$xdg_runtime_directory"
   XDG_CACHE_HOME="$xdg_cache_directory"
+)
+set_xdg_env=(
+  export
+  "${xdg_env_vars[@]}"
 )
 set_xdg_env_escaped="$(printf '%q ' "${set_xdg_env[@]}")"
 
@@ -74,9 +77,6 @@ function add_directory_to_path {
   for program in "$directory"/*; do
     program_basename="$(basename "$program")"
 
-    # The hashbangs in the scripts need to be the first two bytes in the file
-    # for the kernel to recognize them so it must come directly after the
-    # opening quote of the script.
     case "$program_basename" in
       env)
         # Wrapping this caused an infinite loop so I'll copy it instead. I
@@ -131,12 +131,24 @@ shell="$(which "${USER_SHELL:?}")"
 export SHELL="$shell"
 
 if [[ -n ${INIT_SNIPPET:-} ]]; then
-  # Use a subshell so the XDG environment variables are only set while we run
-  # `INIT_SNIPPET`.
-  (
-    "${set_xdg_env[@]}"
-    "$BASH_PATH" -c "$INIT_SNIPPET"
-  )
+  xdg_var_names=()
+  for var in "${xdg_env_vars[@]}"; do
+    xdg_var_names+=("${var%=*}")
+  done
+
+  old_values=()
+  for name in "${xdg_var_names[@]}"; do
+    old_values+=("${!name:-}")
+  done
+
+  "${set_xdg_env[@]}"
+  eval "$INIT_SNIPPET"
+
+  for index in "${!xdg_var_names[@]}"; do
+    name="${xdg_var_names[$index]}"
+    old_value="${old_values[$index]}"
+    declare -x "$name"="$old_value"
+  done
 fi
 
 # WARNING: don't exec so our cleanup function can run
