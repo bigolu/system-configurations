@@ -84,6 +84,8 @@ moduleContext@{ lib, utils, ... }:
           ];
           shellHook = ''
             export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
+            # If a CI run fails, we'll have all the debug information without
+            # having to rerun it.
             export LOG_LEVEL='debug'
             if [[ $CI_DEBUG == 'true' ]]; then
               export RENOVATE_DRY_RUN='full'
