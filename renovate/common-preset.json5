@@ -75,7 +75,10 @@
     },
   ],
   // Nix support is currently in beta so you have to opt in.
-  nix: { enabled: true },
+  //
+  // TODO: I'm disabling nix until the following bug is fixed:
+  // https://github.com/renovatebot/renovate/pull/33991
+  nix: { enabled: false },
   packageRules: [
     {
       description: "Use nixpkgs versioning for inputs of the form 'nixos-YY.MM'",
