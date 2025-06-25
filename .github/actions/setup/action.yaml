@@ -73,7 +73,7 @@ runs:
     # The action run after this, nix-community/cache-nix-action, depends on this
     # specific Nix installer. Though there's an open issue for supporting a different
     # installer: https://github.com/nix-community/cache-nix-action/issues/60
-    - uses: nixbuild/nix-quick-install-action@v30
+    - uses: nixbuild/nix-quick-install-action@63ca48f939ee3b8d835f4126562537df0fee5b91 # v32
       with:
         nix_conf: |
           # Increase the buffer limit to 124MiB since the buffer would often reach
@@ -88,7 +88,7 @@ runs:
       id: get-year
       shell: bash
       run: echo "year=$(date '+%Y')" >>"${GITHUB_OUTPUT}"
-    - uses: nix-community/cache-nix-action@v6
+    - uses: nix-community/cache-nix-action@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       if: ${{ inputs.cache-nix-store == 'true' }}
       env:
         # The `cache-key` input will be prefixed by this value. This way, cache
