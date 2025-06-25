@@ -73,9 +73,15 @@ The dev shell that direnv should load
 
 ## `debug:shell`
 
-- **Usage**: `debug:shell`
+- **Usage**: `debug:shell [-b --bundle]`
 
 Start `.#shell` in an empty environment
+
+### Flags
+
+#### `-b --bundle`
+
+Use `nix bundle` (slower)
 
 ## `get-secrets`
 

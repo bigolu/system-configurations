@@ -231,12 +231,9 @@ in
     interpreter = final.bash-script;
   };
 
-  # TODO: I should open an issue
-  doctoc = prev.doctoc.overrideAttrs (_old: {
-    dontCheckForBrokenSymlinks = true;
-  });
-
   inherit (inputs.nixpkgs-mise.legacyPackages.${final.system}) mise;
+  # This is usually broken on unstable
+  inherit (inputs.nixpkgs-stable.legacyPackages.${final.system}) diffoscopeMinimal;
 
   inherit
     runAsAdmin

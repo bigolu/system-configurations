@@ -45,7 +45,7 @@
     # There's a higher chance that something builds on stable, since stable only
     # provides conservative updates e.g. security patches, so I'll keep this just in
     # case.
-    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
 
     # TODO: Dynamic autocomplete[1] for tasks isn't working in future versions of
     # mise, I should look into this.

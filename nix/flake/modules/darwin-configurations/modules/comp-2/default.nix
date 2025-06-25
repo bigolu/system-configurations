@@ -11,4 +11,6 @@ _: {
 
   programs.bash.enable = false;
   programs.zsh.enable = false;
+
+  system.primaryUser = "biggs";
 }
