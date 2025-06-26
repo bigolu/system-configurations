@@ -44,21 +44,26 @@ shopt -s inherit_errexit
 envrc="${1:?}"
 direnv_args=("${@:2}")
 
+function clean_up {
+  if [[ ${did_link_envrc:-} == 'true' ]]; then
+    rm .envrc
+  fi
+
+  if [[ -e ${backup:-} ]]; then
+    mv "$backup" .envrc
+  fi
+}
+trap clean_up EXIT
+
 if [[ -e .envrc ]]; then
   backup="$(mktemp --directory)/.envrc"
-
   mv .envrc "$backup"
-
-  # This way, if the trap below fails to restore it, users can do it themselves.
+  # This way, if the trap fails to restore it, users can do it themselves.
   echo "Backed up .envrc to $backup" >&2
-
-  function restore_envrc {
-    mv "$backup" .envrc
-  }
-  trap restore_envrc EXIT
 fi
 
 ln --symbolic "$envrc" .envrc
+did_link_envrc='true'
+
 direnv allow .
 direnv "${direnv_args[@]}"
-rm .envrc
