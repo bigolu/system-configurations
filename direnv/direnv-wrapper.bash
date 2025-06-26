@@ -3,12 +3,12 @@
 #! nix-shell -i bash
 #! nix-shell --packages "with (import ../nix/packages.nix); [bash direnv coreutils]"
 
-# What this script does:
-#   - Get direnv and its dependencies, Bash and coreutils, using the nix-shell
+# This script is a wrapper for direnv that has the following extra features:
+#   - Gets direnv and its dependencies, Bash and coreutils, using the nix-shell
 #     directives at the top.
-#   - Allow you to specify a file to load besides .envrc. There's an open issue for
+#   - Allows you to specify a file to load besides .envrc. There's an open issue for
 #     this[1].
-#   - Run `direnv allow`. There's an open issue for this[2].
+#   - Runs `direnv allow`. There's an open issue for this[2].
 #
 # Usage:
 #   nix-shell <this_script> <path_to_envrc> <direnv_arguments>...
