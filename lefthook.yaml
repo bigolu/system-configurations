@@ -30,21 +30,6 @@ templates:
   #
   # Setting `DIRENV_LOG_FORMAT` to an empty string hides direnv's logs.
   direnv_exec: DIRENV_LOG_FORMAT='' direnv exec .
-  # Some of the jobs in the 'check' hook don't specify a glob because they apply to
-  # all files. However, I also want at least one file to be passed into them. If you
-  # use `lefthook run check --files-from-stdin` and stdin is empty, jobs without a
-  # glob will still be run. To stop those jobs from running when no files are passed
-  # in, I use this template.
-  exit_if_no_files: |
-    exit_if_no_files() {
-      if [ $# -eq 0 ]; then
-        exit 0
-      fi
-    }
-
-    # Add a '\' to the end so arguments passed to this template are on the same line
-    # as this function call.
-    exit_if_no_files \
 
 # Git Hooks
 # -----------------------------------------------------------------------------------
@@ -323,12 +308,10 @@ check:
                   root: "gozip/"
                   run: "{run_fix} golangci-lint run --fix"
                 - name: typos
-                  run: |
-                    {exit_if_no_files} {files}
-                    # TODO: typos should offer a way to only run fixes without
-                    # performing checks. This way, I can run fixes and not have this
-                    # fail if it finds something it can't fix.
-                    {run_fix} typos --write-changes {files}
+                  # TODO: typos should offer a way to only run fixes without
+                  # performing checks. This way, I can run fixes and not have this
+                  # fail if it finds something it can't fix.
+                  run: "{run_fix} typos --write-changes {files}"
                 # Formatters should run after the other fixes since some fixes
                 # produce code that doesn't comply with the formatting.
                 - name: format
@@ -417,22 +400,16 @@ check:
                   glob: "*.nix"
                   run: nixpkgs-lint --include-unfinished-lints -- {files}
                 - name: typos
-                  run: |
-                    {exit_if_no_files} {files}
-                    typos {files}
+                  run: typos {files}
                 - name: mypy
                   glob: "*.py"
                   run: mypy {files}
                 - name: isutf8
-                  run: |
-                    {exit_if_no_files} {files}
-                    isutf8 {files}
+                  run: isutf8 {files}
                 - name: editorconfig-checker
                   # I'm disabling the indentation size check because it applies to
                   # comments as well and I don't want it to.
-                  run: |
-                    {exit_if_no_files} {files}
-                    editorconfig-checker --disable-indent-size {files}
+                  run: editorconfig-checker --disable-indent-size {files}
                 - name: config-file-validator
                   glob: "*.{editorconfig,json,ini,yaml,toml}"
                   exclude:
@@ -469,9 +446,7 @@ check:
                     - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
                   exclude:
                     - lychee.toml
-                  run: |
-                    {exit_if_no_files} {files}
-                    mise run lefthook:check:lychee {files}
+                  run: mise run lefthook:check:lychee {files}
                 - name: nix-config
                   glob:
                     - "*.nix"
