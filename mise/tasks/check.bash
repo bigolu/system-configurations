@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils moreutils]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter]"
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about """
 #USAGE   Run jobs to find/fix issues with the code. It runs \

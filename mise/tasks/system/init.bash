@@ -13,8 +13,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-kernel="$(uname)"
-if [[ $kernel == 'Linux' ]]; then
+if [[ $OSTYPE == linux* ]]; then
   home-manager switch --flake .#"${usage_configuration:?}"
   # shellcheck disable=2016
   echo 'Consider copying COSMIC settings to the system by running `mise run copy-cosmic to-system`'

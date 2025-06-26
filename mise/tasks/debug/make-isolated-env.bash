@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter]"
 #MISE hide=true
 #USAGE flag "--var <var>" var=#true help="An environment variable to set in `env` format"
 #USAGE arg "<nix_shell_args>" var=#true help="Arguments to pass to `nix shell`"
@@ -50,4 +50,5 @@ nix_shell_args=(
   "${user_nix_shell_args[@]}"
 )
 
-env "${env_vars[@]}" nix shell "${nix_shell_args[@]}"
+export "${env_vars[@]}"
+nix shell "${nix_shell_args[@]}"
