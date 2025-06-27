@@ -1,4 +1,4 @@
-module github.com/sanderhahn/gozip
+module github.com/bigolu/gozip
 
 go 1.23.0
 

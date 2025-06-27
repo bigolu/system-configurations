@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/sanderhahn/gozip"
+	"github.com/bigolu/gozip"
 )
 
 func main() {
