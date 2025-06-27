@@ -10,12 +10,12 @@ let
     name = "system-config-sync";
     runtimeInputs = with final; [
       nix
-      coreutils
       home-manager
       darwin-rebuild
+      nix-output-monitor
     ];
     text = ''
-      if [[ $(uname) == 'Linux' ]]; then
+      if [[ $OSTYPE == linux* ]]; then
         home-manager \
           switch \
           -b backup \
@@ -23,7 +23,7 @@ let
           "''${@:2}" \
           |& nom
       else
-        darwin-rebuild \
+        sudo darwin-rebuild \
           switch \
           --flake "$1" \
           "''${@:2}" \
@@ -144,7 +144,7 @@ let
   };
 in
 {
-  homeManager = {
+  systemConfig = {
     inherit
       system-config-sync
       system-config-preview-sync

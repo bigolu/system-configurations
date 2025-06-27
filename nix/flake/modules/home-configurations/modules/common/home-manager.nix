@@ -21,7 +21,7 @@ let
 
   update-reminder = writeShellApplication {
     name = "update-reminder";
-    runtimeInputs = [ pkgs.homeManager.update-reminder ];
+    runtimeInputs = [ pkgs.systemConfig.update-reminder ];
     text = "update-reminder ${repositoryDirectory}";
   };
 in
@@ -48,7 +48,7 @@ mkMerge [
       # changes in each release.
       stateVersion = "23.11";
 
-      packages = with pkgs.homeManager; [
+      packages = with pkgs.systemConfig; [
         (writeShellApplication {
           name = "system-config-pull";
           runtimeInputs = [ system-config-pull ];
@@ -76,7 +76,7 @@ mkMerge [
       packages = [
         (writeShellApplication {
           name = "system-config-preview-sync";
-          runtimeInputs = with pkgs.homeManager; [ system-config-preview-sync ];
+          runtimeInputs = with pkgs.systemConfig; [ system-config-preview-sync ];
           text = "system-config-preview-sync ${repositoryDirectory}#homeConfigurations.${configName}.activationPackage";
         })
       ];

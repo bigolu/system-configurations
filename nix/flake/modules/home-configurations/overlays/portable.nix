@@ -27,6 +27,6 @@ let
     "nix"
   ];
 
-  emptyHomeManagerPackages = makeEmptyPackageSet (attrNames prev.homeManager);
+  emptyHomeManagerPackages = makeEmptyPackageSet (attrNames prev.systemConfig);
 in
-emptyTopLevelPackages // { homeManager = emptyHomeManagerPackages; }
+emptyTopLevelPackages // { systemConfig = emptyHomeManagerPackages; }
