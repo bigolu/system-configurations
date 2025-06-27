@@ -213,17 +213,19 @@ local groups = {
   ["@markup.link.url"] = "@markup.link",
   ["@markup.strong"] = { bold = true },
   ["@markup.underline"] = "Underlined",
-  ["@comment"] = "Comment", -- Comment
+  ["@comment"] = "Comment",
+  ["@constant.comment"] = "@comment",
+  ["@punctuation.bracket.comment"] = "@comment",
   ["@string"] = "String", -- String
   ["@string.documentation"] = "String",
   ["@string.regexp"] = "String",
   ["@string.special.url"] = "Underlined",
   ["@string.special.url.comment"] = "@string.special.url",
   ["@string.documentation.python"] = "Comment",
-  ["@character"] = "Character", -- Character
-  ["@label"] = "Label", -- Label
+  ["@character"] = "Character",
+  ["@label"] = "Label",
   ["@label.yaml"] = { ctermfg = 7, fg = colors[7] },
-  ["@keyword"] = "Keyword", -- Keyword
+  ["@keyword"] = "Keyword",
   ["@keyword.json5"] = { ctermfg = 7, fg = colors[7] },
   ["@punctuation.delimiter.comment"] = "Comment",
   ["@keyword.luadoc"] = "Comment",
