@@ -70,7 +70,7 @@ rec {
       # perf: We could just always run `mkdir -p`, but since we use direnv, this
       # would happen every time we load the environment and it's slower than checking
       # if the directory exists.
-      function mkdir_if_not_extant {
+      function mkdir_if_missing {
         local -r dir="$1"
 
         if [[ ! -d $dir ]]; then
@@ -125,7 +125,7 @@ rec {
         # Binary names could conflict between projects so store them in a
         # project-specific directory.
         export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
-        mkdir_if_not_extant "$GOBIN"
+        mkdir_if_missing "$GOBIN"
         export PATH="''${GOBIN}''${PATH:+:$PATH}"
       '';
 
@@ -182,7 +182,7 @@ rec {
         packages = [ pkgs.lua-language-server ];
         shellHook = ''
           prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
-          mkdir_if_not_extant "$prefix"
+          mkdir_if_missing "$prefix"
 
           symlink_if_target_changed \
             ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"

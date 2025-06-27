@@ -465,14 +465,14 @@ func UnzipList(path string) (list []string) {
 	return list
 }
 
-func createDirectoryIfNotExtant(path string) {
+func createDirectoryIfMissing(path string) {
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func isFileExtant(path string) bool {
+func fileExists(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true
@@ -483,7 +483,7 @@ func isFileExtant(path string) bool {
 	}
 }
 
-func isSymlinkExtant(path string) bool {
+func symlinkExists(path string) bool {
 	_, err := os.Lstat(path)
 	if err == nil {
 		return true
@@ -653,7 +653,7 @@ func getNewStorePath() (prefix string) {
 			candidatePrefix = candidatePrefix + string(charset[random.Intn(len(charset))])
 		}
 
-		if !isFileExtant(candidatePrefix) {
+		if !fileExists(candidatePrefix) {
 			return candidatePrefix
 		}
 	}
@@ -669,7 +669,7 @@ func extractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	)
 
 	cachePath := filepath.Join(os.TempDir(), "nix-rootless-bundler")
-	createDirectoryIfNotExtant(cachePath)
+	createDirectoryIfMissing(cachePath)
 
 	executablePath, err := os.Executable()
 	if err != nil {
@@ -678,7 +678,7 @@ func extractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 
 	executableName := filepath.Base(executablePath)
 	executableCachePath = filepath.Join(cachePath, executableName)
-	createDirectoryIfNotExtant(executableCachePath)
+	createDirectoryIfMissing(executableCachePath)
 
 	executable, err := os.Open(executablePath)
 	if err != nil {
@@ -700,7 +700,7 @@ func extractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 
 	isNewExtraction := false
 	executableChecksumFile := filepath.Join(executableCachePath, "checksum.txt")
-	executableChecksumFileExists := isFileExtant(executableChecksumFile)
+	executableChecksumFileExists := fileExists(executableChecksumFile)
 	if executableChecksumFileExists {
 		checksum, err := os.ReadFile(executableChecksumFile)
 		if err != nil {
@@ -727,16 +727,16 @@ func extractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	var newStorePath string
 	isNewStorePath := false
 	linkToCurrentStorePath := filepath.Join(executableCachePath, "link-to-store")
-	doesLinkToCurrentStorePathExist := isSymlinkExtant(linkToCurrentStorePath)
-	if doesLinkToCurrentStorePathExist {
+	linkToCurrentStorePathExists := symlinkExists(linkToCurrentStorePath)
+	if linkToCurrentStorePathExists {
 		currentStorePath, err = os.Readlink(linkToCurrentStorePath)
 		if err != nil {
 			panic(err)
 		}
 		// TODO: Should I worry about other programs making a file with
 		// the same name?
-		doesCurrentStorePathExist := isSymlinkExtant(currentStorePath)
-		if doesCurrentStorePathExist {
+		currentStorePathExists := symlinkExists(currentStorePath)
+		if currentStorePathExists {
 			currentStorePathTarget, _ := os.Readlink(currentStorePath)
 			if currentStorePathTarget != archiveContentsPath {
 				err = os.Remove(linkToCurrentStorePath)

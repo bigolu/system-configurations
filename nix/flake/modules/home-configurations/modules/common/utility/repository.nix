@@ -33,7 +33,6 @@ let
   inherit (config.lib.file) mkOutOfStoreSymlink;
   inherit (builtins)
     length
-    getAttr
     pathExists
     filter
     attrValues
@@ -289,7 +288,7 @@ in
         let
           isBaseDirectoryInsideFlakeDirectory = hasPrefix flakeRootPath relativePathRoot;
 
-          doesSourceExist =
+          sourceExists =
             source:
             pipe source [
               convertToPathBuiltin
@@ -303,11 +302,10 @@ in
           ];
           fileLists = map attrValues fileSets;
           files = flatten fileLists;
-          getSource = getAttr "source";
-          sources = map getSource files;
-          nonexistentSources = filter (s: !(doesSourceExist s)) sources;
-          doAllSymlinkSourcesExist = nonexistentSources == [ ];
-          brokenSymlinksJoined = concatStringsSep " " nonexistentSources;
+          sources = map (file: file.source) files;
+          missingSources = filter (source: !(sourceExists source)) sources;
+          allSourcesExist = missingSources == [ ];
+          missingSourcesJoined = concatStringsSep " " missingSources;
         in
         [
           {
@@ -315,8 +313,8 @@ in
             message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${config.repository.fileSettings.relativePathRoot}";
           }
           {
-            assertion = doAllSymlinkSourcesExist;
-            message = "The following symlink sources do not exist: ${brokenSymlinksJoined}";
+            assertion = allSourcesExist;
+            message = "The following config.repository sources do not exist: ${missingSourcesJoined}";
           }
         ];
     in

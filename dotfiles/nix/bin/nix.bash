@@ -106,8 +106,7 @@ function maybe_warn_about_untracked_files {
     {
       readarray -d '' untracked_or_deleted_files
       if ((${#untracked_or_deleted_files[@]} > 0)); then
-        local joined_untracked_or_deleted_files
-        joined_untracked_or_deleted_files="$(join ' ' "${untracked_or_deleted_files[@]}")"
+        IFS=' ' local joined_untracked_or_deleted_files="${untracked_or_deleted_files[*]}"
 
         {
           echo -e "\n${yellow}┃ nix-wrapper: WARNING: Files outside the git index will be ignored by any flake operation.${reset}"
@@ -136,14 +135,6 @@ function index_of {
       return
     fi
   done
-}
-
-# source: https://stackoverflow.com/a/17841619
-function join {
-  local d=${1-} f=${2-}
-  if shift 2; then
-    printf %s "$f" "${@/#/$d}"
-  fi
 }
 
 main "$@"

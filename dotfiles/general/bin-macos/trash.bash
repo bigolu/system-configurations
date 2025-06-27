@@ -42,7 +42,7 @@ function main {
   done
 
   if ((${#extant_files[@]} > 0)); then
-    extant_files_joined_by_comma="$(join ', ' "${extant_files[@]}")"
+    IFS=',' extant_files_joined_by_comma="${extant_files[*]}"
     chronic osascript -e \
       "tell app \"Finder\" to move {$extant_files_joined_by_comma} to trash"
   fi
@@ -51,14 +51,6 @@ function main {
     exit 1
   else
     exit 0
-  fi
-}
-
-# source: https://stackoverflow.com/a/17841619
-function join {
-  local d=${1-} f=${2-}
-  if shift 2; then
-    printf %s "$f" "${@/#/$d}"
   fi
 }
 
