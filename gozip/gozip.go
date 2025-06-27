@@ -46,8 +46,8 @@ var boundary = func() []byte {
 	return hash[:]
 }()
 
-func NextStep(count int, name string, options ...progressbar.Option) *progressbar.ProgressBar {
-	EndProgress()
+func nextStep(count int, name string, options ...progressbar.Option) *progressbar.ProgressBar {
+	endProgress()
 	description := fmt.Sprintf("[cyan]%s[reset]...", name)
 	defaultOptions := []progressbar.Option{
 		progressbar.OptionEnableColorCodes(true),
@@ -85,7 +85,7 @@ func writeString(w io.Writer, str string) {
 		f.Sync() //nolint:errcheck
 	}
 }
-func ClearProgressBar() {
+func clearProgressBar() {
 	width, _, err := term.GetSize(2)
 	if err != nil {
 		panic(err)
@@ -94,7 +94,7 @@ func ClearProgressBar() {
 	writeString(writer, str)
 }
 
-func EndProgress() {
+func endProgress() {
 	if currentBar != nil {
 		// So the spinner stops. We have to do this before calling clear or else the
 		// spinner will just render the bar again.
@@ -107,12 +107,12 @@ func EndProgress() {
 		if err != nil {
 			panic(err)
 		}
-		ClearProgressBar()
+		clearProgressBar()
 		currentBar = nil
 	}
 }
 
-func IsSymlink(path string) bool {
+func isSymlink(path string) bool {
 	fileInfo, err := os.Lstat(path)
 	if err != nil {
 		panic(err)
@@ -170,7 +170,7 @@ func Zip(destinationPath string, filesToZip []string) {
 		file = filepath.Clean(file)
 
 		// If the input file is a symlink, don't dereference it.
-		isSymlink := IsSymlink(file)
+		isSymlink := isSymlink(file)
 		if isSymlink {
 			var hdr tar.Header
 			hdr.Name = file
@@ -281,7 +281,7 @@ func cleanup(dir string) {
 	}
 }
 
-func GetBoundaryOffset(fileName string) int {
+func getBoundaryOffset(fileName string) int {
 	fileBytes, err := os.ReadFile(fileName)
 	if err != nil {
 		panic(err)
@@ -291,7 +291,7 @@ func GetBoundaryOffset(fileName string) int {
 }
 
 func HasBoundary(fileName string) bool {
-	boundaryOffset := GetBoundaryOffset(fileName)
+	boundaryOffset := getBoundaryOffset(fileName)
 
 	if boundaryOffset == -1 {
 		return false
@@ -300,8 +300,8 @@ func HasBoundary(fileName string) bool {
 	}
 }
 
-func SeekToTar(file os.File) os.File {
-	boundaryOffset := GetBoundaryOffset(file.Name())
+func seekToTar(file os.File) os.File {
+	boundaryOffset := getBoundaryOffset(file.Name())
 	if boundaryOffset == -1 {
 		panic(errors.New("no boundary"))
 	}
@@ -318,7 +318,7 @@ func SeekToTar(file os.File) os.File {
 
 // Unzip unzips the file zippath and puts it in destination
 func Unzip(zippath string, destination string) {
-	NextStep(
+	nextStep(
 		-1,
 		"Calculating archive size",
 		progressbar.OptionSpinnerType(14),
@@ -326,7 +326,7 @@ func Unzip(zippath string, destination string) {
 	files := UnzipList(zippath)
 	archiveCount = len(files)
 
-	progressBar := NextStep(
+	progressBar := nextStep(
 		archiveCount,
 		"Extracting archive",
 		progressbar.OptionShowCount(),
@@ -342,7 +342,7 @@ func Unzip(zippath string, destination string) {
 			panic(errors.Join(err, errFromDefer))
 		}
 	}()
-	SeekToTar(*zipFile)
+	seekToTar(*zipFile)
 
 	zRdr, err := zstd.NewReader(zipFile)
 	if err != nil {
@@ -437,7 +437,7 @@ func UnzipList(path string) (list []string) {
 			panic(errors.Join(err, errFromDefer))
 		}
 	}()
-	SeekToTar(*zipFile)
+	seekToTar(*zipFile)
 
 	zRdr, err := zstd.NewReader(zipFile)
 	if err != nil {
@@ -465,14 +465,14 @@ func UnzipList(path string) (list []string) {
 	return list
 }
 
-func CreateDirectoryIfNotExists(path string) {
+func createDirectoryIfNotExtant(path string) {
 	err := os.MkdirAll(path, 0755)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func IsFileExists(path string) bool {
+func isFileExtant(path string) bool {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true
@@ -483,7 +483,7 @@ func IsFileExists(path string) bool {
 	}
 }
 
-func IsSymlinkExists(path string) bool {
+func isSymlinkExtant(path string) bool {
 	_, err := os.Lstat(path)
 	if err == nil {
 		return true
@@ -494,7 +494,7 @@ func IsSymlinkExists(path string) bool {
 	}
 }
 
-func GetFileCount(path string) int {
+func getFileCount(path string) int {
 	count := 0
 
 	err := filepath.Walk(path, filepath.WalkFunc(func(path string, info os.FileInfo, err error) error {
@@ -517,17 +517,17 @@ func GetFileCount(path string) int {
 	return count
 }
 
-func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath string) {
+func rewritePaths(archiveContentsPath string, oldStorePath string, newStorePath string) {
 	if archiveCount == 0 {
-		NextStep(
+		nextStep(
 			-1,
 			"Calculating archive size",
 			progressbar.OptionSpinnerType(14),
 		)
-		archiveCount = GetFileCount(archiveContentsPath)
+		archiveCount = getFileCount(archiveContentsPath)
 	}
 
-	progressBar := NextStep(
+	progressBar := nextStep(
 		archiveCount,
 		"Rewriting store paths",
 		progressbar.OptionShowCount(),
@@ -639,7 +639,7 @@ func RewritePaths(archiveContentsPath string, oldStorePath string, newStorePath 
 	}
 }
 
-func GetNewStorePath() (prefix string) {
+func getNewStorePath() (prefix string) {
 	random := rand.New(rand.NewSource(time.Now().UnixNano()))
 	charset := "abcdefghijklmnopqrstuvwxyz"
 	var candidatePrefix string
@@ -653,7 +653,7 @@ func GetNewStorePath() (prefix string) {
 			candidatePrefix = candidatePrefix + string(charset[random.Intn(len(charset))])
 		}
 
-		if !IsFileExists(candidatePrefix) {
+		if !isFileExtant(candidatePrefix) {
 			return candidatePrefix
 		}
 	}
@@ -661,19 +661,15 @@ func GetNewStorePath() (prefix string) {
 	panic(errors.New("unable to find a new store prefix"))
 }
 
-func GetTempDir() (tempDir string) {
-	return os.TempDir()
-}
-
-func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCachePath string) {
-	NextStep(
+func extractArchiveAndRewritePaths() (extractedArchivePath string, executableCachePath string) {
+	nextStep(
 		-1,
 		"Checking cache",
 		progressbar.OptionSpinnerType(14),
 	)
 
-	cachePath := filepath.Join(GetTempDir(), "nix-rootless-bundler")
-	CreateDirectoryIfNotExists(cachePath)
+	cachePath := filepath.Join(os.TempDir(), "nix-rootless-bundler")
+	createDirectoryIfNotExtant(cachePath)
 
 	executablePath, err := os.Executable()
 	if err != nil {
@@ -682,7 +678,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 
 	executableName := filepath.Base(executablePath)
 	executableCachePath = filepath.Join(cachePath, executableName)
-	CreateDirectoryIfNotExists(executableCachePath)
+	createDirectoryIfNotExtant(executableCachePath)
 
 	executable, err := os.Open(executablePath)
 	if err != nil {
@@ -704,7 +700,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 
 	isNewExtraction := false
 	executableChecksumFile := filepath.Join(executableCachePath, "checksum.txt")
-	executableChecksumFileExists := IsFileExists(executableChecksumFile)
+	executableChecksumFileExists := isFileExtant(executableChecksumFile)
 	if executableChecksumFileExists {
 		checksum, err := os.ReadFile(executableChecksumFile)
 		if err != nil {
@@ -731,7 +727,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	var newStorePath string
 	isNewStorePath := false
 	linkToCurrentStorePath := filepath.Join(executableCachePath, "link-to-store")
-	doesLinkToCurrentStorePathExist := IsSymlinkExists(linkToCurrentStorePath)
+	doesLinkToCurrentStorePathExist := isSymlinkExtant(linkToCurrentStorePath)
 	if doesLinkToCurrentStorePathExist {
 		currentStorePath, err = os.Readlink(linkToCurrentStorePath)
 		if err != nil {
@@ -739,7 +735,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 		}
 		// TODO: Should I worry about other programs making a file with
 		// the same name?
-		doesCurrentStorePathExist := IsSymlinkExists(currentStorePath)
+		doesCurrentStorePathExist := isSymlinkExtant(currentStorePath)
 		if doesCurrentStorePathExist {
 			currentStorePathTarget, _ := os.Readlink(currentStorePath)
 			if currentStorePathTarget != archiveContentsPath {
@@ -766,7 +762,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 		}
 	} else { // if there's no link-to-store we must not have ever made a new store path so assume it's the original store path
 		currentStorePath = "/nix/store"
-		newStorePath = GetNewStorePath()
+		newStorePath = getNewStorePath()
 		err = os.Symlink(archiveContentsPath, newStorePath)
 		if err != nil {
 			panic(err)
@@ -779,7 +775,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 	}
 
 	if isNewExtraction || isNewStorePath {
-		RewritePaths(archiveContentsPath, currentStorePath, newStorePath)
+		rewritePaths(archiveContentsPath, currentStorePath, newStorePath)
 	}
 
 	return archiveContentsPath, executableCachePath
@@ -788,7 +784,7 @@ func ExtractArchiveAndRewritePaths() (extractedArchivePath string, executableCac
 func SelfExtractAndRunNixEntrypoint() (exitCode int) {
 	var err error
 
-	extractedArchivePath, cachePath := ExtractArchiveAndRewritePaths()
+	extractedArchivePath, cachePath := extractArchiveAndRewritePaths()
 	defer func() {
 		deleteCacheEnvVariable := os.Getenv("NIX_ROOTLESS_BUNDLER_DELETE_CACHE")
 		if len(deleteCacheEnvVariable) > 0 {
@@ -799,7 +795,7 @@ func SelfExtractAndRunNixEntrypoint() (exitCode int) {
 		}
 	}()
 
-	EndProgress()
+	endProgress()
 	entrypointPath := filepath.Join(extractedArchivePath, "entrypoint")
 	// First argument is the program name so we omit that.
 	args := os.Args[1:]
