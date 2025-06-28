@@ -56,14 +56,21 @@ shopt -s inherit_errexit
 
 if [[ ${AUTO_SYNC_DEBUG:-} == 'true' ]]; then
   echo "AUTO_SYNC_HOOK_NAME: ${AUTO_SYNC_HOOK_NAME:?}"
-  echo "Last reflog entry: $(git --no-pager reflog show --max-count 1 || true)"
   set -o xtrace
 fi
 
 function main {
+  # Intentionally global
+  last_reflog_entry="$(git reflog show --max-count 1)"
+  pull_rebase_regex='^.*: (pull|rebase)( .*)?: .+'
+
   # We'll consider the repository synced with any commit made locally.
   if
-    [[ $AUTO_SYNC_HOOK_NAME == 'post-commit' ]] ||
+    {
+      [[ $AUTO_SYNC_HOOK_NAME == 'post-commit' ]] &&
+        # post-commit hooks triggered during a pull/rebase shouldn't count
+        [[ ! $last_reflog_entry =~ $pull_rebase_regex ]]
+    } ||
       {
         [[ $AUTO_SYNC_HOOK_NAME == 'post-rewrite' ]] &&
           [[ $1 == 'amend' ]]
@@ -144,9 +151,6 @@ function should_sync {
     should_sync='false'
   fi
 
-  local last_reflog_entry
-  last_reflog_entry="$(git reflog show --max-count 1)"
-
   # By default, auto-syncing is only enabled for the default branch since other
   # branches may be a security concern. For example, if you're working on an open
   # source project and your synchronization code can execute arbitrary code, then
@@ -173,6 +177,9 @@ function should_sync {
 
   # Disable sync in scenarios where the user probably doesn't want to run it.
   case "${AUTO_SYNC_HOOK_NAME:?}" in
+    'post-commit')
+      should_sync='false'
+      ;;
     'post-merge')
       # There's nothing to do in this case
       ;;
@@ -190,7 +197,6 @@ function should_sync {
 
       # Don't run when we're in the middle of a pull/rebase, post-merge/post-rewrite
       # will run when the pull/rebase is finished.
-      local -r pull_rebase_regex='^.*: (pull|rebase)( .*)?: .+'
       if [[ $last_reflog_entry =~ $pull_rebase_regex ]]; then
         should_sync='false'
       fi
