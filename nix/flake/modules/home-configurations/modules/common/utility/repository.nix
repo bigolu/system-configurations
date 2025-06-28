@@ -316,7 +316,7 @@ in
         [
           {
             assertion = isRelativePathRootInsideFlakeDirectory;
-            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${config.repository.fileSettings.relativePathRoot}";
+            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}";
           }
           {
             assertion = allFileSourcesExist;
