@@ -100,18 +100,11 @@ in
       };
     };
 
-    xdg.executable =
-      {
-        "general" = {
-          source = "general/bin";
-          recursive = true;
-        };
-      }
-      // optionalAttrs isDarwin {
-        "general macOS" = {
-          source = "general/bin-macos";
-          recursive = true;
-        };
+    xdg.executable = {
+      "general" = {
+        source = "general/bin";
+        recursive = true;
       };
+    };
   };
 }
