@@ -28,6 +28,7 @@ let
     pipe
     splitString
     getExe
+    replaceString
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (config.lib.file) mkOutOfStoreSymlink;
@@ -38,7 +39,6 @@ let
     attrValues
     listToAttrs
     readFile
-    replaceStrings
     hasAttr
     ;
   inherit (utils) applyIf;
@@ -211,7 +211,7 @@ in
             file:
             pipe file [
               readFile
-              (replaceStrings [ "/usr/bin/env bash" ] [ (getExe pkgs.bash) ])
+              (replaceString "/usr/bin/env bash" (getExe pkgs.bash))
               (writeScript "patched-xdg-executable")
             ];
 

@@ -5,10 +5,10 @@ let
     concatStringsSep
     toLower
     pipe
+    replaceString
     ;
   inherit (builtins)
     match
-    replaceStrings
     ;
 
   projectRoot = ../.;
@@ -36,7 +36,7 @@ let
   toNixpkgsAttr =
     name:
     pipe name [
-      (replaceStrings [ "." ] [ "-" ])
+      (replaceString "." "-")
       toLower
     ];
 

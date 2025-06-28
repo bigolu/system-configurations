@@ -5,8 +5,8 @@
   ...
 }:
 let
-  inherit (lib) removeSuffix;
-  inherit (builtins) readFile replaceStrings;
+  inherit (lib) removeSuffix replaceString;
+  inherit (builtins) readFile;
   inherit (pkgs) system;
 
   # Since I use a custom `nix.linux-builder`, I use the linux-builder cached by
@@ -69,7 +69,7 @@ in
       #
       # [1]: https://github.com/nix-darwin/nix-darwin/blob/6ab392f626a19f1122d1955c401286e1b7cf6b53/modules/nix/linux-builder.nix#L127
       # [2]: https://search.nixos.org/options?channel=24.11&show=nixpkgs.hostPlatform&from=0&size=50&sort=relevance&type=packages&query=nixpkgs.hostPlatform
-      systems = [ (replaceStrings [ "darwin" ] [ "linux" ] system) ];
+      systems = [ (replaceString "darwin" "linux" system) ];
     } // linuxBuilderConfig;
   };
 
