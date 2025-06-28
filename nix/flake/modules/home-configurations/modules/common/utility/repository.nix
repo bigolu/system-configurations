@@ -179,7 +179,7 @@ in
       inherit (config.repository.fileSettings) relativePathRoot;
       isRelativePath = path: !hasPrefix "/" path;
       mapFileSourceToAbsolutePath =
-        path: if isRelativePath path then "${relativePathRoot}/${path}" else path;
+        source: if isRelativePath source then "${relativePathRoot}/${source}" else source;
 
       mapFileSourceToPathBuiltin =
         fileSource:
@@ -190,7 +190,7 @@ in
           # nix store so we remove the path to the flake root and then append the
           # result to the store path for the flake.
           (removePrefix flakeRootPath)
-          (pathRelativeToFlake: flakeRootStorePath + pathRelativeToFlake)
+          (sourceRelativeToFlakeRoot: flakeRootStorePath + sourceRelativeToFlakeRoot)
         ];
 
       mapToHomeManagerFile =
