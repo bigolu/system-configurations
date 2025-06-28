@@ -177,33 +177,35 @@ in
       flakeRootPath = config.repository.fileSettings.flake.root.path;
       flakeRootStorePath = config.repository.fileSettings.flake.root.storePath;
       inherit (config.repository.fileSettings) relativePathRoot;
-      isEditableInstall = config.repository.fileSettings.editableInstall;
       isRelativePath = path: !hasPrefix "/" path;
-      makePathAbsolute = path: if isRelativePath path then "${relativePathRoot}/${path}" else path;
-      removeFlakePrefixFromPath = removePrefix flakeRootPath;
-      isExecutable = hasAttr "removeExtension";
+      mapFileSourceToAbsolutePath =
+        path: if isRelativePath path then "${relativePathRoot}/${path}" else path;
 
-      convertToPathBuiltin =
-        path:
-        pipe path [
-          makePathAbsolute
+      mapFileSourceToPathBuiltin =
+        fileSource:
+        pipe fileSource [
+          mapFileSourceToAbsolutePath
           # You can make a string into a Path by concatenating it with a Path.
-          # However, in flake pure evaluation mode all Paths must be inside the flake
-          # directory so we use a Path that points to the flake directory.
-          removeFlakePrefixFromPath
+          # However, in flake pure evaluation mode all Paths must be inside the the
+          # nix store so we remove the path to the flake root and then append the
+          # result to the store path for the flake.
+          (removePrefix flakeRootPath)
           (pathRelativeToFlake: flakeRootStorePath + pathRelativeToFlake)
         ];
 
-      convertFileToHomeManagerFile =
+      mapToHomeManagerFile =
         file:
         let
-          symlinkOrCopy =
+          isExecutable = hasAttr "removeExtension";
+          isEditableInstall = config.repository.fileSettings.editableInstall;
+
+          makeSymlinkOrCopy =
             if isEditableInstall then
               mkOutOfStoreSymlink
             else
               # Flake evaluation automatically makes copies of all Paths so we just
               # have to make it a Path.
-              convertToPathBuiltin;
+              mapFileSourceToPathBuiltin;
 
           replaceShebangInterpreter =
             file:
@@ -229,8 +231,8 @@ in
           removeNonHomeManagerAttrs = file: removeAttrs file [ "removeExtension" ];
 
           homeManagerSource = pipe file.source [
-            makePathAbsolute
-            symlinkOrCopy
+            mapFileSourceToAbsolutePath
+            makeSymlinkOrCopy
             (applyIf (isExecutable file && !isEditableInstall) replaceShebangInterpreter)
           ];
 
@@ -258,11 +260,11 @@ in
       getHomeManagerFileSetForFilesInDirectory =
         directory:
         pipe directory.source [
-          convertToPathBuiltin
+          mapFileSourceToPathBuiltin
           listRelativeFilesRecursive
           (map (
             relativeFile:
-            nameValuePair "${directory.target}/${relativeFile}" (convertFileToHomeManagerFile {
+            nameValuePair "${directory.target}/${relativeFile}" (mapToHomeManagerFile {
               source = "${directory.source}/${relativeFile}";
               target = "${directory.target}/${relativeFile}";
               inherit (directory) executable;
@@ -272,26 +274,27 @@ in
           listToAttrs
         ];
 
-      convertToHomeManagerFileSet = foldlAttrs (
+      mapToHomeManagerFileSet = foldlAttrs (
         accumulator: target: file:
         let
           homeManagerFileSet =
             if file.recursive or false then
               getHomeManagerFileSetForFilesInDirectory file
             else
-              { ${target} = convertFileToHomeManagerFile file; };
+              { ${target} = mapToHomeManagerFile file; };
         in
         accumulator // homeManagerFileSet
       ) { };
 
       assertions =
         let
-          isBaseDirectoryInsideFlakeDirectory = hasPrefix flakeRootPath relativePathRoot;
+          # TODO: The paths should be normalized first
+          isRelativePathRootInsideFlakeDirectory = hasPrefix flakeRootPath relativePathRoot;
 
-          sourceExists =
+          fileSourceExists =
             source:
             pipe source [
-              convertToPathBuiltin
+              mapFileSourceToPathBuiltin
               pathExists
             ];
           fileSets = with config.repository; [
@@ -300,30 +303,33 @@ in
             xdg.dataFile
             xdg.executable
           ];
-          fileLists = map attrValues fileSets;
-          files = flatten fileLists;
-          sources = map (file: file.source) files;
-          missingSources = filter (source: !(sourceExists source)) sources;
-          allSourcesExist = missingSources == [ ];
-          missingSourcesJoined = concatStringsSep " " missingSources;
+          missingFileSourcesJoined = pipe fileSets [
+            (map attrValues)
+            flatten
+            (map (file: file.source))
+            (filter (source: !(fileSourceExists source)))
+            (concatStringsSep " ")
+          ];
+
+          allFileSourcesExist = missingFileSourcesJoined == "";
         in
         [
           {
-            assertion = isBaseDirectoryInsideFlakeDirectory;
+            assertion = isRelativePathRootInsideFlakeDirectory;
             message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${config.repository.fileSettings.relativePathRoot}";
           }
           {
-            assertion = allSourcesExist;
-            message = "The following config.repository sources do not exist: ${missingSourcesJoined}";
+            assertion = allFileSourcesExist;
+            message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
           }
         ];
     in
     {
       inherit assertions;
       home.file =
-        (convertToHomeManagerFileSet config.repository.home.file)
-        // (convertToHomeManagerFileSet config.repository.xdg.executable);
-      xdg.configFile = convertToHomeManagerFileSet config.repository.xdg.configFile;
-      xdg.dataFile = convertToHomeManagerFileSet config.repository.xdg.dataFile;
+        (mapToHomeManagerFileSet config.repository.home.file)
+        // (mapToHomeManagerFileSet config.repository.xdg.executable);
+      xdg.configFile = mapToHomeManagerFileSet config.repository.xdg.configFile;
+      xdg.dataFile = mapToHomeManagerFileSet config.repository.xdg.dataFile;
     };
 }
