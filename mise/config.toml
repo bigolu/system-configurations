@@ -3,9 +3,6 @@ unix_default_inline_shell_args = "bash-script -c"
 # This avoids a dependency on /usr/bin/env which is usually used in a shebang
 use_file_shell_for_executable_tasks = true
 unix_default_file_shell_args = "cached-nix-shell"
-# This setting must be true for any tasks that are used to generate autocomplete
-# entries. So if you ever change this global setting to false, ensure that any
-# autocomplete tasks set this to true locally.
 quiet = true
 # Some tasks, like debug:build and debug:shell, need stdin/stdout/stderr since they
 # prompt the user or launch an interactive shell.
