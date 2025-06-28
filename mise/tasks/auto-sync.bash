@@ -172,10 +172,7 @@ function should_sync {
     'post-commit')
       should_sync='false'
       ;;
-    'post-merge')
-      # There's nothing to do in this case
-      ;;
-    'post-rewrite')
+    'post-merge' | 'post-rewrite')
       # There's nothing to do in this case
       ;;
     'post-checkout')
