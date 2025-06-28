@@ -63,6 +63,7 @@ function main {
   # Intentionally global
   last_reflog_entry="$(git reflog show --max-count 1)"
   pull_rebase_regex='^.*: (pull|rebase)( .*)?: .+'
+  last_commit="$(get_last_commit)"
 
   # We'll consider the repository synced with any commit made locally.
   if
@@ -106,9 +107,6 @@ function main {
       fi
     done
 
-    local last_commit
-    last_commit="$(get_last_commit)"
-
     AUTO_SYNC_LAST_COMMIT="$last_commit" "${sync_command[@]}"
   fi
 }
@@ -134,14 +132,8 @@ function get_last_commit {
 }
 
 function should_sync {
-  # Redirect stdout to stderr until we're ready to print the result. This way, if any
-  # commands we execute happen to print to stdout, the caller won't capture it.
-  exec {stdout_copy}>&1
-  exec 1>&2
   local should_sync='true'
 
-  local last_commit
-  last_commit="$(get_last_commit)"
   # If there are no differences between the last commit we synced with and the
   # current one, then we shouldn't sync.
   if
@@ -213,7 +205,6 @@ function should_sync {
       ;;
   esac
 
-  exec 1>&$stdout_copy
   echo "$should_sync"
 }
 
