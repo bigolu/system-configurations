@@ -139,8 +139,11 @@ let
       runtimeInputs = [ pythonEnv ];
       meta.mainProgram = programName;
 
-      passthru.devShell = final.mkShellWrapperNoCC {
-        packages = [ pythonEnv ];
+      passthru = {
+        devShell = final.mkShellWrapperNoCC {
+          packages = [ pythonEnv ];
+        };
+        python = pythonEnv;
       };
 
       text = ''
