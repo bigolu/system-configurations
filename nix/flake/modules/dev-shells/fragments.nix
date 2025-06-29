@@ -100,17 +100,9 @@ rec {
       };
     in
     mkShellWrapperNoCC {
-      inputsFrom =
-        [
-          taskRunner
-        ]
-        ++ optionals isLinux [
-          locale
-        ];
-      packages = [
-        # For the `run` steps in CI workflows
-        pkgs.bash-script
-      ];
+      inputsFrom = [ taskRunner ] ++ optionals isLinux [ locale ];
+      # For the `run` steps in CI workflows
+      packages = [ pkgs.bash-script ];
     };
 
   gozip =
@@ -239,53 +231,38 @@ rec {
     };
 
   sync = mkShellWrapperNoCC {
-    inputsFrom = [
-      # Runs the sync jobs
-      lefthook
-    ];
+    # Runs the sync jobs
+    inputsFrom = [ lefthook ];
     packages = with pkgs; [
       # These get called in the lefthook config
       chase
     ];
   };
 
-  taskRunner =
-    let
-      fileTaskRunner = mkShellWrapperNoCC {
-        packages = with pkgs; [ cached-nix-shell ];
-        shellHook = ''
-          # I don't want to make GC roots when debugging CI because unlike actual CI,
-          # where new virtual machines are created for each run, they'll just
-          # accumulate.
-          #
-          # Most CI systems, e.g. GitHub Actions, set CI to 'true'.
-          if [[ ''${CI:-} == 'true' ]] && [[ ''${CI_DEBUG:-} != 'true' ]]; then
-            export NIX_SHEBANG_GC_ROOTS_DIR="''${PWD}/.direnv/nix-shebang-dependencies"
-          fi
-        '';
-      };
+  taskRunner = mkShellWrapperNoCC {
+    packages = with pkgs; [
+      mise
+      cached-nix-shell
+    ];
+    shellHook = ''
+      # perf: We could just always run `mise trust --quiet`, but since we use direnv,
+      # this would happen every time we load the environment and it's slower than
+      # checking if a file exists.
+      trust_marker="''${direnv_layout_dir:-.direnv}/mise-config-trusted"
+      if [[ ! -e $trust_marker ]]; then
+        mise trust --quiet
+        touch "$trust_marker"
+      fi
 
-      inlineTaskRunner = mkShellWrapperNoCC {
-        packages = with pkgs; [ bash-script ];
-      };
-    in
-    mkShellWrapperNoCC {
-      inputsFrom = [
-        fileTaskRunner
-        inlineTaskRunner
-      ];
-      packages = with pkgs; [ mise ];
-      shellHook = ''
-        # perf: We could just always run `mise trust --quiet`, but since we use
-        # direnv, this would happen every time we load the environment and it's
-        # slower than checking if a file exists.
-        trust_marker="''${direnv_layout_dir:-.direnv}/mise-config-trusted"
-        if [[ ! -e $trust_marker ]]; then
-          mise trust --quiet
-          touch "$trust_marker"
-        fi
-      '';
-    };
+      # I don't want to make GC roots when debugging CI because unlike actual CI,
+      # where new virtual machines are created for each run, they'll just accumulate.
+      #
+      # Most CI systems, e.g. GitHub Actions, set CI to 'true'.
+      if [[ ''${CI:-} == 'true' ]] && [[ ''${CI_DEBUG:-} != 'true' ]]; then
+        export NIX_SHEBANG_GC_ROOTS_DIR="''${direnv_layout_dir:-$PWD/.direnv}/nix-shebang-dependencies"
+      fi
+    '';
+  };
 
   # These are the dependencies of the commands run within `complete` statements in
   # mise tasks. I could use nix shebang scripts instead, but then autocomplete

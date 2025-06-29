@@ -58,11 +58,10 @@ function main {
     return
   fi
 
+  local actions
   # It's easier to split a newline-delimited string than a comma-delimited one since
   # herestring (<<<) adds a newline to the end of the string.
-  local actions_string="${RUN_FIX_ACTIONS//,/$'\n'}"
-  local actions
-  readarray -t actions <<<"$actions_string"
+  readarray -t actions <<<"${RUN_FIX_ACTIONS//,/$'\n'}"
 
   for action in "${actions[@]}"; do
     case "$action" in

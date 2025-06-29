@@ -1,5 +1,4 @@
 [settings]
-unix_default_inline_shell_args = "bash-script -c"
 # This avoids a dependency on /usr/bin/env which is usually used in a shebang
 use_file_shell_for_executable_tasks = true
 unix_default_file_shell_args = "cached-nix-shell"
