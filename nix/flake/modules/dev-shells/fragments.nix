@@ -18,18 +18,12 @@
 let
   inherit (builtins)
     readFile
-    match
-    filter
-    elemAt
     ;
   inherit (utils) projectRoot;
   inherit (lib)
     pipe
     fileset
     optionals
-    unique
-    concatLists
-    splitString
     removeSuffix
     ;
   inherit (pkgs)
@@ -315,7 +309,6 @@ rec {
   #   - Since the dev shell is a garbage collection root, these task dependencies
   #     won't get garbage collected.
   tasks = pipe (projectRoot + /mise/tasks) [
-    # Get all nix shebang scripts
     (fileset.fileFilter (file: file.hasExt "bash"))
     (
       nixShebangScripts:
@@ -324,31 +317,7 @@ rec {
         fileset = nixShebangScripts;
       }
     )
-
-    # Get all lines in all scripts
-    lib.filesystem.listFilesRecursive
-    (map readFile)
-    (map (splitString "\n"))
-    concatLists
-
-    # Extract script dependencies from their nix shebangs.
-    #
-    # The shebang looks something like:
-    #   #! nix-shell --packages "with ...; [dep1 dep2 dep3]"
-    #
-    # So this match will extract everything between the brackets i.e.
-    #   'dep1 dep2 dep3'.
-    (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
-    (filter (matches: matches != null))
-    (map (matches: elemAt matches 1))
-
-    # Flatten the output of the previous match i.e. each string in the list will
-    # hold _one_ dependency, instead of multiple separated by a space.
-    (map (splitString " "))
-    concatLists
-
-    unique
-    (map (dependencyName: pkgs.${dependencyName}))
+    pkgs.extractNixShebangPackages
     # Scripts use `nix-shell-interpreter` as their interpreter to work around an
     # issue with nix-shell, but bashInteractive can be used locally for
     # debugging. It's important that bashInteractive is added to the front of the

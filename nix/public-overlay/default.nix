@@ -1,6 +1,21 @@
 final: prev:
 let
-  inherit (final.lib) getExe getExe';
+  inherit (builtins)
+    readFile
+    concatLists
+    match
+    filter
+    elemAt
+    ;
+  inherit (final.lib)
+    getExe
+    getExe'
+    pipe
+    pathIsDirectory
+    splitString
+    unique
+    ;
+  inherit (final.lib.filesystem) listFilesRecursive;
   createMkShellWrapper = import ./create-mk-shell-wrapper.nix final prev;
 in
 {
@@ -8,6 +23,35 @@ in
 
   mkShellWrapper = createMkShellWrapper prev.mkShell;
   mkShellWrapperNoCC = createMkShellWrapper prev.mkShellNoCC;
+
+  extractNixShebangPackages =
+    path:
+    pipe path [
+      # Get all lines in all scripts
+      (path: if pathIsDirectory path then listFilesRecursive path else [ path ])
+      (map readFile)
+      (map (splitString "\n"))
+      concatLists
+
+      # Match packages in nix shebangs.
+      #
+      # The shebang looks something like:
+      #   #! nix-shell --packages "with ...; [package1 package2]"
+      #
+      # So this match will extract everything between the brackets i.e.
+      #   'package1 package2'.
+      (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
+      (filter (matches: matches != null))
+      (map (matches: elemAt matches 1))
+
+      # Flatten the output of the previous match i.e. each string in the list will
+      # hold _one_ package, instead of multiple separated by a space.
+      (map (splitString " "))
+      concatLists
+
+      unique
+      (map (packageName: final.${packageName}))
+    ];
 
   makeNixShellInterpreterWithoutTmp =
     {
