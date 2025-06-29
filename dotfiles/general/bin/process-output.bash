@@ -29,5 +29,5 @@ else
     --attach "$pid" --follow-forks \
     --string-limit 9999999 \
     --signal '!all' --quiet=attach,exit \
-    --trace=write --trace-fds=0,1,2
+    --trace=write --trace-fds=1,2
 fi
