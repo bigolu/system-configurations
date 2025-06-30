@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils home-manager curl darwin-rebuild nix-output-monitor git]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils home-manager darwin-rebuild nix-output-monitor git]"
 #MISE description='Initialize the system'
 #MISE hide=true
 #MISE depends_post='sync'
@@ -24,21 +24,20 @@ else
     /bin/bash -c "$homebrew_install_script"
   fi
 
+  hash_file='nix/flake/modules/darwin-configurations/modules/nix/nix-conf-hash.txt'
+  builder_file='nix/flake/modules/darwin-configurations/modules/nix/linux-builder-config-name.txt'
+  function undo_file_changes {
+    git checkout -- "$hash_file" "$builder_file"
+  }
+  trap undo_file_changes EXIT
+
   # Tell nix-darwin the hash of my nix.conf so it can overwrite it. You can find more
   # information in the comment where this file is read.
-  hash_file='nix/flake/modules/darwin-configurations/modules/nix/nix-conf-hash.txt'
   shasum -a 256 /etc/nix/nix.conf | cut -d ' ' -f 1 >"$hash_file"
-  function undo_hash_file_changes {
-    git checkout -- "$hash_file"
-  }
-  trap undo_hash_file_changes EXIT
 
   # Apply the config with the bootstrap builders.
-  builder_file='nix/flake/modules/darwin-configurations/modules/nix/linux-builder-config-name.txt'
-  my_builder="$(<"$builder_file")"
   for builder in bootstrap1 bootstrap2; do
     echo "$builder" >"$builder_file"
     darwin-rebuild switch --flake .#"${usage_configuration:?}" |& nom
   done
-  echo "$my_builder" >"$builder_file"
 fi
