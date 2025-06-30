@@ -167,7 +167,6 @@ function should_sync {
     should_sync='false'
   fi
 
-  # Disable sync in scenarios where the user probably doesn't want to run it.
   case "${AUTO_SYNC_HOOK_NAME:?}" in
     'post-commit')
       should_sync='false'
