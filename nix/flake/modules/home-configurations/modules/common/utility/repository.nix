@@ -193,7 +193,7 @@ in
           (sourceRelativeToFlakeRoot: flakeRootStorePath + sourceRelativeToFlakeRoot)
         ];
 
-      mapToHomeManagerFile =
+      toHomeManagerFile =
         file:
         let
           isExecutable = hasAttr "removeExtension";
@@ -264,7 +264,7 @@ in
           listRelativeFilesRecursive
           (map (
             relativeFile:
-            nameValuePair "${directory.target}/${relativeFile}" (mapToHomeManagerFile {
+            nameValuePair "${directory.target}/${relativeFile}" (toHomeManagerFile {
               source = "${directory.source}/${relativeFile}";
               target = "${directory.target}/${relativeFile}";
               inherit (directory) executable;
@@ -274,14 +274,14 @@ in
           listToAttrs
         ];
 
-      mapToHomeManagerFileSet = foldlAttrs (
+      toHomeManagerFileSet = foldlAttrs (
         accumulator: target: file:
         let
           homeManagerFileSet =
             if file.recursive or false then
               getHomeManagerFileSetForFilesInDirectory file
             else
-              { ${target} = mapToHomeManagerFile file; };
+              { ${target} = toHomeManagerFile file; };
         in
         accumulator // homeManagerFileSet
       ) { };
@@ -327,9 +327,9 @@ in
     {
       inherit assertions;
       home.file =
-        (mapToHomeManagerFileSet config.repository.home.file)
-        // (mapToHomeManagerFileSet config.repository.xdg.executable);
-      xdg.configFile = mapToHomeManagerFileSet config.repository.xdg.configFile;
-      xdg.dataFile = mapToHomeManagerFileSet config.repository.xdg.dataFile;
+        (toHomeManagerFileSet config.repository.home.file)
+        // (toHomeManagerFileSet config.repository.xdg.executable);
+      xdg.configFile = toHomeManagerFileSet config.repository.xdg.configFile;
+      xdg.dataFile = toHomeManagerFileSet config.repository.xdg.dataFile;
     };
 }
