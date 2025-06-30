@@ -1,11 +1,10 @@
 # This function returns a map of dev shells that each represent a piece of a full dev
-# shell. I do this for these reasons:
-#   - Fragments can be shared between full dev shells. For example, I can
+# shell. This has the following advantages:
+#   - Fragments can be shared between full dev shells. For example, you can
 #     create one fragment with all the dependencies for checks (linters, formatters,
 #     etc.) and include that fragment in both the development and CI dev shells. This
 #     way, they can stay in sync.
-#   - Makes it easier to organize the dev shell since it can be broken down into
-#     smaller parts.
+#   - Makes it easier to tell what each dependency is being used for.
 #   - Makes it easier to provide alternate dev shells without certain fragments. For
 #     example, people that don't use VS Code may not want the fragment that provides
 #     dependencies for it.
