@@ -174,23 +174,23 @@ in
 
   config =
     let
-      flakeRootPath = config.repository.fileSettings.flake.root.path;
-      flakeRootStorePath = config.repository.fileSettings.flake.root.storePath;
+      flakePath = config.repository.fileSettings.flake.root.path;
+      flakeStorePath = config.repository.fileSettings.flake.root.storePath;
       inherit (config.repository.fileSettings) relativePathRoot;
       isRelativePath = path: !hasPrefix "/" path;
-      mapFileSourceToAbsolutePath =
-        source: if isRelativePath source then "${relativePathRoot}/${source}" else source;
+      toAbsolutePath =
+        fileSource: if isRelativePath fileSource then "${relativePathRoot}/${fileSource}" else fileSource;
 
-      mapFileSourceToPathBuiltin =
+      toPath =
         fileSource:
         pipe fileSource [
-          mapFileSourceToAbsolutePath
+          toAbsolutePath
           # You can make a string into a Path by concatenating it with a Path.
           # However, in flake pure evaluation mode all Paths must be inside the the
           # nix store so we remove the path to the flake root and then append the
           # result to the store path for the flake.
-          (removePrefix flakeRootPath)
-          (sourceRelativeToFlakeRoot: flakeRootStorePath + sourceRelativeToFlakeRoot)
+          (removePrefix flakePath)
+          (sourceRelativeToFlakeRoot: flakeStorePath + sourceRelativeToFlakeRoot)
         ];
 
       toHomeManagerFile =
@@ -205,7 +205,7 @@ in
             else
               # Flake evaluation automatically makes copies of all Paths so we just
               # have to make it a Path.
-              mapFileSourceToPathBuiltin;
+              toPath;
 
           replaceShebangInterpreter =
             file:
@@ -231,7 +231,7 @@ in
           removeNonHomeManagerAttrs = file: removeAttrs file [ "removeExtension" ];
 
           homeManagerSource = pipe file.source [
-            mapFileSourceToAbsolutePath
+            toAbsolutePath
             makeSymlinkOrCopy
             (applyIf (isExecutable file && !isEditableInstall) replaceShebangInterpreter)
           ];
@@ -260,7 +260,7 @@ in
       getHomeManagerFileSetForFilesInDirectory =
         directory:
         pipe directory.source [
-          mapFileSourceToPathBuiltin
+          toPath
           listRelativeFilesRecursive
           (map (
             relativeFile:
@@ -288,13 +288,13 @@ in
 
       assertions =
         let
-          # TODO: The paths should be normalized first
-          isRelativePathRootInsideFlakeDirectory = hasPrefix flakeRootPath relativePathRoot;
+          # TODO: These paths should be normalized first
+          isRelativePathRootInFlakeDirectory = hasPrefix flakePath relativePathRoot;
 
           fileSourceExists =
             source:
             pipe source [
-              mapFileSourceToPathBuiltin
+              toPath
               pathExists
             ];
           fileSets = with config.repository; [
@@ -315,8 +315,8 @@ in
         in
         [
           {
-            assertion = isRelativePathRootInsideFlakeDirectory;
-            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}";
+            assertion = isRelativePathRootInFlakeDirectory;
+            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}, flake directory: ${flakePath}";
           }
           {
             assertion = allFileSourcesExist;
