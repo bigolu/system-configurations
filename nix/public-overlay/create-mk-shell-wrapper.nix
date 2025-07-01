@@ -4,11 +4,9 @@ let
     removeAttrs
     catAttrs
     filter
-    hasAttr
     ;
   inherit (final.lib)
     pipe
-    optionalAttrs
     escapeShellArg
     concatStringsSep
     splitString
@@ -16,10 +14,7 @@ let
     unique
     ;
 
-  # Prevent nested nix shells from executing this shell's hook:
-  # https://git.lix.systems/lix-project/lix/issues/344
-  # https://github.com/NixOS/nix/issues/8257
-  makeSafeShellHookAndDedupInputsFrom =
+  adjustMkShellArgs =
     args@{
       # I need a name that won't conflict with the default one set by mkShell
       name ? "__nix_shell",
@@ -31,7 +26,7 @@ let
       # we need to merge this shell with another shell.
       uniqueInputsFromKey = "_inputsFrom";
 
-      newInputsFrom = pipe inputsFrom [
+      uniqueInputsFrom = pipe inputsFrom [
         (catAttrs uniqueInputsFromKey)
         concatLists
         unique
@@ -48,7 +43,7 @@ let
         ];
 
       allShellHooks = pipe args [
-        (args: newInputsFrom ++ [ args ])
+        (args: uniqueInputsFrom ++ [ args ])
         (catAttrs "shellHook")
         (filter (hook: hook != ""))
         (concatStringsSep "\n")
@@ -56,31 +51,29 @@ let
       ];
 
       safeShellHook = ''
-        function safe_shell_hook {
-          # Check for a '-env' suffix since `nix develop` adds one:
-          # https://git.lix.systems/lix-project/lix/src/commit/7575db522e9008685c4009423398f6900a16bcce/src/nix/develop.cc#L240-L241
-          if [[ $name != ${escapedName} && $name != ${escapedName}'-env' ]]; then
-            return
-          fi
-
-          ${allShellHooks}
-        }
-        safe_shell_hook
+        # Prevent nested nix shells from executing this shell's hook[1][2].
+        #
+        # Check for a '-env' suffix since `nix develop` adds one[3].
+        #
+        # [1]: https://git.lix.systems/lix-project/lix/issues/344
+        # [2]: https://github.com/NixOS/nix/issues/8257
+        # [3]: https://git.lix.systems/lix-project/lix/src/commit/7575db522e9008685c4009423398f6900a16bcce/src/nix/develop.cc#L240-L241
+        if [[ $name == ${escapedName} || $name == ${escapedName}'-env' ]]; then
+        ${allShellHooks}
+        fi
       '';
 
       shellWithoutInputsFrom = mkShell (removeAttrs args [ "inputsFrom" ]);
-
-      newInputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) newInputsFrom;
+      uniqueInputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) uniqueInputsFrom;
     in
     args
     // {
       shellHook = safeShellHook;
-      inputsFrom = newInputsFromWithoutShellHooks;
-      "passthru".${uniqueInputsFromKey} = newInputsFrom ++ [ shellWithoutInputsFrom ];
-    }
-    // optionalAttrs (!hasAttr "name" args) { inherit name; };
+      inputsFrom = uniqueInputsFromWithoutShellHooks;
+      "passthru".${uniqueInputsFromKey} = uniqueInputsFrom ++ [ shellWithoutInputsFrom ];
+    };
 in
 pipe args [
-  makeSafeShellHookAndDedupInputsFrom
+  adjustMkShellArgs
   mkShell
 ]
