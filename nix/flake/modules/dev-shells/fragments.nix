@@ -188,7 +188,7 @@ rec {
         lefthook
         # This is needed for generating task documentation
         taskRunner
-        # For `gofmt`, `go mod tidy`, and `gopls`
+        # For `gofmt`, `go mod tidy`, `gopls`, and `golangci-lint`
         gozip
         # This is needed for running mypy
         speakerctl
