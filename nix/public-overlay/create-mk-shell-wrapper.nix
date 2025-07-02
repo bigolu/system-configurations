@@ -12,6 +12,7 @@ let
     splitString
     concatLists
     unique
+    optionals
     ;
 
   adjustMkShellArgs =
@@ -42,9 +43,9 @@ let
           (concatStringsSep "\n")
         ];
 
-      allShellHooks = pipe args [
-        (args: uniqueInputsFrom ++ [ args ])
+      allShellHooks = pipe uniqueInputsFrom [
         (catAttrs "shellHook")
+        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
         (filter (hook: hook != ""))
         (concatStringsSep "\n")
         indent
