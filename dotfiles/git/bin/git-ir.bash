@@ -7,11 +7,10 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 # To set the check command run: git config bigolu.check-command 'the command'
-check_command="$(
-  # If a config option isn't set, git exits with a non-zero code so the `echo` both
-  # stops the statement from failing and provides a default value.
-  git config --get 'bigolu.check-command' || echo 'false'
-)"
+#
+# If a config option isn't set, git exits with a non-zero code so the `echo` both
+# stops the statement from failing and provides a default value.
+check_command="$(git config --get 'bigolu.check-command' || echo 'false')"
 
 start_commit=''
 if (($# == 0)); then
