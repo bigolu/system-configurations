@@ -27,14 +27,14 @@ let
     removeSuffix
     ;
   inherit (pkgs)
-    mkShellWrapperNoCC
+    mkShellNoCC
     linkFarm
     writeText
     ;
   inherit (pkgs.stdenv) isLinux;
 in
 rec {
-  lefthook = mkShellWrapperNoCC {
+  lefthook = mkShellNoCC {
     packages = [
       pkgs.lefthook
       # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
@@ -43,7 +43,7 @@ rec {
     ];
   };
 
-  shellHookHelpers = mkShellWrapperNoCC {
+  shellHookHelpers = mkShellNoCC {
     shellHook = ''
       # We could just always recreate the symlink, even if the target of the symlink
       # is the same, but since we use direnv, this would happen every time we load
@@ -84,7 +84,7 @@ rec {
       # TODO: See if Nix should do this as part of its setup script
       #
       # [1]: https://nixos.wiki/wiki/Locales
-      locale = mkShellWrapperNoCC {
+      locale = mkShellNoCC {
         packages = [
           # The full set of locales is pretty big (~220MB) so I'll only include the
           # one that will be used.
@@ -99,7 +99,7 @@ rec {
         '';
       };
     in
-    mkShellWrapperNoCC {
+    mkShellNoCC {
       inputsFrom = [ taskRunner ] ++ optionals isLinux [ locale ];
       # For the `run` steps in CI workflows
       packages = [ pkgs.bash-script ];
@@ -155,7 +155,7 @@ rec {
         '')
       ];
     in
-    mkShellWrapperNoCC {
+    mkShellNoCC {
       packages = [ goEnv ];
       shellHook = setGoBin + linkVendoredModules;
     };
@@ -164,7 +164,7 @@ rec {
 
   check =
     let
-      lua-language-server = mkShellWrapperNoCC {
+      lua-language-server = mkShellNoCC {
         packages = [ pkgs.lua-language-server ];
         shellHook = ''
           prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
@@ -183,7 +183,7 @@ rec {
         '';
       };
     in
-    mkShellWrapperNoCC {
+    mkShellNoCC {
       inputsFrom = [
         # Runs the checks
         lefthook
@@ -230,7 +230,7 @@ rec {
       ];
     };
 
-  sync = mkShellWrapperNoCC {
+  sync = mkShellNoCC {
     # Runs the sync jobs
     inputsFrom = [ lefthook ];
     packages = with pkgs; [
@@ -239,7 +239,7 @@ rec {
     ];
   };
 
-  taskRunner = mkShellWrapperNoCC {
+  taskRunner = mkShellNoCC {
     packages = with pkgs; [
       mise
       cached-nix-shell
@@ -267,7 +267,7 @@ rec {
   # These are the dependencies of the commands run within `complete` statements in
   # mise tasks. I could use nix shebang scripts instead, but then autocomplete
   # would be delayed by the time it takes to load a nix shell.
-  taskAutocomplete = mkShellWrapperNoCC {
+  taskAutocomplete = mkShellNoCC {
     packages = with pkgs; [
       fish
       # For nix's fish shell autocomplete
@@ -300,14 +300,14 @@ rec {
     # debugging. It's important that bashInteractive is added to the front of the
     # list because otherwise non-interactive bash will shadow it on the PATH.
     (dependencies: [ pkgs.bashInteractive ] ++ dependencies)
-    (dependencies: mkShellWrapperNoCC { packages = dependencies; })
+    (dependencies: mkShellNoCC { packages = dependencies; })
   ];
 
   # Everything needed by the VS Code extensions recommended in
   # .vscode/extensions.json
   vsCode =
     let
-      efmLanguageServer = mkShellWrapperNoCC {
+      efmLanguageServer = mkShellNoCC {
         packages = with pkgs; [
           efm-langserver
           # These get used in some of the commands in the efm-langserver config.
@@ -316,7 +316,7 @@ rec {
         ];
       };
     in
-    mkShellWrapperNoCC {
+    mkShellNoCC {
       inputsFrom = [
         # For "llllvvuu.llllvvuu-glspc"
         efmLanguageServer

@@ -16,13 +16,10 @@ let
     unique
     ;
   inherit (final.lib.filesystem) listFilesRecursive;
-  createMkShellWrapper = import ./create-mk-shell-wrapper.nix final prev;
 in
 {
   makePortableShell = import ./make-portable-shell final prev;
-
-  mkShellWrapper = createMkShellWrapper prev.mkShell;
-  mkShellWrapperNoCC = createMkShellWrapper prev.mkShellNoCC;
+  mkShellWrapper = final.callPackage ./mk-shell-wrapper.nix { };
 
   extractNixShebangPackages =
     path:

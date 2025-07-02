@@ -4,7 +4,7 @@ moduleContext@{ lib, utils, ... }:
     perSystemContext@{ pkgs, ... }:
     let
       inherit (builtins) mapAttrs;
-      inherit (pkgs) mkShellWrapperNoCC;
+      inherit (pkgs) mkShellNoCC;
       inherit (lib)
         pipe
         hasPrefix
@@ -42,7 +42,7 @@ moduleContext@{ lib, utils, ... }:
           (mapAttrs (name: devShellArgs: devShellArgs // { inherit name; }))
           (mapAttrs (_name: addShellHookHelpers))
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
-          (mapAttrs (_name: mkShellWrapperNoCC))
+          (mapAttrs (_name: mkShellNoCC))
           (devShells: devShells // { default = devShells.${default}; })
           (devShells: { inherit devShells; })
         ];

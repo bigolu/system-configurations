@@ -140,7 +140,7 @@ let
       meta.mainProgram = programName;
 
       passthru = {
-        devShell = final.mkShellWrapperNoCC {
+        devShell = final.mkShellNoCC {
           packages = [ pythonEnv ];
         };
         python = pythonEnv;
@@ -233,6 +233,10 @@ in
   ripgrep-all = ripgrepAllWithDependencies;
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp {
     interpreter = final.bash-script;
+  };
+  mkShellNoCC = prev.mkShellWrapper.override {
+    # So we can override `mkShellNoCC` without causing infinite recursion
+    inherit (prev) mkShellNoCC;
   };
 
   inherit (inputs.nixpkgs-mise.legacyPackages.${final.system}) mise;
