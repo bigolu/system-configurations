@@ -22,7 +22,7 @@ let
     optionals
     ;
 
-  uniqueShellHooksFunc =
+  deduplicateShellHooks =
     args@{
       inputsFrom ? [ ],
       shellHook ? "",
@@ -79,7 +79,7 @@ let
   #
   # [1]: https://git.lix.systems/lix-project/lix/issues/344
   # [2]: https://github.com/NixOS/nix/issues/8257
-  guardShellHookFunc =
+  addShellHookGuard =
     args@{
       # I need a name that won't conflict with the default one set by mkShell
       name ? "__nix_shell",
@@ -129,7 +129,7 @@ let
     if condition then function arg else arg;
 in
 pipe mkShellArgs [
-  (applyIf uniqueShellHooks uniqueShellHooksFunc)
-  (applyIf guardShellHook guardShellHookFunc)
+  (applyIf uniqueShellHooks deduplicateShellHooks)
+  (applyIf guardShellHook addShellHookGuard)
   mkShellNoCC
 ]
