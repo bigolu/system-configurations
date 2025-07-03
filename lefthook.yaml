@@ -67,7 +67,7 @@ pre-commit:
       # I enable `interactive` for some of the jobs in the 'check' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
+      run: printf '%s\0' {staged_files} | mise run lefthook-run check --files-from-stdin
 
 post-rewrite:
   jobs:
@@ -75,7 +75,7 @@ post-rewrite:
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run auto-sync {0} -- lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run auto-sync {0} -- mise run lefthook-run sync
 
 post-merge:
   jobs:
@@ -83,7 +83,7 @@ post-merge:
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or they won't work.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run auto-sync {0} -- lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run auto-sync {0} -- mise run lefthook-run sync
 
 post-checkout:
   jobs:
@@ -91,7 +91,7 @@ post-checkout:
       # I enabled `interactive` on some of the jobs in the 'sync' group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run auto-sync {0} -- lefthook run sync
+      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run auto-sync {0} -- mise run lefthook-run sync
 
 post-commit:
   jobs:
@@ -194,6 +194,18 @@ sync:
         - lefthook.yaml
       run: "{direnv_exec} fish -c fish-reload"
 
+# Lychee, a link checker, will be run periodically in a CI workflow.
+check-lychee:
+  # Custom hooks should always have a files command. See the comment below the
+  # "Custom Hooks" heading for why that is.
+  files: ":"
+  jobs:
+    - exclude:
+        - lychee.toml
+      run: |
+        {exit_if_no_files} {files}
+        mise run lefthook:check:lychee {files}
+
 check:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
@@ -209,286 +221,252 @@ check:
 
     # Untracked files
     git ls-files --others --exclude-standard
+  # Enabling `piped` is useful for the scenario where there are issues found by fast
+  # checks, but not slow ones. Without `piped`, you would run all the checks only to
+  # find an issue with a fast check and then have to run all the checks again once
+  # that issue is fixed. With `piped`, the slow ones won't run since an issue was
+  # found by one of the faster ones. Once you fix the issue found by the fast check,
+  # then the slower ones will run. On the other hand, this means you'll have to keep
+  # rerunning checks that have already passed just to see the issues found by
+  # subsequent checks. To mitigate this, some of the checks are put in groups.
+  #
+  # One example of when this is useful is when there's a formatting issue, which is
+  # common if you aren't formatting the code in your IDE, but all of the other checks
+  # are successful. Without `piped`, you'd have to wait for all checks to complete,
+  # commit the formatted code, then run all the checks again. With `piped`, the
+  # checks stop after the group that contains the formatters finishes. This way, you
+  # can commit the formatted code and the next time you run the checks, all of them
+  # will run.
+  #
+  # This is also useful for CI since you wouldn't want your CI runners to waste time,
+  # and money if you pay for your runners, running slow checks if a fast one has
+  # already failed.
+  piped: true
   jobs:
-    # This job only exists so the excludes below can get inherited by all of its
-    # descendants. There's an open feature request for a global exclude list[1]. If
-    # that gets implemented, I won't need this extra job anymore.
-    #
-    # [1]: https://github.com/evilmartians/lefthook/issues/593
-    - exclude:
-        - gozip/gomod2nix.toml
-        - ".vscode/ltex*"
-        - dotfiles/keyboard/US keyboard - no accent keys.bundle/**
-        - dotfiles/cosmic/config/**
-        - docs/**
+    # Why fixes should run before other checks:
+    #   - A fix could produce code that would fail another check
+    #   - A fix could fix an issue that would have been found by another check
+    - name: fix
       group:
-        # Enabling `piped` is useful for the scenario where there are issues found by
-        # fast checks, but not slow ones. Without `piped`, you would run all the
-        # checks only to find an issue with a fast check and then have to run all the
-        # checks again once that issue is fixed. With `piped`, the slow ones won't
-        # run since an issue was found by one of the faster ones. Once you fix the
-        # issue found by the fast check, then the slower ones will run. On the other
-        # hand, this means you'll have to keep rerunning checks that have already
-        # passed just to see the issues found by subsequent checks. To mitigate this,
-        # some of the checks are put in groups.
-        #
-        # One example of when this is useful is when there's a formatting issue,
-        # which is common if you aren't formatting the code in your IDE, but all of
-        # the other checks are successful. Without `piped`, you'd have to wait for
-        # all checks to complete, commit the formatted code, then run all the checks
-        # again. With `piped`, the checks stop after the group that contains the
-        # formatters finishes. This way, you can commit the formatted code and the
-        # next time you run the checks, all of them will run.
-        #
-        # This is also useful for CI since you wouldn't want your CI runners to waste
-        # time, and money if you pay for your runners, running slow checks if a fast
-        # one has already failed.
-        piped: true
         jobs:
-          # Why fixes should run before other checks:
-          #   - A fix could produce code that would fail another check
-          #   - A fix could fix an issue that would have been found by another check
-          - name: fix
-            group:
-              jobs:
-                - name: readme-table-of-contents
-                  glob: README.md
-                  run: "{run_fix} doctoc README.md --github"
-                - name: readme-nix-version
-                  glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
-                - name: readme-config-names
-                  glob: "*.nix"
-                  run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
-                - name: readme-nixpkgs-commit
-                  glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
-                - name: flake-lock
-                  glob: flake.nix
-                  run: "{run_fix} nix flake lock"
-                - name: gomod2nix
-                  only:
-                    # TODO: There's an open issue[1] for adding a subcommand to
-                    # gomod2nix that only checks to see if the lock file is up to
-                    # date. This way it could be run without an internet connection
-                    # and included in CI checks.
-                    #
-                    # [1]: https://github.com/nix-community/gomod2nix/issues/169
-                    - run: '[ "$CI" != true ]'
-                  glob: gozip/go.mod
-                  run: "{run_fix} gomod2nix --dir gozip generate"
-                # I'm intentionally not specifying a `glob` here because deleted
-                # files won't be matched against the glob and if a task gets deleted,
-                # I want this job to run. Instead, since it runs very quickly, I'll
-                # just always run it.
-                - name: task-docs
-                  # TODO: markdown2html-converter hasn't been updated in a couple
-                  # years. I'd like to switch to markdown-to-html-cli[1], but it
-                  # isn't in nixpkgs. Maybe I can add it or make a request.
-                  #
-                  # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
-                  run: |
-                    {run_fix} bash -ec '
-                      mise generate task-docs --style detailed --output docs/tasks.md
-                      markdown2html-converter \
-                        --force \
-                        --title 'Tasks' \
-                        --html-path docs/tasks.html \
-                        docs/tasks.md
-                    '
-                - name: deadnix
-                  glob: "*.nix"
-                  run: "{run_fix} deadnix --quiet --edit {files}"
-                - name: ruff
-                  glob: "*.py"
-                  run: "{run_fix} ruff check --fix-only {files}"
-                - name: statix
-                  glob: "*.nix"
-                  # statix doesn't support passing multiple files yet:
-                  # https://github.com/oppiliappan/statix/issues/69
-                  run: "{run_fix} parallel statix fix -- {files}"
-                - name: markdownlint-cli2
-                  glob: "*.md"
-                  run: "{run_fix} markdownlint-cli2 --fix {files}"
-                - name: go-mod-tidy
-                  only:
-                    # TODO: There should be an option for only doing the parts that
-                    # don't require the internet so it can be run as part of CI
-                    # checks.
-                    - run: '[ "$CI" != true ]'
-                  glob: gozip/go.{mod,sum}
-                  run: "{run_fix} go -C gozip mod tidy"
-                - name: golangci-lint
-                  glob: "*.go"
-                  root: "gozip/"
-                  run: "{run_fix} golangci-lint run --fix"
-                - name: typos
-                  run: |
-                    {exit_if_no_files} {files}
-                    # TODO: typos should offer a way to only run fixes without
-                    # performing checks. This way, I can run fixes and not have this
-                    # fail if it finds something it can't fix.
-                    {run_fix} typos --write-changes {files}
-                # Formatters should run after the other fixes since some fixes
-                # produce code that doesn't comply with the formatting.
-                - name: format
-                  group:
-                    jobs:
-                      - name: taplo
-                        glob: "*.toml"
-                        run: "{run_fix} taplo format {files}"
-                      - name: prettier
-                        glob: "*.{md,js,json,json5,jsonc,yaml}"
-                        exclude:
-                          # Don't format these since VS Code will
-                          - ".vscode/*.json"
-                        run: "{run_fix} chronic prettier --write {files}"
-                      - name: shfmt
-                        glob: "*.{sh,bash}"
-                        run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
-                      - name: fish_indent
-                        glob: "*.fish"
-                        run: "{run_fix} fish_indent --write {files}"
-                      - name: nixfmt
-                        glob: "*.nix"
-                        # --verify confirms that the formatted code parses the same
-                        # as the input code.
-                        run: "{run_fix} nixfmt --verify {files}"
-                      - name: stylua
-                        glob: "*.lua"
-                        run: "{run_fix} stylua {files}"
-                      - name: gofmt
-                        glob: "*.go"
-                        run: "{run_fix} gofmt -w {files}"
-                      - name: ruff-format
-                        glob: "*.py"
-                        run: "{run_fix} ruff format {files}"
-                      - name: ruff-format-sort-imports
-                        glob: "*.py"
-                        run: "{run_fix} ruff check --select I --fix-only {files}"
-          - group:
-              # It's safe to run these checks in parallel since they don't modify any
-              # files
-              parallel: true
-              jobs:
-                - name: golangci-lint
-                  glob: "*.go"
-                  root: "gozip/"
-                  run: golangci-lint run
-                - name: gopls
-                  glob: "*.go"
-                  run: |
-                    check() {
-                      # TODO: gopls should have an option for failing if an error was
-                      # found.
-                      issues="$(gopls check "$@")"
-                      if [ -n "$issues" ]; then
-                        echo "$issues"
-                        exit 1
-                      fi
-                    }
-                    # I use a function because lefthook is assuming that the {files}
-                    # placeholder is not inside a string. So its escaping may not
-                    # work otherwise.
-                    check {files}
-                - name: ruff
-                  glob: "*.py"
-                  run: ruff check {files}
-                - name: fish
-                  glob: "*.fish"
-                  # TODO: Fish doesn't support passing multiple files, I should open
-                  # an issue.
-                  run: parallel fish --no-execute -- {files}
-                - name: markdownlint-cli2
-                  glob: "*.md"
-                  run: markdownlint-cli2 {files}
-                - name: shellcheck
-                  glob: "*.{sh,bash}"
-                  run: shellcheck {files}
-                - name: actionlint
-                  glob: ".github/workflows/*.yaml"
-                  run: actionlint {files}
-                - name: statix
-                  glob: "*.nix"
-                  # statix doesn't support passing multiple files yet:
-                  # https://github.com/oppiliappan/statix/issues/69
-                  run: parallel statix check -- {files}
-                - name: nixpkgs-lint
-                  glob: "*.nix"
-                  run: nixpkgs-lint --include-unfinished-lints -- {files}
-                - name: typos
-                  run: |
-                    {exit_if_no_files} {files}
-                    typos {files}
-                - name: mypy
-                  glob: "*.py"
-                  run: mypy {files}
-                - name: isutf8
-                  run: |
-                    {exit_if_no_files} {files}
-                    isutf8 {files}
-                - name: editorconfig-checker
-                  # I'm disabling the indentation size check because it applies to
-                  # comments as well and I don't want it to.
-                  run: |
-                    {exit_if_no_files} {files}
-                    editorconfig-checker --disable-indent-size {files}
-                - name: config-file-validator
-                  glob: "*.{editorconfig,json,ini,yaml,toml}"
-                  exclude:
-                    # These aren't actually JSON files they're JSONC
-                    - ".vscode/*.json"
-                  run: chronic validator -groupby pass-fail {files}
-                - name: renovate-config-validator
-                  glob:
-                    - renovate.json5
-                    - renovate/*.json5
-                  run: renovate-config-validator --strict {files}
-                - name: lua-ls
-                  glob: dotfiles/neovim/*.lua
-                  run: |
-                    # --configpath is relative to the directory being checked so I'm
-                    # using an absolute path instead.
-                    lua-language-server \
-                      --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
-                      --check ./dotfiles/neovim \
-                      --configpath "$PWD/.luarc.json"
-                - name: globs
-                  run: mise run lefthook:check:globs
-                - name: lychee
-                  only:
-                    # Lychee, a link checker, will be run periodically in a CI
-                    # workflow. To ensure it doesn't run outside of that workflow, I
-                    # only run this job if the environment variable below is set to
-                    # true. You may be wondering why this is a lefthook job if it's
-                    # only going to be run by itself. There are a few reasons why:
-                    #   - So it can inherit the file exclude list that's set in the
-                    #     root job.
-                    #   - So lefthook can handle the batching of arguments in case
-                    #     the max commandline length is reached (ARG_MAX)
-                    - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
-                  exclude:
-                    - lychee.toml
-                  run: |
-                    {exit_if_no_files} {files}
-                    mise run lefthook:check:lychee {files}
-                - name: nix-config
-                  glob:
-                    - "*.nix"
-                    - flake.lock
-                  run: nix config check
-          - name: flake
-            # Why `interactive` should be enabled:
-            #   - This job can take a while so being able to see the output in real
-            #     time will reveal bottlenecks.
-            #   - If I can see the output in real time, I can spot accidental nix
-            #     cache misses and cancel the job instead of waiting for nix rebuild
-            #     the package.
-            interactive: true
+          - name: readme-table-of-contents
+            glob: README.md
+            run: "{run_fix} doctoc README.md --github"
+          - name: readme-nix-version
+            glob: flake.lock
+            run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
+          - name: readme-config-names
+            glob: "*.nix"
+            run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
+          - name: readme-nixpkgs-commit
+            glob: flake.lock
+            run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
+          - name: flake-lock
+            glob: flake.nix
+            run: "{run_fix} nix flake lock"
+          - name: gomod2nix
+            only:
+              # TODO: There's an open issue[1] for adding a subcommand to gomod2nix
+              # that only checks to see if the lock file is up to date. This way it
+              # could be run without an internet connection and included in CI
+              # checks.
+              #
+              # [1]: https://github.com/nix-community/gomod2nix/issues/169
+              - run: '[ "$CI" != true ]'
+            glob: gozip/go.mod
+            run: "{run_fix} gomod2nix --dir gozip generate"
+          # I'm intentionally not specifying a `glob` here because deleted files
+          # won't be matched against the glob and if a task gets deleted, I want this
+          # job to run. Instead, since it runs very quickly, I'll just always run it.
+          - name: task-docs
+            # TODO: markdown2html-converter hasn't been updated in a couple years.
+            # I'd like to switch to markdown-to-html-cli[1], but it isn't in nixpkgs.
+            # Maybe I can add it or make a request.
+            #
+            # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
+            run: |
+              {run_fix} bash -ec '
+                mise generate task-docs --style detailed --output docs/tasks.md
+                markdown2html-converter \
+                  --force \
+                  --title 'Tasks' \
+                  --html-path docs/tasks.html \
+                  docs/tasks.md
+              '
+          - name: deadnix
+            glob: "*.nix"
+            run: "{run_fix} deadnix --quiet --edit {files}"
+          - name: ruff
+            glob: "*.py"
+            run: "{run_fix} ruff check --fix-only {files}"
+          - name: statix
+            glob: "*.nix"
+            # statix doesn't support passing multiple files yet:
+            # https://github.com/oppiliappan/statix/issues/69
+            run: "{run_fix} parallel statix fix -- {files}"
+          - name: markdownlint-cli2
+            glob: "*.md"
+            run: "{run_fix} markdownlint-cli2 --fix {files}"
+          - name: go-mod-tidy
+            only:
+              # TODO: There should be an option for only doing the parts that don't
+              # require the internet so it can be run as part of CI checks.
+              - run: '[ "$CI" != true ]'
+            glob: gozip/go.{mod,sum}
+            run: "{run_fix} go -C gozip mod tidy"
+          - name: golangci-lint
+            glob: "*.go"
+            root: "gozip/"
+            run: "{run_fix} golangci-lint run --fix"
+          - name: typos
+            run: |
+              {exit_if_no_files} {files}
+              # TODO: typos should offer a way to only run fixes without performing
+              # checks. This way, I can run fixes and not have this fail if it finds
+              # something it can't fix.
+              {run_fix} typos --write-changes {files}
+
+          # Formatters
+          # -------------------------------------------------------------------------
+          # Formatters should run after the other fixes since some fixes produce code
+          # that doesn't comply with the formatting.
+
+          - name: taplo
+            glob: "*.toml"
+            run: "{run_fix} taplo format {files}"
+          - name: prettier
+            glob: "*.{md,js,json,json5,jsonc,yaml}"
+            exclude:
+              # Don't format these since VS Code will
+              - ".vscode/*.json"
+            run: "{run_fix} chronic prettier --write {files}"
+          - name: shfmt
+            glob: "*.{sh,bash}"
+            run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
+          - name: fish_indent
+            glob: "*.fish"
+            run: "{run_fix} fish_indent --write {files}"
+          - name: nixfmt
+            glob: "*.nix"
+            # --verify confirms that the formatted code parses the same as the input
+            # code.
+            run: "{run_fix} nixfmt --verify {files}"
+          - name: stylua
+            glob: "*.lua"
+            run: "{run_fix} stylua {files}"
+          - name: gofmt
+            glob: "*.go"
+            run: "{run_fix} gofmt -w {files}"
+          - name: ruff-format
+            glob: "*.py"
+            run: "{run_fix} ruff format {files}"
+          - name: ruff-format-sort-imports
+            glob: "*.py"
+            run: "{run_fix} ruff check --select I --fix-only {files}"
+    - group:
+        # It's safe to run these checks in parallel since they don't modify any files
+        parallel: true
+        jobs:
+          - name: golangci-lint
+            glob: "*.go"
+            root: "gozip/"
+            run: golangci-lint run
+          - name: gopls
+            glob: "*.go"
+            run: |
+              check() {
+                # TODO: gopls should have an option for failing if an error was
+                # found.
+                issues="$(gopls check "$@")"
+                if [ -n "$issues" ]; then
+                  echo "$issues"
+                  exit 1
+                fi
+              }
+              # I use a function because lefthook is assuming that the {files}
+              # placeholder is not inside a string. So its escaping may not work
+              # otherwise.
+              check {files}
+          - name: ruff
+            glob: "*.py"
+            run: ruff check {files}
+          - name: fish
+            glob: "*.fish"
+            # TODO: Fish doesn't support passing multiple files, I should open an
+            # issue.
+            run: parallel fish --no-execute -- {files}
+          - name: markdownlint-cli2
+            glob: "*.md"
+            run: markdownlint-cli2 {files}
+          - name: shellcheck
+            glob: "*.{sh,bash}"
+            run: shellcheck {files}
+          - name: actionlint
+            glob: ".github/workflows/*.yaml"
+            run: actionlint {files}
+          - name: statix
+            glob: "*.nix"
+            # statix doesn't support passing multiple files yet:
+            # https://github.com/oppiliappan/statix/issues/69
+            run: parallel statix check -- {files}
+          - name: nixpkgs-lint
+            glob: "*.nix"
+            run: nixpkgs-lint --include-unfinished-lints -- {files}
+          - name: typos
+            run: |
+              {exit_if_no_files} {files}
+              typos {files}
+          - name: mypy
+            glob: "*.py"
+            run: mypy {files}
+          - name: isutf8
+            run: |
+              {exit_if_no_files} {files}
+              isutf8 {files}
+          - name: editorconfig-checker
+            # I'm disabling the indentation size check because it applies to comments
+            # as well and I don't want it to.
+            run: |
+              {exit_if_no_files} {files}
+              editorconfig-checker --disable-indent-size {files}
+          - name: config-file-validator
+            glob: "*.{editorconfig,json,ini,yaml,toml}"
+            exclude:
+              # These aren't actually JSON files they're JSONC
+              - ".vscode/*.json"
+            run: chronic validator -groupby pass-fail {files}
+          - name: renovate-config-validator
             glob:
-              - flake.nix
+              - renovate.json5
+              - renovate/*.json5
+            run: renovate-config-validator --strict {files}
+          - name: lua-ls
+            glob: dotfiles/neovim/*.lua
+            run: |
+              # --configpath is relative to the directory being checked so I'm using
+              # an absolute path instead.
+              lua-language-server \
+                --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
+                --check ./dotfiles/neovim \
+                --configpath "$PWD/.luarc.json"
+          - name: globs
+            run: mise run lefthook:check:globs
+          - name: nix-config
+            glob:
+              - "*.nix"
               - flake.lock
-              - nix/*
-              - dotfiles/**
-              - gozip/*
-            run: nix flake check
+            run: nix config check
+    - name: flake
+      # Why `interactive` should be enabled:
+      #   - This job can take a while so being able to see the output in real time
+      #     will reveal bottlenecks.
+      #   - If I can see the output in real time, I can spot accidental nix cache
+      #     misses and cancel the job instead of waiting for nix rebuild the package.
+      interactive: true
+      glob:
+        - flake.nix
+        - flake.lock
+        - nix/*
+        - dotfiles/**
+        - gozip/*
+      run: nix flake check

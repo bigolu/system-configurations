@@ -1,7 +1,7 @@
 { inputs, ... }:
 final: _prev:
 let
-  inherit (final) fetchzip;
+  inherit (final) fetchzip fetchurl;
   inherit (final.stdenv) isLinux mkDerivation;
   inherit (final.lib) getExe;
   inherit (inputs.flake-utils.lib) system;
@@ -101,10 +101,48 @@ let
         platforms = platforms.linux;
       };
     };
+
+  # TODO: Remove when nixpkgs gets this version or higher
+  lefthook =
+    let
+      version = "1.11.16";
+      os = if isLinux then "Linux" else "MacOS";
+      sha256 =
+        if isLinux then
+          "b4d8ddc85ae1a00c70c26fdca6adc09f1c0982739898ebd3f803b5fd7db005d2"
+        else
+          "7fe15efd16a839e320788d7f560b2dc006331b0310e0af9b36c6bbc2ed6d1d55";
+    in
+    mkDerivation {
+      pname = "lefthook";
+      inherit version;
+      src = fetchurl {
+        url = "https://github.com/evilmartians/lefthook/releases/download/v${version}/lefthook_${version}_${os}_x86_64";
+        inherit sha256;
+      };
+      phases = [
+        "installPhase"
+        "patchPhase"
+      ];
+      installPhase = ''
+        mkdir -p $out/bin
+        cp $src $out/bin/lefthook
+        chmod +x $out/bin/lefthook
+        mkdir -p $out/share/fish/vendor_completions.d
+        $out/bin/lefthook completion fish > $out/share/fish/vendor_completions.d/lefthook.fish
+      '';
+      meta = {
+        platforms = with system; [
+          x86_64-linux
+          x86_64-darwin
+        ];
+      };
+    };
 in
 {
   inherit
     config-file-validator
     keyd
+    lefthook
     ;
 }

@@ -69,9 +69,6 @@ moduleContext@{ lib, utils, ... }:
 
         ci-check-for-broken-links = {
           inputsFrom = [ fragments.lefthook ];
-          shellHook = ''
-            export LEFTHOOK_ENABLE_LYCHEE='true'
-          '';
         };
 
         ci-renovate = {

@@ -30,4 +30,4 @@ if ((${#jobs[@]} > 0)); then
   job_flag=(--jobs "$joined_jobs")
 fi
 
-lefthook run sync --force "${job_flag[@]}"
+mise run lefthook-run sync --force "${job_flag[@]}"
