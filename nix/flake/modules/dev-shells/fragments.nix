@@ -111,7 +111,6 @@ rec {
         # Binary names could conflict between projects so store them in a
         # project-specific directory.
         export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
-        mkdir_if_missing "$GOBIN"
         export PATH="''${GOBIN}''${PATH:+:$PATH}"
       '';
 
