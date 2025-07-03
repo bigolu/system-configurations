@@ -1,6 +1,6 @@
 {
-  guardShellHook ? true,
   uniqueShellHooks ? true,
+  guardShellHook ? true,
   lib,
   mkShellNoCC,
   ...
@@ -20,12 +20,12 @@ let
     concatLists
     unique
     optionals
+    optionalAttrs
     ;
 
   deduplicateShellHooks =
     args@{
       inputsFrom ? [ ],
-      shellHook ? "",
       ...
     }:
     let
@@ -35,27 +35,19 @@ let
         unique
       ];
 
-      joinedShellHooks = pipe uniquePropagatedShells [
+      shellHooks = pipe uniquePropagatedShells [
         (catAttrs "shellHook")
-        (shellHooks: shellHooks ++ [ shellHook ])
+        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
+        # mkShell will set the shellHook to an empty string if it isn't set
         (filter (hook: hook != ""))
-        (concatStringsSep "\n")
       ];
 
-      uniquePropagatedShellsWithoutShellHooks = map (
-        shell: removeAttrs shell [ "shellHook" ]
-      ) uniquePropagatedShells;
-
+      joinedShellHooks = concatStringsSep "\n" shellHooks;
+      inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
       shellWithoutInputsFrom = mkShellNoCC (removeAttrs args [ "inputsFrom" ]);
     in
     args
     // {
-      # We have to join the shellHooks ourselves since we store the individual
-      # shellHooks in propagatedShells.
-      shellHook = joinedShellHooks;
-      # Since we've already joined the shellHooks, we'll remove them from inputsFrom
-      # so they don't get joined again.
-      inputsFrom = uniquePropagatedShellsWithoutShellHooks;
       # We store all the shells included in inputsFrom, recursively, so we can keep
       # track of the individual shellHooks. We need to do this since mkShell combines
       # all the shellHooks from the shells in inputsFrom with the shellHook of the
@@ -73,6 +65,16 @@ let
         # inputsFrom. We remove its inputsFrom since those shells are already
         # included in their own propagatedShells, due to what we're doing here.
         ++ [ shellWithoutInputsFrom ];
+    }
+    // optionalAttrs (inputsFromWithoutShellHooks != [ ]) {
+      # Since we've already joined the shellHooks, we'll remove the shellHooks from
+      # the shells in inputsFrom so they don't get joined again.
+      inputsFrom = inputsFromWithoutShellHooks;
+    }
+    // optionalAttrs (shellHooks != [ ]) {
+      # We have to join the shellHooks ourselves since we store the individual
+      # shellHooks in propagatedShells.
+      shellHook = joinedShellHooks;
     };
 
   # Prevent nested nix shells from executing this shell's hook[1][2].
@@ -87,6 +89,18 @@ let
       ...
     }:
     let
+      shellHooks = pipe inputsFrom [
+        # deduplicateShellHooks will remove shellHooks from the shells in inputsFrom.
+        # Since it doesn't know about the unguardedShellHook field added to the shell
+        # here, it won't clear it. To work around this, we only read
+        # unguardedShellHook if shellHook is also set.
+        (filter (shell: shell ? "shellHook"))
+        (catAttrs "unguardedShellHook")
+        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
+        # mkShell will set the shellHook to an empty string if it isn't set
+        (filter (hook: hook != ""))
+      ];
+
       indent =
         string:
         pipe string [
@@ -95,33 +109,41 @@ let
           (concatStringsSep "\n")
         ];
 
-      joinedShellHooks = pipe inputsFrom [
-        (catAttrs "shellHook")
-        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
-        (filter (hook: hook != ""))
-        (concatStringsSep "\n")
-        indent
-      ];
-
       escapedName = escapeShellArg name;
 
+      joinedShellHooks = concatStringsSep "\n" shellHooks;
+
       # Instead of putting a guard around each individual shellHook, we put
-      # concatenate the hooks and put one guard around the entire thing. Since we do
-      # this, we have to remove the shellHooks from the inputsFrom.
+      # concatenate the hooks and put one guard around the entire thing. This is
+      # necessary since the guard is dependent on the name of the dev shell and this
+      # may change if a shell is included in another shell using inputsFrom.
+      #
+      # Since we do this, we have to remove the shellHooks from the shells in
+      # inputsFrom.
       inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
       guardedShellHook = ''
         # Check for a '-env' suffix since `nix develop` adds one[1].
         #
         # [1]: https://git.lix.systems/lix-project/lix/src/commit/7575db522e9008685c4009423398f6900a16bcce/src/nix/develop.cc#L240-L241
         if [[ $name == ${escapedName} || $name == ${escapedName}'-env' ]]; then
-        ${joinedShellHooks}
+          # If statements can't be empty so we'll add a no-op command just in case
+          # the shellHook is.
+          :
+
+        ${indent joinedShellHooks}
         fi
       '';
     in
     args
-    // {
+    // optionalAttrs (inputsFromWithoutShellHooks != [ ]) {
       inputsFrom = inputsFromWithoutShellHooks;
+    }
+    // optionalAttrs (shellHooks != [ ]) {
       shellHook = guardedShellHook;
+      # The guard uses the name of the devShell, but the name may change if a shell
+      # is included in another shell using inputsFrom so we'll store the unguarded
+      # one as well.
+      unguardedShellHook = joinedShellHooks;
     };
 
   applyIf =
