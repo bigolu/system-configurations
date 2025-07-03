@@ -24,7 +24,7 @@ moduleContext@{ lib, utils, ... }:
         devShellArgs:
         devShellArgs
         // {
-          inputsFrom = [ fragments.shellHookHelpers ] ++ (devShellArgs.inputsFrom or [ ]);
+          inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ fragments.shellHookHelpers ];
         };
 
       makeOutputs =

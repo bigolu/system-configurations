@@ -21,6 +21,7 @@ let
     unique
     optionals
     optionalAttrs
+    reverseList
     ;
 
   deduplicateShellHooks =
@@ -37,9 +38,11 @@ let
 
       shellHooks = pipe uniquePropagatedShells [
         (catAttrs "shellHook")
-        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
         # mkShell will set the shellHook to an empty string if it isn't set
         (filter (hook: hook != ""))
+        # mkShell reverses the order of the shellHooks of the shells in inputsFrom
+        reverseList
+        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
       ];
 
       joinedShellHooks = concatStringsSep "\n" shellHooks;
@@ -96,9 +99,11 @@ let
         # unguardedShellHook if shellHook is also set.
         (filter (shell: shell ? "shellHook"))
         (catAttrs "unguardedShellHook")
-        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
         # mkShell will set the shellHook to an empty string if it isn't set
         (filter (hook: hook != ""))
+        # mkShell reverses the order of the shellHooks of the shells in inputsFrom
+        reverseList
+        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
       ];
 
       indent =
