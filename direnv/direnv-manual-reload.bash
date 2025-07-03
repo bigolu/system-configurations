@@ -93,21 +93,14 @@ function remove_unwanted_watched_files {
   # directory I want to avoid doing anything slow.
   readarray -d '' watched_files < <(direnv watch-print --null)
 
-  # Keep direnv's allow/deny files, so `direnv block/allow` still triggers a
-  # reload.
-  local watched_files_to_keep=()
-  local direnv_data_directory="${XDG_DATA_HOME:-$HOME/.local/share}/direnv"
+  local -a watched_files_to_keep=()
   local file
   for file in "${watched_files[@]}"; do
-    case "$file" in
-      "$direnv_data_directory/deny"*) ;&
-      "$direnv_data_directory/allow"*)
-        watched_files_to_keep+=("$file")
-        ;;
-      *)
-        continue
-        ;;
-    esac
+    # Keep direnv's allow/deny files, so `direnv block/allow` still triggers a
+    # reload.
+    if [[ $file =~ "${XDG_DATA_HOME:-$HOME/.local/share}/direnv/"* ]]; then
+      watched_files_to_keep+=("$file")
+    fi
   done
 
   unset DIRENV_WATCHES
