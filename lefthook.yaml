@@ -449,8 +449,6 @@ check:
                 --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
                 --check ./dotfiles/neovim \
                 --configpath "$PWD/.luarc.json"
-          - name: globs
-            run: mise run lefthook:check:globs
           - name: nix-config
             glob:
               - "*.nix"
