@@ -451,13 +451,13 @@ check:
                       --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
                       --check ./dotfiles/neovim \
                       --configpath "$PWD/.luarc.json"
+                # This job will be run periodically in a CI workflow. To ensure it
+                # doesn't run outside of that workflow, I only run this job if the
+                # environment variable below is set to true. I could put this job in
+                # its own hook, but I want it to inherit the file exclude list that's
+                # set in the root job of this hook.
                 - name: lychee
                   only:
-                    # This job will be run periodically in a CI workflow. To ensure
-                    # it doesn't run outside of that workflow, I only run this job if
-                    # the environment variable below is set to true. I could put this
-                    # job in its own hook, but I want it to inherit the file exclude
-                    # list that's set in the root job of this hook.
                     - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
                   exclude:
                     - lychee.toml
