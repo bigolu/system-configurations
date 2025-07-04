@@ -37,4 +37,4 @@ if ((${#jobs[@]} > 0)); then
   job_flag=(--jobs "$joined_jobs")
 fi
 
-LEFTHOOK_CHECK_ALL_FILES="${usage_all_files:-}" mise run lefthook-run check "${job_flag[@]}"
+LEFTHOOK_CHECK_ALL_FILES="${usage_all_files:-}" lefthook run check "${job_flag[@]}"
