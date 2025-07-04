@@ -18,6 +18,7 @@
 let
   inherit (builtins)
     readFile
+    concatLists
     ;
   inherit (utils) projectRoot;
   inherit (lib)
@@ -286,14 +287,9 @@ rec {
   #     won't get garbage collected.
   tasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
-    (
-      nixShebangScripts:
-      fileset.toSource {
-        root = projectRoot;
-        fileset = nixShebangScripts;
-      }
-    )
-    pkgs.extractNixShebangPackages
+    fileset.toList
+    (map pkgs.extractNixShebangPackages)
+    concatLists
     # Scripts use `nix-shell-interpreter` as their interpreter to work around an
     # issue with nix-shell, but bashInteractive can be used locally for
     # debugging. It's important that bashInteractive is added to the front of the

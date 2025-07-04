@@ -1,16 +1,13 @@
 {
   pkgs,
-  lib,
   utils,
   ...
 }:
 let
-  inherit (lib) fileset;
   inherit (utils) projectRoot;
   inherit (pkgs) symlinkJoin makeWrapper skhd;
 
-  # Programs called from skhdrc that are inside the package set
-  dependenciesFromPkgs = symlinkJoin {
+  dependencies = symlinkJoin {
     name = "skhd-dependencies";
     paths = with pkgs; [
       skhd
@@ -21,20 +18,14 @@ let
     ];
   };
 
-  # Programs called from skhdrc that are inside this project
-  dependenciesFromProject = fileset.toSource {
-    root = projectRoot + /dotfiles/skhd/bin;
-    fileset = projectRoot + /dotfiles/skhd/bin;
-  };
-
   skhdWithDependencies = symlinkJoin {
     name = "my-${skhd.name}";
     paths = [ skhd ];
     nativeBuildInputs = [ makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/skhd \
-        --prefix PATH : ${dependenciesFromPkgs}/bin \
-        --prefix PATH : ${dependenciesFromProject}
+        --prefix PATH : ${dependencies}/bin \
+        --prefix PATH : ${projectRoot + /dotfiles/skhd/bin}
     '';
   };
 in

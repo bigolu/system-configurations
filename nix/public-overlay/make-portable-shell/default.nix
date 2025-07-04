@@ -8,7 +8,6 @@ let
   inherit (builtins) attrValues catAttrs;
   inherit (final.stdenv) isLinux;
   inherit (final.lib)
-    fileset
     escapeShellArg
     getAttrs
     concatStringsSep
@@ -59,14 +58,12 @@ let
   bootstrap = final.resholve.mkDerivation {
     pname = "bootstrap-home-shell";
     version = "0.0.1";
-    src = fileset.toSource {
-      root = ./.;
-      fileset = ./bootstrap.bash;
-    };
+    src = ./bootstrap.bash;
     dontConfigure = true;
     dontBuild = true;
+    dontUnpack = true;
     installPhase = ''
-      install -D bootstrap.bash $out/bin/bootstrap
+      install -D $src $out/bin/bootstrap
     '';
     solutions = {
       default = {

@@ -50,10 +50,6 @@ let
           djvulibre
         ];
       };
-      ripgrepBin = fileset.toSource {
-        root = projectRoot + /dotfiles/ripgrep/bin;
-        fileset = projectRoot + /dotfiles/ripgrep/bin;
-      };
     in
     final.symlinkJoin {
       pname = "my-${prev.ripgrep-all.pname}";
@@ -63,7 +59,7 @@ let
       postBuild = ''
         wrapProgram $out/bin/rga \
           --prefix PATH : ${dependencies}/bin \
-          --prefix PATH : ${ripgrepBin}
+          --prefix PATH : ${projectRoot + /dotfiles/ripgrep/bin}
       '';
     };
 
@@ -183,12 +179,12 @@ let
       source =
         final.lib.pipe
           [
-            "flake.nix"
-            "flake.lock"
-            "nix"
+            /flake.nix
+            /flake.lock
+            /nix
           ]
           [
-            (map (relativePath: projectRoot + "/${relativePath}"))
+            (map (relativePath: projectRoot + relativePath))
             fileset.unions
             (
               union:
