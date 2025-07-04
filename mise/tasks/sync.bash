@@ -21,13 +21,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-job_flag=()
-eval "jobs=(${usage_jobs:-})"
-# shellcheck disable=2154
-# `jobs` is defined in an `eval` statement above
-if ((${#jobs[@]} > 0)); then
-  IFS=',' joined_jobs="${jobs[*]}"
-  job_flag=(--jobs "$joined_jobs")
-fi
-
-lefthook run sync --force "${job_flag[@]}"
+lefthook run sync --jobs "${usage_jobs:+${usage_jobs// /,}}"
