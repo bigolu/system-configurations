@@ -329,43 +329,44 @@ check:
                     # performing checks. This way, I can run fixes and not have this
                     # fail if it finds something it can't fix.
                     {run_fix} typos --write-changes {files}
+
+                # Formatters
+                # -------------------------------------------------------------------
                 # Formatters should run after the other fixes since some fixes
                 # produce code that doesn't comply with the formatting.
-                - name: format
-                  group:
-                    jobs:
-                      - name: taplo
-                        glob: "*.toml"
-                        run: "{run_fix} taplo format {files}"
-                      - name: prettier
-                        glob: "*.{md,js,json,json5,jsonc,yaml}"
-                        exclude:
-                          # Don't format these since VS Code will
-                          - ".vscode/*.json"
-                        run: "{run_fix} chronic prettier --write {files}"
-                      - name: shfmt
-                        glob: "*.{sh,bash}"
-                        run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
-                      - name: fish_indent
-                        glob: "*.fish"
-                        run: "{run_fix} fish_indent --write {files}"
-                      - name: nixfmt
-                        glob: "*.nix"
-                        # --verify confirms that the formatted code parses the same
-                        # as the input code.
-                        run: "{run_fix} nixfmt --verify {files}"
-                      - name: stylua
-                        glob: "*.lua"
-                        run: "{run_fix} stylua {files}"
-                      - name: gofmt
-                        glob: "*.go"
-                        run: "{run_fix} gofmt -w {files}"
-                      - name: ruff-format
-                        glob: "*.py"
-                        run: "{run_fix} ruff format {files}"
-                      - name: ruff-format-sort-imports
-                        glob: "*.py"
-                        run: "{run_fix} ruff check --select I --fix-only {files}"
+
+                - name: taplo
+                  glob: "*.toml"
+                  run: "{run_fix} taplo format {files}"
+                - name: prettier
+                  glob: "*.{md,js,json,json5,jsonc,yaml}"
+                  exclude:
+                    # Don't format these since VS Code will
+                    - ".vscode/*.json"
+                  run: "{run_fix} chronic prettier --write {files}"
+                - name: shfmt
+                  glob: "*.{sh,bash}"
+                  run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
+                - name: fish_indent
+                  glob: "*.fish"
+                  run: "{run_fix} fish_indent --write {files}"
+                - name: nixfmt
+                  glob: "*.nix"
+                  # --verify confirms that the formatted code parses the same as the
+                  # input code.
+                  run: "{run_fix} nixfmt --verify {files}"
+                - name: stylua
+                  glob: "*.lua"
+                  run: "{run_fix} stylua {files}"
+                - name: gofmt
+                  glob: "*.go"
+                  run: "{run_fix} gofmt -w {files}"
+                - name: ruff-format
+                  glob: "*.py"
+                  run: "{run_fix} ruff format {files}"
+                - name: ruff-format-sort-imports
+                  glob: "*.py"
+                  run: "{run_fix} ruff check --select I --fix-only {files}"
           - group:
               # It's safe to run these checks in parallel since they don't modify any
               # files
@@ -453,8 +454,6 @@ check:
                       --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
                       --check ./dotfiles/neovim \
                       --configpath "$PWD/.luarc.json"
-                - name: globs
-                  run: mise run lefthook:check:globs
                 - name: lychee
                   only:
                     # Lychee, a link checker, will be run periodically in a CI
