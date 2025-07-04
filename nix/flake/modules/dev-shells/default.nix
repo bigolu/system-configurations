@@ -14,32 +14,32 @@ moduleContext@{ lib, utils, ... }:
       fragments = import ./fragments.nix (moduleContext // perSystemContext);
 
       addCiEssentials =
-        devShellArgs:
-        devShellArgs
+        mkShellArgs:
+        mkShellArgs
         // {
-          inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ fragments.ciEssentials ];
+          inputsFrom = (mkShellArgs.inputsFrom or [ ]) ++ [ fragments.ciEssentials ];
         };
 
       addShellHookHelpers =
-        devShellArgs:
-        devShellArgs
+        mkShellArgs:
+        mkShellArgs
         // {
-          inputsFrom = (devShellArgs.inputsFrom or [ ]) ++ [ fragments.shellHookHelpers ];
+          inputsFrom = (mkShellArgs.inputsFrom or [ ]) ++ [ fragments.shellHookHelpers ];
         };
 
       makeOutputs =
         outputInfo:
         let
           inherit (outputInfo) default;
-          devShellArgsByName = outputInfo.devShells;
+          mkShellArgsByName = outputInfo.devShells;
         in
-        pipe devShellArgsByName [
-          # There are no dev shell arguments since the CI essentials will be added
-          # to the arguments below.
-          (devShellArgsByName: devShellArgsByName // { ci-essentials = { }; })
-          # We add the name to the dev shell arguments so the caller doesn't have to
+        pipe mkShellArgsByName [
+          # There are no mkShell arguments since the CI essentials will be added to
+          # the arguments later in the pipeline.
+          (mkShellArgsByName: mkShellArgsByName // { ci-essentials = { }; })
+          # We add the name to the mkShell arguments so the caller doesn't have to
           # specify it twice.
-          (mapAttrs (name: devShellArgs: devShellArgs // { inherit name; }))
+          (mapAttrs (name: mkShellArgs: mkShellArgs // { inherit name; }))
           (mapAttrs (_name: addShellHookHelpers))
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
           (mapAttrs (_name: mkShellNoCC))
