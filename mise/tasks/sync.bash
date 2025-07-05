@@ -21,4 +21,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-lefthook run sync --force --jobs "${usage_jobs:+${usage_jobs// /,}}"
+lefthook run sync --jobs "${usage_jobs:+${usage_jobs// /,}}"
