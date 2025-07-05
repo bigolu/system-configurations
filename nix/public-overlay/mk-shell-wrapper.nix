@@ -22,6 +22,7 @@ let
     optionalAttrs
     reverseList
     ;
+  inherit (import ../utils.nix) applyIf;
 
   deduplicateShellHooks =
     mkShellArgs@{
@@ -149,10 +150,6 @@ let
       # one as well.
       unguardedShellHook = joinedShellHooks;
     };
-
-  applyIf =
-    shouldApply: function: arg:
-    if shouldApply then function arg else arg;
 in
 pipe mkShellArgs [
   (applyIf uniqueShellHooks deduplicateShellHooks)
