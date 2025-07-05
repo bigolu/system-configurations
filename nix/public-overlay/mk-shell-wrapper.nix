@@ -25,7 +25,7 @@ let
     ;
 
   deduplicateShellHooks =
-    args@{
+    mkShellArgs@{
       inputsFrom ? [ ],
       ...
     }:
@@ -42,14 +42,14 @@ let
         (filter (hook: hook != ""))
         # mkShell reverses the order of the shellHooks of the shells in inputsFrom
         reverseList
-        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
+        (shellHooks: shellHooks ++ optionals (mkShellArgs ? "shellHook") [ mkShellArgs.shellHook ])
       ];
 
       joinedShellHooks = concatStringsSep "\n" shellHooks;
       inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
-      shellWithoutInputsFrom = mkShellNoCC (removeAttrs args [ "inputsFrom" ]);
+      shellWithoutInputsFrom = mkShellNoCC (removeAttrs mkShellArgs [ "inputsFrom" ]);
     in
-    args
+    mkShellArgs
     // {
       # We store all the shells included in inputsFrom, recursively, so we can keep
       # track of the individual shellHooks. We need to do this since mkShell combines
@@ -85,7 +85,7 @@ let
   # [1]: https://git.lix.systems/lix-project/lix/issues/344
   # [2]: https://github.com/NixOS/nix/issues/8257
   addShellHookGuard =
-    args@{
+    mkShellArgs@{
       # I need a name that won't conflict with the default one set by mkShell
       name ? "__nix_shell",
       inputsFrom ? [ ],
@@ -103,7 +103,7 @@ let
         (filter (hook: hook != ""))
         # mkShell reverses the order of the shellHooks of the shells in inputsFrom
         reverseList
-        (shellHooks: shellHooks ++ optionals (args ? "shellHook") [ args.shellHook ])
+        (shellHooks: shellHooks ++ optionals (mkShellArgs ? "shellHook") [ mkShellArgs.shellHook ])
       ];
 
       indent =
@@ -139,7 +139,7 @@ let
         fi
       '';
     in
-    args
+    mkShellArgs
     // optionalAttrs (inputsFromWithoutShellHooks != [ ]) {
       inputsFrom = inputsFromWithoutShellHooks;
     }
