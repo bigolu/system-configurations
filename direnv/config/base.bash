@@ -55,15 +55,13 @@ function load_nix_config_file {
 function add_line_to_nix_config {
   local -r line="$1"
 
-  if [[ -z ${NIX_CONFIG+set} ]]; then
-    export NIX_CONFIG=''
+  if [[ -z ${NIX_CONFIG:-} ]]; then
+    new_config="$line"
+  else
+    new_config="$NIX_CONFIG"$'\n'"$line"
   fi
 
-  if [[ -z $NIX_CONFIG ]]; then
-    NIX_CONFIG="$line"
-  else
-    NIX_CONFIG+=$'\n'"$line"
-  fi
+  export NIX_CONFIG="$new_config"
 }
 
 main
