@@ -34,9 +34,6 @@ moduleContext@{ lib, utils, ... }:
           mkShellArgsByName = outputInfo.devShells;
         in
         pipe mkShellArgsByName [
-          # There are no mkShell arguments since the CI essentials will be added to
-          # all CI shells later in the pipeline.
-          (mkShellArgsByName: mkShellArgsByName // { ci-essentials = { }; })
           # We add the name to the mkShell arguments so the caller doesn't have to
           # specify it twice.
           (mapAttrs (name: mkShellArgs: mkShellArgs // { inherit name; }))
@@ -66,6 +63,10 @@ moduleContext@{ lib, utils, ... }:
             export RUN_FIX_ACTIONS='fail'
           '';
         };
+
+        # The attrset is empty since the CI essentials will be added to all CI shells
+        # automatically.
+        ci-essentials = { };
 
         ci-check-for-broken-links = {
           inputsFrom = [ fragments.lefthook ];
