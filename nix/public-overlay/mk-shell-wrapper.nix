@@ -3,7 +3,6 @@
   guardShellHook ? true,
   lib,
   mkShellNoCC,
-  ...
 }:
 mkShellArgs:
 let
