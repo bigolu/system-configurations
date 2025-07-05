@@ -45,7 +45,7 @@ fi
 # [1]: https://code.visualstudio.com/docs/supporting/FAQ#_resolving-shell-environment-fails
 # [2]: https://github.com/microsoft/vscode/issues/177126#issuecomment-1630889619
 # [3]: https://github.com/microsoft/vscode/issues/163186
-if [[ -n ${VSCODE_RESOLVING_ENVIRONMENT+set} ]] || [[ ! -t 1 ]]; then
+if [[ -n ${VSCODE_RESOLVING_ENVIRONMENT:-} ]] || [[ ! -t 1 ]]; then
   return
 fi
 
