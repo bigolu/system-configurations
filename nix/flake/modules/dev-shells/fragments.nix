@@ -31,6 +31,9 @@ let
     mkShellNoCC
     linkFarm
     writeText
+    extractNixShebangPackages
+    mkGoEnv
+    runCommand
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -115,7 +118,7 @@ rec {
         export PATH="''${GOBIN}''${PATH:+:$PATH}"
       '';
 
-      goEnv = pkgs.mkGoEnv { pwd = ../../../../gozip; };
+      goEnv = mkGoEnv { pwd = ../../../../gozip; };
 
       # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
@@ -125,7 +128,7 @@ rec {
         # [1]: https://github.com/NixOS/nix/issues/1537
         (
           phase:
-          pkgs.runCommand "vendor" { } ''
+          runCommand "vendor" { } ''
             grep -o '/nix/store/[^/]*vendor-env' <${writeText "phase" phase} >$out
           ''
         )
@@ -288,7 +291,7 @@ rec {
   tasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (map pkgs.extractNixShebangPackages)
+    (map extractNixShebangPackages)
     concatLists
     # Scripts use `nix-shell-interpreter` as their interpreter to work around an
     # issue with nix-shell, but bashInteractive can be used locally for
