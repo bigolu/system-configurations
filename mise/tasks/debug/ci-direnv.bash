@@ -35,4 +35,4 @@ mise run debug:make-isolated-env \
   "${environment_variable_flags[@]}" \
   -- \
   --file nix/packages.nix nix \
-  --command nix-shell direnv/direnv-wrapper.bash direnv/ci.bash exec . "$bash_interactive" --noprofile --norc
+  --command nix-shell direnv/direnv-wrapper.bash direnv/config/ci.bash exec . "$bash_interactive" --noprofile --norc

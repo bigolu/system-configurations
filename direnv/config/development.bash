@@ -1,9 +1,9 @@
 # For development, create the file <project_root>/.envrc and add the following
 # line:
-#   source direnv/development.bash
+#   source direnv/config/development.bash
 # Or just run the following command, from the root of the project, in Bash or a
 # shell with similar syntax:
-#   echo 'source direnv/development.bash' >.envrc
+#   echo 'source direnv/config/development.bash' >.envrc
 #
 # .envrc shouldn't be committed to version control so users can make changes to it
 # without accidentally committing them. Here are some examples of changes they could
@@ -25,4 +25,4 @@
 #
 # [1]: https://github.com/NixOS/nixpkgs/pull/325793#issuecomment-2219538799
 
-NIX_DEV_SHELL="${NIX_DEV_SHELL:-development}" source direnv/base.bash
+NIX_DEV_SHELL="${NIX_DEV_SHELL:-development}" source direnv/config/base.bash

@@ -1,40 +1,36 @@
-# This script sets up the direnv environment that is used in development
-# and CI. It's called "base" since there are also scripts specific to the
-# development and CI environment that source this one.
-#
 # Environment Variables
 #   NIX_DEV_SHELL (required):
 #     The name of the flake dev shell to load.
 
 function main {
-  # This should run first. The reason for this is in a comment at the top of
-  # `direnv-manual-reload.bash`.
+  direnv_init_layout_directory
+
+  # This should run before nix-direnv. The reason for this is in a comment at the top
+  # of `direnv-manual-reload.bash`.
   source direnv/direnv-manual-reload.bash
   direnv_manual_reload
-
-  # Now I can store things in the layout directory without having to check if it
-  # exists first.
-  create_direnv_layout_directory
 
   dotenv_if_exists secrets.env
   set_up_nix
 }
 
-function create_direnv_layout_directory {
-  local -r directory="${direnv_layout_dir:-.direnv}"
-  if [[ ! -e $directory ]]; then
-    mkdir "$directory"
+function direnv_init_layout_directory {
+  local -r layout_directory="${direnv_layout_dir:-.direnv}"
+
+  local -r init_complete_marker="$layout_directory/direnv-init-layout-dir-complete"
+  if [[ -e $init_complete_marker ]]; then
+    return
   fi
-  add_directory_to_gitignore "$directory"
+
+  mkdir -p "$layout_directory"
+  add_directory_to_gitignore "$layout_directory"
+
+  touch "$init_complete_marker"
 }
 
 function add_directory_to_gitignore {
   local -r directory="$1"
-
-  local -r gitignore="${directory}/.gitignore"
-  if [[ ! -e $gitignore ]]; then
-    echo '*' >"$gitignore"
-  fi
+  echo '*' >"${directory}/.gitignore"
 }
 
 function set_up_nix {

@@ -65,7 +65,7 @@ let
       trap exit_handler EXIT
 
       function direnv_development {
-        nix-shell direnv/direnv-wrapper.bash direnv/development.bash "$@"
+        nix-shell direnv/direnv-wrapper.bash direnv/config/development.bash "$@"
       }
 
       # TODO: So `mise` has access to `system-config-sync`. The problem is that
