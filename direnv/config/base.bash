@@ -3,13 +3,12 @@
 #     The name of the flake dev shell to load.
 
 function main {
-  direnv_init_layout_directory
-
-  # This should run before nix-direnv. The reason for this is in a comment at the top
-  # of `direnv-manual-reload.bash`.
+  # This should run first. The reason for this is in a comment at the top of
+  # `direnv-manual-reload.bash`.
   source direnv/direnv-manual-reload.bash
   direnv_manual_reload
 
+  direnv_init_layout_directory
   dotenv_if_exists secrets.env
   set_up_nix
 }
