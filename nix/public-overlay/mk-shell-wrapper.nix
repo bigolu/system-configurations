@@ -38,7 +38,7 @@ let
 
       shellHooks = pipe uniquePropagatedShells [
         (catAttrs "shellHook")
-        # mkShell will set the shellHook to an empty string if it isn't set
+        # mkShell defaults the shellHook to an empty string
         (filter (hook: hook != ""))
         # mkShell reverses the order of the shellHooks of the shells in inputsFrom
         reverseList
@@ -99,7 +99,7 @@ let
         # unguardedShellHook if shellHook is also set.
         (filter (shell: shell ? "shellHook"))
         (catAttrs "unguardedShellHook")
-        # mkShell will set the shellHook to an empty string if it isn't set
+        # mkShell defaults the shellHook to an empty string
         (filter (hook: hook != ""))
         # mkShell reverses the order of the shellHooks of the shells in inputsFrom
         reverseList
