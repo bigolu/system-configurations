@@ -35,13 +35,13 @@ moduleContext@{ lib, utils, ... }:
         in
         pipe mkShellArgsByName [
           # There are no mkShell arguments since the CI essentials will be added to
-          # the arguments later in the pipeline.
+          # all CI shells later in the pipeline.
           (mkShellArgsByName: mkShellArgsByName // { ci-essentials = { }; })
           # We add the name to the mkShell arguments so the caller doesn't have to
           # specify it twice.
           (mapAttrs (name: mkShellArgs: mkShellArgs // { inherit name; }))
-          (mapAttrs (_name: addShellHookHelpers))
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
+          (mapAttrs (_name: addShellHookHelpers))
           (mapAttrs (_name: mkShellNoCC))
           (devShells: devShells // { default = devShells.${default}; })
           (devShells: { inherit devShells; })
