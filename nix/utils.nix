@@ -52,8 +52,8 @@ let
   unstableVersion = "0-unstable";
 
   applyIf =
-    condition: function: arg:
-    if condition then function arg else arg;
+    shouldApply: function: arg:
+    if shouldApply then function arg else arg;
 in
 {
   inherit
