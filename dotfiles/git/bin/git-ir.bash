@@ -21,7 +21,7 @@ else
 fi
 
 # Save a reference to the commit we were on before the rebase started, in case we
-# want to go back. To restore from this point use: git reset --hard bigolu-ir-backup
-git branch --no-track --force bigolu-ir-backup HEAD
+# want to go back. To restore from this point use: git update-ref HEAD refs/bigolu/ir-backup
+git update-ref refs/bigolu/ir-backup HEAD
 
 git rebase --interactive --exec 'git check-commit' "$start_commit"
