@@ -54,12 +54,12 @@
 
 function direnv_manual_reload {
   # Intentionally global
-  layout_dir="${direnv_layout_dir:-.direnv}"
-  if [[ ! -e $layout_dir ]]; then
-    mkdir "$layout_dir"
+  _mreload_layout_dir="${direnv_layout_dir:-.direnv}"
+  if [[ ! -e $_mreload_layout_dir ]]; then
+    mkdir "$_mreload_layout_dir"
   fi
 
-  local -r reload_file="$layout_dir/reload"
+  local -r reload_file="$_mreload_layout_dir/reload"
   if [[ ! -e $reload_file ]]; then
     touch "$reload_file"
   fi
@@ -107,7 +107,7 @@ function _mreload_disable_file_watching {
 function _mreload_add_reload_program_to_path {
   local -r reload_file="$1"
 
-  local -r direnv_bin="$layout_dir/bin"
+  local -r direnv_bin="$_mreload_layout_dir/bin"
   if [[ ! -e $direnv_bin ]]; then
     mkdir "$direnv_bin"
   fi
