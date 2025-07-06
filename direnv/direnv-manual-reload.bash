@@ -54,36 +54,24 @@
 
 function direnv_manual_reload {
   # Intentionally global
-  direnv_dir="$(get_direnv_dir)"
+  layout_dir="${direnv_layout_dir:-.direnv}"
+  if [[ ! -e $layout_dir ]]; then
+    mkdir "$layout_dir"
+  fi
 
-  local -r reload_file="$direnv_dir/reload"
+  local -r reload_file="$layout_dir/reload"
   if [[ ! -e $reload_file ]]; then
     touch "$reload_file"
   fi
 
-  set_watched_files "$reload_file"
-  # This way, subsequent code in `.envrc` can't modify the file watch list
-  prevent_adding_to_watched_files
-
-  add_reload_program_to_path "$reload_file"
-}
-
-function get_direnv_dir {
-  local -r layout_dir="${direnv_layout_dir:-.direnv}"
-  if [[ ! -e $layout_dir ]]; then
-    mkdir "$layout_dir"
-  fi
-  echo "$layout_dir"
-}
-
-function set_watched_files {
-  local -r reload_file="$1"
-
-  remove_unwanted_watched_files
+  _mreload_remove_unwanted_watched_files
   watch_file "$reload_file"
+  _mreload_disable_file_watching
+
+  _mreload_add_reload_program_to_path "$reload_file"
 }
 
-function remove_unwanted_watched_files {
+function _mreload_remove_unwanted_watched_files {
   local -a watched_files
   # shellcheck disable=2312
   # perf: The exit code of direnv is being masked by readarray, but it would be
@@ -93,7 +81,7 @@ function remove_unwanted_watched_files {
   # directory I want to avoid doing anything slow.
   readarray -d '' watched_files < <(direnv watch-print --null)
 
-  local -a watched_files_to_keep=()
+  local -a watched_files_to_keep
   local file
   for file in "${watched_files[@]}"; do
     # Keep direnv's allow/deny files, so `direnv block/allow` still triggers a
@@ -107,19 +95,22 @@ function remove_unwanted_watched_files {
   watch_file "${watched_files_to_keep[@]}"
 }
 
-function prevent_adding_to_watched_files {
-  # Override the real `watch_file` function from the direnv stdlib with a no-op.
+function _mreload_disable_file_watching {
+  # Override the `watch_file` function from the direnv stdlib
   function watch_file {
     # shellcheck disable=2317
+    # ^ shellcheck says this command isn't reachable, but it is.
     :
   }
 }
 
-function add_reload_program_to_path {
+function _mreload_add_reload_program_to_path {
   local -r reload_file="$1"
 
-  local direnv_bin
-  direnv_bin="$(get_direnv_bin)"
+  local -r direnv_bin="$layout_dir/bin"
+  if [[ ! -e $direnv_bin ]]; then
+    mkdir "$direnv_bin"
+  fi
   # This way, we can avoid adding the same directory to the PATH twice.
   PATH_rm "$direnv_bin"
   PATH_add "$direnv_bin"
@@ -149,14 +140,4 @@ EOF
   if [[ ! -x $reload_program ]]; then
     chmod +x "$reload_program"
   fi
-}
-
-function get_direnv_bin {
-  local -r direnv_bin="$direnv_dir/bin"
-
-  if [[ ! -e $direnv_bin ]]; then
-    mkdir "$direnv_bin"
-  fi
-
-  echo "$direnv_bin"
 }
