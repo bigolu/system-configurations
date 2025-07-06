@@ -209,6 +209,7 @@ rec {
         golangci-lint
         gomod2nix
         gopls
+        markdown2html-converter
         markdownlint-cli2
         # TODO: I use `chronic` to hide the output of commands that produce a lot of
         # output even when they exit successfully. I should see if I could change
@@ -220,6 +221,7 @@ rec {
         nixfmt-rfc-style
         nixpkgs-lint-community
         nodePackages.prettier
+        perl
         # for renovate-config-validator
         renovate
         ruff
@@ -229,7 +231,6 @@ rec {
         stylua
         taplo
         typos
-        markdown2html-converter
       ];
     };
 

@@ -253,13 +253,37 @@ check:
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
+                  run: |
+                    set -e
+                    version="$(nix eval --raw --file nix/packages.nix 'nix.version')"
+                    {run_fix} perl -wsi \
+                      -pe '$count += s{(nix-)[0-9]+(?:\.[0-9]+){0,2}}{$1$version}g;' \
+                      -e 'END { die "failed to substitute" if $count != 2 }' \
+                      -- \
+                      -version="$version" \
+                      README.md
                 - name: readme-config-names
                   glob: "*.nix"
-                  run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
+                  run: |
+                    set -e
+                    configs="$(nix eval --raw --file nix/config-names.nix)"
+                    {run_fix} perl -0777 -wsi \
+                      -pe '$count += s{(below, replace `<).*?(>.*system:init <).*?(>)}{$1$configs$2$configs$3}s;' \
+                      -e 'END { die "failed to substitute" if $count != 1 }' \
+                      -- \
+                      -configs="$configs" \
+                      README.md
                 - name: readme-nixpkgs-commit
                   glob: flake.lock
-                  run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
+                  run: |
+                    set -e
+                    commit="$(nix eval --raw --file nix/flake/compat.nix 'inputs.nixpkgs.rev')"
+                    {run_fix} perl -wsi \
+                      -pe '$count += s{(nixpkgs/)[^\s]{40}( )}{$1$commit$2};' \
+                      -e 'END { die "failed to substitute" if $count != 1 }' \
+                      -- \
+                      -commit="$commit" \
+                      README.md
                 - name: flake-lock
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
