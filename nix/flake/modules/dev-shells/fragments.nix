@@ -293,6 +293,8 @@ rec {
     fileset.toList
     (map extractNixShebangPackages)
     concatLists
+    # Nix shebangs also depend on stdenv
+    (packages: packages ++ [ pkgs.stdenv ])
     # Scripts use `nix-shell-interpreter` as their interpreter to work around an
     # issue with nix-shell, but bashInteractive can be used locally for
     # debugging. It's important that bashInteractive is added to the front of the
