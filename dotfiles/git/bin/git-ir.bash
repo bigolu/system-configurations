@@ -6,12 +6,6 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# To set the check command run: git config bigolu.check-command 'the command'
-#
-# If a config option isn't set, git exits with a non-zero code so the `echo` both
-# stops the statement from failing and provides a default value.
-check_command="$(git config --get 'bigolu.check-command' || echo 'false')"
-
 start_commit=''
 if (($# == 0)); then
   # Rebase all the commits I haven't pushed yet
@@ -26,4 +20,8 @@ else
   start_commit="$1^"
 fi
 
-git rebase --interactive --exec "$check_command" "$start_commit"
+# Save a reference to the commit we were on before the rebase started, in case we
+# want to go back. To restore from this point use: git reset --hard bigolu-ir-backup
+git branch --no-track --force bigolu-ir-backup HEAD
+
+git rebase --interactive --exec 'git check-commit' "$start_commit"
