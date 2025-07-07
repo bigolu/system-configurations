@@ -3,33 +3,15 @@
 #     The name of the flake dev shell to load.
 
 function main {
-  # This should run first. The reason for this is in a comment at the top of
-  # `direnv-manual-reload.bash`.
-  source direnv/direnv-manual-reload.bash
+  source direnv/plugins/direnv-utils.bash
+  # This should run first. The reason for this is in a comment at the top of the
+  # function.
   direnv_manual_reload
-
   direnv_init_layout_directory
+
   dotenv_if_exists secrets.env
+
   set_up_nix
-}
-
-function direnv_init_layout_directory {
-  local -r layout_directory="${direnv_layout_dir:-.direnv}"
-
-  local -r init_complete_marker="$layout_directory/direnv-layout-dir-initialized"
-  if [[ -e $init_complete_marker ]]; then
-    return
-  fi
-
-  mkdir -p "$layout_directory"
-  add_directory_to_gitignore "$layout_directory"
-
-  touch "$init_complete_marker"
-}
-
-function add_directory_to_gitignore {
-  local -r directory="$1"
-  echo '*' >"${directory}/.gitignore"
 }
 
 function set_up_nix {

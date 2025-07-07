@@ -1,4 +1,24 @@
-# This script will disable direnv's automatic reloading. It will still automatically
+# Ensure the layout directory exists and is ignored by git.
+function direnv_init_layout_directory {
+  local -r layout_directory="${direnv_layout_dir:-.direnv}"
+
+  local -r init_complete_marker="$layout_directory/direnv-layout-dir-initialized"
+  if [[ -e $init_complete_marker ]]; then
+    return
+  fi
+
+  mkdir -p "$layout_directory"
+  _d_utils_add_directory_to_gitignore "$layout_directory"
+
+  touch "$init_complete_marker"
+}
+
+function _d_utils_add_directory_to_gitignore {
+  local -r directory="$1"
+  echo '*' >"${directory}/.gitignore"
+}
+
+# Disable direnv's automatic reloading. It will still automatically
 # load when you first enter the directory, but it will not reload after that. If you
 # want to reload the environment, you can instead use the command `direnv-reload`
 # which will be added to the PATH. If you use this script, `direnv reload` will no
@@ -51,27 +71,26 @@
 # [1]: https://github.com/nix-community/nix-direnv
 # [2]: https://github.com/nix-community/nix-direnv?tab=readme-ov-file#tracked-files
 # [3]: https://github.com/direnv/direnv-vscode
-
 function direnv_manual_reload {
   # Intentionally global
-  _mreload_layout_dir="${direnv_layout_dir:-.direnv}"
-  if [[ ! -e $_mreload_layout_dir ]]; then
-    mkdir "$_mreload_layout_dir"
+  _d_utils_layout_dir="${direnv_layout_dir:-.direnv}"
+  if [[ ! -e $_d_utils_layout_dir ]]; then
+    mkdir "$_d_utils_layout_dir"
   fi
 
-  local -r reload_file="$_mreload_layout_dir/reload"
+  local -r reload_file="$_d_utils_layout_dir/reload"
   if [[ ! -e $reload_file ]]; then
     touch "$reload_file"
   fi
 
-  _mreload_remove_unwanted_watched_files
+  _d_utils_remove_unwanted_watched_files
   watch_file "$reload_file"
-  _mreload_disable_file_watching
+  _d_utils_disable_file_watching
 
-  _mreload_add_reload_program_to_path "$reload_file"
+  _d_utils_add_reload_program_to_path "$reload_file"
 }
 
-function _mreload_remove_unwanted_watched_files {
+function _d_utils_remove_unwanted_watched_files {
   local -a watched_files
   # shellcheck disable=2312
   # perf: The exit code of direnv is being masked by readarray, but it would be
@@ -95,7 +114,7 @@ function _mreload_remove_unwanted_watched_files {
   watch_file "${watched_files_to_keep[@]}"
 }
 
-function _mreload_disable_file_watching {
+function _d_utils_disable_file_watching {
   # Override the `watch_file` function from the direnv stdlib
   function watch_file {
     # shellcheck disable=2317
@@ -104,10 +123,10 @@ function _mreload_disable_file_watching {
   }
 }
 
-function _mreload_add_reload_program_to_path {
+function _d_utils_add_reload_program_to_path {
   local -r reload_file="$1"
 
-  local -r direnv_bin="$_mreload_layout_dir/bin"
+  local -r direnv_bin="$_d_utils_layout_dir/bin"
   if [[ ! -e $direnv_bin ]]; then
     mkdir "$direnv_bin"
   fi
