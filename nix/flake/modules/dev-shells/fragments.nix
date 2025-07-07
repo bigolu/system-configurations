@@ -130,7 +130,7 @@ rec {
         # WARNING: `builtins.match` is inconsistent across platforms[1].
         #
         # [1]: https://github.com/NixOS/nix/issues/1537
-        (match ".* (/nix/store/[^/]*?vendor-env).*")
+        (match ".* (/nix/store/[0123456789abcdfghijklmnpqrsvwxyz]{32}-vendor-env).*")
         (matches: elemAt matches 0)
 
         (vendor: ''
