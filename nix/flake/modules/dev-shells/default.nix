@@ -40,8 +40,8 @@ moduleContext@{ lib, utils, ... }:
           (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
           (mapAttrs (_name: addShellHookHelpers))
           (mapAttrs (_name: mkShellNoCC))
-          (devShells: devShells // { default = devShells.${default}; })
-          (devShells: { inherit devShells; })
+          (devShellsByName: devShellsByName // { default = devShellsByName.${default}; })
+          (devShellsByName: { devShells = devShellsByName; })
         ];
     in
     makeOutputs {
