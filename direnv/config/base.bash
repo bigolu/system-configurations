@@ -16,7 +16,7 @@ function main {
 function direnv_init_layout_directory {
   local -r layout_directory="${direnv_layout_dir:-.direnv}"
 
-  local -r init_complete_marker="$layout_directory/direnv-init-layout-dir-complete"
+  local -r init_complete_marker="$layout_directory/direnv-layout-dir-initialized"
   if [[ -e $init_complete_marker ]]; then
     return
   fi

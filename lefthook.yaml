@@ -147,11 +147,12 @@ sync:
 
     - name: lefthook
       only:
-        # We only need to sync this once since lefthook re-syncs hooks automatically.
-        - run: '[ ! -e "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete" ]'
+        # We only need to sync this once since lefthook reinstalls hooks
+        # automatically.
+        - run: '[ ! -e "${direnv_layout_dir:-.direnv}/lefthook-installed" ]'
       run: |
         lefthook install --force
-        touch "${direnv_layout_dir:-.direnv}/lefthook-first-sync-complete"
+        touch "${direnv_layout_dir:-.direnv}/lefthook-installed"
     - name: system
       glob:
         - smart_plug/**
