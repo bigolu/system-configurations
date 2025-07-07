@@ -109,6 +109,10 @@ rec {
       packages = [ pkgs.bash-script ];
     };
 
+  direnv = mkShellNoCC {
+    packages = [ pkgs.nvd ];
+  };
+
   gozip =
     let
       setGoBin = ''
@@ -240,6 +244,7 @@ rec {
     packages = with pkgs; [
       # These get called in the lefthook config
       chase
+      nix-output-monitor
     ];
   };
 

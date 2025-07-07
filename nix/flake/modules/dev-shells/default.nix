@@ -50,6 +50,7 @@ moduleContext@{ lib, utils, ... }:
       devShells = {
         development = {
           inputsFrom = with fragments; [
+            direnv
             gozip
             speakerctl
             check
