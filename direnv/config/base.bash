@@ -55,6 +55,7 @@ function load_nix_config_file {
 function add_line_to_nix_config {
   local -r line="$1"
 
+  local new_config
   if [[ -z ${NIX_CONFIG:-} ]]; then
     new_config="$line"
   else
