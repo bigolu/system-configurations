@@ -17,23 +17,21 @@
 }:
 let
   inherit (builtins)
-    readFile
     concatLists
+    match
+    elemAt
     ;
   inherit (utils) projectRoot;
   inherit (lib)
     pipe
     fileset
     optionals
-    removeSuffix
     ;
   inherit (pkgs)
     mkShellNoCC
     linkFarm
-    writeText
     extractNixShebangPackages
     mkGoEnv
-    runCommand
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -126,18 +124,14 @@ rec {
 
       # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
-        # TODO: `builtins.match` is inconsistent across platforms[1] so I'll use grep
-        # instead.
+        # TODO: Instead of having to do this, gomod2nix should expose the mkVendorEnv
+        # function in their public API.
+        #
+        # WARNING: `builtins.match` is inconsistent across platforms[1].
         #
         # [1]: https://github.com/NixOS/nix/issues/1537
-        (
-          phase:
-          runCommand "vendor" { } ''
-            grep -o '/nix/store/[^/]*vendor-env' <${writeText "phase" phase} >$out
-          ''
-        )
-        readFile
-        (removeSuffix "\n")
+        (match ".* (/nix/store/[^/]*?vendor-env).*")
+        (matches: elemAt matches 0)
 
         (vendor: ''
           # Most CI systems, e.g. GitHub Actions, set CI to 'true'.
