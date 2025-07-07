@@ -122,6 +122,9 @@ rec {
 
       goEnv = mkGoEnv { pwd = ../../../../gozip; };
 
+      # Nix hashes are alphanumeric, excluding e, o, u, and t.
+      nixHashChars = "0123456789abcdfghijklmnpqrsvwxyz";
+
       # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
         # TODO: Instead of having to do this, gomod2nix should expose the mkVendorEnv
@@ -130,7 +133,7 @@ rec {
         # WARNING: `builtins.match` is inconsistent across platforms[1].
         #
         # [1]: https://github.com/NixOS/nix/issues/1537
-        (match ".* (/nix/store/[0123456789abcdfghijklmnpqrsvwxyz]{32}-vendor-env).*")
+        (match ".* (/nix/store/[${nixHashChars}]{32}-vendor-env).*")
         (matches: elemAt matches 0)
 
         (vendor: ''
