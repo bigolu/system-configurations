@@ -78,7 +78,7 @@ in
 
   config = {
     system.activationScripts.postActivation.text = ''
-      printf '\e[36m┃ [bigolu] Configuring login shell for nix-darwin ❯\e(B\e[m\n' >&2
+      printf '\e[1m[bigolu] Configuring login shell for nix-darwin\e(B\e[m\n' >&2
       ${nixDarwinLoginShellSnippet}
     '';
 
