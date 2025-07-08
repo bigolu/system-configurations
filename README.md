@@ -12,7 +12,6 @@ people who want to manage their systems similarly.
 
 - [Applying a Configuration](#applying-a-configuration)
 - [Running the Portable Configuration](#running-the-portable-configuration)
-  - [How it Works](#how-it-works)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -85,25 +84,8 @@ is helpful when you only need to use the configuration temporarily and not apply
 it, like when you're on a remote host or in a container. You can download it
 from the [releases page][releases].
 
-### How it Works
-
-A nix bundler takes a [Home Manager][home-manager] configuration and bundles all
-of its dependencies, and the bundler itself, into a self-extracting archive
-(SEA). When you execute the SEA, it unpacks the dependencies and rewrites any
-paths referenced in a file that start with `/nix/store`. It rewrites these paths
-to a symbolic link that it creates in `/tmp` with the same number of characters
-(e.g. `/tmp/abcde`). It's important that the length of the new path be the same
-as the length of `/nix/store`. This is because binaries usually read these paths
-using offsets and so a longer/shorter path would change these offsets. The
-symbolic link then points to the extracted contents of the SEA which is stored
-in the system's temporary directory. This could also be `/tmp` or the path
-pointed to by the environment variable `$TMPDIR`, if it's set. I found this idea
-in a [GitHub issue comment regarding a "rootless Nix"][rootless-nix] and decided
-to build it to learn more about Nix.
-
 [determinate-systems-installer-install]:
   https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#install-nix
 [home-manager]: https://github.com/nix-community/home-manager
 [nix-darwin]: https://github.com/nix-darwin/nix-darwin
-[rootless-nix]: https://github.com/NixOS/nix/issues/1971#issue-304578884
 [releases]: https://github.com/bigolu/system-configurations/releases/latest
