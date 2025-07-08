@@ -32,6 +32,7 @@ let
     linkFarm
     extractNixShebangPackages
     mkGoEnv
+    writeTextDir
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -125,7 +126,6 @@ rec {
       # Nix hashes are alphanumeric, excluding e, o, u, and t.
       nixHashChars = "0123456789abcdfghijklmnpqrsvwxyz";
 
-      # TODO: Maybe this could be upstreamed to gomod2nix
       linkVendoredModules = pipe goEnv.buildPhase [
         # TODO: Instead of having to do this, gomod2nix should expose the mkVendorEnv
         # function in their public API.
@@ -135,7 +135,6 @@ rec {
         # [1]: https://github.com/NixOS/nix/issues/1537
         (match ".* (/nix/store/[${nixHashChars}]{32}-vendor-env).*")
         (matches: elemAt matches 0)
-
         (vendor: ''
           # Most CI systems, e.g. GitHub Actions, set CI to 'true'.
           #
@@ -154,6 +153,10 @@ rec {
           if [[ ''${CI:-} == 'true' ]]; then
             export GOFLAGS='-mod=vendor'
             export GO_NO_VENDOR_CHECKS='1'
+            # Since we extracted the vendor directory store path from the `buildPhase`,
+            # it won't be tracked as a dependency. To track it, we'll add the entire
+            # `buildPhase` string to the shell.
+            # ${writeTextDir "vendor" goEnv.buildPhase}
             symlink_if_target_changed ${vendor} gozip/vendor
           fi
         '')
