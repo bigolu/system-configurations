@@ -21,7 +21,7 @@ let
 
   update-reminder = writeShellApplication {
     name = "update-reminder";
-    runtimeInputs = [ pkgs.systemConfig.update-reminder ];
+    runtimeInputs = [ pkgs.update-reminder ];
     text = "update-reminder ${repositoryDirectory}";
   };
 in
@@ -32,6 +32,8 @@ mkMerge [
     #
     # home-manager issue: https://github.com/nix-community/home-manager/issues/432
     programs.man.enable = false;
+
+    xdg.stateFile."bigolu/system-config-name".text = configName;
 
     home = {
       # Since I'm not using the nixpkgs man, I have any packages I install their man
@@ -47,22 +49,6 @@ mkMerge [
       # the Home Manager release notes for a list of state version
       # changes in each release.
       stateVersion = "23.11";
-
-      packages = with pkgs.systemConfig; [
-        (writeShellApplication {
-          name = "system-config-pull";
-          runtimeInputs = [ system-config-pull ];
-          text = "system-config-pull ${repositoryDirectory}";
-        })
-
-        (writeShellApplication {
-          name = "system-config-sync";
-          runtimeInputs = [ system-config-sync ];
-          text = ''
-            system-config-sync ${repositoryDirectory}#${configName} "$@"
-          '';
-        })
-      ];
     };
   }
 
@@ -72,14 +58,6 @@ mkMerge [
   (optionalAttrs (!isHomeManagerRunningAsASubmodule) {
     home = {
       inherit username homeDirectory;
-
-      packages = [
-        (writeShellApplication {
-          name = "system-config-preview-sync";
-          runtimeInputs = with pkgs.systemConfig; [ system-config-preview-sync ];
-          text = "system-config-preview-sync ${repositoryDirectory}#homeConfigurations.${configName}.activationPackage";
-        })
-      ];
 
       # Show me what changed everytime I switch generations e.g. version updates or
       # added/removed files.

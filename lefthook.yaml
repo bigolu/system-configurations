@@ -181,7 +181,7 @@ sync:
         {direnv_exec} sudo -- \
           "$(chase "$(command -v run-as-admin)")" \
           --path "$PATH" \
-          "$(command -v system-config-sync)"
+          "$(command -v mise)" run system:sync
     - name: fish
       glob:
         - dotfiles/fish/conf.d/*.fish

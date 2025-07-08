@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell --keep NIX_PACKAGES
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils home-manager darwin-rebuild nix-output-monitor git]"
+#! nix-shell --packages "with (import (builtins.getEnv \"NIX_PACKAGES\")); [nix-shell-interpreter coreutils git]"
 #MISE description='Initialize the system'
 #MISE hide=true
 #MISE depends_post='sync'
@@ -14,7 +14,7 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 if [[ $OSTYPE == linux* ]]; then
-  home-manager switch --flake .#"${usage_configuration:?}"
+  mise run system:sync "${usage_configuration:?}"
   # shellcheck disable=2016
   echo 'Consider copying COSMIC settings to the system by running `mise run copy-cosmic to-system`'
 else
@@ -38,6 +38,6 @@ else
   # Apply the config with the bootstrap builders.
   for builder in bootstrap1 bootstrap2; do
     echo "$builder" >"$builder_file"
-    darwin-rebuild switch --flake .#"${usage_configuration:?}" |& nom
+    mise run system:sync "${usage_configuration:?}"
   done
 fi

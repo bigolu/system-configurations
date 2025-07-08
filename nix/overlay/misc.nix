@@ -1,10 +1,6 @@
 { inputs, utils }:
 final: prev:
 let
-  inherit (inputs.nixpkgs.lib)
-    fileset
-    recursiveUpdate
-    ;
   inherit (utils) projectRoot unstableVersion;
 
   neovimWithDependencies =
@@ -36,7 +32,7 @@ let
       };
     in
     # Merge with the original package to retain attributes like meta
-    recursiveUpdate previousNeovim wrappedNeovim;
+    final.lib.recursiveUpdate previousNeovim wrappedNeovim;
 
   ripgrepAllWithDependencies =
     let
@@ -185,10 +181,10 @@ let
           ]
           [
             (map (relativePath: projectRoot + relativePath))
-            fileset.unions
+            final.lib.fileset.unions
             (
               union:
-              fileset.toSource {
+              final.lib.fileset.toSource {
                 root = projectRoot;
                 fileset = union;
               }
@@ -223,6 +219,45 @@ let
         ${final.lib.getExe prev.cached-nix-shell} "$@"
       '';
     };
+
+  update-reminder = final.writeShellApplication {
+    name = "update-reminder";
+    runtimeInputs =
+      with final;
+      [
+        coreutils
+        git
+      ]
+      ++ (final.lib.optionals final.stdenv.isLinux [ libnotify ])
+      ++ (final.lib.optionals final.stdenv.isDarwin [ terminal-notifier ]);
+    text = ''
+      cd "$1"
+      if [[ $(git log --since="1 month ago") == *'deps:'* ]]; then
+        exit
+      fi
+
+      if [[ $(uname) == 'Linux' ]]; then
+        # TODO: I want to use action buttons on the notification, but it isn't
+        # working. Instead, I assume that I want to pull if I click the notification
+        # within one hour. Using `timeout` I can kill `notify-send` once one hour
+        # passes.
+        timeout_exit_code=124
+        set +o errexit
+        timeout 1h notify-send --wait --app-name 'System Configuration' \
+          'Click here to update dependencies'
+        exit_code=$?
+        set -o errexit
+        if (( exit_code != timeout_exit_code )); then
+          xdg-open 'https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml'
+        fi
+      else
+        terminal-notifier \
+          -title 'System Configuration' \
+          -message 'Click here to update dependencies' \
+          -execute 'open "https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml"'
+      fi
+    '';
+  };
 in
 {
   neovim = neovimWithDependencies;
@@ -245,5 +280,6 @@ in
     speakerctl
     bash-script
     cached-nix-shell
+    update-reminder
     ;
 }

@@ -2,7 +2,7 @@
 # packages.
 final: prev:
 let
-  inherit (builtins) listToAttrs attrNames;
+  inherit (builtins) listToAttrs;
   inherit (prev.lib) pipe nameValuePair;
 
   makeEmptyPackage =
@@ -15,18 +15,15 @@ let
       (map (packageName: nameValuePair packageName (makeEmptyPackage packageName)))
       listToAttrs
     ];
-
-  emptyTopLevelPackages = makeEmptyPackageSet [
-    "comma"
-    "moreutils"
-    "timg"
-    "ripgrep-all"
-    "lesspipe"
-    "diffoscopeMinimal"
-    "difftastic"
-    "nix"
-  ];
-
-  emptyHomeManagerPackages = makeEmptyPackageSet (attrNames prev.systemConfig);
 in
-emptyTopLevelPackages // { systemConfig = emptyHomeManagerPackages; }
+makeEmptyPackageSet [
+  "comma"
+  "moreutils"
+  "timg"
+  "ripgrep-all"
+  "lesspipe"
+  "diffoscopeMinimal"
+  "difftastic"
+  "nix"
+  "update-reminder"
+]

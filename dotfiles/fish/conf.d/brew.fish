@@ -6,10 +6,6 @@ end
 abbr --add --global biw brew-install-widget
 abbr --add --global buw brew-uninstall-widget
 
-# nix-darwin manages brew so I'll turn off all the automatic management.
-set --global --export HOMEBREW_NO_INSTALL_UPGRADE 1
-set --global --export HOMEBREW_NO_INSTALL_CLEANUP 1
-
 # autocomplete
 if test -d $HOMEBREW_PREFIX/share/fish/completions
     set --global --prepend fish_complete_path $HOMEBREW_PREFIX/share/fish/completions
