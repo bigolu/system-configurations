@@ -2,9 +2,8 @@
 # dependencies on large packages.
 { lib, pkgs, ... }:
 let
-  inherit (lib) mkForce optionalAttrs;
+  inherit (lib) mkForce optionalAttrs hm;
   inherit (pkgs.stdenv) isLinux;
-  inherit (pkgs) writeText;
 
   # These variables contain the path to the locale archive in
   # pkgs.glibcLocales. There is no option to prevent Home Manager from making
@@ -36,7 +35,7 @@ in
     sessionVariables = optionalAttrs isLinux emptySessionVariables;
 
     file.".hammerspoon/Spoons/EmmyLua.spoon" = mkForce {
-      source = writeText "stub-spoon" "";
+      source = pkgs.emptyFile;
       recursive = false;
     };
 
@@ -44,6 +43,8 @@ in
     # else it won't build.
     username = "biggs";
     homeDirectory = "/no/home/directory";
+
+    activation.reloadSystemd = mkForce (hm.dag.entryAnywhere "");
   };
 
   systemd.user = {

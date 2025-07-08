@@ -212,7 +212,7 @@ in
             pipe file [
               readFile
               (replaceString "/usr/bin/env bash" (getExe pkgs.bash))
-              (writeScript "patched-xdg-executable")
+              (writeScript "patched-xdg-executable-${baseNameOf file}")
             ];
 
           removeExtension =
