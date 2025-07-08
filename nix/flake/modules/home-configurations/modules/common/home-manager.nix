@@ -14,15 +14,52 @@ let
     mkIf
     hm
     getExe
+    optionals
+    optionalAttrs
     ;
-  inherit (lib.attrsets) optionalAttrs;
   inherit (pkgs) writeShellApplication;
   inherit (pkgs.stdenv) isLinux isDarwin;
 
   update-reminder = writeShellApplication {
     name = "update-reminder";
-    runtimeInputs = [ pkgs.update-reminder ];
-    text = "update-reminder ${repositoryDirectory}";
+    runtimeInputs =
+      with pkgs;
+      [
+        coreutils
+        git
+      ]
+      ++ (optionals isLinux [
+        libnotify
+        xdg-utils
+      ])
+      ++ (optionals isDarwin [ terminal-notifier ]);
+    text = ''
+      cd ${repositoryDirectory}
+      if [[ $(git log --since="1 month ago") == *'deps:'* ]]; then
+        exit
+      fi
+
+      if [[ $OSTYPE == linux* ]]; then
+        # TODO: I want to use action buttons on the notification, but it isn't
+        # working. Instead, I assume that I want to pull if I click the notification
+        # within one hour. Using `timeout` I can kill `notify-send` once one hour
+        # passes.
+        timeout_exit_code=124
+        set +o errexit
+        timeout 1h notify-send --wait --app-name 'System Configuration' \
+          'Click here to update dependencies'
+        exit_code=$?
+        set -o errexit
+        if (( exit_code != timeout_exit_code )); then
+          xdg-open 'https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml'
+        fi
+      else
+        terminal-notifier \
+          -title 'System Configuration' \
+          -message 'Click here to update dependencies' \
+          -execute 'open "https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml"'
+      fi
+    '';
   };
 in
 mkMerge [

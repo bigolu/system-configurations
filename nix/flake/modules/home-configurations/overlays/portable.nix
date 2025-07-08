@@ -25,5 +25,4 @@ makeEmptyPackageSet [
   "diffoscopeMinimal"
   "difftastic"
   "nix"
-  "update-reminder"
 ]

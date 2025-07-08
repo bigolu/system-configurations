@@ -4,6 +4,7 @@
 let
   inherit (lib) mkForce optionalAttrs;
   inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs) writeText;
 
   # These variables contain the path to the locale archive in
   # pkgs.glibcLocales. There is no option to prevent Home Manager from making
@@ -14,10 +15,6 @@ let
     LOCALE_ARCHIVE_2_27 = "";
     LOCALE_ARCHIVE_2_11 = "";
   };
-
-  makeEmptyPackage =
-    pkgs: packageName:
-    pkgs.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
 in
 {
   # I want a self contained executable so I can't have symlinks that point
@@ -39,7 +36,7 @@ in
     sessionVariables = optionalAttrs isLinux emptySessionVariables;
 
     file.".hammerspoon/Spoons/EmmyLua.spoon" = mkForce {
-      source = makeEmptyPackage pkgs "stub-spoon";
+      source = writeText "stub-spoon" "";
       recursive = false;
     };
 
@@ -53,7 +50,11 @@ in
     # This removes the dependency on `sd-switch`.
     startServices = mkForce "suggest";
     sessionVariables = optionalAttrs isLinux emptySessionVariables;
+    services = mkForce { };
+    timers = mkForce { };
   };
+
+  launchd.agents = mkForce { };
 
   xdg = {
     mime.enable = mkForce false;
