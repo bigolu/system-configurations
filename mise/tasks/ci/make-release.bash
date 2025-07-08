@@ -40,11 +40,10 @@ function make_new_release {
 }
 
 function gh {
-  # Most CI systems, e.g. GitHub Actions, set CI to 'true'
   if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
     command gh "$@"
   else
-    echo 'gh spy:' "$@"
+    echo 'gh:' "$@"
   fi
 }
 

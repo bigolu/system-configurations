@@ -136,8 +136,6 @@ rec {
         (match ".* (/nix/store/[${nixHashChars}]{32}-vendor-env).*")
         (matches: elemAt matches 0)
         (vendor: ''
-          # Most CI systems, e.g. GitHub Actions, set CI to 'true'.
-          #
           # I only use this in CI because it would it would be too inconvenient to
           # use during development: Go either reads all dependencies from GOPATH or
           # the vendor directory so a change to go.mod would require regenerating the
@@ -265,8 +263,6 @@ rec {
 
       # I don't want to make GC roots when debugging CI because unlike actual CI,
       # where new virtual machines are created for each run, they'll just accumulate.
-      #
-      # Most CI systems, e.g. GitHub Actions, set CI to 'true'.
       if [[ ''${CI:-} == 'true' ]] && [[ ''${CI_DEBUG:-} != 'true' ]]; then
         export NIX_SHEBANG_GC_ROOTS_DIR="''${direnv_layout_dir:-$PWD/.direnv}/nix-shebang-dependencies"
       fi

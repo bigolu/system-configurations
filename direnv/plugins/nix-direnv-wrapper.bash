@@ -21,10 +21,8 @@ function _ndw_create_wrapper {
     local new_dev_shell
     new_dev_shell="$(_ndw_get_dev_shell_store_path)"
 
-    if
-      [[ -n $old_dev_shell && -n $new_dev_shell ]] &&
-        [[ $old_dev_shell != "$new_dev_shell" ]]
-    then
+    # `old_dev_shell` won't exist the first time this runs
+    if [[ -n $old_dev_shell && ($old_dev_shell != "$new_dev_shell") ]]; then
       # TODO: fallback to nix store diff-closures if the nix version is high enough
       if type -P nvd >/dev/null; then
         nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
@@ -64,14 +62,7 @@ function _ndw_add_line_to_nix_config {
 }
 
 function _ndw_get_dev_shell_store_path {
-  # We have to use a list since there could be multiple matches for the glob, though
-  # we're only expecting one match.
-  local -ra profile_rc_list=(.direnv/flake-profile-*.rc)
-  if (( ${#profile_rc_list[@]} == 0)); then
-    return
-  fi
-  local -r profile_rc="${profile_rc_list[0]}"
-
+  local -r profile_rc="$(echo .direnv/flake-profile-*.rc)"
   # Remove extension
   local -r profile="${profile_rc%.*}"
   if [[ -e $profile ]]; then

@@ -84,7 +84,6 @@ in
       nix-melt
       comma
       nix-daemon-reload
-      nix-output-monitor
       nix-diff
       nix-search-cli
     ]

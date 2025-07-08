@@ -71,7 +71,6 @@ function find_existing_github_issue {
 }
 
 function gh {
-  # Most CI systems, e.g. GitHub Actions, set CI to 'true'
   if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
     command gh "$@"
   else
