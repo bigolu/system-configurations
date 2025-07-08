@@ -336,24 +336,12 @@ check:
                   glob: "*.md"
                   run: "{run_fix} markdownlint-cli2 --fix {files}"
                 - name: go-mod-tidy
-                  only:
-                    # TODO: There should be an option for only doing the parts that
-                    # don't require the internet so it can be run as part of CI
-                    # checks.
-                    - run: '[ "$CI" != true ]'
                   glob: gozip/go.{mod,sum}
                   run: "{run_fix} go -C gozip mod tidy"
                 - name: golangci-lint
                   glob: "*.go"
                   root: "gozip/"
                   run: "{run_fix} golangci-lint run --fix"
-                - name: typos
-                  run: |
-                    {exit_if_no_files} {files}
-                    # TODO: typos should offer a way to only run fixes without
-                    # performing checks. This way, I can run fixes and not have this
-                    # fail if it finds something it can't fix.
-                    {run_fix} typos --write-changes {files}
 
                 # Formatters
                 # -------------------------------------------------------------------
