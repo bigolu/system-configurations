@@ -32,7 +32,7 @@ let
     linkFarm
     extractNixShebangPackages
     mkGoEnv
-    writeTextDir
+    writeText
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -156,7 +156,7 @@ rec {
             # Since we extracted the vendor directory store path from the `buildPhase`,
             # it won't be tracked as a dependency. To track it, we'll add the entire
             # `buildPhase` string to the shell.
-            # ${writeTextDir "vendor" goEnv.buildPhase}
+            # ${writeText "vendor" goEnv.buildPhase}
             symlink_if_target_changed ${vendor} gozip/vendor
           fi
         '')
