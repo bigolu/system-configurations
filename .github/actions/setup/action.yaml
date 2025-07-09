@@ -92,8 +92,8 @@ runs:
       if: ${{ inputs.cache-nix-store == 'true' }}
       env:
         # The `cache-key` input will be prefixed by this value. This way, cache
-        # entries will be scoped by type (nix-store), workflow, job, and operating
-        # system.
+        # entries will be scoped by workflow, job, platform (architecture + OS), and
+        # type (direnv-and-nix)
         #
         # I also added the year to the prefix because otherwise, some cached
         # directories, like ~/.cache/cached-nix-shell, would continue to grow
@@ -102,7 +102,7 @@ runs:
         # avoid accumulating data from old cache entries over time.
         #
         # SYNC: CACHE_SCOPE
-        CACHE_KEY_PREFIX: ${{ steps.get-year.outputs.year }}-nix-store-${{ github.workflow }}-${{ github.job }}-${{ runner.os }}-
+        CACHE_KEY_PREFIX: ${{ steps.get-year.outputs.year }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-direnv-and-nix-
       with:
         paths: |
           ~/.cache/nix
