@@ -2,19 +2,15 @@ name: Check for Broken Links
 on:
   workflow_dispatch:
   schedule:
-    # Run once every 6 days. I'd prefer to run it once a week, but GitHub Actions
-    # evicts all cache entries that haven't been accessed in more than a week[1].
-    # I'm choosing 6 days to be safe since the precise start time of a scheduled
-    # workflow is not guaranteed.
+    # Run once a month.
     #
-    # I've also chosen minute 43 for the workflow to run to avoid running at
+    # I've chosen a non-zero minute for the workflow to run to avoid running it at
     # the start of the hour. This is because GitHub sees high load at the start of
     # every hour and when that happens, some queued jobs may be delayed or
-    # dropped[2].
+    # dropped[1].
     #
-    # [1]: https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/caching-dependencies-to-speed-up-workflows#usage-limits-and-eviction-policy
-    # [2]: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule
-    - cron: "43 0 */6 * *"
+    # [1]: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule
+    - cron: "43 0 1 * *"
 defaults:
   run:
     shell: bash-script {0}
