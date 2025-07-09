@@ -131,8 +131,8 @@ let
         #
         # [1]: https://git.lix.systems/lix-project/lix/src/commit/7575db522e9008685c4009423398f6900a16bcce/src/nix/develop.cc#L240-L241
         if [[ $name == ${escapedName} || $name == ${escapedName}'-env' ]]; then
-          # If statements can't be empty so we'll add a no-op command just in case
-          # the shellHook is.
+          # Conditionals must have at least one command so I'll add one in case the
+          # shellHook doesn't have one.
           :
 
         ${indent joinedShellHooks}
