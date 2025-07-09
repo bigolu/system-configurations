@@ -147,18 +147,6 @@ mkMerge [
             WantedBy = [ "timers.target" ];
           };
         };
-        system-config-change-check = {
-          Unit = {
-            Description = "Check for home-manager changes on the remote";
-          };
-          Timer = {
-            OnCalendar = "daily";
-            Persistent = true;
-          };
-          Install = {
-            WantedBy = [ "timers.target" ];
-          };
-        };
       };
     };
   })
