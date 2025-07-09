@@ -119,14 +119,15 @@ sync:
       git ls-files
     fi
   jobs:
-    # This job should be first since other sync tasks may depend on the newly synced
-    # direnv environment.
+    # This job is first since the other jobs may depend on the newly synced direnv
+    # environment.
     - name: direnv
-      # Why `interactive` should be enabled:
+      # Why `interactive` is enabled:
       #   - This job can take a while so being able to see the output in real time
-      #     will reveal bottlenecks.
+      #     could reveal bottlenecks.
       #   - If I can see the output in real time, I can spot accidental nix cache
-      #     misses and cancel the job instead of waiting for nix rebuild the package.
+      #     misses and cancel the job instead of waiting for nix to rebuild the
+      #     package.
       interactive: true
       glob:
         - direnv/**
@@ -166,12 +167,13 @@ sync:
 
         # If this configuration changes
         - lefthook.yaml
-      # Why `interactive` should be enabled:
+      # Why `interactive` is enabled:
       #   - So I can input my password for `sudo`
       #   - This job can take a while so being able to see the output in real time
-      #     will reveal bottlenecks.
+      #     could reveal bottlenecks.
       #   - If I can see the output in real time, I can spot accidental nix cache
-      #     misses and cancel the job instead of waiting for nix rebuild the package.
+      #     misses and cancel the job instead of waiting for nix to rebuild the
+      #     package.
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       #
@@ -246,6 +248,9 @@ check:
         # one has already failed.
         piped: true
         jobs:
+          # All fixes should be grouped together to make it easy to run them all in
+          # an autofix workflow in CI.
+          #
           # Why fixes should run before other checks:
           #   - A fix could produce code that would fail another check
           #   - A fix could fix an issue that would have been found by another check
@@ -486,12 +491,12 @@ check:
                     - flake.lock
                   run: nix config check
           - name: flake
-            # Why `interactive` should be enabled:
+            # Why `interactive` is enabled:
             #   - This job can take a while so being able to see the output in real
-            #     time will reveal bottlenecks.
+            #     time could reveal bottlenecks.
             #   - If I can see the output in real time, I can spot accidental nix
-            #     cache misses and cancel the job instead of waiting for nix rebuild
-            #     the package.
+            #     cache misses and cancel the job instead of waiting for nix to
+            #     rebuild the package.
             interactive: true
             glob:
               - flake.nix
