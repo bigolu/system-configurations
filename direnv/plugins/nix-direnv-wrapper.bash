@@ -45,7 +45,27 @@ function _ndw_backup_use_flake {
 #
 # https://github.com/NixOS/nix/issues/10258
 function _ndw_load_nix_config_file {
-  _ndw_add_line_to_nix_config "include ${NIX_DIRENV_NIX_CONF:-$PWD/nix/nix.conf}"
+  local config_file
+  config_file="$(_ndw_find_nix_config_file)"
+  if [[ -n $config_file ]]; then
+    _ndw_add_line_to_nix_config "include $config_file"
+  fi
+}
+
+function _ndw_find_nix_config_file {
+  if [[ -n ${NIX_DIRENV_NIX_CONF:-} ]]; then
+    echo "$NIX_DIRENV_NIX_CONF"
+    return 0
+  fi
+
+  local relative_path
+  local config
+  for relative_path in 'nix.conf' 'nix/config.conf'; do
+    if config="$(find_up "$relative_path")"; then
+      echo "$config"
+      return 0
+    fi
+  done
 }
 
 function _ndw_add_line_to_nix_config {
