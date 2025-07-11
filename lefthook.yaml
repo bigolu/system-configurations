@@ -273,14 +273,6 @@ check:
                   glob: flake.nix
                   run: "{run_fix} nix flake lock"
                 - name: gomod2nix
-                  only:
-                    # TODO: There's an open issue[1] for adding a subcommand to
-                    # gomod2nix that only checks to see if the lock file is up to
-                    # date. This way it could be run without an internet connection
-                    # and included in CI checks.
-                    #
-                    # [1]: https://github.com/nix-community/gomod2nix/issues/169
-                    - run: '[ "$CI" != true ]'
                   glob: gozip/go.mod
                   run: "{run_fix} gomod2nix --dir gozip generate"
                 # I'm intentionally not specifying a `glob` here because deleted

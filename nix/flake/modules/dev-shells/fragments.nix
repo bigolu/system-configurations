@@ -18,8 +18,6 @@
 let
   inherit (builtins)
     concatLists
-    match
-    elemAt
     ;
   inherit (utils) projectRoot;
   inherit (lib)
@@ -32,7 +30,6 @@ let
     linkFarm
     extractNixShebangPackages
     mkGoEnv
-    writeText
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -112,58 +109,15 @@ rec {
     packages = [ pkgs.nvd ];
   };
 
-  gozip =
-    let
-      setGoBin = ''
-        # Binary names could conflict between projects so store them in a
-        # project-specific directory.
-        export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
-        export PATH="''${GOBIN}''${PATH:+:$PATH}"
-      '';
-
-      goEnv = mkGoEnv { pwd = ../../../../gozip; };
-
-      # Nix hashes are alphanumeric, excluding e, o, u, and t.
-      nixHashChars = "0123456789abcdfghijklmnpqrsvwxyz";
-
-      linkVendoredModules = pipe goEnv.buildPhase [
-        # TODO: Instead of having to do this, gomod2nix should expose the mkVendorEnv
-        # function in their public API.
-        #
-        # WARNING: `builtins.match` is inconsistent across platforms[1].
-        #
-        # [1]: https://github.com/NixOS/nix/issues/1537
-        (match ".* (/nix/store/[${nixHashChars}]{32}-vendor-env).*")
-        (matches: elemAt matches 0)
-        (vendor: ''
-          # I only use this in CI because it would it would be too inconvenient to
-          # use during development: Go either reads all dependencies from GOPATH or
-          # the vendor directory so a change to go.mod would require regenerating the
-          # gomod2nix lock and reloading the dev shell. There's an open issue for
-          # partial vendoring[1]. If this is done, then I could start using this for
-          # development. It's especially important that this is used in CI because in
-          # CI, checks (e.g. `gopls check`) are run without internet access so Go
-          # wouldn't be able to download modules. Another alternative would be using
-          # GOCACHEPROG with gobuild.nix[2].
-          #
-          # [1]: https://github.com/golang/go/issues/52604
-          # [2]: https://github.com/katexochen/gobuild.nix
-          if [[ ''${CI:-} == 'true' ]]; then
-            export GOFLAGS='-mod=vendor'
-            export GO_NO_VENDOR_CHECKS='1'
-            # Since we extracted the vendor directory store path from the `buildPhase`,
-            # it won't be tracked as a dependency. To track it, we'll add the entire
-            # `buildPhase` string to the shell.
-            # ${writeText "vendor" goEnv.buildPhase}
-            symlink_if_target_changed ${vendor} gozip/vendor
-          fi
-        '')
-      ];
-    in
-    mkShellNoCC {
-      packages = [ goEnv ];
-      shellHook = setGoBin + linkVendoredModules;
-    };
+  gozip = mkShellNoCC {
+    packages = [ (mkGoEnv { pwd = ../../../../gozip; }) ];
+    shellHook = ''
+      # Binary names could conflict between projects so store them in a
+      # project-specific directory.
+      export GOBIN="''${direnv_layout_dir:-$PWD/.direnv}/go-bin"
+      export PATH="''${GOBIN}''${PATH:+:$PATH}"
+    '';
+  };
 
   speakerctl = pkgs.speakerctl.devShell;
 
