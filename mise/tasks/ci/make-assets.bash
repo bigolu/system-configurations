@@ -47,8 +47,9 @@ function make_shell_bundle {
   nix bundle --bundler "${flake_path}#" "${flake_path}#shell"
   local bundle_basename
   bundle_basename="$(echo *)"
-  local bundle_path="$PWD/$bundle_basename"
-  dereference_symlink "$bundle_path"
+  local bundle_symlink_path="$PWD/$bundle_basename"
+  local bundle_path
+  bundle_path="$(dereference_symlink "$bundle_symlink_path")"
 
   popd
 
@@ -56,14 +57,16 @@ function make_shell_bundle {
   echo "$bundle_path"
 }
 
-# Replace a symlink with a copy of the file that it points to
 function dereference_symlink {
   local -r symlink_path="$1"
+  local -r symlink_basename="${symlink_path##*/}"
 
-  local temp
-  temp="$(mktemp --directory)"
-  cp --dereference "$symlink_path" "$temp/copy"
-  mv "$temp/copy" "$symlink_path"
+  local dereferenced
+  # Don't overwrite the symlink since it's a GC root
+  dereferenced="$(mktemp --directory)/$symlink_basename"
+  cp --dereference "$symlink_path" "$dereferenced"
+
+  echo "$dereferenced"
 }
 
 function move_bundle_into_assets {
