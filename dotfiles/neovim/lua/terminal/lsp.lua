@@ -126,7 +126,8 @@ require("nvim-lightbulb").setup({
 -- An error is printed if nix isn't available
 local nix_command = [[
   set count (type --force-path --all nix)
-  if test -n "$PORTABLE_HOME"
+  if test -n "$PORTABLE_HOME_PREFIX"
+  and string match --quiet "*$PORTABLE_HOME_PREFIX*" "$(type --force-path nix)"
     # The nix wrapper shouldn't count as nix
     test (count $count) -gt 1
   else
