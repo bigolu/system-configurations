@@ -44,7 +44,7 @@ function make_shell_bundle {
   pushd "$temp_directory"
 
   # nix will create a symlink to the bundle in the current directory
-  nix bundle --show-trace --bundler "${flake_path}#" "${flake_path}#shell"
+  nix bundle --bundler "${flake_path}#" "${flake_path}#shell"
   local bundle_basename
   bundle_basename="$(echo *)"
   local bundle_path="$PWD/$bundle_basename"
