@@ -19,9 +19,9 @@ environment_variables=(
   CI=true
   CI_DEBUG=true
 
-  # direnv stores its cache in the directory specified in `direnv_layout_dir`.
-  # If it's not set, .direnv is used. I'm changing it so nix-direnv doesn't
-  # overwrite the dev shell cached in .direnv with the one built here.
+  # You can change direnv's layout directory by setting `direnv_layout_dir`. If it's
+  # not set, .direnv is used. I'm changing it so nix-direnv doesn't overwrite the dev
+  # shell cached in .direnv with the one built here.
   direnv_layout_dir="$(mktemp --directory)"
 )
 environment_variable_flags=()
