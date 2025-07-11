@@ -15,7 +15,7 @@ fi
 
 # Remove existing signal handlers. The remove command will fail if there's
 # nothhing to remove so keep running it until it fails.
-until ! yabai -m signal --remove 0 1>/dev/null 2>&1; do :; done
+while yabai -m signal --remove 0 1>/dev/null 2>&1; do true; done
 
 yabai -m config auto_balance off
 yabai -m config focus_follows_mouse autoraise
@@ -24,6 +24,7 @@ yabai -m config window_origin_display cursor
 yabai -m config window_opacity on
 yabai -m config mouse_drop_action swap
 yabai -m config window_zoom_persist off
+yabai -m config window_gap 7
 
 # All the macOS system GUIs e.g. System Preferences
 yabai -m rule --add label=system app="^System .*$" title=".*" manage=off
@@ -33,13 +34,6 @@ yabai -m rule --add label=installer app="^Installer$" title=".*" manage=off
 # progress bar for copying a file
 yabai -m rule --add label=finder app="^Finder$" title="^Copy$" manage=off
 yabai -m rule --add label=firefox app="^Firefox$" title="^Log in to your PayPal account$" manage=off
-
-padding=10
-yabai -m config --space mouse bottom_padding "$padding"
-yabai -m config --space mouse top_padding "$padding"
-yabai -m config --space mouse left_padding "$padding"
-yabai -m config --space mouse right_padding "$padding"
-yabai -m config --space mouse window_gap "$padding"
 
 # Hide the stack indicators if the current window is maximized and not in a stack.
 function hide_stackline {
@@ -53,5 +47,5 @@ function hide_stackline {
   fi
   hs -c "if stackline.config:get([[appearance.alpha]]) ~= $alpha then stackline.config:set([[appearance.alpha]], $alpha) end"
 }
-call_hide_stackline="$(declare -pf hide_stackline)"$'\n''hide_stackline'
+call_hide_stackline="$(declare -f hide_stackline)"$'\n''hide_stackline'
 yabai -m signal --add label=hidestackline event=window_resized action="$call_hide_stackline"
