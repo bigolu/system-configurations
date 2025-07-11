@@ -124,7 +124,16 @@ require("nvim-lightbulb").setup({
 })
 
 -- An error is printed if nix isn't available
-if vim.fn.executable("nix") == 1 then
+local nix_command = [[
+  set count (type --force-path --all nix)
+  if test -n "$PORTABLE_HOME"
+    # The nix wrapper shouldn't count as nix
+    test (count $count) -gt 1
+  else
+    test (count $count) -gt 0
+  end
+]]
+if (vim.system({ "fish", "--command", nix_command }):wait()).code == 0 then
   local excluded_servers = {
     "pylyzer",
     "jedi_language_server",
