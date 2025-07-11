@@ -25,7 +25,7 @@ let
     ;
   inherit (import ../utils.nix) applyIf;
 
-  recursiveUpdateList = foldl' (acc: next: recursiveUpdate acc next) { };
+  recursiveUpdateList = foldl' recursiveUpdate { };
 
   deduplicateShellHooks =
     mkShellArgs@{
