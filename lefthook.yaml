@@ -373,19 +373,14 @@ check:
                 - name: gopls
                   glob: "*.go"
                   run: |
-                    check() {
-                      # TODO: gopls should have an option for failing if an error was
-                      # found.
-                      issues="$(gopls check "$@")"
-                      if [ -n "$issues" ]; then
-                        echo "$issues"
-                        exit 1
-                      fi
-                    }
-                    # I use a function because lefthook is assuming that the {files}
-                    # placeholder is not inside a string. So its escaping may not
-                    # work otherwise.
-                    check {files}
+                    set -e
+                    # TODO: gopls should have an option for failing if an error was
+                    # found.
+                    issues="$(gopls check {files})"
+                    if [ -n "$issues" ]; then
+                      echo "$issues"
+                      exit 1
+                    fi
                 - name: ruff
                   glob: "*.py"
                   run: ruff check {files}
