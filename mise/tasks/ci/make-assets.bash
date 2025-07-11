@@ -96,7 +96,9 @@ function get_basename_with_platform {
 
   # e.g. x86_64-linux
   local platform
-  platform="$(uname -ms | tr ' [:upper:]' '-[:lower:]')"
+  platform="$(uname -ms)"
+  platform="${platform,,}"
+  platform="${platform// /-}"
 
   echo "${basename}-${platform}"
 }
