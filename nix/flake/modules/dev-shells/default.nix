@@ -53,11 +53,11 @@ moduleContext@{ lib, utils, ... }:
             direnv
             gozip
             speakerctl
-            check
-            sync
-            taskRunner
-            taskAutocomplete
-            tasks
+            lefthookCheckHook
+            lefthookSyncHook
+            mise
+            miseTaskAutocomplete
+            miseTasks
             vsCode
           ];
           shellHook = ''

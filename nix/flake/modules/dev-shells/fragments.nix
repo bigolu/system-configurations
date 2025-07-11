@@ -34,15 +34,6 @@ let
   inherit (pkgs.stdenv) isLinux;
 in
 rec {
-  lefthook = mkShellNoCC {
-    packages = [
-      pkgs.lefthook
-      # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
-      # it a dependency.
-      pkgs.git
-    ];
-  };
-
   shellHookHelpers = mkShellNoCC {
     shellHook = ''
       # We could just always recreate the symlink, even if the target of the symlink
@@ -100,7 +91,7 @@ rec {
       };
     in
     mkShellNoCC {
-      inputsFrom = [ taskRunner ] ++ optionals isLinux [ locale ];
+      inputsFrom = [ mise ] ++ optionals isLinux [ locale ];
       # For the `run` steps in CI workflows
       packages = [ pkgs.bash-script ];
     };
@@ -121,7 +112,16 @@ rec {
 
   speakerctl = pkgs.speakerctl.devShell;
 
-  check =
+  lefthook = mkShellNoCC {
+    packages = with pkgs; [
+      pkgs.lefthook
+      # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
+      # it a dependency.
+      git
+    ];
+  };
+
+  lefthookCheckHook =
     let
       lua-language-server = mkShellNoCC {
         packages = [ pkgs.lua-language-server ];
@@ -147,7 +147,7 @@ rec {
         # Runs the checks
         lefthook
         # This is needed for generating task documentation
-        taskRunner
+        mise
         # For `gofmt`, `go mod tidy`, `gopls`, and `golangci-lint`
         gozip
         # This is needed for running mypy
@@ -189,7 +189,7 @@ rec {
       ];
     };
 
-  sync = mkShellNoCC {
+  lefthookSyncHook = mkShellNoCC {
     # Runs the sync jobs
     inputsFrom = [ lefthook ];
     packages = with pkgs; [
@@ -199,9 +199,10 @@ rec {
     ];
   };
 
-  taskRunner = mkShellNoCC {
+  mise = mkShellNoCC {
     packages = with pkgs; [
-      mise
+      pkgs.mise
+      # For running file-based tasks
       cached-nix-shell
     ];
     shellHook = ''
@@ -225,7 +226,7 @@ rec {
   # These are the dependencies of the commands run within `complete` statements in
   # mise tasks. I could use nix shebang scripts instead, but then autocomplete
   # would be delayed by the time it takes to load a nix shell.
-  taskAutocomplete = mkShellNoCC {
+  miseTaskAutocomplete = mkShellNoCC {
     packages = with pkgs; [
       fish
       # For nix's fish shell autocomplete
@@ -243,7 +244,7 @@ rec {
   #     dependencies have already been fetched.
   #   - Since the dev shell is a garbage collection root, these task dependencies
   #     won't get garbage collected.
-  tasks = pipe (projectRoot + /mise/tasks) [
+  miseTasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
     (map extractNixShebangPackages)
