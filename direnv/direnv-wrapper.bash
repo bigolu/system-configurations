@@ -1,7 +1,7 @@
 #! Though we don't use shebangs, nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -I nixpkgs=./nix/nixpkgs-for-nix-shell.nix
 #! nix-shell -i bash
-#! nix-shell --packages "with (import ../nix/packages.nix); [bash direnv coreutils]"
+#! nix-shell --packages bash direnv coreutils
 
 # This script is a wrapper for direnv that has the following extra features:
 #   - Gets direnv and its dependencies, Bash and coreutils, using the nix-shell
@@ -16,11 +16,8 @@
 # Since this script is not run from within the direnv environment, the nix-shell
 # directives at the top of the file work differently than the ones in other
 # scripts:
-#   - A relative path is used to access the package set instead of the
-#     NIX_PACKAGES environment variable. This is done because that variable
-#     comes from the direnv environment.
 #   - -I is used to set nixpkgs on the nix path. This is done because NIX_PATH is set
-#     by the direnv environment.
+#     by the cached-nix-shell wrapper that comes from the direnv environment.
 #   - nix-shell is used instead of cached-nix-shell. This is done because
 #     cached-nix-shell comes from the direnv environment.
 #   - bash is used as the interpreter instead of nix-shell-interpreter. This is
@@ -29,8 +26,7 @@
 #
 # It's also worth noting that the path used with the -I flag is relative to the
 # directory where this script is executed, which is assumed to be the root of
-# the project, and the path in the import expression is relative to where this
-# script is.
+# the project.
 #
 # [1]: https://github.com/direnv/direnv/issues/348
 # [2]: https://github.com/direnv/direnv/issues/227

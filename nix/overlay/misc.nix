@@ -198,24 +198,20 @@ let
         calling the real cached-nix-shell.
       '';
       text = ''
-        # nix-shell looks up nixpkgs on the nix path so it can use
-        # nixpkgs.runCommandCC to run the script. You can also set the nixpkgs
-        # used by nix-shell by using the -I flag in the script shebang,
-        # but I don't do that since I would have to specify the path to
-        # nixpkgs-for-nix-shell.nix in every script.
+        # The nixpkgs entry on the NIX_PATH is used for two things:
+        #   - nixpkgs.runCommandCC is used to run a shebang script
+        #   - The packages listed with -p/--packages are considered attribute
+        #     names in nixpkgs
         #
-        # I intentionally set this variable through a wrapper and not through a
-        # devShell to avoid breaking `comma`[1] in a development environment. If I
-        # did set it, then comma would use this nixpkgs instead of the one for my
-        # system. Even if I were ok with that, I didn't build an index for this
-        # nixpkgs so comma wouldn't be able to use it anyway.
+        # I intentionally set this variable through a wrapper and not
+        # through a dev shell to avoid breaking `comma`[1] in a development
+        # environment. If I did set it, then comma would use this nixpkgs
+        # instead of the one for my system. Even if I were ok with that, I
+        # didn't build an index for this nixpkgs so comma wouldn't be able to
+        # use it anyway.
         #
         # [1]: https://github.com/nix-community/comma
         export NIX_PATH="nixpkgs=${source}/nix/nixpkgs-for-nix-shell.nix''${NIX_PATH:+:$NIX_PATH}"
-
-        # To avoid specifying the package set path in every script's nix shebang, I
-        # export a variable with the path.
-        export NIX_PACKAGES=${source}/nix/packages.nix
 
         ${final.lib.getExe prev.cached-nix-shell} "$@"
       '';

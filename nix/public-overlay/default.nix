@@ -32,12 +32,12 @@ in
 
       # Match packages in nix shebangs.
       #
-      # The shebang looks something like:
-      #   #! nix-shell --packages "with ...; [package1 package2]"
+      # The nix-shell directive resembles:
+      #   #! nix-shell --packages/-p package1 package2
       #
-      # So this match will extract everything between the brackets i.e.
-      #   'package1 package2'.
-      (map (match ''^#! nix-shell (--packages|-p) .*\[(.*)].*''))
+      # So this match will match everything after the package flag i.e.
+      # 'package1 package2'.
+      (map (match ''^#! nix-shell (--packages|-p) (.*)''))
       (filter (matches: matches != null))
       (map (matches: elemAt matches 1))
 
