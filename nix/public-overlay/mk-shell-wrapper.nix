@@ -10,6 +10,7 @@ let
     removeAttrs
     catAttrs
     filter
+    foldl'
     ;
   inherit (lib)
     pipe
@@ -19,10 +20,12 @@ let
     concatLists
     unique
     optionals
-    optionalAttrs
     reverseList
+    recursiveUpdate
     ;
   inherit (import ../utils.nix) applyIf;
+
+  recursiveUpdateList = foldl' (acc: next: recursiveUpdate acc next) { };
 
   deduplicateShellHooks =
     mkShellArgs@{
@@ -49,36 +52,41 @@ let
       inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
       shellWithoutInputsFrom = mkShellNoCC (removeAttrs mkShellArgs [ "inputsFrom" ]);
     in
-    mkShellArgs
-    // {
-      # We store all the shells included in inputsFrom, recursively, so we can keep
-      # track of the individual shellHooks. We need to do this since mkShell combines
-      # all the shellHooks from the shells in inputsFrom with the shellHook of the
-      # shell being created.
-      #
-      # Even though the goal is only to deduplicate shellHooks, we keep track of the
-      # entire shells so we can deduplicate the hooks based on the shell derivation
-      # they belong to and not their contents. This way, if two different shell
-      # derivations happen to have the same shellHook, the shellHook will still be
-      # included twice.
-      passthru.propagatedShells =
-        uniquePropagatedShells
-        # We include the shell being created so we can retain its original shellHook,
-        # before we joined it with the shellHooks from the propagatedShells in
-        # inputsFrom. We remove its inputsFrom since those shells are already
-        # included in their own propagatedShells, due to what we're doing here.
-        ++ [ shellWithoutInputsFrom ];
-    }
-    // optionalAttrs (inputsFromWithoutShellHooks != [ ]) {
-      # Since we've already joined the shellHooks, we'll remove the shellHooks from
-      # the shells in inputsFrom so they don't get joined again.
-      inputsFrom = inputsFromWithoutShellHooks;
-    }
-    // optionalAttrs (shellHooks != [ ]) {
-      # We have to join the shellHooks ourselves since we store the individual
-      # shellHooks in propagatedShells.
-      shellHook = joinedShellHooks;
-    };
+    recursiveUpdateList (
+      [
+        mkShellArgs
+        {
+          # We store all the shells included in inputsFrom, recursively, so we can
+          # keep track of the individual shellHooks. We need to do this since mkShell
+          # combines all the shellHooks from the shells in inputsFrom with the
+          # shellHook of the shell being created.
+          #
+          # Even though the goal is only to deduplicate shellHooks, we keep track of
+          # the entire shells so we can deduplicate the hooks based on the shell
+          # derivation they belong to and not their contents. This way, if two
+          # different shell derivations happen to have the same shellHook, the
+          # shellHook will still be included twice.
+          passthru.propagatedShells =
+            uniquePropagatedShells
+            # We include the shell being created so we can retain its original
+            # shellHook, before we joined it with the shellHooks from the
+            # propagatedShells in inputsFrom. We remove its inputsFrom since those
+            # shells are already included in their own propagatedShells, due to what
+            # we're doing here.
+            ++ [ shellWithoutInputsFrom ];
+        }
+      ]
+      ++ optionals (inputsFromWithoutShellHooks != [ ]) [
+        # Since we've already joined the shellHooks, we'll remove the shellHooks from
+        # the shells in inputsFrom so they don't get joined again.
+        { inputsFrom = inputsFromWithoutShellHooks; }
+      ]
+      ++ optionals (shellHooks != [ ]) [
+        # We have to join the shellHooks ourselves since we store the individual
+        # shellHooks in propagatedShells.
+        { shellHook = joinedShellHooks; }
+      ]
+    );
 
   # Prevent nested nix shells from executing this shell's hook[1][2].
   #
@@ -139,17 +147,21 @@ let
         fi
       '';
     in
-    mkShellArgs
-    // optionalAttrs (inputsFromWithoutShellHooks != [ ]) {
-      inputsFrom = inputsFromWithoutShellHooks;
-    }
-    // optionalAttrs (shellHooks != [ ]) {
-      shellHook = guardedShellHook;
-      # The guard uses the name of the devShell, but the name may change if a shell
-      # is included in another shell using inputsFrom so we'll store the unguarded
-      # one as well.
-      unguardedShellHook = joinedShellHooks;
-    };
+    recursiveUpdateList (
+      [ mkShellArgs ]
+      ++ optionals (inputsFromWithoutShellHooks != [ ]) [
+        { inputsFrom = inputsFromWithoutShellHooks; }
+      ]
+      ++ optionals (shellHooks != [ ]) [
+        {
+          shellHook = guardedShellHook;
+          # The guard uses the name of the devShell, but the name may change if a
+          # shell is included in another shell using inputsFrom so we'll store the
+          # unguarded one as well.
+          passthru.unguardedShellHook = joinedShellHooks;
+        }
+      ]
+    );
 in
 pipe mkShellArgs [
   (applyIf uniqueShellHooks deduplicateShellHooks)
