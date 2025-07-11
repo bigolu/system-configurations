@@ -24,14 +24,6 @@
       additionalBranchPrefix: "",
     },
     {
-      description: "Disable updates for pinned flake inputs",
-
-      matchManagers: ["nix"],
-      matchDepNames: ["nixpkgs-mise"],
-
-      enabled: false,
-    },
-    {
       matchManagers: ["nix"],
       postUpgradeTasks: {
         commands: [

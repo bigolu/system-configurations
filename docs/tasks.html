@@ -10,11 +10,11 @@
 <h2><code>check</code></h2>
 <p>Run jobs to find/fix issues with the code. It runs on all files that differ between the current branch and the default branch, and untracked files. This is usually what you want since you can assume any files merged into the default branch have no issues. You usually don't have to run this manually since it runs during the git pre-commit hook, where it only runs on staged files. The exception to this is when you make changes to how any of the jobs work, like modifying <code>lefthook.yaml</code> for example. In which case, you should run this with the <code>--all-files</code> flag which forces the jobs to run on all files, even unchanged ones. The list of jobs is in <code>lefthook.yaml</code>.</p>
 <ul>
-<li><strong>Usage</strong>: <code>check [-a --all-files] [jobs]...</code></li>
+<li><strong>Usage</strong>: <code>check [-a --all-files] [jobs]…</code></li>
 </ul>
 <p>Run jobs to find/fix issues</p>
 <h3>Arguments</h3>
-<h4><code>[jobs]...</code></h4>
+<h4><code>[jobs]…</code></h4>
 <p>Jobs to run. If none are passed then all of them will be run</p>
 <h3>Flags</h3>
 <h4><code>-a --all-files</code></h4>
@@ -66,11 +66,11 @@
 <h2><code>sync</code></h2>
 <p>Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since git hooks are provided to automatically run this after rebases, merges, and checkouts. The list of jobs is in <code>lefthook.yaml</code>.</p>
 <ul>
-<li><strong>Usage</strong>: <code>sync [jobs]...</code></li>
+<li><strong>Usage</strong>: <code>sync [jobs]…</code></li>
 </ul>
 <p>Sync your environment with the code</p>
 <h3>Arguments</h3>
-<h4><code>[jobs]...</code></h4>
+<h4><code>[jobs]…</code></h4>
 <p>Jobs to run. If none are passed then all of them will be run</p>
 <h2><code>system:preview-sync</code></h2>
 <p>Show a preview of what changes would be made to the system if you applied the current configuration.</p>

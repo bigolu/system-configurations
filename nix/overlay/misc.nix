@@ -232,7 +232,6 @@ in
     inherit (prev) mkShellNoCC;
   };
 
-  inherit (inputs.nixpkgs-mise.legacyPackages.${final.system}) mise;
   # This is usually broken on unstable
   inherit (inputs.nixpkgs-stable.legacyPackages.${final.system}) diffoscopeMinimal;
 

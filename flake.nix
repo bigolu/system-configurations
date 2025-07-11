@@ -47,12 +47,6 @@
     # case.
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
 
-    # TODO: Dynamic autocomplete[1] for tasks isn't working in future versions of
-    # mise, I should look into this.
-    #
-    # [1]: https://usage.jdx.dev/spec/reference/complete
-    nixpkgs-mise.url = "github:NixOS/nixpkgs/18dd725c29603f582cf1900e0d25f9f1063dbf11";
-
     stackline = {
       url = "github:AdamWagner/stackline";
       flake = false;
