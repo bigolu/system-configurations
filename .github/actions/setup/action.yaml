@@ -102,7 +102,7 @@ runs:
         # from old cache entries over time.
         #
         # SYNC: CACHE_SCOPE
-        CACHE_KEY_PREFIX: ${{ steps.get-year.outputs.year }}-${{ github.workflow }}-${{ github.job }}-nix-and-direnv-${{ runner.arch }}-${{ runner.os }}
+        CACHE_KEY_PREFIX: ${{ steps.get-year.outputs.year }}-${{ github.workflow }}-${{ github.job }}-nix-and-direnv-${{ runner.arch }}-${{ runner.os }}-
       with:
         paths: |
           ~/.cache/nix
