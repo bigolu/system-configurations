@@ -217,7 +217,7 @@ rec {
       # I don't want to make GC roots when debugging CI because unlike actual CI,
       # where new virtual machines are created for each run, they'll just accumulate.
       if [[ ''${CI:-} == 'true' ]] && [[ ''${CI_DEBUG:-} != 'true' ]]; then
-        export NIX_SHEBANG_GC_ROOTS_DIR="''${direnv_layout_dir:-$PWD/.direnv}/nix-shebang-dependencies"
+        export NIX_SHEBANG_GC_ROOTS_DIR="$(mktemp --directory)"
       fi
     '';
   };
