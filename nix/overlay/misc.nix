@@ -171,7 +171,7 @@ let
 
   cached-nix-shell =
     let
-      # These are the files needed by packages.nix and nixpkgs.nix
+      # These are the files needed by packages.nix and nixpkgs-for-nix-shell.nix
       source =
         final.lib.pipe
           [
@@ -198,10 +198,11 @@ let
         calling the real cached-nix-shell.
       '';
       text = ''
-        # cached-nix-shell looks up nixpkgs on the nix path so it can use
-        # nixpkgs.runCommandNoCC to run the script. You can also set the nixpkgs used
-        # by nix-shell by using the -I flag in the script shebang, but I don't do
-        # that since I would have to specify the path to nixpkgs.nix in every script.
+        # nix-shell looks up nixpkgs on the nix path so it can use
+        # nixpkgs.runCommandCC to run the script. You can also set the nixpkgs
+        # used by nix-shell by using the -I flag in the script shebang,
+        # but I don't do that since I would have to specify the path to
+        # nixpkgs-for-nix-shell.nix in every script.
         #
         # I intentionally set this variable through a wrapper and not through a
         # devShell to avoid breaking `comma`[1] in a development environment. If I
@@ -210,7 +211,7 @@ let
         # nixpkgs so comma wouldn't be able to use it anyway.
         #
         # [1]: https://github.com/nix-community/comma
-        export NIX_PATH="nixpkgs=${source}/nix/nixpkgs.nix''${NIX_PATH:+:$NIX_PATH}"
+        export NIX_PATH="nixpkgs=${source}/nix/nixpkgs-for-nix-shell.nix''${NIX_PATH:+:$NIX_PATH}"
 
         # To avoid specifying the package set path in every script's nix shebang, I
         # export a variable with the path.

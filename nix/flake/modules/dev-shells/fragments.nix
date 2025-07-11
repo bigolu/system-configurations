@@ -295,8 +295,10 @@ rec {
     fileset.toList
     (map extractNixShebangPackages)
     concatLists
-    # Nix shebangs also depend on stdenv
-    (packages: packages ++ [ pkgs.stdenv ])
+    # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
+    # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.
+    # See nixpkgs-for-nix-shell.nix
+    (packages: packages ++ [ pkgs.stdenvNoCC ])
     # Scripts use `nix-shell-interpreter` as their interpreter to work around an
     # issue with nix-shell, but bashInteractive can be used locally for
     # debugging. It's important that bashInteractive is added to the front of the
