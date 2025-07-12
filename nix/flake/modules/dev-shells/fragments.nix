@@ -215,6 +215,8 @@ rec {
         touch "$trust_marker"
       fi
 
+      export NIX_SHEBANG_NIXPKGS="$PWD/nix/nixpkgs-for-nix-shell.nix"
+
       # I don't want to make GC roots when debugging CI because unlike actual CI,
       # where new virtual machines are created for each run, they'll just accumulate.
       if [[ ''${CI:-} == 'true' ]] && [[ ''${CI_DEBUG:-} != 'true' ]]; then

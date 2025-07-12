@@ -169,53 +169,31 @@ let
       '';
     };
 
-  cached-nix-shell =
-    let
-      # These are the files needed by packages.nix and nixpkgs-for-nix-shell.nix
-      source =
-        final.lib.pipe
-          [
-            /flake.nix
-            /flake.lock
-            /nix
-          ]
-          [
-            (map (relativePath: projectRoot + relativePath))
-            final.lib.fileset.unions
-            (
-              union:
-              final.lib.fileset.toSource {
-                root = projectRoot;
-                fileset = union;
-              }
-            )
-          ];
-    in
-    final.writeShellApplication {
-      name = "cached-nix-shell";
-      meta.description = ''
-        A wrapper for cached-nix-shell that adds a nixpkgs entry to NIX_PATH before
-        calling the real cached-nix-shell.
-      '';
-      text = ''
-        # The nixpkgs entry on the NIX_PATH is used for two things:
-        #   - nixpkgs.runCommandCC is used to run a shebang script
-        #   - The packages listed with -p/--packages are considered attribute
-        #     names in nixpkgs
-        #
-        # I intentionally set this variable through a wrapper and not
-        # through a dev shell to avoid breaking `comma`[1] in a development
-        # environment. If I did set it, then comma would use this nixpkgs
-        # instead of the one for my system. Even if I were ok with that, I
-        # didn't build an index for this nixpkgs so comma wouldn't be able to
-        # use it anyway.
-        #
-        # [1]: https://github.com/nix-community/comma
-        export NIX_PATH="nixpkgs=${source}/nix/nixpkgs-for-nix-shell.nix''${NIX_PATH:+:$NIX_PATH}"
+  cached-nix-shell = final.writeShellApplication {
+    name = "cached-nix-shell";
+    meta.description = ''
+      A wrapper for cached-nix-shell that adds a nixpkgs entry to NIX_PATH before
+      calling the real cached-nix-shell.
+    '';
+    text = ''
+      # The nixpkgs entry on the NIX_PATH is used for two things:
+      #   - nixpkgs.runCommandCC is used to run a shebang script
+      #   - The packages listed with -p/--packages are considered attribute
+      #     names in nixpkgs
+      #
+      # I intentionally set this variable through a wrapper and not
+      # through a dev shell to avoid breaking `comma`[1] in a development
+      # environment. If I did set it, then comma would use this nixpkgs
+      # instead of the one for my system. Even if I were ok with that, I
+      # didn't build an index for this nixpkgs so comma wouldn't be able to
+      # use it anyway.
+      #
+      # [1]: https://github.com/nix-community/comma
+      export NIX_PATH="nixpkgs=$NIX_SHEBANG_NIXPKGS''${NIX_PATH:+:$NIX_PATH}"
 
-        ${final.lib.getExe prev.cached-nix-shell} "$@"
-      '';
-    };
+      ${final.lib.getExe prev.cached-nix-shell} "$@"
+    '';
+  };
 in
 {
   neovim = neovimWithDependencies;
