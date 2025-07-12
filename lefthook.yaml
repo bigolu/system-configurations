@@ -152,8 +152,11 @@ sync:
         # automatically.
         - run: '[ ! -e "${direnv_layout_dir:-.direnv}/lefthook-installed" ]'
       run: |
-        lefthook install --force
-        touch "${direnv_layout_dir:-.direnv}/lefthook-installed"
+        {direnv_exec} sh -c '
+          set -e
+          lefthook install --force
+          touch "${direnv_layout_dir:-.direnv}/lefthook-installed"
+        '
     - name: system
       glob:
         - smart_plug/**
@@ -180,10 +183,10 @@ sync:
       # Use `chase` since the sudoers config specifies the path of `run-as-admin` in
       # the nix store, but `command` will return the path in my user's profile
       run: |
-        {direnv_exec} sudo -- \
+        sudo -- \
           "$(chase "$(command -v run-as-admin)")" \
           --path "$PATH" \
-          "$(command -v mise)" run system:sync
+          {direnv_exec} mise run system:sync
     - name: fish
       glob:
         - dotfiles/fish/conf.d/*.fish
