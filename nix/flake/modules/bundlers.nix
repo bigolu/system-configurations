@@ -88,6 +88,7 @@ let
           };
 
         rootlessBundler =
+          drv:
           let
             getMainProgram =
               derivation:
@@ -126,7 +127,6 @@ let
 
             known-types = concatStringsSep ", " (attrNames handlers);
           in
-          drv:
           assert assertMsg (hasAttr drv.type handlers)
             "don't know how to make a bundle for type '${drv.type}'; only know ${known-types}";
           handlers.${drv.type} drv;
