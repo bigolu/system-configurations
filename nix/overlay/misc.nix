@@ -189,7 +189,9 @@ let
       # use it anyway.
       #
       # [1]: https://github.com/nix-community/comma
-      export NIX_PATH="nixpkgs=$NIX_SHEBANG_NIXPKGS''${NIX_PATH:+:$NIX_PATH}"
+      if [[ -n ''${NIX_SHEBANG_NIXPKGS:-} ]]; then
+        export NIX_PATH="nixpkgs=$NIX_SHEBANG_NIXPKGS''${NIX_PATH:+:$NIX_PATH}"
+      fi
 
       ${final.lib.getExe prev.cached-nix-shell} "$@"
     '';
