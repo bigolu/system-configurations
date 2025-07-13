@@ -8,7 +8,10 @@
 #     by CNS, nixpkgs-for-nix-shell.nix, imports this file to get the flake inputs.
 #     If we copied the source tree to the store, then all the files in the git
 #     repository, and many files in .git, would be included in the trace which would
-#     lead to more cache invalidations.
+#     lead to more cache invalidations. This is due to flake's builtin gitignore
+#     support.
+#
+# Flake-Compat also seems to fetch inputs more lazily.
 #
 # There's an open issue[2] in CppNix for copying flakes to the store lazily, but Lix
 # has no plans to implement it[3] so I'll stick with flake-compat.
