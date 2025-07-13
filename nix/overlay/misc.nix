@@ -163,7 +163,7 @@ let
       meta.description = ''
         Bash with settings applied for running scripts non-interactively.
       '';
-      runtimeInputs = [ final.bash ];
+      runtimeInputs = [ final.bashInteractive ];
       text = ''
         BASH_ENV=${initFile} exec bash --noprofile --norc "$@"
       '';

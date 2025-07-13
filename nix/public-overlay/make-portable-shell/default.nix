@@ -14,7 +14,7 @@ let
     pipe
     ;
 
-  bashPath = "${final.bash}/bin/bash";
+  bashPath = "${final.bashInteractive}/bin/bash";
   inherit (homeConfig) activationPackage;
 
   initSnippet =

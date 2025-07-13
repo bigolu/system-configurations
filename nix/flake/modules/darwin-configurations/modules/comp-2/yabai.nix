@@ -11,7 +11,7 @@ let
     paths = with pkgs; [
       jq
       yabai
-      bash
+      bashInteractive
     ];
   };
 
