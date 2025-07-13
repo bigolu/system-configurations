@@ -105,9 +105,6 @@ runs:
         CACHE_KEY_PREFIX: ${{ steps.get-year.outputs.year }}-${{ github.workflow }}-${{ github.job }}-nix-and-direnv-${{ runner.arch }}-${{ runner.os }}-
       with:
         paths: |
-          ~/.cache/nix
-          # We don't need this directory and it can get pretty large
-          !~/.cache/nix/tarball-cache
           ~/.cache/cached-nix-shell
           ~/.cache/direnv
         # The key used to store/restore a cache entry
