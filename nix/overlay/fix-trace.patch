@@ -1,0 +1,79 @@
+diff --git a/nix-trace/trace-nix.c b/nix-trace/trace-nix.c
+index 6cd10b8..a57f76c 100644
+--- a/nix-trace/trace-nix.c
++++ b/nix-trace/trace-nix.c
+@@ -21,6 +21,7 @@ static const char *pwd = NULL;
+ static char tmp_prefix[PATH_MAX];  // "$TMPDIR/nix-$$-"
+ static size_t tmp_prefix_dirname_len = 0;  // Length of "$TMPDIR"
+ static size_t tmp_prefix_basename_len = 0;  // Length of "nix-$$-"
++static char nix_shell_tmp_prefix[PATH_MAX];  // "$TMPDIR/nix-shell-$$-"
+ 
+ #define FATAL() \
+ 	do { \
+@@ -108,6 +109,7 @@ static void __attribute__((constructor)) init() {
+ 	const char *tmpdirend = tmpdir_real + strlen(tmpdir_real);
+ 	while (tmpdirend > tmpdir_real && tmpdirend[-1] == '/')
+ 		tmpdirend--;
++
+ 	int len = snprintf(tmp_prefix, sizeof tmp_prefix,
+ 		"%.*s/nix-%" PRIu64 "-",
+ 		(int)(tmpdirend - tmpdir_real),
+@@ -119,6 +121,16 @@ static void __attribute__((constructor)) init() {
+ 		fprintf(stderr, "trace-nix: TMPDIR too long\n");
+ 		tmp_prefix[0] = '\0';
+ 	}
++
++	int nix_shell_len = snprintf(nix_shell_tmp_prefix, sizeof nix_shell_tmp_prefix,
++		"%.*s/nix-shell-%" PRIu64 "-",
++		(int)(tmpdirend - tmpdir_real),
++		tmpdir_real,
++		(uint64_t)getpid());
++	if (nix_shell_len < 0 || nix_shell_len >= sizeof nix_shell_tmp_prefix) {
++		fprintf(stderr, "trace-nix: TMPDIR too long\n");
++		nix_shell_tmp_prefix[0] = '\0';
++	}
+ }
+ 
+ #ifdef __APPLE__
+@@ -162,7 +174,28 @@ WRAPPER(int, open, (const char *path, int flags, ...)) {
+ 
+ 	int fd = REAL(open)(path, flags, mode);
+ 
+-	if (flags == (O_RDONLY|O_CLOEXEC) && enable(path)) {
++	if (enable(path)) {
++		if (fd == -1) {
++			print_log('f', path, "-");
++		} else {
++			char digest[LEN*2+1];
++			hash_file(digest, fd);
++			print_log('f', path, digest);
++		}
++	}
++
++	return fd;
++}
++
++WRAPPER(int, open64, (const char *path, int flags, ...)) {
++	va_list args;
++	va_start(args, flags);
++	int mode = va_arg(args, int);
++	va_end(args);
++
++	int fd = REAL(open64)(path, flags, mode);
++
++	if (enable(path)) {
+ 		if (fd == -1) {
+ 			print_log('f', path, "-");
+ 		} else {
+@@ -266,6 +299,11 @@ static int enable(const char *path) {
+ 		if (!memcmp(path, *p, strlen(*p)))
+ 			return 0;
+ 
++	if (memcmp(path, tmp_prefix, strlen(tmp_prefix)) == 0)
++		return 0;
++	if (memcmp(path, nix_shell_tmp_prefix, strlen(nix_shell_tmp_prefix)) == 0)
++		return 0;
++
+ 	return 1;
+ }
+ 

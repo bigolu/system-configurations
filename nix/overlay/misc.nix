@@ -193,7 +193,13 @@ let
         export NIX_PATH="nixpkgs=$NIX_SHEBANG_NIXPKGS''${NIX_PATH:+:$NIX_PATH}"
       fi
 
-      ${final.lib.getExe prev.cached-nix-shell} "$@"
+      ${
+        final.lib.getExe (
+          prev.cached-nix-shell.overrideAttrs (old: {
+            patches = (old.patches or [ ]) ++ [ ./fix-trace.patch ];
+          })
+        )
+      } "$@"
     '';
   };
 in
