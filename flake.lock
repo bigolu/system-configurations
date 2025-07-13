@@ -114,35 +114,6 @@
         "type": "github"
       }
     },
-    "isd": {
-      "inputs": {
-        "nix-appimage": [],
-        "nix-filter": "nix-filter",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
-        "pyproject-build-systems": "pyproject-build-systems",
-        "pyproject-nix": "pyproject-nix",
-        "systemd-nix": [],
-        "systems": [
-          "systems"
-        ],
-        "uv2nix": "uv2nix"
-      },
-      "locked": {
-        "lastModified": 1747059316,
-        "narHash": "sha256-BgCtosZQXjw85O9O7QMcbJhU+Og/5ADpwOM+hPmJmAU=",
-        "owner": "isd-project",
-        "repo": "isd",
-        "rev": "d7fa6f921d1b3b909cb6f12eb802dc347659513a",
-        "type": "github"
-      },
-      "original": {
-        "owner": "isd-project",
-        "repo": "isd",
-        "type": "github"
-      }
-    },
     "keyd": {
       "flake": false,
       "locked": {
@@ -219,21 +190,6 @@
         "owner": "nix-darwin",
         "ref": "master",
         "repo": "nix-darwin",
-        "type": "github"
-      }
-    },
-    "nix-filter": {
-      "locked": {
-        "lastModified": 1731533336,
-        "narHash": "sha256-oRam5PS1vcrr5UPgALW0eo1m/5/pls27Z/pabHNy2Ms=",
-        "owner": "numtide",
-        "repo": "nix-filter",
-        "rev": "f7653272fd234696ae94229839a99b73c9ab7de0",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "nix-filter",
         "type": "github"
       }
     },
@@ -341,56 +297,6 @@
         "type": "github"
       }
     },
-    "pyproject-build-systems": {
-      "inputs": {
-        "nixpkgs": [
-          "isd",
-          "nixpkgs"
-        ],
-        "pyproject-nix": [
-          "isd",
-          "pyproject-nix"
-        ],
-        "uv2nix": [
-          "isd",
-          "uv2nix"
-        ]
-      },
-      "locked": {
-        "lastModified": 1740362541,
-        "narHash": "sha256-S8Mno07MspggOv/xIz5g8hB2b/C5HPiX8E+rXzKY+5U=",
-        "owner": "pyproject-nix",
-        "repo": "build-system-pkgs",
-        "rev": "e151741c848ba92331af91f4e47640a1fb82be19",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pyproject-nix",
-        "repo": "build-system-pkgs",
-        "type": "github"
-      }
-    },
-    "pyproject-nix": {
-      "inputs": {
-        "nixpkgs": [
-          "isd",
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1739758351,
-        "narHash": "sha256-Aoa4dEoC7Hf6+gFVk/SDquZTMFlmlfsgdTWuqQxzePs=",
-        "owner": "pyproject-nix",
-        "repo": "pyproject.nix",
-        "rev": "1329712f7f9af3a8b270764ba338a455b7323811",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pyproject-nix",
-        "repo": "pyproject.nix",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "fish-plugin-fish-async-prompt": "fish-plugin-fish-async-prompt",
@@ -399,7 +305,6 @@
         "flake-utils": "flake-utils",
         "gomod2nix": "gomod2nix",
         "home-manager": "home-manager",
-        "isd": "isd",
         "keyd": "keyd",
         "neovim-nightly-overlay": "neovim-nightly-overlay",
         "nix-darwin": "nix-darwin",
@@ -458,31 +363,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "uv2nix": {
-      "inputs": {
-        "nixpkgs": [
-          "isd",
-          "nixpkgs"
-        ],
-        "pyproject-nix": [
-          "isd",
-          "pyproject-nix"
-        ]
-      },
-      "locked": {
-        "lastModified": 1740210290,
-        "narHash": "sha256-VXtF9oZsCmdSsRQjBOm5o0GLYE8Pp5rl7uYK+zV5a0c=",
-        "owner": "pyproject-nix",
-        "repo": "uv2nix",
-        "rev": "846ad27167bf6a855c56753ba8360759bfb6f456",
-        "type": "github"
-      },
-      "original": {
-        "owner": "pyproject-nix",
-        "repo": "uv2nix",
         "type": "github"
       }
     },

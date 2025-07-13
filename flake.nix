@@ -87,16 +87,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    isd = {
-      url = "github:isd-project/isd";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        systems.follows = "systems";
-        nix-appimage.follows = "";
-        systemd-nix.follows = "";
-      };
-    };
-
     neovim-nightly-overlay = {
       url = "github:nix-community/neovim-nightly-overlay";
       # This flake's packages are available in a cache. I'm intentionally not setting
