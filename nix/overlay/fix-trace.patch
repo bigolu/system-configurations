@@ -1,22 +1,37 @@
 diff --git a/nix-trace/trace-nix.c b/nix-trace/trace-nix.c
-index 6cd10b8..4dabf46 100644
+index 6cd10b8..684d4b2 100644
 --- a/nix-trace/trace-nix.c
 +++ b/nix-trace/trace-nix.c
-@@ -21,6 +21,13 @@ static const char *pwd = NULL;
+@@ -21,6 +21,7 @@ static const char *pwd = NULL;
  static char tmp_prefix[PATH_MAX];  // "$TMPDIR/nix-$$-"
  static size_t tmp_prefix_dirname_len = 0;  // Length of "$TMPDIR"
  static size_t tmp_prefix_basename_len = 0;  // Length of "nix-$$-"
 +static char nix_shell_tmp_prefix[PATH_MAX];  // "$TMPDIR/nix-shell-$$-"
-+// TODO: nix unsets TMPDIR on macOS[1][2] so we're hard coding the realpath of /tmp
-+//
-+// [1]: https://github.com/NixOS/nix/issues/7731
-+// [2]: https://github.com/NixOS/nix/blob/b124512388378cd38c4e353ddb387905d296e877/src/libstore/globals.cc#L382
-+static char macos_tmp_prefix[PATH_MAX];  // "/private/tmp/nix-shell-$$-"
-+static char macos_nix_shell_tmp_prefix[PATH_MAX];  // "/private/tmp/nix-shell-$$-"
  
  #define FATAL() \
  	do { \
-@@ -108,6 +115,7 @@ static void __attribute__((constructor)) init() {
+@@ -96,9 +97,17 @@ static void __attribute__((constructor)) init() {
+ 	// References:
+ 	//   https://github.com/NixOS/nix/blob/2.15.1/src/libutil/filesystem.cc#L18
+ 	//   https://github.com/NixOS/nix/blob/2.15.1/src/libutil/util.hh#L337-L338
+-	const char *tmpdir = getenv("TMPDIR");
+-	if (tmpdir == NULL)
+-		tmpdir = "/tmp";
++#ifdef __APPLE__
++		// TODO: nix unsets TMPDIR on macOS[1][2] so we shouldn't use it.
++		//
++		// [1]: https://github.com/NixOS/nix/issues/7731
++		// [2]: https://github.com/NixOS/nix/blob/b124512388378cd38c4e353ddb387905d296e877/src/libstore/globals.cc#L382
++		const char *tmpdir = "/tmp";
++#else
++		const char *tmpdir = getenv("TMPDIR");
++		if (tmpdir == NULL)
++			tmpdir = "/tmp";
++#endif
+ 	char tmpdir_real[PATH_MAX];
+ 	if (realpath(tmpdir, tmpdir_real) == NULL) {
+ 		fprintf(stderr, "trace-nix: cannot resolve TMPDIR: %s\n", strerror(errno));
+@@ -108,6 +117,7 @@ static void __attribute__((constructor)) init() {
  	const char *tmpdirend = tmpdir_real + strlen(tmpdir_real);
  	while (tmpdirend > tmpdir_real && tmpdirend[-1] == '/')
  		tmpdirend--;
@@ -24,7 +39,7 @@ index 6cd10b8..4dabf46 100644
  	int len = snprintf(tmp_prefix, sizeof tmp_prefix,
  		"%.*s/nix-%" PRIu64 "-",
  		(int)(tmpdirend - tmpdir_real),
-@@ -119,6 +127,24 @@ static void __attribute__((constructor)) init() {
+@@ -119,6 +129,16 @@ static void __attribute__((constructor)) init() {
  		fprintf(stderr, "trace-nix: TMPDIR too long\n");
  		tmp_prefix[0] = '\0';
  	}
@@ -38,39 +53,14 @@ index 6cd10b8..4dabf46 100644
 +		fprintf(stderr, "trace-nix: TMPDIR too long\n");
 +		nix_shell_tmp_prefix[0] = '\0';
 +	}
-+
-+	int macos_len = snprintf(macos_tmp_prefix, sizeof macos_tmp_prefix,
-+		"/private/tmp/nix-%" PRIu64 "-",
-+		(uint64_t)getpid());
-+
-+	int macos_nix_shell_len = snprintf(macos_nix_shell_tmp_prefix, sizeof macos_nix_shell_tmp_prefix,
-+		"/private/tmp/nix-shell-%" PRIu64 "-",
-+		(uint64_t)getpid());
  }
  
  #ifdef __APPLE__
-@@ -162,7 +188,7 @@ WRAPPER(int, open, (const char *path, int flags, ...)) {
+@@ -162,7 +182,29 @@ WRAPPER(int, open, (const char *path, int flags, ...)) {
  
  	int fd = REAL(open)(path, flags, mode);
  
 -	if (flags == (O_RDONLY|O_CLOEXEC) && enable(path)) {
-+	if (enable(path)) {
- 		if (fd == -1) {
- 			print_log('f', path, "-");
- 		} else {
-@@ -175,6 +201,29 @@ WRAPPER(int, open, (const char *path, int flags, ...)) {
- 	return fd;
- }
- 
-+#ifdef __linux__
-+WRAPPER(int, open64, (const char *path, int flags, ...)) {
-+	va_list args;
-+	va_start(args, flags);
-+	int mode = va_arg(args, int);
-+	va_end(args);
-+
-+	int fd = REAL(open64)(path, flags, mode);
-+
 +	if (enable(path)) {
 +		if (fd == -1) {
 +			print_log('f', path, "-");
@@ -83,12 +73,29 @@ index 6cd10b8..4dabf46 100644
 +
 +	return fd;
 +}
-+#endif
 +
++#ifdef __linux__
++WRAPPER(int, open64, (const char *path, int flags, ...)) {
++	va_list args;
++	va_start(args, flags);
++	int mode = va_arg(args, int);
++	va_end(args);
++
++	int fd = REAL(open64)(path, flags, mode);
++
++	if (enable(path)) {
+ 		if (fd == -1) {
+ 			print_log('f', path, "-");
+ 		} else {
+@@ -174,6 +216,7 @@ WRAPPER(int, open, (const char *path, int flags, ...)) {
+ 
+ 	return fd;
+ }
++#endif
+ 
  WRAPPER(DIR *, opendir, (const char *path)) {
  	DIR *dirp = REAL(opendir)(path);
- 	if (enable(path)) {
-@@ -257,6 +306,13 @@ static int enable(const char *path) {
+@@ -257,6 +300,11 @@ static int enable(const char *path) {
  		"/nix/store/", // assuming store paths are immutable
  		"/nix/var/nix/temproots/",
  		"/proc/",
@@ -97,8 +104,34 @@ index 6cd10b8..4dabf46 100644
 +		"/dev",
 +		tmp_prefix,
 +		nix_shell_tmp_prefix,
-+		macos_tmp_prefix,
-+		macos_nix_shell_tmp_prefix,
  		NULL,
  	};
  	for (const char **p = ignored_paths; *p; p++)
+diff --git a/src/main.rs b/src/main.rs
+index 5029a26..268e1b5 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -181,8 +181,6 @@ fn args_to_inp(pwd: PathBuf, x: &Args) -> NixShellInput {
+         let whitelist = &[
+             "HOME",
+             "NIX_PATH",
+-            // tmp dir
+-            "TMPDIR",
+             "XDG_RUNTIME_DIR",
+             // ssl-related
+             "CURL_CA_BUNDLE",
+@@ -195,6 +193,14 @@ fn args_to_inp(pwd: PathBuf, x: &Args) -> NixShellInput {
+             "ftp_proxy",
+             "all_proxy",
+             "no_proxy",
++            // tmp dir
++            //
++            // TODO: nix unsets TMPDIR on macOS[1][2] so we shouldn't use it.
++            //
++            // [1]: https://github.com/NixOS/nix/issues/7731
++            // [2]: https://github.com/NixOS/nix/blob/b124512388378cd38c4e353ddb387905d296e877/src/libstore/globals.cc#L382
++            #[cfg(not(target_os = "macos"))]
++            "TMPDIR",
+         ];
+         for var in whitelist {
+             if let Some(val) = std::env::var_os(var) {
