@@ -11,4 +11,5 @@ direnv_init_layout_directory
 dotenv_if_exists secrets.env
 
 source direnv/plugins/nix-direnv-wrapper.bash
-use flake ".#${NIX_DEV_SHELL:?}"
+# Reasons for using `use nix` instead of `use flake` are in compat.nix
+use nix nix/flake/compat.nix -A "currentSystem.devShells.${NIX_DEV_SHELL:?}"

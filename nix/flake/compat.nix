@@ -11,7 +11,8 @@
 #     lead to more cache invalidations. This is due to flake's builtin gitignore
 #     support.
 #
-# Flake-Compat also seems to fetch inputs more lazily.
+# Flake-Compat also seems to fetch inputs more lazily which is especially useful in
+# CI.
 #
 # There's an open issue[2] in CppNix for copying flakes to the store lazily, but Lix
 # has no plans to implement it[3] so I'll stick with flake-compat.
