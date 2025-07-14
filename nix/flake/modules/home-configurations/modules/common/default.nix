@@ -50,7 +50,7 @@ in
       with pkgs;
       optionals config.repository.fileSettings.editableInstall [
         # For my shebang scripts
-        bashInteractive
+        bash
       ]
       ++ optionals isLinuxGui [
         # TODO: Only doing this because Pop!_OS doesn't come with it by default, but

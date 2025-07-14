@@ -1,6 +1,6 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils bashInteractive
+#! nix-shell --packages nix-shell-interpreter coreutils bash
 #MISE description="Start a Bash shell in a direnv CI environment"
 #USAGE arg "<nix_dev_shell>" help="The dev shell that direnv should load"
 #USAGE complete "nix_dev_shell" run=#"""

@@ -255,11 +255,6 @@ rec {
     # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.
     # See nixpkgs-for-nix-shell.nix
     (packages: packages ++ [ pkgs.stdenvNoCC ])
-    # Scripts use `nix-shell-interpreter` as their interpreter to work around an
-    # issue with nix-shell, but bashInteractive can be used locally for
-    # debugging. It's important that bashInteractive is added to the front of the
-    # list because otherwise non-interactive bash will shadow it on the PATH.
-    (dependencies: [ pkgs.bashInteractive ] ++ dependencies)
     (dependencies: mkShellNoCC { packages = dependencies; })
   ];
 
@@ -286,7 +281,7 @@ rec {
         nixd
         # These are for "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and
         # pkill
-        bashInteractive
+        bash
         coreutils
         partialPackages.pkill
       ];
