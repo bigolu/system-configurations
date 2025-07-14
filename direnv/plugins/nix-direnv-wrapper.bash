@@ -12,7 +12,6 @@ function _ndw_create_wrappers {
   _ndw_backup "$_ndw_original_use_nix_name"
   function use_nix {
     _ndw_wrapper_helper "$_ndw_original_use_nix_name" 'nix-profile' "$@"
-    _ndw_make_gc_roots_for_npins
   }
 
   _ndw_original_use_flake_name='use_flake'
@@ -20,39 +19,6 @@ function _ndw_create_wrappers {
   function use_flake {
     _ndw_wrapper_helper "$_ndw_original_use_flake_name" 'flake-profile' "$@"
   }
-}
-
-function _ndw_make_gc_roots_for_npins {
-  if
-    [[ ${NIX_DIRENV_DISABLE_NPINS:-} == 'true' ]] ||
-      ! type -P npins >/dev/null ||
-      [[ ! -d npins && ! -d ${NPINS_DIRECTORY:-} ]]
-  then
-    return
-  fi
-
-  local -r directory="${direnv_layout_dir:-.direnv}/npins-gc-roots"
-  if [[ ! -d $directory ]]; then
-    mkdir -p "$directory"
-  fi
-
-  local output
-  output="$(npins show)"
-  local -a output_lines
-  readarray -t output_lines <<<"$output"
-  local -r pin_regex='^([^[:space:]].*): '
-  local line
-  for line in "${output_lines[@]}"; do
-    if [[ $line =~ $pin_regex ]]; then
-      local pin="${BASH_REMATCH[1]}"
-      local pin_store_path
-      pin_store_path="$(npins get-path "$pin")"
-      local pin_store_path_base_name="${pin_store_path##*/}"
-      nix build \
-        --out-link "$directory/$pin_store_path_base_name" \
-        "$pin_store_path"
-    fi
-  done
 }
 
 function _ndw_wrapper_helper {
