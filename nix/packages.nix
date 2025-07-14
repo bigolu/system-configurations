@@ -1,38 +1,38 @@
 let
+  inherit (import ./flake/compat.nix) inputs;
+
   getPackagesForSystem =
     system:
-    let
-      inherit (import ./flake/compat.nix) inputs;
-
-      privateOverlay = import ./overlay inputs;
-      publicOverlay = import ./public-overlay;
-
-      makeOverlay =
-        {
-          input,
-          package ? input,
-        }:
-        _final: _prev: { ${package} = inputs.${input}.packages.${system}.${package}; };
-    in
     import inputs.nixpkgs {
       inherit system;
+      # perf: To avoid fetching inputs unnecessarily in CI, I don't use their
+      # overlays. This way, I only have to fetch an input if I actually use one of
+      # its packages.
       overlays =
         [
-          inputs.gomod2nix.overlays.default
-          inputs.nix-darwin.overlays.default
-          inputs.nix-gl-host.overlays.default
-          (makeOverlay { input = "home-manager"; })
-          # An overlay is available, but to reuse their cache, they
-          # recommend you use their package instead:
-          # https://github.com/nix-community/neovim-nightly-overlay#to-use-the-overlay
-          (makeOverlay {
-            input = "neovim-nightly-overlay";
-            package = "neovim";
+          (final: prev: {
+            inherit ((import "${inputs.neovim-nightly-overlay}/flake-compat.nix").packages.${system}) neovim;
+            nix-gl-host = final.callPackage inputs.nix-gl-host { };
+            inherit (prev.callPackage inputs.home-manager { }) home-manager;
+
+            inherit (prev.callPackage "${inputs.nix-darwin}/pkgs/nix-tools" { })
+              darwin-rebuild
+              darwin-option
+              darwin-version
+              ;
+            darwin-uninstaller = prev.callPackage "${inputs.nix-darwin}/pkgs/darwin-uninstaller" { };
+
+            inherit (final.callPackage "${inputs.gomod2nix}/builder" { })
+              buildGoApplication
+              mkGoEnv
+              mkVendorEnv
+              ;
+            gomod2nix = final.callPackage inputs.gomod2nix { };
           })
         ]
         ++ [
-          publicOverlay
-          privateOverlay
+          (import ./public-overlay)
+          (import ./overlay inputs)
         ];
     };
 in
