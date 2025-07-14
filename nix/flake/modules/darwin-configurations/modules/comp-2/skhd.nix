@@ -14,7 +14,7 @@ let
       yabai
       fish
       jq
-      bashInteractive
+      bash
     ];
   };
 

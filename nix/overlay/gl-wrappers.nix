@@ -25,7 +25,7 @@ let
       package = prev.${packageName};
       packageExecutable = getExe package;
       nixglhost = getExe final.nix-gl-host;
-      bash = getExe final.bashInteractive;
+      bash = getExe final.bash;
 
       # I reference dependencies directly to avoid polluting the PATH.
       wrappedExecutable = writeScriptBin packageName ''

@@ -211,7 +211,7 @@ in
             file:
             pipe file [
               readFile
-              (replaceString "/usr/bin/env bash" (getExe pkgs.bashInteractive))
+              (replaceString "/usr/bin/env bash" (getExe pkgs.bash))
               (writeScript "patched-xdg-executable-${baseNameOf file}")
             ];
 
