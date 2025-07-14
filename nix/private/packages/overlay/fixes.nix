@@ -1,7 +1,7 @@
-{ inputs, ... }:
+{ lib, ... }:
 final: prev:
 let
-  inherit (inputs.nixpkgs.lib) getExe recursiveUpdate;
+  inherit (lib) getExe recursiveUpdate;
 
   # TODO: I shouldn't have to do this. Either nixpkgs should add the completion
   # files, as they do with lefthook[1], or the tool itself should generate the files

@@ -23,7 +23,10 @@ let
     reverseList
     recursiveUpdate
     ;
-  inherit (import ../utils.nix) applyIf;
+
+  applyIf =
+    shouldApply: function: arg:
+    if shouldApply then function arg else arg;
 
   recursiveUpdateList = foldl' recursiveUpdate { };
 

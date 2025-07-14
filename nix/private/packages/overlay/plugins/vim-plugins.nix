@@ -12,11 +12,11 @@ let
       vimPluginRepositoryPrefix = "vim-plugin-";
 
       vimPluginBuilder =
-        repositoryName: repositorySourceCode: date:
+        repositoryName: repositorySource: version:
         final.vimUtils.buildVimPlugin {
           pname = toNixpkgsPname repositoryName;
-          version = date;
-          src = repositorySourceCode;
+          inherit version;
+          src = repositorySource;
         };
     in
     makePluginPackages vimPluginRepositoryPrefix vimPluginBuilder;

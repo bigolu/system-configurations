@@ -1,4 +1,4 @@
-{ inputs, utils }:
+{ nixpkgs-stable, utils, ... }:
 final: prev:
 let
   inherit (utils) projectRoot unstableVersion;
@@ -209,7 +209,7 @@ in
   };
 
   # This is usually broken on unstable
-  inherit (inputs.nixpkgs-stable.legacyPackages.${final.system}) diffoscopeMinimal;
+  inherit (nixpkgs-stable) diffoscopeMinimal;
 
   inherit
     runAsAdmin

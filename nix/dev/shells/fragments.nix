@@ -16,9 +16,7 @@
   ...
 }:
 let
-  inherit (builtins)
-    concatLists
-    ;
+  inherit (builtins) concatLists;
   inherit (utils) projectRoot;
   inherit (lib)
     pipe
@@ -101,7 +99,7 @@ rec {
   };
 
   gozip = mkShellNoCC {
-    packages = [ (mkGoEnv { pwd = ../../../../gozip; }) ];
+    packages = [ (mkGoEnv { pwd = projectRoot + /gozip; }) ];
     shellHook = ''
       # Binary names could conflict between projects so store them in a
       # project-specific directory.
@@ -215,7 +213,7 @@ rec {
         touch "$trust_marker"
       fi
 
-      export NIX_SHEBANG_NIXPKGS="$PWD/nix/nixpkgs-for-nix-shell.nix"
+      export NIX_SHEBANG_NIXPKGS="$PWD/nix/dev/nixpkgs-for-nix-shell.nix"
 
       # I don't want to make GC roots when debugging CI because unlike actual CI,
       # where new virtual machines are created for each run, they'll just accumulate.

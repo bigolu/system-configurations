@@ -1,7 +1,6 @@
-{ inputs, utils }:
+context@{ sources, lib, utils, ... }:
 final: prev:
 let
-  inherit (inputs.nixpkgs) lib;
   inherit (lib)
     hasPrefix
     filterAttrs
@@ -12,7 +11,7 @@ let
     pipe
     composeManyExtensions
     ;
-  inherit (utils) formatDate toNixpkgsAttr;
+  inherit (utils) toNixpkgsAttr;
 
   # repositoryPrefix: e.g. 'vim-plugin-'
   # builder: (repositoryName: repositorySourceCode: date: derivation)
@@ -43,15 +42,12 @@ let
         repositories:
         let
           buildPackage =
-            repositoryName: repositorySourceCode:
-            let
-              date = formatDate repositorySourceCode.lastModifiedDate;
-            in
-            builder repositoryName repositorySourceCode date;
+            name: source:
+            builder name source source.revision;
         in
         mapAttrs buildPackage repositories;
     in
-    pipe inputs [
+    pipe sources [
       filterNamesForRepositoryPrefix
       removePrefixFromRepositoryNames
       buildPackagesFromRepositories
@@ -64,7 +60,7 @@ let
         ./vim-plugins.nix
       ]
       [
-        (map (path: import path { inherit inputs utils makePluginPackages; }))
+        (map (path: import path (context // {inherit makePluginPackages;})))
         composeManyExtensions
       ];
 in

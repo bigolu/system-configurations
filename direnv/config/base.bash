@@ -11,7 +11,4 @@ direnv_init_layout_directory
 dotenv_if_exists secrets.env
 
 source direnv/plugins/nix-direnv-wrapper.bash
-# Reasons for using `use nix` instead of `use flake` are in compat.nix. Another
-# reason is that nix-direnv doesn't provide a way to disable the creation of GC roots
-# for all flake inputs.
-use nix nix/flake/compat.nix -A "currentSystem.devShells.${NIX_DEV_SHELL:?}"
+NIX_DIRENV_NIX_CONF="$PWD/nix/dev/nix.conf" use nix -A "devShells.${NIX_DEV_SHELL:?}"

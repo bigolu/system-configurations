@@ -7,7 +7,7 @@ let
   fishPluginRepositoryPrefix = "fish-plugin-";
 
   fishPluginBuilder =
-    repositoryName: repositorySourceCode: date:
+    repositoryName: repositorySource: version:
     let
       nixpkgsAttrName = toNixpkgsAttr repositoryName;
       fixups = {
@@ -19,15 +19,15 @@ let
     in
     if hasAttr nixpkgsAttrName prev.vimPlugins then
       prev.fishPlugins.${nixpkgsAttrName}.overrideAttrs (_old: {
-        version = date;
-        src = repositorySourceCode;
+        inherit version;
+        src = repositorySource;
         preInstall = fixups.${repositoryName} or "";
       })
     else
       prev.fishPlugins.buildFishPlugin {
         pname = toNixpkgsPname repositoryName;
-        version = date;
-        src = repositorySourceCode;
+        inherit version;
+        src = repositorySource;
         preInstall = fixups.${repositoryName} or "";
       };
 

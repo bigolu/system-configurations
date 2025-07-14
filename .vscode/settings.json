@@ -21,20 +21,14 @@
   "nix.serverSettings": {
     "nixd": {
       "nixpkgs": {
-        "expr": "import ./nix/packages.nix",
+        "expr": "import ./nix/private/packages",
       },
       "options": {
         "comp_2": {
-          "expr": "(import ./nix/flake/compat.nix).darwinConfigurations.comp_2.options",
+          "expr": "(import ./default.nix {}).darwinConfigurations.comp_2.options"
         },
         "comp_1": {
-          "expr": "(import ./nix/flake/compat.nix).homeConfigurations.comp_1.options",
-        },
-        "flake-parts": {
-          "expr": "(import ./nix/flake/compat.nix).debug.options",
-        },
-        "flake-parts-per-system": {
-          "expr": "(import ./nix/flake/compat.nix).currentSystem.options",
+          "expr": "(import ./default.nix {}).homeConfigurations.comp_1.options",
         },
       },
     },

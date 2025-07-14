@@ -1,7 +1,6 @@
-{ inputs, ... }:
+{ lib, ... }:
 final: _prev:
 let
-  inherit (inputs.nixpkgs) lib;
   inherit (final.stdenv) isLinux;
   inherit (lib) optionalAttrs concatStringsSep;
 

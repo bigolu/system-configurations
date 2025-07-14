@@ -1,9 +1,7 @@
-inputs: final: prev:
+context@{lib, ...}:
+final: prev:
 let
-  inherit (inputs.nixpkgs) lib;
   inherit (lib) pipe composeManyExtensions;
-
-  utils = import ../utils.nix;
 
   composedOverlays =
     pipe
@@ -16,7 +14,7 @@ let
         ./fixes.nix
       ]
       [
-        (map (path: import path { inherit inputs utils; }))
+        (map (path: import path context))
         composeManyExtensions
       ];
 in

@@ -1,5 +1,5 @@
 #! Though we don't use shebangs, nix-shell expects the first line to be one so we put this on the first line instead.
-#! nix-shell -I nixpkgs=./nix/nixpkgs-for-nix-shell.nix
+#! nix-shell -I nixpkgs=./nix/dev/nixpkgs-for-nix-shell.nix
 #! nix-shell -i bash
 #! nix-shell --packages bash direnv coreutils
 

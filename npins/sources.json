@@ -1,0 +1,176 @@
+{
+  "pins": {
+    "fish-plugin-fish-async-prompt": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "acomagu",
+        "repo": "fish-async-prompt"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "316aa03c875b58e7c7f7d3bc9a78175aa47dbaa8",
+      "url": "https://github.com/acomagu/fish-async-prompt/archive/316aa03c875b58e7c7f7d3bc9a78175aa47dbaa8.tar.gz",
+      "hash": "sha256-J7y3BjqwuEH4zDQe4cWylLn+Vn2Q5pv0XwOSPwhw/Z0="
+    },
+    "gomod2nix": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-community",
+        "repo": "gomod2nix"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "664ad7a2df4623037e315e4094346bff5c44e9ee",
+      "url": "https://github.com/nix-community/gomod2nix/archive/664ad7a2df4623037e315e4094346bff5c44e9ee.tar.gz",
+      "hash": "sha256-/GTdqFzFw/Y9DSNAfzvzyCMlKjUyRKMPO+apIuaTU4A="
+    },
+    "home-manager": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-community",
+        "repo": "home-manager"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "1e54837569e0b80797c47be4720fab19e0db1616",
+      "url": "https://github.com/nix-community/home-manager/archive/1e54837569e0b80797c47be4720fab19e0db1616.tar.gz",
+      "hash": "sha256-4kaR+xmng9YPASckfvIgl5flF/1nAZOplM+Wp9I5SMI="
+    },
+    "keyd": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "rvaiya",
+        "repo": "keyd"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "19135668c20d3fa8c2a906d09e78c94003aae1cd",
+      "url": "https://github.com/rvaiya/keyd/archive/19135668c20d3fa8c2a906d09e78c94003aae1cd.tar.gz",
+      "hash": "sha256-ljp58wsKm2Ebb2mK9xf71nlrbckEkqMQHzVakQStFiM="
+    },
+    "neovim-nightly-overlay": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-community",
+        "repo": "neovim-nightly-overlay"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "37319e0cdc7e966294b19c8780e13c6b533b369c",
+      "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/37319e0cdc7e966294b19c8780e13c6b533b369c.tar.gz",
+      "hash": "sha256-udMozuexr4XGAl1Wyt8A7apk9SqkAQZ9q3JvQ7wDKYM="
+    },
+    "nix-darwin": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-darwin",
+        "repo": "nix-darwin"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "e04a388232d9a6ba56967ce5b53a8a6f713cdfcf",
+      "url": "https://github.com/nix-darwin/nix-darwin/archive/e04a388232d9a6ba56967ce5b53a8a6f713cdfcf.tar.gz",
+      "hash": "sha256-HsJM3XLa43WpG+665aGEh8iS8AfEwOIQWk3Mke3e7nk="
+    },
+    "nix-flatpak": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "gmodena",
+        "repo": "nix-flatpak"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "v0.6.0",
+      "revision": "5e54c3ca05a7c7d968ae1ddeabe01d2a9bc1e177",
+      "url": "https://api.github.com/repos/gmodena/nix-flatpak/tarball/refs/tags/v0.6.0",
+      "hash": "sha256-iAVVHi7X3kWORftY+LVbRiStRnQEob2TULWyjMS6dWg="
+    },
+    "nix-gl-host": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "numtide",
+        "repo": "nix-gl-host"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "5269b233f83880a0b433eafe026f0bc0d8f1a4a9",
+      "url": "https://github.com/numtide/nix-gl-host/archive/5269b233f83880a0b433eafe026f0bc0d8f1a4a9.tar.gz",
+      "hash": "sha256-QZCKJoypcwgS3tDNSWMjlxEBZtOYPW3eXV24rMzKsac="
+    },
+    "nix-index-database": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "nix-community",
+        "repo": "nix-index-database"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "839e02dece5845be3a322e507a79712b73a96ba2",
+      "url": "https://github.com/nix-community/nix-index-database/archive/839e02dece5845be3a322e507a79712b73a96ba2.tar.gz",
+      "hash": "sha256-FMH1OSSJp8Cx8MZHXz6KckxJGbCnVMotZNAH3v2WneU="
+    },
+    "nixpkgs-stable": {
+      "type": "Channel",
+      "name": "nixos-25.05",
+      "url": "https://releases.nixos.org/nixos/25.05/nixos-25.05.806273.650e572363c0/nixexprs.tar.xz",
+      "hash": "sha256-jyPy9FOOfEfwG+piPXTT5POvNOAJQq3DHoH4Bd8Yl44="
+    },
+    "nixpkgs": {
+      "type": "Channel",
+      "name": "nixpkgs-unstable",
+      "url": "https://releases.nixos.org/nixpkgs/nixpkgs-25.11pre827262.be9e214982e2/nixexprs.tar.xz",
+      "hash": "sha256-lUi+sPH7Kuh9uP3PyfgbENcJGReUM8Ffk9GxGBFbSN8="
+    },
+    "spoons": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "Hammerspoon",
+        "repo": "Spoons"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "e5b871250346c3fe93bac0d431fc75f6f0e2f92a",
+      "url": "https://github.com/Hammerspoon/Spoons/archive/e5b871250346c3fe93bac0d431fc75f6f0e2f92a.tar.gz",
+      "hash": "sha256-ZRSRb2QW8hrTkdCg5xezF09DntPocE842rc4ZKt7aHY="
+    },
+    "stackline": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "AdamWagner",
+        "repo": "stackline"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "2aa0bd9a27f93bad24b0fd4da38f3c0356414098",
+      "url": "https://github.com/AdamWagner/stackline/archive/2aa0bd9a27f93bad24b0fd4da38f3c0356414098.tar.gz",
+      "hash": "sha256-x7SIgKR6rwkoVVbaAvjFr1N7wTF3atni/d6xGLBBRN4="
+    },
+    "vim-plugin-vim-caser": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "arthurxavierx",
+        "repo": "vim-caser"
+      },
+      "branch": "master",
+      "submodules": false,
+      "revision": "6bc9f41d170711c58e0157d882a5fe8c30f34bf6",
+      "url": "https://github.com/arthurxavierx/vim-caser/archive/6bc9f41d170711c58e0157d882a5fe8c30f34bf6.tar.gz",
+      "hash": "sha256-PXAY01O/cHvAdWx3V/pyWFeiV5qJGvLcAKhl5DQc0Ps="
+    }
+  },
+  "version": 6
+}

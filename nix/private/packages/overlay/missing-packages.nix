@@ -1,10 +1,10 @@
-{ inputs, ... }:
+{ sources, ... }:
 final: _prev:
 let
+  inherit (builtins) substring;
   inherit (final) fetchzip;
   inherit (final.stdenv) isLinux mkDerivation;
   inherit (final.lib) getExe;
-  inherit (inputs.flake-utils.lib) system;
 
   config-file-validator = mkDerivation {
     pname = "config-file-validator";
@@ -25,9 +25,9 @@ let
       cp $src/validator $out/bin/
     '';
     meta = {
-      platforms = with system; [
-        x86_64-linux
-        x86_64-darwin
+      platforms = [
+        "x86_64-linux"
+        "x86_64-darwin"
       ];
     };
   };
@@ -35,9 +35,11 @@ let
   # Normally I'd use overrideAttrs, but that wouldn't affect keyd-application-mapper
   keyd =
     let
-      version = "2.5.0-${inputs.keyd.shortRev}";
+      # TODO: I'm assuming that the first 10 characters is enough for it to be
+      # unique.
+      version = "2.5.0-${substring 0 10 sources.keyd.revision}";
 
-      src = inputs.keyd;
+      src = sources.keyd;
 
       pypkgs = final.python3.pkgs;
 

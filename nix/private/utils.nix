@@ -1,6 +1,5 @@
+{lib, ...}:
 let
-  inherit (import ./flake/compat.nix) inputs;
-  inherit (inputs.nixpkgs) lib;
   inherit (lib)
     concatStringsSep
     toLower
@@ -11,7 +10,7 @@ let
     match
     ;
 
-  projectRoot = ../.;
+  projectRoot = ../..;
 
   # YYYYMMDDHHMMSS -> YYYY-MM-DD
   formatDate =
