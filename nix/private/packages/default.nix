@@ -1,15 +1,7 @@
 context@{sources, system, outputs, private, ... }:
 let
   nixpkgs = import sources.nixpkgs {
-    overlays = [
-      (import ./overlay context)
-      (_: prev: {
-        mkShellNoCC = outputs.packages.mkShellWrapper.override {
-          # So we can override `mkShellNoCC` without causing infinite recursion
-          inherit (prev) mkShellNoCC;
-        };
-      })
-    ];
+    overlays = [ (import ./overlay context) ];
   };
 
   gomod2nix = nixpkgs.lib.makeScope nixpkgs.newScope (self: {
@@ -34,4 +26,11 @@ nixpkgs // gomod2nix // outputs.packages // {
   # TODO: belongs in a private package set
   # This is usually broken on unstable
   inherit (private.nixpkgs-stable) diffoscopeMinimal;
+  nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
+    interpreter = nixpkgs.bash-script;
+  };
+  mkShellNoCC = outputs.packages.mkShellWrapper.override {
+    # So we can override `mkShellNoCC` without causing infinite recursion
+    inherit (nixpkgs) mkShellNoCC;
+  };
 }

@@ -200,9 +200,6 @@ in
 {
   neovim = neovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
-  nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp {
-    interpreter = final.bash-script;
-  };
 
   inherit
     runAsAdmin
