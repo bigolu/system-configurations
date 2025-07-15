@@ -3,21 +3,13 @@ context@{
   system,
   outputs,
   private,
+  gomod2nix,
   ...
 }:
 let
   nixpkgs = import sources.nixpkgs {
     overlays = [ (import ./overlay context) ];
   };
-
-  gomod2nix = nixpkgs.lib.makeScope nixpkgs.newScope (self: {
-    gomod2nix = self.callPackage sources.gomod2nix.outPath { };
-    inherit (self.callPackage "${sources.gomod2nix}/builder" { inherit (self) gomod2nix; })
-      buildGoApplication
-      mkGoEnv
-      mkVendorEnv
-      ;
-  });
 in
 # perf: To avoid fetching `sources` unnecessarily in CI, I don't use their overlays.
 # This way, I only have to fetch a source if I actually use one of its packages.

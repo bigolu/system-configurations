@@ -1,4 +1,4 @@
-{lib, pkgs, ...}:
+{lib, pkgs, gomod2nix, ...}:
 drv:
 let
   inherit (builtins)
@@ -22,7 +22,8 @@ let
       name,
     }:
     let
-      inherit (pkgs) buildGoApplication writeClosure;
+      inherit (gomod2nix) buildGoApplication;
+      inherit (pkgs) writeClosure;
       inherit (pkgs.stdenv) mkDerivation;
 
       gozipProjectRoot = ../../../gozip;

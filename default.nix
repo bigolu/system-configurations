@@ -1,10 +1,19 @@
 {
+  # This shouldn't be overridden
   sources ? import ./nix/npins-wrapper.nix { inherit pkgs; },
-  # In flake pure evaluation mode, `builtins.currentSystem` can't be accessed so we'll
-  # take system as a parameter.
+
+  # In flake pure evaluation mode, `builtins.currentSystem` can't be accessed so
+  # we'll take system as a parameter.
   system ? builtins.currentSystem,
+
+  # Unlink other sources, we take in an already-evaluated nixpkgs instance since
+  # evaluating nixpkgs takes a long time[1].
+  #
+  # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
   pkgs ? import sources.nixpkgs { inherit system; },
-  lib ? pkgs.lib,
+
+  # Overridable sources
+  gomod2nix ? sources.gomod2nix,
 }:
 let
   makeOutputs =
@@ -20,7 +29,7 @@ let
         dirOf
         baseNameOf
         ;
-      inherit (lib)
+      inherit (pkgs.lib)
         pipe
         removePrefix
         fileset
@@ -62,9 +71,18 @@ let
       system
       sources
       pkgs
-      lib
       outputs
       ;
+    inherit (pkgs) lib;
+    gomod2nix = pkgs.lib.makeScope pkgs.newScope (self: {
+      gomod2nix = self.callPackage gomod2nix.outPath { };
+      inherit (self.callPackage "${gomod2nix}/builder" { inherit (self) gomod2nix; })
+        buildGoApplication
+        mkGoEnv
+        mkVendorEnv
+        ;
+    });
+
     private = {
       pkgs = import ./nix/private/packages context;
       utils = import ./nix/private/utils.nix context;
