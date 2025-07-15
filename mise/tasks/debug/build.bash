@@ -4,7 +4,7 @@
 #MISE description='Run `nix build` in debug mode'
 #USAGE arg "<flakeref>" help="The flakeref of the derivation to build e.g. `.#shell`"
 #USAGE complete "flakeref" run=#"""
-#USAGE   fish -c 'complete --do-complete "nix bundle --bundler .# {{words[CURRENT]}}"'
+#USAGE   fish -c 'complete --do-complete "nix build {{words[CURRENT]}}"'
 #USAGE """#
 
 set -o errexit

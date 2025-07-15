@@ -39,6 +39,9 @@ let
 in
 makeShells {
   development = {
+    packages = with pkgs; [
+      npins
+    ];
     inputsFrom = with fragments; [
       direnv
       gozip

@@ -53,4 +53,5 @@ nixpkgs
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
     inherit (private) pkgs;
   };
+  npins = private.pkgs.callPackage "${sources.npins}/npins.nix" {};
 }

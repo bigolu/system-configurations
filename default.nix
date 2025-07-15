@@ -1,8 +1,8 @@
-# In flake pure evaluation mode, `builtins.currentSystem` can't be accessed so we'll
-# take system as a parameter.
 {
-  system ? builtins.currentSystem,
   sources ? import ./nix/npins-wrapper.nix { inherit pkgs; },
+  # In flake pure evaluation mode, `builtins.currentSystem` can't be accessed so we'll
+  # take system as a parameter.
+  system ? builtins.currentSystem,
   pkgs ? import sources.nixpkgs { inherit system; },
   lib ? pkgs.lib,
 }:
@@ -33,21 +33,23 @@ let
         removeSuffix
         ;
 
-      process =
-        path:
+      makeOutputsForFile =
+        file:
         let
-          relativePath = removePrefix "${toString directory}/" (toString path);
+          relativePath = removePrefix "${toString directory}/" (toString file);
           parts = splitString "/" relativePath;
           basename = last parts;
           keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
         in
-        setAttrByPath keys (import path context);
+        setAttrByPath keys (import file context);
     in
     pipe directory [
       (fileset.fileFilter (file: file.hasExt "nix"))
       fileset.toList
+      # If there's a default.nix in a directory, ignore all other .nix files.
+      # TODO: I have to look up recursively for default.nix, stop at output dir.
       (filter (file: ((baseNameOf file) == "default.nix") || (!pathExists ((dirOf file) + /default.nix))))
-      (map process)
+      (map makeOutputsForFile)
       (foldl' recursiveUpdate { })
       (outputs: outputs // { debug = context; })
     ];
