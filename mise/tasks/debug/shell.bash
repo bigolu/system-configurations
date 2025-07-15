@@ -10,8 +10,6 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-home="$(mktemp --directory)"
-
 shell_flake_ref='.#shell'
 if [[ ${usage_bundle:-} == 'true' ]]; then
   bundle_directory="$(mktemp --directory)"
@@ -30,6 +28,9 @@ fi
 # Use '*' so I don't have to hard code the program name
 shell_path="$(echo "$shell_directory"/*)"
 
-mise run debug:make-isolated-env \
-  --var HOME="$home" -- \
+temp_home="$(mktemp --directory)"
+
+nix shell \
+  --ignore-environment \
+  --set-env-var HOME "$temp_home" \
   --command "$shell_path"

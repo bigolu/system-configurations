@@ -13,24 +13,20 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-environment_variable_flags=()
-environment_variables=(
-  NIX_DEV_SHELL="${usage_nix_dev_shell:?}"
-  CI=true
-  CI_DEBUG=true
-  # You can change direnv's layout directory by setting `direnv_layout_dir`. If it's
-  # not set, .direnv is used. I'm changing it so nix-direnv doesn't overwrite the dev
-  # shell cached in .direnv with the one built here.
-  direnv_layout_dir="$(mktemp --directory)"
-)
-for var in "${environment_variables[@]}"; do
-  environment_variable_flags+=(--var "$var")
-done
+# You can change direnv's layout directory by setting `direnv_layout_dir`. If it's
+# not set, .direnv is used. I'm changing it so nix-direnv doesn't overwrite the dev
+# shell cached in .direnv with the one built here.
+direnv_layout_dir="$(mktemp --directory)"
 
 bash_path="$(type -P bash)"
 
-mise run debug:make-isolated-env \
-  "${environment_variable_flags[@]}" \
-  -- \
+# Keep HOME so nix's cache in ~/.cache/nix can be reused
+nix shell \
+  --ignore-environment \
+  --keep HOME \
+  --set-env-var NIX_DEV_SHELL "${usage_nix_dev_shell:?}" \
+  --set-env-var CI true \
+  --set-env-var CI_DEBUG true \
+  --set-env-var direnv_layout_dir "$direnv_layout_dir" \
   --file nix/packages.nix nix \
   --command nix-shell direnv/direnv-wrapper.bash direnv/config/ci.bash exec . "$bash_path" --noprofile --norc
