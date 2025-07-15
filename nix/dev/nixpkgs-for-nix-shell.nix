@@ -3,7 +3,7 @@
 # be a function as well.
 _:
 let
-  packages = import ../private/packages;
+  packages = (import ../.. {}).debug.private.pkgs;
 in
   packages // {
     # nix-shell uses `pkgs.runCommandCC` to create the environment. We set it to
