@@ -46,7 +46,7 @@ let
       (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
       (mapAttrs (_name: addShellHookHelpers))
       (mapAttrs (_name: mkShellNoCC))
-      (devShellsByName: {devShells = devShellsByName;})
+      (devShellsByName: { devShells = devShellsByName; })
     ];
 in
 makeShells {

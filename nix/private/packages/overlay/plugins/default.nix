@@ -1,4 +1,9 @@
-context@{ sources, lib, private, ... }:
+context@{
+  sources,
+  lib,
+  private,
+  ...
+}:
 final: prev:
 let
   inherit (lib)
@@ -41,9 +46,7 @@ let
       buildPackagesFromRepositories =
         repositories:
         let
-          buildPackage =
-            name: source:
-            builder name source source.revision;
+          buildPackage = name: source: builder name source source.revision;
         in
         mapAttrs buildPackage repositories;
     in
@@ -60,7 +63,7 @@ let
         ./vim-plugins.nix
       ]
       [
-        (map (path: import path (context // {inherit makePluginPackages;})))
+        (map (path: import path (context // { inherit makePluginPackages; })))
         composeManyExtensions
       ];
 in

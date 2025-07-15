@@ -1,4 +1,4 @@
-context@{lib, ...}:
+context@{ lib, ... }:
 final: prev:
 let
   inherit (lib) pipe composeManyExtensions;

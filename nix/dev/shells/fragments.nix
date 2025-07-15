@@ -214,7 +214,7 @@ rec {
         touch "$trust_marker"
       fi
 
-      export NIX_SHEBANG_NIXPKGS="$PWD/nix/dev/nixpkgs-for-nix-shell.nix"
+      export NIX_SHEBANG_NIXPKGS="$PWD/nix/dev/packages.nix"
 
       # I don't want to make GC roots when debugging CI because unlike actual CI,
       # where new virtual machines are created for each run, they'll just accumulate.
@@ -252,7 +252,7 @@ rec {
     concatLists
     # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
     # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.
-    # See nixpkgs-for-nix-shell.nix
+    # See dev/packages.nix
     (packages: packages ++ [ pkgs.stdenvNoCC ])
     (dependencies: mkShellNoCC { packages = dependencies; })
   ];

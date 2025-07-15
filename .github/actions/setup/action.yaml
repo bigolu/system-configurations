@@ -136,7 +136,7 @@ runs:
         # garbage left to collect.
         gc-max-store-size: 1K
     - name: Load the direnv Environment
-      shell: nix run --file nix/packages.nix bash-script -- {0}
+      shell: nix run --file nix/dev/packages.nix bash-script -- {0}
       env:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
       run: |

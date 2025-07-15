@@ -8,10 +8,24 @@
 }:
 let
   makeOutputs =
-    { directory ? ./nix/outputs, context, }:
+    {
+      directory ? ./nix/outputs,
+      context,
+    }:
     let
       inherit (builtins) foldl';
-      inherit (lib) pipe removePrefix fileset splitString recursiveUpdate setAttrByPath init last optionals removeSuffix;
+      inherit (lib)
+        pipe
+        removePrefix
+        fileset
+        splitString
+        recursiveUpdate
+        setAttrByPath
+        init
+        last
+        optionals
+        removeSuffix
+        ;
 
       process =
         path:
@@ -19,15 +33,15 @@ let
           relativePath = removePrefix "${toString directory}/" (toString path);
           parts = splitString "/" relativePath;
           basename = last parts;
-          keys = (init parts) ++ optionals (basename != "default.nix") [(removeSuffix ".nix" basename)];
+          keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
         in
-          setAttrByPath keys (import path context);
+        setAttrByPath keys (import path context);
     in
     pipe directory [
       (fileset.fileFilter (file: file.hasExt "nix"))
       fileset.toList
       (map process)
-      (foldl' recursiveUpdate {})
+      (foldl' recursiveUpdate { })
       (outputs: outputs // { debug = context; })
     ];
 
@@ -35,7 +49,13 @@ let
   # arguments with a default value: https://github.com/NixOS/nix/issues/1461. I
   # could remove the defaults, but I want it to be used with callPackage.
   context = {
-    inherit system sources pkgs lib outputs;
+    inherit
+      system
+      sources
+      pkgs
+      lib
+      outputs
+      ;
     private = {
       pkgs = import ./nix/private/packages context;
       utils = import ./nix/private/utils.nix context;
@@ -45,4 +65,4 @@ let
 
   outputs = makeOutputs { inherit context; };
 in
-  outputs
+outputs

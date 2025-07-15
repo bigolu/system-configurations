@@ -9,7 +9,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-version="$(nix eval --raw --file nix/packages.nix 'nix.version')"
+version="$(nix eval --raw --file nix/dev/packages.nix 'nix.version')"
 perl -wsi \
   -pe '$count += s{(nix-)[0-9]+(?:\.[0-9]+){0,2}}{$1$version}g;' \
   -e 'END { die "failed to substitute" if $count != 2 }' \
