@@ -6,7 +6,6 @@ let
     utils = import ../../private/utils.nix context;
     nixpkgs = import sources.nixpkgs {
       overlays = [
-        (import ../../public-overlay)
         (import ../../private/packages/overlay context)
       ];
     };

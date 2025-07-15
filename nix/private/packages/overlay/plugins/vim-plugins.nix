@@ -1,11 +1,11 @@
 {
   makePluginPackages,
-  utils,
+  private,
   ...
 }:
 final: prev:
 let
-  inherit (utils) toNixpkgsPname;
+  inherit (private.utils) toNixpkgsPname;
 
   vimPluginsFromFlake =
     let

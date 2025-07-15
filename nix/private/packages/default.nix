@@ -1,18 +1,14 @@
+context@{sources, system, outputs, private, ... }:
 let
-  inherit (builtins) currentSystem;
-  sources = import ../../npins-wrapper.nix context;
-  lib = import "${sources.nixpkgs}/lib";
-  nixpkgs-stable = import sources.nixpkgs-stable {};
-
-  context = {
-    inherit sources lib nixpkgs-stable nixpkgs;
-    utils = import ../utils.nix context;
-  };
-
   nixpkgs = import sources.nixpkgs {
     overlays = [
-      (import ../../public-overlay)
       (import ./overlay context)
+      (_: prev: {
+        mkShellNoCC = outputs.packages.mkShellWrapper.override {
+          # So we can override `mkShellNoCC` without causing infinite recursion
+          inherit (prev) mkShellNoCC;
+        };
+      })
     ];
   };
 
@@ -27,14 +23,15 @@ in
 # perf: I'm intentionally not using an overlay so nixpkgs's fetchers can be used to
 # fetch sources. Unlike the builtin fetchers, the ones from nixpkgs produce
 # derivations so the fetching can be parallelized with other derivations.
-nixpkgs // gomod2nix // {
+nixpkgs // gomod2nix // outputs.packages // {
   inherit (nixpkgs.callPackage "${sources.nix-darwin}/pkgs/nix-tools" { }) darwin-rebuild darwin-option darwin-version;
   darwin-uninstaller = nixpkgs.callPackage "${sources.nix-darwin}/pkgs/darwin-uninstaller" { };
 
   nix-gl-host = nixpkgs.callPackage sources.nix-gl-host.outPath {};
   inherit (nixpkgs.callPackage sources.home-manager.outPath {}) home-manager;
-  inherit ((import "${sources.neovim-nightly-overlay}/flake-compat.nix").packages.${currentSystem}) neovim;
+  inherit ((import "${sources.neovim-nightly-overlay}/flake-compat.nix").packages.${system}) neovim;
 
+  # TODO: belongs in a private package set
   # This is usually broken on unstable
-  inherit (nixpkgs-stable) diffoscopeMinimal;
+  inherit (private.nixpkgs-stable) diffoscopeMinimal;
 }

@@ -1,7 +1,7 @@
-{ utils, ... }:
+{ private, ... }:
 final: prev:
 let
-  inherit (utils) projectRoot unstableVersion;
+  inherit (private.utils) projectRoot unstableVersion;
 
   neovimWithDependencies =
     let
@@ -202,10 +202,6 @@ in
   ripgrep-all = ripgrepAllWithDependencies;
   nix-shell-interpreter = final.makeNixShellInterpreterWithoutTmp {
     interpreter = final.bash-script;
-  };
-  mkShellNoCC = prev.mkShellWrapper.override {
-    # So we can override `mkShellNoCC` without causing infinite recursion
-    inherit (prev) mkShellNoCC;
   };
 
   inherit

@@ -1,8 +1,8 @@
-{ makePluginPackages, utils, ... }:
+{ makePluginPackages, private, ... }:
 _final: prev:
 let
   inherit (builtins) hasAttr;
-  inherit (utils) toNixpkgsAttr toNixpkgsPname;
+  inherit (private.utils) toNixpkgsAttr toNixpkgsPname;
 
   fishPluginRepositoryPrefix = "fish-plugin-";
 

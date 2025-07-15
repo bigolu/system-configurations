@@ -1,4 +1,4 @@
-context@{ sources, lib, utils, ... }:
+context@{ sources, lib, private, ... }:
 final: prev:
 let
   inherit (lib)
@@ -11,7 +11,7 @@ let
     pipe
     composeManyExtensions
     ;
-  inherit (utils) toNixpkgsAttr;
+  inherit (private.utils) toNixpkgsAttr;
 
   # repositoryPrefix: e.g. 'vim-plugin-'
   # builder: (repositoryName: repositorySourceCode: date: derivation)
