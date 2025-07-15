@@ -52,7 +52,7 @@ inputs:
         1. Use something like `hashFiles(<glob>)` where <glob> matches
            any file that could affect the contents of the cache entry i.e. Nix store.
            For example, files that affect which packages are included in the
-           `nix-dev-shell`, files that affect their versions, like `flake.lock`,
+           `nix-dev-shell`, files that affect their versions, like a lock file,
            files that affect the workflow itself, like this one, or any tasks that
            called in the workflow since they load their dependencies dynamically.
            Getting the exact set of files that could affect the cache is tedious and
@@ -108,7 +108,7 @@ runs:
           ~/.cache/cached-nix-shell
           ~/.cache/direnv
         # The key used to store/restore a cache entry
-        primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key == 'commit-hash' && github.sha || hashFiles('flake.lock', 'nix/**', '.github/**', 'mise/**') }}
+        primary-key: ${{ env.CACHE_KEY_PREFIX }}${{ inputs.cache-key == 'commit-hash' && github.sha || hashFiles('npins/**', 'nix/**', '.github/**', 'mise/**') }}
         # If there's a cache miss, restore from the most recently used cache entry
         # with this prefix. In other words, the last cache entry that was used with
         # this job.

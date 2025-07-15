@@ -1,17 +1,6 @@
+context@{ lib, private, ... }:
 let
-  context = rec {
-    sources = import ../../npins-wrapper.nix context;
-    lib = import "${sources.nixpkgs}/lib";
-    pkgs = import ../../private/packages;
-    utils = import ../../private/utils.nix context;
-    nixpkgs = import sources.nixpkgs {
-      overlays = [
-        (import ../../private/packages/overlay context)
-      ];
-    };
-  };
-
-  inherit (context) pkgs lib utils;
+  inherit (private) pkgs utils;
 
   inherit (builtins) mapAttrs;
   inherit (pkgs) mkShellNoCC;
@@ -46,7 +35,6 @@ let
       (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
       (mapAttrs (_name: addShellHookHelpers))
       (mapAttrs (_name: mkShellNoCC))
-      (devShellsByName: { devShells = devShellsByName; })
     ];
 in
 makeShells {

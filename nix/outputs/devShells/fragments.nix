@@ -10,12 +10,13 @@
 #     example, people that don't use VS Code may not want the fragment that provides
 #     dependencies for it.
 {
-  utils,
   lib,
-  pkgs,
+  private,
   ...
 }:
 let
+  inherit (private) pkgs utils;
+
   inherit (builtins) concatLists;
   inherit (utils) projectRoot;
   inherit (lib)
@@ -29,8 +30,6 @@ let
     mkGoEnv
     ;
   inherit (pkgs.stdenv) isLinux;
-
-  extractNixShebangPackages' = (import ../../outputs/lib.nix).extractNixShebangPackages pkgs;
 in
 rec {
   shellHookHelpers = mkShellNoCC {
@@ -248,7 +247,7 @@ rec {
   miseTasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (map extractNixShebangPackages')
+    (map pkgs.dumpNixShellShebang)
     concatLists
     # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
     # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.

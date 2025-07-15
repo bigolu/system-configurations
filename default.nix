@@ -13,7 +13,13 @@ let
       context,
     }:
     let
-      inherit (builtins) foldl';
+      inherit (builtins)
+        foldl'
+        filter
+        pathExists
+        dirOf
+        baseNameOf
+        ;
       inherit (lib)
         pipe
         removePrefix
@@ -40,6 +46,7 @@ let
     pipe directory [
       (fileset.fileFilter (file: file.hasExt "nix"))
       fileset.toList
+      (filter (file: ((baseNameOf file) == "default.nix") || (!pathExists ((dirOf file) + /default.nix))))
       (map process)
       (foldl' recursiveUpdate { })
       (outputs: outputs // { debug = context; })

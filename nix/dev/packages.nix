@@ -6,7 +6,15 @@
   # needs to be a function as well.
   __functor =
     self:
-    { _ ? null, }:
+    # In order to have the nix CLI automatically call this function, the argument
+    # must be a set with either no attributes or default values for all attributes. I
+    # can't make it empty because `statix` would replace it with `_` and it doesn't
+    # support ignoring fixes with comments[1].
+    #
+    # [1]: https://github.com/oppiliappan/statix/issues/61
+    {
+      _ ? null,
+    }:
     self
     // {
       # nix-shell uses `pkgs.runCommandCC` to create the environment. We set it to

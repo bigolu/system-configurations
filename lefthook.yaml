@@ -15,7 +15,7 @@ colors:
 output:
   # Print a header for each job
   - execution_info
-  # Print command output. This is particularly useful for jobs like 'flake' and
+  # Print command output. This is particularly useful for jobs like 'nix-outputs' and
   # 'system' since they can take a long time and having the output would show me what
   # the bottlenecks are.
   - execution_out
@@ -139,8 +139,7 @@ sync:
         # - These affect nix-direnv
         # - If the version of any program that gets called here changes
         - nix/**
-        - flake.nix
-        - flake.lock
+        - npins/**
 
         # If this configuration changes
         - lefthook.yaml
@@ -165,8 +164,7 @@ sync:
         # - These affect the system configuration
         # - If the version of any program that gets called here changes
         - nix/**
-        - flake.nix
-        - flake.lock
+        - npins/**
 
         # If this configuration changes
         - lefthook.yaml
@@ -193,8 +191,7 @@ sync:
 
         # - If the version of any program that gets called here changes
         - nix/**
-        - flake.nix
-        - flake.lock
+        - npins/**
 
         # If this configuration changes
         - lefthook.yaml
@@ -264,17 +261,16 @@ check:
                   glob: README.md
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
-                  glob: flake.lock
+                  glob: npins/**
                   run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
                 - name: readme-config-names
                   glob: "*.nix"
+                  exclude:
+                    - "npins/**"
                   run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
                 - name: readme-nixpkgs-commit
-                  glob: flake.lock
+                  glob: npins/**
                   run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
-                - name: flake-lock
-                  glob: flake.nix
-                  run: "{run_fix} nix flake lock"
                 - name: gomod2nix
                   glob: gozip/go.mod
                   run: "{run_fix} gomod2nix --dir gozip generate"
@@ -299,12 +295,16 @@ check:
                     '
                 - name: deadnix
                   glob: "*.nix"
+                  exclude:
+                    - "npins/**"
                   run: "{run_fix} deadnix --quiet --edit {files}"
                 - name: ruff
                   glob: "*.py"
                   run: "{run_fix} ruff check --fix-only {files}"
                 - name: statix
                   glob: "*.nix"
+                  exclude:
+                    - "npins/**"
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: "{run_fix} parallel statix fix -- {files}"
@@ -332,6 +332,7 @@ check:
                   exclude:
                     # Don't format these since VS Code will
                     - ".vscode/*.json"
+                    - "npins/**"
                   run: "{run_fix} chronic prettier --write {files}"
                 - name: shfmt
                   glob: "*.{sh,bash}"
@@ -341,6 +342,8 @@ check:
                   run: "{run_fix} fish_indent --write {files}"
                 - name: nixfmt
                   glob: "*.nix"
+                  exclude:
+                    - "npins/**"
                   # --verify confirms that the formatted code parses the same as the
                   # input code.
                   run: "{run_fix} nixfmt --verify {files}"
@@ -395,11 +398,15 @@ check:
                   run: actionlint {files}
                 - name: statix
                   glob: "*.nix"
+                  exclude:
+                    - "npins/**"
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: parallel statix check -- {files}
                 - name: nixpkgs-lint
                   glob: "*.nix"
+                  exclude:
+                    - "npins/**"
                   run: nixpkgs-lint --include-unfinished-lints -- {files}
                 - name: typos
                   run: |
@@ -423,6 +430,7 @@ check:
                   exclude:
                     # These aren't actually JSON files they're JSONC
                     - ".vscode/*.json"
+                    - "npins/**"
                   run: chronic validator -groupby pass-fail {files}
                 - name: renovate-config-validator
                   glob:
@@ -454,9 +462,9 @@ check:
                 - name: nix-config
                   glob:
                     - "*.nix"
-                    - flake.lock
+                    - npins/**
                   run: nix config check
-          - name: flake
+          - name: nix-outputs
             # Why `interactive` is enabled:
             #   - This job can take a while so being able to see the output in real
             #     time could reveal bottlenecks.
@@ -465,9 +473,8 @@ check:
             #     rebuild the package.
             interactive: true
             glob:
-              - flake.nix
-              - flake.lock
+              - npins/**
               - nix/*
               - dotfiles/**
               - gozip/*
-            run: nix flake check
+            run: echo TODO

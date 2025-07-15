@@ -1,11 +1,8 @@
 let
   inherit (builtins) attrNames filter concatStringsSep;
 
-  sources = import ../../../npins;
-  lib = import "${sources.nixpkgs}/lib";
-  inherit (lib) hasPrefix pipe mergeAttrsList;
-
-  outputs = import ../../default.nix;
+  outputs = import ../../default.nix {};
+  inherit (outputs.debug.lib) hasPrefix pipe mergeAttrsList;
 
   configOutputKeys = [
     "homeConfigurations"

@@ -50,4 +50,7 @@ nixpkgs
     # So we can override `mkShellNoCC` without causing infinite recursion
     inherit (nixpkgs) mkShellNoCC;
   };
+  dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
+    inherit (private) pkgs;
+  };
 }
