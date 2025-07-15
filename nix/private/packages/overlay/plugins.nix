@@ -1,26 +1,6 @@
-{
-  makePluginPackages,
-  private,
-  ...
-}:
+{ sources, ... }:
 final: prev:
 let
-  inherit (private.utils) toNixpkgsPname;
-
-  vimPluginsFromFlake =
-    let
-      vimPluginRepositoryPrefix = "vim-plugin-";
-
-      vimPluginBuilder =
-        repositoryName: repositorySource: version:
-        final.vimUtils.buildVimPlugin {
-          pname = toNixpkgsPname repositoryName;
-          inherit version;
-          src = repositorySource;
-        };
-    in
-    makePluginPackages vimPluginRepositoryPrefix vimPluginBuilder;
-
   myVimPluginPack = final.vimUtils.packDir {
     bigolu.start = with final.vimPlugins; [
       camelcasemotion
@@ -47,5 +27,19 @@ let
 in
 {
   inherit myVimPluginPack;
-  vimPlugins = prev.vimPlugins // vimPluginsFromFlake;
+
+  vimPlugins = prev.vimPlugins // {
+    vim-caser = final.vimUtils.buildVimPlugin {
+      pname = "vim-caser";
+      version = sources.vim-caser.revision;
+      src = sources.vim-caser;
+    };
+  };
+
+  fishPlugins = prev.fishPlugins // {
+    fish-async-prompt = prev.fishPlugins.fish-async-prompt.overrideAttrs (_old: {
+      version = sources.fish-async-prompt.revision;
+      src = sources.fish-async-prompt;
+    });
+  };
 }

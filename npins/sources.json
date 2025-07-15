@@ -1,6 +1,6 @@
 {
   "pins": {
-    "fish-plugin-fish-async-prompt": {
+    "fish-async-prompt": {
       "type": "Git",
       "repository": {
         "type": "GitHub",
@@ -171,7 +171,7 @@
       "url": "https://github.com/AdamWagner/stackline/archive/2aa0bd9a27f93bad24b0fd4da38f3c0356414098.tar.gz",
       "hash": "sha256-x7SIgKR6rwkoVVbaAvjFr1N7wTF3atni/d6xGLBBRN4="
     },
-    "vim-plugin-vim-caser": {
+    "vim-caser": {
       "type": "Git",
       "repository": {
         "type": "GitHub",

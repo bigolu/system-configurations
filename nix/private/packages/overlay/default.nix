@@ -6,7 +6,7 @@ let
   composedOverlays =
     pipe
       [
-        ./plugins
+        ./plugins.nix
         ./missing-packages.nix
         ./partial-packages.nix
         ./misc.nix

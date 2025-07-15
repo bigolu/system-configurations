@@ -39,9 +39,6 @@ let
       toLower
     ];
 
-  # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
-  toNixpkgsPname = toLower;
-
   # This is the version I give to packages that are only used inside of this flake.
   # They don't actually have a version, but they need one for them to be displayed
   # properly by the nix CLI.
@@ -60,7 +57,6 @@ in
     formatDate
     homeManager
     toNixpkgsAttr
-    toNixpkgsPname
     unstableVersion
     applyIf
     ;
