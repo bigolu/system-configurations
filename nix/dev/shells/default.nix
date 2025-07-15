@@ -1,10 +1,15 @@
-_:
 let
   context = rec {
-    sources = import ../../../npins;
+    sources = import ../../npins-wrapper.nix context;
     lib = import "${sources.nixpkgs}/lib";
     pkgs = import ../../private/packages;
     utils = import ../../private/utils.nix context;
+    nixpkgs = import sources.nixpkgs {
+      overlays = [
+        (import ../../public-overlay)
+        (import ../../private/packages/overlay context)
+      ];
+    };
   };
 
   inherit (context) pkgs lib utils;

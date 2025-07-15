@@ -26,10 +26,11 @@ let
   inherit (pkgs)
     mkShellNoCC
     linkFarm
-    extractNixShebangPackages
     mkGoEnv
     ;
   inherit (pkgs.stdenv) isLinux;
+
+  extractNixShebangPackages' = (import ../../outputs/lib.nix).extractNixShebangPackages pkgs;
 in
 rec {
   shellHookHelpers = mkShellNoCC {
@@ -247,7 +248,7 @@ rec {
   miseTasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (map extractNixShebangPackages)
+    (map extractNixShebangPackages')
     concatLists
     # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
     # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.

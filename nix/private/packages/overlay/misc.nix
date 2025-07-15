@@ -1,4 +1,4 @@
-{ nixpkgs-stable, utils, ... }:
+{ utils, ... }:
 final: prev:
 let
   inherit (utils) projectRoot unstableVersion;
@@ -207,9 +207,6 @@ in
     # So we can override `mkShellNoCC` without causing infinite recursion
     inherit (prev) mkShellNoCC;
   };
-
-  # This is usually broken on unstable
-  inherit (nixpkgs-stable) diffoscopeMinimal;
 
   inherit
     runAsAdmin
