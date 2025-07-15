@@ -20,13 +20,12 @@ shopt -s inherit_errexit
 # not set, .direnv is used. I'm changing it so nix-direnv doesn't overwrite the dev
 # shell cached in .direnv with the one built here.
 direnv_layout_dir="$(mktemp --directory)"
-
+temp_home="$(mktemp --directory)"
 bash_path="$(type -P bash)"
 
-# Keep HOME so nix's cache in ~/.cache/nix can be reused
 nix shell \
   --ignore-environment \
-  --keep HOME \
+  --set-env-var HOME "$temp_home" \
   --set-env-var NIX_DEV_SHELL "${usage_nix_dev_shell:?}" \
   --set-env-var CI true \
   --set-env-var CI_DEBUG true \
