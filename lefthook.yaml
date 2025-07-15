@@ -456,6 +456,7 @@ check:
                     - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
                   exclude:
                     - lychee.toml
+                    - npins/**
                   run: |
                     {exit_if_no_files} {files}
                     mise run lefthook:check:lychee {files}
