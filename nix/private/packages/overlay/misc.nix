@@ -139,7 +139,7 @@ let
       };
 
       text = ''
-        python ${../../smart_plug/smart_plug.py} "$@"
+        python ${projectRoot + /smart_plug/smart_plug.py} "$@"
       '';
     };
 

@@ -17,12 +17,12 @@ config="$(<"${XDG_STATE_HOME:-$HOME/.local/state}/bigolu/system-config-name")"
 if [[ $OSTYPE == linux* ]]; then
   oldGenerationPath="${XDG_STATE_HOME:-$HOME/.local/state}/nix/profiles/home-manager"
   newGenerationPath="$(
-    nix build --no-link --print-out-paths ".#homeConfigurations.${config}.activationPackage"
+    nix build --no-link --print-out-paths --file . "homeConfigurations.${config}.activationPackage"
   )"
 else
   oldGenerationPath=/nix/var/nix/profiles/system
   newGenerationPath="$(
-    nix build --no-link --print-out-paths ".#darwinConfigurations.${config}.system"
+    nix build --no-link --print-out-paths --file . "darwinConfigurations.${config}.system"
   )"
 fi
 

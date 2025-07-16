@@ -2,9 +2,9 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter
 #MISE description='Run `nix build` in debug mode'
-#USAGE arg "<flakeref>" help="The flakeref of the derivation to build e.g. `.#shell`"
-#USAGE complete "flakeref" run=#"""
-#USAGE   fish -c 'complete --do-complete "nix build {{words[CURRENT]}}"'
+#USAGE arg "<attr_path>" help="The attribute path of the package to build e.g. packages.shell"
+#USAGE complete "attr_path" run=#"""
+#USAGE   fish -c 'complete --do-complete "nix build --file . {{words[CURRENT]}}"'
 #USAGE """#
 
 set -o errexit
@@ -13,4 +13,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-nix build --impure --ignore-try --debugger --print-out-paths --no-link "${usage_flakeref:?}"
+nix build --impure --ignore-try --debugger --print-out-paths --no-link --file . "${usage_attr_path:?}"
