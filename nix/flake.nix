@@ -1,19 +1,17 @@
 # This is only used for bundlers since the nix CLI only accepts a flakeref for
 # `--bundler`.
-
 {
   outputs =
     _:
     let
-      # Everything below is vendored from https://github.com/numtide/flake-utils
-      defaultSystems = [
+      # Everything below was taken from https://github.com/numtide/flake-utils
+
+      systems = [
         "aarch64-linux"
         "aarch64-darwin"
         "x86_64-darwin"
         "x86_64-linux"
       ];
-
-      eachDefaultSystem = eachSystem defaultSystems;
 
       # Builds a map from <attr>=value to <attr>.<system>=value for each system.
       eachSystem = eachSystemOp (
@@ -31,7 +29,7 @@
             };
           }
         ) attrs (builtins.attrNames ret)
-      );
+      ) systems;
 
       # Applies a merge operation across systems.
       eachSystemOp =
@@ -44,7 +42,7 @@
             systems ++ [ builtins.currentSystem ]
         );
     in
-    eachDefaultSystem (system: {
+    eachSystem (system: {
       bundlers = rec {
         inherit ((import ./default.nix { inherit system; }).bundlers) rootless;
         default = rootless;
