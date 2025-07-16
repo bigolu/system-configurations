@@ -11,7 +11,6 @@ let
         ./partial-packages.nix
         ./misc.nix
         ./gl-wrappers.nix
-        ./fixes.nix
       ]
       [
         (map (path: import path context))
