@@ -10,7 +10,7 @@ let
   inherit (lib) pipe;
   inherit (pins.nix-darwin.outputs) darwinSystem;
 
-  homeManagerUtils = utils.homeManager;
+  homeManagerUtils = private.utils.homeManager;
   homeManagerCommonModule = homeManagerUtils.commonModule;
   homeManagerModuleRoot = homeManagerUtils.moduleRoot;
 

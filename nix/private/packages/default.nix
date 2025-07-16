@@ -29,22 +29,27 @@ nixpkgs
   inherit (pins.home-manager.outputs) home-manager;
   inherit (pins.nix-darwin.outputs) darwin-rebuild darwin-option darwin-version darwin-uninstaller;
   nix-gl-host = import pins.nix-gl-host { inherit pkgs; };
+
   # TODO: Use the npins in nixpkgs once it has this commit:
   # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
   npins = import pins.npins { inherit pkgs; };
 
   # This is usually broken on unstable
   inherit (private.nixpkgs-stable) diffoscopeMinimal;
+
   nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
     interpreter = nixpkgs.bash-script;
   };
+
   mkShellNoCC = outputs.packages.mkShellWrapper.override {
     # So we can override `mkShellNoCC` without causing infinite recursion
     inherit (nixpkgs) mkShellNoCC;
   };
+
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
     inherit (private) pkgs;
   };
+
   neovim =
     let
       previousNeovim = (import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}.neovim;
