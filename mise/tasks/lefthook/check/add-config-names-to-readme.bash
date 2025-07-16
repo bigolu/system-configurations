@@ -9,7 +9,17 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-configs="$(nix eval --raw --file nix/dev/config-names.nix)"
+configs="$(
+  nix eval \
+    --file default.nix context.outputs \
+    --apply '
+      outputs: builtins.concatStringsSep
+        "|"
+        (builtins.attrNames (outputs.homeConfigurations // outputs.darwinConfigurations))
+    ' \
+    --raw
+)"
+
 perl -wsi \
   -pe '$count += s{(replace `|system:init )(<).*?(>)}{$1$2$configs$3};' \
   -e 'END { die "failed to substitute" if $count != 2 }' \
