@@ -6,7 +6,7 @@
   # we'll take system as a parameter.
   system ? builtins.currentSystem,
 
-  # Unlink other pins, we take in an already-evaluated nixpkgs instance since
+  # Unlink other pins, we take in an already-imported nixpkgs instance since
   # evaluating nixpkgs takes a long time[1].
   #
   # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
@@ -69,11 +69,13 @@ let
   context = {
     inherit
       system
-      pins
       pkgs
       outputs
       ;
     inherit (pkgs) lib;
+    pins = pins // {
+      home-manager = pins.home-manager // { outputs = import pins.home-manager {}; };
+    };
     gomod2nix = pkgs.lib.makeScope pkgs.newScope (self: {
       gomod2nix = self.callPackage gomod2nix.outPath { };
       inherit (self.callPackage "${gomod2nix}/builder" { inherit (self) gomod2nix; })

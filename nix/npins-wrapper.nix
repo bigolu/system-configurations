@@ -1,8 +1,9 @@
 { pkgs, ... }:
 let
-  inherit (builtins) mapAttrs elem;
-
-  noDerivation = [ "nixpkgs" ];
+  inherit (builtins) mapAttrs;
   pins = import ../npins;
 in
-mapAttrs (name: source: if elem name noDerivation then source else source { inherit pkgs; }) pins
+mapAttrs
+  # Use nixpkgs's derivation-based fetchers for all pins except nixpkgs channels.
+  (name: pin: if pin.type == "Channel" then pin else pin { inherit pkgs; })
+  pins

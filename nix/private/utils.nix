@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, pins, private, ... }:
 let
   inherit (lib)
     concatStringsSep
@@ -9,6 +9,7 @@ let
   inherit (builtins)
     match
     ;
+  inherit (private) pkgs;
 
   projectRoot = ../..;
 
@@ -20,15 +21,42 @@ let
     in
     concatStringsSep "." yearMonthDayStrings;
 
-  homeManager =
-    let
-      moduleRoot = ./flake/modules/home-configurations/modules;
-      # This is the module that I always include.
-      commonModule = "${moduleRoot}/common";
-    in
-    {
-      inherit moduleRoot commonModule;
-    };
+  homeManager = rec {
+    moduleRoot = ./flake/modules/home-configurations/modules;
+    # This is the module that I always include.
+    commonModule = "${moduleRoot}/common";
+
+    makeConfiguration =
+      {
+        overlay ? null,
+        configName,
+        modules,
+        isGui ? true,
+        username ? "biggs",
+        isHomeManagerRunningAsASubmodule ? false,
+        homePrefix ? if pkgs.stdenv.isLinux then "/home" else "/Users",
+        homeDirectory ? "${homePrefix}/${username}",
+        repositoryDirectory ? "${homeDirectory}/code/system-configurations",
+      }:
+      pins.home-manager.outputs.lib.homeManagerConfiguration {
+        modules = modules ++ [ commonModule ];
+        pkgs = if overlay == null then pkgs else pkgs.extend overlay;
+
+        # SYNC: SPECIAL-ARGS
+        extraSpecialArgs = {
+          inherit (private) utils;
+          inherit
+            configName
+            homeDirectory
+            isGui
+            isHomeManagerRunningAsASubmodule
+            repositoryDirectory
+            username
+            pins
+            ;
+        };
+      };
+  };
 
   # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
   # This doesn't apply all of the conventions, but it's enough for my use case.

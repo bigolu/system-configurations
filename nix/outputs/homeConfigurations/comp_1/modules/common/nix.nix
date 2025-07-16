@@ -1,6 +1,6 @@
 {
   pkgs,
-  inputs,
+  pins,
   lib,
   repositoryDirectory,
   ...
@@ -71,7 +71,7 @@ let
 in
 {
   imports = [
-    inputs.nix-index-database.hmModules.nix-index
+    (import "${pins.nix-index-database}/home-manager-module.nix" pins.nix-index-database)
   ];
 
   # Don't make a command_not_found handler
@@ -131,10 +131,10 @@ in
     registry = {
       # Use the nixpkgs in this flake in the system flake registry. By default, it
       # pulls the latest version of nixpkgs-unstable.
-      nixpkgs.flake = inputs.nixpkgs;
+      nixpkgs.flake = pins.nixpkgs;
 
       # In case something is broken on unstable
-      nixpkgs-stable.flake = inputs.nixpkgs-stable;
+      nixpkgs-stable.flake = pins.nixpkgs-stable;
     };
 
     settings = {
