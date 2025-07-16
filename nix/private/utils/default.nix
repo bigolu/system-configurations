@@ -1,11 +1,6 @@
 { lib, pins, private, utils, ... }:
 let
-  inherit (lib)
-    concatStringsSep
-    toLower
-    pipe
-    replaceString
-    ;
+  inherit (lib) concatStringsSep;
   inherit (builtins)
     match
     ;
@@ -28,7 +23,7 @@ let
 
     makeConfiguration =
       {
-        overlay ? null,
+        pkgOverrides ? {},
         configName,
         modules,
         isGui ? true,
@@ -39,8 +34,11 @@ let
         repositoryDirectory ? "${homeDirectory}/code/system-configurations",
       }:
       pins.home-manager.outputs.lib.homeManagerConfiguration {
-        modules = modules ++ [ commonModule ];
-        pkgs = if overlay == null then pkgs else pkgs.extend overlay;
+        inherit pkgs;
+        modules = modules ++ [
+          commonModule
+          { _module.args.pkgs = lib.mkForce (pkgs // pkgOverrides); }
+        ];
 
         # SYNC: SPECIAL-ARGS
         extraSpecialArgs = {

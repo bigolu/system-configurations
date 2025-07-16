@@ -1,13 +1,12 @@
-# This overlay tries to keep the size of the portable shell down by removing large
-# packages.
-final: prev:
+# We reduce the size of the portable shell by removing large packages.
+{pkgs, lib, ...}:
 let
   inherit (builtins) listToAttrs;
-  inherit (prev.lib) pipe nameValuePair;
+  inherit (lib) pipe nameValuePair;
 
   makeEmptyPackage =
     packageName:
-    final.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
+    pkgs.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
 
   makeEmptyPackageSet =
     packageNames:

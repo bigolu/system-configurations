@@ -3,37 +3,6 @@ final: prev:
 let
   inherit (private.utils) projectRoot unstableVersion;
 
-  neovimWithDependencies =
-    let
-      previousNeovim = prev.neovim;
-
-      dependencies = final.symlinkJoin {
-        pname = "neovim-dependencies";
-        version = unstableVersion;
-        paths = with final; [
-          # to format comments
-          par
-        ];
-      };
-
-      wrappedNeovim = final.symlinkJoin {
-        pname = "my-${previousNeovim.pname}";
-        inherit (previousNeovim) version;
-        paths = [ previousNeovim ];
-        nativeBuildInputs = [ final.makeWrapper ];
-        postBuild = ''
-          # PARINIT: The par manpage recommends using this value if you want
-          # to start using par, but aren't familiar with how par works so
-          # until I learn more, I'll use this value.
-          wrapProgram $out/bin/nvim \
-            --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
-            --prefix PATH : ${dependencies}/bin
-        '';
-      };
-    in
-    # Merge with the original package to retain attributes like meta
-    final.lib.recursiveUpdate previousNeovim wrappedNeovim;
-
   ripgrepAllWithDependencies =
     let
       dependencies = final.symlinkJoin {
@@ -204,7 +173,6 @@ let
   };
 in
 {
-  neovim = neovimWithDependencies;
   ripgrep-all = ripgrepAllWithDependencies;
 
   inherit

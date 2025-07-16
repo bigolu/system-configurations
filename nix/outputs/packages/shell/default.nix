@@ -1,11 +1,11 @@
-{ private, ... }:
+context@{ private, ... }:
 let
   inherit (private.utils.homeManager) moduleRoot makeConfiguration;
 in
 private.pkgs.makePortableShell {
   homeConfig = makeConfiguration {
     configName = "portable";
-    overlay = import ./overlay.nix;
+    pkgOverrides = import ./pkg-overrides.nix context;
     isGui = false;
     isHomeManagerRunningAsASubmodule = true;
     modules = [

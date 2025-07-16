@@ -5,9 +5,12 @@ context@{
   private,
   gomod2nix,
   pkgs,
+  lib,
   ...
 }:
 let
+  inherit (private.utils) unstableVersion;
+
   nixpkgs = import pins.nixpkgs {
     overlays = [ (import ./overlay context) ];
   };
@@ -26,7 +29,6 @@ nixpkgs
   inherit (pins.home-manager.outputs) home-manager;
   inherit (import pins.nix-darwin { inherit pkgs; }) darwin-rebuild darwin-option darwin-version darwin-uninstaller;
   nix-gl-host = import pins.nix-gl-host { inherit pkgs; };
-  inherit ((import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}) neovim;
   # TODO: Use the npins in nixpkgs once it has this commit:
   # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
   npins = import pins.npins { inherit pkgs; };
@@ -43,4 +45,32 @@ nixpkgs
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
     inherit (private) pkgs;
   };
+  neovim =
+    let
+      previousNeovim = (import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}.neovim;
+
+      dependencies = nixpkgs.symlinkJoin {
+        pname = "neovim-dependencies";
+        version = unstableVersion;
+        # to format comments
+        paths = [ nixpkgs.par ];
+      };
+
+      wrappedNeovim = nixpkgs.symlinkJoin {
+        pname = "my-${previousNeovim.pname}";
+        inherit (previousNeovim) version;
+        paths = [ previousNeovim ];
+        nativeBuildInputs = [ nixpkgs.makeWrapper ];
+        postBuild = ''
+          # PARINIT: The par manpage recommends using this value if you want
+          # to start using par, but aren't familiar with how par works so
+          # until I learn more, I'll use this value.
+          wrapProgram $out/bin/nvim \
+            --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
+            --prefix PATH : ${dependencies}/bin
+        '';
+      };
+    in
+    # Merge with the original package to retain attributes like meta
+    lib.recursiveUpdate previousNeovim wrappedNeovim;
 }
