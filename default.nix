@@ -41,6 +41,7 @@ let
         last
         optionals
         removeSuffix
+        optionalAttrs
         ;
 
       makeOutputsForFile =
@@ -50,8 +51,9 @@ let
           parts = splitString "/" relativePath;
           basename = last parts;
           keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
+          output = import file context;
         in
-        setAttrByPath keys (import file context);
+        optionalAttrs (output != null) (setAttrByPath keys output);
     in
     pipe directory [
       (fileset.fileFilter (file: file.hasExt "nix"))

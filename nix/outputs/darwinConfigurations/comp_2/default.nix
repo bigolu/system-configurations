@@ -9,6 +9,7 @@ let
   inherit (private) pkgs;
   inherit (lib) pipe;
   inherit (pins.nix-darwin.outputs) darwinSystem;
+  inherit (pkgs.stdenv) isDarwin;
 
   homeManagerUtils = private.utils.homeManager;
   homeManagerCommonModule = homeManagerUtils.commonModule;
@@ -89,6 +90,7 @@ let
       };
     };
 in
+if !isDarwin then null else
 makeDarwinConfiguration {
   configName = pipe __curPos.file [ dirOf baseNameOf ];
   modules = [ ./modules/comp-2 ];
