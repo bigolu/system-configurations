@@ -1,8 +1,6 @@
 {
   lib,
   pkgs,
-  dotfilesDirectory,
-  utils,
   ...
 }:
 let
@@ -25,7 +23,7 @@ in
 
   repository.xdg = {
     executable."fzf" = {
-      source = utils.gitFilter "${dotfilesDirectory}/fzf/bin";
+      source = "fzf/bin";
       recursive = true;
     };
     configFile."fzf/fzfrc.txt".source = "fzf/fzfrc.txt";

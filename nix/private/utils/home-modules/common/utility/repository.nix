@@ -266,6 +266,7 @@ in
         directory:
         pipe directory.source [
           toPath
+          utils.gitFilter
           listRelativeFilesRecursive
           (map (
             relativeFile:

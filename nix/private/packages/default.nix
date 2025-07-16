@@ -15,9 +15,9 @@ in
 # This way, I only have to fetch a source if I actually use one of its packages.
 #
 # perf: I'm intentionally not using an overlay so nixpkgs's fetchers can be used to
-# fetch pins. Unlike the builtin fetchers, the ones from nixpkgs produce
-# derivations so the fetching can be parallelized with other derivations, so long as
-# IFD isn't used.
+# fetch pins. Unlike the builtin fetchers, the ones from nixpkgs produce derivations
+# so the fetching can be parallelized with other derivations, or avoided altogether
+# if a substitute is available.
 nixpkgs
 // gomod2nix
 // outputs.packages

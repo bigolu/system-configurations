@@ -45,7 +45,6 @@ let
         # SYNC: SPECIAL-ARGS
         extraSpecialArgs = {
           utils = utils // private.utils;
-          dotfilesDirectory = "${repositoryDirectory}/dotfiles";
           inherit
             configName
             homeDirectory
