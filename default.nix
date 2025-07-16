@@ -75,8 +75,45 @@ let
       ;
     inherit (pkgs) lib;
     pins = pins // {
-      home-manager = pins.home-manager // { outputs = import pins.home-manager { inherit pkgs; }; };
       gitignore = gitignore // { outputs = import gitignore { inherit (pkgs) lib; }; };
+      home-manager = pins.home-manager // { outputs = (import pins.home-manager { inherit pkgs; }) // {
+        # TODO: This should be included in the default.nix
+        nix-darwin = "${pins.home-manager}/nix-darwin";
+      }; };
+      nix-darwin = pins.nix-darwin // { outputs = (import pins.nix-darwin { inherit pkgs; }) // {
+        # TODO: This is only defined in flake.nix so I had to copy it. I should open an issue.
+        darwinSystem = args@{ modules, ... }: (import "${pins.nix-darwin}/eval-config.nix") (
+          { inherit (pkgs) lib; }
+          // pkgs.lib.optionalAttrs (args ? pkgs) { inherit (args.pkgs) lib; }
+          // builtins.removeAttrs args [ "system" "pkgs" "inputs" ]
+          // {
+            modules = modules
+              ++ pkgs.lib.optional (args ? pkgs) ({ lib, ... }: {
+                _module.args.pkgs = lib.mkForce args.pkgs;
+              })
+              # Backwards compatibility shim; TODO: warn?
+              ++ pkgs.lib.optional (args ? system) ({ lib, ... }: {
+                nixpkgs.system = lib.mkDefault args.system;
+              })
+              # Backwards compatibility shim; TODO: warn?
+              ++ pkgs.lib.optional (args ? inputs) {
+                _module.args.inputs = args.inputs;
+              }
+              ++ [ ({ lib, ... }: {
+                nixpkgs.source = lib.mkDefault pins.nixpkgs;
+                nixpkgs.flake.source = lib.mkDefault pins.nixpkgs.outPath;
+
+                system = {
+                  checks.verifyNixPath = lib.mkDefault false;
+                  darwinVersionSuffix = ".dirty";
+                  darwinRevision = let
+                    rev = null;
+                  in
+                    lib.mkIf (rev != null) rev;
+                };
+              }) ];
+            });
+        }; };
     };
     gomod2nix = pkgs.lib.makeScope pkgs.newScope (self: {
       gomod2nix = self.callPackage gomod2nix.outPath { };
@@ -96,7 +133,6 @@ let
         name = "source";
       };
     };
-
     private = {
       pkgs = import ./nix/private/packages context;
       utils = import ./nix/private/utils context;

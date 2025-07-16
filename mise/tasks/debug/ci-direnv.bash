@@ -5,7 +5,7 @@
 #USAGE arg "<nix_dev_shell>" help="The dev shell that direnv should load"
 #USAGE complete "nix_dev_shell" run=#"""
 #USAGE   nix eval \
-#USAGE     --file default.nix devShells \
+#USAGE     --file . devShells \
 #USAGE     --apply 'shells: builtins.concatStringsSep "\n" (builtins.attrNames shells)' \
 #USAGE     --raw
 #USAGE """#

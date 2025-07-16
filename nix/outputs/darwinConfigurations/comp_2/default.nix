@@ -1,15 +1,14 @@
 {
-  inputs,
+  pins,
   utils,
-  withSystem,
+  private,
   lib,
   ...
 }:
 let
-  inherit (builtins) mapAttrs;
-  inherit (lib) pipe mergeAttrs;
-  inherit (inputs.flake-utils.lib) system;
-  inherit (inputs.nix-darwin.lib) darwinSystem;
+  inherit (private) pkgs;
+  inherit (lib) pipe;
+  inherit (pins.nix-darwin.outputs) darwinSystem;
 
   homeManagerUtils = utils.homeManager;
   homeManagerCommonModule = homeManagerUtils.commonModule;
@@ -33,14 +32,14 @@ let
           isGui
           repositoryDirectory
           username
-          utils
-          inputs
+          pins
           ;
         isHomeManagerRunningAsASubmodule = true;
+        utils = utils // private.utils;
       };
     in
     [
-      inputs.home-manager.darwinModules.home-manager
+      pins.home-manager.outputs.nix-darwin
       {
         home-manager = {
           inherit extraSpecialArgs;
@@ -55,7 +54,6 @@ let
 
   makeDarwinConfiguration =
     {
-      system,
       configName,
       modules,
       homeModules,
@@ -75,41 +73,27 @@ let
         isGui = true;
       };
     in
-    withSystem system (
-      { pkgs, ... }:
-      darwinSystem {
-        inherit pkgs;
-        modules = modules ++ homeManagerSubmodules;
-        # SYNC: SPECIAL-ARGS
-        specialArgs = {
-          inherit
-            configName
-            username
-            homeDirectory
-            repositoryDirectory
-            utils
-            inputs
-            ;
-        };
-      }
-    );
-
-  makeOutputs = configSpecs: {
-    # The 'flake' and 'darwinConfigurations' keys need to be static to avoid infinite
-    # recursion
-    flake.darwinConfigurations = pipe configSpecs [
-      (mapAttrs (configName: mergeAttrs { inherit configName; }))
-      (mapAttrs (_configName: makeDarwinConfiguration))
-    ];
-  };
+    darwinSystem {
+      inherit pkgs;
+      modules = modules ++ homeManagerSubmodules;
+      # SYNC: SPECIAL-ARGS
+      specialArgs = {
+        utils = utils // private.utils;
+        inherit
+          configName
+          username
+          homeDirectory
+          repositoryDirectory
+          pins
+          ;
+      };
+    };
 in
-makeOutputs {
-  comp_2 = {
-    system = system.x86_64-darwin;
-    modules = [ ./modules/comp-2 ];
-    homeModules = [
-      "${homeManagerModuleRoot}/application-development"
-      "${homeManagerModuleRoot}/speakers.nix"
-    ];
-  };
+makeDarwinConfiguration {
+  configName = pipe __curPos.file [ dirOf baseNameOf ];
+  modules = [ ./modules/comp-2 ];
+  homeModules = [
+    "${homeManagerModuleRoot}/application-development"
+    "${homeManagerModuleRoot}/speakers.nix"
+  ];
 }

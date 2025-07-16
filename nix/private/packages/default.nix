@@ -27,7 +27,7 @@ nixpkgs
 // outputs.packages
 // {
   inherit (pins.home-manager.outputs) home-manager;
-  inherit (import pins.nix-darwin { inherit pkgs; }) darwin-rebuild darwin-option darwin-version darwin-uninstaller;
+  inherit (pins.nix-darwin.outputs) darwin-rebuild darwin-option darwin-version darwin-uninstaller;
   nix-gl-host = import pins.nix-gl-host { inherit pkgs; };
   # TODO: Use the npins in nixpkgs once it has this commit:
   # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d

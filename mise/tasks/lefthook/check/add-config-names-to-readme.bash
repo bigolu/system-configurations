@@ -11,7 +11,7 @@ shopt -s inherit_errexit
 
 configs="$(
   nix eval \
-    --file default.nix context.outputs \
+    --file . context.outputs \
     --apply '
       outputs: builtins.concatStringsSep
         "|"
