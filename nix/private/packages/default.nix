@@ -4,6 +4,7 @@ context@{
   outputs,
   private,
   gomod2nix,
+  pkgs,
   ...
 }:
 let
@@ -22,18 +23,14 @@ nixpkgs
 // gomod2nix
 // outputs.packages
 // {
-  inherit (nixpkgs.callPackage "${pins.nix-darwin}/pkgs/nix-tools" { })
-    darwin-rebuild
-    darwin-option
-    darwin-version
-    ;
-  darwin-uninstaller = nixpkgs.callPackage "${pins.nix-darwin}/pkgs/darwin-uninstaller" { };
-
-  nix-gl-host = nixpkgs.callPackage pins.nix-gl-host.outPath { };
-  inherit (nixpkgs.callPackage pins.home-manager.outPath { }) home-manager;
+  inherit (pins.home-manager.outputs) home-manager;
+  inherit (import pins.nix-darwin { inherit pkgs; }) darwin-rebuild darwin-option darwin-version darwin-uninstaller;
+  nix-gl-host = import pins.nix-gl-host { inherit pkgs; };
   inherit ((import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}) neovim;
+  # TODO: Use the npins in nixpkgs once it has this commit:
+  # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
+  npins = import pins.npins { inherit pkgs; };
 
-  # TODO: belongs in a private package set
   # This is usually broken on unstable
   inherit (private.nixpkgs-stable) diffoscopeMinimal;
   nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
@@ -46,7 +43,4 @@ nixpkgs
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
     inherit (private) pkgs;
   };
-  # TODO: Use the npins in nixpkgs once it has this commit:
-  # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
-  npins = private.pkgs.callPackage "${pins.npins}/npins.nix" {};
 }

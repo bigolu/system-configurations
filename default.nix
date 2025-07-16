@@ -75,7 +75,7 @@ let
       ;
     inherit (pkgs) lib;
     pins = pins // {
-      home-manager = pins.home-manager // { outputs = import pins.home-manager {}; };
+      home-manager = pins.home-manager // { outputs = import pins.home-manager { inherit pkgs; }; };
       gitignore = gitignore // { outputs = import gitignore { inherit (pkgs) lib; }; };
     };
     gomod2nix = pkgs.lib.makeScope pkgs.newScope (self: {
