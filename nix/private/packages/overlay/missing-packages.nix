@@ -1,4 +1,4 @@
-{ sources, ... }:
+{ pins, ... }:
 final: _prev:
 let
   inherit (builtins) substring;
@@ -37,9 +37,9 @@ let
     let
       # TODO: I'm assuming that the first 10 characters is enough for it to be
       # unique.
-      version = "2.5.0-${substring 0 10 sources.keyd.revision}";
+      version = "2.5.0-${substring 0 10 pins.keyd.revision}";
 
-      src = sources.keyd;
+      src = pins.keyd;
 
       pypkgs = final.python3.pkgs;
 

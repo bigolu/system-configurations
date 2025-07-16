@@ -2,7 +2,7 @@ let
   inherit (builtins) attrNames filter concatStringsSep;
 
   outputs = import ../../default.nix {};
-  inherit (outputs.debug.lib) hasPrefix pipe mergeAttrsList;
+  inherit (outputs.context.lib) hasPrefix pipe mergeAttrsList;
 
   configOutputKeys = [
     "homeConfigurations"

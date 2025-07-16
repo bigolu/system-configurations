@@ -1,5 +1,5 @@
 context@{
-  sources,
+  pins,
   system,
   outputs,
   private,
@@ -7,30 +7,31 @@ context@{
   ...
 }:
 let
-  nixpkgs = import sources.nixpkgs {
+  nixpkgs = import pins.nixpkgs {
     overlays = [ (import ./overlay context) ];
   };
 in
-# perf: To avoid fetching `sources` unnecessarily in CI, I don't use their overlays.
+# perf: To avoid fetching `pins` unnecessarily in CI, I don't use their overlays.
 # This way, I only have to fetch a source if I actually use one of its packages.
 #
 # perf: I'm intentionally not using an overlay so nixpkgs's fetchers can be used to
-# fetch sources. Unlike the builtin fetchers, the ones from nixpkgs produce
-# derivations so the fetching can be parallelized with other derivations.
+# fetch pins. Unlike the builtin fetchers, the ones from nixpkgs produce
+# derivations so the fetching can be parallelized with other derivations, so long as
+# IFD isn't used.
 nixpkgs
 // gomod2nix
 // outputs.packages
 // {
-  inherit (nixpkgs.callPackage "${sources.nix-darwin}/pkgs/nix-tools" { })
+  inherit (nixpkgs.callPackage "${pins.nix-darwin}/pkgs/nix-tools" { })
     darwin-rebuild
     darwin-option
     darwin-version
     ;
-  darwin-uninstaller = nixpkgs.callPackage "${sources.nix-darwin}/pkgs/darwin-uninstaller" { };
+  darwin-uninstaller = nixpkgs.callPackage "${pins.nix-darwin}/pkgs/darwin-uninstaller" { };
 
-  nix-gl-host = nixpkgs.callPackage sources.nix-gl-host.outPath { };
-  inherit (nixpkgs.callPackage sources.home-manager.outPath { }) home-manager;
-  inherit ((import "${sources.neovim-nightly-overlay}/flake-compat.nix").packages.${system}) neovim;
+  nix-gl-host = nixpkgs.callPackage pins.nix-gl-host.outPath { };
+  inherit (nixpkgs.callPackage pins.home-manager.outPath { }) home-manager;
+  inherit ((import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}) neovim;
 
   # TODO: belongs in a private package set
   # This is usually broken on unstable
@@ -45,5 +46,5 @@ nixpkgs
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
     inherit (private) pkgs;
   };
-  npins = private.pkgs.callPackage "${sources.npins}/npins.nix" {};
+  npins = private.pkgs.callPackage "${pins.npins}/npins.nix" {};
 }

@@ -1,19 +1,19 @@
 {
   # This shouldn't be overridden
-  sources ? import ./nix/npins-wrapper.nix { inherit pkgs; },
+  pins ? import ./nix/npins-wrapper.nix { inherit pkgs; },
 
   # In flake pure evaluation mode, `builtins.currentSystem` can't be accessed so
   # we'll take system as a parameter.
   system ? builtins.currentSystem,
 
-  # Unlink other sources, we take in an already-evaluated nixpkgs instance since
+  # Unlink other pins, we take in an already-evaluated nixpkgs instance since
   # evaluating nixpkgs takes a long time[1].
   #
   # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-  pkgs ? import sources.nixpkgs { inherit system; },
+  pkgs ? import pins.nixpkgs { inherit system; },
 
-  # Overridable sources
-  gomod2nix ? sources.gomod2nix,
+  # Overridable pins
+  gomod2nix ? pins.gomod2nix,
 }:
 let
   makeOutputs =
@@ -60,7 +60,7 @@ let
       (filter (file: ((baseNameOf file) == "default.nix") || (!pathExists ((dirOf file) + /default.nix))))
       (map makeOutputsForFile)
       (foldl' recursiveUpdate { })
-      (outputs: outputs // { debug = context; })
+      (outputs: outputs // { inherit context; })
     ];
 
   # TODO: I can't use `foo@` on the top-level function since it wouldn't include
@@ -69,7 +69,7 @@ let
   context = {
     inherit
       system
-      sources
+      pins
       pkgs
       outputs
       ;
@@ -86,7 +86,9 @@ let
     private = {
       pkgs = import ./nix/private/packages context;
       utils = import ./nix/private/utils.nix context;
-      nixpkgs-stable = import sources.nixpkgs-stable { inherit system; };
+      # I keep a nixpkgs-stable channel, in addition to unstable, since there's a
+      # higher chance that something builds on a stable channel.
+      nixpkgs-stable = import pins.nixpkgs-stable { inherit system; };
     };
   };
 

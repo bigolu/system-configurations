@@ -1,4 +1,4 @@
-{ sources, ... }:
+{ pins, ... }:
 final: prev:
 let
   myVimPluginPack = final.vimUtils.packDir {
@@ -28,18 +28,21 @@ in
 {
   inherit myVimPluginPack;
 
+  # TODO: should be upstreamed to nixpkgs
   vimPlugins = prev.vimPlugins // {
     vim-caser = final.vimUtils.buildVimPlugin {
       pname = "vim-caser";
-      version = sources.vim-caser.revision;
-      src = sources.vim-caser;
+      version = pins.vim-caser.revision;
+      src = pins.vim-caser;
     };
   };
 
   fishPlugins = prev.fishPlugins // {
+    # TODO: They don't seem to be making releases anymore. I should check with the
+    # author and possibly have nixpkgs track master instead.
     fish-async-prompt = prev.fishPlugins.fish-async-prompt.overrideAttrs (_old: {
-      version = sources.fish-async-prompt.revision;
-      src = sources.fish-async-prompt;
+      version = pins.fish-async-prompt.revision;
+      src = pins.fish-async-prompt;
     });
   };
 }
