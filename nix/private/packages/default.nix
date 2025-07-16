@@ -46,5 +46,7 @@ nixpkgs
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
     inherit (private) pkgs;
   };
+  # TODO: Use the npins in nixpkgs once it has this commit:
+  # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
   npins = private.pkgs.callPackage "${pins.npins}/npins.nix" {};
 }
