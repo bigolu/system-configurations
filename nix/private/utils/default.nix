@@ -1,4 +1,4 @@
-{ lib, pins, private, ... }:
+{ lib, pins, private, utils, ... }:
 let
   inherit (lib)
     concatStringsSep
@@ -11,7 +11,7 @@ let
     ;
   inherit (private) pkgs;
 
-  projectRoot = ../..;
+  projectRoot = ../../..;
 
   # YYYYMMDDHHMMSS -> YYYY-MM-DD
   formatDate =
@@ -22,7 +22,7 @@ let
     concatStringsSep "." yearMonthDayStrings;
 
   homeManager = rec {
-    moduleRoot = ./flake/modules/home-configurations/modules;
+    moduleRoot = ./home-modules;
     # This is the module that I always include.
     commonModule = "${moduleRoot}/common";
 
@@ -44,7 +44,8 @@ let
 
         # SYNC: SPECIAL-ARGS
         extraSpecialArgs = {
-          inherit (private) utils;
+          utils = utils // private.utils;
+          dotfilesDirectory = "${repositoryDirectory}/dotfiles";
           inherit
             configName
             homeDirectory
@@ -57,15 +58,6 @@ let
         };
       };
   };
-
-  # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#package-naming
-  # This doesn't apply all of the conventions, but it's enough for my use case.
-  toNixpkgsAttr =
-    name:
-    pipe name [
-      (replaceString "." "-")
-      toLower
-    ];
 
   # This is the version I give to packages that are only used inside of this flake.
   # They don't actually have a version, but they need one for them to be displayed
@@ -84,7 +76,6 @@ in
     projectRoot
     formatDate
     homeManager
-    toNixpkgsAttr
     unstableVersion
     applyIf
     ;

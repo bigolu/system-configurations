@@ -40,7 +40,7 @@ in
   fishPlugins = prev.fishPlugins // {
     # TODO: They don't seem to be making releases anymore. I should check with the
     # author and possibly have nixpkgs track master instead.
-    fish-async-prompt = prev.fishPlugins.fish-async-prompt.overrideAttrs (_old: {
+    async-prompt = prev.fishPlugins.async-prompt.overrideAttrs (_old: {
       version = pins.fish-async-prompt.revision;
       src = pins.fish-async-prompt;
     });

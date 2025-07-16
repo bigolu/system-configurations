@@ -21,14 +21,14 @@
   "nix.serverSettings": {
     "nixd": {
       "nixpkgs": {
-        "expr": "import ./nix/private/packages",
+        "expr": "import ./nix/dev/packages.nix",
       },
       "options": {
         "comp_2": {
-          "expr": "(import ./default.nix {}).darwinConfigurations.comp_2.options"
+          "expr": "(import ./. {}).darwinConfigurations.comp_2.options"
         },
         "comp_1": {
-          "expr": "(import ./default.nix {}).homeConfigurations.comp_1.options",
+          "expr": "(import ./. {}).homeConfigurations.comp_1.options",
         },
       },
     },

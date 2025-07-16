@@ -29,6 +29,7 @@ let
     splitString
     getExe
     replaceString
+    optionals
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (config.lib.file) mkOutOfStoreSymlink;
@@ -40,6 +41,7 @@ let
     listToAttrs
     readFile
     hasAttr
+    unsafeDiscardStringContext
     ;
   inherit (utils) applyIf;
   inherit (pkgs) writeScript;
@@ -48,7 +50,8 @@ in
   options.repository =
     let
       source = mkOption {
-        type = types.str;
+        type = types.oneOf [ types.str types.path ];
+        apply = toString;
       };
       executable = mkOption {
         type = types.nullOr types.bool;
@@ -180,18 +183,20 @@ in
       isRelativePath = path: !hasPrefix "/" path;
       toAbsolutePath =
         fileSource: if isRelativePath fileSource then "${relativePathRoot}/${fileSource}" else fileSource;
+      isPureEval = ! builtins ? currentSystem;
 
       toPath =
         fileSource:
-        pipe fileSource [
+        pipe fileSource ([
           toAbsolutePath
+        ] ++ optionals isPureEval [
           # You can make a string into a Path by concatenating it with a Path.
           # However, in flake pure evaluation mode all Paths must be inside the the
           # nix store so we remove the path to the flake root and then append the
           # result to the store path for the flake.
           (removePrefix flakePath)
           (sourceRelativeToFlakeRoot: flakeStorePath + sourceRelativeToFlakeRoot)
-        ];
+        ]);
 
       toHomeManagerFile =
         file:
@@ -264,9 +269,9 @@ in
           listRelativeFilesRecursive
           (map (
             relativeFile:
-            nameValuePair "${directory.target}/${relativeFile}" (toHomeManagerFile {
+            nameValuePair "${directory.target}/${unsafeDiscardStringContext relativeFile}" (toHomeManagerFile {
               source = "${directory.source}/${relativeFile}";
-              target = "${directory.target}/${relativeFile}";
+              target =  "${directory.target}/${unsafeDiscardStringContext relativeFile}";
               inherit (directory) executable;
               removeExtension = directory.removeExtension or false;
             })
@@ -315,12 +320,13 @@ in
         in
         [
           {
-            assertion = isRelativePathRootInFlakeDirectory;
-            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}, flake directory: ${flakePath}";
-          }
-          {
             assertion = allFileSourcesExist;
             message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
+          }
+        ] ++ optionals isPureEval [
+          {
+            assertion = isRelativePathRootInFlakeDirectory;
+            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}, flake directory: ${flakePath}";
           }
         ];
     in

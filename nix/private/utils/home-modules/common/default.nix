@@ -4,7 +4,6 @@
   isGui,
   repositoryDirectory,
   pins,
-  utils,
   config,
   ...
 }:
@@ -15,7 +14,6 @@ let
     ;
   inherit (pkgs) writeText;
   inherit (pkgs.stdenv) isDarwin isLinux;
-  inherit (utils) projectRoot;
 
   isLinuxGui = isGui && isLinux;
 
@@ -96,10 +94,6 @@ in
     fileSettings = {
       editableInstall = true;
       relativePathRoot = "${repositoryDirectory}/dotfiles";
-      flake.root = {
-        path = repositoryDirectory;
-        storePath = projectRoot;
-      };
     };
 
     xdg.executable = {

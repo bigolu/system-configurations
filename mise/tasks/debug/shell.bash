@@ -10,7 +10,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-shell_flake_ref='.#shell'
+shell_args=(--file . packages.shell)
 if [[ ${usage_bundle:-} == 'true' ]]; then
   bundle_directory="$(mktemp --directory)"
 
@@ -19,18 +19,13 @@ if [[ ${usage_bundle:-} == 'true' ]]; then
   }
   trap delete_bundle_directory EXIT
 
-  nix bundle --out-link "$bundle_directory/bundled-shell" --bundler .# "$shell_flake_ref"
+  nix bundle --out-link "$bundle_directory/bundled-shell" --bundler .# "${shell_args[@]}"
   shell_directory="$bundle_directory"
 else
-  shell_directory="$(nix build --print-out-paths --no-link "$shell_flake_ref")/bin"
+  shell_directory="$(nix build --print-out-paths --no-link "${shell_args[@]}")/bin"
 fi
 
 # Use '*' so I don't have to hard code the program name
 shell_path="$(echo "$shell_directory"/*)"
-
 temp_home="$(mktemp --directory)"
-
-nix shell \
-  --ignore-environment \
-  --set-env-var HOME "$temp_home" \
-  --command "$shell_path"
+env --ignore-environment HOME="$temp_home" "$shell_path"

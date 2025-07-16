@@ -14,6 +14,7 @@
 
   # Overridable pins
   gomod2nix ? pins.gomod2nix,
+  gitignore ? pins.gitignore,
 }:
 let
   makeOutputs =
@@ -75,6 +76,7 @@ let
     inherit (pkgs) lib;
     pins = pins // {
       home-manager = pins.home-manager // { outputs = import pins.home-manager {}; };
+      gitignore = gitignore // { outputs = import gitignore { inherit (pkgs) lib; }; };
     };
     gomod2nix = pkgs.lib.makeScope pkgs.newScope (self: {
       gomod2nix = self.callPackage gomod2nix.outPath { };
@@ -84,10 +86,20 @@ let
         mkVendorEnv
         ;
     });
+    utils = {
+      # For performance, this shouldn't be called often[1] so we'll save a reference.
+      #
+      # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
+      gitFilter = src: pkgs.lib.cleanSourceWith {
+        filter = context.pins.gitignore.outputs.gitignoreFilterWith { basePath = ./.; };
+        inherit src;
+        name = "source";
+      };
+    };
 
     private = {
       pkgs = import ./nix/private/packages context;
-      utils = import ./nix/private/utils.nix context;
+      utils = import ./nix/private/utils context;
       # I keep a nixpkgs-stable channel, in addition to unstable, since there's a
       # higher chance that something builds on a stable channel.
       nixpkgs-stable = import pins.nixpkgs-stable { inherit system; };

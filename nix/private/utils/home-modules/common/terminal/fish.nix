@@ -8,7 +8,7 @@
 
   home.packages = with pkgs.fishPlugins; [
     autopair-fish
-    fish-async-prompt
+    async-prompt
     done
   ];
 

@@ -44,7 +44,7 @@
     in
     eachSystem (system: {
       bundlers = rec {
-        inherit ((import ./default.nix { inherit system; }).bundlers) rootless;
+        inherit ((import ./. { inherit system; }).bundlers) rootless;
         default = rootless;
       };
     });
