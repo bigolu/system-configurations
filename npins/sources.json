@@ -1,5 +1,15 @@
 {
   "pins": {
+    "config-file-validator-darwin": {
+      "type": "Tarball",
+      "url": "https://github.com/Boeing/config-file-validator/releases/download/v1.8.0/validator-v1.8.0-darwin-amd64.tar.gz",
+      "hash": "sha256-QxNAbdzX5cBMj+Hu1tMSD1em69Xl/CyDBnrQz3DUNUs="
+    },
+    "config-file-validator-linux": {
+      "type": "Tarball",
+      "url": "https://github.com/Boeing/config-file-validator/releases/download/v1.8.0/validator-v1.8.0-linux-amd64.tar.gz",
+      "hash": "sha256-3cxk+gC0V54VwrIyGFHmIs4TD8IqqixnPDbs+XTG0CU="
+    },
     "fish-async-prompt": {
       "type": "Git",
       "repository": {

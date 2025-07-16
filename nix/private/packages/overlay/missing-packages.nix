@@ -2,24 +2,13 @@
 final: _prev:
 let
   inherit (builtins) substring;
-  inherit (final) fetchzip;
   inherit (final.stdenv) isLinux mkDerivation;
   inherit (final.lib) getExe;
 
   config-file-validator = mkDerivation {
     pname = "config-file-validator";
     version = "1.8.0";
-    src = fetchzip {
-      url = "https://github.com/Boeing/config-file-validator/releases/download/v1.8.0/validator-v1.8.0-${
-        if isLinux then "linux" else "darwin"
-      }-amd64.tar.gz";
-      sha256 =
-        if isLinux then
-          "sha256-3cxk+gC0V54VwrIyGFHmIs4TD8IqqixnPDbs+XTG0CU="
-        else
-          "sha256-QxNAbdzX5cBMj+Hu1tMSD1em69Xl/CyDBnrQz3DUNUs=";
-      stripRoot = false;
-    };
+    src = pins.${"config-file-validator-${if isLinux then "linux" else "darwin"}"};
     installPhase = ''
       mkdir -p $out/bin
       cp $src/validator $out/bin/
