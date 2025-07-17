@@ -85,6 +85,7 @@ let
       outputs
       ;
     inherit (pkgs) lib;
+    # Incorporate any potential pin overrides and import their outputs.
     pins = pins // {
       gitignore = gitignore // {
         outputs = import gitignore { inherit (pkgs) lib; };
@@ -94,6 +95,16 @@ let
           # TODO: This should be included in the default.nix
           nix-darwin = "${pins.home-manager}/nix-darwin";
         };
+      };
+      gomod2nix = gomod2nix // {
+        outputs = pkgs.lib.makeScope pkgs.newScope (self: {
+          gomod2nix = self.callPackage gomod2nix.outPath { };
+          inherit (self.callPackage "${gomod2nix}/builder" { inherit (self) gomod2nix; })
+            buildGoApplication
+            mkGoEnv
+            mkVendorEnv
+            ;
+        });
       };
       nix-darwin = pins.nix-darwin // {
         outputs = (import pins.nix-darwin { inherit pkgs; }) // {
@@ -154,14 +165,6 @@ let
         };
       };
     };
-    gomod2nix = pkgs.lib.makeScope pkgs.newScope (self: {
-      gomod2nix = self.callPackage gomod2nix.outPath { };
-      inherit (self.callPackage "${gomod2nix}/builder" { inherit (self) gomod2nix; })
-        buildGoApplication
-        mkGoEnv
-        mkVendorEnv
-        ;
-    });
     utils = {
       # For performance, this shouldn't be called often[1] so we'll save a reference.
       #

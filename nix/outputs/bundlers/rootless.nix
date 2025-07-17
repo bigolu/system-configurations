@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  gomod2nix,
+  pins,
   ...
 }:
 drv:
@@ -27,7 +27,7 @@ let
       name,
     }:
     let
-      inherit (gomod2nix) buildGoApplication;
+      inherit (pins.gomod2nix.outputs) buildGoApplication;
       inherit (pkgs) writeClosure;
       inherit (pkgs.stdenv) mkDerivation;
 

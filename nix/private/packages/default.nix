@@ -3,7 +3,6 @@ context@{
   system,
   outputs,
   private,
-  gomod2nix,
   pkgs,
   lib,
   ...
@@ -23,7 +22,7 @@ in
 # so the fetching can be parallelized with other derivations, or avoided altogether
 # if a substitute is available.
 nixpkgs
-// gomod2nix
+// pins.gomod2nix.outputs
 // outputs.packages
 // {
   inherit (pins.home-manager.outputs) home-manager;
