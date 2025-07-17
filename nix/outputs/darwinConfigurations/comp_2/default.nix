@@ -75,7 +75,7 @@ let
       };
     in
     darwinSystem {
-      pkgs = private.pkgs;
+      inherit (private) pkgs;
       modules = modules ++ homeManagerSubmodules;
       # SYNC: SPECIAL-ARGS
       specialArgs = {
@@ -90,12 +90,17 @@ let
       };
     };
 in
-if !isDarwin then null else
-makeDarwinConfiguration {
-  configName = pipe __curPos.file [ dirOf baseNameOf ];
-  modules = [ ./modules/comp-2 ];
-  homeModules = [
-    "${homeManagerModuleRoot}/application-development"
-    "${homeManagerModuleRoot}/speakers.nix"
-  ];
-}
+if !isDarwin then
+  null
+else
+  makeDarwinConfiguration {
+    configName = pipe __curPos.file [
+      dirOf
+      baseNameOf
+    ];
+    modules = [ ./modules/comp-2 ];
+    homeModules = [
+      "${homeManagerModuleRoot}/application-development"
+      "${homeManagerModuleRoot}/speakers.nix"
+    ];
+  }

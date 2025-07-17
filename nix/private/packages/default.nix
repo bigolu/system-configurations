@@ -27,7 +27,12 @@ nixpkgs
 // outputs.packages
 // {
   inherit (pins.home-manager.outputs) home-manager;
-  inherit (pins.nix-darwin.outputs) darwin-rebuild darwin-option darwin-version darwin-uninstaller;
+  inherit (pins.nix-darwin.outputs)
+    darwin-rebuild
+    darwin-option
+    darwin-version
+    darwin-uninstaller
+    ;
   nix-gl-host = import pins.nix-gl-host { inherit pkgs; };
 
   # TODO: Use the npins in nixpkgs once it has this commit:
@@ -52,7 +57,8 @@ nixpkgs
 
   neovim =
     let
-      previousNeovim = (import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}.neovim;
+      previousNeovim =
+        (import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}.neovim;
 
       dependencies = nixpkgs.symlinkJoin {
         pname = "neovim-dependencies";

@@ -305,6 +305,11 @@ check:
                   glob: "*.nix"
                   exclude:
                     - "npins/**"
+                    # I want to ignore a fix in this file, but statix doesn't support
+                    # ignoring fixes with comments[1] so I'll skip the whole file.
+                    #
+                    # [1]: https://github.com/oppiliappan/statix/issues/61
+                    - nix/dev/packages.nix
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: "{run_fix} parallel statix fix -- {files}"
@@ -400,6 +405,11 @@ check:
                   glob: "*.nix"
                   exclude:
                     - "npins/**"
+                    # I want to ignore a fix in this file, but statix doesn't support
+                    # ignoring fixes with comments[1] so I'll skip the whole file.
+                    #
+                    # [1]: https://github.com/oppiliappan/statix/issues/61
+                    - nix/dev/packages.nix
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: parallel statix check -- {files}
@@ -478,4 +488,4 @@ check:
               - nix/*
               - dotfiles/**
               - gozip/*
-            run: echo TODO
+            run: nix build --file . checks

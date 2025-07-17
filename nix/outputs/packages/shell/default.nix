@@ -18,4 +18,3 @@ private.pkgs.makePortableShell {
     "batSetup"
   ];
 }
-

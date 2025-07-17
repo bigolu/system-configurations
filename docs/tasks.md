@@ -3,15 +3,15 @@
 Create a bundle for the specified package using the bundler in this repository.
 
 
-- **Usage**: `bundle <flakeref>`
+- **Usage**: `bundle <attr_path>`
 
 Create a bundle
 
 ### Arguments
 
-#### `<flakeref>`
+#### `<attr_path>`
 
-The flakeref of the package to build e.g. .#shell
+The attribute path of the package to build e.g. packages.shell
 
 ## `check`
 
@@ -49,15 +49,15 @@ Run on all files
 
 ## `debug:build`
 
-- **Usage**: `debug:build <flakeref>`
+- **Usage**: `debug:build <attr_path>`
 
 Run `nix build` in debug mode
 
 ### Arguments
 
-#### `<flakeref>`
+#### `<attr_path>`
 
-The flakeref of the derivation to build e.g. `.#shell`
+The attribute path of the package to build e.g. packages.shell
 
 ## `debug:ci-direnv`
 

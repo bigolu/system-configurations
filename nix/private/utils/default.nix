@@ -1,4 +1,10 @@
-{ lib, pins, private, utils, ... }:
+{
+  lib,
+  pins,
+  private,
+  utils,
+  ...
+}:
 let
   inherit (lib) concatStringsSep;
   inherit (builtins)
@@ -23,7 +29,7 @@ let
 
     makeConfiguration =
       {
-        pkgOverrides ? {},
+        pkgOverrides ? { },
         configName,
         modules,
         isGui ? true,

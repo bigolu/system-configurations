@@ -1,4 +1,9 @@
-{ pkgs, lib, outputs, ... }:
+{
+  pkgs,
+  lib,
+  outputs,
+  ...
+}:
 let
   inherit (builtins) getAttr;
   inherit (lib)

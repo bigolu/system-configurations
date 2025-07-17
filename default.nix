@@ -52,22 +52,28 @@ let
         in
         setAttrByPath keys (import file context);
 
-      enable = file:
+      enable =
+        file:
         let
-          hasAncestorDefaultNix = dir: pathExists (dir + /default.nix) || (if dir == outputRoot then false else hasAncestorDefaultNix (dirOf dir));
+          hasAncestorDefaultNix =
+            dir:
+            pathExists (dir + /default.nix)
+            || (if dir == outputRoot then false else hasAncestorDefaultNix (dirOf dir));
           dir = dirOf file;
         in
-        if (baseNameOf file) == "default.nix" then dir == outputRoot || !(hasAncestorDefaultNix (dirOf dir)) else !hasAncestorDefaultNix dir;
-      in
-        pipe outputRoot [
-          (fileset.fileFilter (file: file.hasExt "nix"))
-          fileset.toList
-          (filter enable)
-          (map makeOutputsForFile)
-          (foldl' recursiveUpdate { })
-          (outputs: outputs // {inherit context;})
-        ];
-
+        if (baseNameOf file) == "default.nix" then
+          dir == outputRoot || !(hasAncestorDefaultNix (dirOf dir))
+        else
+          !hasAncestorDefaultNix dir;
+    in
+    pipe outputRoot [
+      (fileset.fileFilter (file: file.hasExt "nix"))
+      fileset.toList
+      (filter enable)
+      (map makeOutputsForFile)
+      (foldl' recursiveUpdate { })
+      (outputs: outputs // { inherit context; })
+    ];
 
   # TODO: I can't use `foo@` on the top-level function since it wouldn't include
   # arguments with a default value: https://github.com/NixOS/nix/issues/1461. I
@@ -80,45 +86,73 @@ let
       ;
     inherit (pkgs) lib;
     pins = pins // {
-      gitignore = gitignore // { outputs = import gitignore { inherit (pkgs) lib; }; };
-      home-manager = pins.home-manager // { outputs = (import pins.home-manager { inherit pkgs; }) // {
-        # TODO: This should be included in the default.nix
-        nix-darwin = "${pins.home-manager}/nix-darwin";
-      }; };
-      nix-darwin = pins.nix-darwin // { outputs = (import pins.nix-darwin { inherit pkgs; }) // {
-        # TODO: This is only defined in flake.nix so I had to copy it. I should open an issue.
-        darwinSystem = args@{ modules, ... }: (import "${pins.nix-darwin}/eval-config.nix") (
-          { inherit (pkgs) lib; }
-          // pkgs.lib.optionalAttrs (args ? pkgs) { inherit (args.pkgs) lib; }
-          // builtins.removeAttrs args [ "system" "pkgs" "inputs" ]
-          // {
-            modules = modules
-              ++ pkgs.lib.optional (args ? pkgs) ({ lib, ... }: {
-                _module.args.pkgs = lib.mkForce args.pkgs;
-              })
-              # Backwards compatibility shim; TODO: warn?
-              ++ pkgs.lib.optional (args ? system) ({ lib, ... }: {
-                nixpkgs.system = lib.mkDefault args.system;
-              })
-              # Backwards compatibility shim; TODO: warn?
-              ++ pkgs.lib.optional (args ? inputs) {
-                _module.args.inputs = args.inputs;
+      gitignore = gitignore // {
+        outputs = import gitignore { inherit (pkgs) lib; };
+      };
+      home-manager = pins.home-manager // {
+        outputs = (import pins.home-manager { inherit pkgs; }) // {
+          # TODO: This should be included in the default.nix
+          nix-darwin = "${pins.home-manager}/nix-darwin";
+        };
+      };
+      nix-darwin = pins.nix-darwin // {
+        outputs = (import pins.nix-darwin { inherit pkgs; }) // {
+          # TODO: This is only defined in flake.nix so I had to copy it. I should open an issue.
+          darwinSystem =
+            args@{ modules, ... }:
+            (import "${pins.nix-darwin}/eval-config.nix") (
+              {
+                inherit (pkgs) lib;
               }
-              ++ [ ({ lib, ... }: {
-                nixpkgs.source = lib.mkDefault pins.nixpkgs;
-                nixpkgs.flake.source = lib.mkDefault pins.nixpkgs.outPath;
+              // pkgs.lib.optionalAttrs (args ? pkgs) { inherit (args.pkgs) lib; }
+              // builtins.removeAttrs args [
+                "system"
+                "pkgs"
+                "inputs"
+              ]
+              // {
+                modules =
+                  modules
+                  ++ pkgs.lib.optional (args ? pkgs) (
+                    { lib, ... }:
+                    {
+                      _module.args.pkgs = lib.mkForce args.pkgs;
+                    }
+                  )
+                  # Backwards compatibility shim; TODO: warn?
+                  ++ pkgs.lib.optional (args ? system) (
+                    { lib, ... }:
+                    {
+                      nixpkgs.system = lib.mkDefault args.system;
+                    }
+                  )
+                  # Backwards compatibility shim; TODO: warn?
+                  ++ pkgs.lib.optional (args ? inputs) {
+                    _module.args.inputs = args.inputs;
+                  }
+                  ++ [
+                    (
+                      { lib, ... }:
+                      {
+                        nixpkgs.source = lib.mkDefault pins.nixpkgs;
+                        nixpkgs.flake.source = lib.mkDefault pins.nixpkgs.outPath;
 
-                system = {
-                  checks.verifyNixPath = lib.mkDefault false;
-                  darwinVersionSuffix = ".dirty";
-                  darwinRevision = let
-                    rev = null;
-                  in
-                    lib.mkIf (rev != null) rev;
-                };
-              }) ];
-            });
-        }; };
+                        system = {
+                          checks.verifyNixPath = lib.mkDefault false;
+                          darwinVersionSuffix = ".dirty";
+                          darwinRevision =
+                            let
+                              rev = null;
+                            in
+                            lib.mkIf (rev != null) rev;
+                        };
+                      }
+                    )
+                  ];
+              }
+            );
+        };
+      };
     };
     gomod2nix = pkgs.lib.makeScope pkgs.newScope (self: {
       gomod2nix = self.callPackage gomod2nix.outPath { };
@@ -132,11 +166,13 @@ let
       # For performance, this shouldn't be called often[1] so we'll save a reference.
       #
       # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
-      gitFilter = src: pkgs.lib.cleanSourceWith {
-        filter = context.pins.gitignore.outputs.gitignoreFilterWith { basePath = ./.; };
-        inherit src;
-        name = "source";
-      };
+      gitFilter =
+        src:
+        pkgs.lib.cleanSourceWith {
+          filter = context.pins.gitignore.outputs.gitignoreFilterWith { basePath = ./.; };
+          inherit src;
+          name = "source";
+        };
     };
     private = {
       pkgs = import ./nix/private/packages context;

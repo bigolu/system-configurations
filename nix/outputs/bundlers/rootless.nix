@@ -1,19 +1,24 @@
-{lib, pkgs, gomod2nix, ...}:
+{
+  lib,
+  pkgs,
+  gomod2nix,
+  ...
+}:
 drv:
 let
   inherit (builtins)
-  pathExists
-  baseNameOf
-  concatStringsSep
-  attrNames
-  hasAttr
-  ;
+    pathExists
+    baseNameOf
+    concatStringsSep
+    attrNames
+    hasAttr
+    ;
   inherit (lib)
-  getName
-  warn
-  getExe'
-  assertMsg
-  ;
+    getName
+    warn
+    getExe'
+    assertMsg
+    ;
 
   makeRootlessProgram =
     {

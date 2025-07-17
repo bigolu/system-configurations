@@ -35,7 +35,7 @@ people who want to manage their systems similarly.
    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
    nix shell \
-     --override-flake nixpkgs github:NixOS/nixpkgs/69dfebb3d175bde602f612915c5576a41b18486b \
+     --override-flake nixpkgs github:NixOS/nixpkgs/be9e214982e2 \
      nixpkgs#git nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
      --command bash --noprofile --norc -euc '
        git clone \
