@@ -31,10 +31,13 @@ function _ndw_make_gc_roots_for_npins {
   fi
 
   local -r directory="${direnv_layout_dir:-.direnv}/npins-gc-roots"
-  if [[ ! -d $directory ]]; then
-    mkdir -p "$directory"
+  if [[ -d $directory ]]; then
+    # Remove old GC roots
+    rm -rf "$directory"
   fi
+  mkdir -p "$directory"
 
+  local -a pins
   local output
   output="$(npins show)"
   local -a output_lines
@@ -46,12 +49,17 @@ function _ndw_make_gc_roots_for_npins {
       local pin="${BASH_REMATCH[1]}"
       local pin_store_path
       pin_store_path="$(npins get-path "$pin")"
-      local pin_store_path_base_name="${pin_store_path##*/}"
-      nix build \
-        --out-link "$directory/$pin_store_path_base_name" \
-        "$pin_store_path"
+      pins+=("$pin_store_path")
     fi
   done
+
+  # shellcheck disable=2164
+  # direnv will enable `set -e`
+  pushd "$directory"
+  nix build "${pins[@]}"
+  # shellcheck disable=2164
+  # direnv will enable `set -e`
+  popd
 }
 
 function _ndw_wrapper_helper {
