@@ -19,7 +19,7 @@
 let
   makeOutputs =
     {
-      directory ? ./nix/outputs,
+      outputRoot ? ./nix/outputs,
       context,
     }:
     let
@@ -27,7 +27,6 @@ let
         foldl'
         filter
         pathExists
-        dirOf
         baseNameOf
         ;
       inherit (pkgs.lib)
@@ -41,30 +40,33 @@ let
         last
         optionals
         removeSuffix
-        optionalAttrs
         ;
 
       makeOutputsForFile =
         file:
         let
-          relativePath = removePrefix "${toString directory}/" (toString file);
+          relativePath = removePrefix "${toString outputRoot}/" (toString file);
           parts = splitString "/" relativePath;
           basename = last parts;
           keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
-          output = import file context;
         in
-        optionalAttrs (output != null) (setAttrByPath keys output);
-    in
-    pipe directory [
-      (fileset.fileFilter (file: file.hasExt "nix"))
-      fileset.toList
-      # If there's a default.nix in a directory, ignore all other .nix files.
-      # TODO: I have to look up recursively for default.nix, stop at output dir.
-      (filter (file: ((baseNameOf file) == "default.nix") || (!pathExists ((dirOf file) + /default.nix))))
-      (map makeOutputsForFile)
-      (foldl' recursiveUpdate { })
-      (outputs: outputs // { inherit context; })
-    ];
+        setAttrByPath keys (import file context);
+
+      enable = file:
+        let
+          hasAncestorDefaultNix = dir: pathExists (dir + /default.nix) || (if dir == outputRoot then false else hasAncestorDefaultNix (dirOf dir));
+          dir = dirOf file;
+        in
+        if (baseNameOf file) == "default.nix" then dir == outputRoot || !(hasAncestorDefaultNix (dirOf dir)) else !hasAncestorDefaultNix dir;
+      in
+        pipe outputRoot [
+          (fileset.fileFilter (file: file.hasExt "nix"))
+          fileset.toList
+          (filter enable)
+          (map makeOutputsForFile)
+          (foldl' recursiveUpdate { })
+        ];
+
 
   # TODO: I can't use `foo@` on the top-level function since it wouldn't include
   # arguments with a default value: https://github.com/NixOS/nix/issues/1461. I

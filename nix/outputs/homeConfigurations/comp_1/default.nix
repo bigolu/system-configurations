@@ -1,13 +1,14 @@
 {
   private,
   lib,
+  pkgs,
   ...
 }:
 let
   inherit (builtins) dirOf baseNameOf;
   inherit (lib) pipe;
   inherit (private.utils.homeManager) moduleRoot makeConfiguration;
-  inherit (private.pkgs.stdenv) isLinux;
+  inherit (pkgs.stdenv) isLinux;
 in
 if !isLinux then null else
 makeConfiguration {

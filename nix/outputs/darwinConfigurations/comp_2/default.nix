@@ -3,10 +3,10 @@
   utils,
   private,
   lib,
+  pkgs,
   ...
 }:
 let
-  inherit (private) pkgs;
   inherit (lib) pipe;
   inherit (pins.nix-darwin.outputs) darwinSystem;
   inherit (pkgs.stdenv) isDarwin;
@@ -75,7 +75,7 @@ let
       };
     in
     darwinSystem {
-      inherit pkgs;
+      pkgs = private.pkgs;
       modules = modules ++ homeManagerSubmodules;
       # SYNC: SPECIAL-ARGS
       specialArgs = {
