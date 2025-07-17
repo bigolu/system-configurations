@@ -19,6 +19,7 @@ let
     recursiveUpdate
     ;
 
+  # TODO: Maybe upstream this function to nix-gl-host.
   wrap =
     packageName:
     let
