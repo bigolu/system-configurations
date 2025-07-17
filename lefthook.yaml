@@ -488,4 +488,16 @@ check:
               - nix/*
               - dotfiles/**
               - gozip/*
-            run: nix build --file . checks
+            run: |
+              nix build --impure --no-link --expr '
+                let
+                  inherit (builtins) removeAttrs filter attrNames currentSystem elem;
+                  filterAttrs =
+                    pred: set:
+                    removeAttrs set (filter (name: !pred name set.${name}) (attrNames set));
+                  filterPlatform =
+                    _name: package:
+                    (package.meta.platforms or [ ]) == [ ] || elem currentSystem package.meta.platforms;
+                in
+                  filterAttrs filterPlatform (import ./. {}).checks
+              '

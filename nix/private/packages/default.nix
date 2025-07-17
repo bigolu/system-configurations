@@ -1,6 +1,5 @@
 context@{
   pins,
-  system,
   outputs,
   private,
   lib,
@@ -34,7 +33,6 @@ nixpkgs
     darwin-version
     darwin-uninstaller
     ;
-
 
   # This is usually broken on unstable
   inherit (private.nixpkgs-stable) diffoscopeMinimal;

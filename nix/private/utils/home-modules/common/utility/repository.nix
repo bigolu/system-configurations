@@ -45,6 +45,8 @@ let
     ;
   inherit (utils) applyIf;
   inherit (pkgs) writeScript;
+
+  inFlakePureEval = !builtins ? currentSystem;
 in
 {
   options.repository =
@@ -133,9 +135,13 @@ in
         };
 
         relativePathRoot = mkOption {
-          type = types.str;
+          type = types.oneOf [
+            types.str
+            types.path
+          ];
+          apply = toString;
           description = "Relative paths used as the source for any file are assumed to be relative to this directory.";
-          default = config.repository.fileSettings.flake.root.path;
+          default = if inFlakePureEval then config.repository.fileSettings.flake.root.path else null;
         };
 
         flake.root = {
@@ -186,7 +192,6 @@ in
       isRelativePath = path: !hasPrefix "/" path;
       toAbsolutePath =
         fileSource: if isRelativePath fileSource then "${relativePathRoot}/${fileSource}" else fileSource;
-      isPureEval = !builtins ? currentSystem;
 
       toPath =
         fileSource:
@@ -194,7 +199,7 @@ in
           [
             toAbsolutePath
           ]
-          ++ optionals isPureEval [
+          ++ optionals inFlakePureEval [
             # You can make a string into a Path by concatenating it with a Path.
             # However, in flake pure evaluation mode all Paths must be inside the the
             # nix store so we remove the path to the flake root and then append the
@@ -272,8 +277,17 @@ in
         directory:
         pipe directory.source [
           toPath
-          utils.gitFilter
+
+          # Flakes has built-in gitignore support
+          (applyIf (!inFlakePureEval) utils.gitFilter)
+
+          # Use relative paths to account for the case where the source directory
+          # doesn't match the directory we list the files from. This can happen for
+          # two reasons:
+          #   - In flake pure eval mode, we can only read from the nix store
+          #   - `gitFilter` return a new directory in the nix store
           listRelativeFilesRecursive
+
           (map (
             relativeFile:
             nameValuePair "${directory.target}/${unsafeDiscardStringContext relativeFile}" (toHomeManagerFile {
@@ -283,6 +297,7 @@ in
               removeExtension = directory.removeExtension or false;
             })
           ))
+
           listToAttrs
         ];
 
@@ -331,7 +346,7 @@ in
             message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
           }
         ]
-        ++ optionals isPureEval [
+        ++ optionals inFlakePureEval [
           {
             assertion = isRelativePathRootInFlakeDirectory;
             message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}, flake directory: ${flakePath}";

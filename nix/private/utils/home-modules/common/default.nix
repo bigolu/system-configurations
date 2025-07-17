@@ -2,9 +2,9 @@
   pkgs,
   lib,
   isGui,
-  repositoryDirectory,
   pins,
   config,
+  utils,
   ...
 }:
 let
@@ -14,6 +14,7 @@ let
     ;
   inherit (pkgs) writeText;
   inherit (pkgs.stdenv) isDarwin isLinux;
+  inherit (utils) projectRoot;
 
   isLinuxGui = isGui && isLinux;
 
@@ -93,7 +94,7 @@ in
   repository = {
     fileSettings = {
       editableInstall = true;
-      relativePathRoot = "${repositoryDirectory}/dotfiles";
+      relativePathRoot = "${toString projectRoot}/dotfiles";
     };
 
     xdg.executable = {
