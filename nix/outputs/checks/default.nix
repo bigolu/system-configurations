@@ -2,10 +2,11 @@
   pkgs,
   lib,
   outputs,
+  system,
   ...
 }:
 let
-  inherit (builtins) getAttr;
+  inherit (builtins) getAttr elem;
   inherit (lib)
     mapAttrs
     mapAttrs'
@@ -13,9 +14,14 @@ let
     pipe
     mergeAttrsList
     getExe
+    filterAttrs
     ;
 
   prefixAttrNames = prefix: mapAttrs' (name: nameValuePair "${prefix}-${name}");
+
+  filterPlatforms = filterAttrs (
+    _name: package: (package.meta.platforms or [ ]) == [ ] || elem system package.meta.platforms
+  );
 
   darwinChecks = pipe outputs.darwinConfigurations [
     (mapAttrs (_name: getAttr "system"))
@@ -55,10 +61,15 @@ let
       ${rootlessBundlerName} = rootlessBundlerCheck;
     };
 in
-mergeAttrsList [
-  darwinChecks
-  devShellChecks
-  homeChecks
-  packageChecks
-  bundlerChecks
-]
+pipe
+  [
+    darwinChecks
+    devShellChecks
+    homeChecks
+    packageChecks
+    bundlerChecks
+  ]
+  [
+    mergeAttrsList
+    filterPlatforms
+  ]

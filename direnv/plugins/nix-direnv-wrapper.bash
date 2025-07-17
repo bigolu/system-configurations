@@ -12,7 +12,6 @@ function _ndw_create_wrappers {
   _ndw_backup "$_ndw_original_use_nix_name"
   function use_nix {
     _ndw_wrapper_helper "$_ndw_original_use_nix_name" 'nix-profile' "$@"
-    _ndw_make_gc_roots_for_npins
   }
 
   _ndw_original_use_flake_name='use_flake'
@@ -76,6 +75,10 @@ function _ndw_wrapper_helper {
     if type -P nvd >/dev/null; then
       nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
     fi
+  fi
+
+  if [[ $original_function_name == 'use_nix' && ($old_dev_shell != "$new_dev_shell") ]]; then
+    _ndw_make_gc_roots_for_npins
   fi
 }
 

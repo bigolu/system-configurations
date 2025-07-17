@@ -3,13 +3,11 @@
   utils,
   private,
   lib,
-  pkgs,
   ...
 }:
 let
-  inherit (lib) pipe;
+  inherit (lib) pipe recursiveUpdate;
   inherit (pins.nix-darwin.outputs) darwinSystem;
-  inherit (pkgs.stdenv) isDarwin;
 
   homeManagerUtils = private.utils.homeManager;
   homeManagerCommonModule = homeManagerUtils.commonModule;
@@ -90,17 +88,14 @@ let
       };
     };
 in
-if !isDarwin then
-  null
-else
-  makeDarwinConfiguration {
-    configName = pipe __curPos.file [
-      dirOf
-      baseNameOf
-    ];
-    modules = [ ./modules/comp-2 ];
-    homeModules = [
-      "${homeManagerModuleRoot}/application-development"
-      "${homeManagerModuleRoot}/speakers.nix"
-    ];
-  }
+recursiveUpdate { system.meta.platforms = [ "x86_64-darwin" ]; } (makeDarwinConfiguration {
+  configName = pipe __curPos.file [
+    dirOf
+    baseNameOf
+  ];
+  modules = [ ./modules/comp-2 ];
+  homeModules = [
+    "${homeManagerModuleRoot}/application-development"
+    "${homeManagerModuleRoot}/speakers.nix"
+  ];
+})
