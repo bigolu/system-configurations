@@ -113,6 +113,11 @@ let
             ;
         });
       };
+      # I keep a nixpkgs-stable channel, in addition to unstable, since there's a
+      # higher chance that something builds on a stable channel.
+      nixpkgs-stable = pins.nixpkgs-stable // {
+        outputs = import pins.nixpkgs-stable { inherit system; };
+      };
       nix-darwin = pins.nix-darwin // {
         outputs = (import pins.nix-darwin { inherit pkgs; }) // {
           # TODO: This is only defined in flake.nix so I had to copy it. I should open an issue.
@@ -187,9 +192,6 @@ let
     private = {
       pkgs = import ./nix/private/packages context;
       utils = import ./nix/private/utils context;
-      # I keep a nixpkgs-stable channel, in addition to unstable, since there's a
-      # higher chance that something builds on a stable channel.
-      nixpkgs-stable = import pins.nixpkgs-stable { inherit system; };
     };
   };
 

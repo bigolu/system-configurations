@@ -14,11 +14,6 @@ let
 in
 # perf: To avoid fetching `pins` unnecessarily in CI, I don't use their overlays.
 # This way, I only have to fetch a source if I actually use one of its packages.
-#
-# perf: I'm intentionally not using an overlay so nixpkgs's fetchers can be used to
-# fetch pins. Unlike the builtin fetchers, the ones from nixpkgs produce derivations
-# so the fetching can be parallelized with other derivations, or avoided altogether
-# if a substitute is available.
 nixpkgs
 // pins.gomod2nix.outputs
 // outputs.packages
@@ -35,7 +30,7 @@ nixpkgs
     ;
 
   # This is usually broken on unstable
-  inherit (private.nixpkgs-stable) diffoscopeMinimal;
+  inherit (pins.nixpkgs-stable.outputs) diffoscopeMinimal;
 
   nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
     interpreter = nixpkgs.bash-script;
