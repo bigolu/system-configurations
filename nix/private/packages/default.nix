@@ -3,7 +3,6 @@ context@{
   system,
   outputs,
   private,
-  pkgs,
   lib,
   ...
 }:
@@ -26,17 +25,16 @@ nixpkgs
 // outputs.packages
 // {
   inherit (pins.home-manager.outputs) home-manager;
+  nix-gl-host = pins.nix-gl-host.outputs;
+  npins = pins.npins.outputs;
+
   inherit (pins.nix-darwin.outputs)
     darwin-rebuild
     darwin-option
     darwin-version
     darwin-uninstaller
     ;
-  nix-gl-host = import pins.nix-gl-host { inherit pkgs; };
 
-  # TODO: Use the npins in nixpkgs once it has this commit:
-  # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
-  npins = import pins.npins { inherit pkgs; };
 
   # This is usually broken on unstable
   inherit (private.nixpkgs-stable) diffoscopeMinimal;
@@ -56,8 +54,7 @@ nixpkgs
 
   neovim =
     let
-      previousNeovim =
-        (import "${pins.neovim-nightly-overlay}/flake-compat.nix").packages.${system}.neovim;
+      nightlyNoevim = pins.neovim-nightly-overlay.outputs.packages.${system}.neovim;
 
       dependencies = nixpkgs.symlinkJoin {
         pname = "neovim-dependencies";
@@ -67,9 +64,9 @@ nixpkgs
       };
 
       wrappedNeovim = nixpkgs.symlinkJoin {
-        pname = "my-${previousNeovim.pname}";
-        inherit (previousNeovim) version;
-        paths = [ previousNeovim ];
+        pname = "my-${nightlyNoevim.pname}";
+        inherit (nightlyNoevim) version;
+        paths = [ nightlyNoevim ];
         nativeBuildInputs = [ nixpkgs.makeWrapper ];
         postBuild = ''
           # PARINIT: The par manpage recommends using this value if you want
@@ -82,5 +79,5 @@ nixpkgs
       };
     in
     # Merge with the original package to retain attributes like meta
-    lib.recursiveUpdate previousNeovim wrappedNeovim;
+    lib.recursiveUpdate nightlyNoevim wrappedNeovim;
 }

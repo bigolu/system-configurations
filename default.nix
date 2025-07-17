@@ -12,7 +12,6 @@
   # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
   pkgs ? import pins.nixpkgs { inherit system; },
 
-  # Overridable pins
   gomod2nix ? pins.gomod2nix,
   gitignore ? pins.gitignore,
 }:
@@ -95,6 +94,17 @@ let
           # TODO: This should be included in the default.nix
           nix-darwin = "${pins.home-manager}/nix-darwin";
         };
+      };
+      nix-gl-host = pins.nix-gl-host // {
+        outputs = import pins.nix-gl-host { inherit pkgs; };
+      };
+      # TODO: Use the npins in nixpkgs once it has this commit:
+      # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
+      npins = pins.npins // {
+        outputs = import pins.npins { inherit pkgs; };
+      };
+      neovim-nightly-overlay = pins.neovim-nightly-overlay // {
+        outputs = import "${pins.neovim-nightly-overlay}/flake-compat.nix";
       };
       gomod2nix = gomod2nix // {
         outputs = pkgs.lib.makeScope pkgs.newScope (self: {
