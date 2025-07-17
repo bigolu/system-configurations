@@ -75,8 +75,8 @@ let
     ];
 
   # TODO: I can't use `foo@` on the top-level function since it wouldn't include
-  # arguments with a default value: https://github.com/NixOS/nix/issues/1461. I
-  # could remove the defaults, but I want it to be used with callPackage.
+  # arguments with a default value: https://github.com/NixOS/nix/issues/1461. I could
+  # remove the defaults, but I want the CLI to be able to automatically call it.
   context = {
     inherit
       system
