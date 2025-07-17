@@ -75,19 +75,6 @@
       "url": "https://github.com/rvaiya/keyd/archive/19135668c20d3fa8c2a906d09e78c94003aae1cd.tar.gz",
       "hash": "sha256-ljp58wsKm2Ebb2mK9xf71nlrbckEkqMQHzVakQStFiM="
     },
-    "neovim-nightly-overlay": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "nix-community",
-        "repo": "neovim-nightly-overlay"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "37319e0cdc7e966294b19c8780e13c6b533b369c",
-      "url": "https://github.com/nix-community/neovim-nightly-overlay/archive/37319e0cdc7e966294b19c8780e13c6b533b369c.tar.gz",
-      "hash": "sha256-udMozuexr4XGAl1Wyt8A7apk9SqkAQZ9q3JvQ7wDKYM="
-    },
     "nix-darwin": {
       "type": "Git",
       "repository": {

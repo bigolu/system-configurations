@@ -103,9 +103,6 @@ let
       npins = pins.npins // {
         outputs = import pins.npins { inherit pkgs; };
       };
-      neovim-nightly-overlay = pins.neovim-nightly-overlay // {
-        outputs = import "${pins.neovim-nightly-overlay}/flake-compat.nix";
-      };
       gomod2nix = gomod2nix // {
         outputs = pkgs.lib.makeScope pkgs.newScope (self: {
           gomod2nix = self.callPackage gomod2nix.outPath { };

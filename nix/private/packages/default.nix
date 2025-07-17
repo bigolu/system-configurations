@@ -54,7 +54,7 @@ nixpkgs
 
   neovim =
     let
-      nightlyNoevim = pins.neovim-nightly-overlay.outputs.packages.${system}.neovim;
+      oldNeovim = nixpkgs.neovim-unwrapped;
 
       dependencies = nixpkgs.symlinkJoin {
         pname = "neovim-dependencies";
@@ -64,9 +64,9 @@ nixpkgs
       };
 
       wrappedNeovim = nixpkgs.symlinkJoin {
-        pname = "my-${nightlyNoevim.pname}";
-        inherit (nightlyNoevim) version;
-        paths = [ nightlyNoevim ];
+        pname = "my-${oldNeovim.pname}";
+        inherit (oldNeovim) version;
+        paths = [ oldNeovim ];
         nativeBuildInputs = [ nixpkgs.makeWrapper ];
         postBuild = ''
           # PARINIT: The par manpage recommends using this value if you want
@@ -79,5 +79,5 @@ nixpkgs
       };
     in
     # Merge with the original package to retain attributes like meta
-    lib.recursiveUpdate nightlyNoevim wrappedNeovim;
+    lib.recursiveUpdate oldNeovim wrappedNeovim;
 }
