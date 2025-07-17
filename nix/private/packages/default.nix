@@ -19,7 +19,6 @@ nixpkgs
 // outputs.packages
 // {
   inherit (pins.home-manager.outputs) home-manager;
-  nix-gl-host = pins.nix-gl-host.outputs;
   npins = pins.npins.outputs;
 
   inherit (pins.nix-darwin.outputs)
