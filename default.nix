@@ -65,6 +65,7 @@ let
           (filter enable)
           (map makeOutputsForFile)
           (foldl' recursiveUpdate { })
+          (outputs: outputs // {inherit context;})
         ];
 
 
