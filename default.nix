@@ -27,73 +27,77 @@ let
       context,
     }:
     let
-      inherit (builtins)
-        foldl'
-        filter
-        pathExists
-        baseNameOf
-        ;
-      inherit (nixpkgs.lib)
-        pipe
-        removePrefix
-        fileset
-        splitString
-        recursiveUpdate
-        setAttrByPath
-        init
-        last
-        optionals
-        removeSuffix
-        ;
-
-      makeOutputsForFile =
-        file:
+      makeOutputs' =
+        self:
         let
-          relativePath = removePrefix "${toString outputRoot}/" (toString file);
-          parts = splitString "/" relativePath;
-          basename = last parts;
-          keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
-        in
-        setAttrByPath keys (import file context);
+          inherit (builtins)
+            foldl'
+            filter
+            pathExists
+            baseNameOf
+            ;
+          inherit (nixpkgs.lib)
+            pipe
+            removePrefix
+            fileset
+            splitString
+            recursiveUpdate
+            setAttrByPath
+            init
+            last
+            optionals
+            removeSuffix
+            ;
 
-      shouldMakeOutputs =
-        file:
-        let
-          hasAncestorDefaultNix =
-            dir:
-            pathExists (dir + /default.nix)
-            || (if dir == outputRoot then false else hasAncestorDefaultNix (dirOf dir));
-          dir = dirOf file;
+          context' = (context context') // {
+            outputs = self;
+          };
+
+          makeOutputsForFile =
+            file:
+            let
+              relativePath = removePrefix "${toString outputRoot}/" (toString file);
+              parts = splitString "/" relativePath;
+              basename = last parts;
+              keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
+            in
+            setAttrByPath keys (import file context');
+
+          shouldMakeOutputs =
+            file:
+            let
+              hasAncestorDefaultNix =
+                dir:
+                pathExists (dir + /default.nix)
+                || (if dir == outputRoot then false else hasAncestorDefaultNix (dirOf dir));
+              dir = dirOf file;
+            in
+            if (baseNameOf file) == "default.nix" then
+              dir == outputRoot || !(hasAncestorDefaultNix (dirOf dir))
+            else
+              !hasAncestorDefaultNix dir;
         in
-        if (baseNameOf file) == "default.nix" then
-          dir == outputRoot || !(hasAncestorDefaultNix (dirOf dir))
-        else
-          !hasAncestorDefaultNix dir;
+        pipe outputRoot [
+          (fileset.fileFilter (file: file.hasExt "nix"))
+          fileset.toList
+          (filter shouldMakeOutputs)
+          (map makeOutputsForFile)
+          (foldl' recursiveUpdate { })
+          (outputs: outputs // { context = context'; })
+        ];
     in
-    pipe outputRoot [
-      (fileset.fileFilter (file: file.hasExt "nix"))
-      fileset.toList
-      (filter shouldMakeOutputs)
-      (map makeOutputsForFile)
-      (foldl' recursiveUpdate { })
-      (outputs: outputs // { inherit context; })
-    ];
+    nixpkgs.lib.fix makeOutputs';
 
-  # TODO: I can't use `foo@` on the top-level function since it wouldn't include
-  # arguments with a default value: https://github.com/NixOS/nix/issues/1461.
-  context = {
-    inherit
-      system
-      outputs
-      ;
+  context = self: {
+    inherit system;
 
     # These are commonly used so lets make them easier to access by exposing them at
     # the top level.
     inherit nixpkgs;
     inherit (nixpkgs) lib;
 
-    utils = import ./nix/utils context;
-    packages = import ./nix/packages context;
+    utils = import ./nix/utils self;
+    packages = import ./nix/packages self;
 
     # Incorporate any potential pin overrides and import their outputs.
     pins = pins // {
@@ -193,10 +197,8 @@ let
       };
     };
   };
-
-  outputs = makeOutputs {
-    inherit context;
-    outputRoot = ./nix/outputs;
-  };
 in
-outputs
+makeOutputs {
+  inherit context;
+  outputRoot = ./nix/outputs;
+}
