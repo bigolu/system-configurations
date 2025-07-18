@@ -25,6 +25,7 @@ let
     {
       outputRoot,
       context,
+      lib,
     }:
     let
       makeOutputs' =
@@ -36,7 +37,7 @@ let
             pathExists
             baseNameOf
             ;
-          inherit (nixpkgs.lib)
+          inherit (lib)
             pipe
             removePrefix
             fileset
@@ -86,7 +87,7 @@ let
           (outputs: outputs // { context = context'; })
         ];
     in
-    nixpkgs.lib.fix makeOutputs';
+    lib.fix makeOutputs';
 
   context = self: {
     inherit system;
@@ -99,7 +100,7 @@ let
     utils = import ./nix/utils self;
     packages = import ./nix/packages self;
 
-    # Incorporate any potential pin overrides and import their outputs.
+    # Our pins and their outputs, with any overrides applied
     inputs = pins // {
       gitignore = gitignore // {
         outputs = import gitignore { inherit (nixpkgs) lib; };
@@ -199,6 +200,7 @@ let
   };
 in
 makeOutputs {
-  inherit context;
   outputRoot = ./nix/outputs;
+  inherit (nixpkgs) lib;
+  inherit context;
 }
