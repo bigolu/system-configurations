@@ -43,7 +43,6 @@ let
       };
       home-manager = pins.home-manager // {
         outputs = (import pins.home-manager { pkgs = nixpkgs; }) // {
-          # TODO: This should be included in the default.nix
           nix-darwin = "${pins.home-manager}/nix-darwin";
         };
       };
@@ -75,61 +74,22 @@ let
       };
       nix-darwin = pins.nix-darwin // {
         outputs = (import pins.nix-darwin { pkgs = nixpkgs; }) // {
-          # TODO: This is only defined in flake.nix so I had to copy it. I should
-          # open an issue.
-          darwinSystem =
-            args@{ modules, ... }:
-            (import "${pins.nix-darwin}/eval-config.nix") (
-              {
-                inherit (nixpkgs) lib;
-              }
-              // nixpkgs.lib.optionalAttrs (args ? pkgs) { inherit (args.pkgs) lib; }
-              // builtins.removeAttrs args [
-                "system"
-                "pkgs"
-                "inputs"
-              ]
-              // {
-                modules =
-                  modules
-                  ++ nixpkgs.lib.optional (args ? pkgs) (
-                    { lib, ... }:
-                    {
-                      _module.args.pkgs = lib.mkForce args.pkgs;
-                    }
-                  )
-                  # Backwards compatibility shim; TODO: warn?
-                  ++ nixpkgs.lib.optional (args ? system) (
-                    { lib, ... }:
-                    {
-                      nixpkgs.system = lib.mkDefault args.system;
-                    }
-                  )
-                  # Backwards compatibility shim; TODO: warn?
-                  ++ nixpkgs.lib.optional (args ? inputs) {
-                    _module.args.inputs = args.inputs;
-                  }
-                  ++ [
-                    (
-                      { lib, ... }:
-                      {
-                        nixpkgs.source = lib.mkDefault pins.nixpkgs;
-                        nixpkgs.flake.source = lib.mkDefault pins.nixpkgs.outPath;
-
-                        system = {
-                          checks.verifyNixPath = lib.mkDefault false;
-                          darwinVersionSuffix = ".dirty";
-                          darwinRevision =
-                            let
-                              rev = null;
-                            in
-                            lib.mkIf (rev != null) rev;
-                        };
-                      }
-                    )
-                  ];
-              }
-            );
+          darwinSystem = nixpkgs.lib.pipe "${pins.nix-darwin}/flake.nix" [
+            import
+            (
+              flake:
+              let
+                self = flake.outputs {
+                  inherit self;
+                  nixpkgs = pins.nixpkgs // {
+                    inherit (nixpkgs) lib;
+                  };
+                };
+              in
+              self
+            )
+            (outputs: outputs.lib.darwinSystem)
+          ];
         };
       };
     };
