@@ -1,10 +1,14 @@
 {
   # This shouldn't be overridden, it's only here because of a mutual dependency with
   # nixpkgs.
-  pins ? import ./nix/npins-wrapper.nix { inherit nixpkgs; },
+  pins ?
+    builtins.mapAttrs
+      # Use derivation-based fetchers from nixpkgs for all pins except nixpkgs channels.
+      (_name: pin: if pin.type == "Channel" then pin else pin { pkgs = nixpkgs; })
+      (import ./npins),
 
-  # In flake pure evaluation mode, `builtins.currentSystem` can't be accessed so
-  # we'll take system as a parameter.
+  # In flake pure evaluation mode, the current system can't be accessed so we'll take
+  # it as a parameter.
   system ? builtins.currentSystem,
 
   # It's recommended to override this pin for two reasons[1]:
