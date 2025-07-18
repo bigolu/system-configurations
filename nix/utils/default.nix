@@ -73,20 +73,14 @@ let
     shouldApply: function: arg:
     if shouldApply then function arg else arg;
 
-  gitFilter = {
-    # For performance, this shouldn't be called often[1] so we'll save a reference.
-    #
-    # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
-    filter = pins.gitignore.outputs.gitignoreFilterWith { basePath = projectRoot; };
-
-    __functor =
-      self: src:
-      lib.cleanSourceWith {
-        inherit (self) filter;
-        inherit src;
-        name = "source";
-      };
-  };
+  gitFilter =
+    let
+      # For performance, this shouldn't be called often[1] so we'll save a reference.
+      #
+      # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
+      filter = pins.gitignore.outputs.gitignoreFilterWith { basePath = projectRoot; };
+    in
+    src: lib.cleanSourceWith { inherit filter src; };
 in
 {
   inherit

@@ -1,12 +1,14 @@
 # We reduce the size of the portable shell by removing large packages.
-{ pkgs, lib, ... }:
+{ packages, lib, ... }:
 let
   inherit (builtins) listToAttrs;
   inherit (lib) pipe nameValuePair;
 
   makeEmptyPackage =
     packageName:
-    pkgs.runCommand "${packageName}-empty" { meta.mainProgram = packageName; } ''mkdir -p $out/bin'';
+    packages.runCommand "${packageName}-empty" {
+      meta.mainProgram = packageName;
+    } ''mkdir -p $out/bin'';
 
   makeEmptyPackageSet =
     packageNames:

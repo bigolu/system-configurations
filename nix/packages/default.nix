@@ -5,7 +5,7 @@
   outputs,
   packages,
   lib,
-  pkgs,
+  nixpkgs,
   utils,
   ...
 }:
@@ -13,7 +13,7 @@ let
   inherit (builtins) concatStringsSep substring;
   inherit (utils) unstableVersion projectRoot;
   inherit (lib) optionalAttrs getExe recursiveUpdate;
-  inherit (pkgs.stdenv) isLinux;
+  inherit (nixpkgs.stdenv) isLinux;
 
   filterPrograms =
     package: programsToKeep:
@@ -21,10 +21,10 @@ let
       findFilters = map (program: "! -name '${program}'") programsToKeep;
       findFiltersAsString = concatStringsSep " " findFilters;
     in
-    pkgs.symlinkJoin {
+    nixpkgs.symlinkJoin {
       name = "${package.name}-partial";
       paths = [ package ];
-      nativeBuildInputs = [ pkgs.makeWrapper ];
+      nativeBuildInputs = [ nixpkgs.makeWrapper ];
       postBuild = ''
         cd $out/bin
         find . ${findFiltersAsString} -type f,l -exec rm -f {} +
@@ -33,7 +33,7 @@ let
 in
 # perf: To avoid fetching `pins` unnecessarily in CI, I don't use their overlays.
 # This way, I only have to fetch a source if I actually use one of its packages.
-pkgs
+nixpkgs
 // outputs.packages
 // pins.gomod2nix.outputs
 // rec {
@@ -56,7 +56,7 @@ pkgs
 
   mkShellNoCC = outputs.packages.mkShellWrapper.override {
     # So we can override `mkShellNoCC` without causing infinite recursion
-    inherit (pkgs) mkShellNoCC;
+    inherit (nixpkgs) mkShellNoCC;
   };
 
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
@@ -65,20 +65,20 @@ pkgs
 
   neovim =
     let
-      oldNeovim = pkgs.neovim-unwrapped;
+      oldNeovim = nixpkgs.neovim-unwrapped;
 
-      dependencies = pkgs.symlinkJoin {
+      dependencies = nixpkgs.symlinkJoin {
         pname = "neovim-dependencies";
         version = unstableVersion;
         # to format comments
-        paths = [ pkgs.par ];
+        paths = [ nixpkgs.par ];
       };
 
-      wrappedNeovim = pkgs.symlinkJoin {
+      wrappedNeovim = nixpkgs.symlinkJoin {
         pname = "my-${oldNeovim.pname}";
         inherit (oldNeovim) version;
         paths = [ oldNeovim ];
-        nativeBuildInputs = [ pkgs.makeWrapper ];
+        nativeBuildInputs = [ nixpkgs.makeWrapper ];
         postBuild = ''
           # PARINIT: The par manpage recommends using this value if you want
           # to start using par, but aren't familiar with how par works so
@@ -92,8 +92,8 @@ pkgs
     # Merge with the original package to retain attributes like meta
     lib.recursiveUpdate oldNeovim wrappedNeovim;
 
-  myVimPluginPack = pkgs.vimUtils.packDir {
-    bigolu.start = with pkgs.vimPlugins; [
+  myVimPluginPack = nixpkgs.vimUtils.packDir {
+    bigolu.start = with nixpkgs.vimPlugins; [
       camelcasemotion
       dial-nvim
       lazy-lsp-nvim
@@ -114,7 +114,7 @@ pkgs
       vim-sleuth
 
       # TODO: should be upstreamed to nixpkgs
-      (pkgs.vimUtils.buildVimPlugin {
+      (nixpkgs.vimUtils.buildVimPlugin {
         pname = "vim-caser";
         version = pins.vim-caser.revision;
         src = pins.vim-caser;
@@ -122,24 +122,24 @@ pkgs
     ];
   };
 
-  fishPlugins = pkgs.fishPlugins // {
+  fishPlugins = nixpkgs.fishPlugins // {
     # TODO: They don't seem to be making releases anymore. I should check with the
     # author and possibly have nixpkgs track master instead.
-    async-prompt = pkgs.fishPlugins.async-prompt.overrideAttrs (_old: {
+    async-prompt = nixpkgs.fishPlugins.async-prompt.overrideAttrs (_old: {
       version = pins.fish-async-prompt.revision;
       src = pins.fish-async-prompt;
     });
   };
 
-  partialPackages = pkgs.lib.recurseIntoAttrs (
+  partialPackages = nixpkgs.lib.recurseIntoAttrs (
     {
-      xargs = filterPrograms pkgs.findutils [ "xargs" ];
-      ps = filterPrograms pkgs.procps [ "ps" ];
-      pkill = filterPrograms pkgs.procps [ "pkill" ];
-      look = filterPrograms pkgs.util-linux [ "look" ];
+      xargs = filterPrograms nixpkgs.findutils [ "xargs" ];
+      ps = filterPrograms nixpkgs.procps [ "ps" ];
+      pkill = filterPrograms nixpkgs.procps [ "pkill" ];
+      look = filterPrograms nixpkgs.util-linux [ "look" ];
       # toybox is a multi-call binary so we are going to delete everything besides the
       # toybox executable and the programs I need which are just symlinks to it.
-      toybox = filterPrograms pkgs.toybox [
+      toybox = filterPrograms nixpkgs.toybox [
         "toybox"
         "tar"
         "hostname"
@@ -149,11 +149,11 @@ pkgs
     // optionalAttrs isLinux {
       # The pstree from psmisc is preferred on linux for some reason:
       # https://github.com/NixOS/nixpkgs/blob/3dc440faeee9e889fe2d1b4d25ad0f430d449356/pkgs/applications/misc/pstree/default.nix#L36C8-L36C8
-      pstree = filterPrograms pkgs.psmisc [ "pstree" ];
+      pstree = filterPrograms nixpkgs.psmisc [ "pstree" ];
     }
   );
 
-  config-file-validator = pkgs.stdenv.mkDerivation {
+  config-file-validator = nixpkgs.stdenv.mkDerivation {
     pname = "config-file-validator";
     version = "1.8.0";
     src = pins.${"config-file-validator-${if isLinux then "linux" else "darwin"}"};
@@ -178,7 +178,7 @@ pkgs
 
       src = pins.keyd;
 
-      pypkgs = pkgs.python3.pkgs;
+      pypkgs = nixpkgs.python3.pkgs;
 
       appMap = pypkgs.buildPythonApplication rec {
         pname = "keyd-application-mapper";
@@ -187,7 +187,7 @@ pkgs
 
         postPatch = ''
           substituteInPlace scripts/${pname} \
-            --replace-fail /bin/sh ${pkgs.runtimeShell}
+            --replace-fail /bin/sh ${nixpkgs.runtimeShell}
         '';
 
         propagatedBuildInputs = with pypkgs; [ xlib ];
@@ -201,7 +201,7 @@ pkgs
         meta.mainProgram = "keyd-application-mapper";
       };
     in
-    pkgs.stdenv.mkDerivation {
+    nixpkgs.stdenv.mkDerivation {
       pname = "keyd";
       inherit version src;
 
@@ -215,7 +215,7 @@ pkgs
 
       installFlags = [ "DESTDIR=${placeholder "out"}" ];
 
-      buildInputs = [ pkgs.systemd ];
+      buildInputs = [ nixpkgs.systemd ];
 
       enableParallelBuilding = true;
 
@@ -231,7 +231,7 @@ pkgs
         cp keyd.service.in $out/lib/systemd/system/keyd.service
       '';
 
-      passthru.tests.keyd = pkgs.nixosTests.keyd;
+      passthru.tests.keyd = nixpkgs.nixosTests.keyd;
 
       meta = with lib; {
         description = "Key remapping daemon for Linux";
@@ -243,10 +243,10 @@ pkgs
 
   ripgrep-all =
     let
-      dependencies = pkgs.symlinkJoin {
+      dependencies = nixpkgs.symlinkJoin {
         pname = "ripgrep-all-dependencies";
         version = unstableVersion;
-        paths = with pkgs; [
+        paths = with nixpkgs; [
           xlsx2csv
           fastgron
           tesseract
@@ -254,11 +254,11 @@ pkgs
         ];
       };
     in
-    pkgs.symlinkJoin {
-      pname = "my-${pkgs.ripgrep-all.pname}";
-      inherit (pkgs.ripgrep-all) version;
-      paths = [ pkgs.ripgrep-all ];
-      nativeBuildInputs = [ pkgs.makeWrapper ];
+    nixpkgs.symlinkJoin {
+      pname = "my-${nixpkgs.ripgrep-all.pname}";
+      inherit (nixpkgs.ripgrep-all) version;
+      paths = [ nixpkgs.ripgrep-all ];
+      nativeBuildInputs = [ nixpkgs.makeWrapper ];
       postBuild = ''
         wrapProgram $out/bin/rga \
           --prefix PATH : ${dependencies}/bin \
@@ -266,9 +266,9 @@ pkgs
       '';
     };
 
-  runAsAdmin = pkgs.writeShellApplication {
+  runAsAdmin = nixpkgs.writeShellApplication {
     name = "run-as-admin";
-    runtimeInputs = [ pkgs.coreutils ];
+    runtimeInputs = [ nixpkgs.coreutils ];
     text = ''
       # I want to run `darwin-rebuild switch` and only input my password once, but
       # homebrew, rightly, invalidates the sudo cache before it runs[1] so I have to
@@ -308,10 +308,10 @@ pkgs
     '';
   };
 
-  myFonts = pkgs.symlinkJoin {
+  myFonts = nixpkgs.symlinkJoin {
     pname = "my-fonts";
     version = unstableVersion;
-    paths = with pkgs; [
+    paths = with nixpkgs; [
       nerd-fonts.symbols-only
       jetbrains-mono
     ];
@@ -320,7 +320,7 @@ pkgs
   speakerctl =
     let
       programName = "speakerctl";
-      pythonEnv = pkgs.python3.withPackages (
+      pythonEnv = nixpkgs.python3.withPackages (
         pythonPackages: with pythonPackages; [
           pip
           python-kasa
@@ -333,13 +333,13 @@ pkgs
         ]
       );
     in
-    pkgs.writeShellApplication {
+    nixpkgs.writeShellApplication {
       name = programName;
       runtimeInputs = [ pythonEnv ];
       meta.mainProgram = programName;
 
       passthru = {
-        devShell = pkgs.mkShellNoCC {
+        devShell = nixpkgs.mkShellNoCC {
           packages = [ pythonEnv ];
         };
         python = pythonEnv;
@@ -352,7 +352,7 @@ pkgs
 
   bash-script =
     let
-      initFile = pkgs.writeTextFile {
+      initFile = nixpkgs.writeTextFile {
         name = "init-file";
         text = ''
           set -o errexit
@@ -365,18 +365,18 @@ pkgs
         '';
       };
     in
-    pkgs.writeShellApplication {
+    nixpkgs.writeShellApplication {
       name = "bash-script";
       meta.description = ''
         Bash with settings applied for running scripts non-interactively.
       '';
-      runtimeInputs = [ pkgs.bash ];
+      runtimeInputs = [ nixpkgs.bash ];
       text = ''
         BASH_ENV=${initFile} exec bash --noprofile --norc "$@"
       '';
     };
 
-  cached-nix-shell = pkgs.writeShellApplication {
+  cached-nix-shell = nixpkgs.writeShellApplication {
     name = "cached-nix-shell";
     meta.description = ''
       A wrapper for cached-nix-shell that adds a nixpkgs entry to NIX_PATH before
@@ -402,7 +402,7 @@ pkgs
 
       ${
         getExe (
-          pkgs.cached-nix-shell.overrideAttrs (old: {
+          nixpkgs.cached-nix-shell.overrideAttrs (old: {
             patches = (old.patches or [ ]) ++ [ ./fix-trace.patch ];
           })
         )
@@ -418,10 +418,10 @@ pkgs
   # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
   zoxide =
     let
-      oldZoxide = pkgs.zoxide;
+      oldZoxide = nixpkgs.zoxide;
 
       fishConfig =
-        (pkgs.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
+        (nixpkgs.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
           config_directory="$out/share/fish/vendor_conf.d"
           mkdir -p "$config_directory"
           ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
@@ -430,7 +430,7 @@ pkgs
           inherit (oldZoxide) version;
         };
 
-      newZoxide = pkgs.symlinkJoin {
+      newZoxide = nixpkgs.symlinkJoin {
         inherit (oldZoxide) pname version;
         paths = [
           oldZoxide
@@ -449,10 +449,10 @@ pkgs
   # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
   broot =
     let
-      oldBroot = pkgs.broot;
+      oldBroot = nixpkgs.broot;
 
       fishConfig =
-        (pkgs.runCommand "broot-fish-config-${oldBroot.version}" { } ''
+        (nixpkgs.runCommand "broot-fish-config-${oldBroot.version}" { } ''
           config_directory="$out/share/fish/vendor_conf.d"
           mkdir -p "$config_directory"
           ${getExe oldBroot} --print-shell-function fish > "$config_directory/broot.fish"
@@ -461,7 +461,7 @@ pkgs
           inherit (oldBroot) version;
         };
 
-      newBroot = pkgs.symlinkJoin {
+      newBroot = nixpkgs.symlinkJoin {
         inherit (oldBroot) pname version;
         paths = [
           oldBroot

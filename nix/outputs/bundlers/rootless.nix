@@ -1,7 +1,8 @@
 {
   lib,
-  pkgs,
+  nixpkgs,
   pins,
+  utils,
   ...
 }:
 drv:
@@ -28,10 +29,10 @@ let
     }:
     let
       inherit (pins.gomod2nix.outputs) buildGoApplication;
-      inherit (pkgs) writeClosure;
-      inherit (pkgs.stdenv) mkDerivation;
+      inherit (nixpkgs) writeClosure;
+      inherit (nixpkgs.stdenv) mkDerivation;
 
-      gozipProjectRoot = ../../../gozip;
+      gozipProjectRoot = utils.gitFilter ../../../gozip;
 
       gozip = buildGoApplication {
         pname = "gozip";

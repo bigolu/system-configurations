@@ -9,8 +9,8 @@
 #
 # TODO: Maybe upstream this function to nix-gl-host.
 
-{ pkgs, pins, ... }:
-pkgs.callPackage (
+{ nixpkgs, pins, ... }:
+nixpkgs.callPackage (
   {
     symlinkJoin,
     writeScriptBin,

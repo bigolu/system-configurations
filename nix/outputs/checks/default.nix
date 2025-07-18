@@ -1,5 +1,5 @@
 {
-  pkgs,
+  nixpkgs,
   lib,
   outputs,
   ...
@@ -43,8 +43,8 @@ let
       rootlessBundler = outputs.bundlers.${rootlessBundlerName};
       # TODO: To ensure the bundle isn't accessing the nix store I should use
       # something like chroot.
-      rootlessBundlerCheck = pkgs.runCommand "check-${bundlerPrefix}-${rootlessBundlerName}" { } ''
-        [[ $(${rootlessBundler pkgs.hello}) == $(${getExe pkgs.hello}) ]]
+      rootlessBundlerCheck = nixpkgs.runCommand "check-${bundlerPrefix}-${rootlessBundlerName}" { } ''
+        [[ $(${rootlessBundler nixpkgs.hello}) == $(${getExe nixpkgs.hello}) ]]
 
         # Nix only considers the command to be successful if something is written
         # to $out.

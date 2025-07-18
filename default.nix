@@ -80,16 +80,18 @@ let
     ];
 
   # TODO: I can't use `foo@` on the top-level function since it wouldn't include
-  # arguments with a default value: https://github.com/NixOS/nix/issues/1461. I could
-  # remove the defaults, but I want the CLI to be able to automatically call it.
+  # arguments with a default value: https://github.com/NixOS/nix/issues/1461.
   context = {
     inherit
       system
       outputs
       ;
 
-    pkgs = nixpkgs;
+    # These are commonly used so lets make them easier to access by exposing them at
+    # the top level.
+    inherit nixpkgs;
     inherit (nixpkgs) lib;
+
     utils = import ./nix/utils context;
     packages = import ./nix/packages context;
 
@@ -121,6 +123,9 @@ let
             mkVendorEnv
             ;
         });
+      };
+      nixpkgs = pins.nixpkgs // {
+        outputs = nixpkgs;
       };
       # I keep a nixpkgs-stable channel, in addition to unstable, since there's a
       # higher chance that something builds on a stable channel.

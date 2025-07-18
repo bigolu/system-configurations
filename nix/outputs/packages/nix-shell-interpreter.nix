@@ -1,5 +1,5 @@
-{ pkgs, ... }:
-pkgs.callPackage (
+{ nixpkgs, ... }:
+nixpkgs.callPackage (
   {
     coreutils,
     sqlite,
