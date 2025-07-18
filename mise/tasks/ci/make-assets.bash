@@ -40,7 +40,7 @@ function make_shell_bundle {
   local flake_path="$PWD"
   local temp_directory
   temp_directory="$(mktemp --directory)"
-  pushd "$temp_directory"
+  pushd "$temp_directory" >/dev/null
 
   # nix will create a symlink to the bundle in the current directory
   nix bundle --bundler "${flake_path}#" "${flake_path}#shell"
@@ -50,7 +50,7 @@ function make_shell_bundle {
   local bundle_path
   bundle_path="$(dereference_symlink "$bundle_symlink_path")"
 
-  popd
+  popd >/dev/null
 
   exec 1>&$stdout_copy
   echo "$bundle_path"

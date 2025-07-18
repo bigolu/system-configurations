@@ -27,9 +27,9 @@ function make_new_release {
   local checksum_file
   checksum_file="$(mktemp --directory)/checksums.txt"
   # This way only the basenames of the assets will be put in the checksum file
-  pushd assets
+  pushd assets >/dev/null
   sha256sum -- * >"$checksum_file"
-  popd
+  popd >/dev/null
 
   gh release create "$tag" \
     --latest \

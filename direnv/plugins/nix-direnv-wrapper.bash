@@ -55,11 +55,11 @@ function _ndw_make_gc_roots_for_npins {
 
   # shellcheck disable=2164
   # direnv will enable `set -e`
-  pushd "$directory"
+  pushd "$directory" >/dev/null
   nix build "${pins[@]}"
   # shellcheck disable=2164
   # direnv will enable `set -e`
-  popd
+  popd >/dev/null
 }
 
 function _ndw_wrapper_helper {
