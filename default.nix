@@ -23,7 +23,7 @@
 let
   makeOutputs =
     {
-      outputRoot ? ./nix/outputs,
+      outputRoot,
       context,
     }:
     let
@@ -90,26 +90,8 @@ let
 
     pkgs = nixpkgs;
     inherit (nixpkgs) lib;
-
-    utils = {
-      # For performance, this shouldn't be called often[1] so we'll save a reference.
-      #
-      # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
-      gitFilter =
-        src:
-        nixpkgs.lib.cleanSourceWith {
-          filter = context.pins.gitignore.outputs.gitignoreFilterWith { basePath = ./.; };
-          inherit src;
-          name = "source";
-        };
-    };
-
-    # These should only be used by "private" outputs i.e. outputs that won't be used
-    # by others like homeConfigurations or checks.
-    private = {
-      pkgs = import ./nix/private/packages context;
-      utils = import ./nix/private/utils context;
-    };
+    utils = import ./nix/utils context;
+    packages = import ./nix/packages context;
 
     # Incorporate any potential pin overrides and import their outputs.
     pins = pins // {
@@ -207,6 +189,9 @@ let
     };
   };
 
-  outputs = makeOutputs { inherit context; };
+  outputs = makeOutputs {
+    inherit context;
+    outputRoot = ./nix/outputs;
+  };
 in
 outputs

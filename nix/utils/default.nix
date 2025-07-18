@@ -1,7 +1,7 @@
 {
   lib,
   pins,
-  private,
+  packages,
   utils,
   ...
 }:
@@ -10,9 +10,8 @@ let
   inherit (builtins)
     match
     ;
-  inherit (private) pkgs;
 
-  projectRoot = ../../..;
+  projectRoot = ../..;
 
   # YYYYMMDDHHMMSS -> YYYY-MM-DD
   formatDate =
@@ -29,26 +28,25 @@ let
 
     makeConfiguration =
       {
-        pkgOverrides ? { },
+        packageOverrides ? { },
         configName,
         modules,
         isGui ? true,
         username ? "biggs",
         isHomeManagerRunningAsASubmodule ? false,
-        homePrefix ? if pkgs.stdenv.isLinux then "/home" else "/Users",
+        homePrefix ? if packages.stdenv.isLinux then "/home" else "/Users",
         homeDirectory ? "${homePrefix}/${username}",
         repositoryDirectory ? "${homeDirectory}/code/system-configurations",
       }:
       pins.home-manager.outputs.lib.homeManagerConfiguration {
-        inherit pkgs;
+        pkgs = packages;
         modules = modules ++ [
           commonModule
-          { _module.args.pkgs = lib.mkForce (pkgs // pkgOverrides); }
+          { _module.args.pkgs = lib.mkForce (packages // packageOverrides); }
         ];
 
         # SYNC: SPECIAL-ARGS
         extraSpecialArgs = {
-          utils = utils // private.utils;
           inherit
             configName
             homeDirectory
@@ -57,6 +55,7 @@ let
             repositoryDirectory
             username
             pins
+            utils
             ;
         };
       };
@@ -73,6 +72,21 @@ let
   applyIf =
     shouldApply: function: arg:
     if shouldApply then function arg else arg;
+
+  gitFilter = {
+    # For performance, this shouldn't be called often[1] so we'll save a reference.
+    #
+    # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
+    filter = pins.gitignore.outputs.gitignoreFilterWith { basePath = projectRoot; };
+
+    __functor =
+      self: src:
+      lib.cleanSourceWith {
+        inherit (self) filter;
+        inherit src;
+        name = "source";
+      };
+  };
 in
 {
   inherit
@@ -81,5 +95,6 @@ in
     homeManager
     unstableVersion
     applyIf
+    gitFilter
     ;
 }

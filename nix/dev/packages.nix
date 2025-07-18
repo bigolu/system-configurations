@@ -1,5 +1,5 @@
-# For easy access to the private package set.
-(import ../.. { }).context.private.pkgs
+# For easy access to our package set.
+(import ../.. { }).context.packages
 // {
   # This file will be put on the NIX_PATH as 'nixpkgs' when we run cached-nix-shell
   # for mise tasks. Since nixpkgs is a function that returns a package set, this

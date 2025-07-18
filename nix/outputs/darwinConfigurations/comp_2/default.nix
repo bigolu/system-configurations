@@ -1,15 +1,15 @@
 {
   pins,
   utils,
-  private,
   lib,
+  packages,
   ...
 }:
 let
   inherit (lib) recursiveUpdate;
   inherit (pins.nix-darwin.outputs) darwinSystem;
 
-  homeManagerUtils = private.utils.homeManager;
+  homeManagerUtils = utils.homeManager;
   homeManagerCommonModule = homeManagerUtils.commonModule;
   homeManagerModuleRoot = homeManagerUtils.moduleRoot;
 
@@ -32,9 +32,9 @@ let
           repositoryDirectory
           username
           pins
+          utils
           ;
         isHomeManagerRunningAsASubmodule = true;
-        utils = utils // private.utils;
       };
     in
     [
@@ -73,17 +73,17 @@ let
       };
     in
     darwinSystem {
-      inherit (private) pkgs;
+      pkgs = packages;
       modules = modules ++ homeManagerSubmodules;
       # SYNC: SPECIAL-ARGS
       specialArgs = {
-        utils = utils // private.utils;
         inherit
           configName
           username
           homeDirectory
           repositoryDirectory
           pins
+          utils
           ;
       };
     };

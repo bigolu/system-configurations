@@ -1,9 +1,12 @@
-context@{ lib, private, ... }:
+context@{
+  lib,
+  packages,
+  utils,
+  ...
+}:
 let
-  inherit (private) pkgs utils;
-
   inherit (builtins) mapAttrs;
-  inherit (pkgs) mkShellNoCC;
+  inherit (packages) mkShellNoCC;
   inherit (lib)
     pipe
     hasPrefix
@@ -39,7 +42,7 @@ let
 in
 makeShells {
   development = {
-    packages = with pkgs; [
+    packages = with packages; [
       npins
     ];
     inputsFrom = with fragments; [
@@ -70,7 +73,7 @@ makeShells {
   };
 
   ci-renovate = {
-    packages = with pkgs; [
+    packages = with packages; [
       renovate
       # Needed by Renovate
       git

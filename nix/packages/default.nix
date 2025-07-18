@@ -1,14 +1,15 @@
 {
   pins,
   outputs,
-  private,
+  packages,
   lib,
   pkgs,
+  utils,
   ...
 }:
 let
   inherit (builtins) concatStringsSep substring;
-  inherit (private.utils) unstableVersion projectRoot;
+  inherit (utils) unstableVersion projectRoot;
   inherit (lib) optionalAttrs getExe;
   inherit (pkgs.stdenv) isLinux;
 
@@ -57,7 +58,7 @@ pkgs
   };
 
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
-    inherit (private) pkgs;
+    pkgs = packages;
   };
 
   neovim =
