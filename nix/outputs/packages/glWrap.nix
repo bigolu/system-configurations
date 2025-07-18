@@ -9,13 +9,13 @@
 #
 # TODO: Maybe upstream this function to nix-gl-host.
 
-{ nixpkgs, pins, ... }:
+{ nixpkgs, inputs, ... }:
 nixpkgs.callPackage (
   {
     symlinkJoin,
     writeScriptBin,
     lib,
-    nix-gl-host ? pins.nix-gl-host.outputs,
+    nix-gl-host ? inputs.nix-gl-host.outputs,
     bash,
   }:
   package:

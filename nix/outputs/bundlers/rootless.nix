@@ -1,7 +1,7 @@
 {
   lib,
   nixpkgs,
-  pins,
+  inputs,
   utils,
   ...
 }:
@@ -28,7 +28,7 @@ let
       name,
     }:
     let
-      inherit (pins.gomod2nix.outputs) buildGoApplication;
+      inherit (inputs.gomod2nix.outputs) buildGoApplication;
       inherit (nixpkgs) writeClosure;
       inherit (nixpkgs.stdenv) mkDerivation;
 

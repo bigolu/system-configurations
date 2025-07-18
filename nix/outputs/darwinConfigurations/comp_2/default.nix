@@ -1,5 +1,5 @@
 {
-  pins,
+  inputs,
   utils,
   lib,
   packages,
@@ -7,7 +7,7 @@
 }:
 let
   inherit (lib) recursiveUpdate;
-  inherit (pins.nix-darwin.outputs) darwinSystem;
+  inherit (inputs.nix-darwin.outputs) darwinSystem;
 
   homeManagerUtils = utils.homeManager;
   homeManagerCommonModule = homeManagerUtils.commonModule;
@@ -31,14 +31,14 @@ let
           isGui
           repositoryDirectory
           username
-          pins
+          inputs
           utils
           ;
         isHomeManagerRunningAsASubmodule = true;
       };
     in
     [
-      pins.home-manager.outputs.nix-darwin
+      inputs.home-manager.outputs.nix-darwin
       {
         home-manager = {
           inherit extraSpecialArgs;
@@ -82,7 +82,7 @@ let
           username
           homeDirectory
           repositoryDirectory
-          pins
+          inputs
           utils
           ;
       };

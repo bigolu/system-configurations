@@ -1,6 +1,6 @@
 {
   lib,
-  pins,
+  inputs,
   packages,
   utils,
   ...
@@ -38,7 +38,7 @@ let
         homeDirectory ? "${homePrefix}/${username}",
         repositoryDirectory ? "${homeDirectory}/code/system-configurations",
       }:
-      pins.home-manager.outputs.lib.homeManagerConfiguration {
+      inputs.home-manager.outputs.lib.homeManagerConfiguration {
         pkgs = packages;
         modules = modules ++ [
           commonModule
@@ -54,7 +54,7 @@ let
             isHomeManagerRunningAsASubmodule
             repositoryDirectory
             username
-            pins
+            inputs
             utils
             ;
         };
@@ -78,7 +78,7 @@ let
       # For performance, this shouldn't be called often[1] so we'll save a reference.
       #
       # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
-      filter = pins.gitignore.outputs.gitignoreFilterWith { basePath = projectRoot; };
+      filter = inputs.gitignore.outputs.gitignoreFilterWith { basePath = projectRoot; };
     in
     src: lib.cleanSourceWith { inherit filter src; };
 in

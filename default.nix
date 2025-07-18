@@ -100,7 +100,7 @@ let
     packages = import ./nix/packages self;
 
     # Incorporate any potential pin overrides and import their outputs.
-    pins = pins // {
+    inputs = pins // {
       gitignore = gitignore // {
         outputs = import gitignore { inherit (nixpkgs) lib; };
       };

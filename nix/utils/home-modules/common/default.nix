@@ -2,7 +2,7 @@
   pkgs,
   lib,
   isGui,
-  pins,
+  inputs,
   config,
   utils,
   ...
@@ -33,7 +33,7 @@ in
   imports = [
     ./utility/repository.nix
     ./utility/system.nix
-    "${pins.nix-flatpak}/modules/home-manager.nix"
+    "${inputs.nix-flatpak}/modules/home-manager.nix"
     ./home-manager.nix
     ./nix.nix
     ./terminal
@@ -65,7 +65,7 @@ in
       ".hammerspoon/Spoons/EmmyLua.spoon" = {
         # TODO: I should do a sparse checkout to get the single Hammerspoon Spoon I
         # need. issue: https://github.com/NixOS/nix/issues/5811
-        source = "${pins.spoons}/Source/EmmyLua.spoon";
+        source = "${inputs.spoons}/Source/EmmyLua.spoon";
         # I'm not symlinking the whole directory because EmmyLua is going to generate
         # lua-language-server annotations in there.
         recursive = true;

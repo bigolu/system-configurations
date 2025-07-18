@@ -1,7 +1,7 @@
 # This package set is used for system configurations and nix shebang scripts. It's
 # useful to put them all together so I can override packages.
 {
-  pins,
+  inputs,
   outputs,
   packages,
   lib,
@@ -31,16 +31,16 @@ let
       '';
     };
 in
-# perf: To avoid fetching `pins` unnecessarily in CI, I don't use their overlays.
+# perf: To avoid fetching inputs unnecessarily in CI, I don't use their overlays.
 # This way, I only have to fetch a source if I actually use one of its packages.
 nixpkgs
 // outputs.packages
-// pins.gomod2nix.outputs
+// inputs.gomod2nix.outputs
 // rec {
-  inherit (pins.home-manager.outputs) home-manager;
-  npins = pins.npins.outputs;
+  inherit (inputs.home-manager.outputs) home-manager;
+  npins = inputs.npins.outputs;
 
-  inherit (pins.nix-darwin.outputs)
+  inherit (inputs.nix-darwin.outputs)
     darwin-rebuild
     darwin-option
     darwin-version
@@ -48,7 +48,7 @@ nixpkgs
     ;
 
   # This is usually broken on unstable
-  inherit (pins.nixpkgs-stable.outputs) diffoscopeMinimal;
+  inherit (inputs.nixpkgs-stable.outputs) diffoscopeMinimal;
 
   nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
     interpreter = bash-script;
@@ -116,8 +116,8 @@ nixpkgs
       # TODO: should be upstreamed to nixpkgs
       (nixpkgs.vimUtils.buildVimPlugin {
         pname = "vim-caser";
-        version = pins.vim-caser.revision;
-        src = pins.vim-caser;
+        version = inputs.vim-caser.revision;
+        src = inputs.vim-caser;
       })
     ];
   };
@@ -126,8 +126,8 @@ nixpkgs
     # TODO: They don't seem to be making releases anymore. I should check with the
     # author and possibly have nixpkgs track master instead.
     async-prompt = nixpkgs.fishPlugins.async-prompt.overrideAttrs (_old: {
-      version = pins.fish-async-prompt.revision;
-      src = pins.fish-async-prompt;
+      version = inputs.fish-async-prompt.revision;
+      src = inputs.fish-async-prompt;
     });
   };
 
@@ -156,7 +156,7 @@ nixpkgs
   config-file-validator = nixpkgs.stdenv.mkDerivation {
     pname = "config-file-validator";
     version = "1.8.0";
-    src = pins.${"config-file-validator-${if isLinux then "linux" else "darwin"}"};
+    src = inputs.${"config-file-validator-${if isLinux then "linux" else "darwin"}"};
     installPhase = ''
       mkdir -p $out/bin
       cp $src/validator $out/bin/
@@ -174,9 +174,9 @@ nixpkgs
     let
       # TODO: I'm assuming that the first 10 characters is enough for it to be
       # unique.
-      version = "2.5.0-${substring 0 10 pins.keyd.revision}";
+      version = "2.5.0-${substring 0 10 inputs.keyd.revision}";
 
-      src = pins.keyd;
+      src = inputs.keyd;
 
       pypkgs = nixpkgs.python3.pkgs;
 
