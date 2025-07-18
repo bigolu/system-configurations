@@ -1,3 +1,5 @@
+# This package set is used for system configurations and nix shebang scripts. It's
+# useful to put them all together so I can override packages.
 {
   pins,
   outputs,
