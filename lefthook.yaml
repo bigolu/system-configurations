@@ -486,6 +486,7 @@ check:
             glob:
               - npins/**
               - nix/*
+              - default.nix
               - dotfiles/**
               - gozip/*
             run: |
