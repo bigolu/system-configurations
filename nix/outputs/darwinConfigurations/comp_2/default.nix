@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) pipe recursiveUpdate;
+  inherit (lib) recursiveUpdate;
   inherit (pins.nix-darwin.outputs) darwinSystem;
 
   homeManagerUtils = private.utils.homeManager;
@@ -89,10 +89,7 @@ let
     };
 in
 recursiveUpdate { system.meta.platforms = [ "x86_64-darwin" ]; } (makeDarwinConfiguration {
-  configName = pipe __curPos.file [
-    dirOf
-    baseNameOf
-  ];
+  configName = "comp_2";
   modules = [ ./modules/comp-2 ];
   homeModules = [
     "${homeManagerModuleRoot}/application-development"

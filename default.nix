@@ -1,16 +1,21 @@
 {
-  # This shouldn't be overridden
-  pins ? import ./nix/npins-wrapper.nix { inherit pkgs; },
+  # This shouldn't be overridden, it's only here because of a mutual dependency with
+  # nixpkgs.
+  pins ? import ./nix/npins-wrapper.nix { inherit nixpkgs; },
 
   # In flake pure evaluation mode, `builtins.currentSystem` can't be accessed so
   # we'll take system as a parameter.
   system ? builtins.currentSystem,
 
-  # Unlink other pins, we take in an already-imported nixpkgs instance since
-  # evaluating nixpkgs takes a long time[1].
+  # It's recommended to override this pin for two reasons[1]:
+  #   - The nixpkgs repo is about 200 MB so multiple checkouts would take up a lot
+  #     of space.
+  #   - It takes about a second to evaluate nixpkgs i.e. `import <nixpkgs> {}`.
+  #     For this reason, unlike other pins, we take an already-evaluated nixpkgs
+  #     instead of the source code.
   #
-  # [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-  pkgs ? import pins.nixpkgs { inherit system; },
+  # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
+  nixpkgs ? import pins.nixpkgs { inherit system; },
 
   gomod2nix ? pins.gomod2nix,
   gitignore ? pins.gitignore,
@@ -28,7 +33,7 @@ let
         pathExists
         baseNameOf
         ;
-      inherit (pkgs.lib)
+      inherit (nixpkgs.lib)
         pipe
         removePrefix
         fileset
@@ -51,7 +56,7 @@ let
         in
         setAttrByPath keys (import file context);
 
-      enable =
+      shouldMakeOutputs =
         file:
         let
           hasAncestorDefaultNix =
@@ -68,7 +73,7 @@ let
     pipe outputRoot [
       (fileset.fileFilter (file: file.hasExt "nix"))
       fileset.toList
-      (filter enable)
+      (filter shouldMakeOutputs)
       (map makeOutputsForFile)
       (foldl' recursiveUpdate { })
       (outputs: outputs // { inherit context; })
@@ -80,31 +85,53 @@ let
   context = {
     inherit
       system
-      pkgs
       outputs
       ;
-    inherit (pkgs) lib;
+
+    pkgs = nixpkgs;
+    inherit (nixpkgs) lib;
+
+    utils = {
+      # For performance, this shouldn't be called often[1] so we'll save a reference.
+      #
+      # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
+      gitFilter =
+        src:
+        nixpkgs.lib.cleanSourceWith {
+          filter = context.pins.gitignore.outputs.gitignoreFilterWith { basePath = ./.; };
+          inherit src;
+          name = "source";
+        };
+    };
+
+    # These should only be used by "private" outputs i.e. outputs that won't be used
+    # by others like homeConfigurations or checks.
+    private = {
+      pkgs = import ./nix/private/packages context;
+      utils = import ./nix/private/utils context;
+    };
+
     # Incorporate any potential pin overrides and import their outputs.
     pins = pins // {
       gitignore = gitignore // {
-        outputs = import gitignore { inherit (pkgs) lib; };
+        outputs = import gitignore { inherit (nixpkgs) lib; };
       };
       home-manager = pins.home-manager // {
-        outputs = (import pins.home-manager { inherit pkgs; }) // {
+        outputs = (import pins.home-manager { pkgs = nixpkgs; }) // {
           # TODO: This should be included in the default.nix
           nix-darwin = "${pins.home-manager}/nix-darwin";
         };
       };
       nix-gl-host = pins.nix-gl-host // {
-        outputs = import pins.nix-gl-host { inherit pkgs; };
+        outputs = import pins.nix-gl-host { pkgs = nixpkgs; };
       };
       # TODO: Use the npins in nixpkgs once it has this commit:
       # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
       npins = pins.npins // {
-        outputs = import pins.npins { inherit pkgs; };
+        outputs = import pins.npins { pkgs = nixpkgs; };
       };
       gomod2nix = gomod2nix // {
-        outputs = pkgs.lib.makeScope pkgs.newScope (self: {
+        outputs = nixpkgs.lib.makeScope nixpkgs.newScope (self: {
           gomod2nix = self.callPackage gomod2nix.outPath { };
           inherit (self.callPackage "${gomod2nix}/builder" { inherit (self) gomod2nix; })
             buildGoApplication
@@ -119,15 +146,16 @@ let
         outputs = import pins.nixpkgs-stable { inherit system; };
       };
       nix-darwin = pins.nix-darwin // {
-        outputs = (import pins.nix-darwin { inherit pkgs; }) // {
-          # TODO: This is only defined in flake.nix so I had to copy it. I should open an issue.
+        outputs = (import pins.nix-darwin { pkgs = nixpkgs; }) // {
+          # TODO: This is only defined in flake.nix so I had to copy it. I should
+          # open an issue.
           darwinSystem =
             args@{ modules, ... }:
             (import "${pins.nix-darwin}/eval-config.nix") (
               {
-                inherit (pkgs) lib;
+                inherit (nixpkgs) lib;
               }
-              // pkgs.lib.optionalAttrs (args ? pkgs) { inherit (args.pkgs) lib; }
+              // nixpkgs.lib.optionalAttrs (args ? pkgs) { inherit (args.pkgs) lib; }
               // builtins.removeAttrs args [
                 "system"
                 "pkgs"
@@ -136,21 +164,21 @@ let
               // {
                 modules =
                   modules
-                  ++ pkgs.lib.optional (args ? pkgs) (
+                  ++ nixpkgs.lib.optional (args ? pkgs) (
                     { lib, ... }:
                     {
                       _module.args.pkgs = lib.mkForce args.pkgs;
                     }
                   )
                   # Backwards compatibility shim; TODO: warn?
-                  ++ pkgs.lib.optional (args ? system) (
+                  ++ nixpkgs.lib.optional (args ? system) (
                     { lib, ... }:
                     {
                       nixpkgs.system = lib.mkDefault args.system;
                     }
                   )
                   # Backwards compatibility shim; TODO: warn?
-                  ++ pkgs.lib.optional (args ? inputs) {
+                  ++ nixpkgs.lib.optional (args ? inputs) {
                     _module.args.inputs = args.inputs;
                   }
                   ++ [
@@ -176,22 +204,6 @@ let
             );
         };
       };
-    };
-    utils = {
-      # For performance, this shouldn't be called often[1] so we'll save a reference.
-      #
-      # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
-      gitFilter =
-        src:
-        pkgs.lib.cleanSourceWith {
-          filter = context.pins.gitignore.outputs.gitignoreFilterWith { basePath = ./.; };
-          inherit src;
-          name = "source";
-        };
-    };
-    private = {
-      pkgs = import ./nix/private/packages context;
-      utils = import ./nix/private/utils context;
     };
   };
 
