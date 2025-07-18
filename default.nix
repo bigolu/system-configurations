@@ -59,7 +59,11 @@ let
   #     gets called with itself. This is useful if some of the parts of the context
   #     depend on other parts of it. The outputs attrset will automatically be
   #     added to this set so outputs can refer to each other.
-
+  #
+  # Return:
+  #   An attrset containing the outputs. The context will also be added to the
+  #   attrset since it can be useful to access it from outside of an output file. For
+  #   example, debugging in the REPL.
   makeOutputs =
     {
       outputRoot,
