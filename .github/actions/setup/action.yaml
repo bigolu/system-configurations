@@ -5,18 +5,8 @@ inputs:
     description: The name of the Nix devShell to load with direnv
     required: false
     default: ""
-  cache-nix-store:
-    # SYNC: CACHE_SCOPE
-    description: >
-      If you set this to "true", the Nix store will be cached at the end of the job
-      and restored when this action runs next. Set to "" to disable caching. The
-      cache is scoped by workflow, job, and operating system.
-    required: false
-    default: "true"
   cache-key:
     description: |
-      `cache-key` is only used if `cache-nix-store` is "true".
-
       The `cache-key` is used to identify a cache entry. When a cache entry is saved,
       the `cache-key` is used as its key. When this action is looking for a cache
       entry to restore from, it looks for one whose key matches `cache-key`. In
@@ -89,7 +79,6 @@ runs:
       shell: bash
       run: echo "year=$(date '+%Y')" >>"${GITHUB_OUTPUT}"
     - uses: nix-community/cache-nix-action@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
-      if: ${{ inputs.cache-nix-store == 'true' }}
       env:
         # The `cache-key` input will be prefixed by this value. This way, cache
         # entries will be scoped by year, workflow, job, type (nix-and-direnv), and
