@@ -21,6 +21,45 @@
   gitignore ? pins.gitignore,
 }:
 let
+  # Generate an attrset of your project's outputs based on their filesystem layout.
+  # If a default.nix file is found, that directory will not be traversed any further.
+  #
+  # Example:
+  #   Directory structure:
+  #     outputs/
+  #       homeConfigurations/
+  #         default.nix
+  #         modules/
+  #           one.nix
+  #           two.nix
+  #       packages/
+  #         package1.nix
+  #         package2.nix
+  #         nested/
+  #           package3.nix
+  #   Outputs attrset:
+  #     {
+  #       homeConfigurations = <result of `import default.nix context`>;
+  #       packages = {
+  #         package1 = <result of `import package1.nix context`>;
+  #         package2 = <result of `import package2.nix context`>;
+  #         nested = {
+  #           package3 = <result of `import package3.nix context`>;
+  #         };
+  #       };
+  #     }
+  #
+  # Arguments:
+  #   lib (attrset):
+  #     lib from nixpkgs
+  #   outputRoot (Path):
+  #     The directory that contains the outputs
+  #   context (attrset|function -> attrset):
+  #     A set that gets passed to each of the output files. If it's a function, then it
+  #     gets called with itself. This is useful if some of the parts of the context
+  #     depend on other parts of it. The outputs attrset will automatically be
+  #     added to this set so outputs can refer to each other.
+
   makeOutputs =
     {
       outputRoot,
@@ -36,6 +75,7 @@ let
             filter
             pathExists
             baseNameOf
+            isFunction
             ;
           inherit (lib)
             pipe
@@ -50,7 +90,7 @@ let
             removeSuffix
             ;
 
-          context' = (context context') // {
+          context' = (if isFunction context then context context' else context) // {
             outputs = self;
           };
 
