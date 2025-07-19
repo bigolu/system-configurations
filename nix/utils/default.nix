@@ -6,20 +6,7 @@
   ...
 }:
 let
-  inherit (lib) concatStringsSep;
-  inherit (builtins)
-    match
-    ;
-
   projectRoot = ../..;
-
-  # YYYYMMDDHHMMSS -> YYYY-MM-DD
-  formatDate =
-    date:
-    let
-      yearMonthDayStrings = match "(....)(..)(..).*" date;
-    in
-    concatStringsSep "." yearMonthDayStrings;
 
   homeManager = rec {
     moduleRoot = ./home-modules;
@@ -85,7 +72,6 @@ in
 {
   inherit
     projectRoot
-    formatDate
     homeManager
     unstableVersion
     applyIf
