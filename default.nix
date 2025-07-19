@@ -26,8 +26,6 @@
 }:
 let
   context = self: {
-    inherit system;
-
     # These are commonly used so lets make them easier to access by exposing them at
     # the top level.
     inherit nixpkgs;
