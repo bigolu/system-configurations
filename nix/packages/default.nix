@@ -54,10 +54,7 @@ nixpkgs
     interpreter = bash-script;
   };
 
-  mkShellNoCC = outputs.packages.mkShellWrapper.override {
-    # So we can override `mkShellNoCC` without causing infinite recursion
-    inherit (nixpkgs) mkShellNoCC;
-  };
+  mkShellNoCC = outputs.packages.mkShellWrapper;
 
   dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
     pkgs = packages;
