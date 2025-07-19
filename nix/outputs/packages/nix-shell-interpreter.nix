@@ -46,8 +46,6 @@ nixpkgs.callPackage (
         completion_marker="$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "''${out:?}")"
 
         if [[ ! -e "$completion_marker" ]]; then
-          ${mkdir} --parents "$NIX_SHEBANG_GC_ROOTS_DIR"
-
           # It's easier to split a newline-delimited string than a space-delimited
           # one since herestring (<<<) adds a newline to the end of the string.
           #
@@ -70,11 +68,11 @@ nixpkgs.callPackage (
           "
           gc_roots_to_make+=("$(${sqlite3} "$db" "$nix_shell_derivation_query")")
 
-          for store_path in "''${gc_roots_to_make[@]}"; do
-            nix build \
-              --out-link "$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "$store_path")" \
-              "$store_path"
-          done
+          gc_root_dir="$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "$out")"
+          ${mkdir} --parents "$gc_root_dir"
+          pushd "$gc_root_dir" >/dev/null
+          nix build "''${gc_roots_to_make[@]}"
+          popd >/dev/null
 
           ${touch} "$completion_marker"
         fi
