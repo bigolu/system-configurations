@@ -1,5 +1,5 @@
 # There are two reason for this file:
-#   - For the various places where use `nix run` e.g. `nix run --file <this> ...`
+#   - An easy way to reference our packages when we use `nix run --file <this_file> ...`
 #   - This file will be put on the NIX_PATH as 'nixpkgs' when we run cached-nix-shell
 #     for mise tasks. This way all the packages we reference will come from here.
 
@@ -14,7 +14,7 @@ let
 in
 packages
 // {
-  # nix-shell uses `pkgs.runCommandCC` to create the environment. We set it to
+  # nix-shell uses `nixpkgs.runCommandCC` to create the environment. We set it to
   # `runCommandNoCC` to make the closure smaller.
   pkgs.runCommandCC = packages.runCommandNoCC;
 }

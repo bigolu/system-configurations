@@ -150,8 +150,14 @@ let
       (filter shouldMakeOutputs)
       (map makeOutputsForFile)
       (foldl' recursiveUpdate { })
-      (outputs: outputs // { context = context'; })
-      (outputs: outputs // { checksForCurrentPlatform = getChecksForCurrentPlatform outputs; })
+      (
+        outputs:
+        outputs
+        // {
+          context = context';
+          checksForCurrentPlatform = getChecksForCurrentPlatform outputs;
+        }
+      )
     ];
 in
 lib.fix makeOutputs
