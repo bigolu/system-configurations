@@ -1,14 +1,10 @@
-# We reduce the size of the portable shell by removing large packages.
+# Remove large or unnecessary packages from the portable shell
 { packages, lib, ... }:
 let
   inherit (builtins) listToAttrs;
   inherit (lib) pipe nameValuePair;
 
-  makeEmptyPackage =
-    packageName:
-    packages.runCommand "${packageName}-empty" {
-      meta.mainProgram = packageName;
-    } ''mkdir -p $out/bin'';
+  makeEmptyPackage = packageName: packages.writeScriptBin packageName "";
 
   makeEmptyPackageSet =
     packageNames:
