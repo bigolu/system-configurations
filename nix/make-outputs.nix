@@ -40,22 +40,23 @@
 #     added to this set so outputs can refer to each other.
 #   checksAttrPath (list[string]):
 #     The list of keys, or path, for the attrset within the outputs attrset that
-#     contains your checks. If this isn't empty, the key "checksForCurrentPlatform"
-#     will be added to the outputs and will contain only the checks that support the
-#     current platform. This is useful for running checks in CI.
+#     contains your checks. If this isn't empty,
 #   system (string):
 #     In flake pure evaluation mode, the current system can't be accessed so this
 #     needs to be passed in.
 #
 # Return:
-#   An attrset containing the outputs. The context will also be added to the
-#   attrset since it can be useful to access it from outside of an output file. For
-#   example, debugging in the REPL.
+#   An attrset containing the outputs. The context will also be added to the attrset
+#   since it can be useful to access it from outside of an output file. For example,
+#   debugging in the REPL. The key "checksForCurrentPlatform" will also be added to
+#   the outputs and will contain only the checks that support the current platform.
+#   This is useful for running checks in CI. It uses any derivations found in
+#   `outputs.checks`, recursively, and automatically generates checks for
+#   outputs.{packages,devShells,homeConfigurations,darwinConfigurations}.
 {
   root,
   context,
   lib,
-  checksAttrPath ? [ "checks" ],
   system,
 }:
 let
@@ -69,6 +70,7 @@ let
         baseNameOf
         isFunction
         elem
+        getAttr
         ;
       inherit (lib)
         pipe
@@ -82,7 +84,8 @@ let
         optionals
         removeSuffix
         filterAttrsRecursive
-        getAttrFromPath
+        optionalAttrs
+        mapAttrs
         ;
 
       context' = (if isFunction context then context context' else context) // {
@@ -117,27 +120,37 @@ let
         _name: package:
         # If there are no platforms, we assume it supports the current one.
         (package.meta.platforms or [ ]) == [ ] || elem system package.meta.platforms;
+
+      getChecksForCurrentPlatform =
+        outputs:
+        let
+          packageChecks = optionalAttrs (outputs ? packages) { inherit (outputs) packages; };
+          devShellChecks = optionalAttrs (outputs ? devShells) { inherit (outputs) devShells; };
+          homeChecks = optionalAttrs (outputs ? homeConfigurations) {
+            homeConfigurations = mapAttrs (_name: getAttr "activationPackage") outputs.homeConfigurations;
+          };
+          darwinChecks = optionalAttrs (outputs ? darwinConfigurations) {
+            darwinConfigurations = mapAttrs (_name: getAttr "system") outputs.darwinConfigurations;
+          };
+          checks = outputs.checks or { };
+          allChecks = foldl' recursiveUpdate { } [
+            packageChecks
+            devShellChecks
+            homeChecks
+            darwinChecks
+            checks
+          ];
+        in
+        filterAttrsRecursive filterForCurrentPlatform allChecks;
     in
-    pipe root (
-      [
-        (fileset.fileFilter (file: file.hasExt "nix"))
-        fileset.toList
-        (filter shouldMakeOutputs)
-        (map makeOutputsForFile)
-        (foldl' recursiveUpdate { })
-        (outputs: outputs // { context = context'; })
-      ]
-      ++ optionals (checksAttrPath != [ ]) [
-        (
-          outputs:
-          outputs
-          // {
-            checksForCurrentPlatform = filterAttrsRecursive filterForCurrentPlatform (
-              getAttrFromPath checksAttrPath outputs
-            );
-          }
-        )
-      ]
-    );
+    pipe root [
+      (fileset.fileFilter (file: file.hasExt "nix"))
+      fileset.toList
+      (filter shouldMakeOutputs)
+      (map makeOutputsForFile)
+      (foldl' recursiveUpdate { })
+      (outputs: outputs // { context = context'; })
+      (outputs: outputs // { checksForCurrentPlatform = getChecksForCurrentPlatform outputs; })
+    ];
 in
 lib.fix makeOutputs
