@@ -19,7 +19,6 @@ let
 in
 makeEmptyPackageSet [
   "comma"
-  "moreutils"
   "timg"
   "ripgrep-all"
   "lesspipe"
