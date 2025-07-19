@@ -18,7 +18,7 @@ function main {
 
   assert_bundle_meets_size_limit "$bundle_store_path"
 
-  move_bundle_into_assets "$asset_directory" "$bundle_store_path"
+  copy_bundle_into_assets "$asset_directory" "$bundle_store_path"
 }
 
 function register_asset_directory {
@@ -37,14 +37,14 @@ function make_shell_bundle {
     --expr 'with (import ./. {}); bundlers.rootless packages.shell'
 }
 
-function move_bundle_into_assets {
+function copy_bundle_into_assets {
   local -r asset_directory="$1"
   local -r bundle_store_path="$2"
 
   local bundle_name_with_platform
   bundle_name_with_platform="$(get_name_with_platform "$bundle_store_path")"
 
-  mv "$bundle_store_path" "${asset_directory}/${bundle_name_with_platform}"
+  cp "$bundle_store_path" "${asset_directory}/${bundle_name_with_platform}"
 }
 
 function assert_bundle_meets_size_limit {
