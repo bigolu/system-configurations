@@ -129,8 +129,8 @@ in
     };
 
     registry = {
-      # Use the nixpkgs in this flake in the system flake registry. By default, it
-      # pulls the latest version of nixpkgs-unstable.
+      # Use the nixpkgs pinned by this project. By default, it pulls the latest
+      # version of nixpkgs-unstable.
       nixpkgs.flake = inputs.nixpkgs;
 
       # In case something is broken on unstable

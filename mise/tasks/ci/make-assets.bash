@@ -13,12 +13,12 @@ function main {
   local asset_directory
   asset_directory="$(register_asset_directory)"
 
-  local bundle
-  bundle="$(make_shell_bundle)"
+  local bundle_store_path
+  bundle_store_path="$(make_shell_bundle)"
 
-  assert_bundle_meets_size_limit "$bundle"
+  assert_bundle_meets_size_limit "$bundle_store_path"
 
-  move_bundle_into_assets "$asset_directory" "$bundle"
+  move_bundle_into_assets "$asset_directory" "$bundle_store_path"
 }
 
 function register_asset_directory {
@@ -29,53 +29,22 @@ function register_asset_directory {
   echo "$asset_directory"
 }
 
-# Creates a bundle for the shell and prints its path
+# Creates a bundle for the shell and prints its store path
 function make_shell_bundle {
-  # Redirect stdout to stderr until we're ready to print the bundle path
-  exec {stdout_copy}>&1
-  exec 1>&2
-
-  # Enter a new directory so the only file in it will be the bundle. This way, I can
-  # use the '*' glob to match the name of the bundle instead of hardcoding it.
-  local flake_path="$PWD"
-  local temp_directory
-  temp_directory="$(mktemp --directory)"
-  pushd "$temp_directory" >/dev/null
-
-  # nix will create a symlink to the bundle in the current directory
-  nix bundle --bundler "${flake_path}#" "${flake_path}#shell"
-  local bundle_basename
-  bundle_basename="$(echo *)"
-  local bundle_symlink_path="$PWD/$bundle_basename"
-  local bundle_path
-  bundle_path="$(dereference_symlink "$bundle_symlink_path")"
-
-  popd >/dev/null
-
-  exec 1>&$stdout_copy
-  echo "$bundle_path"
-}
-
-function dereference_symlink {
-  local -r symlink_path="$1"
-  local -r symlink_basename="${symlink_path##*/}"
-
-  local dereferenced
-  # Don't overwrite the symlink since it's a GC root
-  dereferenced="$(mktemp --directory)/$symlink_basename"
-  cp --dereference "$symlink_path" "$dereferenced"
-
-  echo "$dereferenced"
+  local gc_root_path
+  gc_root_path="$(mktemp --directory)/bundle-gc-root"
+  nix build --impure --out-link "$gc_root_path" --print-out-paths \
+    --expr 'with (import ./. {}); bundlers.rootless packages.shell'
 }
 
 function move_bundle_into_assets {
   local -r asset_directory="$1"
-  local -r bundle_file="$2"
+  local -r bundle_store_path="$2"
 
-  local bundle_basename_with_platform
-  bundle_basename_with_platform="$(get_basename_with_platform "$bundle_file")"
+  local bundle_name_with_platform
+  bundle_name_with_platform="$(get_name_with_platform "$bundle_store_path")"
 
-  mv "$bundle_file" "${asset_directory}/${bundle_basename_with_platform}"
+  mv "$bundle_store_path" "${asset_directory}/${bundle_name_with_platform}"
 }
 
 function assert_bundle_meets_size_limit {
@@ -90,11 +59,11 @@ function assert_bundle_meets_size_limit {
   fi
 }
 
-# Example: a/b/file -> file-x86_64-linux
-function get_basename_with_platform {
-  local -r file="$1"
+# Example: /nix/store/<hash>-foo -> foo-x86_64-linux
+function get_name_with_platform {
+  local -r store_path="$1"
 
-  local -r basename="${file##*/}"
+  local -r name="${store_path#*-}"
 
   # e.g. x86_64-linux
   local platform
@@ -102,7 +71,7 @@ function get_basename_with_platform {
   platform="${platform,,}"
   platform="${platform// /-}"
 
-  echo "${basename}-${platform}"
+  echo "${name}-${platform}"
 }
 
 main "$@"

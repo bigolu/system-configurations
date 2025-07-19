@@ -7,9 +7,6 @@
 #USAGE   repository.
 #USAGE """
 #USAGE arg "<attr_path>" help="The attribute path of the package to build e.g. packages.shell"
-#USAGE complete "attr_path" run=#"""
-#USAGE   fish -c 'complete --do-complete "nix bundle --bundler .# --file . {{words[CURRENT]}}"'
-#USAGE """#
 
 set -o errexit
 set -o nounset
@@ -17,4 +14,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-nix bundle --bundler .# --file . "${usage_attr_path:?}"
+nix build --impure --expr "with (import ./. {}); bundlers.rootless ${usage_attr_path:?}"

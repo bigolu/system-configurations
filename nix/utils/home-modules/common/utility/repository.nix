@@ -214,14 +214,7 @@ in
         let
           isExecutable = hasAttr "removeExtension";
           isEditableInstall = config.repository.fileSettings.editableInstall;
-
-          makeSymlinkOrCopy =
-            if isEditableInstall then
-              mkOutOfStoreSymlink
-            else
-              # Flake evaluation automatically makes copies of all Paths so we just
-              # have to make it a Path.
-              toPath;
+          makeSymlinkOrCopy = if isEditableInstall then mkOutOfStoreSymlink else toPath;
 
           replaceShebangInterpreter =
             file:

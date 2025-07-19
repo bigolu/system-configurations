@@ -1,6 +1,6 @@
 # Environment Variables
 #   NIX_DEV_SHELL (required):
-#     The name of the flake dev shell to load.
+#     The name of the dev shell to load.
 
 source direnv/plugins/direnv-utils.bash
 # This should run first. The reason for this is in a comment at the top of the

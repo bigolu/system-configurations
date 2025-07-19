@@ -23,8 +23,8 @@ else
     /bin/bash -c "$homebrew_install_script"
   fi
 
-  hash_file='nix/flake/modules/darwin-configurations/modules/nix/nix-conf-hash.txt'
-  builder_file='nix/flake/modules/darwin-configurations/modules/nix/linux-builder-config-name.txt'
+  hash_file='nix/outputs/darwinConfigurations/comp_2/modules/comp-2/nix/nix-conf-hash.txt'
+  builder_file='nix/outputs/darwinConfigurations/comp_2/modules/comp-2/nix/linux-builder-config-name.txt'
   function undo_file_changes {
     git checkout -- "$hash_file" "$builder_file"
   }

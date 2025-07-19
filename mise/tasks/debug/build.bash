@@ -3,9 +3,6 @@
 #! nix-shell --packages nix-shell-interpreter
 #MISE description='Run `nix build` in debug mode'
 #USAGE arg "<attr_path>" help="The attribute path of the package to build e.g. packages.shell"
-#USAGE complete "attr_path" run=#"""
-#USAGE   fish -c 'complete --do-complete "nix build --file . {{words[CURRENT]}}"'
-#USAGE """#
 
 set -o errexit
 set -o nounset
