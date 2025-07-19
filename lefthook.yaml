@@ -492,7 +492,7 @@ check:
             run: |
               nix build --impure --no-link --expr '
                 let
-                  inherit (builtins) removeAttrs filter attrNames currentSystem elem;
+                  inherit (builtins) currentSystem elem;
                   outputs = import ./. {};
                   filterPlatform =
                     _name: package:
