@@ -1,4 +1,4 @@
-{ nixpkgs, ... }:
+{ nixpkgs, utils, ... }:
 nixpkgs.callPackage (
   {
     uniqueShellHooks ? true,
@@ -25,10 +25,7 @@ nixpkgs.callPackage (
       reverseList
       recursiveUpdate
       ;
-
-    applyIf =
-      shouldApply: function: arg:
-      if shouldApply then function arg else arg;
+    inherit (utils) applyIf;
 
     recursiveUpdateList = foldl' recursiveUpdate { };
 
