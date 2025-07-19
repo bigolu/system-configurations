@@ -24,6 +24,8 @@
 #           package3 = <result of `import package3.nix context`>;
 #         };
 #       };
+#       context;
+#       checksForCurrentPlatform; (optional)
 #     }
 #
 # Arguments:
@@ -36,6 +38,14 @@
 #     gets called with itself. This is useful if some of the parts of the context
 #     depend on other parts of it. The outputs attrset will automatically be
 #     added to this set so outputs can refer to each other.
+#   checksAttrPath (list[string]):
+#     The list of keys, or path, for the attrset within the outputs attrset that
+#     contains your checks. If this isn't empty, the key "checksForCurrentPlatform"
+#     will be added to the outputs and will contain only the checks that support the
+#     current platform. This is useful for running checks in CI.
+#   system (string):
+#     In flake pure evaluation mode, the current system can't be accessed so this
+#     needs to be passed in.
 #
 # Return:
 #   An attrset containing the outputs. The context will also be added to the
@@ -45,6 +55,8 @@
   root,
   context,
   lib,
+  checksAttrPath ? [ "checks" ],
+  system,
 }:
 let
   makeOutputs =
@@ -56,6 +68,7 @@ let
         pathExists
         baseNameOf
         isFunction
+        elem
         ;
       inherit (lib)
         pipe
@@ -68,6 +81,8 @@ let
         last
         optionals
         removeSuffix
+        filterAttrsRecursive
+        getAttrFromPath
         ;
 
       context' = (if isFunction context then context context' else context) // {
@@ -97,14 +112,32 @@ let
           dir == root || !(hasAncestorDefaultNix (dirOf dir))
         else
           !hasAncestorDefaultNix dir;
+
+      filterForCurrentPlatform =
+        _name: package:
+        # If there are no platforms, we assume it supports the current one.
+        (package.meta.platforms or [ ]) == [ ] || elem system package.meta.platforms;
     in
-    pipe root [
-      (fileset.fileFilter (file: file.hasExt "nix"))
-      fileset.toList
-      (filter shouldMakeOutputs)
-      (map makeOutputsForFile)
-      (foldl' recursiveUpdate { })
-      (outputs: outputs // { context = context'; })
-    ];
+    pipe root (
+      [
+        (fileset.fileFilter (file: file.hasExt "nix"))
+        fileset.toList
+        (filter shouldMakeOutputs)
+        (map makeOutputsForFile)
+        (foldl' recursiveUpdate { })
+        (outputs: outputs // { context = context'; })
+      ]
+      ++ optionals (checksAttrPath != [ ]) [
+        (
+          outputs:
+          outputs
+          // {
+            checksForCurrentPlatform = filterAttrsRecursive filterForCurrentPlatform (
+              getAttrFromPath checksAttrPath outputs
+            );
+          }
+        )
+      ]
+    );
 in
 lib.fix makeOutputs

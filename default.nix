@@ -98,5 +98,5 @@ in
 import ./nix/make-outputs.nix {
   root = ./nix/outputs;
   inherit (nixpkgs) lib;
-  inherit context;
+  inherit context system;
 }

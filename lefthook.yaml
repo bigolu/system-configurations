@@ -489,14 +489,4 @@ check:
               - default.nix
               - dotfiles/**
               - gozip/*
-            run: |
-              nix build --impure --no-link --expr '
-                let
-                  inherit (builtins) currentSystem elem;
-                  outputs = import ./. {};
-                  filterPlatform =
-                    _name: package:
-                    (package.meta.platforms or [ ]) == [ ] || elem currentSystem package.meta.platforms;
-                in
-                  outputs.context.lib.filterAttrsRecursive filterPlatform outputs.checks
-              '
+            run: nix build --no-link --file . checksForCurrentPlatform
