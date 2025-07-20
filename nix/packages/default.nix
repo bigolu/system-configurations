@@ -1,5 +1,7 @@
-# This package set is used for system configurations and nix shebang scripts. It's
-# useful to put them all together so I can override packages.
+# This package set is used for non-public outputs, like home/darwin configurations or
+# devShells, and nix shebang scripts. It's useful to put them all together so I can
+# access the more easily and override packages.
+
 {
   inputs,
   outputs,
