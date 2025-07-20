@@ -59,105 +59,103 @@
   lib,
   system,
 }:
-let
-  makeOutputs =
-    self:
-    let
-      inherit (builtins)
-        foldl'
-        filter
-        pathExists
-        baseNameOf
-        isFunction
-        elem
-        getAttr
-        ;
-      inherit (lib)
-        pipe
-        removePrefix
-        fileset
-        splitString
-        recursiveUpdate
-        setAttrByPath
-        init
-        last
-        optionals
-        removeSuffix
-        filterAttrsRecursive
-        optionalAttrs
-        mapAttrs
-        ;
+lib.fix (
+  self:
+  let
+    inherit (builtins)
+      foldl'
+      filter
+      pathExists
+      baseNameOf
+      isFunction
+      elem
+      getAttr
+      ;
+    inherit (lib)
+      pipe
+      removePrefix
+      fileset
+      splitString
+      recursiveUpdate
+      setAttrByPath
+      init
+      last
+      optionals
+      removeSuffix
+      filterAttrsRecursive
+      optionalAttrs
+      mapAttrs
+      ;
 
-      context' = (if isFunction context then context context' else context) // {
-        outputs = self;
-        inherit system;
-      };
+    context' = (if isFunction context then context context' else context) // {
+      outputs = self;
+      inherit system;
+    };
 
-      makeOutputsForFile =
-        file:
-        let
-          relativePath = removePrefix "${toString root}/" (toString file);
-          parts = splitString "/" relativePath;
-          basename = last parts;
-          keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
-        in
-        setAttrByPath keys (import file context');
+    makeOutputsForFile =
+      file:
+      let
+        relativePath = removePrefix "${toString root}/" (toString file);
+        parts = splitString "/" relativePath;
+        basename = last parts;
+        keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
+      in
+      setAttrByPath keys (import file context');
 
-      shouldMakeOutputs =
-        file:
-        let
-          hasAncestorDefaultNix =
-            dir:
-            pathExists (dir + /default.nix)
-            || (if dir == root then false else hasAncestorDefaultNix (dirOf dir));
-          dir = dirOf file;
-        in
-        if (baseNameOf file) == "default.nix" then
-          dir == root || !(hasAncestorDefaultNix (dirOf dir))
-        else
-          !hasAncestorDefaultNix dir;
+    shouldMakeOutputs =
+      file:
+      let
+        hasAncestorDefaultNix =
+          dir:
+          pathExists (dir + /default.nix)
+          || (if dir == root then false else hasAncestorDefaultNix (dirOf dir));
+        dir = dirOf file;
+      in
+      if (baseNameOf file) == "default.nix" then
+        dir == root || !(hasAncestorDefaultNix (dirOf dir))
+      else
+        !hasAncestorDefaultNix dir;
 
-      filterForCurrentPlatform =
-        _name: package:
-        # If there are no platforms, we assume it supports the current one.
-        (package.meta.platforms or [ ]) == [ ] || elem system package.meta.platforms;
+    filterForCurrentPlatform =
+      _name: package:
+      # If there are no platforms, we assume it supports the current one.
+      (package.meta.platforms or [ ]) == [ ] || elem system package.meta.platforms;
 
-      getChecksForCurrentPlatform =
-        outputs:
-        let
-          packageChecks = optionalAttrs (outputs ? packages) { inherit (outputs) packages; };
-          devShellChecks = optionalAttrs (outputs ? devShells) { inherit (outputs) devShells; };
-          homeChecks = optionalAttrs (outputs ? homeConfigurations) {
-            homeConfigurations = mapAttrs (_name: getAttr "activationPackage") outputs.homeConfigurations;
-          };
-          darwinChecks = optionalAttrs (outputs ? darwinConfigurations) {
-            darwinConfigurations = mapAttrs (_name: getAttr "system") outputs.darwinConfigurations;
-          };
-          checks = outputs.checks or { };
-          allChecks = foldl' recursiveUpdate { } [
-            packageChecks
-            devShellChecks
-            homeChecks
-            darwinChecks
-            checks
-          ];
-        in
-        filterAttrsRecursive filterForCurrentPlatform allChecks;
-    in
-    pipe root [
-      (fileset.fileFilter (file: file.hasExt "nix"))
-      fileset.toList
-      (filter shouldMakeOutputs)
-      (map makeOutputsForFile)
-      (foldl' recursiveUpdate { })
-      (
-        outputs:
-        outputs
-        // {
-          context = context';
-          checksForCurrentPlatform = getChecksForCurrentPlatform outputs;
-        }
-      )
-    ];
-in
-lib.fix makeOutputs
+    getChecksForCurrentPlatform =
+      outputs:
+      let
+        packageChecks = optionalAttrs (outputs ? packages) { inherit (outputs) packages; };
+        devShellChecks = optionalAttrs (outputs ? devShells) { inherit (outputs) devShells; };
+        homeChecks = optionalAttrs (outputs ? homeConfigurations) {
+          homeConfigurations = mapAttrs (_name: getAttr "activationPackage") outputs.homeConfigurations;
+        };
+        darwinChecks = optionalAttrs (outputs ? darwinConfigurations) {
+          darwinConfigurations = mapAttrs (_name: getAttr "system") outputs.darwinConfigurations;
+        };
+        checks = outputs.checks or { };
+        allChecks = foldl' recursiveUpdate { } [
+          packageChecks
+          devShellChecks
+          homeChecks
+          darwinChecks
+          checks
+        ];
+      in
+      filterAttrsRecursive filterForCurrentPlatform allChecks;
+  in
+  pipe root [
+    (fileset.fileFilter (file: file.hasExt "nix"))
+    fileset.toList
+    (filter shouldMakeOutputs)
+    (map makeOutputsForFile)
+    (foldl' recursiveUpdate { })
+    (
+      outputs:
+      outputs
+      // {
+        context = context';
+        checksForCurrentPlatform = getChecksForCurrentPlatform outputs;
+      }
+    )
+  ]
+)
