@@ -24,7 +24,10 @@
   gomod2nix ? pins.gomod2nix,
   gitignore ? pins.gitignore,
 }:
-let
+import ./nix/make-outputs.nix {
+  root = ./nix/outputs;
+  inherit (nixpkgs) lib;
+  inherit system;
   context = self: {
     # These are commonly used so lets make them easier to access by exposing them at
     # the top level.
@@ -92,9 +95,4 @@ let
       };
     };
   };
-in
-import ./nix/make-outputs.nix {
-  root = ./nix/outputs;
-  inherit (nixpkgs) lib;
-  inherit context system;
 }
