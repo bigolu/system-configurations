@@ -76,15 +76,15 @@ let
             import
             (
               flake:
-              let
-                self = flake.outputs {
+              nixpkgs.lib.fix (
+                self:
+                flake.outputs {
                   inherit self;
                   nixpkgs = pins.nixpkgs // {
                     inherit (nixpkgs) lib;
                   };
-                };
-              in
-              self
+                }
+              )
             )
             (outputs: outputs.lib.darwinSystem)
           ];
