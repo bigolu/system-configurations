@@ -24,11 +24,7 @@ function _ndw_create_wrappers {
 
 function _ndw_make_gc_roots_for_npins {
   local -r npins_directory="${NPINS_DIRECTORY:-$PWD/npins}"
-  if
-    [[ ${NIX_DIRENV_DISABLE_NPINS:-} == 'true' ]] ||
-      ! type -P npins >/dev/null ||
-      [[ ! -d $npins_directory ]]
-  then
+  if ! type -P npins >/dev/null || [[ ! -d $npins_directory ]]; then
     return
   fi
 

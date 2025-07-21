@@ -132,9 +132,6 @@ in
       # Use the nixpkgs pinned by this project. By default, it pulls the latest
       # version of nixpkgs-unstable.
       nixpkgs.flake = inputs.nixpkgs;
-
-      # In case something is broken on unstable
-      nixpkgs-stable.flake = inputs.nixpkgs-stable;
     };
 
     settings = {

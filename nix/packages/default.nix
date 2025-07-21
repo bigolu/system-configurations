@@ -66,9 +66,6 @@ nixpkgs
     darwin-uninstaller
     ;
 
-  # This is usually broken on unstable
-  inherit (inputs.nixpkgs-stable.outputs) diffoscopeMinimal;
-
   nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
     interpreter = bash-script;
   };
