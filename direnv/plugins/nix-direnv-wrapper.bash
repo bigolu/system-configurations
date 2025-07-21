@@ -23,10 +23,11 @@ function _ndw_create_wrappers {
 }
 
 function _ndw_make_gc_roots_for_npins {
+  local -r npins_directory="${NPINS_DIRECTORY:-$PWD/npins}"
   if
     [[ ${NIX_DIRENV_DISABLE_NPINS:-} == 'true' ]] ||
       ! type -P npins >/dev/null ||
-      [[ ! -d npins && ! -d ${NPINS_DIRECTORY:-} ]]
+      [[ ! -d $npins_directory ]]
   then
     return
   fi
@@ -38,21 +39,17 @@ function _ndw_make_gc_roots_for_npins {
   fi
   mkdir -p "$directory"
 
+  local pins_string
+  pins_string="$(
+    nix eval --impure --raw --expr "
+      with builtins;
+      concatStringsSep
+        \"\n\"
+        (map (i: i.outPath) (attrValues (removeAttrs (import $npins_directory) [\"__functor\"])))
+    "
+  )"
   local -a pins
-  local output
-  output="$(npins show)"
-  local -a output_lines
-  readarray -t output_lines <<<"$output"
-  local -r pin_regex='^([^[:space:]].*): '
-  local line
-  for line in "${output_lines[@]}"; do
-    if [[ $line =~ $pin_regex ]]; then
-      local pin="${BASH_REMATCH[1]}"
-      local pin_store_path
-      pin_store_path="$(npins get-path "$pin")"
-      pins+=("$pin_store_path")
-    fi
-  done
+  readarray -t pins <<<"$pins_string"
 
   # shellcheck disable=2164
   # direnv will enable `set -e`
