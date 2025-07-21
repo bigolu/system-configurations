@@ -34,7 +34,7 @@ function make_shell_bundle {
   local gc_root_path
   gc_root_path="$(mktemp --directory)/bundle-gc-root"
   nix build --impure --out-link "$gc_root_path" --print-out-paths \
-    --expr 'with (import ./. {}); bundlers.rootless packages.shell'
+    --expr 'with (import ./.); bundlers.rootless packages.shell'
 }
 
 function copy_bundle_into_assets {

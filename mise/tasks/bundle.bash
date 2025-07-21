@@ -14,4 +14,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-nix build --impure --expr "with (import ./. {}); bundlers.rootless ${usage_attr_path:?}"
+nix build --impure --expr "with (import ./.); bundlers.rootless ${usage_attr_path:?}"
