@@ -67,9 +67,9 @@ lib.fix (
       filter
       pathExists
       baseNameOf
-      isFunction
       elem
       getAttr
+      isAttrs
       ;
     inherit (lib)
       pipe
@@ -85,6 +85,10 @@ lib.fix (
       filterAttrsRecursive
       optionalAttrs
       mapAttrs
+      recurseIntoAttrs
+      isFunction
+      isDerivation
+      filterAttrs
       ;
 
     context' = (if isFunction context then context context' else context) // {
@@ -124,7 +128,15 @@ lib.fix (
     getChecksForCurrentPlatform =
       outputs:
       let
-        packageChecks = optionalAttrs (outputs ? packages) { inherit (outputs) packages; };
+        filterOutFunctionsRecursive = set:
+          pipe set [
+            (filterAttrs (_k: v: !isFunction v))
+            (mapAttrs (_k: v: if isAttrs v then filterOutFunctionsRecursive v else v))
+          ];
+        packageChecks = optionalAttrs (outputs ? packages) {
+          # Some packages are functions
+          packages = filterOutFunctionsRecursive outputs.packages;
+        };
         devShellChecks = optionalAttrs (outputs ? devShells) { inherit (outputs) devShells; };
         homeChecks = optionalAttrs (outputs ? homeConfigurations) {
           homeConfigurations = mapAttrs (_name: getAttr "activationPackage") outputs.homeConfigurations;
@@ -140,8 +152,18 @@ lib.fix (
           darwinChecks
           checks
         ];
+
+        recurseIntoAttrsRecursive =
+          v:
+          let
+            shouldRecurse = v: isAttrs v && !isDerivation v && !isFunction v;
+          in
+          if shouldRecurse v then recurseIntoAttrs (mapAttrs (_k: recurseIntoAttrsRecursive) v) else v;
       in
-      filterAttrsRecursive filterForCurrentPlatform allChecks;
+      pipe allChecks [
+        (filterAttrsRecursive filterForCurrentPlatform)
+        recurseIntoAttrsRecursive
+      ];
   in
   pipe root [
     (fileset.fileFilter (file: file.hasExt "nix"))
