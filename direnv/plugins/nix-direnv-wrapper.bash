@@ -119,14 +119,10 @@ function _ndw_find_nix_config_file {
     return 0
   fi
 
-  local relative_path
   local absolute_path
-  for relative_path in 'nix.conf' 'nix/config.conf'; do
-    if absolute_path="$(find_up "$relative_path")"; then
-      echo "$absolute_path"
-      return 0
-    fi
-  done
+  if absolute_path="$(find_up 'nix/nix.conf')"; then
+    echo "$absolute_path"
+  fi
 }
 
 function _ndw_add_line_to_nix_config {

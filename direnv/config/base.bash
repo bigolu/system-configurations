@@ -11,4 +11,4 @@ direnv_init_layout_directory
 dotenv_if_exists secrets.env
 
 source direnv/plugins/nix-direnv-wrapper.bash
-NIX_DIRENV_NIX_CONF="$PWD/nix/dev/nix.conf" use nix -A "devShells.${NIX_DEV_SHELL:?}"
+use nix -A "devShells.${NIX_DEV_SHELL:?}"
