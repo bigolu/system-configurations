@@ -30,5 +30,5 @@ nix shell \
   --set-env-var CI true \
   --set-env-var CI_DEBUG true \
   --set-env-var direnv_layout_dir "$direnv_layout_dir" \
-  --file nix/dev/packages.nix nix \
-  --command nix run --file nix/dev/packages.nix direnv-wrapper -- direnv/config/ci.bash exec . "$bash_path" --noprofile --norc
+  --file nix/packages nix \
+  --command nix run --file nix/packages direnv-wrapper -- direnv/config/ci.bash exec . "$bash_path" --noprofile --norc

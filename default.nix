@@ -35,7 +35,7 @@ import ./nix/make-outputs.nix {
     inherit (nixpkgs) lib;
 
     utils = import ./nix/utils self;
-    packages = import ./nix/packages self;
+    packages = import ./nix/packages;
 
     # Our pins and their outputs, with any overrides applied
     inputs = pins // {

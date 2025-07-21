@@ -309,7 +309,7 @@ check:
                     # ignoring fixes with comments[1] so I'll skip the whole file.
                     #
                     # [1]: https://github.com/oppiliappan/statix/issues/61
-                    - nix/dev/packages.nix
+                    - nix/packages/default.nix
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: "{run_fix} parallel statix fix -- {files}"
@@ -409,7 +409,7 @@ check:
                     # ignoring fixes with comments[1] so I'll skip the whole file.
                     #
                     # [1]: https://github.com/oppiliappan/statix/issues/61
-                    - nix/dev/packages.nix
+                    - nix/packages/default.nix
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: parallel statix check -- {files}
