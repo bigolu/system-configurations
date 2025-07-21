@@ -4,7 +4,7 @@
 # access them more easily and override packages.
 
 let
-  inherit ((import ../.. { }).context)
+  inherit ((import ../..).context)
     inputs
     outputs
     packages
@@ -51,9 +51,9 @@ nixpkgs
     { }:
     self
     // {
-      # nix-shell uses `nixpkgs.runCommandCC` to create the environment. We set it to
-      # `runCommandNoCC` to make the closure smaller.
-      pkgs.runCommandCC = packages.runCommandNoCC;
+      # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
+      # set it to `runCommandNoCC` to make the closure smaller.
+      pkgs.runCommandCC = nixpkgs.runCommandNoCC;
     };
 
   inherit (inputs.home-manager.outputs) home-manager;

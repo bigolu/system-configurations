@@ -214,7 +214,6 @@ in
         let
           isExecutable = hasAttr "removeExtension";
           isEditableInstall = config.repository.fileSettings.editableInstall;
-          makeSymlinkOrCopy = if isEditableInstall then mkOutOfStoreSymlink else toPath;
 
           replaceShebangInterpreter =
             file:
@@ -241,7 +240,7 @@ in
 
           homeManagerSource = pipe file.source [
             toAbsolutePath
-            makeSymlinkOrCopy
+            (if isEditableInstall then mkOutOfStoreSymlink else toPath)
             (applyIf (isExecutable file && !isEditableInstall) replaceShebangInterpreter)
           ];
 
@@ -271,7 +270,7 @@ in
         pipe directory.source [
           toPath
 
-          # Flakes has built-in gitignore support
+          # Flakes have built-in gitignore support
           (applyIf (!inFlakePureEval) utils.gitFilter)
 
           # Use relative paths to account for the case where the source directory
