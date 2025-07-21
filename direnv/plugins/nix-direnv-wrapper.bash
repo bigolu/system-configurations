@@ -1,6 +1,7 @@
 # A wrapper for nix-direnv that provides the following additional features:
 #   - Automatically load a nix config file
 #   - Show a diff of the dev shell when it changes
+#   - Create GC roots for npins
 
 # renovate: nix-direnv
 source_url \
