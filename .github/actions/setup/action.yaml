@@ -37,7 +37,11 @@ runs:
         SETUP_PRIMARY_KEY="$(date '+%Y')-$SETUP_PRIMARY_KEY"
 
         for name in SETUP_PRIMARY_KEY SETUP_PATHS; do
-          printf '%s<<SETUP_ACTION_EOV\n%s\nSETUP_ACTION_EOV\n' "$name" "${!name}"
+          printf \
+            '%s<<SETUP_ACTION_EOV\n%s\nSETUP_ACTION_EOV\n' \
+            "$name" \
+            "${!name}" \
+            >>"$GITHUB_ENV"
         done
     - uses: nix-community/cache-nix-action/restore@v6
       with:
@@ -48,7 +52,10 @@ runs:
       run: |
         SETUP_OLD_STORE_PATHS="$(mktemp)"
         nix path-info --all | sort >"$SETUP_OLD_STORE_PATHS"
-        printf 'SETUP_OLD_STORE_PATHS<<SETUP_ACTION_EOV\n%s\nSETUP_ACTION_EOV\n' "$SETUP_OLD_STORE_PATHS"
+        printf \
+          'SETUP_OLD_STORE_PATHS<<SETUP_ACTION_EOV\n%s\nSETUP_ACTION_EOV\n' \
+          "$SETUP_OLD_STORE_PATHS" \
+          >>"$GITHUB_ENV"
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}
       env:
