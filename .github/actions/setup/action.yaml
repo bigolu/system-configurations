@@ -46,8 +46,8 @@ runs:
         done
     - uses: nix-community/cache-nix-action/restore@v6
       with:
-        primary-key: env.SETUP_PRIMARY_KEY
-        paths: env.SETUP_PATHS
+        primary-key: ${{ env.SETUP_PRIMARY_KEY }}
+        paths: ${{ env.SETUP_PATHS }}
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}
       env:

@@ -8,13 +8,14 @@ runs:
       run: |
         old="$HOME/.cache/store-paths"
 
-        # Run garbage collection to stop the nix store from growing indefinitely.
-        # This can happen because on a cache miss, we restore from the most recently
-        # used cache entry so we have to avoid accumulating data from old cache
-        # entries over time.
-        nix-collect-garbage --delete-old
+        temp="$(mktemp)"
+        for symlink in /nix/var/nix/gcroots/auto/*; do
+          if [[ -e $symlink ]]; then
+            realpath "$symlink" >>"$temp"
+          fi
+        done
         new="$(mktemp)"
-        nix path-info --all | sort >"$new"
+        sort "$temp" >"$new"
 
         if [[ ! -e $old || $(<"$old") != $(<"$new") ]]; then
           echo 'should-save=true' >>"$GITHUB_OUTPUT"
@@ -32,6 +33,14 @@ runs:
           fi
 
           cp "$new" "$old"
+
+          # Run garbage collection to stop the nix store from growing indefinitely.
+          # This can happen because on a cache miss, we restore from the most recently
+          # used cache entry so we have to avoid accumulating data from old cache
+          # entries over time.
+          echo '::group::Garbage collection logs'
+          nix-collect-garbage --delete-old
+          echo '::endgroup::'
         else
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
         fi
