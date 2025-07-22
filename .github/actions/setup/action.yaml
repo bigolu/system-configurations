@@ -35,7 +35,7 @@ runs:
         # ~/.cache/cached-nix-shell, from growing indefinitely. This can happen
         # because on a cache miss, we restore from the most recently used cache entry
         # so we have to avoid accumulating data from old cache entries over time.
-        SETUP_PRIMARY_KEY="$(date '+%Y')-$SETUP_PRIMARY_KEY"
+        SETUP_PRIMARY_KEY="$(printf '%(%Y)T')-$SETUP_PRIMARY_KEY"
 
         for name in SETUP_PRIMARY_KEY SETUP_PATHS; do
           printf \
