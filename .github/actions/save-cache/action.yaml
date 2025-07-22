@@ -6,7 +6,7 @@ runs:
     - id: should-save
       shell: bash-script {0}
       run: |
-        old="$HOME/.cache/store-paths"
+        old="$HOME/.cache/gc-roots"
 
         temp="$(mktemp)"
         for symlink in /nix/var/nix/gcroots/auto/*; do
@@ -17,37 +17,55 @@ runs:
         new="$(mktemp)"
         sort "$temp" >"$new"
 
-        if [[ ! -e $old || $(<"$old") != $(<"$new") ]]; then
-          echo 'should-save=true' >>"$GITHUB_OUTPUT"
+        if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
+          echo 'should-save=false' >>"$GITHUB_OUTPUT"
+          exit
+        fi
 
-          if [[ -e $old ]]; then
-            echo '::group::Store paths diff'
-            echo 'Added paths:'
-            comm -13 "$old" "$new"
-            echo
-            echo 'Removed paths:'
-            comm -23 "$old" "$new"
-            echo '::endgroup::'
-          else
-            echo 'Old cache did not exist'
-          fi
+        echo 'should-save=true' >>"$GITHUB_OUTPUT"
 
-          cp "$new" "$old"
-
-          # Run garbage collection to stop the nix store from growing indefinitely.
-          # This can happen because on a cache miss, we restore from the most recently
-          # used cache entry so we have to avoid accumulating data from old cache
-          # entries over time.
-          echo '::group::Garbage collection logs'
-          nix-collect-garbage --delete-old
+        if [[ -e $old ]]; then
+          echo '::group::Store paths diff'
+          echo 'Added paths:'
+          comm -13 "$old" "$new"
+          echo
+          echo 'Removed paths:'
+          comm -23 "$old" "$new"
           echo '::endgroup::'
         else
-          echo 'should-save=false' >>"$GITHUB_OUTPUT"
+          echo 'Old cache did not exist'
         fi
+
+        cp "$new" "$old"
+
+        # Run garbage collection to stop the nix store from growing indefinitely.
+        # This can happen because on a cache miss, we restore from the most recently
+        # used cache entry so we have to avoid accumulating data from old cache
+        # entries over time.
+        echo '::group::Garbage collection logs'
+        nix-collect-garbage --delete-old
+        echo '::endgroup::'
+
+        # We remove these directories, if they grow past a certain threshold, to
+        # prevent them from growing indefinitely. This can happen because on a cache
+        # miss, we restore from the most recently used cache entry so we have to
+        # avoid accumulating data from old cache entries over time.
+        for directory in ~/.cache/direnv ~/.cache/cached-nix-shell; do
+          size="$(du -m --summarize "$directory" | cut -f1)"
+          max=10
+          if ((size > max)); then
+            echo "Cached directory '$directory' is over $max megabytes, deleting..."
+            rm -rf "$directory"
+          fi
+        done
     - if: steps.should-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@v6
       with:
-        primary-key: ${{ env.SETUP_PRIMARY_KEY }}
-        paths: ${{ env.SETUP_PATHS }}
         purge: true
         purge-primary-key: always
+        # SYNC: cache-settings
+        primary-key: ${{ github.workflow }}-${{ github.job }}-nix-and-direnv-${{ runner.arch }}-${{ runner.os }}
+        paths: |
+          ~/.cache/cached-nix-shell
+          ~/.cache/direnv
+          ~/.cache/gc-roots

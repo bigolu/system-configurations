@@ -22,32 +22,14 @@ runs:
         # changes every job run and since this token gets put in the nix.conf, it
         # invalidates cached-nix-shell's cache.
         github_access_token: ""
-    - name: Set variables
-      shell: bash
-      env:
-        SETUP_PRIMARY_KEY: ${{ github.workflow }}-${{ github.job }}-nix-and-direnv-${{ runner.arch }}-${{ runner.os }}
-        SETUP_PATHS: |
-          ~/.cache/cached-nix-shell
-          ~/.cache/direnv
-          ~/.cache/store-paths
-      run: |
-        # The year is part of the key to prevent some cached directories, like
-        # ~/.cache/cached-nix-shell, from growing indefinitely. This can happen
-        # because on a cache miss, we restore from the most recently used cache entry
-        # so we have to avoid accumulating data from old cache entries over time.
-        SETUP_PRIMARY_KEY="$(printf '%(%Y)T')-$SETUP_PRIMARY_KEY"
-
-        for name in SETUP_PRIMARY_KEY SETUP_PATHS; do
-          printf \
-            '%s<<SETUP_ACTION_EOV\n%s\nSETUP_ACTION_EOV\n' \
-            "$name" \
-            "${!name}" \
-            >>"$GITHUB_ENV"
-        done
     - uses: nix-community/cache-nix-action/restore@v6
       with:
-        primary-key: ${{ env.SETUP_PRIMARY_KEY }}
-        paths: ${{ env.SETUP_PATHS }}
+        # SYNC: cache-settings
+        primary-key: ${{ github.workflow }}-${{ github.job }}-nix-and-direnv-${{ runner.arch }}-${{ runner.os }}
+        paths: |
+          ~/.cache/cached-nix-shell
+          ~/.cache/direnv
+          ~/.cache/gc-roots
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}
       env:
