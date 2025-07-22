@@ -89,8 +89,14 @@ rec {
     in
     mkShellNoCC {
       inputsFrom = [ mise ] ++ optionals isLinux [ locale ];
-      # For the `run` steps in CI workflows
-      packages = [ packages.bash-script ];
+      packages = with packages; [
+        # For the `run` steps in CI workflows
+        bash-script
+        # For the save-cache action
+        coreutils
+        # For the setup action
+        direnv-wrapper
+      ];
     };
 
   direnv = mkShellNoCC {

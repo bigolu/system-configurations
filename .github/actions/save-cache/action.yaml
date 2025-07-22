@@ -4,7 +4,7 @@ runs:
   using: "composite"
   steps:
     - id: should-save
-      shell: bash
+      shell: bash-script {0}
       run: |
         old="$HOME/.cache/store-paths"
 

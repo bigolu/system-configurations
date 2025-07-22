@@ -54,10 +54,7 @@ runs:
         NIX_DEV_SHELL: ${{ inputs.nix-dev-shell }}
       run: |
         direnv_wrapper="$(
-          nix build \
-            --print-out-paths \
-            --out-link .direnv/direnv-wrapper-gc-root \
-            --file nix/packages direnv-wrapper
+          nix build --print-out-paths --file nix/packages direnv-wrapper
         )/bin/direnv-wrapper"
 
         "$direnv_wrapper" direnv/config/ci.bash export gha >> "$GITHUB_ENV"
