@@ -40,3 +40,5 @@ runs:
       with:
         primary-key: ${{ env.SETUP_PRIMARY_KEY }}
         paths: ${{ env.SETUP_PATHS }}
+        purge: true
+        purge-primary-key: always
