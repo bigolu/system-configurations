@@ -29,6 +29,7 @@ runs:
         SETUP_PATHS: |
           ~/.cache/cached-nix-shell
           ~/.cache/direnv
+          ~/.cache/store-paths
       run: |
         # The year is part of the key to prevent some cached directories, like
         # ~/.cache/cached-nix-shell, from growing indefinitely. This can happen
@@ -47,15 +48,6 @@ runs:
       with:
         primary-key: env.SETUP_PRIMARY_KEY
         paths: env.SETUP_PATHS
-    - name: Set old store paths
-      shell: bash
-      run: |
-        SETUP_OLD_STORE_PATHS="$(mktemp)"
-        nix path-info --all | sort >"$SETUP_OLD_STORE_PATHS"
-        printf \
-          'SETUP_OLD_STORE_PATHS<<SETUP_ACTION_EOV\n%s\nSETUP_ACTION_EOV\n' \
-          "$SETUP_OLD_STORE_PATHS" \
-          >>"$GITHUB_ENV"
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}
       env:

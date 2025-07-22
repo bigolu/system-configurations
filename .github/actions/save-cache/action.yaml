@@ -6,29 +6,35 @@ runs:
     - id: should-save
       shell: bash
       run: |
+        old="$HOME/.cache/store-paths"
+
+        # Run garbage collection to stop the nix store from growing indefinitely.
+        # This can happen because on a cache miss, we restore from the most recently
+        # used cache entry so we have to avoid accumulating data from old cache
+        # entries over time.
+        nix-collect-garbage --delete-old
         new="$(mktemp)"
         nix path-info --all | sort >"$new"
 
-        if [[ -n $(comm -3 "$SETUP_OLD_STORE_PATHS" "$new") ]]; then
+        if [[ ! -e $old || $(<"$old") != $(<"$new") ]]
           echo 'should-save=true' >>"$GITHUB_OUTPUT"
 
-          echo '::group::Store paths diff'
-          echo 'Added paths:'
-          comm -13 "$SETUP_OLD_STORE_PATHS" "$new"
-          echo
-          echo 'Removed paths:'
-          comm -23 "$SETUP_OLD_STORE_PATHS" "$new"
-          echo '::endgroup::'
+          if [[ -e $old ]]; then
+            echo '::group::Store paths diff'
+            echo 'Added paths:'
+            comm -13 "$old" "$new"
+            echo
+            echo 'Removed paths:'
+            comm -23 "$old" "$new"
+            echo '::endgroup::'
+          else
+            echo 'Old cache did not exist'
+          fi
+
+          cp "$new" "$old"
         else
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
         fi
-    # Run garbage collection to stop the nix store from growing indefinitely. This
-    # can happen because on a cache miss, we restore from the most recently used
-    # cache entry so we have to avoid accumulating data from old cache entries over
-    # time.
-    - if: steps.should-save.outputs.should-save == 'true'
-      shell: bash
-      run: nix-collect-garbage --delete-old
     - if: steps.should-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@v6
       with:
