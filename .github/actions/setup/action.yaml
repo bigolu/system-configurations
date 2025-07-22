@@ -11,6 +11,7 @@ runs:
     # The action run after this, nix-community/cache-nix-action, depends on this
     # specific Nix installer. Though there's an open issue for supporting a different
     # installer: https://github.com/nix-community/cache-nix-action/issues/60
+    #
     - uses: nixbuild/nix-quick-install-action@63ca48f939ee3b8d835f4126562537df0fee5b91 # v32
       with:
         nix_conf: |
