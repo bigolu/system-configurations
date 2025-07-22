@@ -32,11 +32,13 @@ ai.setup({
     ["*"] = spec_pair("*", "*", { type = "greedy" }),
     ["_"] = spec_pair("_", "_", { type = "greedy" }),
 
-    -- For lua
+    -- Make all braces/quotes greedy
     ["]"] = spec_pair("[", "]", { type = "greedy" }),
-
-    -- For Nix
+    ["["] = spec_pair("[", "]", { type = "greedy" }),
     ["'"] = spec_pair("'", "'", { type = "greedy" }),
+    ['"'] = spec_pair('"', '"', { type = "greedy" }),
+    ["}"] = spec_pair("{", "}", { type = "greedy" }),
+    ["{"] = spec_pair("{", "}", { type = "greedy" }),
   },
 
   silent = true,

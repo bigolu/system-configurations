@@ -24,6 +24,8 @@ jobs:
         with:
           name: assets-${{ matrix.os }}
           path: ${{ steps.make-assets.outputs.asset-directory }}
+      - if: always()
+        uses: ./.github/actions/save-cache
   make-release:
     needs: make-assets
     runs-on: ubuntu-24.04
@@ -40,3 +42,5 @@ jobs:
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: mise run ci:make-release
+      - if: always()
+        uses: ./.github/actions/save-cache

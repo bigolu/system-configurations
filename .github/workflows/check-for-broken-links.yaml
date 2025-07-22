@@ -22,10 +22,11 @@ jobs:
       - uses: ./.github/actions/setup
         with:
           nix-dev-shell: ci-check-for-broken-links
-          cache-key: hashed-files
       - name: Run lychee
         env:
           # To avoid being rate-limited by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: lefthook run check --jobs lychee --all-files --no-tty --colors on
+      - if: always()
+        uses: ./.github/actions/save-cache

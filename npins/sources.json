@@ -45,9 +45,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "664ad7a2df4623037e315e4094346bff5c44e9ee",
-      "url": "https://github.com/nix-community/gomod2nix/archive/664ad7a2df4623037e315e4094346bff5c44e9ee.tar.gz",
-      "hash": "sha256-/GTdqFzFw/Y9DSNAfzvzyCMlKjUyRKMPO+apIuaTU4A="
+      "revision": "be828766411cad04c194c8f714d46aa2b2596362",
+      "url": "https://github.com/nix-community/gomod2nix/archive/be828766411cad04c194c8f714d46aa2b2596362.tar.gz",
+      "hash": "sha256-MaaWYgN/nia7xJcOYLBtPk+cFo7X2zEM1d9xIGPQrLU="
     },
     "home-manager": {
       "type": "Git",
