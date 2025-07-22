@@ -21,4 +21,6 @@ makeEmptyPackageSet [
   "diffoscopeMinimal"
   "difftastic"
   "nix"
+  # This is large on macOS where perl is ~1 GB because of the Apple SDK
+  "moreutils"
 ]
