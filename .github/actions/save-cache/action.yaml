@@ -16,7 +16,7 @@ runs:
         new="$(mktemp)"
         nix path-info --all | sort >"$new"
 
-        if [[ ! -e $old || $(<"$old") != $(<"$new") ]]
+        if [[ ! -e $old || $(<"$old") != $(<"$new") ]]; then
           echo 'should-save=true' >>"$GITHUB_OUTPUT"
 
           if [[ -e $old ]]; then
