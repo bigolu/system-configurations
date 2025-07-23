@@ -59,10 +59,6 @@ runs:
           ~/.cache/gc-roots
     - id: pre-direnv-cache-save
       shell: bash-script {0}
-      env:
-        GH_TOKEN: ${{ github.token }}
-        # SYNC: cache-settings-direnv
-        KEY: ${{ github.workflow }}-${{ github.job }}-direnv-${{ runner.arch }}-${{ runner.os }}
       run: |
         old="$HOME/.cache/direnv-hash"
 
@@ -80,15 +76,12 @@ runs:
           exit
         fi
 
+        echo 'should-save=true' >>"$GITHUB_OUTPUT"
+
         if [[ -e $old ]]; then
           printf 'Expected:\n%s\nGot:\n%s\n' "$(<"$old")" "$(<"$new")"
         else
           echo 'Old cache did not exist'
-        fi
-
-        # actions/cache won't overwrite a cache with the same key so we'll delete it.
-        if [[ -e $old ]]; then
-          gh cache delete "$KEY"
         fi
 
         # We remove this directory, if it grows past a certain threshold, to prevent
@@ -99,20 +92,19 @@ runs:
         size="$(du -m --summarize "$directory" | cut -f1)"
         max=10
         if ((size > max)); then
-          echo "Cached directory '$directory' is over $max megabytes, deleting..."
-          rm -rf "$directory"
-          echo 'should-save=false' >>"$GITHUB_OUTPUT"
-          exit
+          echo "Cached directory '$directory' is over $max megabytes, clearing..."
+          rm -rf "$directory"/*
+          touch "$directory/keep"
         fi
-
-        echo 'should-save=true' >>"$GITHUB_OUTPUT"
 
         cp "$new" "$old"
     - if: steps.pre-direnv-cache-save.outputs.should-save == 'true'
-      uses: actions/cache/save@v4
+      uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
+        purge: true
+        purge-primary-key: always
         # SYNC: cache-settings-direnv
-        key: direnv-${{ runner.os }}
-        path: |
+        primary-key: direnv-${{ runner.os }}
+        paths: |
           ~/.cache/direnv-hash
           ~/.cache/direnv

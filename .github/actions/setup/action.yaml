@@ -36,11 +36,11 @@ runs:
         primary-key: ${{ github.workflow }}-${{ github.job }}-nix-${{ runner.arch }}-${{ runner.os }}
         paths: |
           ~/.cache/gc-roots
-    - uses: actions/cache/restore@v4
+    - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         # SYNC: cache-settings-direnv
-        key: direnv-${{ runner.os }}
-        path: |
+        primary-key: direnv-${{ runner.os }}
+        paths: |
           ~/.cache/direnv-hash
           ~/.cache/direnv
     - name: Load the direnv Environment

@@ -92,11 +92,8 @@ rec {
       packages = with packages; [
         # For the `run` steps in CI workflows/actions
         bash-script
-
         # For the save-cache action
         coreutils
-        gh
-
         # For the setup action
         direnv-wrapper
       ];
