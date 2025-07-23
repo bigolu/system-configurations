@@ -16,9 +16,9 @@
   osvVulnerabilityAlerts: true,
   postUpdateOptions: ["gomodTidy", "gomodUpdateImportPaths"],
   separateMultipleMajor: true,
-  // These shouldn't be breaking changes, but I'm not adding lock file maintenance to
-  // the non-breaking group further down because Renovate doesn't support grouping
-  // lock file maintenance with other updates[1].
+  // Even if you're not expecting any breaking changes from lock file maintenance,
+  // you can't add it to the non-breaking group further down because Renovate doesn't
+  // support grouping lock file maintenance with other updates[1].
   //
   // [1]: https://github.com/renovatebot/renovate/discussions/13355#discussioncomment-1910497
   lockFileMaintenance: {
