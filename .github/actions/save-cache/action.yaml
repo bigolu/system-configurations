@@ -62,7 +62,7 @@ runs:
           fi
         done
     - if: steps.should-save.outputs.should-save == 'true'
-      uses: nix-community/cache-nix-action/save@v6
+      uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         purge: true
         purge-primary-key: always
