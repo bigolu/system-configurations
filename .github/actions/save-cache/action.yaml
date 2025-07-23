@@ -104,6 +104,7 @@ runs:
         purge: true
         purge-primary-key: always
         # SYNC: cache-settings-direnv
+        nix: false
         primary-key: direnv-${{ runner.os }}
         paths: |
           ~/.cache/direnv-hash

@@ -39,6 +39,7 @@ runs:
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         # SYNC: cache-settings-direnv
+        nix: false
         primary-key: direnv-${{ runner.os }}
         paths: |
           ~/.cache/direnv-hash
