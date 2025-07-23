@@ -38,7 +38,7 @@
       customType: "regex",
       datasourceTemplate: "github-releases",
       depNameTemplate: "nix-community/nix-direnv",
-      managerFilePatterns: ["(^|/)direnv/.*$"],
+      managerFilePatterns: ["/(^|/)direnv/.*$/"],
       matchStrings: [
         // This will match text with the following pattern:
         //
@@ -63,8 +63,8 @@
       // These file matches were taken from the Renovate GitHub Actions manager:
       // https://docs.renovatebot.com/modules/manager/github-actions/#file-matching
       managerFilePatterns: [
-        "(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml$",
-        "(^|/)action\\.ya?ml$",
+        "/(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml$/",
+        "/(^|/)action\\.ya?ml$/",
       ],
       matchStrings: [
         // This regex will match text in the form
