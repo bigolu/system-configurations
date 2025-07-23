@@ -8,14 +8,17 @@ runs:
       run: |
         old="$HOME/.cache/gc-roots"
 
-        temp="$(mktemp)"
-        for symlink in /nix/var/nix/gcroots/auto/*; do
-          if [[ -e $symlink ]]; then
-            realpath "$symlink" >>"$temp"
-          fi
-        done
         new="$(mktemp)"
-        sort "$temp" >"$new"
+        {
+          # We only want extant symlink destinations to be printed, but we don't want
+          # realpath to exit with a non-zero code if it encounters a broken symlink
+          # since that would cause the script to exit.
+          set +o errexit
+          realpath --canonicalize-existing /nix/var/nix/gcroots/auto/*
+          set -o errexit
+        } |
+          # `comm` requires input files to be sorted
+          sort >"$new"
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
@@ -27,10 +30,10 @@ runs:
         if [[ -e $old ]]; then
           echo '::group::Store paths diff'
           echo 'Added paths:'
-          comm -13 "$old" "$new"
+          comm --nocheck-order -13 "$old" "$new"
           echo
           echo 'Removed paths:'
-          comm -23 "$old" "$new"
+          comm --nocheck-order -23 "$old" "$new"
           echo '::endgroup::'
         else
           echo 'Old cache did not exist'
