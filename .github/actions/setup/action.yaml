@@ -18,6 +18,15 @@ runs:
           # the default limit of 64MiB.
           download-buffer-size = 134217728
           show-trace = true
+          # This way, if we fail to build something, we can make its derivation a GC
+          # root so the derivation's dependencies, i.e. build dependencies, don't get
+          # garbage collected. Since the they won't get garbage collected, they'll be
+          # cached and we won't lose our build progress.
+          #
+          # There's an issue[1] for automating the creation of the derivation GC root.
+          #
+          # [1]: https://github.com/NixOS/nix/issues/7561
+          keep-outputs = true
         # By default this is ${{ github.token }}. This is a problem because the token
         # changes every job run and since this token gets put in the nix.conf, it
         # invalidates cached-nix-shell's cache.

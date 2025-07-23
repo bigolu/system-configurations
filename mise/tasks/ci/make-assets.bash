@@ -31,10 +31,23 @@ function register_asset_directory {
 
 # Creates a bundle for the shell and prints its store path
 function make_shell_bundle {
-  local gc_root_path
-  gc_root_path="$(mktemp --directory)/bundle-gc-root"
-  nix build --impure --out-link "$gc_root_path" --print-out-paths \
-    --expr 'with (import ./.); bundlers.rootless packages.shell'
+  local gc_root
+  gc_root="$(mktemp --directory)/bundle-gc-root"
+
+  local derivation
+  derivation="$(
+    nix eval \
+      --impure --raw \
+      --expr 'with (import ./.); bundlers.rootless packages.shell' \
+      drvPath
+  )"
+
+  if ! nix-store --add-root "$gc_root" --realise "$derivation"; then
+    # To learn why this is done, see the comment above the `keep-outputs` setting, in
+    # setup/action.yaml.
+    nix build --out-link "$gc_root" "$derivation"
+    exit 1
+  fi
 }
 
 function copy_bundle_into_assets {
