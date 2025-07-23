@@ -140,6 +140,7 @@ sync:
         # - If the version of any program that gets called here changes
         - nix/**
         - npins/**
+        - gozip/**
 
         # If this configuration changes
         - lefthook.yaml

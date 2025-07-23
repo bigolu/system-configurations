@@ -128,7 +128,8 @@ lib.fix (
     getChecksForCurrentPlatform =
       outputs:
       let
-        filterOutFunctionsRecursive = set:
+        filterOutFunctionsRecursive =
+          set:
           pipe set [
             (filterAttrs (_k: v: !isFunction v))
             (mapAttrs (_k: v: if isAttrs v then filterOutFunctionsRecursive v else v))
