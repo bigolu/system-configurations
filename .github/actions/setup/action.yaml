@@ -39,8 +39,8 @@ runs:
           nix build --print-out-paths --file nix/packages direnv-wrapper
         )/bin/direnv-wrapper"
 
-        "$direnv_wrapper" direnv/config/ci.bash export gha >> "$GITHUB_ENV"
+        "$direnv_wrapper" direnv.bash export gha >> "$GITHUB_ENV"
         # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
         #
         # [1]: https://github.com/actions/toolkit/issues/655
-        "$direnv_wrapper" direnv/config/ci.bash exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
+        "$direnv_wrapper" direnv.bash exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"

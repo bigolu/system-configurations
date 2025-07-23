@@ -90,7 +90,7 @@ rec {
     mkShellNoCC {
       inputsFrom = [ mise ] ++ optionals isLinux [ locale ];
       packages = with packages; [
-        # For the `run` steps in CI workflows
+        # For the `run` steps in CI workflows/actions
         bash-script
         # For the save-cache action
         coreutils

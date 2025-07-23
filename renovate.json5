@@ -27,8 +27,8 @@
       matchManagers: ["nix"],
       postUpgradeTasks: {
         commands: [
-          "nix run --file nix/packages direnv-wrapper -- direnv/config/ci.bash exec . mise run lefthook:check:add-nix-version-to-readme",
-          "nix run --file nix/packages direnv-wrapper -- direnv/config/ci.bash exec . mise run lefthook:check:add-nixpkgs-commit-to-readme",
+          "nix run --file nix/packages direnv-wrapper -- direnv.bash exec . mise run lefthook:check:add-nix-version-to-readme",
+          "nix run --file nix/packages direnv-wrapper -- direnv.bash exec . mise run lefthook:check:add-nixpkgs-commit-to-readme",
         ],
       },
     },
