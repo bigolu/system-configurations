@@ -24,7 +24,6 @@ in
   home.packages =
     with pkgs;
     [
-      (pkgs.runCommand "will-fail" { } '' exit 1 '')
       fd
       jq
       ijq
