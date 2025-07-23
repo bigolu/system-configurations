@@ -36,12 +36,13 @@ runs:
         github_access_token: ""
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
-        # SYNC: cache-settings
+        # SYNC: cache-settings-nix
         primary-key: ${{ github.workflow }}-${{ github.job }}-nix-${{ runner.arch }}-${{ runner.os }}
         paths: |
           ~/.cache/gc-roots
     - uses: actions/cache/restore@v4
       with:
+        # SYNC: cache-settings-direnv-and-CNS
         key: ${{ github.workflow }}-${{ github.job }}-direnv-and-CNS-${{ runner.arch }}-${{ runner.os }}
         path: |
           ~/.cache/direnv-and-CNS-hash

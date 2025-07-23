@@ -53,12 +53,15 @@ runs:
       with:
         purge: true
         purge-primary-key: always
-        # SYNC: cache-settings
+        # SYNC: cache-settings-nix
         primary-key: ${{ github.workflow }}-${{ github.job }}-nix-${{ runner.arch }}-${{ runner.os }}
         paths: |
           ~/.cache/gc-roots
     - id: pre-direnv-and-CNS-cache-save
       shell: bash-script {0}
+      env:
+        # SYNC: cache-settings-direnv-and-CNS
+        KEY: ${{ github.workflow }}-${{ github.job }}-direnv-and-CNS-${{ runner.arch }}-${{ runner.os }}
       run: |
         old="$HOME/.cache/direnv-and-CNS-hash"
 
@@ -84,6 +87,11 @@ runs:
           echo 'Old cache did not exist'
         fi
 
+        # actions/cache won't overwrite a cache with the same key so we'll delete it.
+        if [[ -e $old ]]; then
+          gh cache delete "$KEY"
+        fi
+
         cp "$new" "$old"
 
         # We remove these directories, if they grow past a certain threshold, to
@@ -101,6 +109,7 @@ runs:
     - if: steps.pre-direnv-and-CNS-cache-save.outputs.should-save == 'true'
       uses: actions/cache/save@v4
       with:
+        # SYNC: cache-settings-direnv-and-CNS
         key: ${{ github.workflow }}-${{ github.job }}-direnv-and-CNS-${{ runner.arch }}-${{ runner.os }}
         path: |
           ~/.cache/direnv-and-CNS-hash
