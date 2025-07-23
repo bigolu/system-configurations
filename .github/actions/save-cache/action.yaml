@@ -60,6 +60,7 @@ runs:
     - id: pre-direnv-and-CNS-cache-save
       shell: bash-script {0}
       env:
+        GH_TOKEN: ${{ github.token }}
         # SYNC: cache-settings-direnv-and-CNS
         KEY: ${{ github.workflow }}-${{ github.job }}-direnv-and-CNS-${{ runner.arch }}-${{ runner.os }}
       run: |
