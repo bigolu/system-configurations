@@ -26,7 +26,7 @@ runs:
           # There's an issue[1] for automating the creation of the derivation GC root.
           #
           # [1]: https://github.com/NixOS/nix/issues/7561
-          keep-outputs = true
+          # keep-outputs = true
         # By default this is ${{ github.token }}. This is a problem because the token
         # changes every job run and since this token gets put in the nix.conf, it
         # invalidates cached-nix-shell's cache.

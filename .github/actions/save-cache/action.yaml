@@ -39,6 +39,10 @@ runs:
           echo 'Old cache did not exist'
         fi
 
+        cat "$old"
+        echo
+        cat "$new"
+
         cp "$new" "$old"
 
         # Run garbage collection to stop the nix store from growing indefinitely.
