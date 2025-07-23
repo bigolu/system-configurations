@@ -84,6 +84,8 @@ runs:
           echo 'Old cache did not exist'
         fi
 
+        cp "$new" "$old"
+
         # We remove this directory, if it grows past a certain threshold, to prevent
         # it from growing indefinitely. This can happen because on a cache miss, we
         # restore from the most recently used cache entry so we have to avoid
@@ -96,8 +98,6 @@ runs:
           rm -rf "$directory"/*
           touch "$directory/keep"
         fi
-
-        cp "$new" "$old"
     - if: steps.pre-direnv-cache-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
