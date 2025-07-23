@@ -28,11 +28,11 @@ runs:
         echo 'should-save=true' >>"$GITHUB_OUTPUT"
 
         if [[ -e $old ]]; then
-          echo '::group::Store paths diff'
-          echo 'Added paths:'
+          echo '::group::GC roots diff'
+          echo 'Added roots:'
           comm --nocheck-order -13 "$old" "$new"
           echo
-          echo 'Removed paths:'
+          echo 'Removed roots:'
           comm --nocheck-order -23 "$old" "$new"
           echo '::endgroup::'
         else
