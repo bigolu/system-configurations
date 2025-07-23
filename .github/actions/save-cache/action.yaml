@@ -80,8 +80,6 @@ runs:
           exit
         fi
 
-        echo 'should-save=true' >>"$GITHUB_OUTPUT"
-
         if [[ -e $old ]]; then
           printf 'Expected:\n%s\nGot:\n%s\n' "$(<"$old")" "$(<"$new")"
         else
@@ -93,8 +91,6 @@ runs:
           gh cache delete "$KEY"
         fi
 
-        cp "$new" "$old"
-
         # We remove this directory, if it grows past a certain threshold, to prevent
         # it from growing indefinitely. This can happen because on a cache miss, we
         # restore from the most recently used cache entry so we have to avoid
@@ -105,12 +101,18 @@ runs:
         if ((size > max)); then
           echo "Cached directory '$directory' is over $max megabytes, deleting..."
           rm -rf "$directory"
+          echo 'should-save=false' >>"$GITHUB_OUTPUT"
+          exit
         fi
+
+        echo 'should-save=true' >>"$GITHUB_OUTPUT"
+
+        cp "$new" "$old"
     - if: steps.pre-direnv-cache-save.outputs.should-save == 'true'
       uses: actions/cache/save@v4
       with:
         # SYNC: cache-settings-direnv
-        key: ${{ github.workflow }}-${{ github.job }}-direnv-${{ runner.arch }}-${{ runner.os }}
+        key: direnv-${{ runner.os }}
         path: |
           ~/.cache/direnv-hash
           ~/.cache/direnv

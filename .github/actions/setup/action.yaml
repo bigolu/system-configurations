@@ -39,7 +39,7 @@ runs:
     - uses: actions/cache/restore@v4
       with:
         # SYNC: cache-settings-direnv
-        key: ${{ github.workflow }}-${{ github.job }}-direnv-${{ runner.arch }}-${{ runner.os }}
+        key: direnv-${{ runner.os }}
         path: |
           ~/.cache/direnv-hash
           ~/.cache/direnv
