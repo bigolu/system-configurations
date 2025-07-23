@@ -42,15 +42,12 @@ function make_shell_bundle {
       drvPath
   )"
 
-  if ! nix-store --add-root "$gc_root" --keep-going --realise "$derivation"; then
+  if ! nix-store --add-root "$gc_root" --realise "$derivation"; then
     # To learn why this is done, see the comment above the `keep-outputs` setting, in
     # setup/action.yaml.
     nix build --out-link "$gc_root" "$derivation"
     exit 1
   fi
-
-  echo build is complete
-  exit 1
 }
 
 function copy_bundle_into_assets {
