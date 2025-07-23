@@ -139,11 +139,16 @@ function _ndw_add_line_to_nix_config {
 function _ndw_get_dev_shell_store_path {
   local -r profile_prefix="$1"
 
-  local -r profile_rc="$(echo ".direnv/${profile_prefix}-"*.rc)"
-  # Remove extension
-  local -r profile="${profile_rc%.*}"
-  if [[ -e $profile ]]; then
-    realpath "$profile"
+  # Sometimes there can be more than one, but they'll both point to the same store
+  # path.
+  local -ra profile_rcs=(".direnv/${profile_prefix}-"*.rc)
+  if ((${#profile_rcs[@]} > 0)); then
+    local -r profile_rc="${profile_rcs[0]}"
+    # Remove extension
+    local -r profile="${profile_rc%.*}"
+    if [[ -e $profile ]]; then
+      realpath "$profile"
+    fi
   fi
 }
 
