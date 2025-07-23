@@ -30,10 +30,6 @@ runs:
           # We only want the derivations of failed builds. Doing this will save
           # space.
           keep-derivations = false
-        # By default this is ${{ github.token }}. This is a problem because the token
-        # changes every job run and since this token gets put in the nix.conf, it
-        # invalidates cached-nix-shell's cache.
-        github_access_token: ""
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         # SYNC: cache-settings-nix
@@ -42,11 +38,10 @@ runs:
           ~/.cache/gc-roots
     - uses: actions/cache/restore@v4
       with:
-        # SYNC: cache-settings-direnv-and-CNS
-        key: ${{ github.workflow }}-${{ github.job }}-direnv-and-CNS-${{ runner.arch }}-${{ runner.os }}
+        # SYNC: cache-settings-direnv
+        key: ${{ github.workflow }}-${{ github.job }}-direnv-${{ runner.arch }}-${{ runner.os }}
         path: |
-          ~/.cache/direnv-and-CNS-hash
-          ~/.cache/cached-nix-shell
+          ~/.cache/direnv-hash
           ~/.cache/direnv
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}

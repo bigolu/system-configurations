@@ -57,14 +57,14 @@ runs:
         primary-key: ${{ github.workflow }}-${{ github.job }}-nix-${{ runner.arch }}-${{ runner.os }}
         paths: |
           ~/.cache/gc-roots
-    - id: pre-direnv-and-CNS-cache-save
+    - id: pre-direnv-cache-save
       shell: bash-script {0}
       env:
         GH_TOKEN: ${{ github.token }}
-        # SYNC: cache-settings-direnv-and-CNS
-        KEY: ${{ github.workflow }}-${{ github.job }}-direnv-and-CNS-${{ runner.arch }}-${{ runner.os }}
+        # SYNC: cache-settings-direnv
+        KEY: ${{ github.workflow }}-${{ github.job }}-direnv-${{ runner.arch }}-${{ runner.os }}
       run: |
-        old="$HOME/.cache/direnv-and-CNS-hash"
+        old="$HOME/.cache/direnv-hash"
 
         new="$(mktemp)"
         shopt -s globstar
@@ -72,7 +72,7 @@ runs:
         # exit with 1 since it doesn't support them, but we don't want the script to
         # exit when that happens.
         set +o errexit
-        cat ~/.cache/{direnv,cached-nix-shell}/** | sha256sum >"$new"
+        cat ~/.cache/direnv/** | sha256sum >"$new"
         set -o errexit
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
@@ -95,24 +95,22 @@ runs:
 
         cp "$new" "$old"
 
-        # We remove these directories, if they grow past a certain threshold, to
-        # prevent them from growing indefinitely. This can happen because on a cache
-        # miss, we restore from the most recently used cache entry so we have to
-        # avoid accumulating data from old cache entries over time.
-        for directory in ~/.cache/direnv ~/.cache/cached-nix-shell; do
-          size="$(du -m --summarize "$directory" | cut -f1)"
-          max=10
-          if ((size > max)); then
-            echo "Cached directory '$directory' is over $max megabytes, deleting..."
-            rm -rf "$directory"
-          fi
-        done
-    - if: steps.pre-direnv-and-CNS-cache-save.outputs.should-save == 'true'
+        # We remove this directory, if it grows past a certain threshold, to prevent
+        # it from growing indefinitely. This can happen because on a cache miss, we
+        # restore from the most recently used cache entry so we have to avoid
+        # accumulating data from old cache entries over time.
+        directory=~/.cache/direnv
+        size="$(du -m --summarize "$directory" | cut -f1)"
+        max=10
+        if ((size > max)); then
+          echo "Cached directory '$directory' is over $max megabytes, deleting..."
+          rm -rf "$directory"
+        fi
+    - if: steps.pre-direnv-cache-save.outputs.should-save == 'true'
       uses: actions/cache/save@v4
       with:
-        # SYNC: cache-settings-direnv-and-CNS
-        key: ${{ github.workflow }}-${{ github.job }}-direnv-and-CNS-${{ runner.arch }}-${{ runner.os }}
+        # SYNC: cache-settings-direnv
+        key: ${{ github.workflow }}-${{ github.job }}-direnv-${{ runner.arch }}-${{ runner.os }}
         path: |
-          ~/.cache/direnv-and-CNS-hash
-          ~/.cache/cached-nix-shell
+          ~/.cache/direnv-hash
           ~/.cache/direnv
