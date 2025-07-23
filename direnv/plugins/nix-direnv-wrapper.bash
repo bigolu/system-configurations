@@ -9,17 +9,49 @@ source_url \
   'sha256-bn8WANE5a91RusFmRI7kS751ApelG02nMcwRekC/qzc='
 
 function _ndw_create_wrappers {
-  _ndw_original_use_nix_name='use_nix'
-  _ndw_backup "$_ndw_original_use_nix_name"
-  function use_nix {
-    _ndw_wrapper_helper "$_ndw_original_use_nix_name" 'nix-profile' "$@"
-  }
+  local -r use_nix_name='use_nix'
+  _ndw_backup "$use_nix_name"
+  eval "
+    function $use_nix_name {
+      _ndw_wrapper $use_nix_name 'nix-profile' \"\$@\"
+    }
+  "
 
-  _ndw_original_use_flake_name='use_flake'
-  _ndw_backup "$_ndw_original_use_flake_name"
-  function use_flake {
-    _ndw_wrapper_helper "$_ndw_original_use_flake_name" 'flake-profile' "$@"
-  }
+  local -r use_flake_name='use_flake'
+  _ndw_backup "$use_flake_name"
+  eval "
+    function $use_flake_name {
+      _ndw_wrapper $use_flake_name 'flake-profile' \"\$@\"
+    }
+  "
+}
+
+function _ndw_wrapper {
+  local -r original_function_name="$1"
+  local -r profile_prefix="$2"
+  local -ra args=("${@:3}")
+
+  _ndw_load_nix_config_file
+
+  local old_dev_shell
+  old_dev_shell="$(_ndw_get_dev_shell_store_path "$profile_prefix")"
+
+  "_ndw_original_$original_function_name" "${args[@]}"
+
+  local new_dev_shell
+  new_dev_shell="$(_ndw_get_dev_shell_store_path "$profile_prefix")"
+
+  # `old_dev_shell` won't exist the first time this runs
+  if [[ -n $old_dev_shell && ($old_dev_shell != "$new_dev_shell") ]]; then
+    # TODO: fallback to nix store diff-closures if the nix version is high enough
+    if type -P nvd >/dev/null; then
+      nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
+    fi
+  fi
+
+  if [[ $original_function_name == 'use_nix' && ($old_dev_shell != "$new_dev_shell") ]]; then
+    _ndw_make_gc_roots_for_npins
+  fi
 }
 
 function _ndw_make_gc_roots_for_npins {
@@ -54,34 +86,6 @@ function _ndw_make_gc_roots_for_npins {
   # shellcheck disable=2164
   # direnv will enable `set -e`
   popd >/dev/null
-}
-
-function _ndw_wrapper_helper {
-  local -r original_function_name="$1"
-  local -r profile_prefix="$2"
-  local -ra args=("${@:3}")
-
-  _ndw_load_nix_config_file
-
-  local old_dev_shell
-  old_dev_shell="$(_ndw_get_dev_shell_store_path "$profile_prefix")"
-
-  "_ndw_original_$original_function_name" "${args[@]}"
-
-  local new_dev_shell
-  new_dev_shell="$(_ndw_get_dev_shell_store_path "$profile_prefix")"
-
-  # `old_dev_shell` won't exist the first time this runs
-  if [[ -n $old_dev_shell && ($old_dev_shell != "$new_dev_shell") ]]; then
-    # TODO: fallback to nix store diff-closures if the nix version is high enough
-    if type -P nvd >/dev/null; then
-      nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
-    fi
-  fi
-
-  if [[ $original_function_name == 'use_nix' && ($old_dev_shell != "$new_dev_shell") ]]; then
-    _ndw_make_gc_roots_for_npins
-  fi
 }
 
 function _ndw_backup {
