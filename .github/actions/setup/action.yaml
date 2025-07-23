@@ -27,8 +27,8 @@ runs:
           #
           # [1]: https://github.com/NixOS/nix/issues/7561
           keep-outputs = true
-          # We only want the derivations of failed builds. Doing this will save a lot
-          # of space.
+          # We only want the derivations of failed builds. Doing this will save
+          # space.
           keep-derivations = false
         # By default this is ${{ github.token }}. This is a problem because the token
         # changes every job run and since this token gets put in the nix.conf, it
