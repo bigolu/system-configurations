@@ -59,9 +59,6 @@ nixpkgs.callPackage (
           # invalidate its cache if the derivation doesn't exist so we need to make
           # a gc root for it. i tried to use `nix-store --query --deriver $out`,
           # but it didn't work since $out is not a valid store path.
-          #
-          # I have a separate option for the derivation because you may not want to
-          # do this if `keep-outputs` is enabled.
           db="$NIX_STORE/../var/nix/db/db.sqlite"
           nix_shell_derivation_query="
             SELECT ValidPaths.path
