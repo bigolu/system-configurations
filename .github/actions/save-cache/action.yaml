@@ -14,7 +14,7 @@ runs:
           # realpath to exit with a non-zero code if it encounters a broken symlink
           # since that would cause the script to exit.
           set +o errexit
-          realpath --canonicalize-existing /nix/var/nix/gcroots/auto/*
+          realpath --quiet --canonicalize-existing /nix/var/nix/gcroots/auto/*
           set -o errexit
         } |
           # `comm` requires input files to be sorted
