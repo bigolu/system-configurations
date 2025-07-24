@@ -14,9 +14,9 @@ runs:
     - uses: nixbuild/nix-quick-install-action@63ca48f939ee3b8d835f4126562537df0fee5b91 # v32
       with:
         nix_conf: |
-          # Increase the buffer limit to 124MiB since the buffer would often reach
-          # the default limit of 64MiB.
-          download-buffer-size = 134217728
+          # Increase the buffer limit to 2GiB since the buffer would often reach the
+          # default limit of 64MiB.
+          download-buffer-size = 2147483648
           show-trace = true
           # This way, if we fail to build something, we can make its derivation a GC
           # root so the derivation's dependencies, i.e. build dependencies, don't get
