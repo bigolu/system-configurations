@@ -23,9 +23,9 @@ runs:
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
           exit
+        else
+          echo 'should-save=true' >>"$GITHUB_OUTPUT"
         fi
-
-        echo 'should-save=true' >>"$GITHUB_OUTPUT"
 
         if [[ -e $old ]]; then
           echo '::group::GC roots diff'
@@ -42,8 +42,6 @@ runs:
           echo 'Old cache did not exist'
         fi
 
-        cp "$new" "$old"
-
         # Run garbage collection to stop the nix store from growing indefinitely.
         # This can happen because on a cache miss, we restore from the most recently
         # used cache entry so we have to avoid accumulating data from old cache
@@ -51,6 +49,8 @@ runs:
         echo '::group::Garbage collection logs'
         nix-collect-garbage --delete-old
         echo '::endgroup::'
+
+        cp "$new" "$old"
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
@@ -63,52 +63,37 @@ runs:
     - id: pre-direnv-cache-save
       shell: bash-script {0}
       run: |
-        old="$HOME/.cache/direnv-hash"
+        old="$HOME/.cache/direnv-files"
 
         new="$(mktemp)"
         shopt -s globstar
-        # The glob may include directories and broken symlinks and `cat` will
-        # exit with 1 since it doesn't support them, but we don't want the script to
-        # exit when that happens.
-        set +o errexit
-        cat ~/.cache/direnv/** | sha256sum >"$new"
-        set -o errexit
+        # If the home directory changes, that shouldn't affect the cache.
+        realpath --relative-to="$HOME/.cache/direnv" ~/.cache/direnv/** >"$new"
 
-        if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
-          echo 'should-save=false' >>"$GITHUB_OUTPUT"
-          exit
-        fi
-
-        echo 'should-save=true' >>"$GITHUB_OUTPUT"
-
-        if [[ -e $old ]]; then
-          printf 'Expected:\n%s\nGot:\n%s\n' "$(<"$old")" "$(<"$new")"
-        else
+        if [[ ! -e $old ]]; then
           echo 'Old cache did not exist'
+          echo 'should-save=true' >>"$GITHUB_OUTPUT"
+          echo 'should-purge=true' >>"$GITHUB_OUTPUT"
+          cp "$new" "$old"
+        elif [[ $(<"$old") != $(<"$new") ]]; then
+          printf 'Expected:\n%s\nGot:\n%s\n' "$(<"$old")" "$(<"$new")"
+          # Since we can't run garbage collection as we do with the nix store, we
+          # purge the cache instead. This is to prevent it from growing indefinitely.
+          # This can happen because on a cache miss, we restore from the most
+          # recently used cache entry so we have to avoid accumulating data from old
+          # cache entries over time.
+          echo 'should-purge=true' >>"$GITHUB_OUTPUT"
+          echo 'should-save=false' >>"$GITHUB_OUTPUT"
         fi
-
-        cp "$new" "$old"
-
-        # We remove this directory, if it grows past a certain threshold, to prevent
-        # it from growing indefinitely. This can happen because on a cache miss, we
-        # restore from the most recently used cache entry so we have to avoid
-        # accumulating data from old cache entries over time.
-        directory=~/.cache/direnv
-        size="$(du -m --summarize "$directory" | cut -f1)"
-        max=10
-        if ((size > max)); then
-          echo "Cached directory '$directory' is over $max megabytes, clearing..."
-          rm -rf "$directory"/*
-          touch "$directory/keep"
-        fi
-    - if: steps.pre-direnv-cache-save.outputs.should-save == 'true'
+    - if: steps.pre-direnv-cache-save.outputs.should-save == 'true' || steps.pre-direnv-cache-save.outputs.should-purge == 'true'
       uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
-        purge: true
+        save: ${{ steps.pre-direnv-cache-save.outputs.should-save }}
+        purge: ${{ steps.pre-direnv-cache-save.outputs.should-purge }}
         purge-primary-key: always
         # SYNC: cache-settings-direnv
         nix: false
         primary-key: direnv-${{ runner.os }}
         paths: |
-          ~/.cache/direnv-hash
+          ~/.cache/direnv-files
           ~/.cache/direnv

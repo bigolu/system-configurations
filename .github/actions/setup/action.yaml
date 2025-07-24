@@ -37,7 +37,7 @@ runs:
         nix: false
         primary-key: direnv-${{ runner.os }}
         paths: |
-          ~/.cache/direnv-hash
+          ~/.cache/direnv-files
           ~/.cache/direnv
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}
