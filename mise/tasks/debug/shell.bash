@@ -13,7 +13,7 @@ shopt -s inherit_errexit
 if [[ ${usage_bundle:-} == 'true' ]]; then
   shell="$(
     nix build --impure --no-link --print-out-paths \
-      --expr 'with (import ./.); bundlers.rootless packages.shell'
+      --expr 'with (import ./. {}); bundlers.rootless packages.shell'
   )"
 else
   shell_directory="$(nix build --print-out-paths --no-link --file . packages.shell)/bin"

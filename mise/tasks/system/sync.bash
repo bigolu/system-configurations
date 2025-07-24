@@ -19,6 +19,6 @@ if [[ $OSTYPE == linux* ]]; then
     "$(nix build --no-link --print-out-paths --file . "homeConfigurations.$config.activationPackage")/activate"
 else
   temp="$(mktemp --suffix '.nix')"
-  echo "(import $PWD).darwinConfigurations.$config" >"$temp"
+  echo "(import $PWD {}).darwinConfigurations.$config" >"$temp"
   sudo darwin-rebuild switch -I "darwin=$temp"
 fi |& nom

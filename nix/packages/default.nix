@@ -4,7 +4,7 @@
 # access them more easily and override packages.
 
 let
-  inherit ((import ../..).context)
+  inherit ((import ../.. { }).context)
     inputs
     outputs
     packages

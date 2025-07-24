@@ -38,7 +38,7 @@ function make_shell_bundle {
   derivation="$(
     nix eval \
       --impure --raw \
-      --expr 'with (import ./.); bundlers.rootless packages.shell' \
+      --expr 'with (import ./. {}); bundlers.rootless packages.shell' \
       drvPath
   )"
 

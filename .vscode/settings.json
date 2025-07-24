@@ -25,10 +25,10 @@
       },
       "options": {
         "comp_2": {
-          "expr": "(import ./.).darwinConfigurations.comp_2.options"
+          "expr": "(import ./. {}).darwinConfigurations.comp_2.options"
         },
         "comp_1": {
-          "expr": "(import ./.).homeConfigurations.comp_1.options",
+          "expr": "(import ./. {}).homeConfigurations.comp_1.options",
         },
       },
     },

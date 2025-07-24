@@ -15,7 +15,7 @@ commit="$(
       (
         builtins.match
           ".*nixpkgs-[^.]+\.[^.]+\.([^.]+)/nixexprs.*"
-          (import ./.).context.inputs.nixpkgs.url
+          (import ./. {}).context.inputs.nixpkgs.url
       )
   '
 )"
