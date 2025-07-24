@@ -34,6 +34,9 @@ runs:
           echo
           echo 'Removed roots:'
           comm --nocheck-order -23 "$old" "$new"
+          echo
+          echo 'All new roots:'
+          cat "$new"
           echo '::endgroup::'
         else
           echo 'Old cache did not exist'
