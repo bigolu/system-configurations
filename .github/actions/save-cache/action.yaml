@@ -63,6 +63,7 @@ runs:
     - id: pre-direnv-cache-save
       shell: bash-script {0}
       run: |
+        touch ~/.cache/direnv/anewthing
         old="$HOME/.cache/direnv-files"
 
         new="$(mktemp)"
