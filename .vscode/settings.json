@@ -55,4 +55,6 @@
   "debugpy.debugJustMyCode": false,
 
   "Lua.misc.executablePath": "lua-language-server",
+
+  "fish-lsp.useGlobalExecutable": true,
 }

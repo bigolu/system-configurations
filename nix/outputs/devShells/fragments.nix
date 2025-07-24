@@ -282,11 +282,14 @@ rec {
       packages = with packages; [
         # For "jnoortheen.nix-ide"
         nixd
-        # These are for "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and
-        # pkill
+
+        # For "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and pkill
         bash
         coreutils
         partialPackages.pkill
+
+        # For ndonfris.fish-lsp
+        fish-lsp
       ];
       # For "ms-python.python". Link python to a stable location so I don't
       # have to update "python.defaultInterpreterPath" in settings.json when the nix
