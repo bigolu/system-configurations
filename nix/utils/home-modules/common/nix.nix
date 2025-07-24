@@ -175,9 +175,9 @@ in
 
       cores = 0;
 
-      # Increase the buffer limit to 1GiB since the buffer would often reach the
+      # Increase the buffer limit to 5GiB since the buffer would often reach the
       # default limit of 64MiB.
-      download-buffer-size = 1073741824;
+      download-buffer-size = 5368709120;
 
       max-jobs = "auto";
 
