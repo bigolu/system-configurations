@@ -25,7 +25,7 @@
 #         };
 #       };
 #       context;
-#       checksForCurrentPlatform; (optional)
+#       checksForCurrentPlatform;
 #     }
 #
 # Arguments:
