@@ -10,8 +10,8 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
-        with:
-          nix-dev-shell: ci-renovate
+        env:
+          NIX_DEV_SHELL: ci-renovate
       - uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2
         id: bot-token
         with:
