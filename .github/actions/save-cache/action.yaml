@@ -82,6 +82,11 @@ runs:
           # This can happen because on a cache miss, we restore from the most
           # recently used cache entry so we have to avoid accumulating data from old
           # cache entries over time.
+          #
+          # Note that since we restore from the most recently used cache, `new` will
+          # only be different than `old` if we start using a new direnv plugin, but
+          # not if we stop using one since direnv won't remove plugins that we don't
+          # use.
           echo 'should-purge=true' >>"$GITHUB_OUTPUT"
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
         fi
