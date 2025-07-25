@@ -1,4 +1,4 @@
-name: Make a Release
+name: Release
 on:
   workflow_dispatch:
 defaults:
@@ -26,7 +26,7 @@ jobs:
           path: ${{ steps.make-assets.outputs.asset-directory }}
       - if: always()
         uses: ./.github/actions/save-cache
-  make-release:
+  release:
     needs: make-assets
     runs-on: ubuntu-24.04
     steps:
@@ -38,9 +38,9 @@ jobs:
           merge-multiple: true
           # The destination
           path: assets
-      - name: Make the Release
+      - name: Release
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        run: mise run ci:make-release
+        run: mise run ci:release
       - if: always()
         uses: ./.github/actions/save-cache
