@@ -57,7 +57,7 @@ runs:
         purge: true
         purge-primary-key: always
         # SYNC: cache-settings-nix
-        primary-key: ${{ github.workflow }}-${{ github.job }}-nix-${{ runner.arch }}-${{ runner.os }}
+        primary-key: nix-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}
         paths: |
           ~/.cache/gc-roots
     - id: pre-direnv-cache-save
