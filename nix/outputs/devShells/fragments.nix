@@ -27,6 +27,7 @@ let
     mkShellNoCC
     linkFarm
     mkGoEnv
+    dumpNixShellShebang
     ;
   inherit (packages.stdenv) isLinux;
 in
@@ -252,7 +253,7 @@ rec {
   miseTasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (map packages.dumpNixShellShebang)
+    (map dumpNixShellShebang)
     concatLists
     # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
     # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.
