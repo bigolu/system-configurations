@@ -23,8 +23,8 @@ function main {
   local report_path
   report_path="$(mktemp --directory)/report"
 
-  # lychee exits with 2 if it finds broken links, but I don't want this script to
-  # exit if that happens.
+  # lychee exits with 2 if it finds broken links, but the script shouldn't exit if
+  # that happens.
   set +o errexit
   lychee --format markdown --output "$report_path" "${files[@]}"
   local -r lychee_exit_code=$?
