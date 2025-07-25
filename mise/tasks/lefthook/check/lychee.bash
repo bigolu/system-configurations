@@ -3,6 +3,12 @@
 #! nix-shell --packages nix-shell-interpreter gh lychee coreutils
 #MISE hide=true
 
+# TODO: Lychee's built-in file globbing didn't work for me. When I used
+# `--dump-inputs` to see what files it would run on, I got the correct list, but when
+# I actually ran it, it would run on a different set of files. I should look into
+# this and possibly file an issue. Until this is fixed, I'm using this script which
+# will get called by lefthook since lefthook can handle file globbing.
+
 set -o errexit
 set -o nounset
 set -o pipefail
