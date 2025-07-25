@@ -65,7 +65,7 @@ makeShells {
   # automatically.
   ci-essentials = { };
 
-  ci-check-for-broken-links = {
+  ci-lychee = {
     inputsFrom = [ fragments.lefthook ];
     shellHook = ''
       export LEFTHOOK_ENABLE_LYCHEE='true'

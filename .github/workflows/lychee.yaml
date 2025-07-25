@@ -1,4 +1,4 @@
-name: Check for Broken Links
+name: Lychee
 on:
   workflow_dispatch:
   schedule:
@@ -15,13 +15,13 @@ defaults:
   run:
     shell: bash-script {0}
 jobs:
-  check-for-broken-links:
+  lychee:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: ./.github/actions/setup
         env:
-          NIX_DEV_SHELL: ci-check-for-broken-links
+          NIX_DEV_SHELL: ci-lychee
       - name: Run lychee
         env:
           # To avoid being rate-limited by GitHub
