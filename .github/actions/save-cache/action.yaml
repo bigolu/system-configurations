@@ -26,7 +26,7 @@ runs:
         du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
         cat "$new"
         rm -rf ~/.cache/nix
-        rm -rf ~root/.cache/nix
+        sudo rm -rf ~root/.cache/nix
         readarray -t x <"$new"
         for a in "${x[@]}"; do
           printf "$a: "
