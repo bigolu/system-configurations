@@ -22,7 +22,7 @@ runs:
 
         du --dereference --human-readable --summarize --apparent-size ~/.cache/nix/*
         du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
-        cat "$old"
+        cat "$new"
         trash ~/.cache/nix
         trash ~root/.cache/nix
 
