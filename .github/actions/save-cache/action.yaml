@@ -6,10 +6,11 @@ runs:
     - id: pre-nix-cache-save
       shell: bash-script {0}
       run: |
+        old="$HOME/.cache/gc-roots"
+
         du --dereference --human-readable --summarize --apparent-size ~/.cache/nix
         du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix
-
-        old="$HOME/.cache/gc-roots"
+        cat "$old"
 
         new="$(mktemp)"
         {
