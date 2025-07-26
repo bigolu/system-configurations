@@ -31,10 +31,6 @@ runs:
         primary-key: nix-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}
         paths: |
           ~/.cache/gc-roots
-    - shell: bash
-      run: |
-        ls -R ~/.cache/direnv || true
-        rm -rf ~/.cache || true
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         # SYNC: cache-settings-direnv
@@ -43,8 +39,6 @@ runs:
         paths: |
           ~/.cache/direnv-files
           ~/.cache/direnv
-    - shell: bash
-      run: ls -R ~/.cache/direnv
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}
       run: |
