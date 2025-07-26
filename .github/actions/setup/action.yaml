@@ -29,7 +29,7 @@ runs:
       with:
         # SYNC: cache-settings-nix-last-key
         nix: false
-        primary-key: nix-last-key-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}
+        primary-key: nix-last-key-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-${{ github.ref_name }}
         paths: |
           ~/.cache/nix-last-key
     - id: nix-last-key
