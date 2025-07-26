@@ -30,7 +30,7 @@ runs:
         readarray -t x <"$new"
         for a in "${x[@]}"; do
           printf "$a: "
-          numfmt --to=iec-i --suffix=B --format="%9.2f" -- "$(nix path-info --closure-size "$a")"
+          numfmt --to=iec-i --suffix=B --format="%9.2f" -- "$(nix path-info --closure-size "$a" | cut -f2)"
         done
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
