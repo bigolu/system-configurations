@@ -20,11 +20,18 @@ runs:
           # `comm` requires input files to be sorted
           sort >"$new"
 
+        echo user:
         du --dereference --human-readable --summarize --apparent-size ~/.cache/nix/*
+        echo root:
         du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
         cat "$new"
         rm -rf ~/.cache/nix
         rm -rf ~root/.cache/nix
+        readarray -t x <"$new"
+        for a in "${x[@]}"; do
+          printf "$a: "
+          numfmt --to=iec-i --suffix=B --format="%9.2f" -- "$(nix path-info --closure-size "$a")"
+        done
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
