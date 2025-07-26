@@ -8,10 +8,6 @@ runs:
       run: |
         old="$HOME/.cache/gc-roots"
 
-        du --dereference --human-readable --summarize --apparent-size ~/.cache/nix
-        du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix
-        cat "$old"
-
         new="$(mktemp)"
         {
           # We only want extant symlink destinations to be printed, but we don't want
@@ -23,6 +19,12 @@ runs:
         } |
           # `comm` requires input files to be sorted
           sort >"$new"
+
+        du --dereference --human-readable --summarize --apparent-size ~/.cache/nix/*
+        du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
+        cat "$old"
+        trash ~/.cache/nix
+        trash ~root/.cache/nix
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
