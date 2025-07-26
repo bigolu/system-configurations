@@ -225,6 +225,7 @@ rec {
       # where new virtual machines are created for each run, they'll just accumulate.
       if [[ ''${CI:-} == 'true' ]] && [[ ''${CI_DEBUG:-} != 'true' ]]; then
         export NIX_SHEBANG_GC_ROOTS_DIR="$(mktemp --directory)"
+        export NIX_SHEBANG_GC_ROOTS_INCLUDE_DRV='true'
       fi
     '';
   };
