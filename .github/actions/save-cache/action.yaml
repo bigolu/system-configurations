@@ -23,8 +23,8 @@ runs:
         du --dereference --human-readable --summarize --apparent-size ~/.cache/nix/*
         du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
         cat "$new"
-        trash ~/.cache/nix
-        trash ~root/.cache/nix
+        rm -rf ~/.cache/nix
+        rm -rf ~root/.cache/nix
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
