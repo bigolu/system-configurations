@@ -23,7 +23,7 @@ runs:
         echo user:
         du --dereference --human-readable --summarize --apparent-size ~/.cache/nix/*
         echo root:
-        du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
+        sudo du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
         cat "$new"
         rm -rf ~/.cache/nix
         sudo rm -rf ~root/.cache/nix
