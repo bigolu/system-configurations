@@ -30,10 +30,6 @@ runs:
         # SYNC: cache-settings-nix
         primary-key: nix-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}
         paths: |
-          # These are cached by default
-          !~/.cache/nix
-          !~root/.cache/nix
-
           ~/.cache/gc-roots
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
