@@ -32,6 +32,8 @@ runs:
           printf "$a: "
           numfmt --to=iec-i --suffix=B --format="%9.2f" -- "$(nix path-info --closure-size "$a" | cut -f2)"
         done
+        echo requisites:
+        nix-store --query --requisites /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
