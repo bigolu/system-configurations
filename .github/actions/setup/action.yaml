@@ -43,7 +43,7 @@ runs:
       shell: nix run --file nix/packages bash-script -- {0}
       run: |
         direnv_wrapper="$(
-          nix build --print-out-paths --file nix/packages direnv-wrapper
+          nix build --no-link --print-out-paths --file nix/packages direnv-wrapper
         )/bin/direnv-wrapper"
 
         "$direnv_wrapper" direnv.bash export gha >> "$GITHUB_ENV"
