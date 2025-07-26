@@ -20,21 +20,6 @@ runs:
           # `comm` requires input files to be sorted
           sort >"$new"
 
-        echo user:
-        du --dereference --human-readable --summarize --apparent-size ~/.cache/nix/*
-        echo root:
-        sudo du --dereference --human-readable --summarize --apparent-size ~root/.cache/nix/*
-        cat "$new"
-        rm -rf ~/.cache/nix
-        sudo rm -rf ~root/.cache/nix
-        readarray -t x <"$new"
-        for a in "${x[@]}"; do
-          printf "$a: "
-          numfmt --to=iec-i --suffix=B --format="%9.2f" -- "$(nix path-info --closure-size "$a" | cut -f2)"
-        done
-        echo requisites:
-        nix-store --query --requisites /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment
-
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
           echo 'should-save=false' >>"$GITHUB_OUTPUT"
           exit
@@ -49,13 +34,14 @@ runs:
           echo
           echo 'Removed roots:'
           comm --nocheck-order -23 "$old" "$new"
-          echo
-          echo 'All new roots:'
-          cat "$new"
           echo '::endgroup::'
         else
           echo 'Old cache did not exist'
         fi
+
+        echo '::group::All new roots'
+        cat "$new"
+        echo '::endgroup::'
 
         # Run garbage collection to stop the nix store from growing indefinitely.
         # This can happen because on a cache miss, we restore from the most recently
@@ -64,6 +50,18 @@ runs:
         echo '::group::Garbage collection logs'
         nix-collect-garbage --delete-old
         echo '::endgroup::'
+
+        # Delete these directories for the same reason as above.
+        #
+        # TODO: I don't even want to cache these directories in the first place,
+        # they're added by default by cache-nix-action. I tried to remove them by
+        # adding `!<path>` the `paths` inputs, but it didn't work which I think is
+        # because of this issue[1]. On one of my workflows, these directories were
+        # ~200 MB so removing them saves a lot of space.
+        #
+        # [1]: https://github.com/actions/toolkit/issues/713
+        rm -rf ~/.cache/nix
+        sudo rm -rf ~root/.cache/nix
 
         cp "$new" "$old"
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
