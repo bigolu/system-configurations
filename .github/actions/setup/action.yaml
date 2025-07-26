@@ -41,14 +41,6 @@ runs:
         primary-key: nix-${{ steps.nix-last-key.outputs.key }}
         paths: |
           ~/.cache/gc-roots
-    - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
-      with:
-        # SYNC: cache-settings-direnv
-        nix: false
-        primary-key: direnv-${{ runner.os }}
-        paths: |
-          ~/.cache/direnv-files
-          ~/.cache/direnv
     - name: Load the direnv Environment
       shell: nix run --file nix/packages bash-script -- {0}
       run: |
