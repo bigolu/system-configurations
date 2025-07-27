@@ -67,10 +67,20 @@ runs:
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
-        purge: true
-        purge-primary-key: always
         # SYNC: cache-settings-nix
-        primary-key: nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}
+        #
+        # GitHub doesn't let you overwrite a cache, but this action lets you delete a
+        # cache with the primary key before saving one, effectively letting you
+        # overwrite a cache. The problem with this is that in between deleting the
+        # old cache and saving the new one, there will be no cache available to
+        # restore from. Instead, we add a suffix to the key that will always be
+        # unique: run_{id,number,attempt}. After saving the new cache, we delete all
+        # old caches.
+        primary-key: nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-${{ github.run_id }}-${{ github.run_number }}-${{ github.run_attempt }}
+        purge: true
+        purge-primary-key: "never"
+        purge-prefixes: |
+          nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-
         paths: |
           ~/.cache/gc-roots
     - id: pre-direnv-cache-save
