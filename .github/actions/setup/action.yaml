@@ -31,7 +31,7 @@ runs:
         #
         # We don't know what suffix the key will have so we'll never get a primary
         # key match.
-        primary-key: null
+        primary-key: will-not-match
         restore-prefixes-first-match: nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-
         paths: |
           ~/.cache/gc-roots
