@@ -65,24 +65,24 @@ runs:
 
         cp "$new" "$old"
 
-        key="$(sha256sum "$new" | cut --delimiter ' ' -f1)"
-        echo "$key" >~/.cache/nix-last-key
+        key="nix-$(sha256sum "$new" | cut --delimiter ' ' -f1)"
+        echo "$key" >~/.cache/nix-key
         echo "key=$key" >>"$GITHUB_OUTPUT"
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         purge: true
         purge-primary-key: always
-        # SYNC: cache-settings-nix-last-key
+        # SYNC: cache-settings-nix-key
         nix: false
-        primary-key: nix-last-key-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-${{ github.ref_name }}
+        primary-key: nix-key-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}
         paths: |
-          ~/.cache/nix-last-key
+          ~/.cache/nix-key
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         # SYNC: cache-settings-nix
-        primary-key: nix-${{ steps.pre-nix-cache-save.outputs.key }}
+        primary-key: ${{ steps.pre-nix-cache-save.outputs.key }}
         paths: |
           ~/.cache/gc-roots
     - id: pre-direnv-cache-save

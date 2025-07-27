@@ -27,18 +27,18 @@ runs:
           keep-derivations = false
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
-        # SYNC: cache-settings-nix-last-key
+        # SYNC: cache-settings-nix-key
         nix: false
-        primary-key: nix-last-key-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-${{ github.ref_name }}
+        primary-key: nix-key-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}
         paths: |
-          ~/.cache/nix-last-key
-    - id: nix-last-key
+          ~/.cache/nix-key
+    - id: nix-key
       shell: bash
-      run: echo "key=$(cat ~/.cache/nix-last-key || echo null)" >>"$GITHUB_OUTPUT"
+      run: echo "key=$(cat ~/.cache/nix-key || echo null)" >>"$GITHUB_OUTPUT"
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
         # SYNC: cache-settings-nix
-        primary-key: nix-${{ steps.nix-last-key.outputs.key }}
+        primary-key: ${{ steps.nix-key.outputs.key }}
         paths: |
           ~/.cache/gc-roots
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
