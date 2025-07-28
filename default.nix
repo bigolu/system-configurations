@@ -6,11 +6,11 @@ in
   # it as a parameter.
   system ? builtins.currentSystem,
 
-  # It's recommended to override this pin for two reasons[1]:
+  # It's recommended to override this for two reasons[1]:
   #   - The nixpkgs repo is about 200 MB so multiple checkouts would take up a lot
   #     of space.
   #   - It takes about a second to evaluate nixpkgs i.e. `import <nixpkgs> {}`.
-  #     For this reason, unlike other pins, we take an already-evaluated nixpkgs
+  #     For this reason, unlike other inputs, we take an already-evaluated nixpkgs
   #     instead of the source code.
   #
   # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
