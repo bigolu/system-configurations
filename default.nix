@@ -1,12 +1,7 @@
+let
+  flakeInputs = (import ./nix/flake-compat.nix).inputs;
+in
 {
-  # This shouldn't be overridden, it's only here because of a mutual dependency with
-  # nixpkgs.
-  pins ?
-    builtins.mapAttrs
-      # Use derivation-based fetchers from nixpkgs for all pins except nixpkgs channels.
-      (_name: pin: if pin.type == "Channel" then pin else pin { pkgs = nixpkgs; })
-      (import ./npins),
-
   # In flake pure evaluation mode, the current system can't be accessed so we'll take
   # it as a parameter.
   system ? builtins.currentSystem,
@@ -19,11 +14,18 @@
   #     instead of the source code.
   #
   # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-  nixpkgs ? import pins.nixpkgs { inherit system; },
+  nixpkgs ? flakeInputs.nixpkgs.legacyPackages.${system},
 
-  gomod2nix ? pins.gomod2nix,
-  gitignore ? pins.gitignore,
+  gomod2nix ? flakeInputs.gomod2nix,
+  gitignore ? flakeInputs.gitignore,
 }:
+let
+  pins =
+    builtins.mapAttrs
+      # Use derivation-based fetchers from nixpkgs for all pins.
+      (_name: pin: pin { pkgs = nixpkgs; })
+      (import ./npins);
+in
 import ./nix/make-outputs.nix {
   root = ./nix/outputs;
   inherit (nixpkgs) lib;
@@ -65,7 +67,7 @@ import ./nix/make-outputs.nix {
             ;
         });
       };
-      nixpkgs = pins.nixpkgs // {
+      nixpkgs = flakeInputs.nixpkgs // {
         outputs = nixpkgs;
       };
       nix-darwin = pins.nix-darwin // {
@@ -78,7 +80,7 @@ import ./nix/make-outputs.nix {
                 self:
                 flake.outputs {
                   inherit self;
-                  nixpkgs = pins.nixpkgs // {
+                  nixpkgs = flakeInputs.nixpkgs // {
                     inherit (nixpkgs) lib;
                   };
                 }

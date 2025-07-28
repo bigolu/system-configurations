@@ -51,12 +51,15 @@ function _ndw_wrapper {
 
   if [[ $original_function_name == 'use_nix' && ($old_dev_shell != "$new_dev_shell") ]]; then
     _ndw_make_gc_roots_for_npins
+    _ndw_make_gc_roots_for_flake
   fi
 }
 
 function _ndw_make_gc_roots_for_npins {
   local -r npins_directory="${NPINS_DIRECTORY:-$PWD/npins}"
-  if [[ ! -d $npins_directory ]]; then
+  if
+    [[ ! -d $npins_directory || ${NIX_DIRENV_DISABLE_NPINS_GC_ROOTS:-} == 'true' ]]
+  then
     return
   fi
 
@@ -79,10 +82,41 @@ function _ndw_make_gc_roots_for_npins {
   local -a pins
   readarray -t pins <<<"$pins_string"
 
+  _ndw_make_gc_roots "$directory" "${pins[@]}"
+}
+
+function _ndw_make_gc_roots_for_flake {
+  local -r directory="${direnv_layout_dir:-.direnv}/flake-input-gc-roots"
+  if [[ -d $directory ]]; then
+    # Remove old GC roots
+    rm -rf "$directory"
+  fi
+  mkdir -p "$directory"
+
+  local -a inputs=()
+  local flake_json
+  flake_json=$(
+    nix flake archive \
+      --json --no-write-lock-file \
+      -- .#
+  )
+  while [[ $flake_json =~ /nix/store/[^\"]+ ]]; do
+    local store_path="${BASH_REMATCH[0]}"
+    inputs+=("$store_path")
+    flake_json="${flake_json/${store_path}/}"
+  done
+
+  _ndw_make_gc_roots "$directory" "${inputs[@]}"
+}
+
+function _ndw_make_gc_roots {
+  local -r directory="$1"
+  local -r store_paths=("${@:2}")
+
   # shellcheck disable=2164
   # direnv will enable `set -e`
   pushd "$directory" >/dev/null
-  nix build "${pins[@]}"
+  nix build "${store_paths[@]}"
   # shellcheck disable=2164
   # direnv will enable `set -e`
   popd >/dev/null

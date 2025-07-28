@@ -1,6 +1,22 @@
-# This is only used for bundlers since the nix CLI only accepts a flakeref for
-# `--bundler`.
 {
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+
+    flake-compat.url = "git+https://git.lix.systems/lix-project/flake-compat";
+
+    gomod2nix = {
+      url = "github:nix-community/gomod2nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    gitignore = {
+      url = "github:hercules-ci/gitignore.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  # This is only used for bundlers since the nix CLI only accepts a flakeref for
+  # `--bundler`.
   outputs =
     _:
     let

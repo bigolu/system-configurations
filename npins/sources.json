@@ -23,32 +23,6 @@
       "url": "https://github.com/acomagu/fish-async-prompt/archive/316aa03c875b58e7c7f7d3bc9a78175aa47dbaa8.tar.gz",
       "hash": "sha256-J7y3BjqwuEH4zDQe4cWylLn+Vn2Q5pv0XwOSPwhw/Z0="
     },
-    "gitignore": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "hercules-ci",
-        "repo": "gitignore.nix"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "637db329424fd7e46cf4185293b9cc8c88c95394",
-      "url": "https://github.com/hercules-ci/gitignore.nix/archive/637db329424fd7e46cf4185293b9cc8c88c95394.tar.gz",
-      "hash": "sha256-HG2cCnktfHsKV0s4XW83gU3F57gaTljL9KNSuG6bnQs="
-    },
-    "gomod2nix": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "nix-community",
-        "repo": "gomod2nix"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "be828766411cad04c194c8f714d46aa2b2596362",
-      "url": "https://github.com/nix-community/gomod2nix/archive/be828766411cad04c194c8f714d46aa2b2596362.tar.gz",
-      "hash": "sha256-MaaWYgN/nia7xJcOYLBtPk+cFo7X2zEM1d9xIGPQrLU="
-    },
     "home-manager": {
       "type": "Git",
       "repository": {
@@ -129,12 +103,6 @@
       "revision": "839e02dece5845be3a322e507a79712b73a96ba2",
       "url": "https://github.com/nix-community/nix-index-database/archive/839e02dece5845be3a322e507a79712b73a96ba2.tar.gz",
       "hash": "sha256-FMH1OSSJp8Cx8MZHXz6KckxJGbCnVMotZNAH3v2WneU="
-    },
-    "nixpkgs": {
-      "type": "Channel",
-      "name": "nixpkgs-unstable",
-      "url": "https://releases.nixos.org/nixpkgs/nixpkgs-25.11pre827262.be9e214982e2/nixexprs.tar.xz",
-      "hash": "sha256-lUi+sPH7Kuh9uP3PyfgbENcJGReUM8Ffk9GxGBFbSN8="
     },
     "npins": {
       "type": "Git",

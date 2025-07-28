@@ -13,6 +13,7 @@ dotenv_if_exists secrets.env
 source direnv/plugins/nix-direnv-wrapper.bash
 if [[ ${CI:-} == 'true' ]]; then
   default='ci-essentials'
+  export NIX_DIRENV_DISABLE_NPINS_GC_ROOTS='true'
 else
   default='development'
 fi

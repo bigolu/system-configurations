@@ -140,6 +140,8 @@ sync:
         # - If the version of any program that gets called here changes
         - nix/**
         - npins/**
+        - flake.nix
+        - flake.lock
         - gozip/**
 
         # If this configuration changes
@@ -166,6 +168,8 @@ sync:
         # - If the version of any program that gets called here changes
         - nix/**
         - npins/**
+        - flake.nix
+        - flake.lock
 
         # If this configuration changes
         - lefthook.yaml
@@ -193,6 +197,8 @@ sync:
         # - If the version of any program that gets called here changes
         - nix/**
         - npins/**
+        - flake.nix
+        - flake.lock
 
         # If this configuration changes
         - lefthook.yaml
@@ -262,7 +268,10 @@ check:
                   glob: README.md
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
-                  glob: npins/**
+                  glob:
+                    - npins/**
+                    - flake.nix
+                    - flake.lock
                   run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
                 - name: readme-config-names
                   glob: "*.nix"
@@ -270,7 +279,10 @@ check:
                     - "npins/**"
                   run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
                 - name: readme-nixpkgs-commit
-                  glob: npins/**
+                  glob:
+                    - npins/**
+                    - flake.nix
+                    - flake.lock
                   run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
                 - name: gomod2nix
                   glob: gozip/go.mod
@@ -324,6 +336,9 @@ check:
                   glob: "*.go"
                   root: "gozip/"
                   run: "{run_fix} golangci-lint run --fix"
+                - name: flake-lock
+                  glob: flake.nix
+                  run: "{run_fix} nix flake lock"
 
                 # Formatters
                 # -------------------------------------------------------------------
@@ -468,6 +483,7 @@ check:
                   exclude:
                     - lychee.toml
                     - npins/**
+                    - flake.lock
                   run: |
                     {exit_if_no_files} {files}
                     mise run lefthook:check:lychee {files}
@@ -475,6 +491,8 @@ check:
                   glob:
                     - "*.nix"
                     - npins/**
+                    - flake.nix
+                    - flake.lock
                   run: nix config check
           - name: nix-outputs
             # Why `interactive` is enabled:
@@ -486,6 +504,8 @@ check:
             interactive: true
             glob:
               - npins/**
+              - flake.nix
+              - flake.lock
               - nix/*
               - default.nix
               - dotfiles/**
