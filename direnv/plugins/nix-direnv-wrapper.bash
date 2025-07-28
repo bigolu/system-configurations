@@ -2,6 +2,8 @@
 #   - Automatically load a nix config file
 #   - Show a diff of the dev shell when it changes
 #   - Create GC roots for npins
+#   - Create GC roots for flake inputs when `use_nix` is used, with support for
+#     flake-compat
 
 # renovate: nix-direnv
 source_url \
@@ -26,6 +28,16 @@ function _ndw_create_wrappers {
   "
 }
 
+function _ndw_backup {
+  local -r function_name="$1"
+
+  local original_function
+  original_function="$(declare -f "$function_name")"
+  # Remove the first line, which contains the function name
+  local -r original_function_without_name="${original_function#*$'\n'}"
+  eval "_ndw_original_${function_name}()"$'\n'"$original_function_without_name"
+}
+
 function _ndw_wrapper {
   local -r original_function_name="$1"
   local -r profile_prefix="$2"
@@ -41,17 +53,19 @@ function _ndw_wrapper {
   local new_dev_shell
   new_dev_shell="$(_ndw_get_dev_shell_store_path "$profile_prefix")"
 
-  # `old_dev_shell` won't exist the first time this runs
-  if [[ -n $old_dev_shell && ($old_dev_shell != "$new_dev_shell") ]]; then
-    # TODO: fallback to nix store diff-closures if the nix version is high enough
-    if type -P nvd >/dev/null; then
-      nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
-    fi
-  fi
-
-  if [[ $original_function_name == 'use_nix' && ($old_dev_shell != "$new_dev_shell") ]]; then
+  if [[ $old_dev_shell != "$new_dev_shell" ]]; then
     _ndw_make_gc_roots_for_npins
-    _ndw_make_gc_roots_for_flake
+    if [[ $original_function_name == 'use_nix' ]]; then
+      _ndw_make_gc_roots_for_flake
+    fi
+
+    # `old_dev_shell` won't exist the first time this runs
+    if [[ -n $old_dev_shell ]]; then
+      # TODO: fallback to nix store diff-closures if the nix version is high enough
+      if type -P nvd >/dev/null; then
+        nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
+      fi
+    fi
   fi
 }
 
@@ -145,16 +159,6 @@ function _ndw_make_gc_roots {
   # shellcheck disable=2164
   # direnv will enable `set -e`
   popd >/dev/null
-}
-
-function _ndw_backup {
-  local -r function_name="$1"
-
-  local original_function
-  original_function="$(declare -f "$function_name")"
-  # Remove the first line, which contains the function name
-  local -r original_function_without_name="${original_function#*$'\n'}"
-  eval "_ndw_original_${function_name}()"$'\n'"$original_function_without_name"
 }
 
 # TODO: This wouldn't be necessary if nix supported project/directory-specific config
