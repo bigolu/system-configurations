@@ -42,9 +42,6 @@ let
 in
 makeShells {
   development = {
-    packages = with packages; [
-      npins
-    ];
     inputsFrom = with fragments; [
       direnv
       gozip
@@ -56,6 +53,9 @@ makeShells {
       miseTasks
       vsCode
     ];
+    packages = with packages; [
+      npins
+    ];
     shellHook = ''
       export RUN_FIX_ACTIONS='fail'
     '';
@@ -64,13 +64,6 @@ makeShells {
   # The attrset is empty since the CI essentials will be added to all CI shells
   # automatically.
   ci-essentials = { };
-
-  ci-lychee = {
-    inputsFrom = [ fragments.lefthook ];
-    shellHook = ''
-      export LEFTHOOK_ENABLE_LYCHEE='true'
-    '';
-  };
 
   ci-renovate = {
     packages = with packages; [

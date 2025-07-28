@@ -3,12 +3,6 @@
 #! nix-shell --packages nix-shell-interpreter gh lychee coreutils
 #MISE hide=true
 
-# TODO: Lychee's built-in file globbing didn't work for me. When I used
-# `--dump-inputs` to see what files it would run on, I got the correct list, but when
-# I actually ran it, it would run on a different set of files. I should look into
-# this and possibly file an issue. Until this is fixed, I'm using this script which
-# will get called by lefthook since lefthook can handle file globbing.
-
 set -o errexit
 set -o nounset
 set -o pipefail
@@ -18,25 +12,55 @@ shopt -s inherit_errexit
 issue_title='Link Checker Report'
 
 function main {
-  local -ra files=("$@")
-
   local report
-  report="$(mktemp --directory)/report"
+  report="$(mktemp)"
 
-  # lychee exits with 2 if it finds broken links, but the script shouldn't exit if
-  # that happens.
-  set +o errexit
-  lychee --format markdown --output "$report" "${files[@]}"
-  local -r lychee_exit_code=$?
-  set -o errexit
+  local lychee_exit_codes_file
+  lychee_exit_codes_file="$(mktemp)"
 
-  if ((lychee_exit_code == 0)); then
-    close_issue
-  elif ((lychee_exit_code == 2)); then
+  # TODO: Lychee's built-in file globbing didn't work for me. When I used
+  # `--dump-inputs` to see what files it would run on, I got the correct list, but
+  # when I actually ran it, it would run on a different set of files. I should look
+  # into this and possibly file an issue. Until this is fixed, I'll use fd.
+  #
+  # shellcheck disable=2016
+  fd \
+    --hidden --type file \
+    --exclude .git \
+    --exclude gozip/gomod2nix.toml \
+    --exclude '.vscode/ltex*' \
+    --exclude 'dotfiles/keyboard/US keyboard - no accent keys.bundle/*' \
+    --exclude dotfiles/cosmic/config \
+    --exclude docs \
+    --exclude lychee.toml \
+    --exclude 'npins/*' \
+    --exclude flake.lock \
+    --exec-batch bash -c '
+      lychee --format markdown "${@:3}" >>"$1"
+      echo $? >>"$2"
+    ' "$report" "$lychee_exit_codes_file"
+
+  local did_fail
+  local found_broken_link
+  local -a lychee_exit_codes
+  readarray -t lychee_exit_codes <"$lychee_exit_codes_file"
+  for code in "${lychee_exit_codes[@]}"; do
+    if ((code != 0 && code != 2)); then
+      did_fail='true'
+    elif ((code == 2)); then
+      found_broken_link='true'
+    fi
+  done
+
+  if [[ $did_fail == 'true' ]]; then
+    echo 'exit codes:' "${lychee_exit_codes[@]}"
+    exit 1
+  elif [[ $found_broken_link == 'true' ]]; then
     add_workflow_url "$report"
     open_issue "$report"
   else
-    exit $lychee_exit_code
+    # All calls were successful
+    close_issue
   fi
 }
 
