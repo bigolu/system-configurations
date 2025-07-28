@@ -63,8 +63,6 @@ function _ndw_make_gc_roots_for_npins {
     return
   fi
 
-  local -r directory="${direnv_layout_dir:-.direnv}/npins-gc-roots"
-
   local pins_string
   pins_string="$(
     NPINS_DIRECTORY="$npins_directory" nix eval --impure --raw --expr '
@@ -81,12 +79,10 @@ function _ndw_make_gc_roots_for_npins {
   local -a pins
   readarray -t pins <<<"$pins_string"
 
-  _ndw_make_gc_roots "$directory" "${pins[@]}"
+  _ndw_make_gc_roots 'npins-gc-roots' "${pins[@]}"
 }
 
 function _ndw_make_gc_roots_for_flake {
-  local -r directory="${direnv_layout_dir:-.direnv}/flake-input-gc-roots"
-
   local -a inputs=()
   if [[ -n ${NIX_DIRENV_FLAKE_COMPAT:-} ]]; then
     local inputs_string
@@ -129,11 +125,11 @@ function _ndw_make_gc_roots_for_flake {
     done
   fi
 
-  _ndw_make_gc_roots "$directory" "${inputs[@]}"
+  _ndw_make_gc_roots 'flake-input-gc-roots' "${inputs[@]}"
 }
 
 function _ndw_make_gc_roots {
-  local -r directory="$1"
+  local -r directory="${direnv_layout_dir:-.direnv}/$1"
   local -r store_paths=("${@:2}")
 
   if [[ -d $directory ]]; then
