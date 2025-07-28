@@ -60,8 +60,15 @@ runs:
         # ~200 MB so removing them saves a lot of space.
         #
         # [1]: https://github.com/actions/toolkit/issues/713
-        rm -rf ~/.cache/nix
         sudo rm -rf ~root/.cache/nix
+        # Keep the fetcher cache to speed up `nix flake archive` on a cache hit
+        paths_to_delete=()
+        for path in ~/.cache/nix/*; do
+          if [[ ! $path =~ fetcher-cache* ]]; then
+            paths_to_delete+=("$path")
+          fi
+        done
+        rm -rf "${paths_to_delete[@]}"
 
         cp "$new" "$old"
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
