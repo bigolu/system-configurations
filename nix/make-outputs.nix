@@ -38,9 +38,6 @@
 #     gets called with itself. This is useful if some of the parts of the context
 #     depend on other parts of it. The outputs attrset will automatically be
 #     added to this set so outputs can refer to each other. The system will also be added.
-#   checksAttrPath (list[string]):
-#     The list of keys, or path, for the attrset within the outputs attrset that
-#     contains your checks. If this isn't empty,
 #   system (string):
 #     In flake pure evaluation mode, the current system can't be accessed so this
 #     needs to be passed in.
