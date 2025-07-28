@@ -88,6 +88,10 @@ runs:
         purge-primary-key: "never"
         purge-prefixes: |
           nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-
+        # TODO: Cache entries are only purged if I add these two inputs, but they
+        # shouldn't be necessary. I should open an issue.
+        purge-created: 0
+        purge-last-accessed: 0
         paths: |
           ~/.cache/gc-roots
     - id: pre-direnv-cache-save
