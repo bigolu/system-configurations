@@ -40,8 +40,8 @@ function main {
       echo $? >>"$2"
     ' -- "$report" "$lychee_exit_codes_file"
 
-  local did_fail
-  local found_broken_link
+  local did_fail='false'
+  local found_broken_link='false'
   local -a lychee_exit_codes
   readarray -t lychee_exit_codes <"$lychee_exit_codes_file"
   for code in "${lychee_exit_codes[@]}"; do
