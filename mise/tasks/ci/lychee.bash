@@ -38,7 +38,7 @@ function main {
     --exec-batch bash -c '
       lychee --format markdown "${@:3}" >>"$1"
       echo $? >>"$2"
-    ' "$report" "$lychee_exit_codes_file"
+    ' -- "$report" "$lychee_exit_codes_file"
 
   local did_fail
   local found_broken_link
