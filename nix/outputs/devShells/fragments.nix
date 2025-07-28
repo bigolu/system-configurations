@@ -148,15 +148,14 @@ rec {
     in
     mkShellNoCC {
       inputsFrom = [
-        # Runs the checks
         lefthook
-        # This is needed for generating task documentation
+        lua-language-server
+        # For generating task documentation
         mise
         # For `gofmt`, `go mod tidy`, `gopls`, and `golangci-lint`
         gozip
-        # This is needed for running mypy
+        # For running mypy
         speakerctl
-        lua-language-server
       ];
       packages = with packages; [
         actionlint
@@ -190,14 +189,13 @@ rec {
         stylua
         taplo
         typos
+        nix-output-monitor
       ];
     };
 
   lefthookSyncHook = mkShellNoCC {
-    # Runs the sync jobs
     inputsFrom = [ lefthook ];
     packages = with packages; [
-      # These get called in the lefthook config
       chase
       nix-output-monitor
     ];

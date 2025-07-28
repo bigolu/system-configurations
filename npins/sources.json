@@ -23,19 +23,6 @@
       "url": "https://github.com/acomagu/fish-async-prompt/archive/316aa03c875b58e7c7f7d3bc9a78175aa47dbaa8.tar.gz",
       "hash": "sha256-J7y3BjqwuEH4zDQe4cWylLn+Vn2Q5pv0XwOSPwhw/Z0="
     },
-    "home-manager": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "nix-community",
-        "repo": "home-manager"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "1e54837569e0b80797c47be4720fab19e0db1616",
-      "url": "https://github.com/nix-community/home-manager/archive/1e54837569e0b80797c47be4720fab19e0db1616.tar.gz",
-      "hash": "sha256-4kaR+xmng9YPASckfvIgl5flF/1nAZOplM+Wp9I5SMI="
-    },
     "keyd": {
       "type": "Git",
       "repository": {
@@ -48,74 +35,6 @@
       "revision": "19135668c20d3fa8c2a906d09e78c94003aae1cd",
       "url": "https://github.com/rvaiya/keyd/archive/19135668c20d3fa8c2a906d09e78c94003aae1cd.tar.gz",
       "hash": "sha256-ljp58wsKm2Ebb2mK9xf71nlrbckEkqMQHzVakQStFiM="
-    },
-    "nix-darwin": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "nix-darwin",
-        "repo": "nix-darwin"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "e04a388232d9a6ba56967ce5b53a8a6f713cdfcf",
-      "url": "https://github.com/nix-darwin/nix-darwin/archive/e04a388232d9a6ba56967ce5b53a8a6f713cdfcf.tar.gz",
-      "hash": "sha256-HsJM3XLa43WpG+665aGEh8iS8AfEwOIQWk3Mke3e7nk="
-    },
-    "nix-flatpak": {
-      "type": "GitRelease",
-      "repository": {
-        "type": "GitHub",
-        "owner": "gmodena",
-        "repo": "nix-flatpak"
-      },
-      "pre_releases": false,
-      "version_upper_bound": null,
-      "release_prefix": null,
-      "submodules": false,
-      "version": "v0.6.0",
-      "revision": "5e54c3ca05a7c7d968ae1ddeabe01d2a9bc1e177",
-      "url": "https://api.github.com/repos/gmodena/nix-flatpak/tarball/refs/tags/v0.6.0",
-      "hash": "sha256-iAVVHi7X3kWORftY+LVbRiStRnQEob2TULWyjMS6dWg="
-    },
-    "nix-gl-host": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "numtide",
-        "repo": "nix-gl-host"
-      },
-      "branch": "main",
-      "submodules": false,
-      "revision": "5269b233f83880a0b433eafe026f0bc0d8f1a4a9",
-      "url": "https://github.com/numtide/nix-gl-host/archive/5269b233f83880a0b433eafe026f0bc0d8f1a4a9.tar.gz",
-      "hash": "sha256-QZCKJoypcwgS3tDNSWMjlxEBZtOYPW3eXV24rMzKsac="
-    },
-    "nix-index-database": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "nix-community",
-        "repo": "nix-index-database"
-      },
-      "branch": "main",
-      "submodules": false,
-      "revision": "839e02dece5845be3a322e507a79712b73a96ba2",
-      "url": "https://github.com/nix-community/nix-index-database/archive/839e02dece5845be3a322e507a79712b73a96ba2.tar.gz",
-      "hash": "sha256-FMH1OSSJp8Cx8MZHXz6KckxJGbCnVMotZNAH3v2WneU="
-    },
-    "npins": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "andir",
-        "repo": "npins"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "afa9fe50cb0bff9ba7e9f7796892f71722b2180d",
-      "url": "https://github.com/andir/npins/archive/afa9fe50cb0bff9ba7e9f7796892f71722b2180d.tar.gz",
-      "hash": "sha256-D6dYAMk9eYpBriE07s8Q7M3WBT7uM9pz3RKIoNk+h7I="
     },
     "spoons": {
       "type": "Git",

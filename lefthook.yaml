@@ -494,4 +494,4 @@ check:
               - nix/*
               - dotfiles/*
               - gozip/*
-            run: nix build --no-link --file . checksForCurrentPlatform
+            run: nix build --no-link --file . checksForCurrentPlatform 2>&1 | nom
