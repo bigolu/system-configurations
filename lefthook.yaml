@@ -130,19 +130,19 @@ sync:
       #     package.
       interactive: true
       glob:
-        - direnv/**
+        - direnv/*
 
         # - So task dependencies can be reloaded into the dev shell.
         # - If the task we run in the `run` command changes
-        - mise/tasks/**
+        - mise/tasks/*
 
         # - These affect nix-direnv
         # - If the version of any program that gets called here changes
-        - nix/**
-        - npins/**
+        - nix/*
+        - npins/*
         - flake.nix
         - flake.lock
-        - gozip/**
+        - gozip/*
 
         # If this configuration changes
         - lefthook.yaml
@@ -161,13 +161,13 @@ sync:
         '
     - name: system
       glob:
-        - smart_plug/**
-        - dotfiles/**
+        - smart_plug/*
+        - dotfiles/*
 
         # - These affect the system configuration
         # - If the version of any program that gets called here changes
-        - nix/**
-        - npins/**
+        - nix/*
+        - npins/*
         - flake.nix
         - flake.lock
 
@@ -195,8 +195,8 @@ sync:
         - dotfiles/fish/conf.d/*.fish
 
         # - If the version of any program that gets called here changes
-        - nix/**
-        - npins/**
+        - nix/*
+        - npins/*
         - flake.nix
         - flake.lock
 
@@ -228,9 +228,9 @@ check:
     - exclude:
         - gozip/gomod2nix.toml
         - ".vscode/ltex*"
-        - dotfiles/keyboard/US keyboard - no accent keys.bundle/**
-        - dotfiles/cosmic/config/**
-        - docs/**
+        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
+        - dotfiles/cosmic/config/*
+        - docs/*
       group:
         # Enabling `piped` is useful for the scenario where there are issues found by
         # fast checks, but not slow ones. Without `piped`, you would run all the
@@ -269,18 +269,18 @@ check:
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
                   glob:
-                    - npins/**
+                    - npins/*
                     - flake.nix
                     - flake.lock
                   run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
                 - name: readme-config-names
                   glob: "*.nix"
                   exclude:
-                    - "npins/**"
+                    - npins/*
                   run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
                 - name: readme-nixpkgs-commit
                   glob:
-                    - npins/**
+                    - npins/*
                     - flake.nix
                     - flake.lock
                   run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
@@ -309,7 +309,7 @@ check:
                 - name: deadnix
                   glob: "*.nix"
                   exclude:
-                    - "npins/**"
+                    - npins/*
                   run: "{run_fix} deadnix --quiet --edit {files}"
                 - name: ruff
                   glob: "*.py"
@@ -317,7 +317,7 @@ check:
                 - name: statix
                   glob: "*.nix"
                   exclude:
-                    - "npins/**"
+                    - npins/*
                     # I want to ignore a fix in this file, but statix doesn't support
                     # ignoring fixes with comments[1] so I'll skip the whole file.
                     #
@@ -353,7 +353,7 @@ check:
                   exclude:
                     # Don't format these since VS Code will
                     - ".vscode/*.json"
-                    - "npins/**"
+                    - npins/*
                   run: "{run_fix} chronic prettier --write {files}"
                 - name: shfmt
                   glob: "*.{sh,bash}"
@@ -364,7 +364,7 @@ check:
                 - name: nixfmt
                   glob: "*.nix"
                   exclude:
-                    - "npins/**"
+                    - npins/*
                   # --verify confirms that the formatted code parses the same as the
                   # input code.
                   run: "{run_fix} nixfmt --verify {files}"
@@ -420,7 +420,7 @@ check:
                 - name: statix
                   glob: "*.nix"
                   exclude:
-                    - "npins/**"
+                    - npins/*
                     # I want to ignore a fix in this file, but statix doesn't support
                     # ignoring fixes with comments[1] so I'll skip the whole file.
                     #
@@ -432,7 +432,7 @@ check:
                 - name: nixpkgs-lint
                   glob: "*.nix"
                   exclude:
-                    - "npins/**"
+                    - npins/*
                   run: nixpkgs-lint --include-unfinished-lints -- {files}
                 - name: typos
                   run: |
@@ -456,7 +456,7 @@ check:
                   exclude:
                     # These aren't actually JSON files they're JSONC
                     - ".vscode/*.json"
-                    - "npins/**"
+                    - npins/*
                   run: chronic validator -groupby pass-fail {files}
                 - name: renovate-config-validator
                   glob:
@@ -482,7 +482,7 @@ check:
                     - run: '[ "$LEFTHOOK_ENABLE_LYCHEE" = true ]'
                   exclude:
                     - lychee.toml
-                    - npins/**
+                    - npins/*
                     - flake.lock
                   run: |
                     {exit_if_no_files} {files}
@@ -490,7 +490,7 @@ check:
                 - name: nix-config
                   glob:
                     - "*.nix"
-                    - npins/**
+                    - npins/*
                     - flake.nix
                     - flake.lock
                   run: nix config check
@@ -503,11 +503,10 @@ check:
             #     rebuild the package.
             interactive: true
             glob:
-              - npins/**
-              - flake.nix
+              - "*.nix"
               - flake.lock
+              - npins/*
               - nix/*
-              - default.nix
-              - dotfiles/**
+              - dotfiles/*
               - gozip/*
             run: nix build --no-link --file . checksForCurrentPlatform
