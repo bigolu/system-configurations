@@ -64,20 +64,19 @@ function _ndw_make_gc_roots_for_npins {
   fi
 
   local -r directory="${direnv_layout_dir:-.direnv}/npins-gc-roots"
-  if [[ -d $directory ]]; then
-    # Remove old GC roots
-    rm -rf "$directory"
-  fi
-  mkdir -p "$directory"
 
   local pins_string
   pins_string="$(
-    nix eval --impure --raw --expr "
+    NPINS_DIRECTORY="$npins_directory" nix eval --impure --raw --expr '
       with builtins;
       concatStringsSep
-        \"\n\"
-        (map (i: i.outPath) (attrValues (removeAttrs (import $npins_directory) [\"__functor\"])))
-    "
+        "\n"
+        (
+          catAttrs
+          "outPath"
+          (attrValues (removeAttrs (import (getEnv "NPINS_DIRECTORY")) ["__functor"]))
+        )
+    '
   )"
   local -a pins
   readarray -t pins <<<"$pins_string"
@@ -87,24 +86,48 @@ function _ndw_make_gc_roots_for_npins {
 
 function _ndw_make_gc_roots_for_flake {
   local -r directory="${direnv_layout_dir:-.direnv}/flake-input-gc-roots"
-  if [[ -d $directory ]]; then
-    # Remove old GC roots
-    rm -rf "$directory"
-  fi
-  mkdir -p "$directory"
 
   local -a inputs=()
-  local flake_json
-  flake_json=$(
-    nix flake archive \
-      --json --no-write-lock-file \
-      -- .#
-  )
-  while [[ $flake_json =~ /nix/store/[^\"]+ ]]; do
-    local store_path="${BASH_REMATCH[0]}"
-    inputs+=("$store_path")
-    flake_json="${flake_json/${store_path}/}"
-  done
+  if [[ -n ${NIX_DIRENV_FLAKE_COMPAT:-} ]]; then
+    local inputs_string
+    inputs_string="$(
+      nix eval --impure --raw --expr '
+        with builtins;
+        let
+          inputsRecursive =
+            inputs:
+            let
+              inputsAsList = attrValues inputs;
+              inputLists =
+                [ inputsAsList ]
+                ++ (map (input: inputsRecursive input.inputs) inputsAsList);
+              flatten = foldl'\'' (acc: next: acc ++ next) [];
+            in
+            flatten inputLists;
+
+          unique = foldl'\'' (acc: e: if elem e acc then acc else acc ++ [ e ]) [ ];
+
+          inputs = inputsRecursive (import (getEnv "NIX_DIRENV_FLAKE_COMPAT")).inputs;
+          outPaths = catAttrs "outPath" inputs;
+          uniqueOutPaths = unique outPaths;
+        in
+        concatStringsSep "\n" uniqueOutPaths
+      '
+    )"
+    readarray -t inputs <<<"$inputs_string"
+  else
+    local flake_json
+    flake_json=$(
+      nix flake archive \
+        --json --no-write-lock-file \
+        -- .#
+    )
+    while [[ $flake_json =~ /nix/store/[^\"]+ ]]; do
+      local store_path="${BASH_REMATCH[0]}"
+      inputs+=("$store_path")
+      flake_json="${flake_json/${store_path}/}"
+    done
+  fi
 
   _ndw_make_gc_roots "$directory" "${inputs[@]}"
 }
@@ -112,6 +135,12 @@ function _ndw_make_gc_roots_for_flake {
 function _ndw_make_gc_roots {
   local -r directory="$1"
   local -r store_paths=("${@:2}")
+
+  if [[ -d $directory ]]; then
+    # Remove old GC roots
+    rm -rf "$directory"
+  fi
+  mkdir -p "$directory"
 
   # shellcheck disable=2164
   # direnv will enable `set -e`
