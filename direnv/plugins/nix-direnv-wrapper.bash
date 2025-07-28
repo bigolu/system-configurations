@@ -11,19 +11,17 @@ source_url \
   'sha256-bn8WANE5a91RusFmRI7kS751ApelG02nMcwRekC/qzc='
 
 function _ndw_create_wrappers {
-  local -r use_nix_name='use_nix'
-  _ndw_backup "$use_nix_name"
-  eval "
-    function $use_nix_name {
-      _ndw_wrapper $use_nix_name 'nix-profile' \"\$@\"
-    }
-  "
+  _ndw_create_wrapper 'use_nix'
+  _ndw_create_wrapper 'use_flake'
+}
 
-  local -r use_flake_name='use_flake'
-  _ndw_backup "$use_flake_name"
+function _ndw_create_wrapper {
+  local -r function_name="$1"
+
+  _ndw_backup "$function_name"
   eval "
-    function $use_flake_name {
-      _ndw_wrapper $use_flake_name 'flake-profile' \"\$@\"
+    function $function_name {
+      _ndw_wrapper $function_name \"\$@\"
     }
   "
 }
@@ -40,10 +38,17 @@ function _ndw_backup {
 
 function _ndw_wrapper {
   local -r original_function_name="$1"
-  local -r profile_prefix="$2"
-  local -ra args=("${@:3}")
+  local -ra args=("${@:2}")
 
   _ndw_load_nix_config_file
+
+  local profile_prefix
+  if [[ $original_function_name == 'use_nix' ]]; then
+    profile_prefix='nix'
+  else
+    profile_prefix='flake'
+  fi
+  profile_prefix="${profile_prefix}-profile"
 
   local old_dev_shell
   old_dev_shell="$(_ndw_get_dev_shell_store_path "$profile_prefix")"
