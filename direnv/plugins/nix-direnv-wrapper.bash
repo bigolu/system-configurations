@@ -200,7 +200,7 @@ function _ndw_get_dev_shell_store_path {
 
   # Sometimes there can be more than one, but they'll both point to the same store
   # path.
-  local -ra profile_rcs=(".direnv/${profile_prefix}-"*.rc)
+  local -ra profile_rcs=("${direnv_layout_dir:-.direnv}/${profile_prefix}-"*.rc)
   if ((${#profile_rcs[@]} > 0)); then
     local -r profile_rc="${profile_rcs[0]}"
     # Remove extension
