@@ -110,7 +110,8 @@ function _ndw_make_gc_roots_for_flake {
               inputsAsList = attrValues inputs;
               inputLists =
                 [ inputsAsList ]
-                ++ (map (input: inputsRecursive input.inputs) inputsAsList);
+                # Inputs with "flake = false" will not have inputs
+                ++ (map (input: inputsRecursive (input.inputs or {})) inputsAsList);
               flatten = foldl'\'' (acc: next: acc ++ next) [];
             in
             flatten inputLists;
