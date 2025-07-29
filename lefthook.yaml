@@ -146,7 +146,7 @@ sync:
 
         # If this configuration changes
         - lefthook.yaml
-      run: direnv-reload 2>&1 | nom
+      run: bash -ceuo pipefail 'direnv-reload 2>&1 | nom'
 
     - name: lefthook
       only:
@@ -494,4 +494,4 @@ check:
               - nix/*
               - dotfiles/*
               - gozip/*
-            run: nix build --no-link --file . checksForCurrentPlatform 2>&1 | nom
+            run: bash -ceuo pipefail 'nix build --no-link --file . checksForCurrentPlatform 2>&1 | nom'

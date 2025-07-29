@@ -1,9 +1,9 @@
 # This function returns a map of dev shells that each represent a piece of a full dev
 # shell. This has the following advantages:
-#   - Fragments can be shared between full dev shells. For example, you can
-#     create one fragment with all the dependencies for checks (linters, formatters,
-#     etc.) and include that fragment in both the development and CI dev shells. This
-#     way, they can stay in sync.
+#   - Fragments can be shared between full dev shells. For example, you can create
+#     one fragment with all the dependencies for checks (linters, formatters, etc.)
+#     and include that fragment in both the development and CI dev shells. This way,
+#     they can stay in sync.
 #   - Makes it easier to tell what each dependency is being used for since
 #     dependencies belong to narrowly-scoped fragments, instead of one big dev shell.
 #   - Makes it easier to provide alternate dev shells without certain fragments. For
@@ -190,6 +190,7 @@ rec {
         taplo
         typos
         nix-output-monitor
+        bash
       ];
     };
 
@@ -198,6 +199,7 @@ rec {
     packages = with packages; [
       chase
       nix-output-monitor
+      bash
     ];
   };
 
