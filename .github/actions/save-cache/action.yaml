@@ -17,7 +17,8 @@ runs:
           realpath --quiet --canonicalize-existing /nix/var/nix/gcroots/auto/*
           set -o errexit
         } |
-          # `comm` requires input files to be sorted
+          # `comm` requires input files to be sorted. They also need to be sorted
+          # before comparing old to new.
           sort >"$new"
 
         if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
