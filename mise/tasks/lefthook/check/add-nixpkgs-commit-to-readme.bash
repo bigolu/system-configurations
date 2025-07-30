@@ -9,10 +9,8 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-commit="$(nix eval --raw --file nix/flake-compat.nix 'inputs.nixpkgs.rev')"
-perl -wsi \
-  -pe '$count += s{(nixpkgs/)[^\s]{40}( )}{$1$commit$2};' \
-  -e 'END { die "failed to substitute" if $count != 1 }' \
-  -- \
-  -commit="$commit" \
-  README.md
+commit="$(nix eval --raw --file nix/flake-compat.nix inputs.nixpkgs.rev)"
+perl -wsi -pe '
+  $count += s{(nixpkgs/)[^\s]{40}( )}{$1$commit$2};
+  END { die "failed to substitute" if $count != 1 }
+' -- -commit="$commit" README.md

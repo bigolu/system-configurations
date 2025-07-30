@@ -13,16 +13,16 @@ configs="$(
   nix eval \
     --file . context.outputs \
     --apply '
-      outputs: builtins.concatStringsSep
-        "|"
-        (builtins.attrNames (outputs.homeConfigurations // outputs.darwinConfigurations))
+      outputs:
+        with builtins;
+        concatStringsSep
+          "|"
+          (attrNames (outputs.homeConfigurations // outputs.darwinConfigurations))
     ' \
     --raw
 )"
 
-perl -wsi \
-  -pe '$count += s{(replace `|system:init )(<).*?(>)}{$1$2$configs$3};' \
-  -e 'END { die "failed to substitute" if $count != 2 }' \
-  -- \
-  -configs="$configs" \
-  README.md
+perl -wsi -pe '
+  $count += s{(replace `|system:init )(<).*?(>)}{$1$2$configs$3};
+  END { die "failed to substitute" if $count != 2 }
+' -- -configs="$configs" README.md
