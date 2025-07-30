@@ -191,7 +191,7 @@ end
 -- }}}
 
 -- surround {{{
-local open_braces = {
+local open_chars = {
   ["["] = "]",
   ["("] = ")",
   ["<"] = ">",
@@ -201,17 +201,15 @@ local open_braces = {
   ["_"] = "_",
   ["*"] = "*",
 }
-local close_braces = {
-  ["]"] = "[",
-  [")"] = "(",
-  [">"] = "<",
-  ["}"] = "{",
-}
+local close_chars = {}
+for key, value in pairs(open_chars) do
+  close_chars[value] = key
+end
 local function get_braces(char)
-  if open_braces[char] then
-    return { char, open_braces[char] }
-  elseif close_braces[char] then
-    return { close_braces[char], char }
+  if open_chars[char] then
+    return { char, open_chars[char] }
+  elseif close_chars[char] then
+    return { close_chars[char], char }
   else
     return nil
   end
