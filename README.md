@@ -29,7 +29,7 @@ people who want to manage their systems similarly.
    ```bash
    curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
      sh -s -- install \
-     --nix-package-url "https://releases.nixos.org/nix/nix-2.28.4/nix-2.28.4-$(uname -ms | tr ' [:upper:]' '-[:lower:]').tar.xz" \
+     --nix-package-url "https://releases.nixos.org/nix/nix-2.28.4/nix-2.28.4-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
      --extra-conf "extra-trusted-users = $(whoami)" \
      --no-confirm
    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
