@@ -203,7 +203,9 @@ local open_chars = {
 }
 local close_chars = {}
 for key, value in pairs(open_chars) do
-  close_chars[value] = key
+  if key ~= value then
+    close_chars[value] = key
+  end
 end
 local function get_braces(char)
   if open_chars[char] then
