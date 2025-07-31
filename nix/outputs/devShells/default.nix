@@ -44,6 +44,7 @@ makeShells {
   development = {
     inputsFrom = with fragments; [
       direnv
+      flakeCompat
       gozip
       speakerctl
       lefthookCheckHook

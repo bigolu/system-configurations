@@ -89,7 +89,14 @@ rec {
       };
     in
     mkShellNoCC {
-      inputsFrom = [ mise ] ++ optionals isLinux [ locale ];
+      inputsFrom =
+        [
+          mise
+          flakeCompat
+        ]
+        ++ optionals isLinux [
+          locale
+        ];
       packages = with packages; [
         # For the `run` steps in CI workflows/actions
         bash-script
@@ -97,13 +104,19 @@ rec {
         coreutils
         # For the setup action
         direnv-wrapper
-        # For flake-compat
-        git
       ];
     };
 
   direnv = mkShellNoCC {
     packages = [ packages.nvd ];
+  };
+
+  flakeCompat = mkShellNoCC {
+    packages = with packages; [
+      # flake-compat uses `builtins.fetchGit` which depends on git
+      # https://github.com/NixOS/nix/issues/3533
+      git
+    ];
   };
 
   gozip = mkShellNoCC {
