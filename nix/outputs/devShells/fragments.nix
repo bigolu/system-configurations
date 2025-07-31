@@ -97,6 +97,8 @@ rec {
         coreutils
         # For the setup action
         direnv-wrapper
+        # For flake-compat
+        git
       ];
     };
 
