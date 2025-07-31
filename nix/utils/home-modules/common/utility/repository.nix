@@ -20,7 +20,6 @@ let
     mkOption
     hasPrefix
     removePrefix
-    flatten
     sublist
     concatStringsSep
     nameValuePair
@@ -42,6 +41,7 @@ let
     readFile
     hasAttr
     unsafeDiscardStringContext
+    concatLists
     ;
   inherit (utils) applyIf;
   inherit (pkgs) writeScript;
@@ -324,7 +324,7 @@ in
           ];
           missingFileSourcesJoined = pipe fileSets [
             (map attrValues)
-            flatten
+            concatLists
             (map (file: file.source))
             (filter (source: !(fileSourceExists source)))
             (concatStringsSep " ")
