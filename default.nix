@@ -39,60 +39,43 @@ import ./nix/make-outputs.nix {
     utils = import ./nix/utils self;
     packages = import ./nix/packages;
 
-    # Our inputs and their outputs, with any overrides applied
-    inputs =
-      pins
-      // flakeInputs
-      // {
-        gitignore = gitignore // {
-          outputs = import gitignore { inherit (nixpkgs) lib; };
-        };
-        home-manager = flakeInputs.home-manager // {
-          outputs = (import flakeInputs.home-manager { pkgs = nixpkgs; }) // {
-            nix-darwin = "${flakeInputs.home-manager}/nix-darwin";
-          };
-        };
-        nix-gl-host = flakeInputs.nix-gl-host // {
-          outputs = import flakeInputs.nix-gl-host { pkgs = nixpkgs; };
-        };
-        # TODO: Use the npins in nixpkgs once it has this commit:
-        # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
-        npins = flakeInputs.npins // {
-          outputs = import flakeInputs.npins { pkgs = nixpkgs; };
-        };
-        gomod2nix = gomod2nix // {
-          outputs = nixpkgs.lib.makeScope nixpkgs.newScope (self: {
-            gomod2nix = self.callPackage gomod2nix.outPath { };
-            inherit (self.callPackage "${gomod2nix}/builder" { inherit (self) gomod2nix; })
-              buildGoApplication
-              mkGoEnv
-              mkVendorEnv
-              ;
-          });
-        };
-        nixpkgs = flakeInputs.nixpkgs // {
-          outputs = nixpkgs;
-        };
-        nix-darwin = flakeInputs.nix-darwin // {
-          outputs = (import flakeInputs.nix-darwin { pkgs = nixpkgs; }) // {
-            darwinSystem = nixpkgs.lib.pipe "${flakeInputs.nix-darwin}/flake.nix" [
-              import
-              (
-                flake:
-                nixpkgs.lib.fix (
-                  self:
-                  flake.outputs {
-                    inherit self;
-                    nixpkgs = flakeInputs.nixpkgs // {
-                      inherit (nixpkgs) lib;
-                    };
-                  }
-                )
-              )
-              (outputs: outputs.lib.darwinSystem)
-            ];
-          };
-        };
+    # Our inputs, with any overrides applied, and their outputs
+    inputs = nixpkgs.lib.recursiveUpdate (pins // flakeInputs // { inherit gitignore gomod2nix; }) {
+      nixpkgs.outputs = nixpkgs;
+      gitignore.outputs = import gitignore { inherit (nixpkgs) lib; };
+      nix-gl-host.outputs = import flakeInputs.nix-gl-host { pkgs = nixpkgs; };
+      # TODO: Use the npins in nixpkgs once it has this commit:
+      # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
+      npins.outputs = import flakeInputs.npins { pkgs = nixpkgs; };
+      home-manager.outputs = (import flakeInputs.home-manager { pkgs = nixpkgs; }) // {
+        nix-darwin = "${flakeInputs.home-manager}/nix-darwin";
       };
+      gomod2nix.outputs = nixpkgs.lib.makeScope nixpkgs.newScope (self: {
+        gomod2nix = self.callPackage gomod2nix.outPath { };
+        inherit (self.callPackage "${gomod2nix}/builder" { inherit (self) gomod2nix; })
+          buildGoApplication
+          mkGoEnv
+          mkVendorEnv
+          ;
+      });
+      nix-darwin.outputs = (import flakeInputs.nix-darwin { pkgs = nixpkgs; }) // {
+        darwinSystem = nixpkgs.lib.pipe "${flakeInputs.nix-darwin}/flake.nix" [
+          import
+          (
+            flake:
+            nixpkgs.lib.fix (
+              self:
+              flake.outputs {
+                inherit self;
+                nixpkgs = flakeInputs.nixpkgs // {
+                  inherit (nixpkgs) lib;
+                };
+              }
+            )
+          )
+          (outputs: outputs.lib.darwinSystem)
+        ];
+      };
+    };
   };
 }
