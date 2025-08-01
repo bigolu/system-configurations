@@ -143,7 +143,6 @@ rec {
   lefthookCheckHook =
     let
       lua-language-server = mkShellNoCC {
-        inputsFrom = [ shellHookHelpers ];
         packages = [ packages.lua-language-server ];
         shellHook = ''
           prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
@@ -293,7 +292,6 @@ rec {
     in
     mkShellNoCC {
       inputsFrom = [
-        shellHookHelpers
         # For "llllvvuu.llllvvuu-glspc"
         efmLanguageServer
       ];

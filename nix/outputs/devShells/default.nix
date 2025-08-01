@@ -22,6 +22,13 @@ let
       inputsFrom = (mkShellArgs.inputsFrom or [ ]) ++ [ fragments.ciEssentials ];
     };
 
+  addShellHookHelpers =
+    mkShellArgs:
+    mkShellArgs
+    // {
+      inputsFrom = (mkShellArgs.inputsFrom or [ ]) ++ [ fragments.shellHookHelpers ];
+    };
+
   makeShells =
     mkShellArgsByName:
     pipe mkShellArgsByName [
@@ -29,6 +36,7 @@ let
       # specify it twice.
       (mapAttrs (name: mkShellArgs: mkShellArgs // { inherit name; }))
       (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
+      (mapAttrs (_name: addShellHookHelpers))
       (mapAttrs (_name: mkShellNoCC))
     ];
 in
