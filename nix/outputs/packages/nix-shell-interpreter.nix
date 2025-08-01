@@ -75,9 +75,7 @@ nixpkgs.callPackage (
 
           gc_root_dir="$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "$out")"
           ${mkdir} --parents "$gc_root_dir"
-          pushd "$gc_root_dir" >/dev/null
-          nix build "''${gc_roots_to_make[@]}"
-          popd >/dev/null
+          nix build --out-link "$gc_root_dir/root" "''${gc_roots_to_make[@]}"
 
           ${touch} "$completion_marker"
         fi

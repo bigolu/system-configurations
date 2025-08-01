@@ -152,19 +152,10 @@ function _ndw_make_gc_roots {
   local -r directory="${direnv_layout_dir:-.direnv}/$1"
   local -r store_paths=("${@:2}")
 
-  if [[ -d $directory ]]; then
-    # Remove old GC roots
-    rm -rf "$directory"
-  fi
   mkdir -p "$directory"
-
-  # shellcheck disable=2164
-  # direnv will enable `set -e`
-  pushd "$directory" >/dev/null
-  nix build "${store_paths[@]}"
-  # shellcheck disable=2164
-  # direnv will enable `set -e`
-  popd >/dev/null
+  # Remove old GC roots
+  rm -rf "${directory:?}/"*
+  nix build --out-link "$directory/root" "${store_paths[@]}"
 }
 
 # TODO: This wouldn't be necessary if nix supported project/directory-specific config
