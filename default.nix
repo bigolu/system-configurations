@@ -14,7 +14,7 @@ in
   #     instead of the source code.
   #
   # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-  nixpkgs ? flakeInputs.nixpkgs.legacyPackages.${system},
+  nixpkgs ? import flakeInputs.nixpkgs { },
 
   gomod2nix ? flakeInputs.gomod2nix,
   gitignore ? flakeInputs.gitignore,
