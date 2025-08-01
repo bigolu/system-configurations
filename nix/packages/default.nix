@@ -123,7 +123,6 @@ nixpkgs
       nvim-treesitter-endwise
       nvim-treesitter-textobjects
       nvim-ts-autotag
-      splitjoin-vim
       treesj
       vim-abolish
       vim-matchup

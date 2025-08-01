@@ -227,35 +227,14 @@ vim.keymap.set("v", "g-", function()
 end)
 -- }}}
 
--- Split/Join {{{
---
--- AndrewRadev/splitjoin.vim
--- fallback for treesj
-vim.g.splitjoin_split_mapping = ""
-vim.g.splitjoin_join_mapping = ""
-
 require("treesj").setup({
   use_default_keymaps = false,
   max_join_length = 200,
 })
-
--- fallback to splitjoin.vim for unsupported languages
-local langs = require("treesj.langs")["presets"]
-vim.api.nvim_create_autocmd({ "FileType" }, {
-  callback = function()
-    if langs[vim.bo.filetype] then
-      vim.keymap.set("n", "ss", vim.cmd.TSJToggle, { desc = "Toggle split/join", buffer = true })
-      vim.keymap.set("n", "sS", function()
-        require("treesj").toggle({
-          join = { recursive = true },
-          split = { recursive = true },
-        })
-      end, { desc = "Toggle recursive split/join", buffer = true })
-    else
-      vim.keymap.set("n", "ss", vim.cmd.SplitjoinSplit, { desc = "Split", buffer = true })
-      -- Must be used on the first line of the split
-      vim.keymap.set("n", "sj", vim.cmd.SplitjoinJoin, { desc = "Join", buffer = true })
-    end
-  end,
-})
--- }}}
+vim.keymap.set("n", "ss", vim.cmd.TSJToggle, { desc = "Toggle split/join", buffer = true })
+vim.keymap.set("n", "sS", function()
+  require("treesj").toggle({
+    join = { recursive = true },
+    split = { recursive = true },
+  })
+end, { desc = "Toggle recursive split/join", buffer = true })
