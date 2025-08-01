@@ -38,8 +38,6 @@ let
       '';
     };
 in
-# perf: To avoid fetching inputs unnecessarily in CI, I don't use their overlays.
-# This way, I only have to fetch a source if I actually use one of its packages.
 nixpkgs
 // outputs.packages
 // inputs.gomod2nix.outputs
