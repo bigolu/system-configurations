@@ -1,7 +1,6 @@
 { nixpkgs, ... }:
 nixpkgs.callPackage (
   {
-    coreutils,
     sqlite,
     bash,
     interpreter ? bash,
@@ -9,17 +8,14 @@ nixpkgs.callPackage (
     writeShellApplication,
   }:
   let
-    inherit (lib) getExe getExe';
-    name = "nix-shell-interpreter";
+    inherit (lib) getExe;
     # I'm not adding these to `runtimeInputs` because I don't want them to be put
     # on the `PATH`.
-    basename = getExe' coreutils "basename";
-    mkdir = getExe' coreutils "mkdir";
-    touch = getExe' coreutils "touch";
     sqlite3 = getExe sqlite;
+    interpreterExe = getExe interpreter;
   in
   writeShellApplication {
-    inherit name;
+    name = "nix-shell-interpreter";
     runtimeInputs = [ interpreter ];
     text = ''
       # TODO: nix-shell sets the temporary directory environment variables. This is
@@ -41,11 +37,12 @@ nixpkgs.callPackage (
       # TODO: Maybe comment here with this workaround:
       # https://github.com/xzfc/cached-nix-shell/issues/34
       if [[ -n "''${NIX_SHEBANG_GC_ROOTS_DIR:-}" ]]; then
-        # This file is created after making the roots to avoid recreating them the
-        # next time the script is run.
-        completion_marker="$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "''${out:?}")"
+        # Assert it's set so shellcheck doesn't report an error
+        : "''${out:?}"
+        out_basename="''${out##*/}"
+        gc_root_dir="$NIX_SHEBANG_GC_ROOTS_DIR/$out_basename"
 
-        if [[ ! -e "$completion_marker" ]]; then
+        if [[ ! -e "$gc_root_dir" ]]; then
           # It's easier to split a newline-delimited string than a space-delimited
           # one since herestring (<<<) adds a newline to the end of the string.
           #
@@ -73,15 +70,13 @@ nixpkgs.callPackage (
             gc_roots_to_make+=("$(${sqlite3} "$db" "$nix_shell_derivation_query")")
           fi
 
-          gc_root_dir="$NIX_SHEBANG_GC_ROOTS_DIR/$(${basename} "$out")"
-          ${mkdir} --parents "$gc_root_dir"
-          nix build --out-link "$gc_root_dir/root" "''${gc_roots_to_make[@]}"
-
-          ${touch} "$completion_marker"
+          nix build \
+            --out-link "$gc_root_dir/root" \
+            "''${gc_roots_to_make[@]}"
         fi
       fi
 
-      exec ${getExe interpreter} "$@"
+      exec ${interpreterExe} "$@"
     '';
   }
 ) { }

@@ -90,8 +90,8 @@ function _ndw_make_gc_roots_for_npins {
         "\n"
         (
           catAttrs
-          "outPath"
-          (attrValues (removeAttrs (import (getEnv "NPINS_DIRECTORY")) ["__functor"]))
+            "outPath"
+            (attrValues (removeAttrs (import (getEnv "NPINS_DIRECTORY")) ["__functor"]))
         )
     '
   )"
@@ -151,12 +151,8 @@ function _ndw_make_gc_roots_for_flake {
 function _ndw_make_gc_roots {
   local -r directory="${direnv_layout_dir:-.direnv}/$1"
   local -r store_paths=("${@:2}")
-
-  if [[ -d $directory ]]; then
-    # Remove old GC roots
-    rm -rf "$directory"
-  fi
-  mkdir -p "$directory"
+  # Remove old GC roots
+  rm -rf "$directory"
   nix build --out-link "$directory/root" "${store_paths[@]}"
 }
 
