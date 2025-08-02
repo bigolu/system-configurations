@@ -48,10 +48,10 @@ let
 
   # This is the version I give to packages that are only used inside of this project.
   # They don't actually have a version, but they need one for them to be displayed
-  # properly by the nix CLI.
+  # properly by the nix CLI. Since the nix CLI follows nixpkgs' version
+  # conventions[1], it needs to start with a digit.
   #
-  # Per nixpkgs' version conventions, it needs to start with a digit:
-  # https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#versioning
+  # [1]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#versioning
   unstableVersion = "0-unstable";
 
   applyIf =
