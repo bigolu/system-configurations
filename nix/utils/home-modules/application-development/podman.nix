@@ -109,8 +109,7 @@ in
 
   system.activation = optionalAttrs isLinux {
     # For rootless containers, my user needs to be able to create {u,g}id maps in
-    # its child processes[1]. `apt-get install uidmap` would also do this, but I
-    # want to manage my entire configuration with nix.
+    # its child processes[1].
     #
     # [1]: https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
     configureSubIds = hm.dag.entryAfter [ "writeBoundary" ] ''
