@@ -22,30 +22,27 @@ let
       modules,
       isGui,
     }:
-    let
-      # SYNC: SPECIAL-ARGS
-      extraSpecialArgs = {
-        inherit
-          configName
-          homeDirectory
-          isGui
-          repositoryDirectory
-          username
-          inputs
-          utils
-          ;
-        isHomeManagerRunningAsASubmodule = true;
-      };
-    in
     [
       inputs.home-manager.outputs.nix-darwin
       {
         home-manager = {
-          inherit extraSpecialArgs;
           useGlobalPkgs = true;
           backupFileExtension = "backup";
           users.${username} = {
             imports = modules ++ [ homeManagerCommonModule ];
+          };
+          # SYNC: SPECIAL-ARGS
+          extraSpecialArgs = {
+            inherit
+              configName
+              homeDirectory
+              isGui
+              repositoryDirectory
+              username
+              inputs
+              utils
+              ;
+            isHomeManagerRunningAsASubmodule = true;
           };
         };
       }
