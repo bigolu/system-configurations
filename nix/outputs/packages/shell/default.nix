@@ -6,8 +6,7 @@ packages.makePortableShell {
   homeConfig = makeConfiguration {
     configName = "portable";
     packageOverrides = import ./package-overrides.nix context;
-    isGui = false;
-    isHomeManagerRunningAsASubmodule = true;
+    hasGui = false;
     modules = [
       "${moduleRoot}/portable.nix"
     ];

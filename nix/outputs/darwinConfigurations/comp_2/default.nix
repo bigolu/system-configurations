@@ -20,7 +20,7 @@ let
       homeDirectory,
       repositoryDirectory,
       modules,
-      isGui,
+      hasGui,
     }:
     [
       inputs.home-manager.outputs.nix-darwin
@@ -36,13 +36,12 @@ let
             inherit
               configName
               homeDirectory
-              isGui
+              hasGui
               repositoryDirectory
               username
               inputs
               utils
               ;
-            isHomeManagerRunningAsASubmodule = true;
           };
         };
       }
@@ -66,7 +65,7 @@ let
           repositoryDirectory
           ;
         modules = homeModules;
-        isGui = true;
+        hasGui = true;
       };
     in
     darwinSystem {

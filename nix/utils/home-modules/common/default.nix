@@ -1,7 +1,7 @@
 {
   pkgs,
   lib,
-  isGui,
+  hasGui,
   inputs,
   config,
   utils,
@@ -16,7 +16,7 @@ let
   inherit (pkgs.stdenv) isDarwin isLinux;
   inherit (utils) projectRoot;
 
-  isLinuxGui = isGui && isLinux;
+  isLinuxAndHasGui = isLinux && hasGui;
 
   sudoersFile =
     let
@@ -51,7 +51,7 @@ in
         # For my shebang scripts
         bash
       ]
-      ++ optionals isLinuxGui [
+      ++ optionals isLinuxAndHasGui [
         # TODO: Only doing this because Pop!_OS doesn't come with it by default, but
         # I think it should
         #
@@ -74,7 +74,7 @@ in
   };
 
   services.flatpak = {
-    enable = isLinuxGui;
+    enable = isLinuxAndHasGui;
     overrides.global = {
       Context.filesystems = [
         "xdg-config/gtk-4.0:ro"

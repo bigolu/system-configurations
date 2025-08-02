@@ -33,18 +33,11 @@ in
 
   home = {
     sessionVariables = optionalAttrs isLinux emptySessionVariables;
-
+    activation.reloadSystemd = mkForce (hm.dag.entryAnywhere "");
     file.".hammerspoon/Spoons/EmmyLua.spoon" = mkForce {
       source = pkgs.emptyFile;
       recursive = false;
     };
-
-    # Since I'm running Home Manager in "submodule mode", I have to set these or
-    # else it won't build.
-    username = "biggs";
-    homeDirectory = "/no/home/directory";
-
-    activation.reloadSystemd = mkForce (hm.dag.entryAnywhere "");
   };
 
   systemd.user = {

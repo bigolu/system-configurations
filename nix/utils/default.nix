@@ -18,9 +18,8 @@ let
         packageOverrides ? { },
         configName,
         modules,
-        isGui ? true,
+        hasGui ? true,
         username ? "biggs",
-        isHomeManagerRunningAsASubmodule ? false,
         homePrefix ? if packages.stdenv.isLinux then "/home" else "/Users",
         homeDirectory ? "${homePrefix}/${username}",
         repositoryDirectory ? "${homeDirectory}/code/system-configurations",
@@ -37,8 +36,7 @@ let
           inherit
             configName
             homeDirectory
-            isGui
-            isHomeManagerRunningAsASubmodule
+            hasGui
             repositoryDirectory
             username
             inputs

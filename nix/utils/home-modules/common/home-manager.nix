@@ -1,10 +1,10 @@
 {
+  config,
   lib,
   pkgs,
   configName,
   username,
   homeDirectory,
-  isHomeManagerRunningAsASubmodule,
   repositoryDirectory,
   ...
 }:
@@ -15,7 +15,6 @@ let
     hm
     getExe
     optionals
-    optionalAttrs
     ;
   inherit (pkgs) writeShellApplication;
   inherit (pkgs.stdenv) isLinux isDarwin;
@@ -92,7 +91,7 @@ mkMerge [
   # These are all things that don't need to be done when home manager is being run as
   # a submodule inside of another system manager, like nix-darwin. They don't need to
   # be done because the outer system manager will do them.
-  (optionalAttrs (!isHomeManagerRunningAsASubmodule) {
+  (mkIf (!config.submoduleSupport.enable) {
     home = {
       inherit username homeDirectory;
 

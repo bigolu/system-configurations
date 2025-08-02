@@ -1,7 +1,7 @@
 {
   lib,
   pkgs,
-  isGui,
+  hasGui,
   repositoryDirectory,
   inputs,
   username,
@@ -24,7 +24,7 @@ let
     '';
   };
 
-  mac = mkIf (isGui && isDarwin) {
+  mac = mkIf (hasGui && isDarwin) {
     repository = {
       xdg = {
         configFile = {
@@ -56,7 +56,7 @@ let
     };
   };
 
-  linux = mkIf (isGui && isLinux) {
+  linux = mkIf (hasGui && isLinux) {
     repository.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
 
     system = {
