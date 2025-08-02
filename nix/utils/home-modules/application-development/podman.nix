@@ -41,7 +41,7 @@ in
   };
 
   home.activation =
-    (optionalAttrs isDarwin {
+    optionalAttrs isDarwin {
       createPodmanMachine =
         let
           dependencies = makeBinPath (
@@ -64,8 +64,8 @@ in
 
           PATH="$OLD_PATH"
         '';
-    })
-    // (optionalAttrs isLinux {
+    }
+    // optionalAttrs isLinux {
       # The Docker cli relies on a daemon to make containers, but Podman doesn't use
       # one. For compatibility, Podman provides a daemon as a socket-activated
       # systemd service.
@@ -105,7 +105,7 @@ in
 
         PATH="$OLD_PATH"
       '';
-    });
+    };
 
   system.activation = optionalAttrs isLinux {
     # For rootless containers, my user needs to be able to create {u,g}id maps in
