@@ -70,9 +70,7 @@ nixpkgs.callPackage (
             gc_roots_to_make+=("$(${sqlite3} "$db" "$nix_shell_derivation_query")")
           fi
 
-          nix build \
-            --out-link "$gc_root_dir/root" \
-            "''${gc_roots_to_make[@]}"
+          nix build --out-link "$gc_root_dir/root" "''${gc_roots_to_make[@]}"
         fi
       fi
 

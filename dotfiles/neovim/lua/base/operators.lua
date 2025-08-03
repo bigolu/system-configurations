@@ -231,10 +231,10 @@ require("treesj").setup({
   use_default_keymaps = false,
   max_join_length = 200,
 })
-vim.keymap.set("n", "ss", vim.cmd.TSJToggle, { desc = "Toggle split/join", buffer = true })
+vim.keymap.set("n", "ss", vim.cmd.TSJToggle)
 vim.keymap.set("n", "sS", function()
   require("treesj").toggle({
     join = { recursive = true },
     split = { recursive = true },
   })
-end, { desc = "Toggle recursive split/join", buffer = true })
+end)

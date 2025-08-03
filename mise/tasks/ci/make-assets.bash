@@ -43,8 +43,6 @@ function make_shell_bundle {
   )"
 
   if ! nix-store --add-root "$gc_root" --realise "$derivation"; then
-    # To learn why this is done, see the comment above the `keep-outputs` setting, in
-    # setup/action.yaml.
     nix build --out-link "$gc_root" "$derivation"
     exit 1
   fi
