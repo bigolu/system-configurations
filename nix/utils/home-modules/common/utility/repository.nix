@@ -46,7 +46,7 @@ let
   inherit (utils) applyIf;
   inherit (pkgs) writeScript;
 
-  inFlakePureEval = !builtins ? currentSystem;
+  pureEvalEnabled = !builtins ? currentSystem;
 in
 {
   options.repository =
@@ -141,7 +141,7 @@ in
           ];
           apply = toString;
           description = "Relative paths used as the source for any file are assumed to be relative to this directory.";
-          default = if inFlakePureEval then config.repository.fileSettings.flake.root.path else null;
+          default = if pureEvalEnabled then config.repository.fileSettings.flake.root.path else null;
         };
 
         flake.root = {
@@ -199,7 +199,7 @@ in
           [
             toAbsolutePath
           ]
-          ++ optionals inFlakePureEval [
+          ++ optionals pureEvalEnabled [
             # You can make a string into a Path by concatenating it with a Path.
             # However, in flake pure evaluation mode all Paths must be inside the the
             # nix store so we remove the path to the flake root and then append the
@@ -271,7 +271,7 @@ in
           toPath
 
           # Flakes have built-in gitignore support
-          (applyIf (!inFlakePureEval) utils.gitFilter)
+          (applyIf (!pureEvalEnabled) utils.gitFilter)
 
           # Use relative paths to account for the case where the source directory
           # doesn't match the directory we list the files from. This can happen for
@@ -338,7 +338,7 @@ in
             message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
           }
         ]
-        ++ optionals inFlakePureEval [
+        ++ optionals pureEvalEnabled [
           {
             assertion = isRelativePathRootInFlakeDirectory;
             message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}, flake directory: ${flakePath}";
