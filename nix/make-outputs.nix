@@ -39,7 +39,7 @@
 #     depend on other parts of it. The outputs attrset will automatically be
 #     added to this set so outputs can refer to each other. The system will also be added.
 #   system (string):
-#     In flake pure evaluation mode, the current system can't be accessed so this
+#     In pure evaluation mode, the current system can't be accessed so this
 #     needs to be passed in.
 #
 # Return:

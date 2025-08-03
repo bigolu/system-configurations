@@ -2,7 +2,7 @@ let
   flakeInputs = (import ./nix/flake-compat.nix).inputs;
 in
 {
-  # In flake pure evaluation mode, the current system can't be accessed so we'll take
+  # In pure evaluation mode, the current system can't be accessed so we'll take
   # it as a parameter.
   system ? builtins.currentSystem,
 

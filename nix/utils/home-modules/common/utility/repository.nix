@@ -29,6 +29,7 @@ let
     getExe
     replaceString
     optionals
+    inPureEvalMode
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (config.lib.file) mkOutOfStoreSymlink;
@@ -45,8 +46,6 @@ let
     ;
   inherit (utils) applyIf;
   inherit (pkgs) writeScript;
-
-  pureEvalEnabled = !builtins ? currentSystem;
 in
 {
   options.repository =
@@ -141,11 +140,11 @@ in
           ];
           apply = toString;
           description = "Relative paths used as the source for any file are assumed to be relative to this directory.";
-          default = if pureEvalEnabled then config.repository.fileSettings.flake.root.path else null;
+          default = if inPureEvalMode then config.repository.fileSettings.flake.root.path else null;
         };
 
         flake.root = {
-          # Only needed to turn absolute path strings to Paths if flake pure eval is
+          # Only needed to turn absolute path strings to Paths if pure eval is
           # enabled.
           path = mkOption {
             type = types.str;
@@ -199,9 +198,9 @@ in
           [
             toAbsolutePath
           ]
-          ++ optionals pureEvalEnabled [
+          ++ optionals inPureEvalMode [
             # You can make a string into a Path by concatenating it with a Path.
-            # However, in flake pure evaluation mode all Paths must be inside the the
+            # However, in pure evaluation mode all Paths must be inside the the
             # nix store so we remove the path to the flake root and then append the
             # result to the store path for the flake.
             (removePrefix flakePath)
@@ -271,13 +270,11 @@ in
           toPath
 
           # Flakes have built-in gitignore support
-          (applyIf (!pureEvalEnabled) utils.gitFilter)
+          (applyIf (!inPureEvalMode) utils.gitFilter)
 
           # Use relative paths to account for the case where the source directory
-          # doesn't match the directory we list the files from. This can happen for
-          # two reasons:
-          #   - In flake pure eval mode, we can only read from the nix store
-          #   - `gitFilter` return a new directory in the nix store
+          # doesn't match the directory we list the files from. This can happen
+          # if the directory we list files from is a path in the nix store.
           listRelativeFilesRecursive
 
           (map (
@@ -338,7 +335,7 @@ in
             message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
           }
         ]
-        ++ optionals pureEvalEnabled [
+        ++ optionals inPureEvalMode [
           {
             assertion = isRelativePathRootInFlakeDirectory;
             message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}, flake directory: ${flakePath}";
