@@ -272,8 +272,10 @@ function _fzf_complete
         )
             _insert_entries_into_commandline $entries
         end
-        commandline -f repaint
     end
+
+    # this should be done whenever a binding produces output (see: man bind)
+    commandline -f repaint
 end
 # Set the binding on fish_prompt since something else was overriding it during
 # shell startup.
