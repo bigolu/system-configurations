@@ -126,6 +126,7 @@ in
     gc = {
       automatic = true;
       options = "--delete-old";
+      frequency = "monthly";
     };
 
     registry = {
