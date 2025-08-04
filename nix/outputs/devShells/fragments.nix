@@ -175,6 +175,7 @@ rec {
       packages = with packages; [
         actionlint
         config-file-validator
+        coreutils
         deadnix
         doctoc
         editorconfig-checker

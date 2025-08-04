@@ -15,4 +15,4 @@ else
   opener='open'
 fi
 
-"$opener" "$PWD/docs/tasks.html"
+"$opener" "$PWD/task-docs.html"

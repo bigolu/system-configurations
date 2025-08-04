@@ -230,7 +230,7 @@ check:
         - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
         - dotfiles/cosmic/config/*
-        - docs/*
+        - task-docs.html
       group:
         # Enabling `piped` is useful for the scenario where there are issues found by
         # fast checks, but not slow ones. Without `piped`, you would run all the
@@ -298,13 +298,14 @@ check:
                   #
                   # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
                   run: |
-                    {run_fix} bash -ec '
-                      mise generate task-docs --style detailed --output docs/tasks.md
+                    {run_fix} bash -euc '
+                      temp="$(mktemp --directory)/temp.md"
+                      mise generate task-docs --style detailed --output "$temp"
                       markdown2html-converter \
                         --force \
                         --title 'Tasks' \
-                        --html-path docs/tasks.html \
-                        docs/tasks.md
+                        --html-path task-docs.html \
+                        "$temp"
                     '
                 - name: deadnix
                   glob: "*.nix"
