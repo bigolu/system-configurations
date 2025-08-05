@@ -287,10 +287,11 @@ check:
                 - name: gomod2nix
                   glob: gozip/go.mod
                   run: "{run_fix} gomod2nix --dir gozip generate"
-                # I'm intentionally not specifying a `glob` here because deleted
-                # files won't be matched against the glob and if a task gets deleted,
-                # I want this job to run. Instead, since it runs very quickly, I'll
-                # just always run it.
+                # Globs do not apply to deleted files. This means if a job has a glob
+                # and there are only deleted files, then the job will not run. This
+                # is a problem for this job since it should run when tasks are
+                # deleted, to remove them from the documentation. Since this job runs
+                # quickly, we allow it to always run by not specifying a glob.
                 - name: task-docs
                   # TODO: markdown2html-converter hasn't been updated in a couple
                   # years. I'd like to switch to markdown-to-html-cli[1], but it
