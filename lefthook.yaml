@@ -230,7 +230,6 @@ check:
         - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
         - dotfiles/cosmic/config/*
-        - docs/*
       group:
         # Enabling `piped` is useful for the scenario where there are issues found by
         # fast checks, but not slow ones. Without `piped`, you would run all the
@@ -302,6 +301,7 @@ check:
                       temp="$(mktemp --directory)/temp.md"
                       mise generate task-docs --style detailed --output "$temp"
                       markdown2html-converter \
+                        --no-cjk-fonts \
                         --force \
                         --title 'Tasks' \
                         --html-path docs/tasks.html \
@@ -350,7 +350,7 @@ check:
                   glob: "*.toml"
                   run: "{run_fix} taplo format {files}"
                 - name: prettier
-                  glob: "*.{md,js,json,json5,jsonc,yaml}"
+                  glob: "*.{md,js,json,json5,jsonc,yaml,html}"
                   exclude:
                     # Don't format these since VS Code will
                     - ".vscode/*.json"
@@ -436,6 +436,8 @@ check:
                     - npins/*
                   run: nixpkgs-lint --include-unfinished-lints -- {files}
                 - name: typos
+                  exclude:
+                    - docs/*
                   run: |
                     {exit_if_no_files} {files}
                     typos {files}

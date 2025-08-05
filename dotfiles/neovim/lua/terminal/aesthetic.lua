@@ -3,7 +3,7 @@ vim.o.breakat = " ^I"
 vim.o.cursorline = true
 vim.o.cursorlineopt = "number"
 vim.o.wrap = true
-vim.o.listchars = "tab: ,space:·"
+vim.o.listchars = "tab: ,space:·,eol:$"
 vim.opt.fillchars:append("eob: ,lastline:>")
 -- Neovim sets termguicolors asynchronously, since querying the terminal could be
 -- slow over SSH, so it usually isn't set by the time I set the colorscheme. Instead,
