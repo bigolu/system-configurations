@@ -230,6 +230,7 @@ check:
         - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
         - dotfiles/cosmic/config/*
+        - docs/*
       group:
         # Enabling `piped` is useful for the scenario where there are issues found by
         # fast checks, but not slow ones. Without `piped`, you would run all the
@@ -298,14 +299,25 @@ check:
                   # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
                   run: |
                     {run_fix} bash -euc '
-                      temp="$(mktemp --directory)/temp.md"
-                      mise generate task-docs --style detailed --output "$temp"
+                      markdown="$(mktemp --directory)/temp.md"
+                      html="docs/tasks.html"
+                      mise generate task-docs --style detailed --output "$markdown"
                       markdown2html-converter \
                         --no-cjk-fonts \
                         --force \
-                        --title 'Tasks' \
-                        --html-path docs/tasks.html \
-                        "$temp"
+                        --title "Tasks" \
+                        --html-path "$html" \
+                        "$markdown"
+                      # Format the HTML so it is easier to review changes to it.
+                      #
+                      # I could also let the "prettier" job further down format this
+                      # file, but this would cause a problem: markdown2html-converter
+                      # always regenerates the HTML, even if the task documentation
+                      # is up to date. Since the format of the HTML from
+                      # markdown2html-converter does not match the format that
+                      # prettier would use, this task would always fail since it
+                      # would always make a change.
+                      chronic prettier --write "$html"
                     '
                 - name: deadnix
                   glob: "*.nix"
@@ -350,7 +362,7 @@ check:
                   glob: "*.toml"
                   run: "{run_fix} taplo format {files}"
                 - name: prettier
-                  glob: "*.{md,js,json,json5,jsonc,yaml,html}"
+                  glob: "*.{md,js,json,json5,jsonc,yaml}"
                   exclude:
                     # Don't format these since VS Code will
                     - ".vscode/*.json"
@@ -436,8 +448,6 @@ check:
                     - npins/*
                   run: nixpkgs-lint --include-unfinished-lints -- {files}
                 - name: typos
-                  exclude:
-                    - docs/*
                   run: |
                     {exit_if_no_files} {files}
                     typos {files}
