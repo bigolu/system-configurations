@@ -15,6 +15,7 @@ in
   #
   # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
   nixpkgs ? import flakeInputs.nixpkgs {
+    # We provide values for these to avoid using their non-deterministic defaults.
     config = { };
     overlays = [ ];
   },
