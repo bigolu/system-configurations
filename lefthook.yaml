@@ -15,6 +15,10 @@ colors:
 output:
   # Print a header for each job
   - execution_info
+  # Print command output. This is particularly useful for jobs like 'nix-outputs' and
+  # 'system' since they can take a long time and having the output would show me what
+  # the bottlenecks are.
+  - execution_out
   - failure
 
 templates:
@@ -467,7 +471,7 @@ check:
                     # These aren't actually JSON files they're JSONC
                     - ".vscode/*.json"
                     - npins/*
-                  run: validator -groupby pass-fail {files}
+                  run: chronic validator -groupby pass-fail {files}
                 - name: renovate-config-validator
                   glob:
                     - renovate.json5
