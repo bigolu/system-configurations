@@ -15,10 +15,6 @@ colors:
 output:
   # Print a header for each job
   - execution_info
-  # Print command output. This is particularly useful for jobs like 'nix-outputs' and
-  # 'system' since they can take a long time and having the output would show me what
-  # the bottlenecks are.
-  - execution_out
   - failure
 
 templates:
@@ -318,7 +314,7 @@ check:
                       # markdown2html-converter does not match the format that
                       # prettier would use, this task would always fail since it
                       # would always make a change.
-                      chronic prettier --write "$html"
+                      prettier --list-different --write "$html"
                     '
                 - name: deadnix
                   glob: "*.nix"
@@ -368,7 +364,7 @@ check:
                     # Don't format these since VS Code will
                     - ".vscode/*.json"
                     - npins/*
-                  run: "{run_fix} chronic prettier --write {files}"
+                  run: "{run_fix} prettier --list-different --write {files}"
                 - name: shfmt
                   glob: "*.{sh,bash}"
                   run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
@@ -471,7 +467,7 @@ check:
                     # These aren't actually JSON files they're JSONC
                     - ".vscode/*.json"
                     - npins/*
-                  run: chronic validator -groupby pass-fail {files}
+                  run: validator -groupby pass-fail {files}
                 - name: renovate-config-validator
                   glob:
                     - renovate.json5
