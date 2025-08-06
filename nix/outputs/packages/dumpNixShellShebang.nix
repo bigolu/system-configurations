@@ -15,23 +15,27 @@ nixpkgs.callPackage (
       pathIsDirectory
       splitString
       unique
+      hasPrefix
       ;
     inherit (lib.filesystem) listFilesRecursive;
   in
   pipe path [
-    # Get all lines in all scripts
+    # Get all nix-shell directives in all scripts
     (path: if pathIsDirectory path then listFilesRecursive path else [ path ])
     (map readFile)
     (map (splitString "\n"))
+    (map (filter (hasPrefix "#! nix-shell")))
     concatLists
 
-    # Match packages in nix shebangs.
+    # Extract packages from nix-shell directives.
     #
-    # The nix-shell directive resembles:
+    # A nix-shell directive that specifies packages will resemble:
     #   #! nix-shell --packages/-p package1 package2
     #
     # So this match will match everything after the package flag i.e.
     # 'package1 package2'.
+    #
+    # TODO: This doesn't handle expressions yet, only attribute names.
     (map (match ''^#! nix-shell (--packages|-p) (.*)''))
     (filter (matches: matches != null))
     (map (matches: elemAt matches 1))
