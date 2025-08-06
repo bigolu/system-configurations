@@ -212,7 +212,8 @@ rec {
   lefthookSyncHook = mkShellNoCC {
     inputsFrom = [ lefthook ];
     packages = with pkgs; [
-      chase
+      # For `realpath`
+      coreutils
       nix-output-monitor
       bash
     ];

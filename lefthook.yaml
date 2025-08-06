@@ -183,11 +183,11 @@ sync:
       interactive: true
       # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
       #
-      # Use `chase` since the sudoers config specifies the path of `run-as-admin` in
-      # the nix store, but `command` will return the path in my user's profile
+      # Use `realpath` since the sudoers config specifies the path of `run-as-admin`
+      # in the nix store, but `command` will return the path in my user's profile.
       run: |
         sudo -- \
-          "$(chase "$(command -v run-as-admin)")" \
+          "$(realpath "$(command -v run-as-admin)")" \
           --path "$PATH" \
           {direnv_exec} mise run system:sync
     - name: fish
