@@ -1,7 +1,7 @@
 {
   lib,
   inputs,
-  packages,
+  pkgs,
   utils,
   ...
 }:
@@ -20,15 +20,15 @@ let
         modules,
         hasGui ? true,
         username ? "biggs",
-        homePrefix ? if packages.stdenv.isLinux then "/home" else "/Users",
+        homePrefix ? if pkgs.stdenv.isLinux then "/home" else "/Users",
         homeDirectory ? "${homePrefix}/${username}",
         repositoryDirectory ? "${homeDirectory}/code/system-configurations",
       }:
       inputs.home-manager.outputs.lib.homeManagerConfiguration {
-        pkgs = packages;
+        inherit pkgs;
         modules = modules ++ [
           commonModule
-          { _module.args.pkgs = lib.mkForce (packages // packageOverrides); }
+          { _module.args.pkgs = lib.mkForce (pkgs // packageOverrides); }
         ];
 
         # SYNC: SPECIAL-ARGS

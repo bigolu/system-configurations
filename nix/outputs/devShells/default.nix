@@ -1,12 +1,12 @@
 context@{
   lib,
-  packages,
+  pkgs,
   utils,
   ...
 }:
 let
   inherit (builtins) mapAttrs;
-  inherit (packages) mkShellNoCC;
+  inherit (pkgs) mkShellNoCC;
   inherit (lib)
     pipe
     hasPrefix
@@ -54,7 +54,7 @@ makeShells {
       miseTasks
       vsCode
     ];
-    packages = with packages; [
+    packages = with pkgs; [
       npins
     ];
     shellHook = ''
@@ -67,7 +67,7 @@ makeShells {
   ci-essentials = { };
 
   ci-renovate = {
-    packages = with packages; [
+    packages = with pkgs; [
       renovate
       # Needed by Renovate
       git

@@ -1,8 +1,8 @@
-context@{ utils, packages, ... }:
+context@{ utils, pkgs, ... }:
 let
   inherit (utils.homeManager) moduleRoot makeConfiguration;
 in
-packages.makePortableShell {
+pkgs.makePortableShell {
   homeConfig = makeConfiguration {
     configName = "portable";
     packageOverrides = import ./package-overrides.nix context;

@@ -41,7 +41,8 @@ import ./nix/make-outputs.nix {
     inherit (nixpkgs) lib;
 
     utils = import ./nix/utils self;
-    packages = import ./nix/packages;
+    # Using this variable name so nixd can provide autocomplete, documentation, etc.
+    pkgs = import ./nix/packages;
 
     # Our inputs, with any overrides applied, and their outputs
     inputs =

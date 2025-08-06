@@ -7,7 +7,7 @@ let
   inherit ((import ../.. { }).context)
     inputs
     outputs
-    packages
+    pkgs
     lib
     nixpkgs
     utils
@@ -75,9 +75,7 @@ nixpkgs
 
   mkShellNoCC = outputs.packages.mkShellWrapper;
 
-  dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override {
-    pkgs = packages;
-  };
+  dumpNixShellShebang = outputs.packages.dumpNixShellShebang.override { inherit pkgs; };
 
   neovim =
     let

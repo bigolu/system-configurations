@@ -1,10 +1,10 @@
 # Remove large or unnecessary packages from the portable shell
-{ packages, lib, ... }:
+{ pkgs, lib, ... }:
 let
   inherit (builtins) listToAttrs;
   inherit (lib) pipe nameValuePair;
 
-  makeEmptyPackage = packageName: packages.writeScriptBin packageName "";
+  makeEmptyPackage = packageName: pkgs.writeScriptBin packageName "";
 
   makeEmptyPackageSet =
     packageNames:

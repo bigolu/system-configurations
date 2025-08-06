@@ -2,7 +2,7 @@
   inputs,
   utils,
   lib,
-  packages,
+  pkgs,
   ...
 }:
 let
@@ -69,7 +69,7 @@ let
       };
     in
     darwinSystem {
-      pkgs = packages;
+      inherit pkgs;
       modules = modules ++ homeManagerSubmodules;
       # SYNC: SPECIAL-ARGS
       specialArgs = {

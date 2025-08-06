@@ -11,7 +11,7 @@
 #     dependencies for it.
 {
   lib,
-  packages,
+  pkgs,
   utils,
   ...
 }:
@@ -23,13 +23,13 @@ let
     fileset
     optionals
     ;
-  inherit (packages)
+  inherit (pkgs)
     mkShellNoCC
     linkFarm
     mkGoEnv
     dumpNixShellShebang
     ;
-  inherit (packages.stdenv) isLinux;
+  inherit (pkgs.stdenv) isLinux;
 in
 rec {
   shellHookHelpers = mkShellNoCC {
@@ -77,7 +77,7 @@ rec {
         packages = [
           # The full set of locales is pretty big (~220MB) so I'll only include the
           # one that will be used.
-          (packages.glibcLocales.override {
+          (pkgs.glibcLocales.override {
             allLocales = false;
             locales = [ "en_US.UTF-8/UTF-8" ];
           })
@@ -97,7 +97,7 @@ rec {
         ++ optionals isLinux [
           locale
         ];
-      packages = with packages; [
+      packages = with pkgs; [
         # For the `run` steps in CI workflows/actions
         bash-script
         # For the save-cache action
@@ -108,11 +108,11 @@ rec {
     };
 
   direnv = mkShellNoCC {
-    packages = [ packages.nvd ];
+    packages = [ pkgs.nvd ];
   };
 
   flakeCompat = mkShellNoCC {
-    packages = with packages; [
+    packages = with pkgs; [
       # flake-compat uses `builtins.fetchGit` which depends on git
       # https://github.com/NixOS/nix/issues/3533
       git
@@ -129,11 +129,11 @@ rec {
     '';
   };
 
-  speakerctl = packages.speakerctl.devShell;
+  speakerctl = pkgs.speakerctl.devShell;
 
   lefthook = mkShellNoCC {
-    packages = with packages; [
-      packages.lefthook
+    packages = with pkgs; [
+      pkgs.lefthook
       # TODO: Lefthook won't run unless git is present so maybe nixpkgs should make
       # it a dependency.
       git
@@ -143,15 +143,15 @@ rec {
   lefthookCheckHook =
     let
       lua-language-server = mkShellNoCC {
-        packages = [ packages.lua-language-server ];
+        packages = [ pkgs.lua-language-server ];
         shellHook = ''
           prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
           mkdir_if_missing "$prefix"
 
           symlink_if_target_changed \
-            ${packages.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
+            ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
           symlink_if_target_changed \
-            ${packages.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
+            ${pkgs.neovim}/share/nvim/runtime "$prefix/neovim-runtime"
 
           hammerspoon_annotations="$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
           if [[ -e $hammerspoon_annotations ]]; then
@@ -172,7 +172,7 @@ rec {
         # For running mypy
         speakerctl
       ];
-      packages = with packages; [
+      packages = with pkgs; [
         actionlint
         config-file-validator
         coreutils
@@ -212,7 +212,7 @@ rec {
 
   lefthookSyncHook = mkShellNoCC {
     inputsFrom = [ lefthook ];
-    packages = with packages; [
+    packages = with pkgs; [
       chase
       nix-output-monitor
       bash
@@ -220,8 +220,8 @@ rec {
   };
 
   mise = mkShellNoCC {
-    packages = with packages; [
-      packages.mise
+    packages = with pkgs; [
+      pkgs.mise
       # For running file-based tasks
       cached-nix-shell
     ];
@@ -249,10 +249,10 @@ rec {
   # mise tasks. I could use nix shebang scripts instead, but then autocomplete
   # would be delayed by the time it takes to load a nix shell.
   miseTaskAutocomplete = mkShellNoCC {
-    packages = with packages; [
+    packages = with pkgs; [
       fish
       # For nix's fish shell autocomplete
-      (linkFarm "nix-share" { share = "${packages.nix}/share"; })
+      (linkFarm "nix-share" { share = "${pkgs.nix}/share"; })
     ];
   };
 
@@ -274,7 +274,7 @@ rec {
     # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
     # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.
     # See nix/packages/default.nix
-    (dependencies: dependencies ++ [ packages.stdenvNoCC ])
+    (dependencies: dependencies ++ [ pkgs.stdenvNoCC ])
     (dependencies: mkShellNoCC { packages = dependencies; })
   ];
 
@@ -283,7 +283,7 @@ rec {
   vsCode =
     let
       efmLanguageServer = mkShellNoCC {
-        packages = with packages; [
+        packages = with pkgs; [
           efm-langserver
           # These get used in some of the commands in the efm-langserver config.
           bash
@@ -296,7 +296,7 @@ rec {
         # For "llllvvuu.llllvvuu-glspc"
         efmLanguageServer
       ];
-      packages = with packages; [
+      packages = with pkgs; [
         # For "jnoortheen.nix-ide"
         nixd
 
@@ -313,7 +313,7 @@ rec {
       # store path for python changes.
       shellHook = ''
         symlink_if_target_changed \
-          ${packages.speakerctl.python} "''${direnv_layout_dir:-.direnv}/python"
+          ${pkgs.speakerctl.python} "''${direnv_layout_dir:-.direnv}/python"
       '';
     };
 }
