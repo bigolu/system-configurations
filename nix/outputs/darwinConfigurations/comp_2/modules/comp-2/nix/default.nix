@@ -70,7 +70,8 @@ in
       # [1]: https://github.com/nix-darwin/nix-darwin/blob/6ab392f626a19f1122d1955c401286e1b7cf6b53/modules/nix/linux-builder.nix#L127
       # [2]: https://search.nixos.org/options?channel=24.11&show=nixpkgs.hostPlatform&from=0&size=50&sort=relevance&type=packages&query=nixpkgs.hostPlatform
       systems = [ (replaceString "darwin" "linux" system) ];
-    } // linuxBuilderConfig;
+    }
+    // linuxBuilderConfig;
   };
 
   # Workaround for doing the first `darwin-rebuild switch`. Since nix-darwin only

@@ -89,14 +89,13 @@ rec {
       };
     in
     mkShellNoCC {
-      inputsFrom =
-        [
-          mise
-          flakeCompat
-        ]
-        ++ optionals isLinux [
-          locale
-        ];
+      inputsFrom = [
+        mise
+        flakeCompat
+      ]
+      ++ optionals isLinux [
+        locale
+      ];
       packages = with pkgs; [
         # For the `run` steps in CI workflows/actions
         bash-script

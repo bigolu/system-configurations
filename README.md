@@ -35,7 +35,7 @@ people who want to manage their systems similarly.
    . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
    nix shell \
-     --override-flake nixpkgs github:NixOS/nixpkgs/be9e214982e20b8310878ac2baa063a961c1bdf6 \
+     --override-flake nixpkgs github:NixOS/nixpkgs/cab778239e705082fe97bb4990e0d24c50924c04 \
      nixpkgs#git nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
      --command bash --noprofile --norc -euc '
        git clone \
@@ -49,24 +49,18 @@ people who want to manage their systems similarly.
    ```
 
 2. Post-Install steps:
-
    - Linux
-
      1. Logout and login so the login shell configuration can get applied.
 
    - macOS
-
      1. Keyboard:
-
         - Set the keyboard input source to 'Others → (No Accent Keys)'.
 
         <!--
           TODO: I can automate shortcuts when this issue gets resolved:
           https://github.com/nix-darwin/nix-darwin/issues/185
         -->
-
         - Shortcuts:
-
           - Disable: "Select the previous input source" `ctrl+space`,
             "Application windows" `ctrl+↓`
 

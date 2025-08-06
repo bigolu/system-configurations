@@ -69,64 +69,63 @@ in
       }
     ) config.system.activation;
 
-    system.activation =
-      {
-        installSystemFiles =
-          let
-            group = if isLinux then "sudo" else "wheel";
-          in
-          hm.dag.entryAfter [ "writeBoundary" ] ''
-            function install_file {
-              local -r source="$1"
-              local -r target="$2"
-              sudo install \
-                --compare -D --no-target-directory \
-                --owner=root --group=${group} --mode='u=rwx,g=r,o=r' \
-                "$source" "$target"
-            }
-
-            ${foldl (acc: next: ''
-              ${acc}
-              install_file ${
-                escapeShellArgs [
-                  next.source
-                  next.target
-                ]
-              }
-            '') "" (attrValues config.system.file)}
-          '';
-      }
-      // optionalAttrs isLinux {
-        installSystemUnits = hm.dag.entryAfter [ "writeBoundary" ] ''
-          OLD_PATH="$PATH"
-          PATH="$PATH:${pkgs.moreutils}/bin"
-
-          function set_up_unit {
-            unit_name="$1"
-            unit_base_name="''${unit_name##*/}"
-
-            if systemctl list-unit-files "$unit_base_name" 1>/dev/null 2>&1; then
-              # This will unlink it
-              chronic sudo systemctl disable "$unit_base_name"
-            fi
-            chronic sudo systemctl link "$unit_name"
-            chronic sudo systemctl enable "$unit_base_name"
-
-            # - If I don't this then `systemctl status <name>` shows that any timer
-            #   set up here failed because it 'vanished'
-            # - socket units need to be started
-            extension="''${unit_base_name##*.}"
-            if [[ $extension == 'timer' || $extension == 'socket' ]]; then
-              chronic sudo systemctl start "$unit_base_name"
-            fi
+    system.activation = {
+      installSystemFiles =
+        let
+          group = if isLinux then "sudo" else "wheel";
+        in
+        hm.dag.entryAfter [ "writeBoundary" ] ''
+          function install_file {
+            local -r source="$1"
+            local -r target="$2"
+            sudo install \
+              --compare -D --no-target-directory \
+              --owner=root --group=${group} --mode='u=rwx,g=r,o=r' \
+              "$source" "$target"
           }
 
-          for unit in ${escapeShellArgs config.system.systemd.units}; do
-            set_up_unit "$unit"
-          done
-
-          PATH="$OLD_PATH"
+          ${foldl (acc: next: ''
+            ${acc}
+            install_file ${
+              escapeShellArgs [
+                next.source
+                next.target
+              ]
+            }
+          '') "" (attrValues config.system.file)}
         '';
-      };
+    }
+    // optionalAttrs isLinux {
+      installSystemUnits = hm.dag.entryAfter [ "writeBoundary" ] ''
+        OLD_PATH="$PATH"
+        PATH="$PATH:${pkgs.moreutils}/bin"
+
+        function set_up_unit {
+          unit_name="$1"
+          unit_base_name="''${unit_name##*/}"
+
+          if systemctl list-unit-files "$unit_base_name" 1>/dev/null 2>&1; then
+            # This will unlink it
+            chronic sudo systemctl disable "$unit_base_name"
+          fi
+          chronic sudo systemctl link "$unit_name"
+          chronic sudo systemctl enable "$unit_base_name"
+
+          # - If I don't this then `systemctl status <name>` shows that any timer
+          #   set up here failed because it 'vanished'
+          # - socket units need to be started
+          extension="''${unit_base_name##*.}"
+          if [[ $extension == 'timer' || $extension == 'socket' ]]; then
+            chronic sudo systemctl start "$unit_base_name"
+          fi
+        }
+
+        for unit in ${escapeShellArgs config.system.systemd.units}; do
+          set_up_unit "$unit"
+        done
+
+        PATH="$OLD_PATH"
+      '';
+    };
   };
 }

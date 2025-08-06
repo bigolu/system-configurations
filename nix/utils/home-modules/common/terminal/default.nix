@@ -70,18 +70,17 @@ in
     ];
 
   repository = {
-    xdg.configFile =
-      {
-        "lsd".source = "lsd";
-        "lesskey".source = "less/lesskey";
-        "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
-        "broot".source = "broot";
-        "bat".source = "bat";
-      }
-      // optionalAttrs isLinux {
-        "pipr/pipr.toml".source = "pipr/pipr.toml";
-        "isd/config.yaml".source = "isd/config.yaml";
-      };
+    xdg.configFile = {
+      "lsd".source = "lsd";
+      "lesskey".source = "less/lesskey";
+      "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
+      "broot".source = "broot";
+      "bat".source = "bat";
+    }
+    // optionalAttrs isLinux {
+      "pipr/pipr.toml".source = "pipr/pipr.toml";
+      "isd/config.yaml".source = "isd/config.yaml";
+    };
 
     # The programs store files according to the XDG Base Directory spec[1] on Linux
     # and the Standard Directories guidelines[2] on macOS:

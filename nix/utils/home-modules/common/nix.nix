@@ -98,17 +98,16 @@ in
       inherit syncNixVersionWithSystem;
     };
 
-    file =
-      {
-        "${
-          if isLinux then "/usr/share/fish/vendor_conf.d" else "/usr/local/share/fish/vendor_conf.d"
-        }/zz-nix-fix.fish".source =
-          "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
-      }
-      // optionalAttrs isLinux {
-        "/etc/profile.d/bigolu-nix-locale-variable.sh".source =
-          "${repositoryDirectory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
-      };
+    file = {
+      "${
+        if isLinux then "/usr/share/fish/vendor_conf.d" else "/usr/local/share/fish/vendor_conf.d"
+      }/zz-nix-fix.fish".source =
+        "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
+    }
+    // optionalAttrs isLinux {
+      "/etc/profile.d/bigolu-nix-locale-variable.sh".source =
+        "${repositoryDirectory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
+    };
   };
 
   repository = {
