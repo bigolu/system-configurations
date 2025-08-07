@@ -152,7 +152,7 @@ function should_sync {
   # since I only expect people to do a merge/rebase on a branch they trust, unless
   # it's part of a pull. For example, rebasing a feature branch on master.
   local should_allow_all_branches
-  should_allow_all_branches="$(safe_git_config --get 'auto-sync.allow.all')"
+  should_allow_all_branches="$(safe_git_config_get 'auto-sync.allow.all')"
   local is_head_in_default_branch
   is_head_in_default_branch="$(is_head_in_default_branch)"
   local -r pull_regex='^.*: pull( .*)?: .+'
@@ -222,10 +222,10 @@ function get_default_branch {
   echo "${default_branch_path##*/}"
 }
 
-function safe_git_config {
+function safe_git_config_get {
   # If a config option isn't set, git exits with a non-zero code so the `|| true`
   # stops the statement from failing.
-  git config "$@" || true
+  git config get "$@" || true
 }
 
 main "$@"

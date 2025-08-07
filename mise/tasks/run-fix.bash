@@ -1,6 +1,6 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter git
+#! nix-shell --packages nix-shell-interpreter git coreutils
 #MISE hide=true
 #MISE dir="{{cwd}}"
 
@@ -92,12 +92,26 @@ function diff_including_untracked {
       readarray -d '' initially_untracked_files
       track "${initially_untracked_files[@]}"
 
-      # Why I can't use a pager:
-      #   - This may be run non-interactively like in CI or through a git GUI for
-      #     example.
-      #   - If a pager was used, the next fix command would not be able to run until
-      #     the pager was closed.
-      git --no-pager diff --color
+      pager="$(safe_git_config_get core.pager)"
+      git diff --color |
+        # You may be wondering why we pipe git's output into its pager since git is
+        # already configured to use it. If git detects that stdout isn't a terminal,
+        # it won't use a pager. For the reasons described in the comment below, we
+        # don't want the pager's stdout to be a terminal. Instead, we manually pipe
+        # git's output through its pager.
+        eval "${pager:-cat}" |
+        # Some pagers, like less, may use an interactive fullscreen mode if its
+        # stdout is a terminal, but we don't want that for these reasons:
+        #   - This may be run non-interactively like in CI or through a git GUI.
+        #     While these environments are non-interactive they may still connect the
+        #     pager's stdout to a terminal.
+        #   - Even if this is run in an interactive terminal, I think users would
+        #     find it annoying if a fullscreen pager opened up every time a fix was
+        #     made.
+        #
+        # To ensure the pager doesn't use its fullscreen mode, we pipe its output to
+        # `cat`. This way, the pager's stdout won't be a terminal.
+        cat
 
       untrack "${initially_untracked_files[@]}"
     }
@@ -117,6 +131,12 @@ function untrack {
   if ((${#files[@]} > 0)); then
     git reset --quiet -- "${files[@]}"
   fi
+}
+
+function safe_git_config_get {
+  # If a config option isn't set, git exits with a non-zero code so the `|| true`
+  # stops the statement from failing.
+  git config get "$@" || true
 }
 
 main "$@"
