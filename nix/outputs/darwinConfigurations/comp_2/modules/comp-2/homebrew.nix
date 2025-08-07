@@ -14,13 +14,9 @@
     ];
 
     casks = [
-      "xcodes"
       "hammerspoon"
       "visual-studio-code"
       "google-chrome"
-      "unnaturalscrollwheels"
-      "MonitorControl"
-      "element"
       "nightfall"
       "podman-desktop"
       "devpod"
