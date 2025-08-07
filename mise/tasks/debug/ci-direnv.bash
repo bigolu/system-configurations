@@ -16,11 +16,11 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# You can change direnv's layout directory by setting `direnv_layout_dir`. If it's
-# not set, .direnv is used. I'm changing it so nix-direnv doesn't overwrite the dev
-# shell cached in .direnv with the one built here. Also, using a new
-# `direnv_layout_dir` would be a more accurate representation of CI since
-# `direnv_layout_dir` will start off empty there.
+# You can change direnv's layout directory by setting `direnv_layout_dir`. By
+# default, it's `.direnv`. Why we change this:
+#   - So direnv doesn't overwrite the development environment in `.direnv`.
+#   - Using a new `direnv_layout_dir` would be a more accurate representation of CI
+#     since `direnv_layout_dir` will start off empty there.
 direnv_layout_dir="$(mktemp --directory)"
 temp_home="$(mktemp --directory)"
 bash_path="$(type -P bash)"
