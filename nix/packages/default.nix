@@ -20,7 +20,7 @@ let
     recursiveUpdate
     replaceString
     ;
-  inherit (nixpkgs.stdenv) isLinux;
+  inherit (nixpkgs.stdenv) isLinux isDarwin;
 
   filterPrograms =
     package: programsToKeep:
@@ -41,6 +41,10 @@ in
 nixpkgs
 // outputs.packages
 // inputs.gomod2nix.outputs
+// optionalAttrs isDarwin {
+  # TODO: Remove this when tests start passing again
+  lychee = nixpkgs.lychee.overrideAttrs { doCheck = false; };
+}
 // rec {
   __functor =
     self:
