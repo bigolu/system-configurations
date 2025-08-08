@@ -48,6 +48,7 @@ makeShells {
       gozip
       speakerctl
       lefthookCheckHook
+      lefthookCheckCommitMessageHook
       lefthookSyncHook
       mise
       miseTaskAutocomplete
@@ -58,7 +59,7 @@ makeShells {
       npins
     ];
     shellHook = ''
-      export RUN_FIX_ACTIONS='diff,stage'
+      export RUN_FIX_ACTIONS='fail'
     '';
   };
 

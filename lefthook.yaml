@@ -61,13 +61,37 @@ templates:
 # [1]: https://lefthook.dev/configuration/glob.html
 # [2]: https://github.com/evilmartians/lefthook/pull/595
 
-pre-commit:
+commit-msg:
   jobs:
-    - name: pre-commit-check
-      # I enable `interactive` for some of the jobs in the 'check' group so I need
+    - name: check-commit
+      # I enable `interactive` for some of the jobs in the `check` group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      run: printf '%s\0' {staged_files} | lefthook run check --files-from-stdin
+      # Running the commit message check, followed by the file checks, has the
+      # following advantages:
+      #   - We don't have to wait for the file checks to finish before we get to
+      #     enter a commit message.
+      #   - If there's a problem with the message, the file checks won't be run. This
+      #     way we don't have to rerun file checks if the commit message has a
+      #     problem which is important since the file checks usually take a lot
+      #     longer.
+      run: |
+        # Only run if there's a line that doesn't start with '#' that has a
+        # non-whitespace character. If there are no lines like that, we assume the
+        # commit would be aborted.
+        if ! grep -qE '^([^#[:space:]]|[^#].*[^[:space:]].*)' {1}; then
+          exit 0
+        fi
+
+        mise run recommit check {1} bash -ceuo pipefail '
+          lefthook run check-commit-message --file "$1"
+          printf "%s\0" "${@:2}" | lefthook run check --files-from-stdin
+        ' -- {1} {staged_files}
+
+prepare-commit-msg:
+  jobs:
+    - name: restore-commit-msg
+      run: mise run recommit restore {0}
 
 post-rewrite:
   jobs:
@@ -108,6 +132,14 @@ post-commit:
 #
 # [1]: https://lefthook.dev/configuration/glob.html
 # [2]: https://github.com/evilmartians/lefthook/pull/595
+
+check-commit-message:
+  # Custom hooks should always have a files command. See the comment below the
+  # "Custom Hooks" heading for why that is.
+  files: ":"
+  jobs:
+    - name: typos
+      run: typos {files}
 
 sync:
   # Custom hooks should always have a files command. See the comment below the

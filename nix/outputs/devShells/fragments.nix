@@ -209,6 +209,10 @@ rec {
       ];
     };
 
+  lefthookCheckCommitMessageHook = mkShellNoCC {
+    packages = with pkgs; [ typos ];
+  };
+
   lefthookSyncHook = mkShellNoCC {
     inputsFrom = [ lefthook ];
     packages = with pkgs; [
