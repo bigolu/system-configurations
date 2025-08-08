@@ -94,11 +94,9 @@ function diff_including_untracked {
 
       pager="$(safe_git_config_get core.pager)"
       git diff --color |
-        # You may be wondering why we pipe git's output into its pager since git is
-        # already configured to use it. If git detects that stdout isn't a terminal,
-        # it won't use a pager. For the reasons described in the comment below, we
-        # don't want the pager's stdout to be a terminal. Instead, we manually pipe
-        # git's output through its pager.
+        # If git detects that stdout isn't a terminal, it won't use a pager. For the
+        # reasons described in the comment below, we don't want the pager's stdout to
+        # be a terminal. Instead, we manually pipe git's output through its pager.
         eval "${pager:-cat}" |
         # Some pagers, like less, may use an interactive fullscreen mode if its
         # stdout is a terminal, but we don't want that for these reasons:
