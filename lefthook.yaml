@@ -356,7 +356,7 @@ check:
 
                 # Formatters
                 # -------------------------------------------------------------------
-                # Formatters should run after the other fixes since some fixes
+                # Formatters should run after the other fixes since some fixes may
                 # produce code that doesn't comply with the formatting.
 
                 - name: taplo
