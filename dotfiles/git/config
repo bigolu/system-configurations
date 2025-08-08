@@ -43,7 +43,7 @@
   #
   # If a config option isn't set, git exits with a non-zero code so the `echo` both
   # stops the statement from failing and provides a default value.
-  check-commit = "!eval \"$(git config --get 'bigolu.check-command' || echo 'false')\""
+  check-commit = "!eval \"$(git config get 'bigolu.check-command' || echo 'false')\""
 [init]
   defaultBranch = master
 [merge]

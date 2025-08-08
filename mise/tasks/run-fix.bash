@@ -93,7 +93,7 @@ function diff_including_untracked {
       track "${initially_untracked_files[@]}"
 
       pager="$(safe_git_config_get core.pager)"
-      git diff --color |
+      git diff |
         # If git detects that stdout isn't a terminal, it won't use a pager. For the
         # reasons described in the comment below, we don't want the pager's stdout to
         # be a terminal. Instead, we manually pipe git's output through its pager.
