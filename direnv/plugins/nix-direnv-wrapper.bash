@@ -109,25 +109,23 @@ function _ndw_make_gc_roots_for_flake {
       nix eval --impure --raw --expr '
         with builtins;
         let
-          inputsRecursive =
-            inputs:
-            let
-              inputsAsList = attrValues inputs;
-              inputLists =
-                [ inputsAsList ]
-                # Inputs with "flake = false" will not have inputs
-                ++ (map (input: inputsRecursive (input.inputs or {})) inputsAsList);
-              flatten = foldl'\'' (acc: next: acc ++ next) [];
-            in
-            flatten inputLists;
-
-          unique = foldl'\'' (acc: e: if elem e acc then acc else acc ++ [ e ]) [ ];
-
-          inputs = inputsRecursive (import (getEnv "NIX_DIRENV_FLAKE_COMPAT")).inputs;
-          outPaths = catAttrs "outPath" inputs;
-          uniqueOutPaths = unique outPaths;
+          addKey = input: input // { key = input.outPath; };
+          getInputs =
+            flake:
+            genericClosure {
+              startSet = [(addKey flake)];
+              # Inputs with "flake = false" will not have inputs
+              operator = input: map addKey (attrValues (input.inputs or {}));
+            };
+          flake = import (getEnv "NIX_DIRENV_FLAKE_COMPAT");
+          inputs = getInputs flake;
+          # If "copySourceTreeToStore" is false, then the outPath of any local flakes
+          # will not be a store path. This includes the current flake and any inputs
+          # of type "path".
+          isStorePath = path: dirOf path == storeDir;
+          outPaths = filter isStorePath (catAttrs "outPath" inputs);
         in
-        concatStringsSep "\n" uniqueOutPaths
+        concatStringsSep "\n" outPaths
       '
     )"
     readarray -t inputs <<<"$inputs_string"
