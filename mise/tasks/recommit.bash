@@ -59,15 +59,12 @@ function main {
         temp="$(mktemp)"
 
         {
-          echo "$(<"$faulty_commit")"
-          {
-            # shellcheck disable=2016
-            echo '
-The commit restored by `recommit` is above this comment. In case you did not
-want to restore, the original contents of the commit file are below.
-'
-            echo "$(<"$commit_file")"
-          } |
+          printf '%s\n\n' "$(<"$faulty_commit")"
+          # shellcheck disable=2016
+          printf '%s\n%s\n\n%s\n' \
+            'The commit restored by `recommit` is above this comment. In case you did not' \
+            'want to restore, the original contents of the commit file are below:' \
+            "$(<"$commit_file")" |
             # This adds a '#' to the beginning of any lines that don't have one. It's
             # important that all of the commented lines be contiguous so git removes
             # them from the commit message.
