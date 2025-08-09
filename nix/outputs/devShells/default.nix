@@ -59,7 +59,7 @@ makeShells {
       npins
     ];
     shellHook = ''
-      export RUN_FIX_ACTIONS='fail'
+      export RUN_FIX_ACTIONS='diff,stage,fail'
     '';
   };
 

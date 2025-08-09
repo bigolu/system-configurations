@@ -65,10 +65,10 @@ function main {
             'The commit restored by `recommit` is above this comment. In case you did not' \
             'want to restore, the original contents of the commit file are below:' \
             "$(<"$commit_file")" |
-            # This adds a '#' to the beginning of any lines that don't have one. It's
-            # important that all of the commented lines be contiguous so git removes
-            # them from the commit message.
-            sed 's/^#\?/#/'
+            # This adds '# ' to the beginning of any lines that don't start with '#'.
+            # It's important that all the commented lines be contiguous so git
+            # removes them from the commit message.
+            sed 's/^#\?/# /'
         } >"$temp"
 
         mv "$temp" "$commit_file"
