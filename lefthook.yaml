@@ -13,11 +13,10 @@ colors:
   yellow: 3
 
 output:
-  # Print a header for each job
   - execution_info
-  # Print command output. This is particularly useful for jobs like 'nix-outputs' and
-  # 'system' since they can take a long time and having the output would show me what
-  # the bottlenecks are.
+  # Even if a command succeeds, it still may be useful to see its output in case it
+  # prints a warning for a deprecated feature or the fact that the project is no
+  # longer being maintained.
   - execution_out
   - failure
 
