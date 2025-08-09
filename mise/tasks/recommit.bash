@@ -64,8 +64,8 @@ function main {
           printf '%s\n\n' "$(<"$faulty_commit")"
           # shellcheck disable=2016
           printf '%s\n%s\n\n%s\n' \
-            'The commit restored by `recommit` is above this comment. In case you did not' \
-            'want to restore, the original contents of the commit file are below:' \
+            'The commit message restored by `recommit` is above this comment.' \
+            'The original contents of the commit file are below:' \
             "$(<"$commit_file")" |
             # This adds '# ' to the beginning of any lines that don't start with '#'.
             # It's important that all the commented lines be contiguous so git
