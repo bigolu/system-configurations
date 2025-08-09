@@ -48,10 +48,11 @@ let
 
   # This is the version I give to packages that are only used inside of this project.
   # They don't actually have a version, but they need one for them to be displayed
-  # properly by the nix CLI. Since the nix CLI follows nixpkgs' version
-  # conventions[1], it needs to start with a digit.
+  # properly by the nix. Nix considers everything up until the first dash not
+  # followed by a letter to be the package name[1] so I'll start this version with a
+  # number.
   #
-  # [1]: https://github.com/NixOS/nixpkgs/blob/master/pkgs/README.md#versioning
+  # [1]: https://nix.dev/manual/nix/2.30/language/builtins.html#builtins-parseDrvName
   unstableVersion = "0-unstable";
 
   applyIf =

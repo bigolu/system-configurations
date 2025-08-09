@@ -14,7 +14,8 @@ function main {
 
   local git_directory
   git_directory="$(git rev-parse --absolute-git-dir)"
-  local -r faulty_commit="$git_directory/info/recommit-faulty-commit"
+  # Intentionally global
+  faulty_commit="$git_directory/info/recommit-faulty-commit"
 
   case "$subcommand" in
     'check')
@@ -50,6 +51,7 @@ function main {
         if [[ $can_restore == 'true' ]]; then
           exit 0
         else
+          remove_faulty_commit
           exit 1
         fi
       fi
@@ -74,15 +76,19 @@ function main {
         mv "$temp" "$commit_file"
       fi
 
-      if [[ -e $faulty_commit ]]; then
-        rm "$faulty_commit"
-      fi
+      remove_faulty_commit
       ;;
     *)
       echo "recommit: Error, invalid subcommand: $subcommand" >&2
       exit 2
       ;;
   esac
+}
+
+function remove_faulty_commit {
+  if [[ -e $faulty_commit ]]; then
+    rm "$faulty_commit"
+  fi
 }
 
 function extract_commit_message {

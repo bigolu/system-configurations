@@ -62,7 +62,9 @@ runs:
         #
         # [1]: https://github.com/actions/toolkit/issues/713
         sudo rm -rf ~root/.cache/nix
-        # Keep the fetcher cache to speed up `nix flake archive` on a cache hit
+        # If `fetchTree` is used and nix doesn't find a valid cache entry in
+        # `fetcher-cache` it will refetch the content. To avoid that we keep the
+        # `fetcher-cache`. For example, `nix flake archive` uses `fetchTree`.
         paths_to_delete=()
         for path in ~/.cache/nix/*; do
           if [[ ! $path =~ fetcher-cache* ]]; then

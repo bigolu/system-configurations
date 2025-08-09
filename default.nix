@@ -26,7 +26,7 @@ in
 }:
 let
   pins =
-    builtins.mapAttrs
+    nixpkgs.lib.mapAttrs
       # Use derivation-based fetchers from nixpkgs for all pins.
       (_name: pin: pin { pkgs = nixpkgs; })
       (import ./npins);
