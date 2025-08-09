@@ -81,14 +81,14 @@ function __grep_widget --argument-names title grep_command
     commandline -f repaint
 end
 
-function grep-widget --description 'Search by line, recursively, from current directory'
+function grep-widget --description 'Search by line, recursively'
     __grep_widget \
         'pattern: ' \
-        "rg --no-config --colors=match:none --colors=match:fg:cyan --colors=path:none --colors=line:none --colors=line:fg:8 --colors=column:none --hidden --column --line-number --no-heading --color=always --smart-case --follow --no-ignore-parent -- {q} $__directory_placeholder"
+        "rg --line-number --column --colors=path:none --no-heading --color=always -- {q} $__directory_placeholder"
 end
 bind ctrl-g grep-widget
 
-function grep-all-widget --description 'Text search on text, and certain non-text, files, recursively, from current directory'
+function grep-all-widget --description 'Text search on text, and certain non-text, files, recursively'
     set dir (__widgets_get_directory_from_current_token)
 
     set grep_command "rga --files-with-matches --rga-cache-max-blob-len=10M -- {q} $__directory_placeholder"
@@ -124,7 +124,7 @@ function grep-all-widget --description 'Text search on text, and certain non-tex
 end
 bind alt-g grep-all-widget
 
-function ast-grep-widget --description 'Search by AST node, recursively, from current directory'
+function ast-grep-widget --description 'Search by AST node, recursively'
     __grep_widget \
         'AST pattern: ' \
         'ast-grep --pattern {q} --json=stream '$__directory_placeholder' | jq --raw-output \'"\(.file):\(.range.start.line + 1):\(.range.start.column + 1):\(.lines | gsub("\n"; "'(set_color bryellow)'␤'(set_color normal)'"))"\''
