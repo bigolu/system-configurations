@@ -15,13 +15,14 @@ nixpkgs.callPackage (
     activation ? [ ],
   }:
   let
-    inherit (builtins) attrValues catAttrs;
     inherit (stdenv) isLinux;
     inherit (lib)
       escapeShellArg
       getAttrs
       concatStringsSep
       pipe
+      attrValues
+      catAttrs
       ;
 
     bashPath = "${bash}/bin/bash";

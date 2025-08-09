@@ -8,12 +8,6 @@ nixpkgs.callPackage (
   }:
   mkShellArgs:
   let
-    inherit (builtins)
-      removeAttrs
-      catAttrs
-      filter
-      foldl'
-      ;
     inherit (lib)
       pipe
       escapeShellArg
@@ -24,6 +18,10 @@ nixpkgs.callPackage (
       optionals
       reverseList
       recursiveUpdate
+      removeAttrs
+      catAttrs
+      filter
+      foldl'
       ;
     inherit (utils) applyIf;
 

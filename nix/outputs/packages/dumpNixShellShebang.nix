@@ -3,19 +3,17 @@ nixpkgs.callPackage (
   { pkgs, lib }:
   path:
   let
-    inherit (builtins)
-      readFile
-      match
-      filter
-      elemAt
-      concatMap
-      ;
     inherit (lib)
       pipe
       pathIsDirectory
       splitString
       unique
       hasPrefix
+      readFile
+      match
+      filter
+      elemAt
+      concatMap
       ;
     inherit (lib.filesystem) listFilesRecursive;
 

@@ -30,10 +30,6 @@ let
     replaceString
     optionals
     inPureEvalMode
-    ;
-  inherit (lib.filesystem) listFilesRecursive;
-  inherit (config.lib.file) mkOutOfStoreSymlink;
-  inherit (builtins)
     length
     pathExists
     filter
@@ -41,9 +37,11 @@ let
     listToAttrs
     readFile
     hasAttr
-    unsafeDiscardStringContext
     concatMap
     ;
+  inherit (lib.filesystem) listFilesRecursive;
+  inherit (lib.strings) unsafeDiscardStringContext;
+  inherit (config.lib.file) mkOutOfStoreSymlink;
   inherit (utils) applyIf;
   inherit (pkgs) writeScript;
 in

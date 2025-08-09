@@ -5,8 +5,7 @@
   ...
 }:
 let
-  inherit (lib) removeSuffix replaceString;
-  inherit (builtins) readFile;
+  inherit (lib) removeSuffix replaceString readFile;
   inherit (pkgs) system;
 
   # Since I use a custom `nix.linux-builder`, I use the linux-builder cached by

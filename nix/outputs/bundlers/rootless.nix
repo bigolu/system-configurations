@@ -13,14 +13,12 @@ nixpkgs.callPackage (
   }:
   drv:
   let
-    inherit (builtins)
+    inherit (lib)
       pathExists
       baseNameOf
       concatStringsSep
       attrNames
       hasAttr
-      ;
-    inherit (lib)
       getName
       warn
       getExe'

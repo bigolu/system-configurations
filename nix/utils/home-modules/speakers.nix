@@ -6,12 +6,12 @@
   ...
 }:
 let
-  inherit (builtins) readFile;
   inherit (pkgs) speakerctl replaceVars writeTextDir;
   inherit (pkgs.stdenv) isDarwin isLinux;
   inherit (lib)
     optionalAttrs
     getExe
+    readFile
     ;
   inherit (utils) projectRoot;
 

@@ -98,9 +98,6 @@ end)
 vim.keymap.set({ "n" }, "[c", function()
   vscode.call("workbench.action.editor.previousChange")
 end)
-vim.keymap.set({ "n" }, "gv", function()
-  vscode.call("git.viewChanges")
-end)
 -- }}}
 
 -- search {{{

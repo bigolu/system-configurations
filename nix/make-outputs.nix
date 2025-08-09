@@ -59,16 +59,14 @@
 lib.fix (
   self:
   let
-    inherit (builtins)
-      foldl'
-      filter
+    inherit (builtins) baseNameOf;
+    inherit (lib)
       pathExists
-      baseNameOf
       elem
       getAttr
       isAttrs
-      ;
-    inherit (lib)
+      filter
+      foldl'
       pipe
       removePrefix
       fileset

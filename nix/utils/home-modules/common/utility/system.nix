@@ -19,8 +19,9 @@ let
     mkDefault
     foldl
     optionalAttrs
+    mapAttrs
+    attrValues
     ;
-  inherit (builtins) mapAttrs attrValues;
   inherit (pkgs.stdenv) isLinux;
 in
 {

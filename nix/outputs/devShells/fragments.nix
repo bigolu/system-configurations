@@ -16,12 +16,12 @@
   ...
 }:
 let
-  inherit (builtins) concatMap;
   inherit (utils) projectRoot;
   inherit (lib)
     pipe
     fileset
     optionals
+    concatMap
     ;
   inherit (pkgs)
     mkShellNoCC

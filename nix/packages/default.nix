@@ -12,13 +12,14 @@ let
     nixpkgs
     utils
     ;
-  inherit (builtins) concatStringsSep substring;
   inherit (utils) unstableVersion projectRoot;
   inherit (lib)
     optionalAttrs
     getExe
     recursiveUpdate
     replaceString
+    concatStringsSep
+    substring
     ;
   inherit (nixpkgs.stdenv) isLinux isDarwin;
 

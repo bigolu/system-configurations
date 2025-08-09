@@ -5,11 +5,11 @@ context@{
   ...
 }:
 let
-  inherit (builtins) mapAttrs;
   inherit (pkgs) mkShellNoCC;
   inherit (lib)
     pipe
     hasPrefix
+    mapAttrs
     ;
   inherit (utils) applyIf;
 
