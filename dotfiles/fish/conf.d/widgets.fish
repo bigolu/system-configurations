@@ -84,7 +84,7 @@ end
 function grep-widget --description 'Search by line, recursively, from current directory'
     __grep_widget \
         'pattern: ' \
-        "rg --no-config --colors=match:none --colors=match:fg:cyan --colors=path:none --colors=line:none --colors=line:fg:8 --colors=column:none --hidden --column --line-number --no-heading --color=always --smart-case --follow -- {q} $__directory_placeholder"
+        "rg --no-config --colors=match:none --colors=match:fg:cyan --colors=path:none --colors=line:none --colors=line:fg:8 --colors=column:none --hidden --column --line-number --no-heading --color=always --smart-case --follow --no-ignore-parent -- {q} $__directory_placeholder"
 end
 bind ctrl-g grep-widget
 

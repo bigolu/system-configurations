@@ -1,4 +1,6 @@
 --hidden
+--follow
+--no-ignore-parent
 --smart-case
 --colors=match:none
 --colors=match:fg:cyan
