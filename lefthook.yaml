@@ -295,13 +295,14 @@ check:
           - name: fix
             group:
               jobs:
+                - name: flake-lock
+                  glob: flake.nix
+                  run: "{run_fix} nix flake lock"
                 - name: readme-table-of-contents
                   glob: README.md
                   run: "{run_fix} doctoc README.md --github"
                 - name: readme-nix-version
                   glob:
-                    - npins/*
-                    - flake.nix
                     - flake.lock
                   run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
                 - name: readme-config-names
@@ -311,8 +312,6 @@ check:
                   run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
                 - name: readme-nixpkgs-commit
                   glob:
-                    - npins/*
-                    - flake.nix
                     - flake.lock
                   run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
                 - name: gomod2nix
@@ -381,9 +380,10 @@ check:
                   glob: "*.go"
                   root: "gozip/"
                   run: "{run_fix} golangci-lint run --fix"
-                - name: flake-lock
-                  glob: flake.nix
-                  run: "{run_fix} nix flake lock"
+                - name: go-version
+                  glob:
+                    - flake.lock
+                  run: "{run_fix} mise run lefthook:check:add-go-version-to-go-mod"
 
                 # Formatters
                 # -------------------------------------------------------------------
@@ -520,7 +520,6 @@ check:
                 - name: nix-config
                   glob:
                     - "*.nix"
-                    - npins/*
                     - flake.nix
                     - flake.lock
                   run: nix config check
