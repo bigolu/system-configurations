@@ -19,7 +19,7 @@ nixpkgs.callPackage (
       escapeShellArg
       concatStringsSep
       splitString
-      concatLists
+      concatMap
       unique
       optionals
       reverseList
@@ -36,8 +36,7 @@ nixpkgs.callPackage (
       }:
       let
         uniquePropagatedShells = pipe inputsFrom [
-          (catAttrs "propagatedShells")
-          concatLists
+          (concatMap (shell: shell.propagatedShells or [ ]))
           unique
         ];
 

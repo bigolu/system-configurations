@@ -42,7 +42,7 @@ let
     readFile
     hasAttr
     unsafeDiscardStringContext
-    concatLists
+    concatMap
     ;
   inherit (utils) applyIf;
   inherit (pkgs) writeScript;
@@ -320,8 +320,7 @@ in
             xdg.executable
           ];
           missingFileSourcesJoined = pipe fileSets [
-            (map attrValues)
-            concatLists
+            (concatMap attrValues)
             (map (file: file.source))
             (filter (source: !(fileSourceExists source)))
             (concatStringsSep " ")

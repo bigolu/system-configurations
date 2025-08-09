@@ -5,10 +5,10 @@ nixpkgs.callPackage (
   let
     inherit (builtins)
       readFile
-      concatLists
       match
       filter
       elemAt
+      concatMap
       ;
     inherit (lib)
       pipe
@@ -18,34 +18,34 @@ nixpkgs.callPackage (
       hasPrefix
       ;
     inherit (lib.filesystem) listFilesRecursive;
+
+    extractNixShellDirectives =
+      file:
+      pipe file [
+        readFile
+        (splitString "\n")
+        (filter (hasPrefix "#! nix-shell"))
+      ];
+
+    # TODO: This doesn't handle expressions yet, only attribute names.
+    extractPackages =
+      nixShellDirective:
+      pipe nixShellDirective [
+        # A nix-shell directive that specifies packages will resemble:
+        #   #! nix-shell --packages/-p package1 package2
+        #
+        # So this match will match everything after the package flag i.e.
+        # 'package1 package2'.
+        (match ''^#! nix-shell (--packages|-p) (.*)'')
+        (matches: if matches != null then elemAt matches 1 else null)
+        (packageString: if packageString != null then splitString " " packageString else [ ])
+        unique
+        (map (packageName: pkgs.${packageName}))
+      ];
   in
   pipe path [
-    # Get all nix-shell directives in all scripts
     (path: if pathIsDirectory path then listFilesRecursive path else [ path ])
-    (map readFile)
-    (map (splitString "\n"))
-    (map (filter (hasPrefix "#! nix-shell")))
-    concatLists
-
-    # Extract packages from nix-shell directives.
-    #
-    # A nix-shell directive that specifies packages will resemble:
-    #   #! nix-shell --packages/-p package1 package2
-    #
-    # So this match will match everything after the package flag i.e.
-    # 'package1 package2'.
-    #
-    # TODO: This doesn't handle expressions yet, only attribute names.
-    (map (match ''^#! nix-shell (--packages|-p) (.*)''))
-    (filter (matches: matches != null))
-    (map (matches: elemAt matches 1))
-
-    # Flatten the output of the previous match i.e. each string in the list will
-    # hold _one_ package, instead of multiple separated by a space.
-    (map (splitString " "))
-    concatLists
-
-    unique
-    (map (packageName: pkgs.${packageName}))
+    (concatMap extractNixShellDirectives)
+    (concatMap extractPackages)
   ]
 ) { }

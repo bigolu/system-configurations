@@ -16,7 +16,7 @@
   ...
 }:
 let
-  inherit (builtins) concatLists;
+  inherit (builtins) concatMap;
   inherit (utils) projectRoot;
   inherit (lib)
     pipe
@@ -273,8 +273,7 @@ rec {
   miseTasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (map dumpNixShellShebang)
-    concatLists
+    (concatMap dumpNixShellShebang)
     # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
     # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.
     # See nix/packages/default.nix
