@@ -31,6 +31,7 @@ nixpkgs.callPackage (
       concatStrings
       escapeShellArg
       escapeShellArgs
+      isStorePath
       ;
     inherit (lib.filesystem) listFilesRecursive;
     inherit (utils) applyIf;
@@ -150,8 +151,9 @@ nixpkgs.callPackage (
         exec ${
           escapeShellArgs [
             interpreter
-            # So it gets copied to the store
-            "${file}"
+            # Files should have their own store path so only changed files have to be
+            # re-resolved.
+            (if isStorePath file then file else builtins.path { path = file; })
           ]
         } "$@"
       '')
