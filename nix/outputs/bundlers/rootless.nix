@@ -54,6 +54,12 @@ nixpkgs.callPackage (
         inherit name;
         dontUnpack = true;
         nativeBuildInputs = [ gozip ];
+
+        # Structured attrs is required for unsafeDiscardReferences
+        __structuredAttrs = true;
+        # All the store paths required for the bundle are inside of it
+        unsafeDiscardReferences.out = true;
+
         installPhase = ''
           # I want an empty directory to store the closure and entrypoint of
           # the input derivation. By default, the build directory contains
