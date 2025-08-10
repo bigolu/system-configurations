@@ -27,7 +27,7 @@ let
     mkShellNoCC
     linkFarm
     mkGoEnv
-    resolveNixShellShebang
+    resolveNixShebang
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -273,7 +273,7 @@ rec {
   miseTasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (concatMap (script: (resolveNixShellShebang script).packages))
+    (concatMap (script: (resolveNixShebang script).packages))
     (packages: mkShellNoCC { inherit packages; })
   ];
 

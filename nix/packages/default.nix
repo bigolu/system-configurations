@@ -86,7 +86,7 @@ recursiveUpdateList [
 
     mkShellNoCC = outputs.packages.mkShellWrapper;
 
-    resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
+    resolveNixShebang = outputs.packages.resolveNixShebang.override { inherit pkgs; };
 
     neovim =
       let

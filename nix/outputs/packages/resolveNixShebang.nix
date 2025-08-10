@@ -93,7 +93,7 @@ nixpkgs.callPackage (
     # There's a `linkFarm` in `lib`, but we can't use it since it coerces the entries
     # to a set and the keys in that set, i.e. the destination for each link, may have
     # string context which nix does not allow[1]. They may have context if the input
-    # to `resolveNixShellShebang` is a directory from the nix store.
+    # to `resolveNixShebang` is a directory from the nix store.
     #
     # [1]: https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
     linkFarm =
