@@ -44,6 +44,8 @@
       url = "github:andir/npins";
       flake = false;
     };
+
+    nix-mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
   };
 
   # This is only used for bundlers since the nix CLI only accepts a flakeref for

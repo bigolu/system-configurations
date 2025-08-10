@@ -170,6 +170,21 @@
         "type": "github"
       }
     },
+    "nix-mk-shell-bin": {
+      "locked": {
+        "lastModified": 1677004959,
+        "narHash": "sha256-/uEkr1UkJrh11vD02aqufCxtbF5YnhRTIKlx5kyvf+I=",
+        "owner": "rrbutani",
+        "repo": "nix-mk-shell-bin",
+        "rev": "ff5d8bd4d68a347be5042e2f16caee391cd75887",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rrbutani",
+        "repo": "nix-mk-shell-bin",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1754340878,
@@ -212,6 +227,7 @@
         "nix-flatpak": "nix-flatpak",
         "nix-gl-host": "nix-gl-host",
         "nix-index-database": "nix-index-database",
+        "nix-mk-shell-bin": "nix-mk-shell-bin",
         "nixpkgs": "nixpkgs",
         "npins": "npins"
       }

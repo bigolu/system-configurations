@@ -27,7 +27,7 @@ let
     mkShellNoCC
     linkFarm
     mkGoEnv
-    dumpNixShellShebang
+    resolveNixShellShebang
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -273,12 +273,8 @@ rec {
   miseTasks = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (concatMap dumpNixShellShebang)
-    # By default, nix-shell runs scripts with runCommandCC which depends on stdenv,
-    # but we replaced runCommandCC with runCommandNoCC which depends on stdenvNoCC.
-    # See nix/packages/default.nix
-    (dependencies: dependencies ++ [ pkgs.stdenvNoCC ])
-    (dependencies: mkShellNoCC { packages = dependencies; })
+    (concatMap (script: (resolveNixShellShebang script).packages))
+    (packages: mkShellNoCC { inherit packages; })
   ];
 
   # Everything needed by the VS Code extensions recommended in

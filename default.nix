@@ -23,6 +23,7 @@ in
   gomod2nix ? flakeInputs.gomod2nix,
   gitignore ? flakeInputs.gitignore,
   nix-gl-host ? flakeInputs.nix-gl-host,
+  nix-mk-shell-bin ? flakeInputs.nix-mk-shell-bin,
 }:
 let
   pins =
@@ -47,7 +48,19 @@ import ./nix/make-outputs.nix {
 
     # Our inputs, with any overrides applied, and their outputs
     inputs =
-      nixpkgs.lib.recursiveUpdate (pins // flakeInputs // { inherit gitignore gomod2nix nix-gl-host; })
+      nixpkgs.lib.recursiveUpdate
+        (
+          pins
+          // flakeInputs
+          // {
+            inherit
+              gitignore
+              gomod2nix
+              nix-gl-host
+              nix-mk-shell-bin
+              ;
+          }
+        )
         {
           nixpkgs.outputs = nixpkgs;
           gitignore.outputs = import gitignore { inherit (nixpkgs) lib; };
@@ -55,6 +68,7 @@ import ./nix/make-outputs.nix {
           # TODO: Use the npins in nixpkgs once it has this commit:
           # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
           npins.outputs = import flakeInputs.npins { pkgs = nixpkgs; };
+          nix-mk-shell-bin.outputs.lib.mkShellBin = import "${nix-mk-shell-bin}/make.nix";
           home-manager.outputs = (import flakeInputs.home-manager { pkgs = nixpkgs; }) // {
             nix-darwin = "${flakeInputs.home-manager}/nix-darwin";
           };
