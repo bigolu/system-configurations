@@ -24,8 +24,7 @@ let
   nix-daemon-reload = writeShellApplication {
     name = "nix-daemon-reload";
     text = ''
-      kernel="$(uname)"
-      if [[ $kernel == 'Linux' ]]; then
+      if [[ $OSTYPE == linux* ]]; then
         sudo systemctl restart nix-daemon.service
       else
         sudo launchctl kickstart -k system/org.nixos.nix-daemon
@@ -59,9 +58,16 @@ let
         sudo --set-home ${nix} profile remove --all
         sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
 
-        # Restart the daemon so we use the daemon from the version of nix we just
-        # installed
-        sudo --set-home ${getExe nix-daemon-reload}
+        # Restart the daemon so we can use the daemon from the version of nix we just
+        # installed, but first restart the service manager in case the service
+        # definition changed.
+        if [[ $OSTYPE == linux* ]]; then
+          sudo systemctl daemon-reload
+          sudo ${getExe nix-daemon-reload}
+        else
+          sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist
+          sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist
+        fi
         while ! nix-store -q --hash ${stdenv.shell} &>/dev/null; do
           echo "waiting for nix-daemon" >&2
           sleep 0.5
