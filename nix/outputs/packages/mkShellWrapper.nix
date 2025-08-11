@@ -6,7 +6,6 @@ nixpkgs.callPackage (
     lib,
     mkShellNoCC,
   }:
-  mkShellArgs:
   let
     inherit (lib)
       pipe
@@ -23,8 +22,8 @@ nixpkgs.callPackage (
       filter
       foldl'
       ;
-    inherit (utils) applyIf;
 
+    inherit (utils) applyIf;
     recursiveUpdateList = foldl' recursiveUpdate { };
 
     deduplicateShellHooks =
@@ -162,6 +161,7 @@ nixpkgs.callPackage (
         ]
       );
   in
+  mkShellArgs:
   pipe mkShellArgs [
     (applyIf uniqueShellHooks deduplicateShellHooks)
     (applyIf guardShellHook addShellHookGuard)

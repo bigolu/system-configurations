@@ -10,6 +10,7 @@ let
     pipe
     hasPrefix
     mapAttrs
+    mergeAttrs
     ;
   inherit (utils) applyIf;
 
@@ -29,16 +30,18 @@ let
       inputsFrom = (mkShellArgs.inputsFrom or [ ]) ++ [ fragments.shellHookHelpers ];
     };
 
-  makeShells =
-    mkShellArgsByName:
-    pipe mkShellArgsByName [
+  makeShell =
+    name: mkShellArgs:
+    pipe mkShellArgs [
       # We add the name to the mkShell arguments so the caller doesn't have to
       # specify it twice.
-      (mapAttrs (name: mkShellArgs: mkShellArgs // { inherit name; }))
-      (mapAttrs (name: applyIf (hasPrefix "ci-" name) addCiEssentials))
-      (mapAttrs (_name: addShellHookHelpers))
-      (mapAttrs (_name: mkShellNoCC))
+      (mergeAttrs { inherit name; })
+      (applyIf (hasPrefix "ci-" name) addCiEssentials)
+      addShellHookHelpers
+      mkShellNoCC
     ];
+
+  makeShells = mapAttrs makeShell;
 in
 makeShells {
   development = {

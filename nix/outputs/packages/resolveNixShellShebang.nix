@@ -12,7 +12,6 @@ nixpkgs.callPackage (
     runCommand,
     writeShellScript,
   }:
-  path:
   let
     inherit (lib)
       pipe
@@ -20,9 +19,7 @@ nixpkgs.callPackage (
       splitString
       hasPrefix
       readFile
-      match
       filter
-      elemAt
       concatMap
       findFirst
       removePrefix
@@ -32,95 +29,60 @@ nixpkgs.callPackage (
       escapeShellArgs
       isStorePath
       ;
-    inherit (lib.filesystem) listFilesRecursive;
-    inherit (utils) applyIf;
 
     nixShellDirectivePrefix = "#! nix-shell";
-
     isNixShellDirective = hasPrefix nixShellDirectivePrefix;
 
-    hasNixShellDirective =
-      file:
-      pipe file [
-        readFile
-        (splitString "\n")
-        (any isNixShellDirective)
-      ];
-
-    getNixShellDirectives =
-      file:
-      pipe file [
-        readFile
-        (splitString "\n")
-        (filter isNixShellDirective)
-      ];
-
-    # TODO: This doesn't handle expressions yet, only attribute names.
-    getPackages =
-      let
-        getPackagesFromDirective =
-          directive:
-          pipe directive [
-            # A nix-shell directive that specifies packages will resemble:
-            #   #! nix-shell --packages/-p package1 package2
-            #
-            # So this match will match everything after the package flag i.e.
-            # 'package1 package2'.
-            (match ''^${nixShellDirectivePrefix} (--packages|-p) (.*)'')
-            (matches: if matches != null then elemAt matches 1 else null)
-            (packageString: if packageString != null then splitString " " packageString else [ ])
-            (map (packageName: pkgs.${packageName}))
-          ];
-      in
-      file:
-      pipe file [
-        getNixShellDirectives
-        (concatMap getPackagesFromDirective)
-      ];
-
-    getInterpreter =
-      file:
-      let
-        interpreterDirective = "${nixShellDirectivePrefix} -i ";
-      in
-      pipe file [
-        readFile
-        (splitString "\n")
-        (findFirst (hasPrefix interpreterDirective) null)
-        (removePrefix interpreterDirective)
-      ];
-
-    listRelativeFilesRecursive =
-      directory:
-      pipe directory [
-        listFilesRecursive
-        (map (path: removePrefix "${toString directory}/" (toString path)))
-      ];
-
-    # There's a `linkFarm` in `lib`, but we can't use it since it coerces the entries
-    # to a set and the keys in that set, i.e. the destination for each link, may have
-    # string context which nix does not allow[1]. They may have context if the input
-    # to `resolveNixShellShebang` is a directory from the nix store.
+    # Use the same `runCommand` as the nix CLI[1].
     #
-    # [1]: https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
-    linkFarm =
-      name: entries:
-      let
-        linkCommands = map (
-          { name, path }:
-          ''
-            mkdir -p -- "$(dirname -- ${escapeShellArg "${name}"})"
-            ln -s -- ${escapeShellArg "${path}"} ${escapeShellArg "${name}"}
-          ''
-        ) entries;
-      in
-      runCommand name { } ''
-        mkdir -p $out
-        cd $out
-        ${concatStrings linkCommands}
-      '';
+    # [1]: https://github.com/NixOS/nix/blob/0b7f7e4b03ea162ad059e283dd6402f50d585d2d/src/nix/nix-build/nix-build.cc#L340
+    nixCliRunCommand = pkgs.pkgs.runCommandCC or pkgs.pkgs.runCommand;
 
     resolveDirectory =
+      let
+        inherit (lib.filesystem) listFilesRecursive;
+        inherit (utils) applyIf;
+
+        listRelativeFilesRecursive =
+          directory:
+          pipe directory [
+            listFilesRecursive
+            (map (path: removePrefix "${toString directory}/" (toString path)))
+          ];
+
+        hasNixShellDirective =
+          file:
+          pipe file [
+            readFile
+            (splitString "\n")
+            (any isNixShellDirective)
+          ];
+
+        # There's a `linkFarm` in `lib`, but we can't use it since it coerces the
+        # entries to a set and the keys in that set, i.e. the destination for each
+        # link, may have string context which nix does not allow[1]. They may have
+        # context if the input to `resolveNixShellShebang` is a directory from the
+        # nix store.
+        #
+        # [1]:
+        # https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
+        linkFarm =
+          name: entries:
+          let
+            linkCommands = map (
+              { name, path }:
+              ''
+                mkdir -p -- "$(dirname -- ${escapeShellArg "${name}"})"
+                ln -s -- ${escapeShellArg "${path}"} ${escapeShellArg "${name}"}
+              ''
+            ) entries;
+          in
+          runCommand name { } ''
+            mkdir -p $out
+            cd $out
+            ${concatStrings linkCommands}
+          '';
+      in
       directory:
       pipe directory [
         listRelativeFilesRecursive
@@ -133,7 +95,49 @@ nixpkgs.callPackage (
 
     resolveFile =
       let
-        inherit ((pkgs.pkgs.runCommandCC or pkgs.pkgs.runCommand) "no-name" { } "") stdenv;
+        inherit (nixCliRunCommand "no-name" { } "") stdenv;
+
+        getNixShellDirectives =
+          file:
+          pipe file [
+            readFile
+            (splitString "\n")
+            (filter isNixShellDirective)
+          ];
+
+        getPackagesFromDirective =
+          directive:
+          lib.pipe directive [
+            # A nix-shell directive that specifies packages will resemble:
+            #   #! nix-shell --packages/-p package1 package2
+            #
+            # So this match will match everything after the package flag i.e.
+            # 'package1 package2'.
+            (lib.match ''^${nixShellDirectivePrefix} (--packages|-p) (.*)'')
+            (matches: if matches != null then lib.elemAt matches 1 else null)
+            (packageString: if packageString != null then lib.splitString " " packageString else [ ])
+            (map (packageName: pkgs.${packageName}))
+          ];
+
+        # TODO: This doesn't handle expressions yet, only attribute names.
+        getPackages =
+          file:
+          pipe file [
+            getNixShellDirectives
+            (concatMap getPackagesFromDirective)
+          ];
+
+        getInterpreter =
+          file:
+          let
+            interpreterDirective = "${nixShellDirectivePrefix} -i ";
+          in
+          pipe file [
+            readFile
+            (splitString "\n")
+            (findFirst (hasPrefix interpreterDirective) null)
+            (removePrefix interpreterDirective)
+          ];
       in
       file:
       let
@@ -144,7 +148,7 @@ nixpkgs.callPackage (
         # provides the _build_ environment for the input derivation.
         #
         # [1]: https://github.com/NixOS/nix/blob/0b7f7e4b03ea162ad059e283dd6402f50d585d2d/src/nix/nix-build/nix-build.cc#L340
-        environmentDrv = (pkgs.pkgs.runCommandCC or pkgs.pkgs.runCommand) "${baseNameOf file}-shebang-env" {
+        environmentDrv = nixCliRunCommand "${baseNameOf file}-shebang-env" {
           nativeBuildInputs = packages;
         } "";
         inherit
@@ -171,5 +175,5 @@ nixpkgs.callPackage (
         packages = packages ++ [ stdenv ];
       };
   in
-  if pathIsDirectory path then resolveDirectory path else resolveFile path
+  path: if pathIsDirectory path then resolveDirectory path else resolveFile path
 ) { }
