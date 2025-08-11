@@ -18,7 +18,6 @@ nixpkgs.callPackage (
       pipe
       pathIsDirectory
       splitString
-      unique
       hasPrefix
       readFile
       match
@@ -48,7 +47,7 @@ nixpkgs.callPackage (
         (any isNixShellDirective)
       ];
 
-    extractNixShellDirectives =
+    getNixShellDirectives =
       file:
       pipe file [
         readFile
@@ -57,22 +56,29 @@ nixpkgs.callPackage (
       ];
 
     # TODO: This doesn't handle expressions yet, only attribute names.
-    extractPackages =
-      nixShellDirective:
-      pipe nixShellDirective [
-        # A nix-shell directive that specifies packages will resemble:
-        #   #! nix-shell --packages/-p package1 package2
-        #
-        # So this match will match everything after the package flag i.e.
-        # 'package1 package2'.
-        (match ''^${nixShellDirectivePrefix} (--packages|-p) (.*)'')
-        (matches: if matches != null then elemAt matches 1 else null)
-        (packageString: if packageString != null then splitString " " packageString else [ ])
-        unique
-        (map (packageName: pkgs.${packageName}))
+    getPackages =
+      let
+        getPackagesFromDirective =
+          directive:
+          pipe directive [
+            # A nix-shell directive that specifies packages will resemble:
+            #   #! nix-shell --packages/-p package1 package2
+            #
+            # So this match will match everything after the package flag i.e.
+            # 'package1 package2'.
+            (match ''^${nixShellDirectivePrefix} (--packages|-p) (.*)'')
+            (matches: if matches != null then elemAt matches 1 else null)
+            (packageString: if packageString != null then splitString " " packageString else [ ])
+            (map (packageName: pkgs.${packageName}))
+          ];
+      in
+      file:
+      pipe file [
+        getNixShellDirectives
+        (concatMap getPackagesFromDirective)
       ];
 
-    extractInterpreter =
+    getInterpreter =
       file:
       let
         interpreterDirective = "${nixShellDirectivePrefix} -i ";
@@ -94,7 +100,7 @@ nixpkgs.callPackage (
     # There's a `linkFarm` in `lib`, but we can't use it since it coerces the entries
     # to a set and the keys in that set, i.e. the destination for each link, may have
     # string context which nix does not allow[1]. They may have context if the input
-    # to `resolveNixShebang` is a directory from the nix store.
+    # to `resolveNixShellShebang` is a directory from the nix store.
     #
     # [1]: https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
     linkFarm =
@@ -125,27 +131,31 @@ nixpkgs.callPackage (
         (linkFarm "resolved-${baseNameOf directory}")
       ];
 
-    inherit ((pkgs.pkgs.runCommandCC or pkgs.pkgs.runCommand) "no-name" { } "") stdenv;
-
     resolveFile =
+      let
+        inherit ((pkgs.pkgs.runCommandCC or pkgs.pkgs.runCommand) "no-name" { } "") stdenv;
+      in
       file:
       let
-        packages = pipe file [
-          extractNixShellDirectives
-          (concatMap extractPackages)
-        ];
-        interpreter = extractInterpreter file;
+        packages = getPackages file;
+        interpreter = getInterpreter file;
         # This is how nix creates the environment for a shebang script[1], except we
         # use `nativeBuildInputs` instead of `buildInputs` since nix-mk-shell-bin
         # provides the _build_ environment for the input derivation.
         #
         # [1]: https://github.com/NixOS/nix/blob/0b7f7e4b03ea162ad059e283dd6402f50d585d2d/src/nix/nix-build/nix-build.cc#L340
-        drv = (pkgs.pkgs.runCommandCC or pkgs.pkgs.runCommand) "${baseNameOf file}-shebang-env" {
+        environmentDrv = (pkgs.pkgs.runCommandCC or pkgs.pkgs.runCommand) "${baseNameOf file}-shebang-env" {
           nativeBuildInputs = packages;
         } "";
-        inherit (mkShellBin { inherit drv nixpkgs; }) envScript;
+        inherit
+          (mkShellBin {
+            inherit nixpkgs;
+            drv = environmentDrv;
+          })
+          envScript
+          ;
       in
-      (writeShellScript "patched-${baseNameOf file}" ''
+      (writeShellScript "resolved-{baseNameOf file}" ''
         source ${envScript}
         unset TMP TMPDIR TEMP TEMPDIR
         exec ${
