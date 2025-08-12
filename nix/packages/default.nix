@@ -84,8 +84,6 @@ recursiveUpdateList [
       interpreter = bash-script;
     };
 
-    mkShellNoCC = outputs.packages.mkShellWrapper;
-
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
 
     neovim =
