@@ -10,7 +10,6 @@
   ]
   ++ lib.optionals pkgs.stdenv.isLinux [
     ./locale.nix
-
   ];
 
   packages = with pkgs; [
