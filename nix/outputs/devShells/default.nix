@@ -7,24 +7,32 @@ context@{
 let
   inherit (lib) evalModules mapAttrs;
 
-  makeShells =
+  makeShell =
     {
       context,
       defaultModules ? [ ],
     }:
-    mapAttrs (
-      name: module:
-      (evalModules {
-        specialArgs = context // {
-          inherit name;
-        };
-        modules = defaultModules ++ [
-          inputs.make-shell.outputs.module
-          { inherit name; }
-          module
-        ];
-      }).config.finalPackage
-    );
+    {
+      name,
+      module,
+    }:
+    (evalModules {
+      specialArgs = context // {
+        inherit name;
+      };
+      modules = defaultModules ++ [
+        inputs.make-shell.outputs.module
+        module
+        { inherit name; }
+      ];
+    }).config.finalPackage;
+
+  makeShells =
+    config:
+    let
+      makeShell' = makeShell config;
+    in
+    mapAttrs (name: module: makeShell' { inherit name module; });
 in
 makeShells
   {
