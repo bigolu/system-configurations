@@ -37,12 +37,7 @@ set --global --export MANOPT --no-hyphenation
 # these variables, see:
 # https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference/302391#302391
 begin
-    set --local editor_arguments
-    if set --export --names | string match --quiet --regex '^VSCODE_.*'
-        set editor_arguments code --reuse-window --wait
-    else
-        set editor_arguments nvim
-    end
+    set --local editor_arguments nvim
     set --local joined_editor_arguments (string join ' ' -- (type --force-path $editor_arguments[1]) $editor_arguments[2..])
     set --global --export VISUAL "$joined_editor_arguments"
     set --global --export EDITOR $VISUAL
