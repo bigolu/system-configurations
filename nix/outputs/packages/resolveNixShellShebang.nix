@@ -159,7 +159,7 @@ nixpkgs.callPackage (
           envScript
           ;
       in
-      (writeShellScript "resolved-{baseNameOf file}" ''
+      (writeShellScript "resolved-${baseNameOf file}" ''
         source ${envScript}
         unset TMP TMPDIR TEMP TEMPDIR
         exec ${
