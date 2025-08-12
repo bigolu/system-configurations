@@ -21,23 +21,40 @@ nixpkgs.callPackage (
       catAttrs
       filter
       foldl'
+      getAttrs
       ;
 
     inherit (utils) applyIf;
     recursiveUpdateList = foldl' recursiveUpdate { };
 
     deduplicateShellHooks =
+      let
+        # We keep track of enough information to deduplicate the hooks based on the
+        # shell derivation they belong to and not their contents. This way, if two
+        # different shell derivations happen to have the same shellHook, the
+        # shellHook will still be included twice.
+        getShellHookWithId = getAttrs [
+          "shellHook"
+          "drvPath"
+        ];
+
+        removeShellHook = shell: removeAttrs shell [ "shellHook" ];
+      in
       mkShellArgs@{
         inputsFrom ? [ ],
         ...
       }:
       let
-        uniquePropagatedShells = pipe inputsFrom [
-          (concatMap (shell: shell.propagatedShells or [ ]))
+        propagatedShellHooks = pipe inputsFrom [
+          # Shells that weren't created with this wrapper won't have
+          # `propagatedShellHooks`, but may have a `shellHook`.
+          (concatMap (
+            shell: shell.propagatedShellHooks or (optionals (shell ? shellHook) [ (getShellHookWithId shell) ])
+          ))
           unique
         ];
 
-        shellHooks = pipe uniquePropagatedShells [
+        shellHooks = pipe propagatedShellHooks [
           (catAttrs "shellHook")
           # mkShell defaults the shellHook to an empty string
           (filter (hook: hook != ""))
@@ -47,36 +64,28 @@ nixpkgs.callPackage (
         ];
 
         joinedShellHooks = concatStringsSep "\n" shellHooks;
-        inputsFromWithoutShellHooks = map (shell: removeAttrs shell [ "shellHook" ]) inputsFrom;
-        shellWithoutInputsFrom = mkShellNoCC (removeAttrs mkShellArgs [ "inputsFrom" ]);
+        inputsFromWithoutShellHooks = map removeShellHook inputsFrom;
       in
       recursiveUpdateList (
         [
           mkShellArgs
           {
-            # We store all the shells included in inputsFrom, recursively, so we can
-            # keep track of the individual shellHooks. We need to do this since mkShell
-            # combines all the shellHooks from the shells in inputsFrom with the
-            # shellHook of the shell being created.
-            #
-            # Even though the goal is only to deduplicate shellHooks, we keep track of
-            # the entire shells so we can deduplicate the hooks based on the shell
-            # derivation they belong to and not their contents. This way, if two
-            # different shell derivations happen to have the same shellHook, the
-            # shellHook will still be included twice.
-            passthru.propagatedShells =
-              uniquePropagatedShells
-              # We include the shell being created so we can retain its original
-              # shellHook, before we joined it with the shellHooks from the
-              # propagatedShells in inputsFrom. We remove its inputsFrom since those
-              # shells are already included in their own propagatedShells, due to what
-              # we're doing here.
-              ++ [ shellWithoutInputsFrom ];
+            # We store all the shellHooks included in inputsFrom, recursively, so we
+            # can keep track of the individual shellHooks. We need to do this since
+            # mkShell combines all the shellHooks from the shells in inputsFrom with
+            # the shellHook of the shell being created.
+            passthru.propagatedShellHooks =
+              propagatedShellHooks
+              # If this shell gets added to inputsFrom of another shell, its original
+              # shellHook should be used.
+              ++ optionals (mkShellArgs ? shellHook) [
+                (getShellHookWithId (mkShellNoCC (removeAttrs mkShellArgs [ "inputsFrom" ])))
+              ];
           }
         ]
         ++ optionals (inputsFromWithoutShellHooks != [ ]) [
-          # Since we've already joined the shellHooks, we'll remove the shellHooks from
-          # the shells in inputsFrom so they don't get joined again.
+          # Since we've already joined the shellHooks, we'll remove the shellHooks
+          # from the shells in inputsFrom so they don't get joined again.
           { inputsFrom = inputsFromWithoutShellHooks; }
         ]
         ++ optionals (shellHooks != [ ]) [
@@ -99,15 +108,17 @@ nixpkgs.callPackage (
       }:
       let
         shellHooks = pipe inputsFrom [
-          # deduplicateShellHooks will remove shellHooks from the shells in inputsFrom.
-          # Since it doesn't know about the unguardedShellHook field added to the shell
-          # here, it won't clear it. To work around this, we only read
-          # unguardedShellHook if shellHook is also set.
-          (filter (shell: shell ? "shellHook"))
-          (catAttrs "unguardedShellHook")
-          # mkShell defaults the shellHook to an empty string
+          # deduplicateShellHooks will remove shellHooks from the shells in
+          # inputsFrom. Since it doesn't know about the unguardedShellHook field
+          # added to the shell here, it won't clear it. To work around this, we only
+          # read unguardedShellHook if shellHook is also set.
+          (filter (shell: shell ? shellHook))
+          # Shells that weren't created by this wrapper may have a `shellHook`, but
+          # not an `unguardedShellHook`.
+          (map (shell: shell.unguardedShellHook or shell.shellHook))
+          # `mkShell` defaults the shellHook to an empty string
           (filter (hook: hook != ""))
-          # mkShell reverses the order of the shellHooks of the shells in inputsFrom
+          # `mkShell` reverses the order of the shellHooks of the shells in inputsFrom
           reverseList
           (shellHooks: shellHooks ++ optionals (mkShellArgs ? "shellHook") [ mkShellArgs.shellHook ])
         ];
@@ -122,7 +133,7 @@ nixpkgs.callPackage (
 
         escapedName = escapeShellArg name;
 
-        joinedShellHooks = concatStringsSep "\n" shellHooks;
+        unguardedShellHook = concatStringsSep "\n" shellHooks;
 
         # Instead of putting a guard around each individual shellHook, we put
         # concatenate the hooks and put one guard around the entire thing. This is
@@ -141,7 +152,7 @@ nixpkgs.callPackage (
             # shellHook doesn't have one.
             :
 
-          ${indent joinedShellHooks}
+          ${indent unguardedShellHook}
           fi
         '';
       in
@@ -156,7 +167,7 @@ nixpkgs.callPackage (
             # The guard uses the name of the devShell, but the name may change if a
             # shell is included in another shell using inputsFrom so we'll store the
             # unguarded one as well.
-            passthru.unguardedShellHook = joinedShellHooks;
+            passthru.unguardedShellHook = unguardedShellHook;
           }
         ]
       );
