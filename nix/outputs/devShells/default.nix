@@ -9,7 +9,7 @@ let
 
   makeShell =
     {
-      context,
+      extraModuleArgs,
       defaultModules ? [ ],
     }:
     {
@@ -17,7 +17,7 @@ let
       module,
     }:
     (evalModules {
-      specialArgs = context // {
+      specialArgs = extraModuleArgs // {
         inherit name;
       };
       modules = defaultModules ++ [
@@ -36,7 +36,7 @@ let
 in
 makeShells
   {
-    inherit context;
+    extraModuleArgs = context;
     defaultModules = [ ./modules/common ];
   }
   {
