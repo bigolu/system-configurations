@@ -9,7 +9,5 @@ let
 in
 {
   stdenv = pkgs.stdenvNoCC;
-  imports = optionals (hasPrefix "ci-" name) [
-    ./ci-essentials.nix
-  ];
+  imports = optionals (hasPrefix "ci-" name) [ ./ci-essentials.nix ];
 }
