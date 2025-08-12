@@ -24,6 +24,7 @@ in
   gitignore ? flakeInputs.gitignore,
   nix-gl-host ? flakeInputs.nix-gl-host,
   nix-mk-shell-bin ? flakeInputs.nix-mk-shell-bin,
+  make-shell ? flakeInputs.make-shell,
 }:
 let
   pins =
@@ -58,6 +59,7 @@ import ./nix/make-outputs.nix {
               gomod2nix
               nix-gl-host
               nix-mk-shell-bin
+              make-shell
               ;
           }
         )
@@ -69,6 +71,7 @@ import ./nix/make-outputs.nix {
           # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
           npins.outputs = import flakeInputs.npins { pkgs = nixpkgs; };
           nix-mk-shell-bin.outputs.lib.mkShellBin = import "${nix-mk-shell-bin}/make.nix";
+          make-shell.outputs.module = "${make-shell}/shell-modules";
           home-manager.outputs = (import flakeInputs.home-manager { pkgs = nixpkgs; }) // {
             nix-darwin = "${flakeInputs.home-manager}/nix-darwin";
           };

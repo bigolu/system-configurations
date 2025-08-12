@@ -385,6 +385,10 @@ recursiveUpdateList [
         meta.mainProgram = programName;
 
         passthru = {
+          devShellModule = {
+            packages = [ pythonEnv ];
+          };
+
           devShell = nixpkgs.mkShellNoCC {
             packages = [ pythonEnv ];
           };

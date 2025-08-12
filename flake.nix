@@ -46,6 +46,11 @@
     };
 
     nix-mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
+
+    make-shell = {
+      url = "github:nicknovitski/make-shell";
+      inputs.flake-compat.follows = "";
+    };
   };
 
   # This is only used for bundlers since the nix CLI only accepts a flakeref for
