@@ -20,9 +20,7 @@ nixpkgs.callPackage (
       escapeShellArg
       filter
       isStorePath
-      mapAttrs
       genericClosure
-      attrValues
       attrsToList
       concatMap
       id
@@ -46,16 +44,18 @@ nixpkgs.callPackage (
         let
           getInputsRecursive =
             let
-              addKey = input: input // { key = input.outPath; };
+              toClosureNode =
+                name: input:
+                input
+                // {
+                  # Used by `genericClosure` for equality checks
+                  key = input.outPath;
+                  # The inputs will be mapped from a set to a list, but we'll need the
+                  # name later so we'll add it to the input.
+                  inherit name;
+                };
 
-              toClosureNodes =
-                inputs:
-                pipe inputs [
-                  # We'll need the name later
-                  (mapAttrs (name: input: input // { inherit name; }))
-                  attrValues
-                  (map addKey)
-                ];
+              toClosureNodes = mapAttrsToList toClosureNode;
             in
             directInputs:
             genericClosure {
