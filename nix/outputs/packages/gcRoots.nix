@@ -31,13 +31,13 @@ nixpkgs.callPackage (
 
     handlers = {
       paths = id;
-      derivations = map (derivation: "${derivation.name}: ${derivation.outPath}");
+      derivations = map (derivation: "${derivation.name}: ${derivation}");
 
       npins =
         { pins }:
         pipe pins [
           (pins: removeAttrs pins [ "__functor" ])
-          (mapAttrsToList (name: pin: "${name}: ${pin.outPath}"))
+          (mapAttrsToList (name: pin: "${name}: ${pin}"))
         ];
 
       flake =
@@ -108,7 +108,7 @@ nixpkgs.callPackage (
 
     addHeaderAndSeparator = { gcRoots, type }: [ "roots for ${type}:" ] ++ gcRoots ++ [ "" ];
 
-    getGcRoots =
+    getGcRootSection =
       { type, config }:
       addHeaderAndSeparator {
         gcRoots = handlers.${type} config;
@@ -123,7 +123,7 @@ nixpkgs.callPackage (
     attrsToList
     (concatMap (
       { name, value }:
-      getGcRoots {
+      getGcRootSection {
         type = name;
         config = value;
       }
