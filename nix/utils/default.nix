@@ -3,6 +3,7 @@
   inputs,
   pkgs,
   utils,
+  pins,
   ...
 }:
 let
@@ -41,6 +42,7 @@ let
             username
             inputs
             utils
+            pins
             ;
         };
       };

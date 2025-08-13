@@ -3,6 +3,7 @@
   utils,
   lib,
   pkgs,
+  pins,
   ...
 }:
 let
@@ -41,6 +42,7 @@ let
               username
               inputs
               utils
+              pins
               ;
           };
         };
@@ -80,6 +82,7 @@ let
           repositoryDirectory
           inputs
           utils
+          pins
           ;
       };
     };
