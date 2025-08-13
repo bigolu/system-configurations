@@ -9,7 +9,7 @@
 # [1]: https://github.com/direnv/direnv/issues/348
 # [2]: https://github.com/direnv/direnv/issues/227
 
-{ nixpkgs, ... }:
+{ nixpkgs, name, ... }:
 nixpkgs.callPackage (
   {
     writeShellApplication,
@@ -18,7 +18,7 @@ nixpkgs.callPackage (
     coreutils,
   }:
   writeShellApplication {
-    name = "direnv-wrapper";
+    inherit name;
     runtimeInputs = [
       direnv
       bash

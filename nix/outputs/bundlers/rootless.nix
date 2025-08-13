@@ -2,6 +2,7 @@
   nixpkgs,
   inputs,
   utils,
+  name,
   ...
 }:
 nixpkgs.callPackage (
@@ -87,7 +88,7 @@ nixpkgs.callPackage (
             packageDisplayName = derivation.meta.name or derivation.pname or derivation.name;
             assumption = getName derivation;
           in
-          warn "rootless-bundler: Package ${packageDisplayName} does not have the meta.mainProgram attribute. Assuming you want '${assumption}'." assumption;
+          warn "${name}-bundler: Package ${packageDisplayName} does not have the meta.mainProgram attribute. Assuming you want '${assumption}'." assumption;
 
         mainProgramBaseName = derivation.meta.mainProgram or assumedMainProgramBaseName;
         mainProgramPath = getExe' derivation mainProgramBaseName;

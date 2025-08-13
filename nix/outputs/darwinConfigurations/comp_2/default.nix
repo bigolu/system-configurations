@@ -4,6 +4,7 @@
   lib,
   pkgs,
   pins,
+  name,
   ...
 }:
 let
@@ -88,7 +89,7 @@ let
     };
 in
 recursiveUpdate { system.meta.platforms = [ "x86_64-darwin" ]; } (makeDarwinConfiguration {
-  configName = "comp_2";
+  configName = name;
   modules = [ ./modules/comp-2 ];
   homeModules = [
     (homeManagerModuleRoot + "/application-development")

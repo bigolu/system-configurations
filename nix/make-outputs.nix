@@ -37,7 +37,7 @@
 #     A set that gets passed to each of the output files. If it's a function, then it
 #     gets called with itself. This is useful if some of the parts of the context
 #     depend on other parts of it. The outputs attrset will automatically be
-#     added to this set so outputs can refer to each other. The system will also be added.
+#     added to this set so outputs can refer to each other. The system and output name will also be added.
 #   system (string):
 #     In pure evaluation mode, the current system can't be accessed so this
 #     needs to be passed in.
@@ -99,7 +99,7 @@ lib.fix (
         basename = last parts;
         keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
       in
-      setAttrByPath keys (import file context');
+      setAttrByPath keys (import file (context' // { name = last keys; }));
 
     shouldMakeOutputs =
       file:

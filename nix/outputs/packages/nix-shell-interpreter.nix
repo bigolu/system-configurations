@@ -1,4 +1,4 @@
-{ nixpkgs, ... }:
+{ nixpkgs, name, ... }:
 nixpkgs.callPackage (
   {
     sqlite,
@@ -15,7 +15,7 @@ nixpkgs.callPackage (
     interpreterExe = getExe interpreter;
   in
   writeShellApplication {
-    name = "nix-shell-interpreter";
+    inherit name;
     runtimeInputs = [ interpreter ];
     text = ''
       # TODO: nix-shell sets the temporary directory environment variables. This is
