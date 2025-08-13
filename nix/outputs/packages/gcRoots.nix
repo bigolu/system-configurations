@@ -74,6 +74,43 @@ nixpkgs.callPackage (
           (map (input: "${input.name}: ${input.outPath}"))
         ];
     };
+
+    makeGcRootDerivation =
+      { gcRootsString, hook }:
+      fix (
+        self:
+        let
+          shellHook =
+            let
+              destination = escapeShellArg hook.destination;
+              ln = getExe' coreutils "ln";
+              inherit (self) outPath;
+            in
+            ''
+              if [[ -e ${destination} ]]; then
+                if [[ ! ${destination} -ef ${outPath} ]]; then
+                  ${ln} --force --no-dereference --symbolic ${outPath} ${destination}
+                fi
+              else
+                nix build --out-link ${destination} ${outPath}
+              fi
+            '';
+        in
+        writeTextFile {
+          name = "gc-roots";
+          text = gcRootsString;
+          passthru = { inherit shellHook; };
+        }
+      );
+
+    addHeaderAndSeparator = { gcRoots, type }: [ "roots for ${type}:" ] ++ gcRoots ++ [ "" ];
+
+    getGcRoots =
+      { type, config }:
+      addHeaderAndSeparator {
+        gcRoots = handlers.${type} config;
+        inherit type;
+      };
   in
   {
     hook,
@@ -81,35 +118,16 @@ nixpkgs.callPackage (
   }:
   pipe roots [
     attrsToList
-    (concatMap ({ name, value }: [ "roots for ${name}:" ] ++ (handlers.${name} value) ++ [ "" ]))
+    (concatMap (
+      { name, value }:
+      getGcRoots {
+        type = name;
+        config = value;
+      }
+    ))
     (concatStringsSep "\n")
-
-    # Combine them into a single derivation to avoid adding multiple GC roots for a
+    # Combine them into a single derivation to avoid having multiple GC roots for a
     # single project.
-    (
-      text:
-      fix (
-        self:
-        writeTextFile {
-          name = "gc-roots";
-          inherit text;
-          passthru.shellHook =
-            let
-              destination = escapeShellArg hook.destination;
-              ln = getExe' coreutils "ln";
-              out = self.outPath;
-            in
-            ''
-              if [[ -e ${destination} ]]; then
-                if [[ ! ${destination} -ef ${out} ]]; then
-                  ${ln} --force --no-dereference --symbolic ${out} ${destination}
-                fi
-              else
-                nix build --out-link ${destination} ${out}
-              fi
-            '';
-        }
-      )
-    )
+    (gcRootsString: makeGcRootDerivation { inherit gcRootsString hook; })
   ]
 ) { }

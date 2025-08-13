@@ -12,7 +12,7 @@ let
 in
 {
   stdenv = pkgs.stdenvNoCC;
-  imports = optionals inCi [ ./ci-essentials.nix ];
+  imports = optionals inCi [ ./ci ];
 
   inherit
     (pkgs.gcRoots {

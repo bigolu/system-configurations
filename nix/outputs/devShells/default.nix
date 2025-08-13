@@ -37,7 +37,7 @@ in
 makeShells
   {
     extraModuleArgs = context;
-    defaultModules = [ ./modules/common ];
+    defaultModules = [ ./modules/essentials ];
   }
   {
     development = {
