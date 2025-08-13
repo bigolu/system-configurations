@@ -2,13 +2,12 @@
   pkgs,
   lib,
   name,
-  utils,
-  flakeInputs,
+  inputs,
+  pins,
   ...
 }:
 let
   inherit (lib) optionals hasPrefix optionalAttrs;
-  inherit (utils) projectRoot;
   inCi = hasPrefix "ci-" name;
 in
 {
@@ -17,13 +16,13 @@ in
 
   inherit
     (pkgs.gcRoots {
-      hook.destination = toString (projectRoot + /.direnv/gc-roots);
+      hook.destination = ".direnv/gc-roots";
 
       roots = {
-        flake.inputs = flakeInputs;
+        flake = { inherit inputs; };
       }
       // optionalAttrs (!inCi) {
-        npins.pins = import (projectRoot + /npins);
+        npins = { inherit pins; };
       };
     })
     shellHook

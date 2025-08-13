@@ -1,5 +1,5 @@
 let
-  flakeInputs = (import ./nix/flake-compat.nix).inputs;
+  inherit (import ./nix/flake-compat.nix) inputs;
 in
 {
   # In pure evaluation mode, the current system can't be accessed so we'll take
@@ -14,17 +14,17 @@ in
   #     instead of the source code.
   #
   # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-  nixpkgs ? import flakeInputs.nixpkgs {
+  nixpkgs ? import inputs.nixpkgs {
     # We provide values for these to avoid using their non-deterministic defaults.
     config = { };
     overlays = [ ];
   },
 
-  gomod2nix ? flakeInputs.gomod2nix,
-  gitignore ? flakeInputs.gitignore,
-  nix-gl-host ? flakeInputs.nix-gl-host,
-  nix-mk-shell-bin ? flakeInputs.nix-mk-shell-bin,
-  make-shell ? flakeInputs.make-shell,
+  gomod2nix ? inputs.gomod2nix,
+  gitignore ? inputs.gitignore,
+  nix-gl-host ? inputs.nix-gl-host,
+  nix-mk-shell-bin ? inputs.nix-mk-shell-bin,
+  make-shell ? inputs.make-shell,
 }:
 let
   pins =
@@ -46,14 +46,13 @@ import ./nix/make-outputs.nix {
     utils = import ./nix/utils self;
     # Using this variable name so nixd can provide autocomplete, documentation, etc.
     pkgs = import ./nix/packages;
-    inherit flakeInputs;
+    inherit pins;
 
     # Our inputs, with any overrides applied, and their outputs
     inputs =
       nixpkgs.lib.recursiveUpdate
         (
-          pins
-          // flakeInputs
+          inputs
           // {
             inherit
               gitignore
@@ -70,11 +69,11 @@ import ./nix/make-outputs.nix {
           nix-gl-host.outputs = import nix-gl-host { pkgs = nixpkgs; };
           # TODO: Use the npins in nixpkgs once it has this commit:
           # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
-          npins.outputs = import flakeInputs.npins { pkgs = nixpkgs; };
+          npins.outputs = import inputs.npins { pkgs = nixpkgs; };
           nix-mk-shell-bin.outputs.lib.mkShellBin = import "${nix-mk-shell-bin}/make.nix";
           make-shell.outputs.module = "${make-shell}/shell-modules";
-          home-manager.outputs = (import flakeInputs.home-manager { pkgs = nixpkgs; }) // {
-            nix-darwin = "${flakeInputs.home-manager}/nix-darwin";
+          home-manager.outputs = (import inputs.home-manager { pkgs = nixpkgs; }) // {
+            nix-darwin = "${inputs.home-manager}/nix-darwin";
           };
           gomod2nix.outputs = nixpkgs.lib.makeScope nixpkgs.newScope (self: {
             gomod2nix = self.callPackage gomod2nix.outPath { };
@@ -84,8 +83,8 @@ import ./nix/make-outputs.nix {
               mkVendorEnv
               ;
           });
-          nix-darwin.outputs = (import flakeInputs.nix-darwin { pkgs = nixpkgs; }) // {
-            darwinSystem = nixpkgs.lib.pipe "${flakeInputs.nix-darwin}/flake.nix" [
+          nix-darwin.outputs = (import inputs.nix-darwin { pkgs = nixpkgs; }) // {
+            darwinSystem = nixpkgs.lib.pipe "${inputs.nix-darwin}/flake.nix" [
               import
               (
                 flake:
@@ -93,7 +92,7 @@ import ./nix/make-outputs.nix {
                   self:
                   flake.outputs {
                     inherit self;
-                    nixpkgs = flakeInputs.nixpkgs // {
+                    nixpkgs = inputs.nixpkgs // {
                       inherit (nixpkgs) lib;
                     };
                   }

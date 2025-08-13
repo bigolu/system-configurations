@@ -11,6 +11,7 @@ let
     lib
     nixpkgs
     utils
+    pins
     ;
   inherit (utils) unstableVersion projectRoot;
   inherit (lib)
@@ -140,8 +141,8 @@ recursiveUpdateList [
         # TODO: should be upstreamed to nixpkgs
         (nixpkgs.vimUtils.buildVimPlugin {
           pname = "vim-caser";
-          version = inputs.vim-caser.revision;
-          src = inputs.vim-caser;
+          version = pins.vim-caser.revision;
+          src = pins.vim-caser;
         })
       ];
     };
@@ -149,8 +150,8 @@ recursiveUpdateList [
     # TODO: They don't seem to be making releases anymore. I should check with the
     # author and possibly have nixpkgs track master instead.
     fishPlugins.async-prompt = nixpkgs.fishPlugins.async-prompt.overrideAttrs (_old: {
-      version = inputs.fish-async-prompt.revision;
-      src = inputs.fish-async-prompt;
+      version = pins.fish-async-prompt.revision;
+      src = pins.fish-async-prompt;
     });
 
     partialPackages = nixpkgs.lib.recurseIntoAttrs (
@@ -182,27 +183,25 @@ recursiveUpdateList [
       # `stripRoot = false` in the call to `fetchZip`, but I can't so instead I
       # override the postFetch hook and put the contents of the tar inside of a single
       # directory.
-      src =
-        inputs."config-file-validator-${if isLinux then "linux" else "darwin"}".outPath.overrideAttrs
-          (
-            _finalAttrs: previousAttrs:
-            let
-              target = ''if [ $(ls -A "$unpackDir" | wc -l) != 1 ]; then'';
-              makeDirectory = ''
-                _new_root="$(mktemp --directory)"
-                _tmp="$_new_root/tmp"
-                mkdir "$_tmp"
-                mv "$unpackDir/"* "$_tmp/"
-                unpackDir="$_new_root"
-              '';
-            in
-            {
-              postFetch = replaceString target ''
-                ${makeDirectory}
-                ${target}
-              '' previousAttrs.postFetch;
-            }
-          );
+      src = pins."config-file-validator-${if isLinux then "linux" else "darwin"}".outPath.overrideAttrs (
+        _finalAttrs: previousAttrs:
+        let
+          target = ''if [ $(ls -A "$unpackDir" | wc -l) != 1 ]; then'';
+          makeDirectory = ''
+            _new_root="$(mktemp --directory)"
+            _tmp="$_new_root/tmp"
+            mkdir "$_tmp"
+            mv "$unpackDir/"* "$_tmp/"
+            unpackDir="$_new_root"
+          '';
+        in
+        {
+          postFetch = replaceString target ''
+            ${makeDirectory}
+            ${target}
+          '' previousAttrs.postFetch;
+        }
+      );
       installPhase = ''
         mkdir -p $out/bin
         cp $src/validator $out/bin/
@@ -220,9 +219,9 @@ recursiveUpdateList [
       let
         # TODO: I'm assuming that the first 10 characters is enough for it to be
         # unique.
-        version = "2.5.0-${substring 0 10 inputs.keyd.revision}";
+        version = "2.5.0-${substring 0 10 pins.keyd.revision}";
 
-        src = inputs.keyd;
+        src = pins.keyd;
 
         pypkgs = nixpkgs.python3.pkgs;
 

@@ -95,16 +95,17 @@ nixpkgs.callPackage (
           inherit text;
           passthru.shellHook =
             let
-              escapedDestination = escapeShellArg hook.destination;
+              destination = escapeShellArg hook.destination;
               ln = getExe' coreutils "ln";
+              out = self.outPath;
             in
             ''
-              if [[ -e ${escapedDestination} ]]; then
-                if [[ ! ${self.outPath} -ef ${escapedDestination} ]]; then
-                  ${ln} --force --no-dereference --symbolic ${self.outPath} ${escapedDestination}
+              if [[ -e ${destination} ]]; then
+                if [[ ! ${destination} -ef ${out} ]]; then
+                  ${ln} --force --no-dereference --symbolic ${out} ${destination}
                 fi
               else
-                nix build --out-link ${escapedDestination} ${self.outPath}
+                nix build --out-link ${destination} ${out}
               fi
             '';
         }

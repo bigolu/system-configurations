@@ -3,7 +3,7 @@
   pkgs,
   hasGui,
   repositoryDirectory,
-  inputs,
+  pins,
   username,
   ...
 }:
@@ -15,7 +15,7 @@ let
   stacklineWithoutConfig = stdenv.mkDerivation {
     pname = "mystackline";
     version = "0.1";
-    src = inputs.stackline;
+    src = pins.stackline;
     installPhase = ''
       mkdir -p $out
       cp -r $src/* $out/
