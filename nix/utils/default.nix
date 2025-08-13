@@ -12,7 +12,7 @@ let
   homeManager = rec {
     moduleRoot = ./home-modules;
     # This is the module that I always include.
-    commonModule = "${moduleRoot}/common";
+    commonModule = moduleRoot + "/common";
 
     makeConfiguration =
       {

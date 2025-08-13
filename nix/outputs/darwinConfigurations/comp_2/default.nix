@@ -91,7 +91,7 @@ recursiveUpdate { system.meta.platforms = [ "x86_64-darwin" ]; } (makeDarwinConf
   configName = "comp_2";
   modules = [ ./modules/comp-2 ];
   homeModules = [
-    "${homeManagerModuleRoot}/application-development"
-    "${homeManagerModuleRoot}/speakers.nix"
+    (homeManagerModuleRoot + "/application-development")
+    (homeManagerModuleRoot + "/speakers.nix")
   ];
 })

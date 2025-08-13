@@ -8,7 +8,7 @@ pkgs.makePortableShell {
     packageOverrides = import ./package-overrides.nix context;
     hasGui = false;
     modules = [
-      "${moduleRoot}/portable.nix"
+      (moduleRoot + "/portable.nix")
     ];
   };
   shell = "fish";
