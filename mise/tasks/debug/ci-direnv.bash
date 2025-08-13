@@ -25,6 +25,11 @@ direnv_layout_dir="$(mktemp --directory)"
 temp_home="$(mktemp --directory)"
 bash_path="$(type -P bash)"
 
+function clean_up {
+  rm -rf "$direnv_layout_dir" "$temp_home"
+}
+trap clean_up EXIT
+
 nix shell \
   --ignore-environment \
   --set-env-var HOME "$temp_home" \

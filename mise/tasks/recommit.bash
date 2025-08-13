@@ -29,8 +29,8 @@ function main {
 
       if ((check_command_exit_code != 0)); then
         extract_commit_message "$commit_file" >"$faulty_commit"
-      elif [[ -e $faulty_commit ]]; then
-        rm "$faulty_commit"
+      else
+        remove_faulty_commit
       fi
 
       exit $check_command_exit_code
