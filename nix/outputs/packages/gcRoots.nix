@@ -87,6 +87,9 @@ nixpkgs.callPackage (
               inherit (self) outPath;
             in
             ''
+              # PERF: We could just always run `nix`/`ln`, but `-e`/`-ef` is faster.
+              # The `shellHook` should be fast since people often run it through
+              # `direnv`.
               if [[ -e ${destination} ]]; then
                 if [[ ! ${destination} -ef ${outPath} ]]; then
                   ${ln} --force --no-dereference --symbolic ${outPath} ${destination}

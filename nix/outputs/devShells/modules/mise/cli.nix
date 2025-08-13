@@ -7,9 +7,8 @@
   ];
 
   shellHook = ''
-    # perf: We could just always run `mise trust --quiet`, but since we use direnv,
-    # this would happen every time we load the environment and it's slower than
-    # checking if a file exists.
+    # PERF: We could just always run `mise trust`, but checking if this file exists
+    # is faster. The `shellHook` should be fast since `direnv` will run it.
     trust_marker="''${direnv_layout_dir:-.direnv}/mise-config-trusted"
     if [[ ! -e $trust_marker ]]; then
       mise trust --quiet

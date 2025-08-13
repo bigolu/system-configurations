@@ -5,24 +5,8 @@
   ];
 
   shellHook = ''
-    # perf: We could just always run `mkdir -p`, but since we use direnv, this
-    # would happen every time we load the environment and it's slower than checking
-    # if the directory exists.
-    function mkdir_if_missing {
-      local -r dir="$1"
-
-      if [[ ! -d $dir ]]; then
-        mkdir -p "$dir"
-      fi
-    }
-
-    # We could just always recreate the symlink, even if the target of the symlink
-    # is the same, but since we use direnv, this would happen every time we load
-    # the environment. This causes the following the problems:
-    #   - It's slower so there would be a little lag when you enter the directory.
-    #   - Some of these symlinks are being watched by programs and recreating them
-    #     causes those programs to reload. For example, VS Code watches the symlink
-    #     to Python.
+    # PERF: We could just always run `ln`, but checking if the symlink has the right
+    # target is faster. The `shellHook` should be fast since `direnv` will run it.
     function symlink_if_target_changed {
       local -r target="$1"
       local -r symlink_path="$2"
@@ -33,7 +17,11 @@
     }
 
     prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
-    mkdir_if_missing "$prefix"
+    # PERF: We could just always run `mkdir`, but checking if the directory exists is
+    # faster. The `shellHook` should be fast since `direnv` will run it.
+    if [[ ! -d $prefix ]]; then
+      mkdir -p "$prefix"
+    fi
 
     symlink_if_target_changed \
       ${pkgs.myVimPluginPack}/pack/bigolu/start "$prefix/neovim-plugins"
