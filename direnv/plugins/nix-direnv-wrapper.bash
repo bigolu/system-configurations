@@ -1,9 +1,6 @@
 # A wrapper for nix-direnv that provides the following additional features:
 #   - Automatically load a nix config file
 #   - Show a diff of the dev shell when it changes
-#   - Create GC roots for npins
-#   - Create GC roots for flake inputs when `use_nix` is used, with support for
-#     flake-compat
 
 # renovate: nix-direnv
 source_url \
@@ -58,100 +55,32 @@ function _ndw_wrapper {
   local new_dev_shell
   new_dev_shell="$(_ndw_get_dev_shell_store_path "$profile_prefix")"
 
-  if [[ $old_dev_shell != "$new_dev_shell" ]]; then
-    _ndw_make_gc_roots_for_npins
-    if [[ $original_function_name == 'use_nix' ]]; then
-      _ndw_make_gc_roots_for_flake
-    fi
-
-    # `old_dev_shell` won't exist the first time this runs
-    if [[ -n $old_dev_shell ]]; then
-      # TODO: fallback to nix store diff-closures if the nix version is high enough
-      if type -P nvd >/dev/null; then
-        nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
-      fi
-    fi
-  fi
-}
-
-function _ndw_make_gc_roots_for_npins {
-  local -r npins_directory="${NPINS_DIRECTORY:-$PWD/npins}"
   if
-    [[ ! -d $npins_directory || ${NIX_DIRENV_DISABLE_NPINS_GC_ROOTS:-} == 'true' ]]
+    [[ $old_dev_shell != "$new_dev_shell" ]] &&
+      # `old_dev_shell` won't exist the first time this runs
+      [[ -n $old_dev_shell ]]
   then
-    return
+    # TODO: fallback to nix store diff-closures if the nix version is high enough
+    if type -P nvd >/dev/null; then
+      nvd --color=never diff "$old_dev_shell" "$new_dev_shell"
+    fi
   fi
-
-  local pins_string
-  pins_string="$(
-    NPINS_DIRECTORY="$npins_directory" nix eval --impure --raw --expr '
-      with builtins;
-      concatStringsSep
-        "\n"
-        (
-          catAttrs
-            "outPath"
-            (attrValues (removeAttrs (import (getEnv "NPINS_DIRECTORY")) ["__functor"]))
-        )
-    '
-  )"
-  local -a pins
-  readarray -t pins <<<"$pins_string"
-
-  _ndw_make_gc_roots 'npins-gc-roots' "${pins[@]}"
 }
 
-function _ndw_make_gc_roots_for_flake {
-  local -a inputs=()
-  if [[ -n ${NIX_DIRENV_FLAKE_COMPAT:-} ]]; then
-    local inputs_string
-    inputs_string="$(
-      nix eval --impure --raw --expr '
-        with builtins;
-        let
-          addKey = input: input // { key = input.outPath; };
-          getInputs =
-            flake:
-            genericClosure {
-              startSet = [(addKey flake)];
-              # Inputs with "flake = false" will not have inputs
-              operator = input: map addKey (attrValues (input.inputs or {}));
-            };
-          flake = import (getEnv "NIX_DIRENV_FLAKE_COMPAT");
-          inputs = getInputs flake;
-          # If "copySourceTreeToStore" is false, then the outPath of any local flakes
-          # will not be a store path. This includes the current flake and any inputs
-          # of type "path".
-          isStorePath = path: dirOf path == storeDir;
-          outPaths = filter isStorePath (catAttrs "outPath" inputs);
-        in
-        concatStringsSep "\n" outPaths
-      '
-    )"
-    readarray -t inputs <<<"$inputs_string"
-  else
-    local flake_json
-    flake_json=$(
-      nix flake archive \
-        --json --no-write-lock-file \
-        -- .#
-    )
-    while [[ $flake_json =~ /nix/store/[^\"]+ ]]; do
-      local store_path="${BASH_REMATCH[0]}"
-      inputs+=("$store_path")
-      flake_json="${flake_json/${store_path}/}"
-    done
+function _ndw_get_dev_shell_store_path {
+  local -r profile_prefix="$1"
+
+  # Sometimes there can be more than one, but they'll both point to the same store
+  # path.
+  local -ra profile_rcs=("${direnv_layout_dir:-.direnv}/${profile_prefix}-"*.rc)
+  if ((${#profile_rcs[@]} > 0)); then
+    local -r profile_rc="${profile_rcs[0]}"
+    # Remove extension
+    local -r profile="${profile_rc%.*}"
+    if [[ -e $profile ]]; then
+      realpath "$profile"
+    fi
   fi
-
-  _ndw_make_gc_roots 'flake-input-gc-roots' "${inputs[@]}"
-}
-
-function _ndw_make_gc_roots {
-  local -r directory="${direnv_layout_dir:-.direnv}/$1"
-  local -r store_paths=("${@:2}")
-  # Remove old GC roots
-  rm -rf "$directory"
-  nix build --out-link "$directory/root" "${store_paths[@]}"
 }
 
 # TODO: This wouldn't be necessary if nix supported project/directory-specific config
@@ -190,22 +119,6 @@ function _ndw_add_line_to_nix_config {
   fi
 
   export NIX_CONFIG="$new_config"
-}
-
-function _ndw_get_dev_shell_store_path {
-  local -r profile_prefix="$1"
-
-  # Sometimes there can be more than one, but they'll both point to the same store
-  # path.
-  local -ra profile_rcs=("${direnv_layout_dir:-.direnv}/${profile_prefix}-"*.rc)
-  if ((${#profile_rcs[@]} > 0)); then
-    local -r profile_rc="${profile_rcs[0]}"
-    # Remove extension
-    local -r profile="${profile_rc%.*}"
-    if [[ -e $profile ]]; then
-      realpath "$profile"
-    fi
-  fi
 }
 
 _ndw_create_wrappers

@@ -46,6 +46,7 @@ import ./nix/make-outputs.nix {
     utils = import ./nix/utils self;
     # Using this variable name so nixd can provide autocomplete, documentation, etc.
     pkgs = import ./nix/packages;
+    inherit flakeInputs;
 
     # Our inputs, with any overrides applied, and their outputs
     inputs =

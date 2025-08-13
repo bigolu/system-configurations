@@ -11,10 +11,8 @@ direnv_init_layout_directory
 dotenv_if_exists secrets.env
 
 source direnv/plugins/nix-direnv-wrapper.bash
-export NIX_DIRENV_FLAKE_COMPAT="$PWD/nix/flake-compat.nix"
 if [[ ${CI:-} == 'true' ]]; then
   default='ci-essentials'
-  export NIX_DIRENV_DISABLE_NPINS_GC_ROOTS='true'
 else
   default='development'
 fi
