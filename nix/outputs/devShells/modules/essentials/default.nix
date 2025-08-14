@@ -11,10 +11,21 @@ let
   inCi = hasPrefix "ci-" name;
 in
 {
-  stdenv = pkgs.stdenvNoCC;
   imports = optionals inCi [ ./ci ];
 
-  inherit
+  devshell.bashPackage = pkgs.bashNonInteractive;
+  env = [
+    {
+      name = "DEVSHELL_NO_MOTD";
+      value = 1;
+    }
+    {
+      name = "NIXPKGS_PATH";
+      unset = true;
+    }
+  ];
+
+  devshell.startup.gcRoots.text =
     (pkgs.gcRoots {
       hook.directory = ".direnv/gc-roots";
 
@@ -24,7 +35,5 @@ in
       // optionalAttrs (!inCi) {
         npins = { inherit pins; };
       };
-    })
-    shellHook
-    ;
+    }).shellHook;
 }

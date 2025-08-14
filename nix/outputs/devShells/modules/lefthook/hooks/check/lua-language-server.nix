@@ -1,12 +1,10 @@
 { pkgs, ... }:
 {
-  packages = with pkgs; [
+  devshell.packages = with pkgs; [
     lua-language-server
   ];
 
-  shellHook = ''
-    # PERF: We could just always run `ln`, but checking if the symlink has the right
-    # target is faster. The `shellHook` should be fast since `direnv` will run it.
+  devshell.startup.lua.text = ''
     function symlink_if_target_changed {
       local -r target="$1"
       local -r symlink_path="$2"
@@ -17,8 +15,6 @@
     }
 
     prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
-    # PERF: We could just always run `mkdir`, but checking if the directory exists is
-    # faster. The `shellHook` should be fast since `direnv` will run it.
     if [[ ! -d $prefix ]]; then
       mkdir -p "$prefix"
     fi

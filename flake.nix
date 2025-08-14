@@ -47,9 +47,9 @@
 
     nix-mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
 
-    make-shell = {
-      url = "github:nicknovitski/make-shell";
-      inputs.flake-compat.follows = "";
+    devshell = {
+      url = "github:numtide/devshell";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 

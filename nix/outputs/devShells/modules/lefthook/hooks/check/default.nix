@@ -11,7 +11,7 @@
     ../../../speakerctl.nix
   ];
 
-  packages = with pkgs; [
+  devshell.packages = with pkgs; [
     actionlint
     config-file-validator
     coreutils

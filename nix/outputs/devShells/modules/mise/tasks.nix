@@ -15,7 +15,7 @@ let
   inherit (pkgs) resolveNixShellShebang;
 in
 {
-  packages = pipe (projectRoot + /mise/tasks) [
+  devshell.packages = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
     (concatMap (script: (resolveNixShellShebang script).packages))

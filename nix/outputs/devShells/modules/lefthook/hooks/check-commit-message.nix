@@ -4,7 +4,7 @@
     ../cli.nix
   ];
 
-  packages = with pkgs; [
+  devshell.packages = with pkgs; [
     typos
   ];
 }

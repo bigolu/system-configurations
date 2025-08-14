@@ -1,5 +1,25 @@
 {
   "nodes": {
+    "devshell": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1741473158,
+        "narHash": "sha256-kWNaq6wQUbUMlPgw8Y+9/9wP0F8SHkjy24/mN3UAppg=",
+        "owner": "numtide",
+        "repo": "devshell",
+        "rev": "7c9e793ebe66bcba8292989a68c0419b737a22a0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "devshell",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "lastModified": 1751685974,
@@ -91,24 +111,6 @@
       "original": {
         "owner": "nix-community",
         "repo": "home-manager",
-        "type": "github"
-      }
-    },
-    "make-shell": {
-      "inputs": {
-        "flake-compat": []
-      },
-      "locked": {
-        "lastModified": 1733933815,
-        "narHash": "sha256-9JjM7eT66W4NJAXpGUsdyAFXhBxFWR2Z9LZwUa7Hli0=",
-        "owner": "nicknovitski",
-        "repo": "make-shell",
-        "rev": "ffeceae9956df03571ea8e96ef77c2924f13a63c",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nicknovitski",
-        "repo": "make-shell",
         "type": "github"
       }
     },
@@ -237,11 +239,11 @@
     },
     "root": {
       "inputs": {
+        "devshell": "devshell",
         "flake-compat": "flake-compat",
         "gitignore": "gitignore",
         "gomod2nix": "gomod2nix",
         "home-manager": "home-manager",
-        "make-shell": "make-shell",
         "nix-darwin": "nix-darwin",
         "nix-flatpak": "nix-flatpak",
         "nix-gl-host": "nix-gl-host",

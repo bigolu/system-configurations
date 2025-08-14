@@ -12,7 +12,7 @@
     ./locale.nix
   ];
 
-  packages = with pkgs; [
+  devshell.packages = with pkgs; [
     # For the `run` steps in CI workflows/actions
     bash-script
     # For the save-cache action

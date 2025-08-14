@@ -1,20 +1,11 @@
-# TODO: I'd like to be able to create a GC root for devShells the way nix-direnv
-# does, but there's no way to generate the derivation created by `nix print-dev-env`
-# outside of the CLI[1]. I tried to use the derivation for the devShell, but that
-# didn't work since `placeholder "out"` is set to the directory of the dev
-# environment. This is because we are technically in an environment for building the
-# devShell. If the GC root were made here, then I could also add logic for printing a
-# diff of the devShell when the derivation changes using `nvd`. I think this pull
-# request would address this[2].
-#
-# [1]: https://github.com/NixOS/nix/issues/7468
-# [2]: https://github.com/NixOS/nixpkgs/pull/330822
-
-{ lib, nixpkgs, ... }:
+{
+  lib,
+  nixpkgs,
+  ...
+}:
 nixpkgs.callPackage (
   {
     writeTextFile,
-    coreutils,
     nvd,
   }:
   let
@@ -29,16 +20,23 @@ nixpkgs.callPackage (
       concatMap
       id
       getExe
-      getExe'
       mapAttrsToList
       fix
       optionalString
+      optionals
+      isBool
       ;
 
     handlers = {
       paths = id;
       derivations = map (derivation: "${derivation.name}: ${derivation}");
-      devShell = _: [ (placeholder "out") ];
+
+      devShell =
+        shellOrBool:
+        if isBool shellOrBool then
+          optionals shellOrBool [ "(Created in shellHook)" ]
+        else
+          [ "${shellOrBool.name}: ${shellOrBool}" ];
 
       npins =
         { pins }:
@@ -83,50 +81,44 @@ nixpkgs.callPackage (
     };
 
     makeGcRootDerivation =
-      { gcRootsString, hook }:
+      {
+        gcRootsString,
+        hook,
+        roots,
+      }:
       fix (
         self:
         let
           shellHook =
             let
               directory = escapeShellArg hook.directory;
-              ln = getExe' coreutils "ln";
-              mkdir = getExe' coreutils "mkdir";
               nvdExe = getExe nvd;
               inherit (self) outPath;
-              devShell = placeholder "out";
+              devShellDiffSnippet = ''
+                if [[ -e ${directory}/dev-shell-root ]]; then
+                  ${nvdExe} --color=never diff ${directory}/dev-shell-root "$new_shell"
+                fi
+              '';
             in
             ''
-              # PERF: We could just always run `mkdir` but `-d` is faster.
-              # The `shellHook` should be fast since people often run it through
-              # `direnv`.
-              if [[ ! -d ${directory} ]]; then
-                # Use `-p` to avoid race condition with other instances of the
-                # direnv environment e.g. IDE.
-                ${mkdir} -p ${directory}
-              fi
-
-              # PERF: We could just always run `nix`/`ln`, but `-e`/`-ef` is faster.
-              # The `shellHook` should be fast since people often run it through
-              # `direnv`.
-              if [[ -e ${directory}/root-list ]]; then
-                if [[ ! ${directory}/root-list -ef ${outPath} ]]; then
-                  ${ln} --force --no-dereference --symbolic ${outPath} ${directory}/root-list
-                fi
-              else
-                nix build --out-link ${directory}/root-list ${outPath}
+              if [[ ! ${directory}/roots -ef ${outPath} ]]; then
+                nix build --out-link ${directory}/roots ${outPath}
               fi
             ''
-            + optionalString (hook.devShellDiff or false) ''
-              if [[ ! -e ${directory}/dev-shell ]]; then
-                # Use force to avoid race condition with other instances of the
-                # direnv environment e.g. IDE.
-                ${ln} --force --no-dereference --symbolic ${devShell} ${directory}/dev-shell
-              else
-                if [[ ! ${devShell} -ef ${directory}/dev-shell ]]; then
-                  ${nvdExe} --color=never diff ${directory}/dev-shell ${devShell}
-                  ${ln} --force --no-dereference --symbolic ${devShell} ${directory}/dev-shell
-                fi
+            + optionalString roots.devShell ''
+              # Users can't pass in the shell derivation since that would cause
+              # infinite recursion: To get the shell's outPath, we'd need the
+              # shellHook which would include this snippet. And to get this snippet,
+              # we'd need the shell's outPath. Instead, we get the shells outPath at
+              # runtime and make a separate GC root for it.
+              new_shell=
+              if [[ -n $DEVSHELL_DIR ]]; then
+                new_shell="$DEVSHELL_DIR"
+              fi
+
+              if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
+                ${optionalString hook.devShellDiff devShellDiffSnippet}
+                nix build --out-link ${directory}/dev-shell-root "$new_shell"
               fi
             '';
         in
@@ -141,15 +133,26 @@ nixpkgs.callPackage (
 
     getGcRootSection =
       { type, config }:
-      addHeaderAndSeparator {
+      let
         gcRoots = handlers.${type} config;
+      in
+      optionals (gcRoots != [ ]) addHeaderAndSeparator {
+        inherit gcRoots;
         inherit type;
       };
   in
-  {
-    hook,
-    roots,
-  }:
+  config:
+  let
+    # Set sefaults
+    hook = {
+      devShellDiff = true;
+    }
+    // config.hook;
+    roots = {
+      devShell = true;
+    }
+    // config.roots;
+  in
   pipe roots [
     attrsToList
     (concatMap (
@@ -162,6 +165,6 @@ nixpkgs.callPackage (
     (concatStringsSep "\n")
     # Combine them into a single derivation to avoid having multiple GC roots for a
     # single project.
-    (gcRootsString: makeGcRootDerivation { inherit gcRootsString hook; })
+    (gcRootsString: makeGcRootDerivation { inherit gcRootsString hook roots; })
   ]
 ) { }

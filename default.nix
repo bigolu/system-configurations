@@ -23,8 +23,6 @@ in
   gomod2nix ? inputs.gomod2nix,
   gitignore ? inputs.gitignore,
   nix-gl-host ? inputs.nix-gl-host,
-  nix-mk-shell-bin ? inputs.nix-mk-shell-bin,
-  make-shell ? inputs.make-shell,
 }:
 let
   pins =
@@ -58,8 +56,6 @@ import ./nix/make-outputs.nix {
               gitignore
               gomod2nix
               nix-gl-host
-              nix-mk-shell-bin
-              make-shell
               ;
           }
         )
@@ -70,8 +66,11 @@ import ./nix/make-outputs.nix {
           # TODO: Use the npins in nixpkgs once it has this commit:
           # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
           npins.outputs = import inputs.npins { pkgs = nixpkgs; };
-          nix-mk-shell-bin.outputs.lib.mkShellBin = import "${nix-mk-shell-bin}/make.nix";
-          make-shell.outputs.module = "${make-shell}/shell-modules";
+          nix-mk-shell-bin.outputs.lib.mkShellBin = import "${inputs.nix-mk-shell-bin}/make.nix";
+          devshell.outputs = import inputs.devshell {
+            inherit nixpkgs;
+            inputs = { inherit (inputs) nixpkgs; };
+          };
           home-manager.outputs = (import inputs.home-manager { pkgs = nixpkgs; }) // {
             nix-darwin = "${inputs.home-manager}/nix-darwin";
           };
