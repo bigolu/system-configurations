@@ -4,7 +4,7 @@
     ./efm-language-server.nix
   ];
 
-  packages = with pkgs; [
+  devshell.packages = with pkgs; [
     # For "jnoortheen.nix-ide"
     nixd
 
@@ -20,7 +20,7 @@
   # For "ms-python.python". Link python to a stable location so I don't have to
   # update "python.defaultInterpreterPath" in settings.json when the nix store path
   # for python changes.
-  shellHook = ''
+  devshell.startup.vscode.text = ''
     symlink="''${direnv_layout_dir:-.direnv}/python"
     target=${pkgs.speakerctl.python}
     # VS Code automatically reloads when the symlink to Python changes so I don't

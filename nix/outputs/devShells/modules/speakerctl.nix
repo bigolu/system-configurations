@@ -1,4 +1,4 @@
 { pkgs, ... }:
 {
-  imports = [ pkgs.speakerctl.devShellModule ];
+  imports = [ pkgs.speakerctl.devshellModule ];
 }

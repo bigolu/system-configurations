@@ -1,6 +1,6 @@
 { pkgs, ... }:
 {
-  packages = with pkgs; [
+  devshell.packages = with pkgs; [
     fish
     # For nix's fish shell autocomplete
     (linkFarm "nix-share" { share = "${nix}/share"; })

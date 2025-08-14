@@ -10,10 +10,10 @@ direnv_init_layout_directory
 
 dotenv_if_exists secrets.env
 
-source direnv/plugins/nix-direnv-wrapper.bash
+source direnv/plugins/minimal-nix-direnv.bash
 if [[ ${CI:-} == 'true' ]]; then
   default='ci-essentials'
 else
   default='development'
 fi
-use nix -A "devShells.${NIX_DEV_SHELL:-$default}"
+use devshell --file . "devShells.${NIX_DEV_SHELL:-$default}"

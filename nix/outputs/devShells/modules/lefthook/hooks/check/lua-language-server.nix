@@ -1,10 +1,10 @@
 { pkgs, ... }:
 {
-  packages = with pkgs; [
+  devshell.packages = with pkgs; [
     lua-language-server
   ];
 
-  shellHook = ''
+  devshell.startup.lua.text = ''
     # PERF: We could just always run `ln`, but checking if the symlink has the right
     # target is faster. The `shellHook` should be fast since `direnv` will run it.
     function symlink_if_target_changed {
