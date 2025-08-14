@@ -44,8 +44,15 @@ makeShells
 
       devshell = {
         packages = [ pkgs.npins ];
-        startup.setRunFix.text = ''
+        startup.dev.text = ''
           export RUN_FIX_ACTIONS='diff,stage,fail'
+
+          if [[ -e secrets.env ]]; then
+            # Export any variables that are modified/created
+            set -a
+            source secrets.env
+            set +a
+          fi
         '';
       };
     };

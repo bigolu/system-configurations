@@ -8,8 +8,6 @@ source direnv/plugins/direnv-utils.bash
 direnv_manual_reload
 direnv_init_layout_directory
 
-dotenv_if_exists secrets.env
-
 source direnv/plugins/minimal-nix-direnv.bash
 if [[ ${CI:-} == 'true' ]]; then
   default='ci-essentials'
