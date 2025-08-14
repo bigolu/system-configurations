@@ -16,7 +16,7 @@ in
 
   inherit
     (pkgs.gcRoots {
-      hook.destination = ".direnv/gc-roots";
+      hook.directory = ".direnv/gc-roots";
 
       roots = {
         flake = { inherit inputs; };
