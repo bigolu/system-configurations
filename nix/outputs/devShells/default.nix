@@ -70,7 +70,7 @@ makeShells
           # having to rerun it.
           export LOG_LEVEL='debug'
           if [[ $CI_DEBUG == 'true' ]]; then
-          export RENOVATE_DRY_RUN='full'
+            export RENOVATE_DRY_RUN='full'
           fi
 
           # Post-Upgrade tasks are executed in the directory of the repo that's

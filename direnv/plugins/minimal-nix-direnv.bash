@@ -1,8 +1,8 @@
 # Differences from nix-direnv:
 #   - No GC root creation: The various nix dev shell implementations already provide
 #     a way to set up the environment e.g. `shellHook` for nix's devShell or
-#     `startup.*` for numtide's devshell. As such, I think that nix should handle all
-#     of its environment loading so nix can be less coupled with direnv. To help with
+#     `startup.*` for numtide's devshell. Therefore, nix should handle all of its
+#     environment management so nix can be less coupled with direnv. To help with
 #     this, I wrote a nix utility that handles GC roots so I wouldn't need direnv to
 #     do that.
 #   - Fast: This intentionally doesn't offer much configuration or features to make
