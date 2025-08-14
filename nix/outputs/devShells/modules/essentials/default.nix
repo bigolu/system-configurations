@@ -4,7 +4,6 @@
   name,
   inputs,
   pins,
-  self,
   ...
 }:
 let
@@ -16,18 +15,22 @@ in
 
   devshell.bashPackage = pkgs.bashNonInteractive;
   env = [
-    { name = "DEVSHELL_NO_MOTD"; value = 1; }
-    { name = "NIXPKGS_PATH"; unset = true; }
+    {
+      name = "DEVSHELL_NO_MOTD";
+      value = 1;
+    }
+    {
+      name = "NIXPKGS_PATH";
+      unset = true;
+    }
   ];
 
   devshell.startup.gcRoots.text =
     (pkgs.gcRoots {
       hook.directory = ".direnv/gc-roots";
-      hook.devShellDiff = true;
 
       roots = {
         flake = { inherit inputs; };
-        devShell = self;
       }
       // optionalAttrs (!inCi) {
         npins = { inherit pins; };

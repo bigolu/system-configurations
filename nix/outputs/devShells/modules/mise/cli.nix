@@ -7,8 +7,6 @@
   ];
 
   devshell.startup.mise.text = ''
-    # PERF: We could just always run `mise trust`, but checking if this file exists
-    # is faster. The `shellHook` should be fast since `direnv` will run it.
     trust_marker="''${direnv_layout_dir:-.direnv}/mise-config-trusted"
     if [[ ! -e $trust_marker ]]; then
       mise trust --quiet

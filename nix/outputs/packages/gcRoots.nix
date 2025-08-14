@@ -1,8 +1,11 @@
-{ lib, nixpkgs, ... }:
+{
+  lib,
+  nixpkgs,
+  ...
+}:
 nixpkgs.callPackage (
   {
     writeTextFile,
-    coreutils,
     nvd,
   }:
   let
@@ -17,16 +20,23 @@ nixpkgs.callPackage (
       concatMap
       id
       getExe
-      getExe'
       mapAttrsToList
       fix
       optionalString
+      optionals
+      isBool
       ;
 
     handlers = {
       paths = id;
       derivations = map (derivation: "${derivation.name}: ${derivation}");
-      devShell = shell: [ "${nvd.name}: ${shell}" ];
+
+      devShell =
+        shellOrBool:
+        if isBool shellOrBool then
+          optionals shellOrBool [ "(Created in shellHook)" ]
+        else
+          [ "${shellOrBool.name}: ${shellOrBool}" ];
 
       npins =
         { pins }:
@@ -71,53 +81,63 @@ nixpkgs.callPackage (
     };
 
     makeGcRootDerivation =
-      { gcRootsString, hook, roots }:
+      {
+        gcRootsString,
+        hook,
+        roots,
+      }:
       fix (
         self:
         let
           shellHook =
             let
               directory = escapeShellArg hook.directory;
-              ln = getExe' coreutils "ln";
               nvdExe = getExe nvd;
               inherit (self) outPath;
-              # inherit (roots) devShell;
-              devShell = nvd.outPath;
-              # outPath = nvd.outPath;
-              #
-              #
-              # if [[ ! ${directory}/root-list -ef ${outPath} ]]; then
-              #   nix build --out-link ${directory}/root-list ${outPath}
-              # fi
+              devShellDiffSnippet = ''
+                if [[ -e ${directory}/dev-shell-root ]]; then
+                  ${nvdExe} --color=never diff ${directory}/dev-shell-root "$new_shell"
+                fi
+              '';
             in
             ''
-              # PERF: We could just always run `nix`, but `-ef` is faster. The
-              # `shellHook` should be fast since people often run it through
-              # `direnv`.
-              : ${builtins.unsafeDiscardStringContext (escapeShellArg "")}
+              if [[ ! ${directory}/roots -ef ${outPath} ]]; then
+                nix build --out-link ${directory}/roots ${outPath}
+              fi
             ''
-            + optionalString (hook.devShellDiff or false) ''
-              if [[ ! -e ${directory}/dev-shell ]]; then
-                # Use force to avoid race condition with other instances of the
-                # direnv environment e.g. IDE.
-                ${ln} --force --no-dereference --symbolic ${devShell} ${directory}/dev-shell
-              elif [[ ! ${directory}/dev-shell -ef ${devShell} ]]; then
-                ${nvdExe} --color=never diff ${directory}/dev-shell ${devShell}
-                # Use force to avoid race condition with other instances of the
-                # direnv environment e.g. IDE.
-                ${ln} --force --no-dereference --symbolic ${devShell} ${directory}/dev-shell
+            + optionalString (roots.derivation or true) ''
+              # Users can't pass in the shell derivation since that would cause
+              # infinite recursion: To calculate the shell's outPath, its shellHook
+              # would need to be computed, which would include this snippet. And to
+              # compute this snippet we'd need the shell's outPath. Instead, we
+              # detect the shell path at runtime and make a separate GC root for it.
+              new_shell=
+              if [[ -n $DEVSHELL_DIR ]]; then
+                new_shell="$DEVSHELL_DIR"
+              fi
+
+              if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
+                ${optionalString (hook.devShellDiff or true) devShellDiffSnippet}
+                nix build --out-link ${directory}/dev-shell-root "$new_shell"
               fi
             '';
         in
-        { inherit shellHook; }
+        writeTextFile {
+          name = "gc-roots";
+          text = gcRootsString;
+          passthru = { inherit shellHook; };
+        }
       );
 
     addHeaderAndSeparator = { gcRoots, type }: [ "roots for ${type}:" ] ++ gcRoots ++ [ "" ];
 
     getGcRootSection =
       { type, config }:
-      addHeaderAndSeparator {
+      let
         gcRoots = handlers.${type} config;
+      in
+      optionals (gcRoots != [ ]) addHeaderAndSeparator {
+        inherit gcRoots;
         inherit type;
       };
   in

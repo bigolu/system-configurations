@@ -1,6 +1,8 @@
 { pkgs, utils, ... }:
 {
-  devshell.packages = [ (pkgs.mkGoEnv { pwd = utils.projectRoot + /gozip; }) ];
+  devshell.packagesFrom = [
+    (pkgs.mkGoEnv { pwd = utils.projectRoot + /gozip; })
+  ];
 
   devshell.startup.go.text = ''
     # Binary names could conflict between projects so store them in a

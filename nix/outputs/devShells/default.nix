@@ -5,21 +5,21 @@ context@{
   ...
 }:
 let
-  inherit (lib) mapAttrs fix;
+  inherit (lib) mapAttrs;
 
   makeShells =
-    { extraModuleArgs, defaultModules, }:
-    mapAttrs (name: module:
-      fix (
-        self:
-        (inputs.devshell.outputs.eval {
-          extraSpecialArgs = extraModuleArgs // { inherit name; inherit self; };
-          configuration = module // {
-            imports = defaultModules ++ (module.imports or []);
-            inherit name;
-          };
-        }).shell
-      )
+    { extraModuleArgs, defaultModules }:
+    mapAttrs (
+      name: module:
+      (inputs.devshell.outputs.eval {
+        extraSpecialArgs = extraModuleArgs // {
+          inherit name;
+        };
+        configuration = module // {
+          imports = defaultModules ++ (module.imports or [ ]);
+          inherit name;
+        };
+      }).shell
     );
 in
 makeShells
