@@ -2,15 +2,30 @@
 # watched file is modified.
 #
 # Differences from nix-direnv:
-#   - No GC root creation: The various nix dev shell implementations already provide
-#     a way to set up the environment e.g. `shellHook` for nix's devShell or
-#     `startup.*` for numtide's devshell. Therefore, nix should be able to handle all
-#     of its environment management itself so it can be less dependent on direnv. To
-#     help with this, I wrote a nix utility that handles GC roots.
-#   - No manual reload: If you want to reload manually, you can use my
-#     direnv-manual-reload plugin. In most of the `.envrc` files that I've seen, the
-#     only thing done is loading a nix environment so providing a dedicated command
-#     to reload nix would be redundant.
+#   - Much less features. Some notable ones are:
+#     - No GC root creation: The various nix dev shell implementations already
+#       provide a way to set up the environment e.g. `shellHook` for nix's devShell
+#       or `startup.*` for numtide's devshell. Therefore, nix should be able to
+#       handle all of its environment management itself so it can be less dependent
+#       on direnv. To help with this, I wrote a nix utility that handles GC roots.
+#     - No manual reload: If you want to reload manually, you can use my
+#       direnv-manual-reload plugin. In most of the `.envrc` files that I've seen,
+#       the only thing done is loading a nix environment so providing a dedicated
+#       command to reload nix would be redundant.
+#   - A little faster. It felt like there was less of a pause when entering a
+#     directory so I made a rough benchmark to confirm:
+#       Command:
+#         `hyperfine -m 50 --shell=none 'direnv exec . true'`
+#       .envrc contents:
+#         source <path_to_plugin>
+#         use nix `devshell --file . devShell.development`/`-A devShells.development`
+#       Results:
+#         minimal-nix-direnv - 192 ms
+#         nix-direnv - 596 ms
+#
+#       I also ran the same command with an empty .envrc and got 98 ms. This means
+#       nix-direnv added 498 ms of overhead and minimal-nix-direnv added 94 ms which
+#       makes minimal-nix-direnv 5.2x faster.
 
 function use_nix {
   # The name of the dev shell implementation. See the case statement below for valid
