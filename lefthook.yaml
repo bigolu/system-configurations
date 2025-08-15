@@ -183,12 +183,12 @@ sync:
       only:
         # We only need to sync this once since lefthook reinstalls hooks
         # automatically.
-        - run: '[ ! -e "${direnv_layout_dir:-.direnv}/lefthook-installed" ]'
+        - run: '[ ! -e "$DEV_SHELL_STATE/lefthook-installed" ]'
       run: |
         {direnv_exec} sh -c '
           set -e
           lefthook install --force
-          touch "${direnv_layout_dir:-.direnv}/lefthook-installed"
+          touch "$DEV_SHELL_STATE/lefthook-installed"
         '
     - name: system
       glob:
@@ -514,7 +514,7 @@ check:
                     # --configpath is relative to the directory being checked so I'm
                     # using an absolute path instead.
                     lua-language-server \
-                      --logpath "${direnv_layout_dir:-.direnv}/lua-ls-logs" \
+                      --logpath "$DEV_SHELL_STATE/lua-ls-logs" \
                       --check ./dotfiles/neovim \
                       --configpath "$PWD/.luarc.json"
                 - name: nix-config

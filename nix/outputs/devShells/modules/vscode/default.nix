@@ -21,7 +21,7 @@
   # update "python.defaultInterpreterPath" in settings.json when the nix store path
   # for python changes.
   devshell.startup.vscode.text = ''
-    symlink="''${direnv_layout_dir:-.direnv}/python"
+    symlink="$DEV_SHELL_STATE/python"
     target=${pkgs.speakerctl.python}
     # VS Code automatically reloads when the symlink to Python changes so I don't
     # want to recreate it unless it will point somewhere else.

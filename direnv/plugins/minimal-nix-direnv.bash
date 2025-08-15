@@ -2,7 +2,7 @@
 #   - No GC root creation: The various nix dev shell implementations already provide
 #     a way to set up the environment e.g. `shellHook` for nix's devShell or
 #     `startup.*` for numtide's devshell. Therefore, nix should handle all of its
-#     environment management so nix can be less coupled with direnv. To help with
+#     environment management so it can be less coupled with direnv. To help with
 #     this, I wrote a nix utility that handles GC roots so I wouldn't need direnv to
 #     do that.
 #   - Fast: This intentionally doesn't offer much configuration or features to make
@@ -25,11 +25,10 @@ function use_devshell {
   else
     local -a watched_files
     # shellcheck disable=2312
-    # perf: The exit code of direnv is being masked by readarray, but it would be
-    # tricky to avoid that. I can't use a pipeline since I want to unset the
-    # DIRENV_WATCHES environment variable below. I could put the output of the direnv
-    # command in a temporary file, but since this runs every time you enter the project
-    # directory I want to avoid doing anything slow.
+    # PERF: The exit code of direnv is being masked by readarray, but the alternative
+    # ways to do this are slower: I could use a pipeline, but that would spawn a
+    # subprocess. I could put the output of the direnv command in a temporary file,
+    # but I want to avoid the disk.
     readarray -d '' watched_files < <(direnv watch-print --null)
     local file
     for file in "${watched_files[@]}"; do

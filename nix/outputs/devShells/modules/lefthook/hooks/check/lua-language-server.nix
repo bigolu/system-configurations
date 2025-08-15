@@ -14,7 +14,7 @@
       fi
     }
 
-    prefix="''${direnv_layout_dir:-.direnv}/lua-libraries"
+    prefix="$DEV_SHELL_STATE/lua-libraries"
     if [[ ! -d $prefix ]]; then
       mkdir -p "$prefix"
     fi

@@ -91,7 +91,8 @@ nixpkgs.callPackage (
         let
           shellHook =
             let
-              directory = escapeShellArg hook.directory;
+              directory =
+                if hook.directory ? eval then ''"${hook.directory.eval}"'' else escapeShellArg hook.directory.text;
               nvdExe = getExe nvd;
               inherit (self) outPath;
               devShellDiffSnippet = ''

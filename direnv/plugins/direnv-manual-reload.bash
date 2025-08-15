@@ -1,23 +1,3 @@
-# Ensure the layout directory exists and is ignored by git.
-function direnv_init_layout_directory {
-  local -r layout_directory="${direnv_layout_dir:-.direnv}"
-
-  local -r init_complete_marker="$layout_directory/direnv-layout-dir-initialized"
-  if [[ -e $init_complete_marker ]]; then
-    return
-  fi
-
-  mkdir -p "$layout_directory"
-  _d_utils_add_directory_to_gitignore "$layout_directory"
-
-  touch "$init_complete_marker"
-}
-
-function _d_utils_add_directory_to_gitignore {
-  local -r directory="$1"
-  echo '*' >"${directory}/.gitignore"
-}
-
 # Disable direnv's automatic reloading. It will still automatically
 # load when you first enter the directory, but it will not reload after that. If you
 # want to reload the environment, you can instead use the command `direnv-reload`
