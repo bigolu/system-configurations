@@ -2,16 +2,15 @@ let
   myInputs = (import ./nix/flake-compat.nix).inputs;
 in
 {
-  # In pure evaluation mode, the current system can't be accessed so we'll take
-  # it as a parameter.
+  # In pure evaluation mode, the current system can't be accessed
   system ? builtins.currentSystem,
 
   # It's recommended to override this for two reasons:
-  #   - The nixpkgs repo is about 200 MB so multiple checkouts would take up a lot
-  #     of space.
-  #   - It takes about a second to evaluate nixpkgs i.e. `import <nixpkgs> {}`.
-  #     For this reason, unlike other inputs, we take an already-evaluated nixpkgs
-  #     instead of just the source code.
+  #   - The nixpkgs repo is about 200 MB so multiple checkouts would take up a lot of
+  #     space.
+  #   - It takes a while to evaluate nixpkgs i.e. `import <nixpkgs> {}`. For this
+  #     reason, unlike other inputs, we take an already-evaluated nixpkgs instead of
+  #     just the source code.
   #
   # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
   nixpkgs ? import myInputs.nixpkgs {

@@ -803,6 +803,8 @@ func SelfExtractAndRunNixEntrypoint() (exitCode int) {
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
+	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "IN_NIX_BUNDLE=true")
 	err = cmd.Run()
 	if err != nil {
 		// I don't want to report an error if the command exited with a

@@ -101,24 +101,28 @@ nixpkgs.callPackage (
               '';
             in
             ''
-              if [[ ! ${directory}/roots -ef ${self} ]]; then
-                nix build --out-link ${directory}/roots ${self}
+              if [[ -z $IN_NIX_BUNDLE ]]; then
+                if [[ ! ${directory}/roots -ef ${self} ]]; then
+                  nix build --out-link ${directory}/roots ${self}
+                fi
               fi
             ''
             + optionalString roots.devShell ''
-              # Users can't pass in the shell derivation since that would cause
-              # infinite recursion: To get the shell's outPath, we'd need the
-              # shellHook which would include this snippet. And to get this snippet,
-              # we'd need the shell's outPath. Instead, we get the shells outPath at
-              # runtime and make a separate GC root for it.
-              new_shell=
-              if [[ -n $DEVSHELL_DIR ]]; then
-                new_shell="$DEVSHELL_DIR"
-              fi
+              if [[ -z $IN_NIX_BUNDLE ]]; then
+                # Users can't pass in the shell derivation since that would cause
+                # infinite recursion: To get the shell's outPath, we'd need the
+                # shellHook which would include this snippet. And to get this snippet,
+                # we'd need the shell's outPath. Instead, we get the shells outPath at
+                # runtime and make a separate GC root for it.
+                new_shell=
+                if [[ -n $DEVSHELL_DIR ]]; then
+                  new_shell="$DEVSHELL_DIR"
+                fi
 
-              if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
-                ${optionalString hook.devShellDiff devShellDiffSnippet}
-                nix build --out-link ${directory}/dev-shell-root "$new_shell"
+                if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
+                  ${optionalString hook.devShellDiff devShellDiffSnippet}
+                  nix build --out-link ${directory}/dev-shell-root "$new_shell"
+                fi
               fi
             '';
         in
