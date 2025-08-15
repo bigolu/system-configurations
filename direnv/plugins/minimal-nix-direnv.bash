@@ -57,8 +57,28 @@ function use_nix {
   fi
 
   if [[ $should_update == 'true' ]]; then
-    local new_env_script
-    if new_env_script="$(_mnd_get_new_env_script "$type" "${args[@]}")"; then
+    local new_env_script=''
+
+    # Nix may add a standard format for dev shell packages[1]. If this is done, then
+    # this plugin won't need separate handlers for each dev shell implementation
+    # since the script for loading the environment will always be in
+    # `<package>/lib/env.bash`.
+    #
+    # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
+    case "$type" in
+      # numtide/devshell
+      'devshell')
+        local package
+        if package="$(nix build --no-link --print-out-paths "${args[@]}")"; then
+          new_env_script="$package/env.bash"
+        fi
+        ;;
+      *)
+        log_error "Unknown dev shell type: $type"
+        ;;
+    esac
+
+    if [[ -n $new_env_script ]]; then
       local -r cached_env_script_directory="${cached_env_script%/*}"
       if [[ ! -d $cached_env_script_directory ]]; then
         mkdir -p "$cached_env_script_directory"
@@ -75,28 +95,4 @@ function use_nix {
 
   # shellcheck disable=1090
   source "$cached_env_script"
-}
-
-function _mnd_get_new_env_script {
-  local -r type="$1"
-  local -ra args=("${@:2}")
-
-  # Nix may add a standard format for dev shell packages[1]. If this is done, then
-  # this plugin won't need separate handlers for each dev shell implementation since
-  # the script for loading the environment will always be in
-  # `<package>/lib/env.bash`.
-  #
-  # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
-  case "$type" in
-    # numtide/devshell
-    'devshell')
-      local package
-      package="$(nix build --no-link --print-out-paths "${args[@]}")"
-      echo "$package/env.bash"
-      ;;
-    *)
-      log_error "Unknown dev shell type: $type"
-      return 1
-      ;;
-  esac
 }

@@ -7,6 +7,14 @@
   ...
 }:
 let
+  inherit (lib)
+    concatStrings
+    mkForce
+    cleanSourceWith
+    escapeShellArg
+    ;
+  inherit (pkgs) runCommand;
+
   projectRoot = ../..;
 
   homeManager = rec {
@@ -29,7 +37,7 @@ let
         inherit pkgs;
         modules = modules ++ [
           commonModule
-          { _module.args.pkgs = lib.mkForce (pkgs // packageOverrides); }
+          { _module.args.pkgs = mkForce (pkgs // packageOverrides); }
         ];
 
         # SYNC: SPECIAL-ARGS
@@ -68,7 +76,29 @@ let
       # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
       filter = inputs.gitignore.outputs.gitignoreFilterWith { basePath = projectRoot; };
     in
-    src: lib.cleanSourceWith { inherit filter src; };
+    src: cleanSourceWith { inherit filter src; };
+
+  # There's a `linkFarm` in `nixpkgs`, but sometimes I can't use it since it coerces
+  # the entries to a set and the keys in that set, i.e. the destination for each
+  # link, may have string context which nix does not allow[1].
+  #
+  # [1]: https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
+  linkFarm =
+    name: entries:
+    let
+      linkCommands = map (
+        { name, path }:
+        ''
+          mkdir -p -- "$(dirname -- ${escapeShellArg "${name}"})"
+          ln -s -- ${escapeShellArg "${path}"} ${escapeShellArg "${name}"}
+        ''
+      ) entries;
+    in
+    runCommand name { } ''
+      mkdir -p $out
+      cd $out
+      ${concatStrings linkCommands}
+    '';
 in
 {
   inherit
@@ -77,5 +107,6 @@ in
     unstableVersion
     applyIf
     gitFilter
+    linkFarm
     ;
 }

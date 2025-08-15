@@ -1,16 +1,14 @@
 {
   lib,
   nixpkgs,
+  utils,
   ...
 }:
 nixpkgs.callPackage (
-  {
-    writeTextFile,
-    nvd,
-  }:
+  { nvd }:
   let
+    inherit (builtins) storeDir;
     inherit (lib)
-      concatStringsSep
       pipe
       escapeShellArg
       filter
@@ -18,31 +16,55 @@ nixpkgs.callPackage (
       genericClosure
       attrsToList
       concatMap
-      id
       getExe
       mapAttrsToList
       fix
       optionalString
-      optionals
       isBool
+      removePrefix
       ;
+    inherit (utils) linkFarm;
+
+    removeStoreDir = removePrefix "${storeDir}/";
 
     handlers = {
-      paths = id;
-      derivations = map (derivation: "${derivation.name}: ${derivation}");
+      paths =
+        type:
+        map (path: {
+          name = "${type}-${removeStoreDir path}";
+          inherit path;
+        });
+
+      derivations =
+        type:
+        map (derivation: {
+          name = "${type}-${removeStoreDir derivation.outPath}";
+          path = derivation.outPath;
+        });
 
       devShell =
-        shellOrBool:
+        type: shellOrBool:
         if isBool shellOrBool then
-          optionals shellOrBool [ "(Created in shellHook)" ]
+          [ ]
         else
-          [ "${shellOrBool.name}: ${shellOrBool}" ];
+          [
+            {
+              name = "${type}-${removeStoreDir shellOrBool.outPath}";
+              path = shellOrBool.outPath;
+            }
+          ];
 
       npins =
+        type:
         { pins }:
         pipe pins [
           (pins: removeAttrs pins [ "__functor" ])
-          (mapAttrsToList (name: pin: "${name}: ${pin}"))
+          (mapAttrsToList (
+            name: pin: {
+              name = "${type}-${name}-${removeStoreDir pin.outPath}";
+              path = pin.outPath;
+            }
+          ))
         ];
 
       flake =
@@ -69,6 +91,7 @@ nixpkgs.callPackage (
               operator = input: toClosureNodes (input.inputs or { });
             };
         in
+        type:
         { inputs }:
         pipe inputs [
           getInputsRecursive
@@ -76,23 +99,31 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          (map (input: "${input.name}: ${input}"))
+          (map (input: {
+            name = "${type}-${input.name}-${removeStoreDir input.outPath}";
+            path = input.outPath;
+          }))
         ];
     };
 
-    makeGcRootDerivation =
+    makeRootsDerivation =
       {
-        gcRootsString,
-        hook,
         roots,
+        config,
       }:
       fix (
         self:
         let
+          hookConfig = config.hook;
+          rootsConfig = config.roots;
+
           shellHook =
             let
               directory =
-                if hook.directory ? eval then ''"${hook.directory.eval}"'' else escapeShellArg hook.directory.text;
+                if hookConfig.directory ? eval then
+                  ''"${hookConfig.directory.eval}"''
+                else
+                  escapeShellArg hookConfig.directory.text;
               nvdExe = getExe nvd;
               devShellDiffSnippet = ''
                 if [[ -e ${directory}/dev-shell-root ]]; then
@@ -107,66 +138,48 @@ nixpkgs.callPackage (
                 fi
               fi
             ''
-            + optionalString roots.devShell ''
+            + optionalString rootsConfig.devShell ''
               if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
                 # Users can't pass in the shell derivation since that would cause
-                # infinite recursion: To get the shell's outPath, we'd need the
-                # shellHook which would include this snippet. And to get this snippet,
-                # we'd need the shell's outPath. Instead, we get the shells outPath at
-                # runtime and make a separate GC root for it.
+                # infinite recursion: To get the shell's outPath, we need the
+                # shellHook which would include this snippet. And to get this
+                # snippet, we need the shell's outPath. Instead, we get the shell's
+                # outPath at runtime and make a separate GC root for it.
                 new_shell=
                 if [[ -n $DEVSHELL_DIR ]]; then
                   new_shell="$DEVSHELL_DIR"
                 fi
 
                 if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
-                  ${optionalString hook.devShellDiff devShellDiffSnippet}
+                  ${optionalString hookConfig.devShellDiff devShellDiffSnippet}
                   nix build --out-link ${directory}/dev-shell-root "$new_shell"
                 fi
               fi
             '';
         in
-        writeTextFile {
-          name = "gc-roots";
-          text = gcRootsString;
-          passthru = { inherit shellHook; };
-        }
+        (linkFarm "gc-roots" roots) // { inherit shellHook; }
       );
-
-    makeGcRootSectionLines =
-      let
-        addHeaderAndSeparator = { gcRoots, type }: [ "roots for ${type}:" ] ++ gcRoots ++ [ "" ];
-      in
-      { type, config }:
-      let
-        gcRoots = handlers.${type} config;
-      in
-      optionals (gcRoots != [ ]) addHeaderAndSeparator { inherit gcRoots type; };
   in
-  config:
+  configWithoutDefaults:
   let
     # Set sefaults
-    hook = {
-      devShellDiff = true;
-    }
-    // config.hook;
-    roots = {
-      devShell = true;
-    }
-    // config.roots;
-  in
-  pipe roots [
-    attrsToList
-    (concatMap (
-      { name, value }:
-      makeGcRootSectionLines {
-        type = name;
-        config = value;
+    config = {
+      hook = {
+        devShellDiff = true;
       }
-    ))
-    (concatStringsSep "\n")
+      // configWithoutDefaults.hook;
+
+      roots = {
+        devShell = true;
+      }
+      // configWithoutDefaults.roots;
+    };
+  in
+  pipe config.roots [
+    attrsToList
+    (concatMap ({ name, value }: handlers.${name} name value))
     # Combine them into a single derivation to avoid having multiple GC roots for a
     # single project.
-    (gcRootsString: makeGcRootDerivation { inherit gcRootsString hook roots; })
+    (roots: makeRootsDerivation { inherit config roots; })
   ]
 ) { }

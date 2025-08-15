@@ -9,7 +9,6 @@ nixpkgs.callPackage (
     pkgs,
     lib,
     mkShellBin ? inputs.nix-mk-shell-bin.outputs.lib.mkShellBin,
-    runCommand,
     writeShellScript,
   }:
   let
@@ -24,8 +23,6 @@ nixpkgs.callPackage (
       findFirst
       removePrefix
       any
-      concatStrings
-      escapeShellArg
       escapeShellArgs
       isStorePath
       ;
@@ -41,7 +38,7 @@ nixpkgs.callPackage (
     resolveDirectory =
       let
         inherit (lib.filesystem) listFilesRecursive;
-        inherit (utils) applyIf;
+        inherit (utils) applyIf linkFarm;
 
         listRelativeFilesRecursive =
           directory:
@@ -57,31 +54,6 @@ nixpkgs.callPackage (
             (splitString "\n")
             (any isNixShellDirective)
           ];
-
-        # There's a `linkFarm` in `lib`, but we can't use it since it coerces the
-        # entries to a set and the keys in that set, i.e. the destination for each
-        # link, may have string context which nix does not allow[1]. They may have
-        # context if the input to `resolveNixShellShebang` is a directory from the
-        # nix store.
-        #
-        # [1]:
-        # https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
-        linkFarm =
-          name: entries:
-          let
-            linkCommands = map (
-              { name, path }:
-              ''
-                mkdir -p -- "$(dirname -- ${escapeShellArg "${name}"})"
-                ln -s -- ${escapeShellArg "${path}"} ${escapeShellArg "${name}"}
-              ''
-            ) entries;
-          in
-          runCommand name { } ''
-            mkdir -p $out
-            cd $out
-            ${concatStrings linkCommands}
-          '';
       in
       directory:
       pipe directory [
