@@ -127,6 +127,9 @@ function _d_utils_add_reload_program_to_path {
   # script to the file name and make a symlink to it without the version. This way,
   # we could do a `-e` check to avoid creating the file again. This isn't done
   # because this script currently isn't versioned.
+  #
+  # Alternatively, direnv could set a variable before a script gets sourced with
+  # `source_url` that contains the file hash.
   cat >"$reload_program" <<EOF
 #!$bash_path
 touch $reload_file_escaped
