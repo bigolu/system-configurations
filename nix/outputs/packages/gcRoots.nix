@@ -101,14 +101,14 @@ nixpkgs.callPackage (
               '';
             in
             ''
-              if [[ -z $IN_NIX_BUNDLE ]]; then
+              if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
                 if [[ ! ${directory}/roots -ef ${self} ]]; then
                   nix build --out-link ${directory}/roots ${self}
                 fi
               fi
             ''
             + optionalString roots.devShell ''
-              if [[ -z $IN_NIX_BUNDLE ]]; then
+              if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
                 # Users can't pass in the shell derivation since that would cause
                 # infinite recursion: To get the shell's outPath, we'd need the
                 # shellHook which would include this snippet. And to get this snippet,
