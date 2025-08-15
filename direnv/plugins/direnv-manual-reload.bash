@@ -1,8 +1,10 @@
-# Disable direnv's automatic reloading. It will still automatically
-# load when you first enter the directory, but it will not reload after that. If you
-# want to reload the environment, you can instead use the command `direnv-reload`
-# which will be added to the PATH. If you use this script, `direnv reload` will no
-# longer work, you have to use `direnv-reload`.
+# Disable direnv's automatic reloading. It will still automatically load when you
+# first enter the directory, but it will not reload after that. If you want to reload
+# the environment, you can instead use the command `direnv-reload` which will be
+# added to the PATH. If you use this script, `direnv reload` will no longer work, you
+# have to use `direnv-reload`. Alternatively, a change could be made to direnv's
+# reload behavior to touch a file from `DIRENV_WATCHES` instead of hard coding
+# `.envrc`.
 #
 # Usage:
 #   Add the following two lines to the top of your envrc:

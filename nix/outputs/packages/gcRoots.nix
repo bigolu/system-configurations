@@ -76,7 +76,7 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          (map (input: "${input.name}: ${input.outPath}"))
+          (map (input: "${input.name}: ${input}"))
         ];
     };
 
@@ -94,7 +94,6 @@ nixpkgs.callPackage (
               directory =
                 if hook.directory ? eval then ''"${hook.directory.eval}"'' else escapeShellArg hook.directory.text;
               nvdExe = getExe nvd;
-              inherit (self) outPath;
               devShellDiffSnippet = ''
                 if [[ -e ${directory}/dev-shell-root ]]; then
                   ${nvdExe} --color=never diff ${directory}/dev-shell-root "$new_shell"
@@ -102,8 +101,8 @@ nixpkgs.callPackage (
               '';
             in
             ''
-              if [[ ! ${directory}/roots -ef ${outPath} ]]; then
-                nix build --out-link ${directory}/roots ${outPath}
+              if [[ ! ${directory}/roots -ef ${self} ]]; then
+                nix build --out-link ${directory}/roots ${self}
               fi
             ''
             + optionalString roots.devShell ''
@@ -130,7 +129,7 @@ nixpkgs.callPackage (
         }
       );
 
-    makeGcRootSection =
+    makeGcRootSectionLines =
       let
         addHeaderAndSeparator = { gcRoots, type }: [ "roots for ${type}:" ] ++ gcRoots ++ [ "" ];
       in
@@ -138,10 +137,7 @@ nixpkgs.callPackage (
       let
         gcRoots = handlers.${type} config;
       in
-      optionals (gcRoots != [ ]) addHeaderAndSeparator {
-        inherit gcRoots;
-        inherit type;
-      };
+      optionals (gcRoots != [ ]) addHeaderAndSeparator { inherit gcRoots type; };
   in
   config:
   let
@@ -159,7 +155,7 @@ nixpkgs.callPackage (
     attrsToList
     (concatMap (
       { name, value }:
-      makeGcRootSection {
+      makeGcRootSectionLines {
         type = name;
         config = value;
       }

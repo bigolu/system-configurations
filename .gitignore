@@ -1,6 +1,6 @@
 .DS_Store
+.direnv
 .envrc
-secrets.env
+.env
 .lycheecache
 gozip/vendor
-.direnv
