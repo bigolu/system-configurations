@@ -60,7 +60,9 @@ function direnv_manual_reload {
 
   local -r reload_file="$_d_utils_layout_dir/reload"
   if [[ ! -e $reload_file ]]; then
-    touch "$reload_file"
+    # This will create the file, like `touch`, without having to use an external
+    # command.
+    : >"$reload_file"
   fi
 
   _d_utils_remove_unwanted_watched_files
@@ -73,11 +75,10 @@ function direnv_manual_reload {
 function _d_utils_remove_unwanted_watched_files {
   local -a watched_files
   # shellcheck disable=2312
-  # perf: The exit code of direnv is being masked by readarray, but it would be
+  # PERF: The exit code of direnv is being masked by readarray, but it would be
   # tricky to avoid that. I can't use a pipeline since I want to unset the
   # DIRENV_WATCHES environment variable below. I could put the output of the direnv
-  # command in a temporary file, but since this runs every time you enter the project
-  # directory I want to avoid doing anything slow.
+  # command in a temporary file, but I want to avoid going to disk.
   readarray -d '' watched_files < <(direnv watch-print --null)
 
   local -a watched_files_to_keep

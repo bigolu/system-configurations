@@ -130,9 +130,10 @@ nixpkgs.callPackage (
         }
       );
 
-    addHeaderAndSeparator = { gcRoots, type }: [ "roots for ${type}:" ] ++ gcRoots ++ [ "" ];
-
-    getGcRootSection =
+    makeGcRootSection =
+      let
+        addHeaderAndSeparator = { gcRoots, type }: [ "roots for ${type}:" ] ++ gcRoots ++ [ "" ];
+      in
       { type, config }:
       let
         gcRoots = handlers.${type} config;
@@ -158,7 +159,7 @@ nixpkgs.callPackage (
     attrsToList
     (concatMap (
       { name, value }:
-      getGcRootSection {
+      makeGcRootSection {
         type = name;
         config = value;
       }
