@@ -5,7 +5,6 @@
 }:
 {
   imports = [
-    ../../flake-compat.nix
     ../../mise/cli.nix
   ]
   ++ lib.optionals pkgs.stdenv.isLinux [

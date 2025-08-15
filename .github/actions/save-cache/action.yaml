@@ -105,7 +105,12 @@ runs:
         new="$(mktemp)"
         shopt -s globstar
         # If the home directory changes, that shouldn't affect the cache.
-        realpath --relative-to="$HOME/.cache/direnv" ~/.cache/direnv/** >"$new"
+        direnv_plugins=(~/.cache/direnv/**)
+        if ((${#direnv_plugins[@]} > 0)); then
+          realpath --relative-to="$HOME/.cache/direnv" "${direnv_plugins[@]}" >"$new"
+        else
+          exit 0
+        fi
 
         if [[ ! -e $old ]]; then
           echo 'Old cache did not exist'

@@ -30,7 +30,6 @@ makeShells
   {
     development = {
       imports = [
-        ./modules/flake-compat.nix
         ./modules/gozip.nix
         ./modules/mise/cli.nix
         ./modules/mise/tasks.nix
@@ -46,13 +45,6 @@ makeShells
         packages = [ pkgs.npins ];
         startup.dev.text = ''
           export RUN_FIX_ACTIONS='diff,stage,fail'
-
-          if [[ -e secrets.env ]]; then
-            # Export any variables that are modified/created
-            set -a
-            source secrets.env
-            set +a
-          fi
         '';
       };
     };
