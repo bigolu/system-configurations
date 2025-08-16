@@ -178,8 +178,8 @@ nixpkgs.callPackage (
   pipe config.roots [
     attrsToList
     (concatMap ({ name, value }: handlers.${name} name value))
-    # Combine them into a single derivation to avoid having multiple GC roots for a
-    # single project.
+    # Combine them into a single derivation so each project only has one GC root, or
+    # two if they enabled the dev shell GC root.
     (roots: makeRootsDerivation { inherit config roots; })
   ]
 ) { }
