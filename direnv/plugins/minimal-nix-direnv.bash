@@ -19,9 +19,6 @@
 #       that will satisfy all use cases so users will still have to run `watch_file`
 #       themselves. Instead, you can try the following which should work for most
 #       cases: watch_file nix/** **/*.nix
-#   - It also felt like there was less of a pause when entering a directory so it may
-#     be a bit faster. I did a rough benchmark with `hyperfine` and this plugin was
-#     faster by about half a second.
 
 function use_nix {
   # The name of the dev shell implementation. See the case statement below for valid
