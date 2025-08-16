@@ -16,7 +16,12 @@ let
   inCi = hasPrefix "ci-" name;
 in
 {
-  imports = optionals inCi [ ./ci ];
+  imports = [
+    ../mise/cli.nix
+  ]
+  ++ optionals inCi [
+    ./ci
+  ];
 
   env = [
     {

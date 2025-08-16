@@ -3,13 +3,12 @@
   lib,
   ...
 }:
+let
+  inherit (lib) optionals;
+  inherit (pkgs.stdenv) isLinux;
+in
 {
-  imports = [
-    ../../mise/cli.nix
-  ]
-  ++ lib.optionals pkgs.stdenv.isLinux [
-    ./locale.nix
-  ];
+  imports = optionals isLinux [ ./locale.nix ];
 
   devshell.packages = with pkgs; [
     # For the `run` steps in CI workflows/actions

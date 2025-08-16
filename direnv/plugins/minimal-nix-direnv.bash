@@ -2,23 +2,25 @@
 # watched file is modified. If it fails to load a new environment, it'll fall back to
 # the last cached one.
 #
-# Differences from nix-direnv:
-#   - Much less features. Some notable ones are:
-#     - No GC root creation: Nix dev shell implementations already provide a way to
-#       set up the environment e.g. `shellHook` for nix's devShell or `startup.*` for
-#       numtide's devshell. Therefore, nix should be able to handle all of its
-#       environment management itself so it can be less dependent on direnv. To help
-#       with this, I wrote a nix utility that handles GC roots.
-#     - No manual reload: If you want to reload manually, you can use my
-#       direnv-manual-reload plugin. In most of the `.envrc` files that I've seen,
-#       the only thing done is loading a nix environment so a dedicated command to
-#       reload nix would be redundant.
-#     - No automatic file watching: I don't want to have to emulate nix's argument
-#       parsing so I can determine which arguments are files. I also don't want to
-#       define my own argument schema. Plus, I don't think there's a way to do it
-#       that will satisfy all use cases so users will still have to run `watch_file`
-#       themselves. Instead, you can try the following which should work for most
-#       cases: watch_file nix/** **/*.nix
+# Some differences from nix-direnv:
+#   - nix-direnv will only fall back to the old environment if the command to _build_
+#     the new environment fails. This plugin will also fall back if the _evaluation_
+#     of the new environment fails.
+#   - No GC root creation: Nix dev shell implementations already provide a way to set
+#     up the environment e.g. `shellHook` for nix's devShell or `startup.*` for
+#     numtide's devshell. Therefore, nix should be able to handle all of its
+#     environment management itself so it can be less dependent on direnv. To help
+#     with this, I wrote a nix utility that handles GC roots.
+#   - No manual reload: If you want to reload manually, you can use my
+#     direnv-manual-reload plugin. In most of the `.envrc` files that I've seen, the
+#     only thing done is loading a nix environment so a dedicated command to reload
+#     nix would be redundant.
+#   - No automatic file watching: I don't want to have to emulate nix's argument
+#     parsing so I can determine which arguments are files. I also don't want to
+#     define my own argument schema. Plus, I don't think there's a way to do it that
+#     will satisfy all use cases so users will still have to run `watch_file`
+#     themselves. Instead, you can try the following which should work for most
+#     cases: watch_file nix/** **/*.nix
 
 function use_nix {
   # The name of the dev shell implementation. See the case statement below for valid
@@ -27,7 +29,7 @@ function use_nix {
   # These will be appended to `nix build` to get the devshell package.
   local -ra args=("${@:2}")
 
-  # Intentionally global so it can be accessed from a trap
+  # Intentionally global so it can be accessed from the fallback trap
   _mnd_cached_env_script="${direnv_layout_dir:-.direnv}/dev-shell-env.bash"
 
   local should_update=false
@@ -56,11 +58,11 @@ function use_nix {
     return 0
   fi
 
-  # If the nix command to get the get new env script, or the script itself, fails,
-  # we'll restore the environment from before they ran and source the last cached env
+  # If the command for getting the new env script, or the script itself, fails, we'll
+  # restore the environment from before they ran and source the last cached env
   # script.
   #
-  # Intentionally global so it can be accessed from a trap
+  # Intentionally global so it can be accessed from the fallback trap
   _mnd_original_env="$(declare -px)"
   # direnv already sets an exit trap so we'll prepend our command to it instead of
   # overwriting it.
@@ -75,7 +77,7 @@ function use_nix {
   trap -- '
     touch "$_mnd_cached_env_script"
     _mnd_log_error "Something went wrong, loading the last dev shell"
-    IFS=$'"'"'\n'"'"' unset $(env | cut -d= -f1)
+    IFS=$'\''\n'\'' unset $(env | cut -d= -f1)
 
     function _mnd_nest_1 {
       function _mnd_nest_2 {

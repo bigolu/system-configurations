@@ -19,7 +19,6 @@ shopt -s inherit_errexit
 # Isolate the environment using temporary directories
 temp_home="$(mktemp --directory)"
 temp_dev_shell_state="$(mktemp --directory)"
-
 function clean_up {
   # Go doesn't set the write permission on the directories it creates[1] so we have
   # to do that before deleting them.

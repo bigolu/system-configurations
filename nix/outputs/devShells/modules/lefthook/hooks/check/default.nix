@@ -3,8 +3,6 @@
   imports = [
     ../../cli.nix
     ./lua-language-server.nix
-    # For generating task documentation
-    ../../../mise/cli.nix
     # For `gofmt`, `go mod tidy`, `gopls`, and `golangci-lint`
     ../../../gozip.nix
     # For running mypy
