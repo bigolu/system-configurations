@@ -25,10 +25,10 @@ function use_nix {
   local -ra args=("${@:2}")
 
   # Intentionally global so it can be accessed from a trap
-  cached_env_script="${direnv_layout_dir:-.direnv}/dev-shell-env.bash"
+  _mnd_cached_env_script="${direnv_layout_dir:-.direnv}/dev-shell-env.bash"
 
   local should_update=false
-  if [[ ! -e $cached_env_script ]]; then
+  if [[ ! -e $_mnd_cached_env_script ]]; then
     should_update=true
   else
     local -a watched_files
@@ -40,7 +40,7 @@ function use_nix {
     readarray -d '' watched_files < <(direnv watch-print --null)
     local file
     for file in "${watched_files[@]}"; do
-      if [[ $file -nt $cached_env_script ]]; then
+      if [[ $file -nt $_mnd_cached_env_script ]]; then
         should_update=true
         break
       fi
@@ -49,64 +49,55 @@ function use_nix {
 
   if [[ $should_update != 'true' ]]; then
     # shellcheck disable=1090
-    source "$cached_env_script"
-  else
-    local original_trap
-    original_trap="$(_mnd_get_exit_trap)"
-    # direnv already sets an exit trap so we'll prepend our command to it instead
-    # of overwriting it.
-    _mnd_prepend_to_exit_trap "$(
-      printf \
-        'touch %q; _mnd_log_error %q; source %q' \
-        "$cached_env_script" \
-        "Something went wrong, loading the last dev shell" \
-        "$cached_env_script"
-    )"
-
-    local new_env_script
-    # Nix may add a standard format for dev shell packages[1]. If this is done, then
-    # this plugin won't need separate handlers for each dev shell implementation
-    # since the script for loading the environment will always be in
-    # `<package>/lib/env.bash`.
-    #
-    # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
-    case "$type" in
-      # numtide/devshell
-      'devshell')
-        local package
-        package="$(nix build --no-link --print-out-paths "${args[@]}")"
-        new_env_script="$package/env.bash"
-        ;;
-      *)
-        _mnd_log_error "Unknown dev shell type: $type"
-        return 1
-        ;;
-    esac
-
-    # shellcheck disable=1090
-    source "$new_env_script"
-
-    local -r cached_env_script_directory="${cached_env_script%/*}"
-    if [[ ! -d $cached_env_script_directory ]]; then
-      mkdir -p "$cached_env_script_directory"
-    fi
-    echo "$(<"$new_env_script")" >"$cached_env_script"
-
-    trap -- "$original_trap" EXIT
+    source "$_mnd_cached_env_script"
+    return 0
   fi
+
+  # direnv already sets an exit trap so we'll prepend our command to it instead
+  # of overwriting it.
+  local original_trap
+  original_trap="$(_mnd_get_exit_trap)"
+  # The `echo ...` is a pure-bash alternative to `touch`
+  #
+  # I tried to use a function for the trap, but I got a strange error: If there was a
+  # function inside the dev shell shellHook that used local variables, Bash would
+  # exit with the error "local cannot be used outside of a function" even though it
+  # was in a function.
+  trap -- '
+    echo "$(<"$_mnd_cached_env_script")" >"$_mnd_cached_env_script"
+    _mnd_log_error "Something went wrong, loading the last dev shell"
+    source "$_mnd_cached_env_script"
+  '"$original_trap" EXIT
+
+  local new_env_script
+  # Nix may add a standard format for dev shell packages[1]. If this is done, then
+  # the environment script will always be in `<package>/lib/env.bash`.
+  #
+  # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
+  case "$type" in
+    # numtide/devshell
+    'devshell')
+      new_env_script="$(nix build --no-link --print-out-paths "${args[@]}")/env.bash"
+      ;;
+    *)
+      _mnd_log_error "Unknown dev shell type: $type"
+      return 1
+      ;;
+  esac
+
+  # shellcheck disable=1090
+  source "$new_env_script"
+  local -r cached_env_script_directory="${_mnd_cached_env_script%/*}"
+  if [[ ! -d $cached_env_script_directory ]]; then
+    mkdir -p "$cached_env_script_directory"
+  fi
+  echo "$(<"$new_env_script")" >"$_mnd_cached_env_script"
+
+  trap -- "$original_trap" EXIT
 }
 
 function _mnd_log_error {
-  log_error "minimal-nix-direnv: $1"
-}
-
-function _mnd_prepend_to_exit_trap {
-  local -r command="$1"
-
-  local current_trap
-  current_trap="$(_mnd_get_exit_trap)"
-
-  trap -- "$command"$'\n'"$current_trap" EXIT
+  log_error "minimal-nix-direnv: error: $1"
 }
 
 function _mnd_get_exit_trap {
