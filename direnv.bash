@@ -7,8 +7,6 @@
 source direnv/plugins/direnv-manual-reload.bash
 direnv_manual_reload
 
-dotenv_if_exists
-
 source direnv/plugins/minimal-nix-direnv.bash
 if [[ ${CI:-} == 'true' ]]; then
   default='ci-essentials'

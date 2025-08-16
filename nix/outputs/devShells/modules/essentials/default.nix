@@ -58,5 +58,14 @@ in
           echo '*' >"$dev_shell_dir/.gitignore"
         fi
       '';
+
+    secrets.text = ''
+      if [[ -e ''${PRJ_ROOT:?}/.env ]]; then
+        # Export any variables that are modified/created
+        set -a
+        source .env
+        set +a
+      fi
+    '';
   };
 }
