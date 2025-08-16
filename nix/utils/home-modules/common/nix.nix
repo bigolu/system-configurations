@@ -149,9 +149,6 @@ in
         "flakes"
       ];
 
-      # Always show the entire stack trace of an error.
-      show-trace = true;
-
       # Don't warn me that the git repository is dirty
       warn-dirty = false;
 
