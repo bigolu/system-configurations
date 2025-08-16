@@ -18,7 +18,6 @@ shopt -s inherit_errexit
 
 # Isolate the environment using temporary directories
 temp_home="$(mktemp --directory)"
-direnv_layout_dir="$(mktemp --directory)"
 temp_dev_shell_state="$(mktemp --directory)"
 
 function clean_up {
@@ -29,7 +28,7 @@ function clean_up {
   if [[ -e "$temp_home/go" ]]; then
     chmod -R +w "$temp_home/go"
   fi
-  rm -rf "$direnv_layout_dir" "$temp_home" "$temp_dev_shell_state"
+  rm -rf "$temp_home" "$temp_dev_shell_state"
 }
 trap clean_up EXIT
 
@@ -40,7 +39,6 @@ trap clean_up EXIT
 nix shell \
   --ignore-environment \
   --set-env-var HOME "$temp_home" \
-  --set-env-var direnv_layout_dir "$direnv_layout_dir" \
   --set-env-var DEV_SHELL_STATE "$temp_dev_shell_state" \
   --set-env-var CI true \
   --set-env-var CI_DEBUG true \
