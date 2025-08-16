@@ -51,11 +51,10 @@ in
         mkdir = getExe' coreutils "mkdir";
       in
       ''
-        dev_shell_dir="''${PRJ_ROOT:?}/.dev-shell"
-        export DEV_SHELL_STATE="''${DEV_SHELL_STATE:-$dev_shell_dir/state}"
+        export DEV_SHELL_STATE="''${DEV_SHELL_STATE:-''${PRJ_ROOT:?}/.dev-shell-state}"
         if [[ ! -e $DEV_SHELL_STATE ]]; then
           ${mkdir} --parents "$DEV_SHELL_STATE"
-          echo '*' >"$dev_shell_dir/.gitignore"
+          echo '*' >"$DEV_SHELL_STATE/.gitignore"
         fi
       '';
 

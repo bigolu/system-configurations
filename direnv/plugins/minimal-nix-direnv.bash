@@ -13,6 +13,12 @@
 #       direnv-manual-reload plugin. In most of the `.envrc` files that I've seen,
 #       the only thing done is loading a nix environment so a dedicated command to
 #       reload nix would be redundant.
+#     - No automatic file watching: I don't want to have to emulate nix's argument
+#       parsing so I can determine which arguments are files. I also don't want to
+#       define my own argument schema. Plus, I don't think there's a way to do it
+#       that will satisfy all use cases so users will still have to run `watch_file`
+#       themselves. Instead, you can try the following which should work for most
+#       cases: watch_file nix/** **/*.nix
 #   - It also felt like there was less of a pause when entering a directory so it may
 #     be a bit faster. I did a rough benchmark with `hyperfine` and this plugin was
 #     faster by about half a second.
@@ -58,9 +64,9 @@ function use_nix {
   local original_trap
   original_trap="$(_mnd_get_exit_trap)"
   # I tried to use a function for the trap, but I got a strange error: If there was a
-  # function inside the dev shell shellHook that used local variables, Bash would
-  # exit with the error "local cannot be used outside of a function" even though it
-  # was in a function.
+  # function inside the env script that used local variables, Bash would exit with
+  # the error "local cannot be used outside of a function" even though it was in a
+  # function.
   trap -- '
     touch "$_mnd_cached_env_script"
     _mnd_log_error "Something went wrong, loading the last dev shell"

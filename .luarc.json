@@ -6,8 +6,8 @@
   },
   "workspace": {
     "library": [
-      ".dev-shell/state/lua-libraries",
-      "../../.dev-shell/state/lua-libraries"
+      ".dev-shell-state/lua-libraries",
+      "../../.dev-shell-state/lua-libraries"
     ],
     "checkThirdParty": "Disable"
   },
