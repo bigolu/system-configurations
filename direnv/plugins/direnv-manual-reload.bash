@@ -55,26 +55,32 @@
 # [3]: https://github.com/direnv/direnv-vscode
 function direnv_manual_reload {
   # Intentionally global
-  _d_utils_layout_dir="${direnv_layout_dir:-.direnv}"
-  if [[ ! -e $_d_utils_layout_dir ]]; then
-    mkdir "$_d_utils_layout_dir"
+  _dmr_layout_dir="${direnv_layout_dir:-.direnv}"
+  if [[ ! -e $_dmr_layout_dir ]]; then
+    mkdir -p "$_dmr_layout_dir"
   fi
 
-  local -r reload_file="$_d_utils_layout_dir/reload"
+  local -r reload_file="$_dmr_layout_dir/reload"
   if [[ ! -e $reload_file ]]; then
     # This will create the file, like `touch`, without having to use an external
     # command.
     : >"$reload_file"
   fi
 
-  _d_utils_remove_unwanted_watched_files
+  _dmr_remove_unwanted_watched_files
   watch_file "$reload_file"
-  _d_utils_disable_file_watching
+  # Disable further file watching by overriding the `watch_file` function from the
+  # direnv stdlib
+  function watch_file {
+    # shellcheck disable=2317
+    # ^ shellcheck says this command isn't reachable, but it is.
+    :
+  }
 
-  _d_utils_add_reload_program_to_path "$reload_file"
+  _dmr_add_reload_program_to_path "$reload_file"
 }
 
-function _d_utils_remove_unwanted_watched_files {
+function _dmr_remove_unwanted_watched_files {
   local -a watched_files
   # shellcheck disable=2312
   # PERF: The exit code of direnv is being masked by readarray, but it would be
@@ -97,19 +103,10 @@ function _d_utils_remove_unwanted_watched_files {
   watch_file "${watched_files_to_keep[@]}"
 }
 
-function _d_utils_disable_file_watching {
-  # Override the `watch_file` function from the direnv stdlib
-  function watch_file {
-    # shellcheck disable=2317
-    # ^ shellcheck says this command isn't reachable, but it is.
-    :
-  }
-}
-
-function _d_utils_add_reload_program_to_path {
+function _dmr_add_reload_program_to_path {
   local -r reload_file="$1"
 
-  local -r direnv_bin="$_d_utils_layout_dir/bin"
+  local -r direnv_bin="$_dmr_layout_dir/bin"
   if [[ ! -e $direnv_bin ]]; then
     mkdir "$direnv_bin"
   fi
