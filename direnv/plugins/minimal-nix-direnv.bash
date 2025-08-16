@@ -59,17 +59,35 @@ function use_nix {
     return 0
   fi
 
-  # direnv already sets an exit trap so we'll prepend our command to it instead
-  # of overwriting it.
+  # If the nix command to get the get new env script, or the script itself, fails,
+  # we'll restore the environment from before they ran and source the last cached env
+  # script.
+  #
+  # Intentionally global so it can be accessed from a trap
+  _mnd_original_env="$(declare -px)"
+  # direnv already sets an exit trap so we'll prepend our command to it instead of
+  # overwriting it.
   local original_trap
   original_trap="$(_mnd_get_exit_trap)"
-  # I tried to use a function for the trap, but I got a strange error: If there was a
-  # function inside the env script that used local variables, Bash would exit with
-  # the error "local cannot be used outside of a function" even though it was in a
-  # function.
+  # I tried to use a function for the trap, but I got an error: If there was a
+  # function inside the cached env script that used local variables, Bash would exit
+  # with the error "local cannot be used outside of a function", even though it was
+  # in a function. If I wrapped that function inside another function, then it would
+  # work. This is why the `eval` statement in the trap below is inside a function.
+  # Without it, I got an error.
   trap -- '
     touch "$_mnd_cached_env_script"
     _mnd_log_error "Something went wrong, loading the last dev shell"
+    IFS=$'"'"'\n'"'"' unset $(env | cut -d= -f1)
+
+    function _mnd_nest_1 {
+      function _mnd_nest_2 {
+        eval "$_mnd_original_env"
+      }
+      _mnd_nest_2
+    }
+    _mnd_nest_1
+
     source "$_mnd_cached_env_script"
   '"$original_trap" EXIT
 

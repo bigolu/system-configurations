@@ -114,17 +114,17 @@ nixpkgs.callPackage (
       fix (
         self:
         let
-          hookConfig = config.hook;
-          rootsConfig = config.roots;
-
           shellHook =
             let
+              hookConfig = config.hook;
+              nvdExe = getExe nvd;
+
               directory =
                 if hookConfig.directory ? eval then
                   ''"${hookConfig.directory.eval}"''
                 else
                   escapeShellArg hookConfig.directory.text;
-              nvdExe = getExe nvd;
+
               devShellDiffSnippet = ''
                 if [[ -e ${directory}/dev-shell-root ]]; then
                   ${nvdExe} --color=never diff ${directory}/dev-shell-root "$new_shell"
@@ -138,7 +138,7 @@ nixpkgs.callPackage (
                 fi
               fi
             ''
-            + optionalString rootsConfig.devShell ''
+            + optionalString config.roots.devShell ''
               if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
                 # Users can't pass in the shell derivation since that would cause
                 # infinite recursion: To get the shell's outPath, we need the
