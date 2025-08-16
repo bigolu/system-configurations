@@ -13,9 +13,6 @@
 #       direnv-manual-reload plugin. In most of the `.envrc` files that I've seen,
 #       the only thing done is loading a nix environment so a dedicated command to
 #       reload nix would be redundant.
-#     - No file watching: I don't want to have to emulate nix's argument parsing or
-#       come up with my own argument schema. A simpler alternative could be just
-#       running `[[ -e ]]` on every argument passed in.
 #   - It also felt like there was less of a pause when entering a directory so it may
 #     be a bit faster. I did a rough benchmark with `hyperfine` and this plugin was
 #     faster by about half a second.

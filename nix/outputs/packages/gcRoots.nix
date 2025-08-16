@@ -38,8 +38,8 @@ nixpkgs.callPackage (
       derivations =
         type:
         map (derivation: {
-          name = "${type}-${removeStoreDir derivation.outPath}";
-          path = derivation.outPath;
+          name = "${type}-${removeStoreDir derivation}";
+          path = derivation;
         });
 
       devShell =
@@ -49,8 +49,8 @@ nixpkgs.callPackage (
         else
           [
             {
-              name = "${type}-${removeStoreDir shellOrBool.outPath}";
-              path = shellOrBool.outPath;
+              name = "${type}-${removeStoreDir shellOrBool}";
+              path = shellOrBool;
             }
           ];
 
@@ -61,8 +61,8 @@ nixpkgs.callPackage (
           (pins: removeAttrs pins [ "__functor" ])
           (mapAttrsToList (
             name: pin: {
-              name = "${type}-${name}-${removeStoreDir pin.outPath}";
-              path = pin.outPath;
+              name = "${type}-${name}-${removeStoreDir pin}";
+              path = pin;
             }
           ))
         ];
@@ -100,8 +100,8 @@ nixpkgs.callPackage (
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
           (map (input: {
-            name = "${type}-${input.name}-${removeStoreDir input.outPath}";
-            path = input.outPath;
+            name = "${type}-${input.name}-${removeStoreDir input}";
+            path = input;
           }))
         ];
     };
