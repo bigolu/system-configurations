@@ -62,7 +62,7 @@ in
       if [[ -e ''${PRJ_ROOT:?}/.env ]]; then
         # Export any variables that are modified/created
         set -a
-        source .env
+        source ''${PRJ_ROOT:?}/.env
         set +a
       fi
     '';

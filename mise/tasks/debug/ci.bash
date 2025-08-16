@@ -6,7 +6,7 @@
 #USAGE complete "nix_dev_shell" run=#"""
 #USAGE   nix eval \
 #USAGE     --file . devShells \
-#USAGE     --apply 'shells: builtins.concatStringsSep "\n" (builtins.attrNames shells)' \
+#USAGE     --apply 'with builtins; shells: concatStringsSep "\n" (filter (name: substring 0 (stringLength "ci-") name == "ci-") (attrNames shells))' \
 #USAGE     --raw
 #USAGE """#
 
