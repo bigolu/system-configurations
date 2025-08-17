@@ -109,13 +109,13 @@ function use_nix {
   # shellcheck disable=1090
   source "$new_env_script"
 
+  trap -- "$original_trap" EXIT
+
   local -r cached_env_script_directory="${_mnd_cached_env_script%/*}"
   if [[ ! -d $cached_env_script_directory ]]; then
     mkdir -p "$cached_env_script_directory"
   fi
   echo "$(<"$new_env_script")" >"$_mnd_cached_env_script"
-
-  trap -- "$original_trap" EXIT
 }
 
 function _mnd_log_error {
