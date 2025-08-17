@@ -28,14 +28,14 @@ nixpkgs.callPackage (
     removeStoreDir = removePrefix "${storeDir}/";
 
     handlers = {
-      paths =
+      path =
         type:
         map (path: {
           name = "${type}-${removeStoreDir path}";
           inherit path;
         });
 
-      derivations =
+      derivation =
         type:
         map (derivation: {
           name = "${type}-${removeStoreDir derivation}";
