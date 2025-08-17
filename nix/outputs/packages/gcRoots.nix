@@ -1,3 +1,7 @@
+# There's an issue for having flakes retain a reference to their inputs[1].
+#
+# [1]: https://github.com/NixOS/nix/issues/6895#issuecomment-2475461113
+
 {
   lib,
   nixpkgs,
@@ -28,32 +32,34 @@ nixpkgs.callPackage (
     removeStoreDir = removePrefix "${storeDir}/";
 
     handlers = {
-      path =
-        type:
+      unnamed =
+        paths:
         map (path: {
-          name = "${type}-${removeStoreDir path}";
+          name = removeStoreDir path;
           inherit path;
-        });
+        }) paths;
 
-      derivation =
-        type:
-        map (derivation: {
-          name = "${type}-${removeStoreDir derivation}";
-          path = derivation;
-        });
-
-      npins =
-        type:
-        { pins }:
-        pipe pins [
-          (pins: removeAttrs pins [ "__functor" ])
+      named =
+        paths:
+        pipe paths [
+          (paths: removeAttrs paths [ "__functor" ])
           (mapAttrsToList (
-            name: pin: {
-              name = "${type}-${name}-${removeStoreDir pin}";
-              path = pin;
+            name: path: {
+              name = "${name}-${removeStoreDir path}";
+              inherit path;
             }
           ))
         ];
+
+      namedGroup =
+        groups:
+        concatMap (
+          { name, value }:
+          mapAttrsToList (pathName: path: {
+            name = "${name}-${pathName}-${removeStoreDir path}";
+            inherit path;
+          }) (removeAttrs value [ "__functor" ])
+        ) (attrsToList groups);
 
       flake =
         let
@@ -79,7 +85,6 @@ nixpkgs.callPackage (
               operator = input: toClosureNodes (input.inputs or { });
             };
         in
-        type:
         { inputs }:
         pipe inputs [
           getInputsRecursive
@@ -88,7 +93,7 @@ nixpkgs.callPackage (
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
           (map (input: {
-            name = "${type}-${input.name}-${removeStoreDir input}";
+            name = "flake-${input.name}-${removeStoreDir input}";
             path = input;
           }))
         ];
@@ -97,20 +102,20 @@ nixpkgs.callPackage (
     makeRootsDerivation =
       {
         roots,
-        hookConfig,
+        snippetConfig,
       }:
       fix (
         self:
         let
-          shellHook =
+          snippet =
             let
               nvdExe = getExe nvd;
 
               directory =
-                if hookConfig.directory ? eval then
-                  ''"${hookConfig.directory.eval}"''
+                if snippetConfig.directory ? eval then
+                  ''"${snippetConfig.directory.eval}"''
                 else
-                  escapeShellArg hookConfig.directory.text;
+                  escapeShellArg snippetConfig.directory.text;
 
               devShellDiffSnippet = ''
                 if [[ -e ${directory}/dev-shell-root ]]; then
@@ -125,7 +130,7 @@ nixpkgs.callPackage (
                 fi
               fi
             ''
-            + optionalString hookConfig.devShell.enable ''
+            + optionalString snippetConfig.devShell.enable ''
               if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
                 # Users can't pass in the shell derivation since that would cause
                 # infinite recursion: To get the shell's outPath, we need the
@@ -138,30 +143,30 @@ nixpkgs.callPackage (
                 fi
 
                 if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
-                  ${optionalString hookConfig.devShell.diff devShellDiffSnippet}
+                  ${optionalString snippetConfig.devShell.diff devShellDiffSnippet}
                   nix build --out-link ${directory}/dev-shell-root "$new_shell"
                 fi
               fi
             '';
         in
-        (linkFarm "gc-roots" roots) // { inherit shellHook; }
+        (linkFarm "gc-roots" roots) // { inherit snippet; }
       );
   in
   config:
   let
     # Set sefaults
-    hookConfig = recursiveUpdate {
+    snippetConfig = recursiveUpdate {
       devShell = {
         diff = true;
         enable = true;
       };
-    } config.hook;
+    } config.snippet;
   in
   pipe config.roots [
     attrsToList
-    (concatMap ({ name, value }: handlers.${name} name value))
+    (concatMap ({ name, value }: handlers.${name} value))
     # Combine them into a single derivation so each project only has one GC root, or
     # two if they enabled the dev shell GC root.
-    (roots: makeRootsDerivation { inherit roots hookConfig; })
+    (roots: makeRootsDerivation { inherit roots snippetConfig; })
   ]
 ) { }

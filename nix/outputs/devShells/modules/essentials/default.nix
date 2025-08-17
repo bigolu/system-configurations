@@ -37,15 +37,12 @@ in
   devshell.startup = {
     gcRoots.text =
       (pkgs.gcRoots {
-        hook.directory.eval = "$DEV_SHELL_STATE/gc-roots";
-
+        snippet.directory.eval = "$DEV_SHELL_STATE/gc-roots";
         roots = {
           flake = { inherit inputs; };
-        }
-        // optionalAttrs (!inCi) {
-          npins = { inherit pins; };
+          namedGroup = optionalAttrs (!inCi) { inherit pins; };
         };
-      }).shellHook;
+      }).snippet;
 
     # HACK: This should run before other startup snippets, but there's no way to
     # control the order. I noticed that they're sorted so I'm prefixing it with
