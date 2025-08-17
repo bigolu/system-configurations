@@ -20,8 +20,8 @@ nixpkgs.callPackage (
       mapAttrsToList
       fix
       optionalString
-      isBool
       removePrefix
+      recursiveUpdate
       ;
     inherit (utils) linkFarm;
 
@@ -41,18 +41,6 @@ nixpkgs.callPackage (
           name = "${type}-${removeStoreDir derivation}";
           path = derivation;
         });
-
-      devShell =
-        type: shellOrBool:
-        if isBool shellOrBool then
-          [ ]
-        else
-          [
-            {
-              name = "${type}-${removeStoreDir shellOrBool}";
-              path = shellOrBool;
-            }
-          ];
 
       npins =
         type:
@@ -109,14 +97,13 @@ nixpkgs.callPackage (
     makeRootsDerivation =
       {
         roots,
-        config,
+        hookConfig,
       }:
       fix (
         self:
         let
           shellHook =
             let
-              hookConfig = config.hook;
               nvdExe = getExe nvd;
 
               directory =
@@ -138,7 +125,7 @@ nixpkgs.callPackage (
                 fi
               fi
             ''
-            + optionalString config.roots.devShell ''
+            + optionalString hookConfig.devShell.enable ''
               if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
                 # Users can't pass in the shell derivation since that would cause
                 # infinite recursion: To get the shell's outPath, we need the
@@ -151,7 +138,7 @@ nixpkgs.callPackage (
                 fi
 
                 if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
-                  ${optionalString hookConfig.devShellDiff devShellDiffSnippet}
+                  ${optionalString hookConfig.devShell.diff devShellDiffSnippet}
                   nix build --out-link ${directory}/dev-shell-root "$new_shell"
                 fi
               fi
@@ -160,26 +147,21 @@ nixpkgs.callPackage (
         (linkFarm "gc-roots" roots) // { inherit shellHook; }
       );
   in
-  configWithoutDefaults:
+  config:
   let
     # Set sefaults
-    config = {
-      hook = {
-        devShellDiff = true;
-      }
-      // configWithoutDefaults.hook;
-
-      roots = {
-        devShell = true;
-      }
-      // configWithoutDefaults.roots;
-    };
+    hookConfig = recursiveUpdate {
+      devShell = {
+        diff = true;
+        enable = true;
+      };
+    } config.hook;
   in
   pipe config.roots [
     attrsToList
     (concatMap ({ name, value }: handlers.${name} name value))
     # Combine them into a single derivation so each project only has one GC root, or
     # two if they enabled the dev shell GC root.
-    (roots: makeRootsDerivation { inherit config roots; })
+    (roots: makeRootsDerivation { inherit roots hookConfig; })
   ]
 ) { }
