@@ -26,6 +26,12 @@ nixpkgs.callPackage (
       optionalString
       removePrefix
       recursiveUpdate
+      any
+      isDerivation
+      attrValues
+      isList
+      nameValuePair
+      listToAttrs
       ;
     inherit (utils) linkFarm;
 
@@ -33,33 +39,52 @@ nixpkgs.callPackage (
 
     handlers = {
       unnamed =
-        paths:
-        map (path: {
-          name = removeStoreDir path;
-          inherit path;
-        }) paths;
+        let
+          getPathsForGroup =
+            group:
+            map (path: {
+              name = (optionalString (group ? name) "${group.name}-") + (removeStoreDir path);
+              inherit path;
+            }) group.paths;
+        in
+        config:
+        if isList config then
+          getPathsForGroup { paths = config; }
+        else
+          concatMap (
+            { name, value }:
+            getPathsForGroup {
+              inherit name;
+              paths = value;
+            }
+          ) (attrsToList config);
 
       named =
-        paths:
-        pipe paths [
-          (paths: removeAttrs paths [ "__functor" ])
-          (mapAttrsToList (
-            name: path: {
-              name = "${name}-${removeStoreDir path}";
-              inherit path;
+        let
+          getPathsForGroup =
+            group:
+            pipe group.paths [
+              # The set returned from npins has `__functor`
+              (paths: removeAttrs paths [ "__functor" ])
+              (mapAttrsToList (
+                name: path: {
+                  name = (optionalString (group ? name) "${group.name}-") + "${name}-${removeStoreDir path}";
+                  inherit path;
+                }
+              ))
+            ];
+        in
+        config:
+        if any (value: isStorePath value || isDerivation value) (attrValues config) then
+          getPathsForGroup { paths = config; }
+        else
+          concatMap (
+            { name, value }:
+            getPathsForGroup {
+              inherit name;
+              paths = value;
             }
-          ))
-        ];
-
-      namedGroup =
-        groups:
-        concatMap (
-          { name, value }:
-          mapAttrsToList (pathName: path: {
-            name = "${name}-${pathName}-${removeStoreDir path}";
-            inherit path;
-          }) (removeAttrs value [ "__functor" ])
-        ) (attrsToList groups);
+          ) (attrsToList config);
 
       flake =
         let
@@ -92,10 +117,9 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          (map (input: {
-            name = "flake-${input.name}-${removeStoreDir input}";
-            path = input;
-          }))
+          (map (input: nameValuePair input.name input))
+          listToAttrs
+          (inputs: handlers.named { flake = inputs; })
         ];
     };
 

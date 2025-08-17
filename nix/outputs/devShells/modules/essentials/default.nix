@@ -40,7 +40,7 @@ in
         snippet.directory.eval = "$DEV_SHELL_STATE/gc-roots";
         roots = {
           flake = { inherit inputs; };
-          namedGroup = optionalAttrs (!inCi) { inherit pins; };
+          named = optionalAttrs (!inCi) { inherit pins; };
         };
       }).snippet;
 
