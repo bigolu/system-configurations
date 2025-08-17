@@ -108,6 +108,7 @@ function use_nix {
 
   # shellcheck disable=1090
   source "$new_env_script"
+
   local -r cached_env_script_directory="${_mnd_cached_env_script%/*}"
   if [[ ! -d $cached_env_script_directory ]]; then
     mkdir -p "$cached_env_script_directory"
