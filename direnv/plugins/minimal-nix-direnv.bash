@@ -3,11 +3,11 @@
 # the last cached one.
 #
 # Some differences from nix-direnv:
-#   - nix-direnv will only fall back to the old environment if the command to _build_
-#     the new environment fails. This plugin will also fall back if the _evaluation_
-#     of the new environment fails.
-#   - No GC root creation: Nix dev shell implementations already provide a way to set
-#     up the environment e.g. `shellHook` for nix's devShell or `startup.*` for
+#   - nix-direnv will only fall back to the old environment if the _build_ of the new
+#     environment fails. This plugin will also fall back if the _evaluation_ of the
+#     new environment fails.
+#   - No GC root creation: Dev shell implementations already provide a way to set up
+#     the environment e.g. `shellHook` for nix's devShell or `startup.*` for
 #     numtide's devshell. Therefore, nix should be able to handle all of its
 #     environment management itself so it can be less dependent on direnv. To help
 #     with this, I wrote a nix utility that handles GC roots.
