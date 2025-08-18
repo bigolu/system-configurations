@@ -172,7 +172,7 @@ nixpkgs.callPackage (
   in
   config:
   let
-    # Set sefaults
+    # Set defaults
     snippetConfig = recursiveUpdate {
       devShell = {
         diff = true;

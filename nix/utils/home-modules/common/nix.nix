@@ -37,7 +37,7 @@ let
     let
       # The path set by sudo on Pop!_OS doesn't include nix
       nix = getExe pkgs.nix;
-      nix-collect-garbage = getExe' pkgs.nix "nix-collect-garbage";
+      nix-env = getExe' pkgs.nix "nix-env";
     in
     hm.dag.entryAnywhere ''
       PATH="${
@@ -59,7 +59,7 @@ let
       if [[ -n "$store_path_diff" ]]; then
         sudo --set-home ${nix} profile remove --all
         sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
-        sudo --set-home ${nix-collect-garbage} --delete-old
+        sudo --set-home ${nix-env} --delete-generations old
 
         # Restart the daemon so we can use the daemon from the version of nix we just
         # installed, but first restart the service manager in case the service
@@ -105,6 +105,10 @@ in
   system = {
     activation = {
       inherit syncNixVersionWithSystem;
+      removeOldGenerations = ''
+        # The path set by sudo on Pop!_OS doesn't include nix
+        nix-env --delete-generations old
+      '';
     };
 
     file = {
