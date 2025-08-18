@@ -83,15 +83,15 @@ nixpkgs.callPackage (
     getMainProgram =
       derivation:
       let
-        assumedMainProgramBaseName =
+        assumedMainProgram =
           let
             packageDisplayName = derivation.meta.name or derivation.pname or derivation.name;
             assumption = getName derivation;
           in
           warn "${name}-bundler: Package ${packageDisplayName} does not have the meta.mainProgram attribute. Assuming you want '${assumption}'." assumption;
 
-        mainProgramBaseName = derivation.meta.mainProgram or assumedMainProgramBaseName;
-        mainProgramPath = getExe' derivation mainProgramBaseName;
+        mainProgram = derivation.meta.mainProgram or assumedMainProgram;
+        mainProgramPath = getExe' derivation mainProgram;
         mainProgramExists = pathExists mainProgramPath;
       in
       assert assertMsg mainProgramExists "Main program ${mainProgramPath} does not exist";
