@@ -26,7 +26,6 @@ nixpkgs.callPackage (
       removePrefix
       recursiveUpdate
       any
-      isDerivation
       attrValues
       isList
       mergeAttrsList
@@ -74,7 +73,7 @@ nixpkgs.callPackage (
             ];
         in
         config:
-        if any (value: isStorePath value || isDerivation value) (attrValues config) then
+        if any isStorePath (attrValues config) then
           getPathsForGroup { paths = config; }
         else
           concatMap (
