@@ -75,13 +75,6 @@ commit-msg:
       #     problem which is important since the file checks usually take a lot
       #     longer.
       run: |
-        # Only run if there's a line that doesn't start with '#' that has a
-        # non-whitespace character. If there are no lines like that, we assume the
-        # commit would be aborted.
-        if ! grep -qE '^([^#[:space:]]|[^#].*[^[:space:]].*)' {1}; then
-          exit 0
-        fi
-
         mise run recommit check {1} bash -ceuo pipefail '
           lefthook run check-commit-message --file "$1"
           printf "%s\0" "${@:2}" | lefthook run check --files-from-stdin

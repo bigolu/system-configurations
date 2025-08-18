@@ -1,6 +1,6 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter gnused coreutils
+#! nix-shell --packages nix-shell-interpreter gnused coreutils gnugrep
 #MISE hide=true
 
 set -o errexit
@@ -21,6 +21,13 @@ function main {
     'check')
       local -r commit_file="$2"
       local -ra check_command=("${@:3}")
+
+      # Only run if there's a line that doesn't start with '#' that has a
+      # non-whitespace character. If there are no lines like that, we assume the
+      # commit would be aborted.
+      if ! grep --quiet --extended-regexp '^([^#[:space:]]|[^#].*[^[:space:]].*)' "$2"; then
+        exit 0
+      fi
 
       set +o errexit
       "${check_command[@]}"
