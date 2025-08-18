@@ -31,8 +31,8 @@ function register_asset_directory {
 
 # Creates a bundle for the shell and prints its store path
 function make_shell_bundle {
-  local gc_root
-  gc_root="$(mktemp --directory)/bundle-gc-root"
+  local gc_root_directory
+  gc_root_directory="$(mktemp --directory)"
 
   local derivation
   derivation="$(
@@ -42,13 +42,16 @@ function make_shell_bundle {
       drvPath
   )"
 
-  # This will print the GC root path, not the store path, so we suppress it
-  if ! nix-store --add-root "$gc_root" --realise "$derivation" >/dev/null; then
-    nix build --out-link "$gc_root" "$derivation"
-    exit 1
-  fi
+  # The derivation relies on all the store paths in the bundle while the bundle
+  # itself doesn't depend on anything. Therefore, even if we already have the bundle,
+  # we'd still need all of the store paths that are in the bundle to make the
+  # derivation so we'll add a GC root for the derivation as well.
+  nix build --out-link "$gc_root_directory/derivation-gc-root" "$derivation"
 
-  realpath "$gc_root"
+  local bundle_gc_root="$gc_root_directory/bundle-gc-root"
+  # This will print the GC root path, not the store path, so we suppress it
+  nix-store --add-root "$bundle_gc_root" --realise "$derivation" >/dev/null
+  realpath "$bundle_gc_root"
 }
 
 function copy_bundle_into_assets {
