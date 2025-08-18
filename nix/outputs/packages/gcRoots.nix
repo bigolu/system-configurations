@@ -15,9 +15,8 @@ nixpkgs.callPackage (
     inherit (lib)
       pipe
       escapeShellArg
-      filter
+      filterAttrs
       isStorePath
-      genericClosure
       attrsToList
       concatMap
       getExe
@@ -30,8 +29,8 @@ nixpkgs.callPackage (
       isDerivation
       attrValues
       isList
-      nameValuePair
-      listToAttrs
+      mergeAttrsList
+      optionalAttrs
       ;
     inherit (utils) linkFarm;
 
@@ -89,36 +88,32 @@ nixpkgs.callPackage (
       flake =
         let
           getInputsRecursive =
+            {
+              inputs,
+              seen ? { },
+            }:
             let
-              toClosureNode =
-                name: input:
-                input
-                // {
-                  # Used by `genericClosure` for equality checks
-                  key = input.outPath;
-                  # The inputs will be mapped from a set to a list, but we'll need the
-                  # name later so we'll add it to the input.
-                  inherit name;
-                };
+              unseen = filterAttrs (name: _input: !seen ? name) inputs;
+              newSeen = seen // unseen;
 
-              toClosureNodes = mapAttrsToList toClosureNode;
+              unseenFromUnseen = mapAttrsToList (
+                _name: input:
+                # Inputs with "flake = false" will not have inputs
+                optionalAttrs (input ? inputs) (getInputsRecursive {
+                  inherit (input) inputs;
+                  seen = newSeen;
+                })
+              ) unseen;
             in
-            directInputs:
-            genericClosure {
-              startSet = toClosureNodes directInputs;
-              # Inputs with "flake = false" will not have inputs
-              operator = input: toClosureNodes (input.inputs or { });
-            };
+            mergeAttrsList ([ newSeen ] ++ unseenFromUnseen);
         in
         { inputs }:
         pipe inputs [
-          getInputsRecursive
+          (inputs: getInputsRecursive { inherit inputs; })
           # If these inputs came from `lix/flake-compat` and `copySourceTreeToStore`
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
-          (filter isStorePath)
-          (map (input: nameValuePair input.name input))
-          listToAttrs
+          (filterAttrs (_name: isStorePath))
           (inputs: handlers.named { flake = inputs; })
         ];
     };
