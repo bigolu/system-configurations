@@ -42,10 +42,13 @@ function make_shell_bundle {
       drvPath
   )"
 
-  if ! nix-store --add-root "$gc_root" --realise "$derivation"; then
+  # This will print the GC root path, not the store path, so we suppress it
+  if ! nix-store --add-root "$gc_root" --realise "$derivation" >/dev/null; then
     nix build --out-link "$gc_root" "$derivation"
     exit 1
   fi
+
+  realpath "$gc_root"
 }
 
 function copy_bundle_into_assets {
