@@ -9,7 +9,7 @@
   ...
 }:
 nixpkgs.callPackage (
-  { nvd }:
+  { nvd, coreutils }:
   let
     inherit (builtins) storeDir;
     inherit (lib)
@@ -30,6 +30,7 @@ nixpkgs.callPackage (
       isList
       mergeAttrsList
       optionalAttrs
+      getExe'
       ;
     inherit (utils) linkFarm;
 
@@ -128,6 +129,8 @@ nixpkgs.callPackage (
           snippet =
             let
               nvdExe = getExe nvd;
+              ln = getExe' coreutils "ln";
+              mkdir = getExe' coreutils "mkdir";
 
               directory =
                 if snippetConfig.directory ? eval then
@@ -141,28 +144,45 @@ nixpkgs.callPackage (
                 fi
               '';
             in
+            # If the dev shell was bundled with `nix bundle`, then we shouldn't make
+            # the GC root. We use `nix-store --query --hash` to see if the path we
+            # want to make a root for is a valid store path. If it isn't, the shell
+            # was probably bundled. Instead of making a root, we make a plain
+            # symlink. This way, subsequent checks to see if the root is up to date
+            # will pass and we won't have to keep running `nix-store --query --hash`
+            # which will be slower than `[[ ... -ef ... ]]`.
             ''
-              if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
-                if [[ ! ${directory}/roots -ef ${self} ]]; then
-                  nix build --out-link ${directory}/roots ${self}
+              if [[ ! ${directory}/roots -ef ${self} ]]; then
+                if type -P nix-store >/dev/null; then
+                  if nix-store --query --hash ${self} >/dev/null 2>&1; then
+                    nix-store --add-root ${directory}/roots --realise ${self} >/dev/null
+                  else
+                    ${mkdir} --parents ${directory}
+                    ${ln} --force --no-dereference --symbolic ${self} ${directory}/roots
+                  fi
                 fi
               fi
             ''
             + optionalString snippetConfig.devShell.enable ''
-              if [[ -z ''${IN_NIX_BUNDLE:-} ]]; then
-                # Users can't pass in the shell derivation since that would cause
-                # infinite recursion: To get the shell's outPath, we need the
-                # shellHook which would include this snippet. And to get this
-                # snippet, we need the shell's outPath. Instead, we get the shell's
-                # outPath at runtime and make a separate GC root for it.
-                new_shell=
-                if [[ -n $DEVSHELL_DIR ]]; then
-                  new_shell="$DEVSHELL_DIR"
-                fi
+              # Users can't pass in the shell derivation since that would cause
+              # infinite recursion: To get the shell's outPath, we need the
+              # shellHook which would include this snippet. And to get this
+              # snippet, we need the shell's outPath. Instead, we get the shell's
+              # outPath at runtime and make a separate GC root for it.
+              new_shell=
+              if [[ -n $DEVSHELL_DIR ]]; then
+                new_shell="$DEVSHELL_DIR"
+              fi
 
-                if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
-                  ${optionalString snippetConfig.devShell.diff devShellDiffSnippet}
-                  nix build --out-link ${directory}/dev-shell-root "$new_shell"
+              if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
+                if type -P nix-store >/dev/null; then
+                  if nix-store --query --hash "$new_shell" >/dev/null 2>&1; then
+                    ${optionalString snippetConfig.devShell.diff devShellDiffSnippet}
+                    nix-store --add-root ${directory}/dev-shell-root --realise "$new_shell" >/dev/null
+                  else
+                    ${mkdir} --parents ${directory}
+                    ${ln} --force --no-dereference --symbolic "$new_shell" ${directory}/dev-shell-root
+                  fi
                 fi
               fi
             '';
