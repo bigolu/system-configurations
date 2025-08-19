@@ -84,28 +84,31 @@ nixpkgs.callPackage (
       flake =
         let
           getInputsRecursive =
-            {
-              inputs,
-              seen ? { },
-            }:
             let
-              unseen = filterAttrs (name: _input: !seen ? name) inputs;
-              newSeen = seen // unseen;
-
-              unseenFromUnseen = mapAttrsToList (
-                _name: input:
-                # Inputs with "flake = false" will not have inputs
-                optionalAttrs (input ? inputs) (getInputsRecursive {
-                  inherit (input) inputs;
-                  seen = newSeen;
-                })
-              ) unseen;
+              getInputsRecursive' =
+                {
+                  inputs,
+                  seen ? { },
+                }:
+                let
+                  unseen = filterAttrs (name: _input: !seen ? name) inputs;
+                  seenAndUnseen = seen // unseen;
+                  inputsFromUnseen = mapAttrsToList (
+                    _name: input:
+                    # Inputs with "flake = false" will not have inputs
+                    optionalAttrs (input ? inputs) (getInputsRecursive' {
+                      inherit (input) inputs;
+                      seen = seenAndUnseen;
+                    })
+                  ) unseen;
+                in
+                mergeAttrsList ([ seenAndUnseen ] ++ inputsFromUnseen);
             in
-            mergeAttrsList ([ newSeen ] ++ unseenFromUnseen);
+            inputs: getInputsRecursive' { inherit inputs; };
         in
         { inputs }:
         pipe inputs [
-          (inputs: getInputsRecursive { inherit inputs; })
+          getInputsRecursive
           # If these inputs came from `lix/flake-compat` and `copySourceTreeToStore`
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
