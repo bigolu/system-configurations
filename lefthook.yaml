@@ -178,8 +178,7 @@ sync:
         # automatically.
         - run: '[ ! -e "$DEV_SHELL_STATE/lefthook-installed" ]'
       run: |
-        {direnv_exec} sh -c '
-          set -e
+        {direnv_exec} bash -euc '
           lefthook install --force
           touch "$DEV_SHELL_STATE/lefthook-installed"
         '
