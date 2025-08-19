@@ -100,7 +100,7 @@ function _dmr_disable_file_watching {
   # Override the watch functions from the direnv stdlib with no-ops.
   #
   # TODO: While these are the only public APIs for modifying the watch list, users
-  # could still muatate the DIRENV_WATCHES environment variable directly or call the
+  # could still mutate the DIRENV_WATCHES environment variable directly or call the
   # private subcommands in direnv for manipulating the watch list e.g. `direnv
   # (watch|watch-list|watch-dir)`. We could account for that by using an exit trap
   # that sets the watch list. Maybe we should do that instead of disabling these
