@@ -16,7 +16,6 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Isolate the environment using temporary directories
 temp_home="$(mktemp --directory)"
 temp_dev_shell_state="$(mktemp --directory)"
 function clean_up {
@@ -31,8 +30,6 @@ function clean_up {
 }
 trap clean_up EXIT
 
-# Use a nix shell to create an environment that resembles a CI runner's environment.
-#
 # flake-compat uses `builtins.fetchGit` which depends on git
 # https://github.com/NixOS/nix/issues/3533
 nix shell \
