@@ -35,6 +35,7 @@ if vim.o.background == "dark" then
     guide = "#373c47",
     inactive_number = "#505c73",
     notification = "#242833",
+    string = "#8FBCBB",
   }
 else
   colors = {
@@ -67,6 +68,7 @@ else
     guide = "#d3d3d3",
     inactive_number = "#8c8c8c",
     notification = "#f6f8fa",
+    string = "#a40e26",
   }
 end
 
@@ -127,6 +129,9 @@ local groups = {
   Label = "Conditional", --   case, default, etc.
   Keyword = "Conditional", --   any other keyword
   Exception = "Conditional", --   try, catch, throw
+
+  String = { ctermfg = 14, fg = colors.string }, --   A string constant: "this is a string"
+  Character = "String", --   A character constant: 'c', '\n'
   -- }}}
 
   -- diffs {{{
