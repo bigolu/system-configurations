@@ -75,31 +75,33 @@ function use_nix {
   # work. This is why the `eval` statement in the trap below is inside a function.
   # Without it, I got an error.
   trap -- '
-    _mnd_log_error "Something went wrong, loading the last dev shell"
+    if [[ -e "$_mnd_cached_env_script" ]]; then
+      _mnd_log_error "Something went wrong, loading the last dev shell"
 
-    # A faster, built-in alternative to `touch`. Though, if the file did not
-    # initially end with a newline, this would add one, but that is not a problem
-    # here.
-    echo "$(<"$_mnd_cached_env_script")" >"$_mnd_cached_env_script"
+      # A faster, built-in alternative to `touch`. Though, if the file did not
+      # initially end with a newline, this would add one, but that is not a problem
+      # here.
+      echo "$(<"$_mnd_cached_env_script")" >"$_mnd_cached_env_script"
 
-    # Clear env
-    readarray -t vars <<<"$(set -o posix; export -p; set +o posix)"
-    for var in "${vars[@]}"; do
-      # Remove everything from the first `=` onwards
-      var="${var%%=*}"
-      # The substring removes `export `
-      unset "${var:7}"
-    done
+      # Clear env
+      readarray -t vars <<<"$(set -o posix; export -p; set +o posix)"
+      for var in "${vars[@]}"; do
+        # Remove everything from the first `=` onwards
+        var="${var%%=*}"
+        # The substring removes `export `
+        unset "${var:7}"
+      done
 
-    function _mnd_nest_1 {
-      function _mnd_nest_2 {
-        eval "$_mnd_original_env"
+      function _mnd_nest_1 {
+        function _mnd_nest_2 {
+          eval "$_mnd_original_env"
+        }
+        _mnd_nest_2
       }
-      _mnd_nest_2
-    }
-    _mnd_nest_1
+      _mnd_nest_1
 
-    source "$_mnd_cached_env_script"
+      source "$_mnd_cached_env_script"
+    fi
   '"$original_trap" EXIT
 
   local new_env_script
