@@ -210,7 +210,7 @@ end
 # can wrap it before it gets a chance to run. This works on my machine since this
 # file starts with a 'c' and direnv's config is in a file named 'direnv.fish'. I
 # should find a way to guarantee that this runs at the right time.
-function _complete_fish_register_direnv_hook_wrapper --on-event fish_prompt
+function _complete_fish_load_direnv_hook_wrapper --on-event fish_prompt
     functions --erase (status current-function)
 
     if not type --query __direnv_export_eval
@@ -219,8 +219,8 @@ function _complete_fish_register_direnv_hook_wrapper --on-event fish_prompt
 
     functions --copy __direnv_export_eval __direnv_export_eval_backup
     function __direnv_export_eval --on-event fish_prompt
-        set -l is_moving_from_one_direnv_directly_to_another \
-            (_complete_fish_is_moving_from_one_direnv_directly_to_another)
+        set -l did_direct_move \
+            (_complete_fish_did_direct_move)
 
         # Determine which pre hooks should run
         set -l nearest_envrc "$(_complete_fish_nearest_envrc)"
@@ -234,7 +234,7 @@ function _complete_fish_register_direnv_hook_wrapper --on-event fish_prompt
                     # or sub_shell would erase global variables, but not environment
                     # variables.
                     _complete_fish_pre_load
-                else if test $is_moving_from_one_direnv_directly_to_another = true
+                else if test $did_direct_move = true
                     # We get here in case #3
                     _complete_fish_pre_load
                     _complete_fish_pre_unload
@@ -263,7 +263,7 @@ function _complete_fish_register_direnv_hook_wrapper --on-event fish_prompt
             # We get here in case #2
             set --erase _complete_fish_direnv_loaded
             _complete_fish_post_unload
-        else if test $is_moving_from_one_direnv_directly_to_another = true
+        else if test $did_direct_move = true
             # We get here in case #3
             _complete_fish_post_unload
             _complete_fish_post_load
@@ -290,7 +290,8 @@ function _complete_fish_nearest_envrc
     end
 end
 
-function _complete_fish_is_moving_from_one_direnv_directly_to_another
+# Prints 'true' if we moved from one direnv directly to another
+function _complete_fish_did_direct_move
     if not set --query DIRENV_DIR
         echo false
         return
