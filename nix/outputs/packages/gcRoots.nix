@@ -10,6 +10,9 @@
 #   where the name portion of the store path is always "source". Having a prefix
 #   makes it easy to see what you made GC roots for.
 # - The option to show a diff of your dev shell when it changes.
+# - Roots are joined into a single derivation so you'll only have a single GC root
+#   per project, or two if you enabled the dev shell GC root. This is reduces noise
+#   in the full list of GC roots for your system (/nix/var/nix/gcroots/auto).
 
 {
   lib,
@@ -208,8 +211,6 @@ nixpkgs.callPackage (
   pipe config.roots [
     attrsToList
     (concatMap ({ name, value }: handlers.${name} value))
-    # Combine them into a single derivation so each project only has one GC root, or
-    # two if they enabled the dev shell GC root.
     (roots: makeDerivation { inherit roots snippetConfig; })
   ]
 ) { }
