@@ -25,65 +25,52 @@ nixpkgs.callPackage (
       optionalString
       removePrefix
       recursiveUpdate
-      any
-      attrValues
       isList
       mergeAttrsList
       optionalAttrs
       getExe'
+      concatMapStrings
       ;
     inherit (utils) linkFarm;
 
     removeStoreDir = removePrefix "${storeDir}/";
 
     handlers = {
-      unnamed =
+      path =
         let
-          getPathsForGroup =
-            group:
-            map (path: {
-              name = (optionalString (group ? name) "${group.name}-") + (removeStoreDir path);
-              inherit path;
-            }) group.paths;
-        in
-        config:
-        if isList config then
-          getPathsForGroup { paths = config; }
-        else
-          concatMap (
-            { name, value }:
-            getPathsForGroup {
-              inherit name;
-              paths = value;
-            }
-          ) (attrsToList config);
-
-      named =
-        let
-          getPathsForGroup =
-            group:
-            pipe group.paths [
-              # The set returned from npins has `__functor`
-              (paths: removeAttrs paths [ "__functor" ])
-              (mapAttrsToList (
-                name: path: {
-                  name = (optionalString (group ? name) "${group.name}-") + "${name}-${removeStoreDir path}";
-                  inherit path;
+          path' =
+            {
+              prefixes ? [ ],
+              config,
+            }:
+            if isStorePath config then
+              [
+                {
+                  name = (concatMapStrings (prefix: "${prefix}-") prefixes) + (removeStoreDir config);
+                  path = config;
                 }
-              ))
-            ];
+              ]
+            else if isList config then
+              concatMap (
+                storePath:
+                path' {
+                  inherit prefixes;
+                  config = storePath;
+                }
+              ) config
+            else
+              concatMap
+                (
+                  { name, value }:
+                  path' {
+                    prefixes = prefixes ++ [ name ];
+                    config = value;
+                  }
+                )
+                # The set returned from npins has `__functor`
+                (attrsToList (removeAttrs config [ "__functor" ]));
         in
-        config:
-        if any isStorePath (attrValues config) then
-          getPathsForGroup { paths = config; }
-        else
-          concatMap (
-            { name, value }:
-            getPathsForGroup {
-              inherit name;
-              paths = value;
-            }
-          ) (attrsToList config);
+        config: path' { inherit config; };
 
       flake =
         let
@@ -114,11 +101,11 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filterAttrs (_name: isStorePath))
-          (inputs: handlers.named { flake = inputs; })
+          (inputs: handlers.path { flake = inputs; })
         ];
     };
 
-    makeRootsDerivation =
+    makeDerivation =
       {
         roots,
         snippetConfig,
@@ -211,6 +198,6 @@ nixpkgs.callPackage (
     (concatMap ({ name, value }: handlers.${name} value))
     # Combine them into a single derivation so each project only has one GC root, or
     # two if they enabled the dev shell GC root.
-    (roots: makeRootsDerivation { inherit roots snippetConfig; })
+    (roots: makeDerivation { inherit roots snippetConfig; })
   ]
 ) { }
