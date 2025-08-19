@@ -2,6 +2,15 @@
 #
 # [1]: https://github.com/NixOS/nix/issues/6895#issuecomment-2475461113
 
+# - Having all your roots in one place makes it easy to search them
+# - You can perform filtering on your roots which would be hard to do with
+#   nix-direnv. For example, filtering your npins' pins based on which platforms they
+#   apply to. This way, a macOS only pin won't have a GC root on Linux.
+# - Roots can be prefixed with names which is especially useful for flake inputs
+#   where the name portion of the store path is always "source". Having a prefix
+#   makes it easy to see what you made GC roots for.
+# - The option to show a diff of your dev shell when it changes.
+
 {
   lib,
   nixpkgs,

@@ -75,7 +75,10 @@ function use_nix {
   # work. This is why the `eval` statement in the trap below is inside a function.
   # Without it, I got an error.
   trap -- '
-    touch "$_mnd_cached_env_script"
+    # A faster, built-in alternative to `touch`. Though, if the file did not
+    # initially end with a newline, this would add one, but that is not a problem
+    # here.
+    echo "$(<"$_mnd_cached_env_script")" >"$_mnd_cached_env_script"
     _mnd_log_error "Something went wrong, loading the last dev shell"
     IFS=$'\''\n'\'' unset $(env | cut -d= -f1)
 
