@@ -30,7 +30,7 @@ function use_nix {
   local -ra args=("${@:2}")
 
   # Intentionally global so it can be accessed from the fallback trap
-  _mnd_cached_env_script="${direnv_layout_dir:-.direnv}/dev-shell-env.bash"
+  _mnd_cached_env_script="$(direnv_layout_dir)/dev-shell-env.bash"
 
   local should_update=false
   if [[ ! -e $_mnd_cached_env_script ]]; then

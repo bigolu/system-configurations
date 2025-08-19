@@ -54,13 +54,13 @@
 # [2]: https://github.com/nix-community/nix-direnv?tab=readme-ov-file#tracked-files
 # [3]: https://github.com/direnv/direnv-vscode
 function direnv_manual_reload {
-  # Intentionally global
-  _dmr_layout_dir="${direnv_layout_dir:-.direnv}"
-  if [[ ! -e $_dmr_layout_dir ]]; then
-    mkdir -p "$_dmr_layout_dir"
+  local layout_dir
+  layout_dir="$(direnv_layout_dir)"
+  if [[ ! -e $layout_dir ]]; then
+    mkdir -p "$layout_dir"
   fi
 
-  local -r reload_file="$_dmr_layout_dir/reload"
+  local -r reload_file="$layout_dir/reload"
   if [[ ! -e $reload_file ]]; then
     # This will create the file, like `touch`, without having to use an external
     # command.
@@ -69,15 +69,8 @@ function direnv_manual_reload {
 
   _dmr_remove_unwanted_watched_files
   watch_file "$reload_file"
-  # Disable further file watching by overriding the `watch_file` function from the
-  # direnv stdlib
-  function watch_file {
-    # shellcheck disable=2317
-    # ^ shellcheck says this command isn't reachable, but it is.
-    :
-  }
-
-  _dmr_add_reload_program_to_path "$reload_file"
+  _dmr_disable_file_watching
+  _dmr_add_reload_program_to_path "$layout_dir" "$reload_file"
 }
 
 function _dmr_remove_unwanted_watched_files {
@@ -103,14 +96,36 @@ function _dmr_remove_unwanted_watched_files {
   watch_file "${watched_files_to_keep[@]}"
 }
 
-function _dmr_add_reload_program_to_path {
-  local -r reload_file="$1"
+function _dmr_disable_file_watching {
+  # Override the watch functions from the direnv stdlib with no-ops.
+  #
+  # TODO: While these are the only public APIs for modifying the watch list, users
+  # could still muatate the DIRENV_WATCHES environment variable directly or call the
+  # private subcommands in direnv for manipulating the watch list e.g. `direnv
+  # (watch|watch-list|watch-dir)`. We could account for that by using an exit trap
+  # that sets the watch list. Maybe we should do that instead of disabling these
+  # functions.
+  function watch_file {
+    # shellcheck disable=2317
+    # ^ shellcheck says this command isn't reachable, but it is.
+    :
+  }
+  function watch_dir {
+    # shellcheck disable=2317
+    # ^ shellcheck says this command isn't reachable, but it is.
+    :
+  }
+}
 
-  local -r direnv_bin="$_dmr_layout_dir/bin"
+function _dmr_add_reload_program_to_path {
+  local -r layout_dir="$1"
+  local -r reload_file="$2"
+
+  local -r direnv_bin="$layout_dir/bin"
   if [[ ! -e $direnv_bin ]]; then
     mkdir "$direnv_bin"
   fi
-  # This way, we can avoid adding the same directory to the PATH twice.
+  # Ensure we don't add the same directory to the PATH twice.
   PATH_rm "$direnv_bin"
   PATH_add "$direnv_bin"
 
