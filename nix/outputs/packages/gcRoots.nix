@@ -61,10 +61,10 @@ nixpkgs.callPackage (
               ]
             else if isList config then
               concatMap (
-                storePath:
+                config':
                 path' {
                   inherit prefixes;
-                  config = storePath;
+                  config = config';
                 }
               ) config
             else
