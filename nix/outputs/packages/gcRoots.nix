@@ -153,13 +153,16 @@ nixpkgs.callPackage (
             # which will be slower than `[[ ... -ef ... ]]`.
             ''
               if [[ ! ${directory}/roots -ef ${self} ]]; then
-                if type -P nix-store >/dev/null; then
-                  if nix-store --query --hash ${self} >/dev/null 2>&1; then
-                    nix-store --add-root ${directory}/roots --realise ${self} >/dev/null
-                  else
+                if
+                  type -P nix-store >/dev/null &&
+                    nix-store --query --hash ${self} >/dev/null 2>&1
+                then
+                  nix-store --add-root ${directory}/roots --realise ${self} >/dev/null
+                else
+                  if [[ ! -e ${directory} ]]; then
                     ${mkdir} --parents ${directory}
-                    ${ln} --force --no-dereference --symbolic ${self} ${directory}/roots
                   fi
+                  ${ln} --force --no-dereference --symbolic ${self} ${directory}/roots
                 fi
               fi
             ''
@@ -175,14 +178,17 @@ nixpkgs.callPackage (
               fi
 
               if [[ -n $new_shell && ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
-                if type -P nix-store >/dev/null; then
-                  if nix-store --query --hash "$new_shell" >/dev/null 2>&1; then
-                    ${optionalString snippetConfig.devShell.diff devShellDiffSnippet}
-                    nix-store --add-root ${directory}/dev-shell-root --realise "$new_shell" >/dev/null
-                  else
+                if
+                  type -P nix-store >/dev/null &&
+                    nix-store --query --hash "$new_shell" >/dev/null 2>&1
+                then
+                  ${optionalString snippetConfig.devShell.diff devShellDiffSnippet}
+                  nix-store --add-root ${directory}/dev-shell-root --realise "$new_shell" >/dev/null
+                else
+                  if [[ ! -e ${directory} ]]; then
                     ${mkdir} --parents ${directory}
-                    ${ln} --force --no-dereference --symbolic "$new_shell" ${directory}/dev-shell-root
                   fi
+                  ${ln} --force --no-dereference --symbolic "$new_shell" ${directory}/dev-shell-root
                 fi
               fi
             '';
