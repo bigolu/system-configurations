@@ -68,19 +68,28 @@ function use_nix {
   # overwriting it.
   local original_trap
   original_trap="$(_mnd_get_exit_trap)"
-  # I tried to use a function for the trap, but I got an error: If there was a
+  # TODO: I tried to use a function for the trap, but I got an error: If there was a
   # function inside the cached env script that used local variables, Bash would exit
   # with the error "local cannot be used outside of a function", even though it was
   # in a function. If I wrapped that function inside another function, then it would
   # work. This is why the `eval` statement in the trap below is inside a function.
   # Without it, I got an error.
   trap -- '
+    _mnd_log_error "Something went wrong, loading the last dev shell"
+
     # A faster, built-in alternative to `touch`. Though, if the file did not
     # initially end with a newline, this would add one, but that is not a problem
     # here.
     echo "$(<"$_mnd_cached_env_script")" >"$_mnd_cached_env_script"
-    _mnd_log_error "Something went wrong, loading the last dev shell"
-    IFS=$'\''\n'\'' unset $(env | cut -d= -f1)
+
+    # Clear env
+    readarray -t vars <<<"$(set -o posix; export -p; set +o posix)"
+    for var in "${vars[@]}"; do
+      # Remove everything from the first `=` onwards
+      var="${var%%=*}"
+      # The substring removes `export `
+      unset "${var:7}"
+    done
 
     function _mnd_nest_1 {
       function _mnd_nest_2 {
