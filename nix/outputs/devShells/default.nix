@@ -15,8 +15,8 @@ let
         extraSpecialArgs = extraModuleArgs // {
           inherit name;
         };
-        configuration = module // {
-          imports = defaultModules ++ (module.imports or [ ]);
+        configuration = {
+          imports = defaultModules ++ [ module ];
           inherit name;
         };
       }).shell
