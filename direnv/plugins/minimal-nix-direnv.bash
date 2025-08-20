@@ -32,17 +32,11 @@ function use_nix {
 
   local prefix
   _mnd_get_prefix prefix
-
   local -r link_to_cached_shell="$prefix/link-to-cached-shell"
-  if [[ ! -e $link_to_cached_shell ]]; then
-    # The shell is no longer in the nix store so whatever we have cached is invalid.
-    rm -rf "${prefix:?}/"*
-  fi
-
   local -r cached_env_script="$prefix/env.bash"
 
   local should_update
-  _mnd_should_update should_update "$cached_env_script"
+  _mnd_should_update should_update "$link_to_cached_shell" "$cached_env_script"
   if [[ $should_update != 'true' ]]; then
     # shellcheck disable=1090
     source "$cached_env_script"
@@ -54,7 +48,7 @@ function use_nix {
 
   local new_shell
   local new_env_script
-  _mnd_build_new_shell new_shell new_env_script "$type" "${args[@]}"
+  _mnd_build_new_shell new_shell new_env_script "$prefix" "$type" "${args[@]}"
 
   # shellcheck disable=1090
   source "$new_env_script"
@@ -131,10 +125,11 @@ function _mnd_set_fallback_trap {
 
 function _mnd_should_update {
   local -n _should_update=$1
-  local -r cached_env_script="$2"
+  local -r link_to_cached_shell="$2"
+  local -r cached_env_script="$3"
 
   _should_update=false
-  if [[ ! -e $cached_env_script ]]; then
+  if [[ ! -e $link_to_cached_shell || ! -e $cached_env_script ]]; then
     _should_update=true
   else
     local -a watched_files
@@ -157,8 +152,9 @@ function _mnd_should_update {
 function _mnd_build_new_shell {
   local -n _new_shell=$1
   local -n _new_env_script=$2
-  local -r type="$3"
-  local -ra args=("${@:4}")
+  local -r prefix="$3"
+  local -r type="$4"
+  local -ra args=("${@:5}")
 
   # Nix may add a standard format for dev shell packages[1]. If this is done, then
   # the environment script will always be in `<package>/lib/env.bash`.
