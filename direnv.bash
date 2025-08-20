@@ -9,4 +9,4 @@ else
 fi
 # This has to be after `direnv_manual_reload`. See the source code for
 # `direnv_manual_reload` to learn why.
-use nix devshell --file . "devShells.${NIX_DEV_SHELL:-$default}"
+use_nix devshell --file . "devShells.${NIX_DEV_SHELL:-$default}"
