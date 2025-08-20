@@ -31,45 +31,55 @@ function use_nix {
   local -ra args=("${@:2}")
 
   local prefix
-  prefix="$(direnv_layout_dir)/minimal-nix-direnv"
-  if [[ ! -d $prefix ]]; then
-    mkdir -p "$prefix"
-  fi
+  _mnd_get_prefix prefix
 
-  local link_to_cached_shell="$prefix/link-to-cached-shell"
+  local -r link_to_cached_shell="$prefix/link-to-cached-shell"
   if [[ ! -e $link_to_cached_shell ]]; then
     # The shell is no longer in the nix store so whatever we have cached is invalid.
     rm -rf "${prefix:?}/"*
   fi
 
-  # Intentionally global so it can be accessed from the fallback trap
-  _mnd_cached_env_script="$prefix/env.bash"
+  local -r cached_env_script="$prefix/env.bash"
 
-  local should_update=false
-  if [[ ! -e $_mnd_cached_env_script ]]; then
-    should_update=true
-  else
-    local -a watched_files
-    # shellcheck disable=2312
-    # PERF: The exit code of direnv is being masked by readarray, but the alternative
-    # ways to do this are slower: I could use a pipeline, but that would spawn a
-    # subprocess. I could put the output of the direnv command in a temporary file,
-    # but I want to avoid the disk.
-    readarray -d '' watched_files < <(direnv watch-print --null)
-    local file
-    for file in "${watched_files[@]}"; do
-      if [[ $file -nt $_mnd_cached_env_script ]]; then
-        should_update=true
-        break
-      fi
-    done
-  fi
-
+  local should_update
+  _mnd_should_update should_update "$cached_env_script"
   if [[ $should_update != 'true' ]]; then
     # shellcheck disable=1090
-    source "$_mnd_cached_env_script"
+    source "$cached_env_script"
     return 0
   fi
+
+  local original_trap
+  _mnd_set_fallback_trap original_trap "$cached_env_script"
+
+  local new_shell
+  local new_env_script
+  _mnd_build_new_shell new_shell new_env_script "$type" "${args[@]}"
+
+  # shellcheck disable=1090
+  source "$new_env_script"
+
+  trap -- "$original_trap" EXIT
+
+  echo "$(<"$new_env_script")" >"$cached_env_script"
+  ln -nfs "$new_shell" "$link_to_cached_shell"
+}
+
+function _mnd_get_prefix {
+  local -n _prefix=$1
+
+  _prefix="$(direnv_layout_dir)/minimal-nix-direnv"
+  if [[ ! -d $_prefix ]]; then
+    mkdir -p "$_prefix"
+  fi
+}
+
+function _mnd_set_fallback_trap {
+  local -n _original_trap=$1
+  local -r cached_env_script="$2"
+
+  # Intentionally global so it can be accessed from the fallback trap
+  _mnd_cached_env_script="$cached_env_script"
 
   # If the command for getting the new env script, or the script itself, fails, we'll
   # restore the environment from before they ran and source the last cached env
@@ -77,10 +87,11 @@ function use_nix {
   #
   # Intentionally global so it can be accessed from the fallback trap
   _mnd_original_env="$(declare -px)"
+
   # direnv already sets an exit trap so we'll prepend our command to it instead of
   # overwriting it.
-  local original_trap
-  original_trap="$(_mnd_get_exit_trap)"
+  _original_trap="$(_mnd_get_exit_trap)"
+
   # TODO: I tried to use a function for the trap, but I got an error: If there was a
   # function inside the cached env script that used local variables, Bash would exit
   # with the error "local cannot be used outside of a function", even though it was
@@ -115,10 +126,40 @@ function use_nix {
 
       source "$_mnd_cached_env_script"
     fi
-  '"$original_trap" EXIT
+  '"$_original_trap" EXIT
+}
 
-  local new_shell
-  local new_env_script
+function _mnd_should_update {
+  local -n _should_update=$1
+  local -r cached_env_script="$2"
+
+  _should_update=false
+  if [[ ! -e $cached_env_script ]]; then
+    _should_update=true
+  else
+    local -a watched_files
+    # shellcheck disable=2312
+    # PERF: The exit code of direnv is being masked by readarray, but the alternative
+    # ways to do this are slower: I could use a pipeline, but that would spawn a
+    # subprocess. I could put the output of the direnv command in a temporary file,
+    # but I want to avoid the disk.
+    readarray -d '' watched_files < <(direnv watch-print --null)
+    local file
+    for file in "${watched_files[@]}"; do
+      if [[ $file -nt $cached_env_script ]]; then
+        _should_update=true
+        break
+      fi
+    done
+  fi
+}
+
+function _mnd_build_new_shell {
+  local -n _new_shell=$1
+  local -n _new_env_script=$2
+  local -r type="$3"
+  local -ra args=("${@:4}")
+
   # Nix may add a standard format for dev shell packages[1]. If this is done, then
   # the environment script will always be in `<package>/lib/env.bash`.
   #
@@ -126,8 +167,8 @@ function use_nix {
   case "$type" in
     # numtide/devshell
     'devshell')
-      new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
-      new_env_script="$new_shell/env.bash"
+      _new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
+      _new_env_script="$_new_shell/env.bash"
       ;;
     'mk_shell') ;&
     'packages')
@@ -171,22 +212,14 @@ function use_nix {
       ' >>"$tmp_env_script"
       _mnd_nix profile wipe-history --profile "$tmp_profile"
 
-      new_shell="$tmp_profile"
-      new_env_script="$tmp_env_script"
+      _new_shell="$tmp_profile"
+      _new_env_script="$tmp_env_script"
       ;;
     *)
       _mnd_log_error "Unknown dev shell type: $type"
       return 1
       ;;
   esac
-
-  # shellcheck disable=1090
-  source "$new_env_script"
-
-  trap -- "$original_trap" EXIT
-
-  echo "$(<"$new_env_script")" >"$_mnd_cached_env_script"
-  ln -nfs "$new_shell" "$link_to_cached_shell"
 }
 
 function _mnd_nix {
