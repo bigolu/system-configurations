@@ -4,11 +4,11 @@
   ...
 }:
 let
-  inherit (lib) optionals;
+  inherit (lib) optional;
   inherit (pkgs.stdenv) isLinux;
 in
 {
-  imports = optionals isLinux [ ./locale.nix ];
+  imports = optional isLinux ./locale.nix;
 
   devshell.packages = with pkgs; [
     # For the `run` steps in CI workflows/actions

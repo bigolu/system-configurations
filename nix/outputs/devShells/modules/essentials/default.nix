@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib)
-    optionals
+    optional
     hasPrefix
     optionalAttrs
     getExe'
@@ -19,9 +19,7 @@ in
   imports = [
     ../mise/cli.nix
   ]
-  ++ optionals inCi [
-    ./ci
-  ];
+  ++ optional inCi ./ci;
 
   env = [
     {

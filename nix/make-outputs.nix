@@ -75,7 +75,7 @@ lib.fix (
       setAttrByPath
       init
       last
-      optionals
+      optional
       removeSuffix
       filterAttrsRecursive
       optionalAttrs
@@ -97,7 +97,7 @@ lib.fix (
         relativePath = removePrefix "${toString root}/" (toString file);
         parts = splitString "/" relativePath;
         basename = last parts;
-        keys = (init parts) ++ optionals (basename != "default.nix") [ (removeSuffix ".nix" basename) ];
+        keys = (init parts) ++ optional (basename != "default.nix") (removeSuffix ".nix" basename);
       in
       setAttrByPath keys (import file (context' // { name = last keys; }));
 
