@@ -192,6 +192,7 @@ function _mnd_build_new_shell {
         nix_args=("${args[@]}")
       fi
       _mnd_nix print-dev-env --profile "$tmp_profile" "${nix_args[@]}" >>"$tmp_env_script"
+      _mnd_nix profile wipe-history --profile "$tmp_profile"
       # shellcheck disable=2016
       echo '
           local key
@@ -206,7 +207,6 @@ function _mnd_build_new_shell {
         }
         _mnd_restore_vars
       ' >>"$tmp_env_script"
-      _mnd_nix profile wipe-history --profile "$tmp_profile"
 
       _new_shell="$tmp_profile"
       _new_env_script="$tmp_env_script"
