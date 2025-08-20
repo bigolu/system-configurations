@@ -89,7 +89,6 @@ function _mnd_set_fallback_trap {
   # direnv already sets an exit trap so we'll prepend our command to it instead of
   # overwriting it.
   _original_trap="$(_mnd_get_exit_trap)"
-
   # TODO: I tried to use a function for the trap, but I got an error: If there was a
   # function inside the cached env script that used local variables, Bash would exit
   # with the error "local cannot be used outside of a function", even though it was
