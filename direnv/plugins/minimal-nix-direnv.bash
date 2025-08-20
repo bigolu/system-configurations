@@ -133,7 +133,18 @@ function use_nix {
 }
 
 function _mnd_log_error {
-  log_error "minimal-nix-direnv: error: $1"
+  local -r message="$1"
+
+  local color_normal=
+  local color_error=
+  if [[ -t 2 ]]; then
+    color_normal='\e[m'
+    color_error='\e[1m\e[31m'
+  fi
+
+  printf '%b' "$color_error"
+  log_error "[minimal-nix-direnv] ERROR: $message"
+  printf '%b' "$color_normal"
 }
 
 function _mnd_get_exit_trap {

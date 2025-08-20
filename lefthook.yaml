@@ -170,7 +170,7 @@ sync:
 
         # If this configuration changes
         - lefthook.yaml
-      run: bash -ceuo pipefail 'direnv-reload 2>&1 | nom'
+      run: direnv-reload
 
     - name: lefthook
       only:
