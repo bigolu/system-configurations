@@ -61,10 +61,10 @@ in
       '';
 
     secrets.text = ''
-      if [[ -e ''${PRJ_ROOT:?}/.env ]]; then
+      if [[ -e $PRJ_ROOT/.env ]]; then
         # Export any variables that are modified/created
         set -a
-        source ''${PRJ_ROOT:?}/.env
+        source "$PRJ_ROOT/.env"
         set +a
       fi
     '';
