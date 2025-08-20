@@ -6,11 +6,12 @@
 #   - nix-direnv will only fall back to the old environment if the _build_ of the new
 #     environment fails. This plugin will also fall back if the _evaluation_ of the
 #     new environment fails.
-#   - No GC root creation: Dev shell implementations already provide a way to set up
-#     the environment e.g. `shellHook` for nix's devShell or `startup.*` for
-#     numtide's devshell. Therefore, nix should be able to handle all of its
+#   - (Almost) No GC root creation: Dev shell implementations already provide a way
+#     to set up the environment e.g. `shellHook` for nix's devShell or `startup.*`
+#     for numtide's devshell. Therefore, nix should be able to handle all of its
 #     environment management itself so it can be less dependent on direnv. To help
-#     with this, I wrote a nix utility that handles GC roots.
+#     with this, I wrote a nix utility that handles GC roots. The one exception to
+#     this is `packages` since they don't belong to a dev shell.
 #   - No manual reload: If you want to reload manually, you can use my
 #     direnv-manual-reload plugin. In most of the `.envrc` files that I've seen, the
 #     only thing done is loading a nix environment so a dedicated command to reload
@@ -26,7 +27,7 @@ function use_nix {
   # The name of the dev shell implementation. See the case statement below for valid
   # values.
   local -r type="$1"
-  # These will be appended to `nix build` to get the devshell package.
+  # See the case statement below for how this will be used.
   local -ra args=("${@:2}")
 
   local prefix
@@ -127,6 +128,44 @@ function use_nix {
     'devshell')
       new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
       new_env_script="$new_shell/env.bash"
+      ;;
+    'packages')
+      local -r tmp_profile="$prefix/tmp-profile"
+      local -r tmp_env_script="$prefix/tmp-env.bash"
+      # shellcheck disable=2016
+      echo '
+        function _mnd_restore_vars {
+          local -A values_to_restore=(
+            ["NIX_BUILD_TOP"]=${NIX_BUILD_TOP:-__UNSET__}
+            ["TMP"]=${TMP:-__UNSET__}
+            ["TMPDIR"]=${TMPDIR:-__UNSET__}
+            ["TEMP"]=${TEMP:-__UNSET__}
+            ["TEMPDIR"]=${TEMPDIR:-__UNSET__}
+            ["terminfo"]=${terminfo:-__UNSET__}
+          )
+      ' >"$tmp_env_script"
+      IFS=' ' _mnd_nix print-dev-env \
+        --profile "$tmp_profile" \
+        --impure --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${args[*]} ]; }" \
+        >>"$tmp_env_script"
+      # shellcheck disable=2016
+      echo '
+          local key
+          for key in "${!values_to_restore[@]}"; do
+            local value=${values_to_restore[$key]}
+            if [[ $value == __UNSET__ ]]; then
+              unset "$key"
+            else
+              export "$key=$value"
+            fi
+          done
+        }
+        _mnd_restore_vars
+      ' >>"$tmp_env_script"
+      _mnd_nix profile wipe-history --profile "$tmp_profile"
+
+      new_shell="$tmp_profile"
+      new_env_script="$tmp_env_script"
       ;;
     *)
       _mnd_log_error "Unknown dev shell type: $type"
