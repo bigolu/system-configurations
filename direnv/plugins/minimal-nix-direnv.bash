@@ -112,7 +112,7 @@ function use_nix {
   case "$type" in
     # numtide/devshell
     'devshell')
-      new_env_script="$(nix build --no-link --print-out-paths "${args[@]}")/env.bash"
+      new_env_script="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")/env.bash"
       ;;
     *)
       _mnd_log_error "Unknown dev shell type: $type"
@@ -130,6 +130,10 @@ function use_nix {
     mkdir -p "$cached_env_script_directory"
   fi
   echo "$(<"$new_env_script")" >"$_mnd_cached_env_script"
+}
+
+function _mnd_nix {
+  nix --no-warn-dirty --extra-experimental-features "nix-command flakes" "$@"
 }
 
 function _mnd_log_error {
