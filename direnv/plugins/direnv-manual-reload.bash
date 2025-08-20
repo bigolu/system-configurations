@@ -67,13 +67,14 @@ function direnv_manual_reload {
     : >"$reload_file"
   fi
 
-  _dmr_remove_unwanted_watched_files
-  watch_file "$reload_file"
+  _dmr_set_watch_list "$reload_file"
   _dmr_disable_file_watching
   _dmr_add_reload_program_to_path "$layout_dir" "$reload_file"
 }
 
-function _dmr_remove_unwanted_watched_files {
+function _dmr_set_watch_list {
+  local -r reload_file="$1"
+
   local -a watched_files
   # shellcheck disable=2312
   # PERF: The exit code of direnv is being masked by readarray, but it would be
@@ -93,7 +94,7 @@ function _dmr_remove_unwanted_watched_files {
   done
 
   unset DIRENV_WATCHES
-  watch_file "${watched_files_to_keep[@]}"
+  watch_file "${watched_files_to_keep[@]}" "$reload_file"
 }
 
 function _dmr_disable_file_watching {
