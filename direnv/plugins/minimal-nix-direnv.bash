@@ -20,8 +20,11 @@
 #     parsing so I can determine which arguments are files. I also don't want to
 #     define my own argument schema. Plus, I don't think there's a way to do it that
 #     will satisfy all use cases so users will still have to run `watch_file`
-#     themselves. Instead, you can try the following which should work for most
-#     cases: watch_file nix/** **/*.nix
+#     themselves. It's also a bit expensive to call since it shells out to `direnv`
+#     so ideally you only call it once. And if users don't like the files that were
+#     automatically watched, I'd have to also provide an option to disable it.
+#     Instead, you can try the following which should work for most cases:
+#     `watch_file nix/** **/*.nix`
 
 function use_nix {
   # The name of the dev shell implementation. See the case statement below for valid
