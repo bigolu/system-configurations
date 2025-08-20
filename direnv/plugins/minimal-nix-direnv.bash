@@ -56,7 +56,8 @@ function use_nix {
   trap -- "$original_trap" EXIT
 
   echo "$(<"$new_env_script")" >"$cached_env_script"
-  ln -nfs "$new_shell" "$link_to_cached_shell"
+  rm -f "$link_to_cached_shell"
+  ln -fs "$new_shell" "$link_to_cached_shell"
 }
 
 function _mnd_get_prefix {
