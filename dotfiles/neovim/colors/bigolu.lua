@@ -53,7 +53,7 @@ else
     [11] = "#c96765",
     [12] = "#218bff",
     [13] = "#652d90",
-    [14] = "#005C8A",
+    [14] = "#7b0000",
     [15] = "#808080",
     bg2 = "#e3e5e7",
     pmenu = "#eef0f2",
@@ -64,11 +64,11 @@ else
     ok_bg = "#e8fbee",
     inlay_bg = "#e3e5e7",
     inlay_fg = "#666666",
-    accent = "#a40e26",
+    accent = "#7b0000",
     guide = "#d3d3d3",
     inactive_number = "#8c8c8c",
     notification = "#f6f8fa",
-    string = "#a40e26",
+    string = "#7b0000",
   }
 end
 
