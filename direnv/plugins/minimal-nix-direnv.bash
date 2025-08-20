@@ -36,8 +36,8 @@ function use_nix {
     mkdir -p "$prefix"
   fi
 
-  local old_shell="$prefix/shell"
-  if [[ ! -e $old_shell ]]; then
+  local link_to_cached_shell="$prefix/link-to-cached-shell"
+  if [[ ! -e $link_to_cached_shell ]]; then
     # The shell is no longer in the nix store so whatever we have cached is invalid.
     rm -rf "${prefix:?}/"*
   fi
@@ -129,6 +129,7 @@ function use_nix {
       new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
       new_env_script="$new_shell/env.bash"
       ;;
+    'mk_shell') ;&
     'packages')
       local -r tmp_profile="$prefix/tmp-profile"
       local -r tmp_env_script="$prefix/tmp-env.bash"
@@ -144,10 +145,16 @@ function use_nix {
             ["terminfo"]=${terminfo:-__UNSET__}
           )
       ' >"$tmp_env_script"
-      IFS=' ' _mnd_nix print-dev-env \
-        --profile "$tmp_profile" \
-        --impure --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${args[*]} ]; }" \
-        >>"$tmp_env_script"
+      local -a nix_args
+      if [[ $type == 'packages' ]]; then
+        IFS=' ' nix_args=(
+          --impure
+          --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${args[*]} ]; }"
+        )
+      else
+        nix_args=("${args[@]}")
+      fi
+      _mnd_nix print-dev-env --profile "$tmp_profile" "${nix_args[@]}" >>"$tmp_env_script"
       # shellcheck disable=2016
       echo '
           local key
@@ -179,7 +186,7 @@ function use_nix {
   trap -- "$original_trap" EXIT
 
   echo "$(<"$new_env_script")" >"$_mnd_cached_env_script"
-  ln -nfs "$new_shell" "$old_shell"
+  ln -nfs "$new_shell" "$link_to_cached_shell"
 }
 
 function _mnd_nix {
