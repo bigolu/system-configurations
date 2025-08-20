@@ -29,8 +29,20 @@ function use_nix {
   # These will be appended to `nix build` to get the devshell package.
   local -ra args=("${@:2}")
 
+  local prefix
+  prefix="$(direnv_layout_dir)/minimal-nix-direnv"
+  if [[ ! -d $prefix ]]; then
+    mkdir -p "$prefix"
+  fi
+
+  local old_shell="$prefix/shell"
+  if [[ ! -e $old_shell ]]; then
+    # The shell is no longer in the nix store so whatever we have cached is invalid.
+    rm -rf "${prefix:?}/"*
+  fi
+
   # Intentionally global so it can be accessed from the fallback trap
-  _mnd_cached_env_script="$(direnv_layout_dir)/dev-shell-env.bash"
+  _mnd_cached_env_script="$prefix/env.bash"
 
   local should_update=false
   if [[ ! -e $_mnd_cached_env_script ]]; then
@@ -104,6 +116,7 @@ function use_nix {
     fi
   '"$original_trap" EXIT
 
+  local new_shell
   local new_env_script
   # Nix may add a standard format for dev shell packages[1]. If this is done, then
   # the environment script will always be in `<package>/lib/env.bash`.
@@ -112,7 +125,8 @@ function use_nix {
   case "$type" in
     # numtide/devshell
     'devshell')
-      new_env_script="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")/env.bash"
+      new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
+      new_env_script="$new_shell/env.bash"
       ;;
     *)
       _mnd_log_error "Unknown dev shell type: $type"
@@ -125,11 +139,8 @@ function use_nix {
 
   trap -- "$original_trap" EXIT
 
-  local -r cached_env_script_directory="${_mnd_cached_env_script%/*}"
-  if [[ ! -d $cached_env_script_directory ]]; then
-    mkdir -p "$cached_env_script_directory"
-  fi
   echo "$(<"$new_env_script")" >"$_mnd_cached_env_script"
+  ln -nfs "$new_shell" "$old_shell"
 }
 
 function _mnd_nix {
