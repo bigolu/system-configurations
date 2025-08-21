@@ -104,7 +104,7 @@ function _mnd_set_fallback_trap {
   # work. This is why the `eval` statement in the trap below is inside a function.
   # Without it, I got an error.
   trap -- '
-    if [[ -e "$_mnd_cached_env_script" ]]; then
+    if [[ -e "$_mnd_global_cached_env_script" ]]; then
       _mnd_log_error "Something went wrong, loading the last dev shell"
 
       # A built-in alternative to `touch`. Though, if the file did not initially end
