@@ -37,7 +37,6 @@ function use_nix {
   _mnd_get_prefix _mnd_prefix
   local -r _mnd_cached_shell="$_mnd_prefix/shell"
   local -r _mnd_cached_env_script="$_mnd_prefix/env.bash"
-  local -r _mnd_cached_shell_gc_root="$_mnd_prefix/gc-root"
 
   local should_update
   _mnd_should_update should_update "$_mnd_cached_shell" "$_mnd_cached_env_script"
@@ -54,12 +53,12 @@ function use_nix {
   local _mnd_new_env_script_contents
   _mnd_build_new_shell _mnd_new_shell _mnd_new_env_script_contents "$_mnd_prefix" "$_mnd_type" "${args[@]}"
 
+  eval "$_mnd_new_env_script_contents"
+
   # WARNING
   # ---------------------------------------------------------------------------------
-  # Any variables accessed after evaluating the env script should have the prefix
-  # `_mnd_` to avoid being overwritten by the script.
-
-  eval "$_mnd_new_env_script_contents"
+  # Any variables accessed after this comment should have the prefix `_mnd_` to avoid
+  # being overwritten by the environment script that got sourced before this comment.
 
   trap -- "$_mnd_original_trap" EXIT
 
@@ -67,7 +66,7 @@ function use_nix {
   echo "$_mnd_new_env_script_contents" >"$_mnd_cached_env_script"
   ln -s "$_mnd_new_shell" "$_mnd_cached_shell"
   if [[ $_mnd_type == 'packages' ]]; then
-    _mnd_nix build --out-link "$_mnd_cached_shell_gc_root" "$_mnd_new_shell"
+    _mnd_nix build --out-link "$_mnd_prefix/gc-root" "$_mnd_new_shell"
   fi
 }
 

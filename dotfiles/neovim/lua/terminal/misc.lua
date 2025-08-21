@@ -79,7 +79,7 @@ end, { silent = true, desc = "Toggle line numbers" })
 
 vim.keymap.set("n", "<C-q>", function()
   vim.cmd([[
-    silent wall
+    silent! wall
   ]])
 
   local tab_count = vim.fn.tabpagenr("$")
@@ -116,7 +116,7 @@ end, { silent = true, desc = "Close pane [split,window]" })
 vim.api.nvim_create_autocmd({ "FocusLost", "VimSuspend", "BufLeave" }, {
   callback = function(_)
     vim.cmd([[
-      silent wall
+      silent! wall
     ]])
   end,
 })
