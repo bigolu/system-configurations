@@ -111,7 +111,7 @@ function _mnd_set_fallback_trap {
       echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
 
       # Clear env
-      readarray -t vars <<<"$(set -o posix; export -p; set +o posix)"
+      readarray -t vars <<<"$(set -o posix; export -p)"
       for var in "${vars[@]}"; do
         # Remove everything from the first `=` onwards
         var="${var%%=*}"
