@@ -155,6 +155,7 @@ sync:
       interactive: true
       glob:
         - direnv/*
+        - direnv.bash
 
         # - So task dependencies can be reloaded into the dev shell.
         # - If the task we run in the `run` command changes
