@@ -38,6 +38,7 @@ let
     readFile
     hasAttr
     concatMap
+    isStorePath
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (lib.strings) unsafeDiscardStringContext;
@@ -268,7 +269,7 @@ in
           toPath
 
           # Flakes have built-in gitignore support
-          (applyIf (!inPureEvalMode) utils.gitFilter)
+          (path: applyIf (!inPureEvalMode) utils.gitFilter (if isStorePath path then path else /. + path))
 
           # Use relative paths to account for the case where the source directory
           # doesn't match the directory we list the files from. This can happen

@@ -109,7 +109,8 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          # We use a list instead of a set since inputs can have the same name
+          # We use a list of sets instead of a single set since inputs can have the
+          # same name
           (map (input: {
             ${input.name} = input;
           }))

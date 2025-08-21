@@ -12,6 +12,9 @@ let
     mkForce
     cleanSourceWith
     escapeShellArg
+    fileset
+    isAttrs
+    isPath
     ;
   inherit (pkgs) runCommand;
 
@@ -76,7 +79,22 @@ let
       # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
       filter = inputs.gitignore.outputs.gitignoreFilterWith { basePath = projectRoot; };
     in
-    src: cleanSourceWith { inherit filter src; };
+    filesetOrPath:
+    let
+      clean = cleanSourceWith {
+        inherit filter;
+        src = applyIf (isAttrs filesetOrPath) fileset.toSource filesetOrPath;
+      };
+      # Returning a fileset to allow for further filtering
+      fs = fileset.fromSource clean;
+    in
+    fs
+    // {
+      outPath = fileset.toSource {
+        root = if isPath filesetOrPath then filesetOrPath else projectRoot;
+        fileset = fs;
+      };
+    };
 
   # There's a `linkFarm` in `nixpkgs`, but sometimes I can't use it since it coerces
   # the entries to a set and the keys in that set, i.e. the destination for each
