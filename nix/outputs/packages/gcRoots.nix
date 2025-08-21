@@ -46,41 +46,40 @@ nixpkgs.callPackage (
     removeStoreDir = removePrefix "${storeDir}/";
 
     handlers = {
+      #       <spec> -> <store_path> | list[<spec>] | attrset[<prefix> -> <spec>]
+      # <store_path> -> anything that can be coerced to a string that contains a store path
+      #     <prefix> -> string
+      #
+      # All prefixes leading to a store_path will be prepended to it.
       path =
         let
-          path' =
+          pathHelper =
             {
               prefixes ? [ ],
-              config,
+              spec,
             }:
-            if isStorePath config then
+            if isStorePath spec then
               [
                 {
-                  name = (concatMapStrings (prefix: "${prefix}-") prefixes) + (removeStoreDir config);
-                  path = config;
+                  name = (concatMapStrings (prefix: "${prefix}-") prefixes) + (removeStoreDir spec);
+                  path = spec;
                 }
               ]
-            else if isList config then
-              concatMap (
-                config':
-                path' {
-                  inherit prefixes;
-                  config = config';
-                }
-              ) config
+            else if isList spec then
+              concatMap (spec: pathHelper { inherit prefixes spec; }) spec
             else
               concatMap
                 (
                   { name, value }:
-                  path' {
+                  pathHelper {
                     prefixes = prefixes ++ [ name ];
-                    config = value;
+                    spec = value;
                   }
                 )
                 # The set returned from npins has `__functor`
-                (attrsToList (removeAttrs config [ "__functor" ]));
+                (attrsToList (removeAttrs spec [ "__functor" ]));
         in
-        config: path' { inherit config; };
+        spec: pathHelper { inherit spec; };
 
       flake =
         let
