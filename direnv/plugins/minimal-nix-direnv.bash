@@ -29,38 +29,46 @@
 function use_nix {
   # The name of the dev shell implementation. See the case statement below for valid
   # values.
-  local -r type="$1"
+  local -r _mnd_type="$1"
   # See the case statement below for how this will be used.
   local -ra args=("${@:2}")
 
-  local prefix
-  _mnd_get_prefix prefix
-  local -r link_to_cached_shell="$prefix/link-to-cached-shell"
-  local -r cached_env_script="$prefix/env.bash"
+  local _mnd_prefix
+  _mnd_get_prefix _mnd_prefix
+  local -r _mnd_cached_shell="$_mnd_prefix/shell"
+  local -r _mnd_cached_env_script="$_mnd_prefix/env.bash"
+  local -r _mnd_cached_shell_gc_root="$_mnd_prefix/gc-root"
 
   local should_update
-  _mnd_should_update should_update "$link_to_cached_shell" "$cached_env_script"
+  _mnd_should_update should_update "$_mnd_cached_shell" "$_mnd_cached_env_script"
   if [[ $should_update != 'true' ]]; then
     # shellcheck disable=1090
-    source "$cached_env_script"
+    source "$_mnd_cached_env_script"
     return 0
   fi
 
-  local original_trap
-  _mnd_set_fallback_trap original_trap "$cached_env_script"
+  local _mnd_original_trap
+  _mnd_set_fallback_trap _mnd_original_trap "$_mnd_cached_env_script"
 
-  local new_shell
-  local new_env_script
-  _mnd_build_new_shell new_shell new_env_script "$prefix" "$type" "${args[@]}"
+  local _mnd_new_shell
+  local _mnd_new_env_script_contents
+  _mnd_build_new_shell _mnd_new_shell _mnd_new_env_script_contents "$_mnd_prefix" "$_mnd_type" "${args[@]}"
 
-  # shellcheck disable=1090
-  source "$new_env_script"
+  # WARNING
+  # ---------------------------------------------------------------------------------
+  # Any variables accessed after evaluating the env script should have the prefix
+  # `_mnd_` to avoid being overwritten by the script.
 
-  trap -- "$original_trap" EXIT
+  eval "$_mnd_new_env_script_contents"
 
-  echo "$(<"$new_env_script")" >"$cached_env_script"
-  rm -f "$link_to_cached_shell"
-  ln -s "$new_shell" "$link_to_cached_shell"
+  trap -- "$_mnd_original_trap" EXIT
+
+  rm -f "${_mnd_prefix:?}/"*
+  echo "$_mnd_new_env_script_contents" >"$_mnd_cached_env_script"
+  ln -s "$_mnd_new_shell" "$_mnd_cached_shell"
+  if [[ $_mnd_type == 'packages' ]]; then
+    _mnd_nix build --out-link "$_mnd_cached_shell_gc_root" "$_mnd_new_shell"
+  fi
 }
 
 function _mnd_get_prefix {
@@ -77,14 +85,14 @@ function _mnd_set_fallback_trap {
   local -r cached_env_script="$2"
 
   # Intentionally global so it can be accessed from the fallback trap
-  _mnd_cached_env_script="$cached_env_script"
+  _mnd_global_cached_env_script="$cached_env_script"
 
   # If the command for getting the new env script, or the script itself, fails, we'll
   # restore the environment from before they ran and source the last cached env
   # script.
   #
   # Intentionally global so it can be accessed from the fallback trap
-  _mnd_original_env="$(declare -px)"
+  _mnd_global_original_env="$(declare -px)"
 
   # direnv already sets an exit trap so we'll prepend our command to it instead of
   # overwriting it.
@@ -99,10 +107,9 @@ function _mnd_set_fallback_trap {
     if [[ -e "$_mnd_cached_env_script" ]]; then
       _mnd_log_error "Something went wrong, loading the last dev shell"
 
-      # A faster, built-in alternative to `touch`. Though, if the file did not
-      # initially end with a newline, this would add one, but that is not a problem
-      # here.
-      echo "$(<"$_mnd_cached_env_script")" >"$_mnd_cached_env_script"
+      # A built-in alternative to `touch`. Though, if the file did not initially end
+      # with a newline, this would add one, but that is not a problem here.
+      echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
 
       # Clear env
       readarray -t vars <<<"$(set -o posix; export -p; set +o posix)"
@@ -115,24 +122,24 @@ function _mnd_set_fallback_trap {
 
       function _mnd_nest_1 {
         function _mnd_nest_2 {
-          eval "$_mnd_original_env"
+          eval "$_mnd_global_original_env"
         }
         _mnd_nest_2
       }
       _mnd_nest_1
 
-      source "$_mnd_cached_env_script"
+      source "$_mnd_global_cached_env_script"
     fi
   '"$_original_trap" EXIT
 }
 
 function _mnd_should_update {
   local -n _should_update=$1
-  local -r link_to_cached_shell="$2"
+  local -r cached_shell="$2"
   local -r cached_env_script="$3"
 
   _should_update=false
-  if [[ ! -e $link_to_cached_shell || ! -e $cached_env_script ]]; then
+  if [[ ! -e $cached_shell || ! -e $cached_env_script ]]; then
     _should_update=true
   else
     local -a watched_files
@@ -154,7 +161,7 @@ function _mnd_should_update {
 
 function _mnd_build_new_shell {
   local -n _new_shell=$1
-  local -n _new_env_script=$2
+  local -n _new_env_script_contents=$2
   local -r prefix="$3"
   local -r type="$4"
   local -ra args=("${@:5}")
@@ -167,7 +174,7 @@ function _mnd_build_new_shell {
     # numtide/devshell
     'devshell')
       _new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
-      _new_env_script="$_new_shell/env.bash"
+      _new_env_script_contents="$(<"$_new_shell/env.bash")"
       ;;
     'mk_shell') ;&
     'packages')
@@ -195,7 +202,6 @@ function _mnd_build_new_shell {
         nix_args=("${args[@]}")
       fi
       _mnd_nix print-dev-env --profile "$tmp_profile" "${nix_args[@]}" >>"$tmp_env_script"
-      _mnd_nix profile wipe-history --profile "$tmp_profile"
       # shellcheck disable=2016
       echo '
           local key
@@ -211,8 +217,10 @@ function _mnd_build_new_shell {
         _mnd_restore_vars
       ' >>"$tmp_env_script"
 
-      _new_shell="$tmp_profile"
-      _new_env_script="$tmp_env_script"
+      _new_env_script_contents="$(<"$tmp_env_script")"
+      _new_shell="$(realpath "$tmp_profile")"
+      rm -f "$tmp_env_script"
+      rm -f "$tmp_profile"*
       ;;
     *)
       _mnd_log_error "Unknown dev shell type: $type"
