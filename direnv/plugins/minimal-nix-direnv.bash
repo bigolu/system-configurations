@@ -52,28 +52,42 @@ function use_nix {
 
   local _mnd_new_shell
   local _mnd_new_env_script_contents
-  _mnd_build_new_shell _mnd_new_shell _mnd_new_env_script_contents "$_mnd_prefix" "$_mnd_type" "${args[@]}"
+  _mnd_build_new_shell \
+    _mnd_new_shell _mnd_new_env_script_contents \
+    "$_mnd_prefix" "$_mnd_type" "${args[@]}"
 
   eval "$_mnd_new_env_script_contents"
 
   # WARNING
   # ---------------------------------------------------------------------------------
   # Any variables accessed after this comment should have the prefix `_mnd_` to avoid
-  # being overwritten by the environment script that got sourced before this comment.
+  # being overwritten by the environment script that was evaluated before this
+  # comment.
 
   trap -- "$_mnd_original_trap" EXIT
+  _mnd_cache \
+    "$_mnd_prefix" "$_mnd_type" \
+    "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
+    "$_mnd_new_shell" "$_mnd_cached_shell"
+}
+
+function _mnd_cache {
+  local -r \
+    prefix="$1" type="$2" \
+    new_env_script_contents="$3" cached_env_script="$4" \
+    new_shell="$5" cached_shell="$6"
 
   # Why we use `-f`:
   #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
   #     editor extension and the terminal.
   #   - Avoid an error if the directory is empty
-  rm -f "${_mnd_prefix:?}/"*
-  echo "$_mnd_new_env_script_contents" >"$_mnd_cached_env_script"
+  rm -f "$prefix/"*
+  echo "$new_env_script_contents" >"$cached_env_script"
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
   # a direnv editor extension and the terminal.
-  ln -nfs "$_mnd_new_shell" "$_mnd_cached_shell"
-  if [[ $_mnd_type == 'packages' ]]; then
-    _mnd_nix build --out-link "$_mnd_prefix/shell-gc-root" "$_mnd_new_shell"
+  ln -nfs "$new_shell" "$cached_shell"
+  if [[ $type == 'packages' ]]; then
+    _mnd_nix build --out-link "$prefix/shell-gc-root" "$new_shell"
   fi
 }
 
@@ -93,10 +107,8 @@ function _mnd_set_fallback_trap {
   local -n _original_trap=$1
   local -r cached_env_script="$2"
 
-  # Intentionally global so it can be accessed from the fallback trap
+  # Intentionally global so they can be accessed from the fallback trap
   _mnd_global_cached_env_script="$cached_env_script"
-
-  # Intentionally global so it can be accessed from the fallback trap
   _mnd_global_original_env="$(declare -px)"
 
   # direnv already sets an exit trap so we'll prepend our command to it instead of
@@ -107,7 +119,7 @@ function _mnd_set_fallback_trap {
   # with the error "local cannot be used outside of a function", even though it was
   # in a function. If I wrapped that function inside another function, then it would
   # work. This is why the `eval` statement in the trap below is inside a function.
-  # Without it, I got an error.
+  # Without it, I got a similar error.
   trap -- '
     if [[ -e "$_mnd_global_cached_env_script" ]]; then
       _mnd_log_error "Something went wrong, loading the last dev shell"
