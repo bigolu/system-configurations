@@ -93,10 +93,7 @@ nixpkgs.callPackage (
             let
               processInputs =
                 let
-                  # We add a `name` key to the input attrsets so comparing the entire
-                  # input attrset wouldn't work.
-                  excludeOutPaths = map toString exclude;
-                  removeExcluded = filterAttrs (_name: input: !(elem input.outPath excludeOutPaths));
+                  removeExcluded = filterAttrs (_name: input: !(elem input exclude));
 
                   toClosureNodes = mapAttrsToList (
                     name: input:

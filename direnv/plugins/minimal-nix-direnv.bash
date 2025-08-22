@@ -35,6 +35,7 @@ function use_nix {
 
   local _mnd_prefix
   _mnd_get_prefix _mnd_prefix
+  # Keep a symlink to the shell so we can ensure it still exists
   local -r _mnd_cached_shell="$_mnd_prefix/shell"
   local -r _mnd_cached_env_script="$_mnd_prefix/env.bash"
 
@@ -68,9 +69,9 @@ function use_nix {
   #   - Avoid an error if the directory is empty
   rm -f "${_mnd_prefix:?}/"*
   echo "$_mnd_new_env_script_contents" >"$_mnd_cached_env_script"
-  # We use `-f` to avoid a race condition between multiple instances of direnv e.g. a
-  # direnv editor extension and the terminal.
-  ln -sf "$_mnd_new_shell" "$_mnd_cached_shell"
+  # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
+  # a direnv editor extension and the terminal.
+  ln -nfs "$_mnd_new_shell" "$_mnd_cached_shell"
   if [[ $_mnd_type == 'packages' ]]; then
     _mnd_nix build --out-link "$_mnd_prefix/shell-gc-root" "$_mnd_new_shell"
   fi
@@ -95,10 +96,6 @@ function _mnd_set_fallback_trap {
   # Intentionally global so it can be accessed from the fallback trap
   _mnd_global_cached_env_script="$cached_env_script"
 
-  # If the command for getting the new env script, or the script itself, fails, we'll
-  # restore the environment from before they ran and source the last cached env
-  # script.
-  #
   # Intentionally global so it can be accessed from the fallback trap
   _mnd_global_original_env="$(declare -px)"
 
@@ -172,35 +169,29 @@ function _mnd_build_new_shell {
   local -n _new_env_script_contents=$2
   local -r prefix="$3"
   local -r type="$4"
-  local -ra args=("${@:5}")
+  local -a args=("${@:5}")
 
-  # Nix may add a standard format for dev shell packages[1]. If this is done, then
-  # the environment script will always be in `<package>/lib/env.bash`.
-  #
-  # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
   case "$type" in
     # numtide/devshell
     'devshell')
       _new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
       _new_env_script_contents="$(<"$_new_shell/env.bash")"
       ;;
-    'mk_shell') ;&
-    'packages')
+    'packages') ;&
+    # Nix is changing the format for dev shells[1] so this will need to be updated
+    # when that happens.
+    #
+    # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
+    'mk_shell')
       local -r tmp_profile="$prefix/tmp-profile"
 
-      local -a nix_args
       if [[ $type == 'packages' ]]; then
-        IFS=' ' nix_args=(
+        IFS=' ' args=(
           --impure
           --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${args[*]} ]; }"
         )
-      else
-        nix_args=("${args[@]}")
       fi
-      local print_dev_env_output
-      print_dev_env_output="$(_mnd_nix print-dev-env --profile "$tmp_profile" "${nix_args[@]}")"
 
-      _new_shell="$(realpath "$tmp_profile")"
       # We store the script in a string instead of a file to avoid a race condition
       # between multiple instances of direnv e.g. a direnv editor extension and the
       # terminal.
@@ -215,7 +206,7 @@ function _mnd_build_new_shell {
           ["TEMPDIR"]=${TEMPDIR:-__UNSET__}
           ["terminfo"]=${terminfo:-__UNSET__}
         )
-      '"$print_dev_env_output"'
+      '"$(_mnd_nix print-dev-env --profile "$tmp_profile" "${args[@]}")"'
         for _mnd_key in "${!_mnd_values_to_restore[@]}"; do
           _mnd_value=${_mnd_values_to_restore[$_mnd_key]}
           if [[ $_mnd_value == __UNSET__ ]]; then
@@ -225,6 +216,8 @@ function _mnd_build_new_shell {
           fi
         done
       '
+
+      _new_shell="$(realpath "$tmp_profile")"
 
       # We use `-f` to avoid a race condition between multiple instances of direnv
       # e.g. a direnv editor extension and the terminal.
@@ -247,13 +240,11 @@ function _mnd_log_error {
   local color_normal=
   local color_error=
   if [[ -t 2 ]]; then
-    color_normal='\e[m'
-    color_error='\e[1m\e[31m'
+    color_normal=$(printf '%b' '\e[m')
+    color_error=$(printf '%b' '\e[1m\e[31m')
   fi
 
-  printf '%b' "$color_error"
-  log_error "[minimal-nix-direnv] ERROR: $message"
-  printf '%b' "$color_normal"
+  log_error "${color_error}[minimal-nix-direnv] ERROR: ${message}${color_normal}"
 }
 
 function _mnd_get_exit_trap {
