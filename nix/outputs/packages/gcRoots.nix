@@ -38,14 +38,12 @@ nixpkgs.callPackage (
       isList
       genericClosure
       getExe'
-      concatMapStrings
+      concatStringsSep
       filter
       elem
       filterAttrs
       ;
     inherit (utils) linkFarm;
-
-    removeStoreDir = removePrefix "${storeDir}/";
 
     handlers = {
       #       <spec> -> <store_path> | list[<spec>] | attrset[<prefix> -> <spec>]
@@ -63,7 +61,7 @@ nixpkgs.callPackage (
             if isStorePath spec then
               [
                 {
-                  name = (concatMapStrings (prefix: "${prefix}-") prefixes) + (removeStoreDir spec);
+                  name = concatStringsSep "-" (prefixes ++ [ (removePrefix "${storeDir}/" spec) ]);
                   path = spec;
                 }
               ]
