@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib)
-    concatStrings
+    concatMapStrings
     mkForce
     cleanSourceWith
     escapeShellArg
@@ -104,7 +104,7 @@ let
   linkFarm =
     name: entries:
     let
-      linkCommands = map (
+      linkCommands = concatMapStrings (
         { name, path }:
         ''
           mkdir -p -- "$(dirname -- ${escapeShellArg "${name}"})"
@@ -115,7 +115,7 @@ let
     runCommand name { } ''
       mkdir -p $out
       cd $out
-      ${concatStrings linkCommands}
+      ${linkCommands}
     '';
 in
 {
