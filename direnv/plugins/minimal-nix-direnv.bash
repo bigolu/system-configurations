@@ -72,7 +72,7 @@ function use_nix {
   # direnv editor extension and the terminal.
   ln -sf "$_mnd_new_shell" "$_mnd_cached_shell"
   if [[ $_mnd_type == 'packages' ]]; then
-    _mnd_nix build --out-link "$_mnd_prefix/gc-root" "$_mnd_new_shell"
+    _mnd_nix build --out-link "$_mnd_prefix/shell-gc-root" "$_mnd_new_shell"
   fi
 }
 
@@ -207,7 +207,7 @@ function _mnd_build_new_shell {
       #
       # shellcheck disable=2016
       _new_env_script_contents='
-        _mnd_values_to_restore=(
+        declare -A _mnd_values_to_restore=(
           ["NIX_BUILD_TOP"]=${NIX_BUILD_TOP:-__UNSET__}
           ["TMP"]=${TMP:-__UNSET__}
           ["TMPDIR"]=${TMPDIR:-__UNSET__}
@@ -217,7 +217,7 @@ function _mnd_build_new_shell {
         )
       '"$print_dev_env_output"'
         for _mnd_key in "${!_mnd_values_to_restore[@]}"; do
-          _mnd_value=${_mnd_values_to_restore[$key]}
+          _mnd_value=${_mnd_values_to_restore[$_mnd_key]}
           if [[ $_mnd_value == __UNSET__ ]]; then
             unset "$_mnd_key"
           else
