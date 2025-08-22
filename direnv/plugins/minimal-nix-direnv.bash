@@ -62,9 +62,15 @@ function use_nix {
 
   trap -- "$_mnd_original_trap" EXIT
 
+  # Why we use `-f`:
+  #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
+  #     editor extension and the terminal.
+  #   - Avoid an error if the directory is empty
   rm -f "${_mnd_prefix:?}/"*
   echo "$_mnd_new_env_script_contents" >"$_mnd_cached_env_script"
-  ln -s "$_mnd_new_shell" "$_mnd_cached_shell"
+  # We use `-f` to avoid a race condition between multiple instances of direnv e.g. a
+  # direnv editor extension and the terminal.
+  ln -sf "$_mnd_new_shell" "$_mnd_cached_shell"
   if [[ $_mnd_type == 'packages' ]]; then
     _mnd_nix build --out-link "$_mnd_prefix/gc-root" "$_mnd_new_shell"
   fi
@@ -75,6 +81,9 @@ function _mnd_get_prefix {
 
   _prefix="$(direnv_layout_dir)/minimal-nix-direnv"
   if [[ ! -d $_prefix ]]; then
+    # Besides creating parent directories, we also use `-p` to avoid a race condition
+    # between multiple instances of direnv e.g. a direnv editor extension and the
+    # terminal.
     mkdir -p "$_prefix"
   fi
 }
@@ -178,19 +187,7 @@ function _mnd_build_new_shell {
     'mk_shell') ;&
     'packages')
       local -r tmp_profile="$prefix/tmp-profile"
-      local -r tmp_env_script="$prefix/tmp-env.bash"
-      # shellcheck disable=2016
-      echo '
-        function _mnd_restore_vars {
-          local -A values_to_restore=(
-            ["NIX_BUILD_TOP"]=${NIX_BUILD_TOP:-__UNSET__}
-            ["TMP"]=${TMP:-__UNSET__}
-            ["TMPDIR"]=${TMPDIR:-__UNSET__}
-            ["TEMP"]=${TEMP:-__UNSET__}
-            ["TEMPDIR"]=${TEMPDIR:-__UNSET__}
-            ["terminfo"]=${terminfo:-__UNSET__}
-          )
-      ' >"$tmp_env_script"
+
       local -a nix_args
       if [[ $type == 'packages' ]]; then
         IFS=' ' nix_args=(
@@ -200,25 +197,37 @@ function _mnd_build_new_shell {
       else
         nix_args=("${args[@]}")
       fi
-      _mnd_nix print-dev-env --profile "$tmp_profile" "${nix_args[@]}" >>"$tmp_env_script"
-      # shellcheck disable=2016
-      echo '
-          local key
-          for key in "${!values_to_restore[@]}"; do
-            local value=${values_to_restore[$key]}
-            if [[ $value == __UNSET__ ]]; then
-              unset "$key"
-            else
-              export "$key=$value"
-            fi
-          done
-        }
-        _mnd_restore_vars
-      ' >>"$tmp_env_script"
+      local print_dev_env_output
+      print_dev_env_output="$(_mnd_nix print-dev-env --profile "$tmp_profile" "${nix_args[@]}")"
 
-      _new_env_script_contents="$(<"$tmp_env_script")"
       _new_shell="$(realpath "$tmp_profile")"
-      rm -f "$tmp_env_script"
+      # We store the script in a string instead of a file to avoid a race condition
+      # between multiple instances of direnv e.g. a direnv editor extension and the
+      # terminal.
+      #
+      # shellcheck disable=2016
+      _new_env_script_contents='
+        _mnd_values_to_restore=(
+          ["NIX_BUILD_TOP"]=${NIX_BUILD_TOP:-__UNSET__}
+          ["TMP"]=${TMP:-__UNSET__}
+          ["TMPDIR"]=${TMPDIR:-__UNSET__}
+          ["TEMP"]=${TEMP:-__UNSET__}
+          ["TEMPDIR"]=${TEMPDIR:-__UNSET__}
+          ["terminfo"]=${terminfo:-__UNSET__}
+        )
+      '"$print_dev_env_output"'
+        for _mnd_key in "${!_mnd_values_to_restore[@]}"; do
+          _mnd_value=${_mnd_values_to_restore[$key]}
+          if [[ $_mnd_value == __UNSET__ ]]; then
+            unset "$_mnd_key"
+          else
+            export "$_mnd_key=$_mnd_value"
+          fi
+        done
+      '
+
+      # We use `-f` to avoid a race condition between multiple instances of direnv
+      # e.g. a direnv editor extension and the terminal.
       rm -f "$tmp_profile"*
       ;;
     *)

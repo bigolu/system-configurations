@@ -40,6 +40,8 @@ nixpkgs.callPackage (
       getExe'
       concatMapStrings
       filter
+      elem
+      filterAttrs
       ;
     inherit (utils) linkFarm;
 
@@ -84,26 +86,42 @@ nixpkgs.callPackage (
       flake =
         let
           getInputsRecursive =
+            {
+              inputs,
+              exclude ? [ ],
+            }:
             let
-              toClosureNodes = mapAttrsToList (
-                name: input:
-                input
-                // {
-                  inherit name;
-                  # Used by `genericClosure` for equality checks
-                  key = input.outPath;
-                }
-              );
+              processInputs =
+                let
+                  # We add a `name` key to the input attrsets so comparing the entire
+                  # input attrset wouldn't work.
+                  excludeOutPaths = map toString exclude;
+                  removeExcluded = filterAttrs (_name: input: !(elem input.outPath excludeOutPaths));
+
+                  toClosureNodes = mapAttrsToList (
+                    name: input:
+                    input
+                    // {
+                      inherit name;
+                      # Used by `genericClosure` for equality checks
+                      key = input.outPath;
+                    }
+                  );
+                in
+                inputs:
+                pipe inputs [
+                  removeExcluded
+                  toClosureNodes
+                ];
             in
-            inputs:
             genericClosure {
-              startSet = toClosureNodes inputs;
+              startSet = processInputs inputs;
               # Inputs with "flake = false" will not have inputs
-              operator = input: toClosureNodes (input.inputs or { });
+              operator = input: processInputs (input.inputs or { });
             };
         in
-        { inputs }:
-        pipe inputs [
+        spec:
+        pipe spec [
           getInputsRecursive
           # If these inputs came from `lix/flake-compat` and `copySourceTreeToStore`
           # is false, then the outPath of any local flakes will not be a store path.
