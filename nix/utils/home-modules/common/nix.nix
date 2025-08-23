@@ -11,6 +11,7 @@ let
     stdenv
     ;
   inherit (stdenv) isLinux isDarwin;
+  inherit (builtins) currentSystem;
   inherit (lib)
     hm
     getExe
@@ -95,6 +96,7 @@ in
       nix-daemon-reload
       nix-diff
       nix-search-cli
+      inputs.nix-sweep.packages.${currentSystem}.default
     ]
     ++ optionals isLinux [
       # for breakpointHook:
@@ -105,10 +107,6 @@ in
   system = {
     activation = {
       inherit syncNixVersionWithSystem;
-      removeOldGenerations = ''
-        # The path set by sudo on Pop!_OS doesn't include nix
-        nix-env --delete-generations old
-      '';
     };
 
     file = {

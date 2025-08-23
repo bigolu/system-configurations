@@ -29,8 +29,3 @@ function nix
         command nix $argv
     end
 end
-
-function nix-store-size
-    set store_size_bytes (nix path-info --json --all | jq 'map(.narSize) | add')
-    numfmt --to=iec-i --suffix=B --format="%9.2f" -- $store_size_bytes
-end
