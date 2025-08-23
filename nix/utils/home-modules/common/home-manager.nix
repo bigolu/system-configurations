@@ -5,7 +5,6 @@
   configName,
   username,
   homeDirectory,
-  repositoryDirectory,
   ...
 }:
 let
@@ -14,52 +13,7 @@ let
     mkIf
     hm
     getExe
-    optionals
     ;
-  inherit (pkgs) writeShellApplication;
-  inherit (pkgs.stdenv) isLinux isDarwin;
-
-  update-reminder = writeShellApplication {
-    name = "update-reminder";
-    runtimeInputs =
-      with pkgs;
-      [
-        coreutils
-        git
-      ]
-      ++ (optionals isLinux [
-        libnotify
-        xdg-utils
-      ])
-      ++ (optionals isDarwin [ terminal-notifier ]);
-    text = ''
-      cd ${repositoryDirectory}
-      if [[ $(git log --since="1 month ago") == *'deps:'* ]]; then
-        exit
-      fi
-
-      if [[ $OSTYPE == linux* ]]; then
-        # TODO: I want to use action buttons on the notification, but it isn't
-        # working. Instead, I assume that I want to pull if I click the notification
-        # within one hour. Using `timeout` I can kill `notify-send` once one hour
-        # passes.
-        timeout_exit_code=124
-        set +o errexit
-        timeout 1h notify-send --wait --app-name 'System Configuration' \
-          'Click here to update dependencies'
-        exit_code=$?
-        set -o errexit
-        if (( exit_code != timeout_exit_code )); then
-          xdg-open 'https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml'
-        fi
-      else
-        terminal-notifier \
-          -title 'System Configuration' \
-          -message 'Click here to update dependencies' \
-          -execute 'open "https://github.com/bigolu/system-configurations/actions/workflows/renovate.yaml"'
-      fi
-    '';
-  };
 in
 mkMerge [
   {
@@ -104,6 +58,10 @@ mkMerge [
             ${getExe pkgs.nvd} --color=never diff $oldGenPath $newGenPath
           fi
         '';
+
+        removeOldHomeManagerGenerations = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+          ${getExe pkgs.home-manager} expire-generations '1 second'
+        '';
       };
     };
 
@@ -118,54 +76,5 @@ mkMerge [
     #
     # [1]: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
     news.display = "silent";
-  })
-
-  (mkIf isLinux {
-    systemd.user = {
-      services = {
-        update-system-config-reminder = {
-          Unit = {
-            Description = "Reminder to update system-config dependencies";
-          };
-          Service = {
-            ExecStart = getExe update-reminder;
-          };
-        };
-      };
-
-      timers = {
-        update-system-config-reminder = {
-          Unit = {
-            Description = "Reminder to update system-config dependencies";
-          };
-          Timer = {
-            OnCalendar = "weekly";
-            Persistent = true;
-          };
-          Install = {
-            WantedBy = [ "timers.target" ];
-          };
-        };
-      };
-    };
-  })
-
-  (mkIf isDarwin {
-    launchd.agents = {
-      update-system-config-reminder = {
-        enable = true;
-        config = {
-          ProgramArguments = [ (getExe update-reminder) ];
-          StartCalendarInterval = [
-            # weekly
-            {
-              Weekday = 1;
-              Hour = 0;
-              Minute = 0;
-            }
-          ];
-        };
-      };
-    };
   })
 ]

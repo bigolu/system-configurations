@@ -87,22 +87,30 @@ in
   # Don't make a command_not_found handler
   programs.nix-index.enableFishIntegration = false;
 
-  home.packages =
-    with pkgs;
-    [
-      nix-tree
-      nix-melt
-      comma
-      nix-daemon-reload
-      nix-diff
-      nix-search-cli
-      inputs.nix-sweep.packages.${currentSystem}.default
-    ]
-    ++ optionals isLinux [
-      # for breakpointHook:
-      # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
-      cntr
-    ];
+  home = {
+    packages =
+      with pkgs;
+      [
+        nix-tree
+        nix-melt
+        comma
+        nix-daemon-reload
+        nix-diff
+        nix-search-cli
+        inputs.nix-sweep.packages.${currentSystem}.default
+      ]
+      ++ optionals isLinux [
+        # for breakpointHook:
+        # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
+        cntr
+      ];
+
+    activation = {
+      removeOldUserProfileGenerations = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        nix-env --delete-generations old
+      '';
+    };
+  };
 
   system = {
     activation = {
