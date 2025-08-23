@@ -125,9 +125,9 @@ nixpkgs.callPackage (
           # We use a list of sets instead of a single set since inputs can have the
           # same name
           (map (input: {
-            ${input.name} = input;
+            "flake-${input.name}" = input;
           }))
-          (inputs: handlers.path { flake = inputs; })
+          handlers.path
         ];
     };
 
