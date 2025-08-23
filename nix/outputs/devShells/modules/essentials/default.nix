@@ -4,6 +4,7 @@
   name,
   inputs,
   pins,
+  system,
   ...
 }:
 let
@@ -12,7 +13,11 @@ let
     hasPrefix
     optionalAttrs
     getExe'
+    elem
+    filterAttrs
+    hasSuffix
     ;
+  inherit (pkgs.stdenv) isLinux;
   inCi = hasPrefix "ci-" name;
 in
 {
@@ -37,8 +42,41 @@ in
       (pkgs.gcRoots {
         snippet.directory.eval = "$DEV_SHELL_STATE/gc-roots";
         roots = {
-          flake = { inherit inputs; };
-          path = optionalAttrs (!inCi) { inherit pins; };
+          flake = {
+            inherit inputs;
+            exclude =
+              with inputs;
+              if isLinux then
+                [
+                  nix-darwin
+                ]
+              else
+                [
+                  nix-flatpak
+                  nix-gl-host
+                ];
+          };
+
+          path = optionalAttrs (!inCi) {
+            pins = filterAttrs (
+              name: pin:
+              ((hasPrefix "config-file-validator-" name) -> (hasSuffix system name))
+              && (
+                !(elem pin (
+                  with pins;
+                  if isLinux then
+                    [
+                      spoons
+                      stackline
+                    ]
+                  else
+                    [
+                      keyd
+                    ]
+                ))
+              )
+            ) pins;
+          };
         };
       }).snippet;
 
