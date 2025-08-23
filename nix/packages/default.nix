@@ -12,6 +12,7 @@ let
     nixpkgs
     utils
     pins
+    system
     ;
   inherit (utils) unstableVersion projectRoot;
   inherit (lib)
@@ -176,7 +177,7 @@ recursiveUpdateList [
     config-file-validator = nixpkgs.stdenv.mkDerivation {
       pname = "config-file-validator";
       version = "1.8.0";
-      src = pins."config-file-validator-${if isLinux then "linux" else "darwin"}";
+      src = pins."config-file-validator-${system}";
       installPhase = ''
         mkdir -p $out/bin
         cp $src/validator $out/bin/
