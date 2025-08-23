@@ -61,7 +61,7 @@ nixpkgs.callPackage (
             if isStorePath spec then
               [
                 {
-                  name = concatStringsSep "-" (prefixes ++ [ (removePrefix "${storeDir}/" spec) ]);
+                  name = concatStringsSep "__" (prefixes ++ [ (removePrefix "${storeDir}/" spec) ]);
                   path = spec;
                 }
               ]
