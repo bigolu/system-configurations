@@ -42,8 +42,6 @@ nixpkgs.callPackage (
       filter
       elem
       filterAttrs
-      setAttrByPath
-      optionals
       ;
     inherit (utils) linkFarm;
 
@@ -63,7 +61,7 @@ nixpkgs.callPackage (
             if isStorePath spec then
               [
                 {
-                  name = concatStringsSep "__" (prefixes ++ [ (removePrefix "${storeDir}/" spec) ]);
+                  name = concatStringsSep "-" (prefixes ++ [ (removePrefix "${storeDir}/" spec) ]);
                   path = spec;
                 }
               ]
@@ -95,40 +93,26 @@ nixpkgs.callPackage (
                 let
                   removeExcluded = filterAttrs (_name: input: !(elem input exclude));
 
-                  toClosureNodes =
-                    {
-                      parent ? null,
-                      inputs,
-                    }:
-                    mapAttrsToList (
-                      name: input:
-                      input
-                      // {
-                        inherit name;
-                        path = optionals (parent != null) (parent.path ++ [ parent.name ]);
-                        # Used by `genericClosure` for equality checks
-                        key = input.outPath;
-                      }
-                    ) inputs;
+                  toClosureNodes = mapAttrsToList (
+                    name: input:
+                    input
+                    // {
+                      inherit name;
+                      # Used by `genericClosure` for equality checks
+                      key = input.outPath;
+                    }
+                  );
                 in
-                {
-                  parent ? null,
-                  inputs,
-                }:
+                inputs:
                 pipe inputs [
                   removeExcluded
-                  (inputs: toClosureNodes { inherit inputs parent; })
+                  toClosureNodes
                 ];
             in
             genericClosure {
-              startSet = processInputs { inherit inputs; };
-              operator =
-                input:
-                processInputs {
-                  # Inputs with "flake = false" will not have inputs
-                  inputs = input.inputs or { };
-                  parent = input;
-                };
+              startSet = processInputs inputs;
+              # Inputs with "flake = false" will not have inputs
+              operator = input: processInputs (input.inputs or { });
             };
         in
         spec:
@@ -138,8 +122,12 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          (map (input: setAttrByPath ([ "flake" ] ++ input.path ++ [ input.name ]) input))
-          handlers.path
+          # We use a list of sets instead of a single set since inputs can have the
+          # same name
+          (map (input: {
+            ${input.name} = input;
+          }))
+          (inputs: handlers.path { flake = inputs; })
         ];
     };
 
