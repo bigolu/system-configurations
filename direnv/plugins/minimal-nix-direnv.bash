@@ -1,4 +1,4 @@
-# This plugin caches and loads a nix environment. The cache is invalidated whenever a
+# This plugin loads and caches a nix environment. The cache is invalidated whenever a
 # watched file is modified. If it fails to load a new environment, it'll fall back to
 # the last cached one.
 #
@@ -31,11 +31,11 @@
 #     ```
 
 function use_nix {
-  # The name of the dev shell implementation. See the case statement below for valid
-  # values.
-  local -r _mnd_type="$1"
-  # See the case statement below for how this will be used.
-  local -ra args=("${@:2}")
+  # The type of environment. See the case statement below for valid values.
+  local -r _mnd_env_type="$1"
+  # Arguments used for building the environment. See the case statement below for how
+  # they will be used.
+  local -ra env_build_args=("${@:2}")
 
   local _mnd_prefix
   _mnd_get_prefix _mnd_prefix
@@ -58,7 +58,7 @@ function use_nix {
   local _mnd_new_env_script_contents
   _mnd_build_new_shell \
     _mnd_new_shell _mnd_new_env_script_contents \
-    "$_mnd_prefix" "$_mnd_type" "${args[@]}"
+    "$_mnd_prefix" "$_mnd_env_type" "${env_build_args[@]}"
 
   eval "$_mnd_new_env_script_contents"
 
@@ -70,14 +70,14 @@ function use_nix {
 
   trap -- "$_mnd_original_trap" EXIT
   _mnd_cache \
-    "$_mnd_prefix" "$_mnd_type" \
+    "$_mnd_prefix" "$_mnd_env_type" \
     "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
     "$_mnd_new_shell" "$_mnd_cached_shell"
 }
 
 function _mnd_cache {
   local -r \
-    prefix="$1" type="$2" \
+    prefix="$1" env_type="$2" \
     new_env_script_contents="$3" cached_env_script="$4" \
     new_shell="$5" cached_shell="$6"
 
@@ -90,7 +90,7 @@ function _mnd_cache {
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
   # a direnv editor extension and the terminal.
   ln -nfs "$new_shell" "$cached_shell"
-  if [[ $type == 'packages' ]]; then
+  if [[ $env_type == 'packages' ]]; then
     _mnd_nix build --out-link "$prefix/shell-gc-root" "$new_shell"
   fi
 }
@@ -184,13 +184,13 @@ function _mnd_build_new_shell {
   local -n _new_shell=$1
   local -n _new_env_script_contents=$2
   local -r prefix="$3"
-  local -r type="$4"
-  local -a args=("${@:5}")
+  local -r env_type="$4"
+  local -a env_build_args=("${@:5}")
 
-  case "$type" in
+  case "$env_type" in
     # numtide/devshell
     'devshell')
-      _new_shell="$(_mnd_nix build --no-link --print-out-paths "${args[@]}")"
+      _new_shell="$(_mnd_nix build --no-link --print-out-paths "${env_build_args[@]}")"
       _new_env_script_contents="$(<"$_new_shell/env.bash")"
       ;;
     'packages') ;&
@@ -206,10 +206,10 @@ function _mnd_build_new_shell {
       # instance its own profile.
       local -r tmp_profile="$prefix/tmp-profile-$$"
 
-      if [[ $type == 'packages' ]]; then
-        IFS=' ' args=(
+      if [[ $env_type == 'packages' ]]; then
+        IFS=' ' env_build_args=(
           --impure
-          --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${args[*]} ]; }"
+          --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${env_build_args[*]} ]; }"
         )
       fi
 
@@ -227,7 +227,7 @@ function _mnd_build_new_shell {
           ["TEMPDIR"]=${TEMPDIR:-__UNSET__}
           ["terminfo"]=${terminfo:-__UNSET__}
         )
-      '"$(_mnd_nix print-dev-env --profile "$tmp_profile" "${args[@]}")"'
+      '"$(_mnd_nix print-dev-env --profile "$tmp_profile" "${env_build_args[@]}")"'
         for _mnd_key in "${!_mnd_values_to_restore[@]}"; do
           _mnd_value=${_mnd_values_to_restore[$_mnd_key]}
           if [[ $_mnd_value == __UNSET__ ]]; then
@@ -243,7 +243,7 @@ function _mnd_build_new_shell {
       rm "$tmp_profile"*
       ;;
     *)
-      _mnd_log_error "Unknown dev shell type: $type"
+      _mnd_log_error "Unknown environment type: $env_type"
       return 1
       ;;
   esac
