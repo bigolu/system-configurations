@@ -457,5 +457,65 @@ recursiveUpdateList [
         } "$@"
       '';
     };
+
+    # TODO: I shouldn't have to do this. Either nixpkgs should add the shell config
+    # files or the tool itself should generate the files as part of its build script,
+    # as direnv does[2].
+    #
+    # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
+    zoxide =
+      let
+        oldZoxide = nixpkgs.zoxide;
+
+        fishConfig =
+          (nixpkgs.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
+            config_directory="$out/share/fish/vendor_conf.d"
+            mkdir -p "$config_directory"
+            ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
+          '')
+          // {
+            inherit (oldZoxide) version;
+          };
+
+        newZoxide = nixpkgs.symlinkJoin {
+          inherit (oldZoxide) pname version;
+          paths = [
+            oldZoxide
+            fishConfig
+          ];
+        };
+      in
+      # Merge with the original package to retain attributes like meta
+      recursiveUpdate oldZoxide newZoxide;
+
+    # TODO: I shouldn't have to do this. Either nixpkgs should add the shell config
+    # files or the tool itself should generate the files as part of its build script,
+    # as direnv does[2].
+    #
+    # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
+    broot =
+      let
+        oldBroot = nixpkgs.broot;
+
+        fishConfig =
+          (nixpkgs.runCommand "broot-fish-config-${oldBroot.version}" { } ''
+            config_directory="$out/share/fish/vendor_conf.d"
+            mkdir -p "$config_directory"
+            ${getExe oldBroot} --print-shell-function fish > "$config_directory/broot.fish"
+          '')
+          // {
+            inherit (oldBroot) version;
+          };
+
+        newBroot = nixpkgs.symlinkJoin {
+          inherit (oldBroot) pname version;
+          paths = [
+            oldBroot
+            fishConfig
+          ];
+        };
+      in
+      # Merge with the original package to retain attributes like meta
+      recursiveUpdate oldBroot newBroot;
   }
 ]
