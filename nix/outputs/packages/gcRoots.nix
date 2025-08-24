@@ -21,7 +21,11 @@
   ...
 }:
 nixpkgs.callPackage (
-  { nvd, coreutils }:
+  {
+    nvd,
+    coreutils,
+    writeTextFile,
+  }:
   let
     inherit (builtins) storeDir;
     inherit (lib)
@@ -42,6 +46,10 @@ nixpkgs.callPackage (
       filter
       elem
       filterAttrs
+      optionals
+      setAttrByPath
+      sortOn
+      id
       ;
     inherit (utils) linkFarm;
 
@@ -61,7 +69,7 @@ nixpkgs.callPackage (
             if isStorePath spec then
               [
                 {
-                  name = concatStringsSep "__" (prefixes ++ [ (removePrefix "${storeDir}/" spec) ]);
+                  inherit prefixes;
                   path = spec;
                 }
               ]
@@ -93,26 +101,40 @@ nixpkgs.callPackage (
                 let
                   removeExcluded = filterAttrs (_name: input: !(elem input exclude));
 
-                  toClosureNodes = mapAttrsToList (
-                    name: input:
-                    input
-                    // {
-                      inherit name;
-                      # Used by `genericClosure` for equality checks
-                      key = input.outPath;
-                    }
-                  );
+                  toClosureNodes =
+                    {
+                      parent ? null,
+                      inputs,
+                    }:
+                    mapAttrsToList (
+                      name: input:
+                      input
+                      // {
+                        inherit name;
+                        path = optionals (parent != null) ((parent.path or [ ]) ++ [ parent.name ]);
+                        # Used by `genericClosure` for equality checks
+                        key = input.outPath;
+                      }
+                    ) inputs;
                 in
-                inputs:
+                {
+                  parent ? null,
+                  inputs,
+                }:
                 pipe inputs [
                   removeExcluded
-                  toClosureNodes
+                  (inputs: toClosureNodes { inherit inputs parent; })
                 ];
             in
             genericClosure {
-              startSet = processInputs inputs;
-              # Inputs with "flake = false" will not have inputs
-              operator = input: processInputs (input.inputs or { });
+              startSet = processInputs { inherit inputs; };
+              operator =
+                input:
+                processInputs {
+                  # Inputs with "flake = false" will not have inputs
+                  inputs = input.inputs or { };
+                  parent = input;
+                };
             };
         in
         spec:
@@ -122,12 +144,8 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          # We use a list of sets instead of a single set since inputs can have the
-          # same name
-          (map (input: {
-            ${input.name} = input;
-          }))
-          (inputs: handlers.path { flake = inputs; })
+          (map (input: setAttrByPath ([ "flake" ] ++ input.path ++ [ input.name ]) input))
+          handlers.path
         ];
     };
 
@@ -137,7 +155,37 @@ nixpkgs.callPackage (
         snippetConfig,
       }:
       let
-        derivation = linkFarm "gc-roots" roots;
+        derivation =
+          let
+            file = writeTextFile {
+              name = "manifest.txt";
+              text = pipe roots [
+                (map ({ prefixes, path }: concatStringsSep " → " (prefixes ++ [ path ])))
+                (sortOn id)
+                (concatStringsSep "\n")
+              ];
+            };
+          in
+          pipe roots [
+            (map (
+              { path, ... }:
+              {
+                name = removePrefix "${storeDir}/" path;
+                inherit path;
+              }
+            ))
+            (
+              links:
+              links
+              ++ [
+                {
+                  inherit (file) name;
+                  path = file;
+                }
+              ]
+            )
+            (linkFarm "gc-roots")
+          ];
 
         snippet =
           let
