@@ -198,7 +198,7 @@ function _mnd_build_new_shell {
     # when that happens.
     #
     # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
-    'dev_shell')
+    'stdenv')
       # Add the PID to the profile name to avoid a race condition between multiple
       # instances of direnv e.g. a direnv editor extension and the terminal. Without
       # this, one direnv instance can delete the tmp profile before the other
