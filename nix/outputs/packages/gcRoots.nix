@@ -163,9 +163,12 @@ nixpkgs.callPackage (
               else
                 escapeShellArg snippetConfig.directory.text;
 
+            rootsPath = "${directory}/roots";
+            devShellRootPath = "${directory}/dev-shell-root";
+
             devShellDiffSnippet = ''
-              if [[ -e ${directory}/dev-shell-root ]]; then
-                ${nvdExe} --color=never diff ${directory}/dev-shell-root "$new_shell"
+              if [[ -e ${devShellRootPath} ]]; then
+                ${nvdExe} --color=never diff ${devShellRootPath} "$new_shell"
               fi
             '';
           in
@@ -177,17 +180,17 @@ nixpkgs.callPackage (
           # won't have to keep running `nix-store --query --hash` which will be
           # slower than `[[ ... -ef ... ]]`.
           ''
-            if [[ ! ${directory}/roots -ef ${derivation} ]]; then
+            if [[ ! ${rootsPath} -ef ${derivation} ]]; then
               if
                 type -P nix-store >/dev/null &&
                   nix-store --query --hash ${derivation} >/dev/null 2>&1
               then
-                nix-store --add-root ${directory}/roots --realise ${derivation} >/dev/null
+                nix-store --add-root ${rootsPath} --realise ${derivation} >/dev/null
               else
                 if [[ ! -e ${directory} ]]; then
                   ${mkdir} --parents ${directory}
                 fi
-                ${ln} --force --no-dereference --symbolic ${derivation} ${directory}/roots
+                ${ln} --force --no-dereference --symbolic ${derivation} ${rootsPath}
               fi
             fi
           ''
@@ -208,18 +211,18 @@ nixpkgs.callPackage (
               new_shell=${placeholder "out"}
             fi
 
-            if [[ ! ${directory}/dev-shell-root -ef "$new_shell" ]]; then
+            if [[ ! ${devShellRootPath} -ef "$new_shell" ]]; then
               if
                 type -P nix-store >/dev/null &&
                   nix-store --query --hash "$new_shell" >/dev/null 2>&1
               then
                 ${optionalString snippetConfig.devShell.diff devShellDiffSnippet}
-                nix-store --add-root ${directory}/dev-shell-root --realise "$new_shell" >/dev/null
+                nix-store --add-root ${devShellRootPath} --realise "$new_shell" >/dev/null
               else
                 if [[ ! -e ${directory} ]]; then
                   ${mkdir} --parents ${directory}
                 fi
-                ${ln} --force --no-dereference --symbolic "$new_shell" ${directory}/dev-shell-root
+                ${ln} --force --no-dereference --symbolic "$new_shell" ${devShellRootPath}
               fi
             fi
           '';
