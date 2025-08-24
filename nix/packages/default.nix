@@ -213,7 +213,11 @@ recursiveUpdateList [
       };
     };
 
-    # Normally I'd use overrideAttrs, but that wouldn't affect keyd-application-mapper
+    # Normally I'd use overrideAttrs, but that wouldn't affect
+    # keyd-application-mapper.
+    #
+    # TODO: This derivation should instead be defined as a function that takes the
+    # final derivation attributes so I can override it properly.
     keyd =
       let
         # TODO: I'm assuming that the first 10 characters is enough for it to be
@@ -453,67 +457,5 @@ recursiveUpdateList [
         } "$@"
       '';
     };
-
-    # TODO: I shouldn't have to do this. Either nixpkgs should add the completion
-    # files, as they do with lefthook[1], or the tool itself should generate the files
-    # as part of its build script, as direnv does[2].
-    #
-    # [1]: https://github.com/NixOS/nixpkgs/blob/cd7ab3a2bc59a881859a901ba1fa5e7ddf002e5e/pkgs/by-name/le/lefthook/package.nix
-    # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
-    zoxide =
-      let
-        oldZoxide = nixpkgs.zoxide;
-
-        fishConfig =
-          (nixpkgs.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
-            config_directory="$out/share/fish/vendor_conf.d"
-            mkdir -p "$config_directory"
-            ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
-          '')
-          // {
-            inherit (oldZoxide) version;
-          };
-
-        newZoxide = nixpkgs.symlinkJoin {
-          inherit (oldZoxide) pname version;
-          paths = [
-            oldZoxide
-            fishConfig
-          ];
-        };
-      in
-      # Merge with the original package to retain attributes like meta
-      recursiveUpdate oldZoxide newZoxide;
-
-    # TODO: I shouldn't have to do this. Either nixpkgs should add the completion
-    # files, as they do with lefthook[1], or the tool itself should generate the files
-    # as part of its build script, as direnv does[2].
-    #
-    # [1]: https://github.com/NixOS/nixpkgs/blob/cd7ab3a2bc59a881859a901ba1fa5e7ddf002e5e/pkgs/by-name/le/lefthook/package.nix
-    # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
-    broot =
-      let
-        oldBroot = nixpkgs.broot;
-
-        fishConfig =
-          (nixpkgs.runCommand "broot-fish-config-${oldBroot.version}" { } ''
-            config_directory="$out/share/fish/vendor_conf.d"
-            mkdir -p "$config_directory"
-            ${getExe oldBroot} --print-shell-function fish > "$config_directory/broot.fish"
-          '')
-          // {
-            inherit (oldBroot) version;
-          };
-
-        newBroot = nixpkgs.symlinkJoin {
-          inherit (oldBroot) pname version;
-          paths = [
-            oldBroot
-            fishConfig
-          ];
-        };
-      in
-      # Merge with the original package to retain attributes like meta
-      recursiveUpdate oldBroot newBroot;
   }
 ]
