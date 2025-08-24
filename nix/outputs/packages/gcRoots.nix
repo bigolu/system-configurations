@@ -17,7 +17,6 @@
 {
   lib,
   nixpkgs,
-  utils,
   ...
 }:
 nixpkgs.callPackage (
@@ -27,7 +26,6 @@ nixpkgs.callPackage (
     writeTextFile,
   }:
   let
-    inherit (builtins) storeDir;
     inherit (lib)
       pipe
       escapeShellArg
@@ -37,7 +35,6 @@ nixpkgs.callPackage (
       getExe
       mapAttrsToList
       optionalString
-      removePrefix
       recursiveUpdate
       isList
       genericClosure
@@ -46,19 +43,16 @@ nixpkgs.callPackage (
       filter
       elem
       filterAttrs
-      optionals
-      setAttrByPath
-      sortOn
-      id
+      sort
+      lessThan
       ;
-    inherit (utils) linkFarm;
 
     handlers = {
       #       <spec> -> <store_path> | list[<spec>] | attrset[<prefix> -> <spec>]
       # <store_path> -> anything that can be coerced to a string that contains a store path
       #     <prefix> -> string
       #
-      # All prefixes leading to a store_path will be prepended to it.
+      # All prefixes leading to a store_path will be used as a label for the path.
       path =
         let
           pathHelper =
@@ -99,42 +93,31 @@ nixpkgs.callPackage (
             let
               processInputs =
                 let
-                  removeExcluded = filterAttrs (_name: input: !(elem input exclude));
+                  # So we can compare inputs by their outPath instead of comparing
+                  # the entire attrset.
+                  excludeOutPaths = map (input: input.outPath) exclude;
+                  removeExcluded = filterAttrs (_name: input: !(elem input.outPath excludeOutPaths));
 
-                  toClosureNodes =
-                    {
-                      parent ? null,
-                      inputs,
-                    }:
-                    mapAttrsToList (
-                      name: input:
-                      input
-                      // {
-                        inherit name;
-                        path = optionals (parent != null) ((parent.path or [ ]) ++ [ parent.name ]);
-                        # Used by `genericClosure` for equality checks
-                        key = input.outPath;
-                      }
-                    ) inputs;
+                  toClosureNodes = mapAttrsToList (
+                    name: input:
+                    input
+                    // {
+                      inherit name;
+                      # Used by `genericClosure` for equality checks
+                      key = input.outPath;
+                    }
+                  );
                 in
-                {
-                  parent ? null,
-                  inputs,
-                }:
+                inputs:
                 pipe inputs [
                   removeExcluded
-                  (inputs: toClosureNodes { inherit inputs parent; })
+                  toClosureNodes
                 ];
             in
             genericClosure {
-              startSet = processInputs { inherit inputs; };
-              operator =
-                input:
-                processInputs {
-                  # Inputs with "flake = false" will not have inputs
-                  inputs = input.inputs or { };
-                  parent = input;
-                };
+              startSet = processInputs inputs;
+              # Inputs with "flake = false" will not have inputs
+              operator = input: processInputs (input.inputs or { });
             };
         in
         spec:
@@ -144,8 +127,10 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          (map (input: setAttrByPath ([ "flake" ] ++ input.path ++ [ input.name ]) input))
-          handlers.path
+          (map (input: {
+            ${input.name} = input;
+          }))
+          (inputs: handlers.path { flake = inputs; })
         ];
     };
 
@@ -155,37 +140,16 @@ nixpkgs.callPackage (
         snippetConfig,
       }:
       let
-        derivation =
-          let
-            file = writeTextFile {
-              name = "manifest.txt";
-              text = pipe roots [
-                (map ({ prefixes, path }: concatStringsSep " → " (prefixes ++ [ path ])))
-                (sortOn id)
-                (concatStringsSep "\n")
-              ];
-            };
-          in
-          pipe roots [
+        derivation = writeTextFile {
+          name = "roots.txt";
+          text = pipe roots [
             (map (
-              { path, ... }:
-              {
-                name = removePrefix "${storeDir}/" path;
-                inherit path;
-              }
+              { prefixes, path }: path + optionalString (prefixes != [ ]) " (${concatStringsSep "." prefixes})"
             ))
-            (
-              links:
-              links
-              ++ [
-                {
-                  inherit (file) name;
-                  path = file;
-                }
-              ]
-            )
-            (linkFarm "gc-roots")
+            (sort lessThan)
+            (concatStringsSep "\n")
           ];
+        };
 
         snippet =
           let
