@@ -24,7 +24,11 @@
 #     so ideally you only call it once. And if users don't like the files that were
 #     automatically watched, I'd have to also provide an option to disable it.
 #     Instead, you can try the following which should work for most cases:
-#     `watch_file nix/** **/*.nix`
+#     ```
+#     shopt -s globstar
+#     watch_file nix/** **/*.nix **/flake.lock
+#     shopt +s globstar
+#     ```
 
 function use_nix {
   # The name of the dev shell implementation. See the case statement below for valid
@@ -60,9 +64,9 @@ function use_nix {
 
   # WARNING
   # ---------------------------------------------------------------------------------
-  # Any variables accessed after this comment should have the prefix `_mnd_` to avoid
-  # being overwritten by the environment script that was evaluated before this
-  # comment.
+  # Any variables accessed after this comment should have the prefix `_mnd_` to
+  # reduce the chance of being overwritten by the environment script that was
+  # evaluated before this comment.
 
   trap -- "$_mnd_original_trap" EXIT
   _mnd_cache \
@@ -243,7 +247,7 @@ function _mnd_build_new_shell {
 }
 
 function _mnd_nix {
-  nix --no-warn-dirty --extra-experimental-features "nix-command flakes" "$@"
+  nix --no-warn-dirty --extra-experimental-features 'nix-command flakes' "$@"
 }
 
 function _mnd_log_error {
