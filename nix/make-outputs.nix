@@ -84,9 +84,10 @@ lib.fix (
       isFunction
       isDerivation
       filterAttrs
+      toFunction
       ;
 
-    context' = (if isFunction context then context context' else context) // {
+    context' = (toFunction context context') // {
       outputs = self;
       inherit system;
     };
