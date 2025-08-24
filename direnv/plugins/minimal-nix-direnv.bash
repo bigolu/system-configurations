@@ -199,7 +199,12 @@ function _mnd_build_new_shell {
     #
     # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
     'mk_shell')
-      local -r tmp_profile="$prefix/tmp-profile"
+      # Add the PID to the profile name to avoid a race condition between multiple
+      # instances of direnv e.g. a direnv editor extension and the terminal. Without
+      # this, one direnv instance can delete the tmp profile before the other
+      # instance is able to run `realpath` further down so instead we give each
+      # instance its own profile.
+      local -r tmp_profile="$prefix/tmp-profile-$$"
 
       if [[ $type == 'packages' ]]; then
         IFS=' ' args=(
@@ -235,9 +240,7 @@ function _mnd_build_new_shell {
 
       _new_shell="$(realpath "$tmp_profile")"
 
-      # We use `-f` to avoid a race condition between multiple instances of direnv
-      # e.g. a direnv editor extension and the terminal.
-      rm -f "$tmp_profile"*
+      rm "$tmp_profile"*
       ;;
     *)
       _mnd_log_error "Unknown dev shell type: $type"
