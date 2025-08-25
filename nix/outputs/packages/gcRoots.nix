@@ -21,7 +21,7 @@
 }:
 nixpkgs.callPackage (
   {
-    nvd,
+    dix,
     coreutils,
     writeTextFile,
   }:
@@ -153,7 +153,7 @@ nixpkgs.callPackage (
 
         snippet =
           let
-            nvdExe = getExe nvd;
+            dixExe = getExe dix;
             ln = getExe' coreutils "ln";
             mkdir = getExe' coreutils "mkdir";
 
@@ -168,7 +168,7 @@ nixpkgs.callPackage (
 
             devShellDiffSnippet = ''
               if [[ -e ${devShellRootPath} ]]; then
-                ${nvdExe} --color=never diff ${devShellRootPath} "$new_shell"
+                ${dixExe} ${devShellRootPath} "$new_shell"
               fi
             '';
           in

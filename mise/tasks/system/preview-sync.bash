@@ -1,6 +1,6 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter nvd
+#! nix-shell --packages nix-shell-interpreter dix
 #MISE description='Preview system config application'
 #USAGE long_about """
 #USAGE   Show a preview of what changes would be made to the system if you applied \
@@ -26,4 +26,4 @@ else
   )"
 fi
 
-nvd --color=never diff "$oldGenerationPath" "$newGenerationPath"
+dix "$oldGenerationPath" "$newGenerationPath"

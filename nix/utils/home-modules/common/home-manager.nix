@@ -55,7 +55,7 @@ mkMerge [
         printGenerationDiff = hm.dag.entryAnywhere ''
           # On the first activation, there won't be an old generation.
           if [[ -n "''${oldGenPath:-}" ]] ; then
-            ${getExe pkgs.nvd} --color=never diff $oldGenPath $newGenPath
+            ${getExe pkgs.dix} $oldGenPath $newGenPath
           fi
         '';
 

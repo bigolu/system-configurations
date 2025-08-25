@@ -21,7 +21,7 @@ in
 
       if [[ -e /run/current-system && (! /run/current-system -ef "$systemConfig") ]]; then
         printf '\e[1m[bigolu] Printing generation diff\e(B\e[m\n' >&2
-        ${getExe pkgs.nvd} --color=never diff "$(readlink -f /run/current-system)" "$systemConfig"
+        ${getExe pkgs.dix} "$(readlink -f /run/current-system)" "$systemConfig"
       fi
     '';
   };
