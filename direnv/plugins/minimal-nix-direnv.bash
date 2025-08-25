@@ -44,7 +44,8 @@ function use_nix {
   local -r _mnd_cached_env_script="$_mnd_cache_directory/env.bash"
   local -r _mnd_cached_env_args="$_mnd_cache_directory/env-args.txt"
 
-  IFS=' ' local -r _mnd_new_env_args="$_mnd_env_type ${env_build_args[*]}"
+  local IFS=' '
+  local -r _mnd_new_env_args="$_mnd_env_type ${env_build_args[*]}"
 
   local should_update
   _mnd_should_update \
@@ -219,7 +220,8 @@ function _mnd_build_new_env {
       local -r tmp_profile="$cache_directory/tmp-profile-$$"
 
       if [[ $env_type == 'packages' ]]; then
-        IFS=' ' env_build_args=(
+        local IFS=' '
+        env_build_args=(
           --impure
           --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${env_build_args[*]} ]; }"
         )
