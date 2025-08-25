@@ -377,6 +377,11 @@ check:
                   glob:
                     - flake.lock
                   run: "{run_fix} mise run lefthook:check:add-go-version-to-go-mod"
+                - name: npins
+                  glob:
+                    - flake.lock
+                    - npins/*
+                  run: npins upgrade
 
                 # Formatters
                 # -------------------------------------------------------------------
