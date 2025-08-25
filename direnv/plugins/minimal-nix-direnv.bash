@@ -136,6 +136,8 @@ function _mnd_set_fallback_trap {
     if [[ -e "$_mnd_global_cached_env_script" ]]; then
       _mnd_log_error "Something went wrong, loading the last environment"
 
+      # Consider the cached environment script up to date.
+      #
       # A built-in alternative to `touch`. Though, if the file did not initially end
       # with a newline, this would add one, but that is not a problem here.
       echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
