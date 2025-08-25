@@ -42,11 +42,14 @@ function use_nix {
   # Keep a symlink to the environment so we can ensure it still exists
   local -r _mnd_cached_env="$_mnd_cache_directory/env"
   local -r _mnd_cached_env_script="$_mnd_cache_directory/env.bash"
-  local _mnd_cached_env_args="$_mnd_env_type ${env_build_args[*]}"
-  _mnd_cached_env_args="$_mnd_cache_directory/args: ${_mnd_cached_env_args//\//}"
+  local -r _mnd_cached_env_args="$_mnd_cache_directory/env-args.txt"
+
+  IFS=' ' local -r _mnd_new_env_args="$_mnd_env_type ${env_build_args[*]}"
 
   local should_update
-  _mnd_should_update should_update "$_mnd_cached_env" "$_mnd_cached_env_script" "$_mnd_cached_env_args"
+  _mnd_should_update \
+    should_update \
+    "$_mnd_cached_env" "$_mnd_cached_env_script" "$_mnd_cached_env_args" "$_mnd_new_env_args"
   if [[ $should_update != 'true' ]]; then
     # shellcheck disable=1090
     source "$_mnd_cached_env_script"
@@ -75,7 +78,7 @@ function use_nix {
     "$_mnd_cache_directory" "$_mnd_env_type" \
     "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
     "$_mnd_new_env" "$_mnd_cached_env" \
-    "$_mnd_cached_env_args"
+    "$_mnd_new_env_args" "$_mnd_cached_env_args"
 }
 
 function _mnd_cache {
@@ -83,7 +86,7 @@ function _mnd_cache {
     cache_directory="$1" env_type="$2" \
     new_env_script_contents="$3" cached_env_script="$4" \
     new_env="$5" cached_env="$6" \
-    cached_env_args="$7"
+    new_env_args="$7" cached_env_args="$8"
 
   # Why we use `-f`:
   #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
@@ -94,8 +97,7 @@ function _mnd_cache {
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
   # a direnv editor extension and the terminal.
   ln -nfs "$new_env" "$cached_env"
-  # A built-in alternative to `touch`
-  : >"$cached_env_args"
+  echo "$new_env_args" >"$cached_env_args"
   if [[ $env_type == 'packages' ]]; then
     _mnd_nix build --out-link "$cache_directory/env-gc-root" "$new_env"
   fi
@@ -165,9 +167,10 @@ function _mnd_should_update {
   local -r cached_env="$2"
   local -r cached_env_script="$3"
   local -r cached_env_args="$4"
+  local -r new_env_args="$5"
 
   _should_update=false
-  if [[ ! -e $cached_env || ! -e $cached_env_script || ! -e $cached_env_args ]]; then
+  if [[ ! -e $cached_env || ! -e $cached_env_script || $(<"$cached_env_args") != "$new_env_args" ]]; then
     _should_update=true
   else
     local -a watched_files
