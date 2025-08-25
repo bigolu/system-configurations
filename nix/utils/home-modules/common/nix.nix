@@ -212,6 +212,8 @@ in
       tarball-ttl = 0;
 
       keep-outputs = true;
+
+      show-trace = true;
     };
   };
 }
