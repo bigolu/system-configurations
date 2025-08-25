@@ -53,7 +53,10 @@ import ./nix/make-outputs.nix {
       nix-gl-host.outputs = import inputs.nix-gl-host { pkgs = nixpkgs; };
       # TODO: Use the npins in nixpkgs once it has this commit:
       # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
-      npins.outputs = import inputs.npins { pkgs = nixpkgs; };
+      #
+      # TODO: Don't override the nixpkgs that npins uses until it stops using the
+      # apple SDK that's been removed.
+      npins.outputs = import inputs.npins { };
       nix-mk-shell-bin.outputs.lib.mkShellBin = import "${inputs.nix-mk-shell-bin}/make.nix";
       devshell.outputs = import inputs.devshell {
         inherit nixpkgs;
