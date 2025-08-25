@@ -94,6 +94,7 @@ function _mnd_cache {
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
   # a direnv editor extension and the terminal.
   ln -nfs "$new_env" "$cached_env"
+  # A built-in alternative to `touch`
   : >"$cached_env_args"
   if [[ $env_type == 'packages' ]]; then
     _mnd_nix build --out-link "$cache_directory/env-gc-root" "$new_env"
