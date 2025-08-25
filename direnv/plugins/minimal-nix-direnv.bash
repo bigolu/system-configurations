@@ -39,12 +39,12 @@ function use_nix {
 
   local _mnd_cache_directory
   _mnd_get_cache_directory _mnd_cache_directory
-  # Keep a symlink to the shell so we can ensure it still exists
-  local -r _mnd_cached_shell="$_mnd_cache_directory/shell"
+  # Keep a symlink to the environment so we can ensure it still exists
+  local -r _mnd_cached_env="$_mnd_cache_directory/env"
   local -r _mnd_cached_env_script="$_mnd_cache_directory/env.bash"
 
   local should_update
-  _mnd_should_update should_update "$_mnd_cached_shell" "$_mnd_cached_env_script"
+  _mnd_should_update should_update "$_mnd_cached_env" "$_mnd_cached_env_script"
   if [[ $should_update != 'true' ]]; then
     # shellcheck disable=1090
     source "$_mnd_cached_env_script"
@@ -54,10 +54,10 @@ function use_nix {
   local _mnd_original_trap
   _mnd_set_fallback_trap _mnd_original_trap "$_mnd_cached_env_script"
 
-  local _mnd_new_shell
+  local _mnd_new_env
   local _mnd_new_env_script_contents
-  _mnd_build_new_shell \
-    _mnd_new_shell _mnd_new_env_script_contents \
+  _mnd_build_new_env \
+    _mnd_new_env _mnd_new_env_script_contents \
     "$_mnd_cache_directory" "$_mnd_env_type" "${env_build_args[@]}"
 
   eval "$_mnd_new_env_script_contents"
@@ -72,14 +72,14 @@ function use_nix {
   _mnd_cache \
     "$_mnd_cache_directory" "$_mnd_env_type" \
     "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
-    "$_mnd_new_shell" "$_mnd_cached_shell"
+    "$_mnd_new_env" "$_mnd_cached_env"
 }
 
 function _mnd_cache {
   local -r \
     cache_directory="$1" env_type="$2" \
     new_env_script_contents="$3" cached_env_script="$4" \
-    new_shell="$5" cached_shell="$6"
+    new_env="$5" cached_env="$6"
 
   # Why we use `-f`:
   #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
@@ -89,9 +89,9 @@ function _mnd_cache {
   echo "$new_env_script_contents" >"$cached_env_script"
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
   # a direnv editor extension and the terminal.
-  ln -nfs "$new_shell" "$cached_shell"
+  ln -nfs "$new_env" "$cached_env"
   if [[ $env_type == 'packages' ]]; then
-    _mnd_nix build --out-link "$cache_directory/shell-gc-root" "$new_shell"
+    _mnd_nix build --out-link "$cache_directory/env-gc-root" "$new_env"
   fi
 }
 
@@ -126,7 +126,7 @@ function _mnd_set_fallback_trap {
   # Without it, I got a similar error.
   trap -- '
     if [[ -e "$_mnd_global_cached_env_script" ]]; then
-      _mnd_log_error "Something went wrong, loading the last dev shell"
+      _mnd_log_error "Something went wrong, loading the last environment"
 
       # A built-in alternative to `touch`. Though, if the file did not initially end
       # with a newline, this would add one, but that is not a problem here.
@@ -156,11 +156,11 @@ function _mnd_set_fallback_trap {
 
 function _mnd_should_update {
   local -n _should_update=$1
-  local -r cached_shell="$2"
+  local -r cached_env="$2"
   local -r cached_env_script="$3"
 
   _should_update=false
-  if [[ ! -e $cached_shell || ! -e $cached_env_script ]]; then
+  if [[ ! -e $cached_env || ! -e $cached_env_script ]]; then
     _should_update=true
   else
     local -a watched_files
@@ -180,8 +180,8 @@ function _mnd_should_update {
   fi
 }
 
-function _mnd_build_new_shell {
-  local -n _new_shell=$1
+function _mnd_build_new_env {
+  local -n _new_env=$1
   local -n _new_env_script_contents=$2
   local -r cache_directory="$3"
   local -r env_type="$4"
@@ -190,8 +190,8 @@ function _mnd_build_new_shell {
   case "$env_type" in
     # numtide/devshell
     'devshell')
-      _new_shell="$(_mnd_nix build --no-link --print-out-paths "${env_build_args[@]}")"
-      _new_env_script_contents="$(<"$_new_shell/env.bash")"
+      _new_env="$(_mnd_nix build --no-link --print-out-paths "${env_build_args[@]}")"
+      _new_env_script_contents="$(<"$_new_env/env.bash")"
       ;;
     'packages') ;&
     # Nix is changing the format for dev shells[1] so this will need to be updated
@@ -238,7 +238,7 @@ function _mnd_build_new_shell {
         done
       '
 
-      _new_shell="$(realpath "$tmp_profile")"
+      _new_env="$(realpath "$tmp_profile")"
 
       rm "$tmp_profile"*
       ;;
