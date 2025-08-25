@@ -144,7 +144,7 @@ in
     gc = {
       automatic = true;
       options = "--delete-old";
-      frequency = "monthly";
+      dates = "monthly";
     };
 
     registry = {
