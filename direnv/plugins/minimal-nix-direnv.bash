@@ -37,11 +37,11 @@ function use_nix {
   # they will be used.
   local -ra env_build_args=("${@:2}")
 
-  local _mnd_prefix
-  _mnd_get_prefix _mnd_prefix
+  local _mnd_cache_directory
+  _mnd_get_cache_directory _mnd_cache_directory
   # Keep a symlink to the shell so we can ensure it still exists
-  local -r _mnd_cached_shell="$_mnd_prefix/shell"
-  local -r _mnd_cached_env_script="$_mnd_prefix/env.bash"
+  local -r _mnd_cached_shell="$_mnd_cache_directory/shell"
+  local -r _mnd_cached_env_script="$_mnd_cache_directory/env.bash"
 
   local should_update
   _mnd_should_update should_update "$_mnd_cached_shell" "$_mnd_cached_env_script"
@@ -58,7 +58,7 @@ function use_nix {
   local _mnd_new_env_script_contents
   _mnd_build_new_shell \
     _mnd_new_shell _mnd_new_env_script_contents \
-    "$_mnd_prefix" "$_mnd_env_type" "${env_build_args[@]}"
+    "$_mnd_cache_directory" "$_mnd_env_type" "${env_build_args[@]}"
 
   eval "$_mnd_new_env_script_contents"
 
@@ -70,14 +70,14 @@ function use_nix {
 
   trap -- "$_mnd_original_trap" EXIT
   _mnd_cache \
-    "$_mnd_prefix" "$_mnd_env_type" \
+    "$_mnd_cache_directory" "$_mnd_env_type" \
     "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
     "$_mnd_new_shell" "$_mnd_cached_shell"
 }
 
 function _mnd_cache {
   local -r \
-    prefix="$1" env_type="$2" \
+    cache_directory="$1" env_type="$2" \
     new_env_script_contents="$3" cached_env_script="$4" \
     new_shell="$5" cached_shell="$6"
 
@@ -85,25 +85,25 @@ function _mnd_cache {
   #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
   #     editor extension and the terminal.
   #   - Avoid an error if the directory is empty
-  rm -f "$prefix/"*
+  rm -f "$cache_directory/"*
   echo "$new_env_script_contents" >"$cached_env_script"
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
   # a direnv editor extension and the terminal.
   ln -nfs "$new_shell" "$cached_shell"
   if [[ $env_type == 'packages' ]]; then
-    _mnd_nix build --out-link "$prefix/shell-gc-root" "$new_shell"
+    _mnd_nix build --out-link "$cache_directory/shell-gc-root" "$new_shell"
   fi
 }
 
-function _mnd_get_prefix {
-  local -n _prefix=$1
+function _mnd_get_cache_directory {
+  local -n _cache_directory=$1
 
-  _prefix="$(direnv_layout_dir)/minimal-nix-direnv"
-  if [[ ! -d $_prefix ]]; then
+  _cache_directory="$(direnv_layout_dir)/minimal-nix-direnv"
+  if [[ ! -d $_cache_directory ]]; then
     # Besides creating parent directories, we also use `-p` to avoid a race condition
     # between multiple instances of direnv e.g. a direnv editor extension and the
     # terminal.
-    mkdir -p "$_prefix"
+    mkdir -p "$_cache_directory"
   fi
 }
 
@@ -183,7 +183,7 @@ function _mnd_should_update {
 function _mnd_build_new_shell {
   local -n _new_shell=$1
   local -n _new_env_script_contents=$2
-  local -r prefix="$3"
+  local -r cache_directory="$3"
   local -r env_type="$4"
   local -a env_build_args=("${@:5}")
 
@@ -204,7 +204,7 @@ function _mnd_build_new_shell {
       # this, one direnv instance can delete the tmp profile before the other
       # instance is able to run `realpath` further down so instead we give each
       # instance its own profile.
-      local -r tmp_profile="$prefix/tmp-profile-$$"
+      local -r tmp_profile="$cache_directory/tmp-profile-$$"
 
       if [[ $env_type == 'packages' ]]; then
         IFS=' ' env_build_args=(
