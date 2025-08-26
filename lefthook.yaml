@@ -512,7 +512,7 @@ check:
                     # --configpath is relative to the directory being checked so I'm
                     # using an absolute path instead.
                     lua-language-server \
-                      --logpath "$DEV_SHELL_STATE/lua-ls-logs" \
+                      --logpath "$(mktemp --directory)/lua-ls-logs" \
                       --check ./dotfiles/neovim \
                       --configpath "$PWD/.luarc.json"
                 - name: nix-config
