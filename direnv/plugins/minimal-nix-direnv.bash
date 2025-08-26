@@ -173,7 +173,12 @@ function _mnd_should_update {
   local -r new_env_args_string="$5"
 
   _should_update=false
-  if [[ ! -e $cached_env || ! -e $cached_env_script || $(<"$cached_env_args") != "$new_env_args_string" ]]; then
+  if
+    [[ ! -e $cached_env ||
+      ! -e $cached_env_script ||
+      ! -e $cached_env_args ||
+      $(<"$cached_env_args") != "$new_env_args_string" ]]
+  then
     _should_update=true
   else
     local -a watched_files
