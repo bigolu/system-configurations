@@ -57,8 +57,8 @@ in
                 ];
           };
 
-          path = optionalAttrs (!inCi) {
-            pins = filterAttrs (
+          path = optionalAttrs (!inCi) (
+            filterAttrs (
               name: pin:
               ((hasPrefix "config-file-validator-" name) -> (hasSuffix system name))
               && (
@@ -75,8 +75,8 @@ in
                     ]
                 ))
               )
-            ) pins;
-          };
+            ) pins
+          );
         };
       }).snippet;
 
