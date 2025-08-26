@@ -6,7 +6,7 @@ runs:
     # The action run after this, nix-community/cache-nix-action, depends on this
     # specific Nix installer. Though there's an open issue for supporting a different
     # installer: https://github.com/nix-community/cache-nix-action/issues/60
-    - uses: nixbuild/nix-quick-install-action@63ca48f939ee3b8d835f4126562537df0fee5b91 # v32
+    - uses: nixbuild/nix-quick-install-action@1f095fee853b33114486cfdeae62fa099cda35a9 # v33
       with:
         nix_conf: |
           # Increase the buffer limit to 2GiB since the buffer would often reach the
