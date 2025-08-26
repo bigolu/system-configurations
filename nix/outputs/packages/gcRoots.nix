@@ -144,7 +144,7 @@ nixpkgs.callPackage (
           name = "roots.txt";
           text = pipe roots [
             (map (
-              { prefixes, path }: path + optionalString (prefixes != [ ]) " (${concatStringsSep "." prefixes})"
+              { prefixes, path }: path + optionalString (prefixes != [ ]) "  ${concatStringsSep "." prefixes}"
             ))
             (sort lessThan)
             (concatStringsSep "\n")
