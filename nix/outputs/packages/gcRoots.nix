@@ -2,13 +2,9 @@
 #
 # [1]: https://github.com/NixOS/nix/issues/6895#issuecomment-2475461113
 
-# - Having all your roots in one place makes it easy to search them
 # - You can perform filtering on your roots which would be hard to do with
 #   nix-direnv. For example, filtering your npins' pins based on which platforms they
 #   apply to. This way, a macOS only pin won't have a GC root on Linux.
-# - Roots can be prefixed with names which is especially useful for flake inputs
-#   where the name portion of the store path is always "source". Having a prefix
-#   makes it easy to see what you made GC roots for.
 # - The option to show a diff of your dev shell when it changes.
 # - Roots are joined into a single derivation so you'll only have a single GC root
 #   per project, or two if you enabled the dev shell GC root. This is reduces noise
@@ -43,45 +39,21 @@ nixpkgs.callPackage (
       filter
       elem
       filterAttrs
-      sort
-      lessThan
+      attrValues
       ;
 
     handlers = {
-      #       <spec> -> <store_path> | list[<spec>] | attrset[<prefix> -> <spec>]
+      #       <spec> -> <store_path> | list[<spec>] | attrset[string -> <spec>]
       # <store_path> -> anything that can be coerced to a string that contains a store path
-      #     <prefix> -> string
-      #
-      # All prefixes leading to a store_path will be used as a label for the path.
       path =
-        let
-          pathHelper =
-            {
-              prefixes ? [ ],
-              spec,
-            }:
-            if isStorePath spec then
-              [
-                {
-                  inherit prefixes;
-                  path = spec;
-                }
-              ]
-            else if isList spec then
-              concatMap (spec: pathHelper { inherit prefixes spec; }) spec
-            else
-              concatMap
-                (
-                  { name, value }:
-                  pathHelper {
-                    prefixes = prefixes ++ [ name ];
-                    spec = value;
-                  }
-                )
-                # The set returned from npins has `__functor`
-                (attrsToList (removeAttrs spec [ "__functor" ]));
-        in
-        spec: pathHelper { inherit spec; };
+        spec:
+        if isStorePath spec then
+          [ spec ]
+        else if isList spec then
+          concatMap handlers.path spec
+        else
+          # The set returned from npins has `__functor`
+          handlers.path (attrValues (removeAttrs spec [ "__functor" ]));
 
       flake =
         let
@@ -99,13 +71,8 @@ nixpkgs.callPackage (
                   removeExcluded = filterAttrs (_name: input: !(elem input.outPath excludeOutPaths));
 
                   toClosureNodes = mapAttrsToList (
-                    name: input:
-                    input
-                    // {
-                      inherit name;
-                      # Used by `genericClosure` for equality checks
-                      key = input.outPath;
-                    }
+                    # Used by `genericClosure` for equality checks
+                    _name: input: input // { key = input.outPath; }
                   );
                 in
                 inputs:
@@ -127,10 +94,7 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          (map (input: {
-            ${input.name} = input;
-          }))
-          (inputs: handlers.path { flake = inputs; })
+          handlers.path
         ];
     };
 
@@ -142,13 +106,7 @@ nixpkgs.callPackage (
       let
         derivation = writeTextFile {
           name = "roots.txt";
-          text = pipe roots [
-            (map (
-              { prefixes, path }: path + optionalString (prefixes != [ ]) "  ${concatStringsSep "." prefixes}"
-            ))
-            (sort lessThan)
-            (concatStringsSep "\n")
-          ];
+          text = concatStringsSep "\n" roots;
         };
 
         snippet =
