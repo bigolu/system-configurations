@@ -12,7 +12,7 @@
 #     invalidations. This is due to flake's builtin gitignore support.
 #
 # There's an open issue[2] in CppNix for copying flakes to the store lazily, but Lix
-# has no plans to implement it[3] so I'll stick with flake-compat.
+# has no plans to implement it anytime soon[3] so I'll stick with flake-compat.
 #
 # [1]: https://git.lix.systems/lix-project/flake-compat
 # [2]: https://github.com/NixOS/nix/issues/3121

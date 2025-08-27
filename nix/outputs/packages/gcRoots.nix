@@ -43,17 +43,19 @@ nixpkgs.callPackage (
       ;
 
     handlers = {
-      #       <spec> -> <store_path> | list[<spec>] | attrset[string -> <spec>]
-      # <store_path> -> anything that can be coerced to a string that contains a store path
+      /*
+        config    = storePath | list[config] | attrSet[string -> config]
+        storePath = anything that can be coerced to a string that contains a store path
+      */
       path =
-        spec:
-        if isStorePath spec then
-          [ spec ]
-        else if isList spec then
-          concatMap handlers.path spec
+        config:
+        if isStorePath config then
+          [ config ]
+        else if isList config then
+          concatMap handlers.path config
         else
           # The set returned from npins has `__functor`
-          handlers.path (attrValues (removeAttrs spec [ "__functor" ]));
+          handlers.path (attrValues (removeAttrs config [ "__functor" ]));
 
       flake =
         let
@@ -87,8 +89,8 @@ nixpkgs.callPackage (
               operator = input: processInputs (input.inputs or { });
             };
         in
-        spec:
-        pipe spec [
+        config:
+        pipe config [
           getInputsRecursive
           # If these inputs came from `lix/flake-compat` and `copySourceTreeToStore`
           # is false, then the outPath of any local flakes will not be a store path.
