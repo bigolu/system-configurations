@@ -145,8 +145,5 @@ if vim.fn.executable("nix") == 1 then
     end
   end
 
-  require("lazy-lsp").setup({
-    prefer_local = true,
-    excluded_servers = excluded_servers,
-  })
+  require("lazy-lsp").setup({ excluded_servers = excluded_servers })
 end
