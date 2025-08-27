@@ -59,6 +59,8 @@ let
   linux = mkIf (hasGui && isLinux) {
     repository.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
 
+    home.packages = [ pkgs.keyd ];
+
     system = {
       systemd.units = [
         "${pkgs.keyd}/lib/systemd/system/keyd.service"
