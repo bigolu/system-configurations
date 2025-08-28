@@ -15,6 +15,7 @@ let
     fileset
     isAttrs
     isPath
+    id
     ;
   inherit (pkgs) runCommand;
 
@@ -68,9 +69,7 @@ let
   # [1]: https://nix.dev/manual/nix/2.30/language/builtins.html#builtins-parseDrvName
   unstableVersion = "0-unstable";
 
-  applyIf =
-    shouldApply: function: arg:
-    if shouldApply then function arg else arg;
+  callIf = condition: function: if condition then function else id;
 
   gitFilter =
     let
@@ -83,7 +82,7 @@ let
     let
       clean = cleanSourceWith {
         inherit filter;
-        src = applyIf (isAttrs filesetOrPath) fileset.toSource filesetOrPath;
+        src = callIf (isAttrs filesetOrPath) fileset.toSource filesetOrPath;
       };
       # Returning a fileset to allow for further filtering
       fs = fileset.fromSource clean;
@@ -123,7 +122,7 @@ in
     projectRoot
     homeManager
     unstableVersion
-    applyIf
+    callIf
     gitFilter
     linkFarm
     ;

@@ -43,7 +43,7 @@ let
   inherit (lib.filesystem) listFilesRecursive;
   inherit (lib.strings) unsafeDiscardStringContext;
   inherit (config.lib.file) mkOutOfStoreSymlink;
-  inherit (utils) applyIf;
+  inherit (utils) callIf;
   inherit (pkgs) writeScript;
 in
 {
@@ -239,10 +239,10 @@ in
           homeManagerSource = pipe file.source [
             toAbsolutePath
             (if isEditableInstall then mkOutOfStoreSymlink else toPath)
-            (applyIf (isExecutable file && !isEditableInstall) replaceShebangInterpreter)
+            (callIf (isExecutable file && !isEditableInstall) replaceShebangInterpreter)
           ];
 
-          homeManagerTarget = applyIf (file.removeExtension or false) removeExtension file.target;
+          homeManagerTarget = callIf (file.removeExtension or false) removeExtension file.target;
         in
         pipe file [
           removeNonHomeManagerAttrs
@@ -269,7 +269,7 @@ in
           toPath
 
           # Flakes have built-in gitignore support
-          (path: applyIf (!inPureEvalMode) utils.gitFilter (if isStorePath path then path else /. + path))
+          (path: callIf (!inPureEvalMode) utils.gitFilter (if isStorePath path then path else /. + path))
 
           # Use relative paths to account for the case where the source directory
           # doesn't match the directory we list the files from. This can happen

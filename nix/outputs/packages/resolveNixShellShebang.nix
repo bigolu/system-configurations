@@ -38,7 +38,7 @@ nixpkgs.callPackage (
     resolveDirectory =
       let
         inherit (lib.filesystem) listFilesRecursive;
-        inherit (utils) applyIf linkFarm;
+        inherit (utils) callIf linkFarm;
 
         listRelativeFilesRecursive =
           directory:
@@ -60,7 +60,7 @@ nixpkgs.callPackage (
         listRelativeFilesRecursive
         (map (file: {
           name = file;
-          path = applyIf (hasNixShellDirective "${directory}/${file}") resolveFile "${directory}/${file}";
+          path = callIf (hasNixShellDirective "${directory}/${file}") resolveFile "${directory}/${file}";
         }))
         (linkFarm "resolved-${baseNameOf directory}")
       ];
