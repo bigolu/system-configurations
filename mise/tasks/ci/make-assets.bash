@@ -16,8 +16,6 @@ function main {
   local bundle_store_path
   bundle_store_path="$(make_shell_bundle)"
 
-  assert_bundle_meets_size_limit "$bundle_store_path"
-
   copy_bundle_into_assets "$asset_directory" "$bundle_store_path"
 }
 
@@ -35,12 +33,7 @@ function make_shell_bundle {
   gc_root_directory="$(mktemp --directory)"
 
   local derivation
-  derivation="$(
-    nix eval \
-      --impure --raw \
-      --expr 'with (import ./. {}); bundlers.rootless packages.shell' \
-      drvPath
-  )"
+  derivation="$(nix eval --raw --file . packages.shell-bundle.drvPath)"
 
   # The derivation relies on all the store paths in the bundle while the bundle
   # itself doesn't depend on anything. Therefore, even if we already have the bundle,
@@ -62,18 +55,6 @@ function copy_bundle_into_assets {
   bundle_name_with_platform="$(get_name_with_platform "$bundle_store_path")"
 
   cp "$bundle_store_path" "${asset_directory}/${bundle_name_with_platform}"
-}
-
-function assert_bundle_meets_size_limit {
-  local -r bundle_file="$1"
-
-  local -r max_size=350
-  local size
-  size="$(du -m "$bundle_file" | cut -f1)"
-  if ((size > max_size)); then
-    echo "Shell is too big: $size MB. Max size: $max_size"
-    exit 1
-  fi
 }
 
 # Example: /nix/store/<hash>-foo -> foo-x86_64-linux

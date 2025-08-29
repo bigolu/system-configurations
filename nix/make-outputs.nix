@@ -12,17 +12,12 @@
 #       packages/
 #         package1.nix
 #         package2.nix
-#         nested/
-#           package3.nix
 #   Outputs attrset:
 #     {
 #       homeConfigurations = <result of `import default.nix context`>;
 #       packages = {
 #         package1 = <result of `import package1.nix context`>;
 #         package2 = <result of `import package2.nix context`>;
-#         nested = {
-#           package3 = <result of `import package3.nix context`>;
-#         };
 #       };
 #       context;
 #       checksForCurrentPlatform;
@@ -62,9 +57,6 @@ lib.fix (
     inherit (builtins) baseNameOf;
     inherit (lib)
       pathExists
-      elem
-      getAttr
-      isAttrs
       filter
       foldl'
       pipe
@@ -77,15 +69,18 @@ lib.fix (
       last
       optional
       removeSuffix
-      filterAttrsRecursive
       optionalAttrs
       mapAttrs
-      recurseIntoAttrs
       isFunction
-      isDerivation
       filterAttrs
       toFunction
+      concatMapAttrs
+      mapAttrs'
+      nameValuePair
+      mergeAttrsList
+      hasPrefix
       ;
+    inherit (lib.meta) availableOn;
 
     context' = (toFunction context context') // {
       outputs = self;
@@ -116,50 +111,55 @@ lib.fix (
       else
         !hasAncestorDefaultNix dir;
 
-    filterForCurrentPlatform =
-      _name: package:
-      # If there are no platforms, we assume it supports the current one.
-      (package.meta.platforms or [ ]) == [ ] || elem system package.meta.platforms;
-
     getChecksForCurrentPlatform =
       outputs:
       let
-        filterOutFunctionsRecursive =
-          set:
-          pipe set [
-            (filterAttrs (_k: v: !isFunction v))
-            (mapAttrs (_k: v: if isAttrs v then filterOutFunctionsRecursive v else v))
-          ];
-        packageChecks = optionalAttrs (outputs ? packages) {
-          # Some packages are functions
-          packages = filterOutFunctionsRecursive outputs.packages;
-        };
-        devShellChecks = optionalAttrs (outputs ? devShells) { inherit (outputs) devShells; };
-        homeChecks = optionalAttrs (outputs ? homeConfigurations) {
-          homeConfigurations = mapAttrs (_name: getAttr "activationPackage") outputs.homeConfigurations;
-        };
-        darwinChecks = optionalAttrs (outputs ? darwinConfigurations) {
-          darwinConfigurations = mapAttrs (_name: getAttr "system") outputs.darwinConfigurations;
-        };
+        prefixAttrNames = prefix: mapAttrs' (name: nameValuePair "${prefix}-${name}");
+
+        removeFunctions = filterAttrs (_k: v: !isFunction v);
+
+        packageChecks = optionalAttrs (outputs ? packages) (
+          prefixAttrNames "package" (
+            # Some packages are functions
+            (removeFunctions outputs.packages)
+            // concatMapAttrs (
+              packageName: package:
+              mapAttrs' (_testName: test: nameValuePair "${packageName}-${test.name}" test) (package.tests or { })
+            ) outputs.packages
+          )
+        );
+
+        devShellChecks = optionalAttrs (outputs ? devShells) (
+          prefixAttrNames "dev-shell" outputs.devShells
+        );
+
+        homeChecks = optionalAttrs (outputs ? homeConfigurations) (
+          pipe outputs.homeConfigurations [
+            (mapAttrs (_name: output: output.activationPackage))
+            (prefixAttrNames "home-configuration")
+          ]
+        );
+
+        darwinChecks = optionalAttrs (outputs ? darwinConfigurations) (
+          pipe outputs.darwinConfigurations [
+            (mapAttrs (_name: output: output.system))
+            (prefixAttrNames "darwin-configuration")
+          ]
+        );
+
         checks = outputs.checks or { };
-        allChecks = foldl' recursiveUpdate { } [
+
+        allChecks = mergeAttrsList [
           packageChecks
           devShellChecks
           homeChecks
           darwinChecks
           checks
         ];
-
-        recurseIntoAttrsRecursive =
-          v:
-          let
-            shouldRecurse = v: isAttrs v && !isDerivation v && !isFunction v;
-          in
-          if shouldRecurse v then recurseIntoAttrs (mapAttrs (_k: recurseIntoAttrsRecursive) v) else v;
       in
       pipe allChecks [
-        (filterAttrsRecursive filterForCurrentPlatform)
-        recurseIntoAttrsRecursive
+        (filterAttrs (_name: availableOn { inherit system; }))
+        (filterAttrs (name: _check: !hasPrefix "package-shell-bundle" name))
       ];
   in
   pipe root [

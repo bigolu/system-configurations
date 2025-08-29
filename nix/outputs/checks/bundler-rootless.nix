@@ -12,7 +12,6 @@ in
 nixpkgs.runCommand name { } ''
   [[ $(${bundledHello}) == $(${hello}) ]]
 
-  # Nix only considers the command to be successful if something is written
-  # to $out.
-  echo success > $out
+  # Nix only considers the build to be successful if something is written to $out.
+  touch $out
 ''
