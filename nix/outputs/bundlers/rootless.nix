@@ -18,7 +18,6 @@ nixpkgs.callPackage (
       baseNameOf
       concatStringsSep
       attrNames
-      hasAttr
       getName
       warn
       getExe'
@@ -118,7 +117,8 @@ nixpkgs.callPackage (
     known-types = concatStringsSep ", " (attrNames handlers);
   in
   drv:
-  assert assertMsg (hasAttr drv.type handlers)
-    "don't know how to make a bundle for type '${drv.type}'; only know ${known-types}";
+  assert assertMsg (
+    handlers ? ${drv.type}
+  ) "unable to make a bundle for unknown type '${drv.type}'; known types: ${known-types}";
   handlers.${drv.type} drv
 ) { }

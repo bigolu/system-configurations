@@ -159,11 +159,13 @@ nixpkgs.callPackage (
             # infinite recursion: To get the shell's outPath, we need the shellHook
             # which would include this snippet. And to get this snippet, we need the
             # shell's outPath. Instead, we make a separate GC root for the dev shell
-            # at runtime. We can't always rely on `builtins.placeholder "out"`
-            # pointing to the shell derivation because at least in the case of
-            # numtide/devshell, the shellHook is not on the same derivation as the
-            # shell. In those cases, we'll check certain environment variables that
-            # should have the shell store path.
+            # at runtime.
+            #
+            # We can't always rely on `builtins.placeholder "out"` pointing to the
+            # shell derivation because at least in the case of numtide/devshell, the
+            # shellHook is not on the same derivation as the shell. In those cases,
+            # we'll check certain environment variables that should have the shell
+            # store path.
             new_shell=
             if [[ -n $DEVSHELL_DIR ]]; then
               new_shell="$DEVSHELL_DIR"
