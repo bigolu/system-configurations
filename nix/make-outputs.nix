@@ -43,7 +43,7 @@
 #   debugging in the REPL. The key "checksForCurrentPlatform" will also be added to
 #   the outputs and will contain only the checks that support the current platform.
 #   This is useful for running checks in CI. It uses any derivations found in
-#   `outputs.checks`, recursively, and automatically generates checks for
+#   `outputs.checks` and automatically generates checks for
 #   outputs.{packages,devShells,homeConfigurations,darwinConfigurations}.
 {
   root,

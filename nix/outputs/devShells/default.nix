@@ -67,7 +67,7 @@ makeShells
           # If a CI run fails, we'll have all the debug information without
           # having to rerun it.
           export LOG_LEVEL='debug'
-          if [[ $CI_DEBUG == 'true' ]]; then
+          if [[ ''${CI:-} != 'true' ]]; then
             export RENOVATE_DRY_RUN='full'
           fi
 

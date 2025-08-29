@@ -44,7 +44,5 @@ nix shell \
   --ignore-environment \
   --set-env-var HOME "$temp_home" \
   --set-env-var DEV_SHELL_STATE "$temp_dev_shell_state" \
-  --set-env-var CI true \
-  --set-env-var CI_DEBUG true \
   --file nix/packages nix git \
   --command nix run --file . "devShells.${usage_nix_dev_shell:?}"

@@ -100,7 +100,7 @@ function find_issue {
 }
 
 function gh {
-  if [[ ${CI:-} == 'true' && ${CI_DEBUG:-} != true ]]; then
+  if [[ ${CI:-} == 'true' ]]; then
     command gh "$@"
   else
     echo 'gh:' "$@" >&2
