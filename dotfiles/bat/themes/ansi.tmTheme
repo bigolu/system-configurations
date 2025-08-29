@@ -71,14 +71,33 @@
             </dict>
             <dict>
                 <key>name</key>
+                <string>Strings</string>
+                <key>scope</key>
+                <string>string</string>
+                <key>settings</key>
+                <dict>
+                    <key>foreground</key>
+                    <string>#0e000000</string>
+                </dict>
+            </dict>
+            <dict>
+                <key>name</key>
                 <string>Overrides</string>
                 <key>scope</key>
+                <!--
+                TODO: I only want to remove color from JSON property names, but
+                that scope isn't available[1] so I'll remove all colors.
+
+                [1]: https://github.com/sublimehq/Packages/blob/master/JSON/JSON.sublime-syntax
+                -->
                 <string>
                     entity.name.tag.yaml,
                     source.ini keyword,
                     source.yaml punctuation.definition.anchor,
                     keyword.control.flow.block-scalar,
+                    string.unquoted,
                     keyword.operator,
+                    source.json string,
                     source.shell variable,
                     source.shell punctuation.definition.variable.shell
                 </string>
