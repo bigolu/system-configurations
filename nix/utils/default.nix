@@ -105,14 +105,18 @@ let
     let
       linkCommands = concatMapStrings (
         { name, path }:
+        let
+          escapedName = escapeShellArg name;
+          escapedPath = escapeShellArg path;
+        in
         ''
-          mkdir -p -- "$(dirname -- ${escapeShellArg "${name}"})"
-          ln -s -- ${escapeShellArg "${path}"} ${escapeShellArg "${name}"}
+          mkdir --parents -- "$(dirname -- ${escapedName})"
+          ln --symbolic -- ${escapedPath} ${escapedName}
         ''
       ) entries;
     in
     runCommand name { } ''
-      mkdir -p $out
+      mkdir $out
       cd $out
       ${linkCommands}
     '';
