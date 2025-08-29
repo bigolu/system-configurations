@@ -26,8 +26,6 @@ let
     foldlAttrs
     pipe
     splitString
-    getExe
-    replaceString
     optionals
     inPureEvalMode
     length
@@ -35,7 +33,6 @@ let
     filter
     attrValues
     listToAttrs
-    readFile
     hasAttr
     concatMap
     isStorePath
@@ -44,7 +41,7 @@ let
   inherit (lib.strings) unsafeDiscardStringContext;
   inherit (config.lib.file) mkOutOfStoreSymlink;
   inherit (utils) callIf;
-  inherit (pkgs) writeScript;
+  inherit (pkgs) runCommand;
 in
 {
   options.repository =
@@ -215,11 +212,10 @@ in
 
           replaceShebangInterpreter =
             file:
-            pipe file [
-              readFile
-              (replaceString "/usr/bin/env bash" (getExe pkgs.bash))
-              (writeScript "patched-xdg-executable-${baseNameOf file}")
-            ];
+            runCommand "patched-xdg-executable-${baseNameOf file}" { src = builtins.path { path = file; }; } ''
+              cp $src $out
+              patchShebangs --host $out
+            '';
 
           removeExtension =
             path:
