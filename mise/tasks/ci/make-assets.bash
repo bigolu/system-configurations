@@ -44,9 +44,6 @@ function make_shell_bundle {
   local bundle_gc_root="$gc_root_directory/bundle-gc-root"
   # This will print the GC root path, not the store path, so we suppress it
   nix-store --add-root "$bundle_gc_root" --realise "$derivation" >/dev/null
-
-  nix build --no-link --file . packages.shell-bundle.tests
-
   realpath "$bundle_gc_root"
 }
 
