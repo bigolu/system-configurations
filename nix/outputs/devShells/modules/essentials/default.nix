@@ -61,6 +61,7 @@ in
             filterAttrs (
               name: pin:
               ((hasPrefix "config-file-validator-" name) -> (hasSuffix system name))
+              && ((hasPrefix "lychee-" name) -> (hasSuffix system name))
               && (
                 !(elem pin (
                   with pins;
