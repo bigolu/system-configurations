@@ -7,7 +7,7 @@ let
 in
 shellBundle
 // {
-  tests.maxSize = runCommand "max-size" { } ''
+  tests.max-size = runCommand "max-size" { } ''
     function format {
       numfmt --to=iec --suffix=B $1
     }

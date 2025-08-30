@@ -20,7 +20,7 @@
 #         package2 = <result of `import package2.nix context`>;
 #       };
 #       context;
-#       checksForCurrentPlatform;
+#       currentPlatformChecks;
 #     }
 #
 # Arguments:
@@ -40,7 +40,7 @@
 # Return:
 #   An attrset containing the outputs. The context will also be added to the attrset
 #   since it can be useful to access it from outside of an output file. For example,
-#   debugging in the REPL. The key "checksForCurrentPlatform" will also be added to
+#   debugging in the REPL. The key "currentPlatformChecks" will also be added to
 #   the outputs and will contain only the checks that support the current platform.
 #   This is useful for running checks in CI. It uses any derivations found in
 #   `outputs.checks` and automatically generates checks for
@@ -69,7 +69,6 @@ lib.fix (
       last
       optional
       removeSuffix
-      optionalAttrs
       mapAttrs
       isFunction
       filterAttrs
@@ -77,12 +76,12 @@ lib.fix (
       concatMapAttrs
       mapAttrs'
       nameValuePair
-      mergeAttrsList
       hasPrefix
+      optionalAttrs
       ;
     inherit (lib.meta) availableOn;
 
-    context' = (toFunction context context') // {
+    fullContext = (toFunction context fullContext) // {
       outputs = self;
       inherit system;
     };
@@ -95,7 +94,7 @@ lib.fix (
         basename = last parts;
         keys = (init parts) ++ optional (basename != "default.nix") (removeSuffix ".nix" basename);
       in
-      setAttrByPath keys (import file (context' // { name = last keys; }));
+      setAttrByPath keys (import file (fullContext // { name = last keys; }));
 
     shouldMakeOutputs =
       file:
@@ -111,54 +110,43 @@ lib.fix (
       else
         !hasAncestorDefaultNix dir;
 
-    getChecksForCurrentPlatform =
-      outputs:
+    makeAutoChecks =
       let
         prefixAttrNames = prefix: mapAttrs' (name: nameValuePair "${prefix}-${name}");
 
-        removeFunctions = filterAttrs (_k: v: !isFunction v);
+        handlers = {
+          packages =
+            packages:
+            let
+              nonFunctionPackages = filterAttrs (_k: v: !isFunction v) packages;
 
-        packageChecks = optionalAttrs (outputs ? packages) (
-          prefixAttrNames "package" (
-            # Some packages are functions
-            (removeFunctions outputs.packages)
-            // concatMapAttrs (
-              packageName: package:
-              mapAttrs' (_testName: test: nameValuePair "${packageName}-${test.name}" test) (package.tests or { })
-            ) outputs.packages
-          )
-        );
+              packageTests = concatMapAttrs (
+                packageName: package:
+                mapAttrs' (testName: nameValuePair "${packageName}-${testName}") (package.tests or { })
+              ) packages;
+            in
+            prefixAttrNames "package" (nonFunctionPackages // packageTests);
 
-        devShellChecks = optionalAttrs (outputs ? devShells) (
-          prefixAttrNames "dev-shell" outputs.devShells
-        );
+          devShells = prefixAttrNames "dev-shell";
 
-        homeChecks = optionalAttrs (outputs ? homeConfigurations) (
-          pipe outputs.homeConfigurations [
-            (mapAttrs (_name: output: output.activationPackage))
-            (prefixAttrNames "home-configuration")
-          ]
-        );
+          homeConfigurations =
+            homeConfigurations:
+            pipe homeConfigurations [
+              (mapAttrs (_name: output: output.activationPackage))
+              (prefixAttrNames "home-configuration")
+            ];
 
-        darwinChecks = optionalAttrs (outputs ? darwinConfigurations) (
-          pipe outputs.darwinConfigurations [
-            (mapAttrs (_name: output: output.system))
-            (prefixAttrNames "darwin-configuration")
-          ]
-        );
-
-        checks = outputs.checks or { };
-
-        allChecks = mergeAttrsList [
-          packageChecks
-          devShellChecks
-          homeChecks
-          darwinChecks
-          checks
-        ];
+          darwinConfigurations =
+            darwinConfigurations:
+            pipe darwinConfigurations [
+              (mapAttrs (_name: output: output.system))
+              (prefixAttrNames "darwin-configuration")
+            ];
+        };
       in
-      pipe allChecks [
-        (filterAttrs (_name: availableOn { inherit system; }))
+      outputs:
+      pipe outputs [
+        (concatMapAttrs (type: outputs: optionalAttrs (handlers ? ${type}) (handlers.${type} outputs)))
         (filterAttrs (name: _check: !hasPrefix "package-shell-bundle" name))
       ];
   in
@@ -171,9 +159,10 @@ lib.fix (
     (
       outputs:
       outputs
-      // {
-        context = context';
-        checksForCurrentPlatform = getChecksForCurrentPlatform outputs;
+      // rec {
+        context = fullContext;
+        checks = (makeAutoChecks outputs) // (outputs.checks or { });
+        currentPlatformChecks = filterAttrs (_name: availableOn { inherit system; }) checks;
       }
     )
   ]
