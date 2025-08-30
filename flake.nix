@@ -2,7 +2,9 @@
   # Why we use a flake to track our evaluation inputs:
   #   - Flakes will track inputs recursively which makes it easy to create GC roots
   #     for all of them.
-  #   - It allows flake users to override our inputs using `follows`.
+  #   - It allows flake users to override our inputs using `follows` and vice-versa.
+  #     Though we use our inputs' stable nix interfaces, we still need to use
+  #     `follows` since we make GC roots for all of the inputs in `flake.lock`.
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
