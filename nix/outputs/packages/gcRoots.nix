@@ -45,7 +45,7 @@ nixpkgs.callPackage (
     handlers = {
       /*
         config    = storePath | list[config] | attrSet[string -> config]
-        storePath = anything that can be coerced to a string that contains a store path
+        storePath = anything coercible to a store path
       */
       path =
         config:
