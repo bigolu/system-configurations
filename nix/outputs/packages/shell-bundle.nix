@@ -1,4 +1,9 @@
-{ pkgs, outputs, ... }:
+{
+  pkgs,
+  outputs,
+  name,
+  ...
+}:
 let
   inherit (pkgs) runCommand closureInfo;
 
@@ -7,7 +12,7 @@ let
 in
 shellBundle
 // {
-  tests.max-size = runCommand "max-size" { } ''
+  tests.max-size = runCommand "${name}-max-size" { } ''
     function format {
       numfmt --to=iec --suffix=B $1
     }
