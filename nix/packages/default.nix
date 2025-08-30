@@ -22,7 +22,6 @@ let
     concatStringsSep
     substring
     foldl'
-    replaceString
     ;
   inherit (nixpkgs.stdenv) isLinux isDarwin;
 
@@ -51,6 +50,17 @@ recursiveUpdateList [
   (optionalAttrs isDarwin {
     # TODO: Remove this when tests start passing again
     lychee = nixpkgs.lychee.overrideAttrs { doCheck = false; };
+  })
+  (optionalAttrs isLinux {
+    # They don't make releases for x86_64-darwin.
+    #
+    # TODO: Remove when the lychee in nixpkgs gets this commit:
+    # https://github.com/lycheeverse/lychee/commit/213eca09d92b8daa76bb1f80f7698cb5c4014634
+    lychee = nixpkgs.runCommand "lychee" { src = pins."lychee-${system}"; } ''
+      mkdir -p $out/bin
+      cp $src $out/bin/lychee
+      chmod +x $out/bin/*
+    '';
   })
   {
     # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
@@ -175,43 +185,12 @@ recursiveUpdateList [
       }
     );
 
-    config-file-validator = nixpkgs.stdenv.mkDerivation {
-      pname = "config-file-validator";
-      version = "1.8.0";
-      # npins will fetch this input with `nixpkgs.fetchZip`. I want to set
-      # `stripRoot = false` in the call to `fetchZip`, but I can't so instead I
-      # override the postFetch hook and put the contents of the tar inside of a single
-      # directory.
-      src = pins."config-file-validator-${system}".outPath.overrideAttrs (
-        _finalAttrs: previousAttrs:
-        let
-          target = ''if [ $(ls -A "$unpackDir" | wc -l) != 1 ]; then'';
-          makeDirectory = ''
-            _new_root="$(mktemp --directory)"
-            _tmp="$_new_root/tmp"
-            mkdir "$_tmp"
-            mv "$unpackDir/"* "$_tmp/"
-            unpackDir="$_new_root"
-          '';
-        in
-        {
-          postFetch = replaceString target ''
-            ${makeDirectory}
-            ${target}
-          '' previousAttrs.postFetch;
-        }
-      );
-      installPhase = ''
-        mkdir -p $out/bin
-        cp $src/validator $out/bin/
-      '';
-      meta = {
-        platforms = [
-          "x86_64-linux"
-          "x86_64-darwin"
-        ];
-      };
-    };
+    config-file-validator =
+      nixpkgs.runCommand "config-file-validator" { src = pins."config-file-validator-${system}"; }
+        ''
+          mkdir -p $out/bin
+          cp $src/validator $out/bin/
+        '';
 
     # Normally I'd use overrideAttrs, but that wouldn't affect
     # keyd-application-mapper.

@@ -35,7 +35,7 @@ set --global --export MANOPT --no-hyphenation
 # Set preferred editor. Programs check either of these variables for the
 # preferred editor so I'll set both. For more information on the meaning of
 # these variables, see:
-# https://unix.stackexchange.com/questions/4859/visual-vs-editor-what-s-the-difference/302391#302391
+# https://unix.stackexchange.com/a/302391
 begin
     set --local editor_arguments nvim
     set --local joined_editor_arguments (string join ' ' -- (type --force-path $editor_arguments[1]) $editor_arguments[2..])

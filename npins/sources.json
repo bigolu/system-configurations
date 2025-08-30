@@ -36,6 +36,11 @@
       "url": "https://github.com/rvaiya/keyd/archive/39bddd1c38e2ccefcd7840500fd6cedf804d2449.tar.gz",
       "hash": "sha256-S1/6adxPut45G6suoEvLl3sqTbbg8tAhJ+4tXdwP/mE="
     },
+    "lychee-x86_64-linux": {
+      "type": "Tarball",
+      "url": "https://github.com/lycheeverse/lychee/releases/download/nightly/lychee-x86_64-unknown-linux-gnu.tar.gz",
+      "hash": "sha256-YS1l48XFb5hkdLD15DQfMsmX+J3BEsX3MLYt1Q7C8wU="
+    },
     "spoons": {
       "type": "Git",
       "repository": {
