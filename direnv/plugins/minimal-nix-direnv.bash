@@ -47,11 +47,11 @@ function use_nix {
   local IFS=' '
   local -r _mnd_new_env_args_string="$_mnd_env_type ${env_build_args[*]}"
 
-  local should_update
-  _mnd_should_update \
-    should_update \
+  local should_rebuild
+  _mnd_should_rebuild \
+    should_rebuild \
     "$_mnd_cached_env" "$_mnd_cached_env_script" "$_mnd_cached_env_args" "$_mnd_new_env_args_string"
-  if [[ $should_update != 'true' ]]; then
+  if [[ $should_rebuild != 'true' ]]; then
     # shellcheck disable=1090
     source "$_mnd_cached_env_script"
     return 0
@@ -165,37 +165,42 @@ function _mnd_set_fallback_trap {
   '"$_original_trap" EXIT
 }
 
-function _mnd_should_update {
-  local -n _should_update=$1
+function _mnd_should_rebuild {
+  local -n _should_rebuild=$1
   local -r cached_env="$2"
   local -r cached_env_script="$3"
   local -r cached_env_args="$4"
   local -r new_env_args_string="$5"
 
-  _should_update=false
   if
-    [[ ! -e $cached_env ||
-      ! -e $cached_env_script ||
-      ! -e $cached_env_args ||
-      $(<"$cached_env_args") != "$new_env_args_string" ]]
+    [[ -e $cached_env &&
+      -e $cached_env_script &&
+      -e $cached_env_args &&
+      $(<"$cached_env_args") == "$new_env_args_string" ]] &&
+      _mnd_is_cache_fresh "$cached_env_script"
   then
-    _should_update=true
+    _should_rebuild=false
   else
-    local -a watched_files
-    # shellcheck disable=2312
-    # PERF: The exit code of direnv is being masked by readarray, but the alternative
-    # ways to do this are slower: I could use a pipeline, but that would spawn a
-    # subprocess. I could put the output of the direnv command in a temporary file,
-    # but I want to avoid the disk.
-    readarray -d '' watched_files < <(direnv watch-print --null)
-    local file
-    for file in "${watched_files[@]}"; do
-      if [[ $file -nt $cached_env_script ]]; then
-        _should_update=true
-        break
-      fi
-    done
+    _should_rebuild=true
   fi
+}
+
+function _mnd_is_cache_fresh {
+  local -r cached_env_script="$1"
+
+  local -a watched_files
+  # shellcheck disable=2312
+  # PERF: The exit code of direnv is being masked by readarray, but the alternative
+  # ways to do this are slower: I could use a pipeline, but that would spawn a
+  # subprocess. I could put the output of the direnv command in a temporary file,
+  # but I want to avoid the disk.
+  readarray -d '' watched_files < <(direnv watch-print --null)
+  local file
+  for file in "${watched_files[@]}"; do
+    if [[ $file -nt $cached_env_script ]]; then
+      return 1
+    fi
+  done
 }
 
 function _mnd_build_new_env {
