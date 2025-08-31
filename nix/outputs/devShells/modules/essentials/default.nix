@@ -40,7 +40,7 @@ in
   devshell.startup = {
     gcRoots.text =
       (pkgs.gcRoots {
-        snippet.directory.eval = "$DEV_SHELL_STATE/gc-roots";
+        script.directory.eval = "$DEV_SHELL_STATE/gc-roots";
         roots = {
           flake = {
             inherit inputs;
@@ -79,9 +79,9 @@ in
             ) pins
           );
         };
-      }).snippet;
+      }).script;
 
-    # HACK: This should run before other startup snippets, but there's no way to
+    # HACK: This should run before other startup scripts, but there's no way to
     # control the order. I noticed that they're sorted so I'm prefixing it with
     # 'AAA' in hopes that it gets put first.
     AAAstateDirectory.text =

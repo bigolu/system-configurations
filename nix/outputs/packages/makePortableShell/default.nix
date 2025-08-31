@@ -16,25 +16,18 @@ nixpkgs.callPackage (
   }:
   let
     inherit (stdenv) isLinux;
-    inherit (lib)
-      escapeShellArg
-      getAttrs
-      concatStringsSep
-      pipe
-      attrValues
-      catAttrs
-      ;
+    inherit (lib) escapeShellArg concatMapStringsSep;
 
     bashPath = "${bash}/bin/bash";
     inherit (homeConfig) activationPackage;
 
-    initSnippet =
+    initScript =
       let
         # Nix recommends setting the LOCALE_ARCHIVE environment variable for non-NixOS
         # Linux distributions[1].
         #
         # [1]: https://nixos.wiki/wiki/Locales
-        localeSnippet =
+        localeScript =
           let
             # The full set of locales is pretty big (~220MB) so I'll only include the
             # one that will be used.
@@ -54,16 +47,13 @@ nixpkgs.callPackage (
           else
             "";
 
-        activationSnippet = pipe activation [
-          (activation: getAttrs activation homeConfig.config.home.activation)
-          attrValues
-          (catAttrs "data")
-          (concatStringsSep "\n")
-        ];
+        activationScript = concatMapStringsSep "\n" (
+          name: homeConfig.config.home.activation.${name}.data
+        ) activation;
       in
       ''
-        ${localeSnippet}
-        ${activationSnippet}
+        ${localeScript}
+        ${activationScript}
       '';
 
     bootstrap = resholve.mkDerivation {
@@ -105,7 +95,7 @@ nixpkgs.callPackage (
     BASH_PATH=${bashPath}
     ACTIVATION_PACKAGE=${activationPackage}
     USER_SHELL=${escapeShellArg shell}
-    INIT_SNIPPET=${escapeShellArg initSnippet}
+    INIT_SCRIPT=${escapeShellArg initScript}
     source ${bootstrap}/bin/bootstrap
   '')
   // {

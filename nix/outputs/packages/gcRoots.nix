@@ -103,7 +103,7 @@ nixpkgs.callPackage (
     makeDerivation =
       {
         roots,
-        snippetConfig,
+        scriptConfig,
       }:
       let
         derivation = writeTextFile {
@@ -111,22 +111,22 @@ nixpkgs.callPackage (
           text = concatStringsSep "\n" roots;
         };
 
-        snippet =
+        script =
           let
             dixExe = getExe dix;
             ln = getExe' coreutils "ln";
             mkdir = getExe' coreutils "mkdir";
 
             directory =
-              if snippetConfig.directory ? eval then
-                ''"${snippetConfig.directory.eval}"''
+              if scriptConfig.directory ? eval then
+                ''"${scriptConfig.directory.eval}"''
               else
-                escapeShellArg snippetConfig.directory.text;
+                escapeShellArg scriptConfig.directory.text;
 
             rootsPath = "${directory}/roots";
             devShellRootPath = "${directory}/dev-shell-root";
 
-            devShellDiffSnippet = ''
+            devShellDiffScript = ''
               if [[ -e ${devShellRootPath} ]]; then
                 ${dixExe} ${devShellRootPath} "$new_shell"
               fi
@@ -154,10 +154,10 @@ nixpkgs.callPackage (
               fi
             fi
           ''
-          + optionalString snippetConfig.devShell.enable ''
+          + optionalString scriptConfig.devShell.enable ''
             # Users can't pass in the shell derivation since that would cause
-            # infinite recursion: To get the shell's outPath, we need the shellHook
-            # which would include this snippet. And to get this snippet, we need the
+            # infinite recursion: To get the shell's outPath, we need its shellHook
+            # which would include this script. And to get this script, we need the
             # shell's outPath. Instead, we make a separate GC root for the dev shell
             # at runtime.
             #
@@ -178,7 +178,7 @@ nixpkgs.callPackage (
                 type -P nix-store >/dev/null &&
                   nix-store --query --hash "$new_shell" >/dev/null 2>&1
               then
-                ${optionalString snippetConfig.devShell.diff devShellDiffSnippet}
+                ${optionalString scriptConfig.devShell.diff devShellDiffScript}
                 nix-store --add-root ${devShellRootPath} --realise "$new_shell" >/dev/null
               else
                 if [[ ! -e ${directory} ]]; then
@@ -189,21 +189,21 @@ nixpkgs.callPackage (
             fi
           '';
       in
-      derivation // { inherit snippet; };
+      derivation // { inherit script; };
   in
   config:
   let
     # Set defaults
-    snippetConfig = recursiveUpdate {
+    scriptConfig = recursiveUpdate {
       devShell = {
         diff = true;
         enable = true;
       };
-    } config.snippet;
+    } config.script;
   in
   pipe config.roots [
     attrsToList
     (concatMap ({ name, value }: handlers.${name} value))
-    (roots: makeDerivation { inherit roots snippetConfig; })
+    (roots: makeDerivation { inherit roots scriptConfig; })
   ]
 ) { }

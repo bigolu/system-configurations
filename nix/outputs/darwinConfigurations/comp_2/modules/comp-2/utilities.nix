@@ -16,7 +16,7 @@ let
     ;
 
   # Adds or removes a line from a system file
-  makeSnippet =
+  makeScript =
     {
       isEnabled,
       file,
@@ -25,7 +25,7 @@ let
     }:
     let
       setPath =
-        snippet:
+        script:
         let
           dependencies = with pkgs; [
             coreutils
@@ -37,11 +37,11 @@ let
         ''
           OLD_PATH="$PATH"
           PATH="${pathEntriesForDependencies}:$PATH"
-          ${snippet}
+          ${script}
           PATH="$OLD_PATH"
         '';
 
-      snippet =
+      script =
         if isEnabled then
           ''
             touch ${file}
@@ -61,9 +61,9 @@ let
             fi
           '';
     in
-    setPath snippet;
+    setPath script;
 
-  nixDarwinLoginShellSnippet = makeSnippet {
+  nixDarwinLoginShellScript = makeScript {
     isEnabled = config.configureLoginShellForNixDarwin;
     file = "/etc/zprofile";
     marker = "configureLoginShellForNixDarwin";
@@ -79,7 +79,7 @@ in
   config = {
     system.activationScripts.postActivation.text = ''
       printf '\e[1m[bigolu] Configuring login shell for nix-darwin\e(B\e[m\n' >&2
-      ${nixDarwinLoginShellSnippet}
+      ${nixDarwinLoginShellScript}
     '';
 
     # Reapply the changes if they get removed, which can happen during a macOS
@@ -95,7 +95,7 @@ in
         script = ''
           set -o errexit
           set -o pipefail
-          ${nixDarwinLoginShellSnippet}
+          ${nixDarwinLoginShellScript}
         '';
       };
     };

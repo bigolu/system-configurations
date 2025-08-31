@@ -7,10 +7,12 @@ shopt -s inherit_errexit
 # Inputs, via unexported variables:
 # ACTIVATION_PACKAGE
 # BASH_PATH
-# INIT_SNIPPET (optional)
+# INIT_SCRIPT (optional)
 # USER_SHELL
 
-echo 'Bootstrapping portable home...'
+if [[ -t 2 ]]; then
+  printf 'Bootstrapping portable home...' >&2
+fi
 
 prefix_directory="$(mktemp --tmpdir --directory 'home_shell_XXXXX')"
 
@@ -130,7 +132,12 @@ export PORTABLE_HOME='true'
 shell="$(type -P "${USER_SHELL:?}")"
 export SHELL="$shell"
 
-if [[ -n ${INIT_SNIPPET:-} ]]; then
+# Clear the message we printed earlier
+if [[ -t 2 ]]; then
+  printf '\33[2K\r' >&2
+fi
+
+if [[ -n ${INIT_SCRIPT:-} ]]; then
   xdg_var_names=()
   for var in "${xdg_env_vars[@]}"; do
     xdg_var_names+=("${var%=*}")
@@ -142,7 +149,7 @@ if [[ -n ${INIT_SNIPPET:-} ]]; then
   done
 
   "${set_xdg_env[@]}"
-  eval "$INIT_SNIPPET"
+  eval "$INIT_SCRIPT"
 
   for index in "${!xdg_var_names[@]}"; do
     name="${xdg_var_names[$index]}"
