@@ -24,7 +24,7 @@ let
     foldl'
     replaceString
     ;
-  inherit (nixpkgs.stdenv) isLinux isDarwin;
+  inherit (nixpkgs.stdenv) isLinux;
 
   recursiveUpdateList = foldl' recursiveUpdate { };
 
@@ -48,10 +48,6 @@ recursiveUpdateList [
   nixpkgs
   outputs.packages
   inputs.gomod2nix.outputs
-  (optionalAttrs isDarwin {
-    # TODO: Remove this when tests start passing again
-    lychee = nixpkgs.lychee.overrideAttrs { doCheck = false; };
-  })
   (optionalAttrs isLinux {
     # They don't make releases for x86_64-darwin.
     #
