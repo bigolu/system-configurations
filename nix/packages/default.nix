@@ -65,7 +65,8 @@ recursiveUpdateList [
               postFetch = ''
                 ${prevAttrs.postFetch}
                 # TODO: Match the behavior of builtins.fetchTarball when the tarball
-                # contains a single file.
+                # contains a single file since this is the behavior that npins bases
+                # its hash off of.
                 mv $out/* _tmp
                 rm -rf $out
                 mv _tmp $out

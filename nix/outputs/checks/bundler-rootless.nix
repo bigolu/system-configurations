@@ -2,16 +2,22 @@
   nixpkgs,
   lib,
   outputs,
-  name,
   ...
 }:
 let
-  hello = lib.getExe nixpkgs.hello;
+  inherit (lib) getExe;
+  inherit (nixpkgs) runCommand;
+  inherit (nixpkgs.testers) testEqualContents;
+
+  hello = getExe nixpkgs.hello;
   bundledHello = outputs.bundlers.rootless nixpkgs.hello;
 in
-nixpkgs.runCommand name { } ''
-  [[ $(${bundledHello}) == $(${hello}) ]]
-
-  # Nix only considers the build to be successful if something is written to $out.
-  touch $out
-''
+testEqualContents {
+  assertion = "Bundled hello has the same output as unbundled hello";
+  expected = runCommand "expected" { } ''
+    ${hello} >$out
+  '';
+  actual = runCommand "actual" { } ''
+    ${bundledHello} >$out
+  '';
+}
