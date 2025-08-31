@@ -38,8 +38,8 @@
     },
     "lychee-x86_64-linux": {
       "type": "Tarball",
-      "url": "https://github.com/lycheeverse/lychee/releases/download/nightly/lychee-x86_64-unknown-linux-gnu.tar.gz",
-      "hash": "sha256-YS1l48XFb5hkdLD15DQfMsmX+J3BEsX3MLYt1Q7C8wU="
+      "url": "https://github.com/lycheeverse/lychee/releases/download/lychee-v0.20.1/lychee-x86_64-unknown-linux-gnu.tar.gz",
+      "hash": "sha256-uM5Jvae+UlDh4gByHkPx3zfH13cqqHz82eB2RD8Fnes="
     },
     "spoons": {
       "type": "Git",
