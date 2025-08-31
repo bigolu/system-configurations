@@ -132,7 +132,8 @@ export PORTABLE_HOME='true'
 shell="$(type -P "${USER_SHELL:?}")"
 export SHELL="$shell"
 
-# Clear the message we printed earlier
+# Clear the message we printed earlier. Do it before the init script runs since the
+# script may write to stderr as well.
 if [[ -t 2 ]]; then
   printf '\33[2K\r' >&2
 fi
