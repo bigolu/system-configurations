@@ -93,8 +93,7 @@ nixpkgs.callPackage (
       };
     };
 
-    user = homeConfig.config.home.username;
-    programName = "${user}-shell";
+    programName = "${homeConfig.config.home.username}-shell";
   in
   (writeScriptBin programName ''
     #!${bashPath}
