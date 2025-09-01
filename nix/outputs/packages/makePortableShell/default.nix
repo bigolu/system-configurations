@@ -4,19 +4,24 @@ nixpkgs.callPackage (
     stdenv,
     lib,
     bash,
-    glibcLocales,
     resholve,
     coreutils,
     writeScriptBin,
+
+    glibcLocales ? null,
+    withLocales ? stdenv.isLinux,
+    locales ? null,
   }:
+
+  assert withLocales -> stdenv.isLinux && glibcLocales != null;
+
   {
     homeConfig,
     shell,
     activation ? [ ],
   }:
   let
-    inherit (stdenv) isLinux;
-    inherit (lib) escapeShellArg concatMapStringsSep;
+    inherit (lib) escapeShellArg concatMapStringsSep optionalString;
 
     bashPath = "${bash}/bin/bash";
     inherit (homeConfig) activationPackage;
@@ -31,21 +36,22 @@ nixpkgs.callPackage (
           let
             # The full set of locales is pretty big (~220MB) so I'll only include the
             # one that will be used.
-            locales = glibcLocales.override {
-              allLocales = false;
-              locales = [ "en_US.UTF-8/UTF-8" ];
-            };
+            localePackage =
+              if locales == null then
+                glibcLocales
+              else
+                glibcLocales.override {
+                  allLocales = false;
+                  inherit locales;
+                };
           in
-          if isLinux then
-            ''
-              if [[ -z ''${LOCALE_ARCHIVE:-} ]]; then
-                export LOCALE_ARCHIVE=${locales}/lib/locale/locale-archive
-                # This tells programs to use the locale from our archive
-                export LC_ALL='en_US.UTF-8'
-              fi
-            ''
-          else
-            "";
+          optionalString withLocales ''
+            if [[ -z ''${LOCALE_ARCHIVE:-} ]]; then
+              export LOCALE_ARCHIVE=${localePackage}/lib/locale/locale-archive
+              # This tells programs to use the locale from our archive
+              export LC_ALL='en_US.UTF-8'
+            fi
+          '';
 
         activationScript = concatMapStringsSep "\n" (
           name: homeConfig.config.home.activation.${name}.data
