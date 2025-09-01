@@ -55,6 +55,7 @@ in
       less
       rsync
       gawkInteractive
+      gnutar
     ]
     ++ optionals isLinux [
       trashy

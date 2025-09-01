@@ -187,7 +187,6 @@ recursiveUpdateList [
         # toybox executable and the programs I need which are just symlinks to it.
         toybox = filterPrograms nixpkgs.toybox [
           "toybox"
-          "tar"
           "hostname"
           "strings"
         ];

@@ -11,10 +11,7 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 if [[ ${usage_bundle:-} == 'true' ]]; then
-  shell="$(
-    nix build --impure --no-link --print-out-paths \
-      --expr 'with (import ./. {}); bundlers.rootless packages.shell'
-  )"
+  shell="$(nix build --no-link --print-out-paths --file . packages.shell-bundle)"
 else
   shell_directory="$(nix build --print-out-paths --no-link --file . packages.shell)/bin"
   # Use '*' so I don't have to hard code the program name
