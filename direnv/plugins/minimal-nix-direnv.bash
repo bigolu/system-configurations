@@ -92,7 +92,6 @@ function _mnd_cache {
   # Why we use `-f`:
   #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
   #     editor extension and the terminal.
-  #   - Avoid an error if the directory is empty
   rm -f "$cache_directory/"*
   echo "$new_env_script_contents" >"$cached_env_script"
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
@@ -172,12 +171,15 @@ function _mnd_should_rebuild {
   local -r cached_env_args="$4"
   local -r new_env_args_string="$5"
 
+  local is_cache_fresh
+  _mnd_is_cache_fresh is_cache_fresh "$cached_env_script"
+
   if
     [[ -e $cached_env &&
       -e $cached_env_script &&
       -e $cached_env_args &&
-      $(<"$cached_env_args") == "$new_env_args_string" ]] &&
-      _mnd_is_cache_fresh "$cached_env_script"
+      $(<"$cached_env_args") == "$new_env_args_string" &&
+      $is_cache_fresh == 'true' ]]
   then
     _should_rebuild=false
   else
@@ -186,19 +188,21 @@ function _mnd_should_rebuild {
 }
 
 function _mnd_is_cache_fresh {
-  local -r cached_env_script="$1"
+  local -n _is_cache_fresh=$1
+  local -r cached_env_script="$2"
 
+  _is_cache_fresh=true
   local -a watched_files
   # shellcheck disable=2312
   # PERF: The exit code of direnv is being masked by readarray, but the alternative
-  # ways to do this are slower: I could use a pipeline, but that would spawn a
-  # subprocess. I could put the output of the direnv command in a temporary file,
-  # but I want to avoid the disk.
+  # ways to do this are slower, For example, I could use a pipeline, but that would
+  # spawn a subprocess.
   readarray -d '' watched_files < <(direnv watch-print --null)
   local file
   for file in "${watched_files[@]}"; do
     if [[ $file -nt $cached_env_script ]]; then
-      return 1
+      _is_cache_fresh=false
+      break
     fi
   done
 }
