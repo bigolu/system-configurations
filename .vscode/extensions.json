@@ -22,6 +22,7 @@
     "ltex-plus.vscode-ltex-plus",
     "rogalmic.bash-debug",
     "ndonfris.fish-lsp",
+    "pucelle.run-on-save",
   ],
 
   "unwantedRecommendations": ["ms-python.vscode-pylance"],
