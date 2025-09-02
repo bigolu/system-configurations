@@ -1,26 +1,16 @@
 {
   "recommendations": [
     "mkhl.direnv",
-
     // I use this for jsonschema support
     "tamasfe.even-better-toml",
-
     "redhat.vscode-yaml",
-
     "mads-hartmann.bash-ide-vscode",
-
     "bmalehorn.vscode-fish",
-
     "sumneko.lua",
-
     "jnoortheen.nix-ide",
-
     "editorconfig.editorconfig",
-
     "golang.go",
-
     "tudoudou.json5-for-vscode",
-
     "ms-python.debugpy",
     "charliermarsh.ruff",
     "ericsia.pythonsnippets3",
@@ -28,7 +18,6 @@
     "ms-python.mypy-type-checker",
     // I use this extension for its language server, powered by Jedi
     "ms-python.python",
-
     "hangxingliu.vscode-systemd-support",
     "ltex-plus.vscode-ltex-plus",
     "rogalmic.bash-debug",
