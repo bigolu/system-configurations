@@ -65,9 +65,8 @@
       // Only run formatters because some other auto-fixes remove unused symbols
       // which can be annoying if you're in the middle of writing something.
       "command": "RUN_FIX_ACTIONS='' lefthook run check --jobs format --file ${fileRelative}",
-      // If the file isn't doesn't have valid syntax, the formatter will exit with a
-      // non-zero code, but we don't want the output window to be focused when that
-      // happens.
+      // If the file has invalid syntax, the formatter will exit with a non-zero
+      // code, but we don't want the output window to be focused when that happens.
       "doNotDisturb": true,
     },
   ]
