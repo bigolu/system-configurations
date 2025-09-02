@@ -382,12 +382,11 @@ check:
                     - flake.lock
                     - npins/*
                   run: npins upgrade
-
-                # Formatters
-                # -------------------------------------------------------------------
                 # Formatters should run after the other fixes since some fixes may
                 # produce code that doesn't comply with the formatting.
-
+                #
+                # They're in a group to make it easy for editors to format on save by
+                # running `lefthook run check --jobs format --file <saved_file>`
                 - name: format
                   group:
                     jobs:
