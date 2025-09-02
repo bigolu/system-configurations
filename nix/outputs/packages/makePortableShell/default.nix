@@ -34,8 +34,6 @@ nixpkgs.callPackage (
         # [1]: https://nixos.wiki/wiki/Locales
         localeScript =
           let
-            # The full set of locales is pretty big (~220MB) so I'll only include the
-            # one that will be used.
             localePackage =
               if locales == null then
                 glibcLocales
