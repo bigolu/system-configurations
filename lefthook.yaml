@@ -463,11 +463,8 @@ check:
                   run: shellcheck {files}
                 - name: actionlint
                   glob: ".github/workflows/*.yaml"
-                  run: |
-                    # Ensure it produces a format that efm-langserver can parse
-                    actionlint -no-color \
-                      -format '{{range $err := .}}{{$err.Filepath}}:{{$err.Line}}:{{$err.Column}}: {{$err.Message}}{{end}}' \
-                      {files}
+                  # Ensure efm-langserver can parse the output
+                  run: actionlint -no-color -oneline {files}
                 - name: statix-lint
                   glob: "*.nix"
                   exclude:

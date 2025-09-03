@@ -1,9 +1,0 @@
-{
-  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint/main/schema/markdownlint-config-schema.json",
-
-  // Disable line length
-  "MD013": false,
-
-  // Allow HTML
-  "MD033": false
-}

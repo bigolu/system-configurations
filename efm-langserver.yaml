@@ -3,9 +3,6 @@
 # TODO: lint-after-open should be the default, but it isn't set on the server:
 # https://github.com/mattn/efm-langserver/pull/277
 
-# Some of the `lint-format`s came from here:
-# https://github.com/llllvvuu/efm-tool-definitions.yaml
-
 version: 2
 lint-debounce: 0.5s
 root-markers:
@@ -35,9 +32,7 @@ languages:
         # typos-lint, editorconfig-checker, nixpkgs-lint, actionlint
         - "%f:%l:%c: %m"
         # markdownlint-cli2
-        - "%f:%l:%c: %m"
         - "%f:%l:%c %m"
-        - "%f:%l: %m"
         - "%f:%l %m"
         # config-file-validator, desktop-file-validate
         - "%f: %m"
