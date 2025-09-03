@@ -8,62 +8,43 @@
 
 version: 2
 lint-debounce: 0.5s
-format-debounce: 1.5s
 root-markers:
   - .git
-tools:
-  # TODO: It's not actually a linter, but `format-command` wasn't working.
-  lefthook-format: &lefthook-format
-    lint-after-open: true
-    lint-on-save: true
-    lint-stdin: false
-    lint-command: |
-      RUN_FIX_ACTIONS='' lefthook run check \
-        --jobs format --file "$(realpath --relative-to=${ROOT} ${INPUT})"
-    lint-formats:
-      - "do not match"
-  lefthook-lint: &lefthook-lint
-    lint-after-open: true
-    lint-on-save: true
-    lint-stdin: false
-    lint-source: lefthook
-    lint-command: |
-      lefthook run check \
-        --jobs actionlint \
-        --jobs markdownlint-cli2-lint \
-        --jobs config-file-validator \
-        --jobs typos-lint \
-        --jobs editorconfig-checker \
-        --jobs nixpkgs-lint \
-        --jobs statix-lint \
-        --file "$(realpath --relative-to=${ROOT} ${INPUT})"
-    lint-formats:
-      # markdownlint-cli2
-      - "%f:%l:%c: %m"
-      - "%f:%l:%c %m"
-      - "%f:%l: %m"
-      - "%f:%l %m"
-      # config-file-validator
-      - "%f: %m"
-      # typos-lint, editorconfig-checker, nixpkgs-lint, actionlint
-      - "%f:%l:%c: %m"
-      # statix-lint
-      - "%f>%l:%c:%t:%n:%m"
-  desktop-file-validate: &desktop-file-validate
-    lint-after-open: true
-    lint-on-save: true
-    lint-stdin: false
-    lint-source: desktop-file-validate
-    lint-command: |
-      case ${INPUT} in
-        *.desktop)
-          desktop-file-validate ${INPUT}
-          ;;
-      esac
-    lint-formats:
-      - "%f: %m"
 languages:
   =:
-    - <<: *lefthook-format
-    - <<: *lefthook-lint
-    - <<: *desktop-file-validate
+    # TODO: This isn't actually a linter, but `format-command` wasn't working.
+    - lint-after-open: true
+      lint-on-save: true
+      lint-stdin: false
+      lint-command: |
+        RUN_FIX_ACTIONS='' lefthook run check \
+          --jobs format --file "$(realpath --relative-to=${ROOT} ${INPUT})"
+      lint-formats:
+        - "do not match"
+    - lint-source: lefthook-lint
+      lint-after-open: true
+      lint-on-save: true
+      lint-stdin: false
+      lint-command: |
+        lefthook run check \
+          --jobs actionlint \
+          --jobs markdownlint-cli2-lint \
+          --jobs config-file-validator \
+          --jobs typos-lint \
+          --jobs editorconfig-checker \
+          --jobs nixpkgs-lint \
+          --jobs statix-lint \
+          --jobs desktop-file-validate \
+          --file "$(realpath --relative-to=${ROOT} ${INPUT})"
+      lint-formats:
+        # config-file-validator, desktop-file-validate
+        - "%f: %m"
+        # typos-lint, editorconfig-checker, nixpkgs-lint, actionlint
+        - "%f:%l:%c: %m"
+        # statix-lint
+        - "%f>%l:%c:%t:%n:%m"
+        # markdownlint-cli2
+        - "%f:%l:%c: %m"
+        - "%f:%l:%c %m"
+        - "%f:%l: %m"
+        - "%f:%l %m"

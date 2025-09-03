@@ -491,7 +491,7 @@ check:
                       # Ensure it produces a format that efm-langserver can parse
                       nixpkgs-lint --include-unfinished-lints --format json -- "$@" |
                         jq --raw-output ".[] | \"\(.file):\(.line):\(.column): \(.message)\""
-                    ' {files}
+                    ' -- {files}
                 - name: typos-lint
                   run: |
                     {exit_if_no_files} {files}
@@ -523,7 +523,7 @@ check:
                       # Ensure it produces a format that efm-langserver can parse
                       validator -groupby pass-fail -reporter json -- "$@" |
                         jq --raw-output ".files.Failed.[]? | \"\(.path): \(.error)\""
-                    ' {files}
+                    ' -- {files}
                 - name: renovate-config-validator
                   glob:
                     - renovate.json5
@@ -538,6 +538,12 @@ check:
                       --logpath "$(mktemp --directory)/lua-ls-logs" \
                       --check ./dotfiles/neovim \
                       --configpath "$PWD/.luarc.json"
+                - name: desktop-file-validate
+                  glob: "*.desktop"
+                  only:
+                    # systemd must be running for this to work
+                    - run: '[ "$(uname)" = "Linux" ] && [ -d /run/systemd/system ]'
+                  run: desktop-file-validate {files}
                 - name: nix-config
                   glob:
                     - "*.nix"
