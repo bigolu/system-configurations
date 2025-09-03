@@ -277,8 +277,7 @@ check:
         # next time you run the checks, all of them will run.
         #
         # This is also useful for CI since you wouldn't want your CI runners to waste
-        # time, and money if you pay for your runners, running slow checks if a fast
-        # one has already failed.
+        # time and money running slow checks if a fast one has already failed.
         piped: true
         jobs:
           # All fixes should be grouped together to make it easy to run them all in
@@ -353,7 +352,7 @@ check:
                 - name: ruff
                   glob: "*.py"
                   run: "{run_fix} ruff check --fix-only {files}"
-                - name: statix
+                - name: statix-fix
                   glob: "*.nix"
                   exclude:
                     - npins/*
@@ -365,7 +364,7 @@ check:
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: "{run_fix} parallel statix fix -- {files}"
-                - name: markdownlint-cli2
+                - name: markdownlint-cli2-fix
                   glob: "*.md"
                   run: "{run_fix} markdownlint-cli2 --fix {files}"
                 - name: go-mod-tidy
@@ -489,7 +488,7 @@ check:
                       nixpkgs-lint --include-unfinished-lints --format json -- "$@" |
                         jq --raw-output ".[] | \"\(.file):\(.line):\(.column): \(.message)\""
                     ' -- {files}
-                - name: typos-lint
+                - name: typos
                   run: |
                     {exit_if_no_files} {files}
                     # We use `brief` to produce a format that efm-langserver can

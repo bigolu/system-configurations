@@ -18,7 +18,7 @@ languages:
           --jobs actionlint \
           --jobs markdownlint-cli2-lint \
           --jobs config-file-validator \
-          --jobs typos-lint \
+          --jobs typos \
           --jobs editorconfig-checker \
           --jobs nixpkgs-lint \
           --jobs statix-lint \
@@ -28,7 +28,7 @@ languages:
       lint-formats:
         # statix-lint
         - "%f>%l:%c:%t:%n:%m"
-        # typos-lint, editorconfig-checker, nixpkgs-lint, actionlint
+        # typos, editorconfig-checker, nixpkgs-lint, actionlint
         - "%f:%l:%c: %m"
         # markdownlint-cli2
         - "%f:%l:%c %m"
