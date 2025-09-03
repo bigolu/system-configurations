@@ -535,12 +535,6 @@ check:
                       --logpath "$(mktemp --directory)/lua-ls-logs" \
                       --check ./dotfiles/neovim \
                       --configpath "$PWD/.luarc.json"
-                - name: desktop-file-validate
-                  glob: "*.desktop"
-                  only:
-                    # systemd must be running for this to work
-                    - run: '[ "$(uname)" = "Linux" ] && [ -d /run/systemd/system ]'
-                  run: desktop-file-validate {files}
                 - name: nix-config
                   glob:
                     - "*.nix"

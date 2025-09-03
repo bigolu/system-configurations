@@ -22,7 +22,6 @@ languages:
           --jobs editorconfig-checker \
           --jobs nixpkgs-lint \
           --jobs statix-lint \
-          --jobs desktop-file-validate \
           --file "$(realpath --relative-to=${ROOT} ${INPUT})"
       # Formats must be ordered from most specific to least since efm will try
       # matching them in this order
@@ -34,5 +33,5 @@ languages:
         # markdownlint-cli2
         - "%f:%l:%c %m"
         - "%f:%l %m"
-        # config-file-validator, desktop-file-validate
+        # config-file-validator
         - "%f: %m"
