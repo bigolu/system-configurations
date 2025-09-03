@@ -33,7 +33,7 @@ makeShells
         ./modules/gozip.nix
         ./modules/mise/tasks.nix
         ./modules/mise/task-autocomplete.nix
-        ./modules/vscode
+        ./modules/vscode.nix
         ./modules/lefthook/hooks/check
         ./modules/lefthook/hooks/check-commit-message.nix
         ./modules/lefthook/hooks/sync.nix

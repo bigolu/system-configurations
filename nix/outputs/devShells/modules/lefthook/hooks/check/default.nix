@@ -44,5 +44,6 @@
     typos
     nix-output-monitor
     bash
+    jq
   ];
 }

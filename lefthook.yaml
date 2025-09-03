@@ -17,6 +17,8 @@ output:
   # Even if a command succeeds, it still may be useful to see its output in case it
   # prints a warning for a deprecated feature or the fact that the project is no
   # longer being maintained.
+  #
+  # I also use the output for efm-langserver
   - execution_out
   - failure
 
@@ -453,7 +455,7 @@ check:
                   # TODO: Fish doesn't support passing multiple files, I should open
                   # an issue.
                   run: parallel fish --no-execute -- {files}
-                - name: markdownlint-cli2
+                - name: markdownlint-cli2-lint
                   glob: "*.md"
                   run: markdownlint-cli2 {files}
                 - name: shellcheck
@@ -461,8 +463,12 @@ check:
                   run: shellcheck {files}
                 - name: actionlint
                   glob: ".github/workflows/*.yaml"
-                  run: actionlint {files}
-                - name: statix
+                  run: |
+                    # Ensure it produces a format that efm-langserver can parse
+                    actionlint -no-color \
+                      -format '{{range $err := .}}{{$err.Filepath}}:{{$err.Line}}:{{$err.Column}}: {{$err.Message}}{{end}}' \
+                      {files}
+                - name: statix-lint
                   glob: "*.nix"
                   exclude:
                     - npins/*
@@ -473,16 +479,25 @@ check:
                     - nix/packages/default.nix
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
-                  run: parallel statix check -- {files}
+                  #
+                  # Use `errfmt` so efm-langserver can parse the errors
+                  run: parallel statix check --format errfmt -- {files}
                 - name: nixpkgs-lint
                   glob: "*.nix"
                   exclude:
                     - npins/*
-                  run: nixpkgs-lint --include-unfinished-lints -- {files}
-                - name: typos
+                  run: |
+                    bash -euo pipefail -c '
+                      # Ensure it produces a format that efm-langserver can parse
+                      nixpkgs-lint --include-unfinished-lints --format json -- "$@" |
+                        jq --raw-output ".[] | \"\(.file):\(.line):\(.column): \(.message)\""
+                    ' {files}
+                - name: typos-lint
                   run: |
                     {exit_if_no_files} {files}
-                    typos {files}
+                    # We use `brief` to produce a format that efm-langserver can
+                    # parse
+                    typos --color never --format brief {files}
                 - name: mypy
                   glob: "*.py"
                   run: mypy {files}
@@ -495,14 +510,20 @@ check:
                   # comments as well and I don't want it to.
                   run: |
                     {exit_if_no_files} {files}
-                    editorconfig-checker --disable-indent-size {files}
+                    # We use `gcc` to produce a format that efm-langserver can parse
+                    editorconfig-checker -no-color -format gcc --disable-indent-size {files}
                 - name: config-file-validator
                   glob: "*.{editorconfig,json,ini,yaml,toml}"
                   exclude:
                     # These aren't actually JSON files they're JSONC
                     - ".vscode/*.json"
                     - npins/*
-                  run: chronic validator -groupby pass-fail {files}
+                  run: |
+                    chronic bash -euo pipefail -c '
+                      # Ensure it produces a format that efm-langserver can parse
+                      validator -groupby pass-fail -reporter json -- "$@" |
+                        jq --raw-output ".files.Failed.[]? | \"\(.path): \(.error)\""
+                    ' {files}
                 - name: renovate-config-validator
                   glob:
                     - renovate.json5

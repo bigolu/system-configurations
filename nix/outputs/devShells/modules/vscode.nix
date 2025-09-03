@@ -1,18 +1,32 @@
 { pkgs, ... }:
 {
   imports = [
-    ./efm-language-server.nix
+    # For "llllvvuu.llllvvuu-glspc" which launches efm-langserver
+    {
+      devshell.packages = with pkgs; [
+        efm-langserver
+
+        # These are used in the efm-langserver config
+        coreutils
+        # efm-langserver launches commands with`sh`
+        dash
+      ];
+    }
+
+    # For "rogalmic.bash-debug"
+    {
+      # It needs bash, cat, mkfifo, rm, and pkill
+      devshell.packages = with pkgs; [
+        bash
+        coreutils
+        partialPackages.pkill
+      ];
+    }
   ];
 
   devshell.packages = with pkgs; [
     # For "jnoortheen.nix-ide"
     nixd
-
-    # For "rogalmic.bash-debug". It needs bash, cat, mkfifo, rm, and pkill
-    bash
-    coreutils
-    partialPackages.pkill
-
     # For ndonfris.fish-lsp
     fish-lsp
   ];
