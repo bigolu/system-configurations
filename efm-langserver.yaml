@@ -12,15 +12,6 @@ root-markers:
   - .git
 languages:
   =:
-    # TODO: This isn't actually a linter, but `format-command` wasn't working.
-    - lint-after-open: true
-      lint-on-save: true
-      lint-stdin: false
-      lint-command: |
-        RUN_FIX_ACTIONS='' lefthook run check \
-          --jobs format --file "$(realpath --relative-to=${ROOT} ${INPUT})"
-      lint-formats:
-        - "do not match"
     - lint-source: lefthook-lint
       lint-after-open: true
       lint-on-save: true
