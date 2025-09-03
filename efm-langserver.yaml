@@ -8,6 +8,15 @@
 # https://github.com/llllvvuu/efm-tool-definitions.yaml
 
 tools:
+  # TODO: It's not actually a linter, but `format-command` wasn't working.
+  lefthook-format: &lefthook-format
+    lint-command: |
+      RUN_FIX_ACTIONS='' lefthook run check \
+        --jobs format --file "$(realpath --relative-to=${ROOT} ${INPUT})"
+    lint-after-open: true
+    lint-on-save: true
+    lint-formats:
+      - "do not match"
   action-lint: &action-lint
     lint-after-open: true
     lint-on-save: true
@@ -92,8 +101,9 @@ tools:
 
 version: 2
 root-markers:
-  - .git/
+  - .git
 lint-debounce: 0.5s
+format-debounce: 0.5s
 languages:
   yaml:
     - <<: *action-lint
@@ -111,3 +121,4 @@ languages:
     - <<: *desktop-file-validate
     - <<: *typos
     - <<: *editorconfig-checker
+    - <<: *lefthook-format
