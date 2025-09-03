@@ -220,9 +220,21 @@ function _mnd_build_new_env {
       _new_env="$(_mnd_nix build --no-link --print-out-paths "${env_build_args[@]}")"
       _new_env_script_contents="$(<"$_new_env/env.bash")"
       ;;
-    'packages') ;&
-    # Nix is changing the format for dev shells[1] so this will need to be updated
-    # when that happens.
+    # `packages` is almost the same as `stdenv`. The only difference is that when
+    # `packages` is used, we define the dev shell on behalf of the user, containing
+    # the packages they specify.
+    'packages')
+      local IFS=' '
+      env_build_args=(
+        --impure
+        --expr "
+          with import <nixpkgs> {};
+          mkShell { buildInputs = [ ${env_build_args[*]} ]; }
+        "
+      )
+      ;&
+    # nixpkgs is changing the format for dev shells[1] so this will need to be
+    # updated when that happens.
     #
     # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
     'stdenv')
@@ -232,14 +244,6 @@ function _mnd_build_new_env {
       # instance is able to run `realpath` further down so instead we give each
       # instance its own profile.
       local -r tmp_profile="$cache_directory/tmp-profile-$$"
-
-      if [[ $env_type == 'packages' ]]; then
-        local IFS=' '
-        env_build_args=(
-          --impure
-          --expr "with import <nixpkgs> {}; mkShell { buildInputs = [ ${env_build_args[*]} ]; }"
-        )
-      fi
 
       # We store the script in a string instead of a file to avoid a race condition
       # between multiple instances of direnv e.g. a direnv editor extension and the
