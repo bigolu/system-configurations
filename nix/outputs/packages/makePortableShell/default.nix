@@ -21,7 +21,12 @@ nixpkgs.callPackage (
     activation ? [ ],
   }:
   let
-    inherit (lib) escapeShellArg concatMapStringsSep optionalString;
+    inherit (lib)
+      escapeShellArg
+      concatMapStringsSep
+      optionalString
+      getExe
+      ;
 
     bashPath = "${bash}/bin/bash";
     inherit (homeConfig) activationPackage;
@@ -60,36 +65,41 @@ nixpkgs.callPackage (
         ${activationScript}
       '';
 
-    bootstrap = resholve.mkDerivation {
-      pname = "bootstrap-home-shell";
-      version = "0.0.1";
-      src = ./bootstrap.bash;
-      dontConfigure = true;
-      dontBuild = true;
-      dontUnpack = true;
-      installPhase = ''
-        install -D $src $out/bin/bootstrap
-      '';
-      solutions = {
-        default = {
-          scripts = [ "bin/bootstrap" ];
-          interpreter = bashPath;
-          inputs = [ coreutils ];
-          execer = [
-            "cannot:${coreutils}/bin/mktemp"
-            "cannot:${coreutils}/bin/mkdir"
-            "cannot:${coreutils}/bin/ln"
-            "cannot:${coreutils}/bin/chmod"
-            "cannot:${coreutils}/bin/cp"
-          ];
-          keep = {
-            "$SHELL" = true;
-            "$BASH_PATH" = true;
-            "$set_xdg_env" = true;
+    setup =
+      let
+        name = "setup";
+      in
+      resholve.mkDerivation {
+        pname = "home-shell-${name}";
+        version = "0.0.1";
+        src = ./setup.bash;
+        dontConfigure = true;
+        dontBuild = true;
+        dontUnpack = true;
+        installPhase = ''
+          install -D $src $out/bin/${name}
+        '';
+        meta.mainProgram = name;
+        solutions = {
+          default = {
+            scripts = [ "bin/${name}" ];
+            interpreter = bashPath;
+            inputs = [ coreutils ];
+            execer = [
+              "cannot:${coreutils}/bin/mktemp"
+              "cannot:${coreutils}/bin/mkdir"
+              "cannot:${coreutils}/bin/ln"
+              "cannot:${coreutils}/bin/chmod"
+              "cannot:${coreutils}/bin/cp"
+            ];
+            keep = {
+              "$SHELL" = true;
+              "$BASH_PATH" = true;
+              "$set_xdg_env" = true;
+            };
           };
         };
       };
-    };
 
     programName = "${homeConfig.config.home.username}-shell";
   in
@@ -99,7 +109,7 @@ nixpkgs.callPackage (
     ACTIVATION_PACKAGE=${activationPackage}
     USER_SHELL=${escapeShellArg shell}
     INIT_SCRIPT=${escapeShellArg initScript}
-    source ${bootstrap}/bin/bootstrap
+    source ${getExe setup}
   '')
   // {
     meta.mainProgram = programName;

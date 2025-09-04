@@ -11,7 +11,7 @@ shopt -s inherit_errexit
 # USER_SHELL
 
 if [[ -t 2 ]]; then
-  printf 'Bootstrapping portable home...' >&2
+  printf 'Setting up portable home...' >&2
 fi
 
 prefix_directory="$(mktemp --tmpdir --directory 'home_shell_XXXXX')"
