@@ -4,7 +4,6 @@
 # https://github.com/mattn/efm-langserver/pull/277
 
 version: 2
-lint-debounce: 0.5s
 root-markers:
   - .git
 languages:
