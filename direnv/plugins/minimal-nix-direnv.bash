@@ -72,7 +72,9 @@ function use_nix {
       _mnd_new_env _mnd_new_env_script_contents \
       "$_mnd_cache_directory" "$_mnd_env_type" "${env_build_args[@]}"
 
-    eval "$_mnd_new_env_script_contents"
+    # If the script prints any messages then we should suppress them since we're
+    # going to evaluate the script again below.
+    eval "$_mnd_new_env_script_contents" 1>/dev/null
 
     # WARNING
     # -------------------------------------------------------------------------------
@@ -90,11 +92,8 @@ function use_nix {
   set -o errexit
 
   if ((exit_code == 0)); then
-    # If the script prints any messages then we should suppress them since they were
-    # already printed when we evaluated the script in the subshell above.
-    #
     # shellcheck disable=1090
-    source "$_mnd_cached_env_script" &>/dev/null
+    source "$_mnd_cached_env_script"
   elif [[ -e $_mnd_cached_env_script ]]; then
     _mnd_log_error 'Something went wrong, loading the last environment'
     # Consider the cached environment script up to date.
