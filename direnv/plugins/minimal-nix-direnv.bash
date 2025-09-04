@@ -61,6 +61,8 @@ function use_nix {
   # environment so we can handle failures in the build/evaluation without causing
   # this shell to exit.
   set +o errexit
+  # To get the environment variables from the subshell, we'll have the subshell print
+  # out all of its variables as `export` statements.
   local export_statements
   export_statements="$(
     # Redirect stdout to stderr until we're ready to print the export statements
