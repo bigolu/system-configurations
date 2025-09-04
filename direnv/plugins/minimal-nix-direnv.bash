@@ -119,13 +119,17 @@ function _mnd_set_fallback_trap {
   local -n _original_trap=$1
   local -r cached_env_script="$2"
 
-  # Intentionally global so they can be accessed from the fallback trap
-  _mnd_global_cached_env_script="$cached_env_script"
-  _mnd_global_original_env="$(declare -px)"
-
   # direnv already sets an exit trap so we'll prepend our command to it instead of
   # overwriting it.
   _original_trap="$(_mnd_get_exit_trap)"
+
+  if [[ ! -e $cached_env_script ]]; then
+    return 0
+  fi
+
+  # Intentionally global so they can be accessed from the fallback trap
+  _mnd_global_cached_env_script="$cached_env_script"
+
   # TODO: I tried to use a function for the trap, but I got an error: If there was a
   # function inside the cached env script that used local variables, Bash would exit
   # with the error "local cannot be used outside of a function", even though it was
@@ -133,34 +137,33 @@ function _mnd_set_fallback_trap {
   # work. This is why the `eval` statement in the trap below is inside a function.
   # Without it, I got a similar error.
   trap -- '
-    if [[ -e "$_mnd_global_cached_env_script" ]]; then
-      _mnd_log_error "Something went wrong, loading the last environment"
+    _mnd_log_error "Something went wrong, loading the last environment"
 
-      # Consider the cached environment script up to date.
-      #
-      # A built-in alternative to `touch`. Though, if the file did not initially end
-      # with a newline, this would add one, but that is not a problem here.
-      echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
+    # Consider the cached environment script up to date.
+    #
+    # A built-in alternative to `touch`. Though, if the file did not initially end
+    # with a newline, this would add one, but that is not a problem here.
+    echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
 
-      # Clear env
-      readarray -t vars <<<"$(set -o posix; export -p)"
-      for var in "${vars[@]}"; do
-        # Remove everything from the first `=` onwards
-        var="${var%%=*}"
-        # The substring removes `export `
-        unset "${var:7}"
-      done
-
-      function _mnd_nest_1 {
-        function _mnd_nest_2 {
-          eval "$_mnd_global_original_env"
-        }
-        _mnd_nest_2
-      }
-      _mnd_nest_1
-
-      source "$_mnd_global_cached_env_script"
-    fi
+    # Clear environment
+    readarray -t vars <<<"$(set -o posix; export -p)"
+    for var in "${vars[@]}"; do
+      # Remove everything from the first `=` onwards
+      var="${var%%=*}"
+      # The substring removes `export `
+      unset "${var:7}"
+    done
+  '"$(
+    # Restore the original environment
+    #
+    # `declare -px` wasn't working so we use POSIX exports instead. I think the
+    # reason `declare` didn't work is related to this issue[1].
+    #
+    # [1]: https://github.com/direnv/direnv/issues/222
+    set -o posix
+    export -p
+  )"'
+    source "$_mnd_global_cached_env_script"
   '"$_original_trap" EXIT
 }
 
