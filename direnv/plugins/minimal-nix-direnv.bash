@@ -59,9 +59,9 @@ function use_nix {
 
   # Use a subshell so we can trigger our exit trap without having the whole script
   # exit.
-  local env_vars
+  local set_env
   set +o errexit
-  env_vars="$(
+  set_env="$(
     set -o errexit
     set -o nounset
     set -o pipefail
@@ -90,7 +90,7 @@ function use_nix {
   )"
   local exit_code=$?
   set -o errexit
-  eval "$env_vars"
+  eval "$set_env"
   if ((exit_code != 0)) && [[ ${MND_DID_FALLBACK:-} != 'true' ]]; then
     return $exit_code
   fi
@@ -138,15 +138,11 @@ function _mnd_set_trap {
   exec {_mnd_global_stdout_copy}>&1
   exec 1>&2
   _mnd_global_cached_env_script="$cached_env_script"
-  _mnd_global_original_env="$(
-    # `declare -px` wasn't working so we use POSIX exports instead. I think the
-    # reason `declare` didn't work is related to this issue[1].
-    #
-    # [1]: https://github.com/direnv/direnv/issues/222
-    set -o posix
-    export -p
-  )"
 
+  # This trap will print bash code that sets the environment variables to be set in
+  # the direnv environment. Either the new environment or the cached environment if
+  # we have to fall back.
+  #
   # TODO: I tried to use a function for the trap, but I got an error: If there was a
   # function inside the cached env script that used local variables, Bash would exit
   # with the error "local cannot be used outside of a function", even though it was
@@ -163,27 +159,20 @@ function _mnd_set_trap {
       # with a newline, this would add one, but that is not a problem here.
       echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
 
-      # Clear environment
-      readarray -t vars <<<"$(set -o posix; export -p)"
-      for var in "${vars[@]}"; do
-        # Remove everything from the first `=` onwards
-        var="${var%%=*}"
-        # The substring removes `export `
-        unset "${var:7}"
-      done
-
-      eval "$_mnd_global_original_env"
-      source "$_mnd_global_cached_env_script"
-      export MND_DID_FALLBACK=true
+      exec 1>&$_mnd_global_stdout_copy
+      echo "
+        export MND_DID_FALLBACK=true
+        $(<$_mnd_global_cached_env_script)
+      "
+    else
+      # `declare -px` was not working so we use POSIX exports instead. I think the
+      # reason `declare` did not work is related to this issue[1].
+      #
+      # [1]: https://github.com/direnv/direnv/issues/222
+      set -o posix
+      exec 1>&$_mnd_global_stdout_copy
+      export -p
     fi
-
-    # `declare -px` was not working so we use POSIX exports instead. I think the
-    # reason `declare` did not work is related to this issue[1].
-    #
-    # [1]: https://github.com/direnv/direnv/issues/222
-    set -o posix
-    exec 1>&$_mnd_global_stdout_copy
-    export -p
   ' EXIT
 }
 
