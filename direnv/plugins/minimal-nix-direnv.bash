@@ -57,16 +57,14 @@ function use_nix {
     return 0
   fi
 
-  # Use a subshell so we can trigger our exit trap without having the whole script
-  # exit.
-  local set_env
+  # Disable `errexit` in this shell and use a subshell to build/evaluate the new
+  # environment so we can handle failures in the build/evaluation without causing
+  # this shell to exit.
   set +o errexit
-  set_env="$(
+  (
     set -o errexit
     set -o nounset
     set -o pipefail
-
-    _mnd_set_trap "$_mnd_cached_env_script"
 
     local _mnd_new_env
     local _mnd_new_env_script_contents
@@ -77,7 +75,7 @@ function use_nix {
     eval "$_mnd_new_env_script_contents"
 
     # WARNING
-    # ---------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------
     # Any variables accessed after this comment should have the prefix `_mnd_` to
     # reduce the chance of being overwritten by the environment script that was
     # evaluated before this comment.
@@ -87,11 +85,20 @@ function use_nix {
       "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
       "$_mnd_new_env" "$_mnd_cached_env" \
       "$_mnd_new_env_args_string" "$_mnd_cached_env_args"
-  )"
+  )
   local exit_code=$?
   set -o errexit
-  eval "$set_env"
-  if ((exit_code != 0)) && [[ ${MND_DID_FALLBACK:-} != 'true' ]]; then
+
+  if ((exit_code == 0)); then
+    # shellcheck disable=1090
+    source "$_mnd_cached_env_script"
+  elif [[ -e $_mnd_cached_env_script ]]; then
+    _mnd_log_error 'Something went wrong, loading the last environment'
+    # Consider the cached environment script up to date.
+    touch "$_mnd_cached_env_script"
+    # shellcheck disable=1090
+    source "$_mnd_cached_env_script"
+  else
     return $exit_code
   fi
 }
@@ -127,53 +134,6 @@ function _mnd_get_cache_directory {
     # terminal.
     mkdir -p "$_cache_directory"
   fi
-}
-
-function _mnd_set_trap {
-  local -r cached_env_script="$1"
-
-  # Intentionally global so they can be accessed from the trap
-  #
-  # Redirect stdout to stderr until we're ready to print the environment variables
-  exec {_mnd_global_stdout_copy}>&1
-  exec 1>&2
-  _mnd_global_cached_env_script="$cached_env_script"
-
-  # This trap will print bash code that sets the environment variables to be set in
-  # the direnv environment. Either the new environment or the cached environment if
-  # we have to fall back.
-  #
-  # TODO: I tried to use a function for the trap, but I got an error: If there was a
-  # function inside the cached env script that used local variables, Bash would exit
-  # with the error "local cannot be used outside of a function", even though it was
-  # in a function. If I wrapped that function inside another function, then it would
-  # work. This is why the `eval` statement in the trap below is inside a function.
-  # Without it, I got a similar error.
-  trap -- '
-    if (($? != 0)) && [[ -e $_mnd_global_cached_env_script ]]; then
-      _mnd_log_error "Something went wrong, loading the last environment"
-
-      # Consider the cached environment script up to date.
-      #
-      # A built-in alternative to `touch`. Though, if the file did not initially end
-      # with a newline, this would add one, but that is not a problem here.
-      echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
-
-      exec 1>&$_mnd_global_stdout_copy
-      echo "
-        export MND_DID_FALLBACK=true
-        $(<$_mnd_global_cached_env_script)
-      "
-    else
-      # `declare -px` was not working so we use POSIX exports instead. I think the
-      # reason `declare` did not work is related to this issue[1].
-      #
-      # [1]: https://github.com/direnv/direnv/issues/222
-      set -o posix
-      exec 1>&$_mnd_global_stdout_copy
-      export -p
-    fi
-  ' EXIT
 }
 
 function _mnd_should_rebuild {
