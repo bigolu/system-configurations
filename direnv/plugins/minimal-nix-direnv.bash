@@ -61,20 +61,23 @@ function use_nix {
   # environment so we can handle failures in the build/evaluation without causing
   # this shell to exit.
   set +o errexit
-  (
+  local export_statements
+  export_statements="$(
+    # Redirect stdout to stderr until we're ready to print the export statements
+    exec {_mnd_stdout_copy}>&1
+    exec 1>&2
+
     set -o errexit
     set -o nounset
     set -o pipefail
 
-    local _mnd_new_env
-    local _mnd_new_env_script_contents
+    _mnd_new_env=
+    _mnd_new_env_script_contents=
     _mnd_build_new_env \
       _mnd_new_env _mnd_new_env_script_contents \
       "$_mnd_cache_directory" "$_mnd_env_type" "${env_build_args[@]}"
 
-    # If the script prints any messages then we should suppress them since we're
-    # going to evaluate the script again below.
-    eval "$_mnd_new_env_script_contents" 1>/dev/null
+    eval "$_mnd_new_env_script_contents"
 
     # WARNING
     # -------------------------------------------------------------------------------
@@ -87,13 +90,20 @@ function use_nix {
       "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
       "$_mnd_new_env" "$_mnd_cached_env" \
       "$_mnd_new_env_args_string" "$_mnd_cached_env_args"
-  )
+
+    # `declare -px` wasn't working so we use POSIX exports instead. I think the
+    # reason `declare` didn't work is related to this issue[1].
+    #
+    # [1]: https://github.com/direnv/direnv/issues/222
+    set -o posix
+    exec 1>&$_mnd_stdout_copy
+    export -p
+  )"
   local exit_code=$?
   set -o errexit
 
   if ((exit_code == 0)); then
-    # shellcheck disable=1090
-    source "$_mnd_cached_env_script"
+    eval "$export_statements"
   elif [[ -e $_mnd_cached_env_script ]]; then
     _mnd_log_error 'Something went wrong, loading the last environment'
     # Consider the cached environment script up to date.
