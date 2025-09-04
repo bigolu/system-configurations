@@ -411,8 +411,6 @@ check:
                         glob: "*.nix"
                         exclude:
                           - npins/*
-                        # --verify confirms that the formatted code parses the same as the
-                        # input code.
                         run: "{run_fix} nixfmt --verify {files}"
                       - name: stylua
                         glob: "*.lua"
