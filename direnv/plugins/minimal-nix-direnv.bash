@@ -57,29 +57,45 @@ function use_nix {
     return 0
   fi
 
-  local _mnd_original_trap
-  _mnd_set_fallback_trap _mnd_original_trap "$_mnd_cached_env_script"
+  # Use a subshell so we can trigger our exit trap without having the whole script
+  # exit.
+  local env_vars
+  set +o errexit
+  env_vars="$(
+    set -o errexit
+    set -o nounset
+    set -o pipefail
 
-  local _mnd_new_env
-  local _mnd_new_env_script_contents
-  _mnd_build_new_env \
-    _mnd_new_env _mnd_new_env_script_contents \
-    "$_mnd_cache_directory" "$_mnd_env_type" "${env_build_args[@]}"
+    _mnd_set_trap "$_mnd_cached_env_script"
 
-  eval "$_mnd_new_env_script_contents"
+    local _mnd_new_env
+    local _mnd_new_env_script_contents
+    _mnd_build_new_env \
+      _mnd_new_env _mnd_new_env_script_contents \
+      "$_mnd_cache_directory" "$_mnd_env_type" "${env_build_args[@]}"
 
-  # WARNING
-  # ---------------------------------------------------------------------------------
-  # Any variables accessed after this comment should have the prefix `_mnd_` to
-  # reduce the chance of being overwritten by the environment script that was
-  # evaluated before this comment.
+    eval "$_mnd_new_env_script_contents"
 
-  trap -- "$_mnd_original_trap" EXIT
-  _mnd_cache \
-    "$_mnd_cache_directory" "$_mnd_env_type" \
-    "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
-    "$_mnd_new_env" "$_mnd_cached_env" \
-    "$_mnd_new_env_args_string" "$_mnd_cached_env_args"
+    # WARNING
+    # ---------------------------------------------------------------------------------
+    # Any variables accessed after this comment should have the prefix `_mnd_` to
+    # reduce the chance of being overwritten by the environment script that was
+    # evaluated before this comment.
+
+    _mnd_cache \
+      "$_mnd_cache_directory" "$_mnd_env_type" \
+      "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
+      "$_mnd_new_env" "$_mnd_cached_env" \
+      "$_mnd_new_env_args_string" "$_mnd_cached_env_args"
+  )"
+  local exit_code=$?
+  set -o errexit
+  eval "$env_vars"
+  if ((exit_code == 0)) || [[ ${_MND_DID_FALLBACK:-} == 'true' ]]; then
+    unset _MND_DID_FALLBACK
+  else
+    return $exit_code
+  fi
 }
 
 function _mnd_cache {
@@ -115,20 +131,23 @@ function _mnd_get_cache_directory {
   fi
 }
 
-function _mnd_set_fallback_trap {
-  local -n _original_trap=$1
-  local -r cached_env_script="$2"
+function _mnd_set_trap {
+  local -r cached_env_script="$1"
 
-  # direnv already sets an exit trap so we'll prepend our command to it instead of
-  # overwriting it.
-  _original_trap="$(_mnd_get_exit_trap)"
-
-  if [[ ! -e $cached_env_script ]]; then
-    return 0
-  fi
-
-  # Intentionally global so they can be accessed from the fallback trap
+  # Intentionally global so they can be accessed from the trap
+  #
+  # Redirect stdout to stderr until we're ready to print the environment variables
+  exec {_mnd_global_stdout_copy}>&1
+  exec 1>&2
   _mnd_global_cached_env_script="$cached_env_script"
+  _mnd_global_original_env="$(
+    # `declare -px` wasn't working so we use POSIX exports instead. I think the
+    # reason `declare` didn't work is related to this issue[1].
+    #
+    # [1]: https://github.com/direnv/direnv/issues/222
+    set -o posix
+    export -p
+  )"
 
   # TODO: I tried to use a function for the trap, but I got an error: If there was a
   # function inside the cached env script that used local variables, Bash would exit
@@ -137,34 +156,37 @@ function _mnd_set_fallback_trap {
   # work. This is why the `eval` statement in the trap below is inside a function.
   # Without it, I got a similar error.
   trap -- '
-    _mnd_log_error "Something went wrong, loading the last environment"
+    if (($? != 0)) && [[ -e $_mnd_global_cached_env_script ]]; then
+      _mnd_log_error "Something went wrong, loading the last environment"
 
-    # Consider the cached environment script up to date.
-    #
-    # A built-in alternative to `touch`. Though, if the file did not initially end
-    # with a newline, this would add one, but that is not a problem here.
-    echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
+      # Consider the cached environment script up to date.
+      #
+      # A built-in alternative to `touch`. Though, if the file did not initially end
+      # with a newline, this would add one, but that is not a problem here.
+      echo "$(<"$_mnd_global_cached_env_script")" >"$_mnd_global_cached_env_script"
 
-    # Clear environment
-    readarray -t vars <<<"$(set -o posix; export -p)"
-    for var in "${vars[@]}"; do
-      # Remove everything from the first `=` onwards
-      var="${var%%=*}"
-      # The substring removes `export `
-      unset "${var:7}"
-    done
-  '"$(
-    # Restore the original environment
-    #
-    # `declare -px` wasn't working so we use POSIX exports instead. I think the
-    # reason `declare` didn't work is related to this issue[1].
+      # Clear environment
+      readarray -t vars <<<"$(set -o posix; export -p)"
+      for var in "${vars[@]}"; do
+        # Remove everything from the first `=` onwards
+        var="${var%%=*}"
+        # The substring removes `export `
+        unset "${var:7}"
+      done
+
+      eval "$_mnd_global_original_env"
+      source "$_mnd_global_cached_env_script"
+      export _MND_DID_FALLBACK=true
+    fi
+
+    # `declare -px` was not working so we use POSIX exports instead. I think the
+    # reason `declare` did not work is related to this issue[1].
     #
     # [1]: https://github.com/direnv/direnv/issues/222
     set -o posix
+    exec 1>&$_mnd_global_stdout_copy
     export -p
-  )"'
-    source "$_mnd_global_cached_env_script"
-  '"$_original_trap" EXIT
+  ' EXIT
 }
 
 function _mnd_should_rebuild {
@@ -299,18 +321,4 @@ function _mnd_log_error {
   fi
 
   log_error "${color_error}[minimal-nix-direnv] ERROR: ${message}${color_normal}"
-}
-
-function _mnd_get_exit_trap {
-  # `trap -p EXIT` will print 'trap -- <current_trap> EXIT'. The output seems to be
-  # formatted the way the %q directive for printf formats variables[1]. Because of
-  # this, we can use eval to tokenize it.
-  #
-  # [1]: https://www.gnu.org/software/coreutils/manual/html_node/printf-invocation.html#printf-invocation
-  local trap_output
-  trap_output="$(trap -p EXIT)"
-  eval "local -ra trap_output_tokens=($trap_output)"
-  # shellcheck disable=2154
-  # I declare `trap_output_tokens` in the eval statement above
-  echo "${trap_output_tokens[2]}"
 }
