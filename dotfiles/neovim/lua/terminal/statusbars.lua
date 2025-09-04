@@ -151,7 +151,7 @@ function StatusLine()
   -- Taken from here:
   -- https://github.com/vim-airline/vim-airline/blob/3b9e149e19ed58dee66e4842626751e329e1bd96/autoload/airline/extensions/whitespace.vim#L30
   if is_pattern_in_buffer([[\v(^\t+ +)|(^ +\t+)]]) then
-    mixed_indentation = "%#StatusLineErrorText#[  mixed indent]"
+    mixed_indentation = "%#StatusLineErrorText#[mixed indent]"
   end
 
   local mixed_line_endings = nil
@@ -166,7 +166,7 @@ function StatusLine()
     line_ending_types_found = line_ending_types_found + 1
   end
   if line_ending_types_found > 1 then
-    mixed_line_endings = "%#StatusLineErrorText#[ mixed line-endings]"
+    mixed_line_endings = "%#StatusLineErrorText#[mixed line-endings]"
   end
 
   local reg_recording = nil
