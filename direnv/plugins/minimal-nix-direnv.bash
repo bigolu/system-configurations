@@ -91,9 +91,7 @@ function use_nix {
   local exit_code=$?
   set -o errexit
   eval "$env_vars"
-  if ((exit_code == 0)) || [[ ${_MND_DID_FALLBACK:-} == 'true' ]]; then
-    unset _MND_DID_FALLBACK
-  else
+  if ((exit_code != 0)) && [[ ${MND_DID_FALLBACK:-} != 'true' ]]; then
     return $exit_code
   fi
 }
@@ -176,7 +174,7 @@ function _mnd_set_trap {
 
       eval "$_mnd_global_original_env"
       source "$_mnd_global_cached_env_script"
-      export _MND_DID_FALLBACK=true
+      export MND_DID_FALLBACK=true
     fi
 
     # `declare -px` was not working so we use POSIX exports instead. I think the
