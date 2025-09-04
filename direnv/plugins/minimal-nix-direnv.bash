@@ -90,8 +90,11 @@ function use_nix {
   set -o errexit
 
   if ((exit_code == 0)); then
+    # If the script prints any messages then we should suppress them since they were
+    # already printed when we evaluated the script in the subshell above.
+    #
     # shellcheck disable=1090
-    source "$_mnd_cached_env_script"
+    source "$_mnd_cached_env_script" &>/dev/null
   elif [[ -e $_mnd_cached_env_script ]]; then
     _mnd_log_error 'Something went wrong, loading the last environment'
     # Consider the cached environment script up to date.
