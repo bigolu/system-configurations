@@ -1,14 +1,11 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mattn/efm-langserver/master/schema.json
 
-# TODO: lint-after-open should be the default, but it isn't set on the server:
-# https://github.com/mattn/efm-langserver/pull/277
-
 version: 2
-root-markers:
-  - .git
 languages:
   =:
     - lint-source: lefthook-lint
+      # TODO: lint-after-open should be the default, but it isn't set on the server:
+      # https://github.com/mattn/efm-langserver/pull/277
       lint-after-open: true
       lint-on-save: true
       lint-stdin: false
