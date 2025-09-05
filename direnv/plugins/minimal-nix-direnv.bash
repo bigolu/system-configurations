@@ -177,7 +177,10 @@ function _mnd_is_cache_fresh {
   readarray -d '' watched_files < <(direnv watch-print --null)
   local file
   for file in "${watched_files[@]}"; do
-    if [[ $file -nt $cached_env_script ]]; then
+    if
+      [[ $file != "${XDG_DATA_HOME:-$HOME/.local/share}/direnv/"* &&
+        $file -nt $cached_env_script ]]
+    then
       _is_cache_fresh=false
       break
     fi
