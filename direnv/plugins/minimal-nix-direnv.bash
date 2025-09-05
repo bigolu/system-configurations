@@ -43,6 +43,7 @@ function use_nix {
   local -r cached_env="$cache_directory/env"
   local -r cached_env_script="$cache_directory/env.bash"
   local -r cached_env_args="$cache_directory/env-args.txt"
+  local -r cached_watches="$cache_directory/watches.txt"
 
   local IFS=' '
   local -r new_env_args_string="$env_type ${env_build_args[*]}"
@@ -50,7 +51,7 @@ function use_nix {
   local should_rebuild
   _mnd_should_rebuild \
     should_rebuild \
-    "$cached_env" "$cached_env_script" "$cached_env_args" "$new_env_args_string"
+    "$cached_env" "$cached_env_script" "$cached_env_args" "$cached_watches" "$new_env_args_string"
   if [[ $should_rebuild != 'true' ]]; then
     # shellcheck disable=1090
     source "$cached_env_script"
@@ -95,7 +96,8 @@ function use_nix {
       "$cache_directory" "$env_type" \
       "$MND_NEW_ENV_SCRIPT_CONTENTS" "$cached_env_script" \
       "$MND_NEW_ENV" "$cached_env" \
-      "$new_env_args_string" "$cached_env_args"
+      "$new_env_args_string" "$cached_env_args" \
+      "$cached_watches"
     unset MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS
   elif [[ -e $cached_env_script ]]; then
     _mnd_log_error 'Something went wrong, loading the last environment'
@@ -113,7 +115,8 @@ function _mnd_cache {
     cache_directory="$1" env_type="$2" \
     new_env_script_contents="$3" cached_env_script="$4" \
     new_env="$5" cached_env="$6" \
-    new_env_args_string="$7" cached_env_args="$8"
+    new_env_args_string="$7" cached_env_args="$8" \
+    cached_watches="$9"
 
   # Why we use `-f`:
   #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
@@ -124,6 +127,7 @@ function _mnd_cache {
   # a direnv editor extension and the terminal.
   ln -nfs "$new_env" "$cached_env"
   echo "$new_env_args_string" >"$cached_env_args"
+  echo "${DIRENV_WATCHES:?}" >"$cached_watches"
   if [[ $env_type == 'packages' ]]; then
     _mnd_nix build --out-link "$cache_directory/env-gc-root" "$new_env"
   fi
@@ -146,42 +150,19 @@ function _mnd_should_rebuild {
   local -r cached_env="$2"
   local -r cached_env_script="$3"
   local -r cached_env_args="$4"
-  local -r new_env_args_string="$5"
-
-  local is_cache_fresh
-  _mnd_is_cache_fresh is_cache_fresh "$cached_env_script"
+  local -r cached_watches="$5"
+  local -r new_env_args_string="$6"
 
   if
     [[ -e $cached_env &&
       -e $cached_env_script &&
-      -e $cached_env_args &&
-      $(<"$cached_env_args") == "$new_env_args_string" &&
-      $is_cache_fresh == 'true' ]]
+      -e $cached_env_args && $(<"$cached_env_args") == "$new_env_args_string" &&
+      -e $cached_watches && $(<"$cached_watches") == "${DIRENV_WATCHES:?}" ]]
   then
     _should_rebuild=false
   else
     _should_rebuild=true
   fi
-}
-
-function _mnd_is_cache_fresh {
-  local -n _is_cache_fresh=$1
-  local -r cached_env_script="$2"
-
-  _is_cache_fresh=true
-  local -a watched_files
-  # shellcheck disable=2312
-  # PERF: The exit code of direnv is being masked by readarray, but the alternative
-  # ways to do this are slower, For example, I could use a pipeline, but that would
-  # spawn a subprocess.
-  readarray -d '' watched_files < <(direnv watch-print --null)
-  local file
-  for file in "${watched_files[@]}"; do
-    if [[ $file -nt $cached_env_script ]]; then
-      _is_cache_fresh=false
-      break
-    fi
-  done
 }
 
 function _mnd_build_new_env {
