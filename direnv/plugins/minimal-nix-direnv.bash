@@ -32,86 +32,77 @@
 
 function use_nix {
   # The type of environment. See the case statement below for valid values.
-  local -r _mnd_env_type="$1"
+  local -r env_type="$1"
   # Arguments used for building the environment. See the case statement below for how
   # they will be used.
   local -ra env_build_args=("${@:2}")
 
-  local _mnd_cache_directory
-  _mnd_get_cache_directory _mnd_cache_directory
+  local cache_directory
+  _mnd_get_cache_directory cache_directory
   # Keep a symlink to the environment so we can ensure it still exists
-  local -r _mnd_cached_env="$_mnd_cache_directory/env"
-  local -r _mnd_cached_env_script="$_mnd_cache_directory/env.bash"
-  local -r _mnd_cached_env_args="$_mnd_cache_directory/env-args.txt"
+  local -r cached_env="$cache_directory/env"
+  local -r cached_env_script="$cache_directory/env.bash"
+  local -r cached_env_args="$cache_directory/env-args.txt"
 
   local IFS=' '
-  local -r _mnd_new_env_args_string="$_mnd_env_type ${env_build_args[*]}"
+  local -r new_env_args_string="$env_type ${env_build_args[*]}"
 
   local should_rebuild
   _mnd_should_rebuild \
     should_rebuild \
-    "$_mnd_cached_env" "$_mnd_cached_env_script" "$_mnd_cached_env_args" "$_mnd_new_env_args_string"
+    "$cached_env" "$cached_env_script" "$cached_env_args" "$new_env_args_string"
   if [[ $should_rebuild != 'true' ]]; then
     # shellcheck disable=1090
-    source "$_mnd_cached_env_script"
+    source "$cached_env_script"
     return 0
   fi
 
   # Disable `errexit` in this shell and use a subshell to build/evaluate the new
-  # environment so we can handle failures in the build/evaluation without causing
-  # this shell to exit.
+  # environment so we can handle failures without causing this shell to exit.
   set +o errexit
   # To get the environment variables from the subshell, we'll have the subshell print
-  # out all of its variables as `export` statements.
+  # its variables as `export` statements.
   local export_statements
   export_statements="$(
     # Redirect stdout to stderr until we're ready to print the export statements
-    exec {_mnd_stdout_copy}>&1
+    exec {stdout_copy}>&1
     exec 1>&2
 
     set -o errexit
     set -o nounset
     set -o pipefail
 
-    _mnd_new_env=
-    _mnd_new_env_script_contents=
+    export MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS
     _mnd_build_new_env \
-      _mnd_new_env _mnd_new_env_script_contents \
-      "$_mnd_cache_directory" "$_mnd_env_type" "${env_build_args[@]}"
+      MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS \
+      "$cache_directory" "$env_type" "${env_build_args[@]}"
 
-    eval "$_mnd_new_env_script_contents"
+    eval "$MND_NEW_ENV_SCRIPT_CONTENTS"
 
-    # WARNING
-    # -------------------------------------------------------------------------------
-    # Any variables accessed after this comment should have the prefix `_mnd_` to
-    # reduce the chance of being overwritten by the environment script that was
-    # evaluated before this comment.
-
-    _mnd_cache \
-      "$_mnd_cache_directory" "$_mnd_env_type" \
-      "$_mnd_new_env_script_contents" "$_mnd_cached_env_script" \
-      "$_mnd_new_env" "$_mnd_cached_env" \
-      "$_mnd_new_env_args_string" "$_mnd_cached_env_args"
-
-    # `declare -px` wasn't working so we use POSIX exports instead. I think the
-    # reason `declare` didn't work is related to this issue[1].
+    # `declare -px` doesn't work[1] so we use POSIX exports instead.
     #
     # [1]: https://github.com/direnv/direnv/issues/222
     set -o posix
-    exec 1>&$_mnd_stdout_copy
+    exec 1>&$stdout_copy
     export -p
   )"
-  local exit_code=$?
+  local -r exit_code=$?
   set -o errexit
 
   if ((exit_code == 0)); then
     eval "$export_statements"
-  elif [[ -e $_mnd_cached_env_script ]]; then
+    _mnd_cache \
+      "$cache_directory" "$env_type" \
+      "$MND_NEW_ENV_SCRIPT_CONTENTS" "$cached_env_script" \
+      "$MND_NEW_ENV" "$cached_env" \
+      "$new_env_args_string" "$cached_env_args"
+    unset MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS
+  elif [[ -e $cached_env_script ]]; then
     _mnd_log_error 'Something went wrong, loading the last environment'
     # Consider the cached environment script up to date.
-    touch "$_mnd_cached_env_script"
+    touch "$cached_env_script"
     # shellcheck disable=1090
-    source "$_mnd_cached_env_script"
+    source "$cached_env_script"
   else
     return $exit_code
   fi
@@ -231,10 +222,6 @@ function _mnd_build_new_env {
       # instance its own profile.
       local -r tmp_profile="$cache_directory/tmp-profile-$$"
 
-      # We store the script in a string instead of a file to avoid a race condition
-      # between multiple instances of direnv e.g. a direnv editor extension and the
-      # terminal.
-      #
       # shellcheck disable=2016
       _new_env_script_contents='
         declare -A _mnd_values_to_restore=(
