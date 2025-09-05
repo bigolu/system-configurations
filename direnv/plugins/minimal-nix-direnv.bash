@@ -57,39 +57,16 @@ function use_nix {
     return 0
   fi
 
-  # Disable `errexit` in this shell and use a subshell to build/evaluate the new
-  # environment so we can handle failures without causing this shell to exit.
+  # This shell shouldn't exit if build/eval fails so we can fall back
   set +o errexit
-  # To get the environment variables from the subshell, we'll have the subshell print
-  # its variables as `export` statements.
   local export_statements
   export_statements="$(
-    # Redirect stdout to stderr until we're ready to print the export statements
-    exec {stdout_copy}>&1
-    exec 1>&2
-
-    set -o errexit
-    set -o nounset
-    set -o pipefail
-
-    export MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS
-    _mnd_build_new_env \
-      MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS \
-      "$cache_directory" "$env_type" "${env_build_args[@]}"
-
-    eval "$MND_NEW_ENV_SCRIPT_CONTENTS"
-
-    # `declare -px` doesn't work[1] so we use POSIX exports instead.
-    #
-    # [1]: https://github.com/direnv/direnv/issues/222
-    set -o posix
-    exec 1>&$stdout_copy
-    export -p
+    build_and_eval_in_subshell "$cache_directory" "$env_type" "${env_build_args[@]}"
   )"
-  local -r exit_code=$?
+  local -r build_and_eval_exit_code=$?
   set -o errexit
 
-  if ((exit_code == 0)); then
+  if ((build_and_eval_exit_code == 0)); then
     eval "$export_statements"
     _mnd_cache \
       "$cache_directory" "$env_type" \
@@ -104,8 +81,44 @@ function use_nix {
     # shellcheck disable=1090
     source "$cached_env_script"
   else
-    return $exit_code
+    return 1
   fi
+}
+
+# This is done in a subshell to prevent any failures within it from causing the
+# parent shell to exit.
+#
+# It prints out its environment variables as `export` statements so they can be
+# loaded into the parent shell.
+function build_and_eval_in_subshell {
+  (
+    # Redirect stdout to stderr until we're ready to print the export statements
+    local stdout_copy
+    exec {stdout_copy}>&1
+    exec 1>&2
+
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    local -r cache_directory="$1"
+    local -r env_type="$2"
+    local -ra env_build_args=("${@:3}")
+
+    export MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS
+    _mnd_build_new_env \
+      MND_NEW_ENV MND_NEW_ENV_SCRIPT_CONTENTS \
+      "$cache_directory" "$env_type" "${env_build_args[@]}"
+
+    eval "$MND_NEW_ENV_SCRIPT_CONTENTS"
+
+    # `declare -px` doesn't work[1] so we use POSIX exports instead.
+    #
+    # [1]: https://github.com/direnv/direnv/issues/222
+    set -o posix
+    exec 1>&$stdout_copy
+    export -p
+  )
 }
 
 function _mnd_cache {

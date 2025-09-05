@@ -1,14 +1,16 @@
-# There's an issue for having flakes retain a reference to their inputs[1].
-#
-# [1]: https://github.com/NixOS/nix/issues/6895#issuecomment-2475461113
-
 # - You can perform filtering on your roots which would be hard to do with
 #   nix-direnv. For example, filtering your npins' pins based on which platforms they
 #   apply to. This way, a macOS only pin won't have a GC root on Linux.
-# - The option to show a diff of your dev shell when it changes.
+# - The option to show a diff of your dev shell when it changes. This useful for
+#   verifying that a refactor doesn't change the dev shell or just seeing what has
+#   changed.
 # - Roots are joined into a single derivation so you'll only have a single GC root
 #   per project, or two if you enabled the dev shell GC root. This is reduces noise
 #   in the full list of GC roots for your system (/nix/var/nix/gcroots/auto).
+
+# There's an issue for having flakes retain a reference to their inputs[1].
+#
+# [1]: https://github.com/NixOS/nix/issues/6895
 
 {
   lib,
@@ -37,10 +39,12 @@ nixpkgs.callPackage (
       getExe'
       concatStringsSep
       filter
-      elem
+      genAttrs'
+      nameValuePair
       filterAttrs
       attrValues
       ;
+    inherit (lib.strings) unsafeDiscardStringContext;
 
     handlers = {
       /*
@@ -59,7 +63,7 @@ nixpkgs.callPackage (
 
       flake =
         let
-          getInputsRecursive =
+          getInputsClosure =
             {
               inputs,
               exclude ? [ ],
@@ -67,10 +71,17 @@ nixpkgs.callPackage (
             let
               processInputs =
                 let
-                  # So we can compare inputs by their outPath instead of comparing
-                  # the entire attrset.
-                  excludeOutPaths = map (input: input.outPath) exclude;
-                  removeExcluded = filterAttrs (_name: input: !(elem input.outPath excludeOutPaths));
+                  # So we can compare inputs by their outPath instead of having to
+                  # compare the entire attrset.
+                  excludeMap = genAttrs' exclude (
+                    # nix doesn't allow attribute keys to have string context[1].
+                    #
+                    # [1]: https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
+                    input: nameValuePair (unsafeDiscardStringContext input.outPath) true
+                  );
+                  removeExcluded = filterAttrs (
+                    _name: input: !excludeMap ? ${unsafeDiscardStringContext input.outPath}
+                  );
 
                   toClosureNodes = mapAttrsToList (
                     # Used by `genericClosure` for equality checks
@@ -83,15 +94,19 @@ nixpkgs.callPackage (
                   toClosureNodes
                 ];
             in
+            # There may be cycles if a user sets `inputs.foo.inputs.bar.follows = ""`
+            # which would point bar to `self`. This is sometimes done to remove
+            # unnecessary inputs like development-only inputs. `genericClosure` will
+            # handle this case.
             genericClosure {
               startSet = processInputs inputs;
-              # Inputs with "flake = false" will not have inputs
+              # Non-Flake inputs will not have inputs
               operator = input: processInputs (input.inputs or { });
             };
         in
         config:
         pipe config [
-          getInputsRecursive
+          getInputsClosure
           # If these inputs came from `lix/flake-compat` and `copySourceTreeToStore`
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
