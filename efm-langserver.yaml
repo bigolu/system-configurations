@@ -3,6 +3,11 @@
 version: 2
 languages:
   =:
+    - format-command: |
+        file="$(realpath --relative-to=${ROOT} ${INPUT})"
+        RUN_FIX_ACTIONS='' lefthook run check \
+          --jobs format --file "$file" >/dev/null 2>&1
+        cat "$file"
     - lint-source: lefthook-lint
       # TODO: lint-after-open should be the default, but it isn't set on the server:
       # https://github.com/mattn/efm-langserver/pull/277

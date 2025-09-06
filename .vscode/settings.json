@@ -5,6 +5,7 @@
   "editor.rulers": [
     85
   ],
+  "editor.defaultFormatter": "llllvvuu.llllvvuu-glspc",
 
   // Automatically restart all the other extensions after loading the direnv
   // environment. This way the other extensions will have the environment as
