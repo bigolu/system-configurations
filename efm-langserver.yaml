@@ -1,38 +1,165 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mattn/efm-langserver/master/schema.json
 
 version: 2
+
+tools:
+  # SYNC: taplo
+  taplo: &taplo
+    format-stdin: true
+    format-command: taplo format --stdin-filepath ${INPUT} -
+  # SYNC: prettier
+  prettier: &prettier
+    format-stdin: true
+    format-command: prettier --stdin-filepath ${INPUT}
+  # SYNC: shfmt
+  shfmt: &shfmt
+    format-stdin: true
+    format-command: shfmt --filename ${INPUT} -
+  # SYNC: fish_indent
+  fish_indent: &fish_indent
+    format-stdin: true
+    format-command: fish_indent
+  # SYNC: nixfmt
+  nixfmt: &nixfmt
+    format-stdin: true
+    # SYNC: nixfmt
+    format-command: nixfmt --verify --filename ${INPUT}
+  # SYNC: stylua
+  stylua: &stylua
+    format-stdin: true
+    # SYNC: stylua
+    format-command: stylua --verify --stdin-filepath ${INPUT} -
+  # SYNC: gofmt
+  gofmt: &gofmt
+    format-stdin: true
+    format-command: gofmt
+  # SYNC: ruff-format
+  ruff: &ruff
+    format-stdin: true
+    format-command: ruff format --stdin-filename ${INPUT}
+  # SYNC: ruff-format-sort-imports
+  ruff-sort-imports: &ruff-sort-imports
+    format-stdin: true
+    format-command: ruff check --stdin-filename ${INPUT} --select I --fix-only
+  # SYNC: actionlint
+  actionlint: &actionlint
+    lint-source: actionlint
+    lint-after-open: true
+    lint-stdin: true
+    lint-command: |
+      input=${INPUT}
+      substring=.github/workflows/
+      if [ "${input#*$substring}" != "$input" ]; then
+        actionlint -no-color -
+      fi
+    lint-formats:
+      - "%f:%l:%c: %m"
+  # SYNC: markdownlint-cli2-lint
+  markdownlint-cli2: &markdownlint-cli2
+    lint-source: markdownlint-cli2
+    lint-after-open: true
+    lint-stdin: true
+    lint-command: markdownlint-cli2 -
+    lint-formats:
+      - "%f:%l:%c %m"
+      - "%f:%l %m"
+  # SYNC: config-file-validator
+  config-file-validator: &config-file-validator
+    lint-source: config-file-validator
+    lint-after-open: true
+    lint-stdin: true
+    lint-ignore-exit-code: true
+    # dependencies: cat, mktemp, jq
+    lint-command: |
+      input=${INPUT}
+      basename="${input##*/}"
+      extension=".${basename##*.}"
+      temp="$(mktemp --suffix "$extension")"
+      cat >"$temp"
+      validator -groupby pass-fail -reporter json -- "$temp" |
+        jq --raw-output --arg input "$input" '.files.Failed.[]? | "\($input): \(.error)"'
+    lint-formats:
+      - "%f: %m"
+  # SYNC: typos
+  typos: &typos
+    lint-source: typos
+    lint-after-open: true
+    lint-stdin: true
+    lint-command: typos --color never --format brief -
+    lint-formats:
+      - "%f:%l:%c: %m"
+  # SYNC: statix-lint
+  statix: &statix
+    lint-source: statix
+    lint-after-open: true
+    lint-stdin: true
+    lint-command: statix check --stdin --format errfmt
+    lint-formats:
+      - "%f>%l:%c:%t:%n:%m"
+  # SYNC: nixpkgs-lint
+  nixpkgs-lint: &nixpkgs-lint
+    lint-source: nixpkgs-lint
+    lint-after-open: true
+    lint-stdin: true
+    lint-ignore-exit-code: true
+    # dependencies: cat, mktemp, jq
+    lint-command: |
+      input=${INPUT}
+      basename="${input##*/}"
+      extension=".${basename##*.}"
+      temp="$(mktemp --suffix "$extension")"
+      cat >"$temp"
+      nixpkgs-lint --include-unfinished-lints --format json -- "$temp" |
+        jq --raw-output --arg input "$input" '.[] | "\($input):\(.line):\(.column): \(.message)"'
+    lint-formats:
+      - "%f:%l:%c: %m"
+  # SYNC: editorconfig-checker
+  editorconfig-checker: &editorconfig-checker
+    lint-source: editorconfig-checker
+    lint-after-open: true
+    lint-stdin: false
+    lint-on-save: true
+    lint-command: editorconfig-checker -no-color -format gcc --disable-indent-size ${INPUT}
+    lint-formats:
+      - "%f:%l:%c: %m"
+
 languages:
+  toml:
+    - <<: *taplo
+    - <<: *config-file-validator
+  markdown:
+    - <<: *prettier
+    - <<: *markdownlint-cli2
+  json:
+    - <<: *prettier
+    - <<: *config-file-validator
+  jsonc:
+    - <<: *prettier
+  json5:
+    - <<: *prettier
+  yaml:
+    - <<: *prettier
+    - <<: *actionlint
+    - <<: *config-file-validator
+  shellscript:
+    - <<: *shfmt
+  fish:
+    - <<: *fish_indent
+  nix:
+    - <<: *nixfmt
+    - <<: *statix
+    - <<: *nixpkgs-lint
+  lua:
+    - <<: *stylua
+  go:
+    - <<: *gofmt
+  python:
+    - <<: *ruff
+    - <<: *ruff-sort-imports
+  editorconfig:
+    - <<: *config-file-validator
+  ini:
+    - <<: *config-file-validator
   =:
-    - format-command: |
-        file="$(realpath --relative-to=${ROOT} ${INPUT})"
-        RUN_FIX_ACTIONS='' lefthook run check \
-          --jobs format --file "$file" >/dev/null 2>&1
-        cat "$file"
-    - lint-source: lefthook-lint
-      # TODO: lint-after-open should be the default, but it isn't set on the server:
-      # https://github.com/mattn/efm-langserver/pull/277
-      lint-after-open: true
-      lint-on-save: true
-      lint-stdin: false
-      lint-command: |
-        lefthook run check \
-          --jobs actionlint \
-          --jobs markdownlint-cli2-lint \
-          --jobs config-file-validator \
-          --jobs typos \
-          --jobs editorconfig-checker \
-          --jobs nixpkgs-lint \
-          --jobs statix-lint \
-          --file "$(realpath --relative-to=${ROOT} ${INPUT})"
-      # Formats must be ordered from most specific to least since efm will try
-      # matching them in this order
-      lint-formats:
-        # statix-lint
-        - "%f>%l:%c:%t:%n:%m"
-        # typos, editorconfig-checker, nixpkgs-lint, actionlint
-        - "%f:%l:%c: %m"
-        # markdownlint-cli2
-        - "%f:%l:%c %m"
-        - "%f:%l %m"
-        # config-file-validator
-        - "%f: %m"
+    - <<: *typos
+    - <<: *editorconfig-checker

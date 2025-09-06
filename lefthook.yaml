@@ -17,8 +17,6 @@ output:
   # Even if a command succeeds, it still may be useful to see its output in case it
   # prints a warning for a deprecated feature or the fact that the project is no
   # longer being maintained.
-  #
-  # I also use the output for efm-langserver
   - execution_out
   - failure
 
@@ -391,36 +389,45 @@ check:
                 - name: format
                   group:
                     jobs:
+                      # SYNC: taplo
                       - name: taplo
                         glob: "*.toml"
                         run: "{run_fix} taplo format {files}"
+                      # SYNC: prettier
                       - name: prettier
-                        glob: "*.{md,js,json,json5,jsonc,yaml}"
+                        glob: "*.{md,json,json5,jsonc,yaml}"
                         exclude:
                           # Don't format these since VS Code will
                           - ".vscode/*.json"
                           - npins/*
                         run: "{run_fix} prettier --list-different --write {files}"
+                      # SYNC: shfmt
                       - name: shfmt
                         glob: "*.{sh,bash}"
-                        run: "{run_fix} shfmt --simplify --case-indent --indent 2 --write {files}"
+                        run: "{run_fix} shfmt --write {files}"
+                      # SYNC: fish_indent
                       - name: fish_indent
                         glob: "*.fish"
                         run: "{run_fix} fish_indent --write {files}"
+                      # SYNC: nixfmt
                       - name: nixfmt
                         glob: "*.nix"
                         exclude:
                           - npins/*
                         run: "{run_fix} nixfmt --verify {files}"
+                      # SYNC: stylua
                       - name: stylua
                         glob: "*.lua"
-                        run: "{run_fix} stylua {files}"
+                        run: "{run_fix} stylua --verify {files}"
+                      # SYNC: gofmt
                       - name: gofmt
                         glob: "*.go"
                         run: "{run_fix} gofmt -w {files}"
+                      # SYNC: ruff-format
                       - name: ruff-format
                         glob: "*.py"
                         run: "{run_fix} ruff format {files}"
+                      # SYNC: ruff-format-sort-imports
                       - name: ruff-format-sort-imports
                         glob: "*.py"
                         run: "{run_fix} ruff check --select I --fix-only {files}"
@@ -452,16 +459,18 @@ check:
                   # TODO: Fish doesn't support passing multiple files, I should open
                   # an issue.
                   run: parallel fish --no-execute -- {files}
+                # SYNC: markdownlint-cli2-lint
                 - name: markdownlint-cli2-lint
                   glob: "*.md"
                   run: markdownlint-cli2 {files}
                 - name: shellcheck
                   glob: "*.{sh,bash}"
                   run: shellcheck {files}
+                # SYNC: actionlint
                 - name: actionlint
                   glob: ".github/workflows/*.yaml"
-                  # Ensure efm-langserver can parse the output
-                  run: actionlint -no-color -oneline {files}
+                  run: actionlint {files}
+                # SYNC: statix-lint
                 - name: statix-lint
                   glob: "*.nix"
                   exclude:
@@ -473,25 +482,18 @@ check:
                     - nix/packages/default.nix
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
-                  #
-                  # Use `errfmt` so efm-langserver can parse the errors
-                  run: parallel statix check --format errfmt -- {files}
+                  run: parallel statix check -- {files}
+                # SYNC: nixpkgs-lint
                 - name: nixpkgs-lint
                   glob: "*.nix"
                   exclude:
                     - npins/*
-                  run: |
-                    bash -euo pipefail -c '
-                      # Ensure it produces a format that efm-langserver can parse
-                      nixpkgs-lint --include-unfinished-lints --format json -- "$@" |
-                        jq --raw-output ".[] | \"\(.file):\(.line):\(.column): \(.message)\""
-                    ' -- {files}
+                  run: nixpkgs-lint --include-unfinished-lints -- {files}
+                # SYNC: typos
                 - name: typos
                   run: |
                     {exit_if_no_files} {files}
-                    # We use `brief` to produce a format that efm-langserver can
-                    # parse
-                    typos --color never --format brief {files}
+                    typos {files}
                 - name: mypy
                   glob: "*.py"
                   run: mypy {files}
@@ -499,25 +501,21 @@ check:
                   run: |
                     {exit_if_no_files} {files}
                     isutf8 {files}
+                # SYNC: editorconfig-checker
                 - name: editorconfig-checker
                   # I'm disabling the indentation size check because it applies to
                   # comments as well and I don't want it to.
                   run: |
                     {exit_if_no_files} {files}
-                    # We use `gcc` to produce a format that efm-langserver can parse
-                    editorconfig-checker -no-color -format gcc --disable-indent-size {files}
+                    editorconfig-checker --disable-indent-size {files}
+                # SYNC: config-file-validator
                 - name: config-file-validator
                   glob: "*.{editorconfig,json,ini,yaml,toml}"
                   exclude:
                     # These aren't actually JSON files they're JSONC
                     - ".vscode/*.json"
                     - npins/*
-                  run: |
-                    chronic bash -euo pipefail -c '
-                      # Ensure it produces a format that efm-langserver can parse
-                      validator -groupby pass-fail -reporter json -- "$@" |
-                        jq --raw-output ".files.Failed.[]? | \"\(.path): \(.error)\""
-                    ' -- {files}
+                  run: chronic validator -groupby pass-fail -- {files}
                 - name: renovate-config-validator
                   glob:
                     - renovate.json5

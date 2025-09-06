@@ -25,3 +25,8 @@ insert_final_newline = unset
 indent_style = unset
 indent_size = unset
 trim_trailing_whitespace = unset
+
+[*.{sh,bash}]
+# These are read by `shfmt`
+simplify = true
+switch_case_indent = true
