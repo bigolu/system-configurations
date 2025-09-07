@@ -2,9 +2,7 @@
   "files.associations": {
     ".envrc": "shellscript",
   },
-  "editor.rulers": [
-    85
-  ],
+  "editor.rulers": [85],
   "editor.defaultFormatter": "llllvvuu.llllvvuu-glspc",
 
   // Automatically restart all the other extensions after loading the direnv
@@ -26,7 +24,7 @@
       },
       "options": {
         "comp_2": {
-          "expr": "(import ./. {}).darwinConfigurations.comp_2.options"
+          "expr": "(import ./. {}).darwinConfigurations.comp_2.options",
         },
         "comp_1": {
           "expr": "(import ./. {}).homeConfigurations.comp_1.options",
@@ -40,10 +38,7 @@
   "go.lintTool": "golangci-lint",
 
   "ltex.completionEnabled": true,
-  "ltex.enabled": [
-    "git-commit",
-    "markdown",
-  ],
+  "ltex.enabled": ["git-commit", "markdown"],
 
   // Use our version for consistency
   "evenBetterToml.taplo.bundled": false,

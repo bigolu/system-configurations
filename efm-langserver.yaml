@@ -12,7 +12,39 @@ tools:
   # SYNC: prettier
   prettier: &prettier
     format-stdin: true
-    format-command: prettier --stdin-filepath ${INPUT}
+    format-command: |
+      # Using an outer and inner case statement to represent include and exclude
+      # globs respectively.
+      case ${INPUT} in
+        *)
+          case ${INPUT} in
+            */npins/* | */.vscode/*.json)
+              cat
+              ;;
+            *)
+              prettier --stdin-filepath ${INPUT}
+              ;;
+          esac
+          ;;
+      esac
+  # SYNC: prettier-vscode
+  prettier-vscode: &prettier-vscode
+    format-stdin: true
+    format-command: |
+      # Using an outer and inner case statement to represent include and exclude
+      # globs respectively.
+      case ${INPUT} in
+        */.vscode/*.json)
+          case ${INPUT} in
+            *)
+              prettier --parser jsonc --stdin-filepath ${INPUT}
+              ;;
+          esac
+          ;;
+        *)
+          cat
+          ;;
+      esac
   # SYNC: shfmt
   shfmt: &shfmt
     format-stdin: true
@@ -24,12 +56,24 @@ tools:
   # SYNC: nixfmt
   nixfmt: &nixfmt
     format-stdin: true
-    # SYNC: nixfmt
-    format-command: nixfmt --verify --filename ${INPUT}
+    format-command: |
+      # Using an outer and inner case statement to represent include and exclude
+      # globs respectively.
+      case ${INPUT} in
+        *)
+          case ${INPUT} in
+            */npins/*)
+              cat
+              ;;
+            *)
+              nixfmt --verify --filename ${INPUT}
+              ;;
+          esac
+          ;;
+      esac
   # SYNC: stylua
   stylua: &stylua
     format-stdin: true
-    # SYNC: stylua
     format-command: stylua --verify --stdin-filepath ${INPUT} -
   # SYNC: gofmt
   gofmt: &gofmt
@@ -49,9 +93,15 @@ tools:
     lint-after-open: true
     lint-stdin: true
     lint-command: |
+      # Using an outer and inner case statement to represent include and exclude
+      # globs respectively.
       case ${INPUT} in
         */.github/workflows/*)
-          actionlint -no-color -
+          case ${INPUT} in
+            *)
+              actionlint -no-color -
+              ;;
+          esac
           ;;
       esac
     lint-formats:
@@ -73,13 +123,26 @@ tools:
     lint-ignore-exit-code: true
     # dependencies: cat, mktemp, jq
     lint-command: |
-      input=${INPUT}
-      basename="${input##*/}"
-      extension=".${basename##*.}"
-      temp="$(mktemp --suffix "$extension")"
-      cat >"$temp"
-      validator -groupby pass-fail -reporter json -- "$temp" |
-        jq --raw-output --arg input "$input" '.files.Failed.[]? | "\($input): \(.error)"'
+      # Using an outer and inner case statement to represent include and exclude
+      # globs respectively.
+      case ${INPUT} in
+        *)
+          case ${INPUT} in
+            */npins/* | */.vscode/*.json)
+              :
+              ;;
+            *)
+              input=${INPUT}
+              basename="${input##*/}"
+              extension=".${basename##*.}"
+              temp="$(mktemp --suffix "$extension")"
+              cat >"$temp"
+              validator -groupby pass-fail -reporter json -- "$temp" |
+                jq --raw-output --arg input "$input" '.files.Failed.[]? | "\($input): \(.error)"'
+              ;;
+          esac
+          ;;
+      esac
     lint-formats:
       - "%f: %m"
   # SYNC: typos
@@ -95,7 +158,21 @@ tools:
     lint-source: statix
     lint-after-open: true
     lint-stdin: true
-    lint-command: statix check --stdin --format errfmt
+    lint-command: |
+      # Using an outer and inner case statement to represent include and exclude
+      # globs respectively.
+      case ${INPUT} in
+        *)
+          case ${INPUT} in
+            */npins/*)
+              :
+              ;;
+            *)
+              statix check --stdin --format errfmt
+              ;;
+          esac
+          ;;
+      esac
     lint-formats:
       - "%f>%l:%c:%t:%n:%m"
   # SYNC: nixpkgs-lint
@@ -106,13 +183,26 @@ tools:
     lint-ignore-exit-code: true
     # dependencies: cat, mktemp, jq
     lint-command: |
-      input=${INPUT}
-      basename="${input##*/}"
-      extension=".${basename##*.}"
-      temp="$(mktemp --suffix "$extension")"
-      cat >"$temp"
-      nixpkgs-lint --include-unfinished-lints --format json -- "$temp" |
-        jq --raw-output --arg input "$input" '.[] | "\($input):\(.line):\(.column): \(.message)"'
+      # Using an outer and inner case statement to represent include and exclude
+      # globs respectively.
+      case ${INPUT} in
+        *)
+          case ${INPUT} in
+            */npins/*)
+              :
+              ;;
+            *)
+              input=${INPUT}
+              basename="${input##*/}"
+              extension=".${basename##*.}"
+              temp="$(mktemp --suffix "$extension")"
+              cat >"$temp"
+              nixpkgs-lint --include-unfinished-lints --format json -- "$temp" |
+                jq --raw-output --arg input "$input" '.[] | "\($input):\(.line):\(.column): \(.message)"'
+              ;;
+          esac
+          ;;
+      esac
     lint-formats:
       - "%f:%l:%c: %m"
   # SYNC: editorconfig-checker

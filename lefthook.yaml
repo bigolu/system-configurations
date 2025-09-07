@@ -395,10 +395,15 @@ check:
                 - name: prettier
                   glob: "*.{md,json,json5,jsonc,yaml}"
                   exclude:
-                    # Don't format these since VS Code will
-                    - ".vscode/*.json"
                     - npins/*
+                    # These aren't actually JSON files, they're JSONC
+                    - ".vscode/*.json"
                   run: "{run_fix} prettier --list-different --write {files}"
+                # SYNC: prettier-vscode
+                - name: prettier-vscode
+                  # These aren't actually JSON files, they're JSONC
+                  glob: ".vscode/*.json"
+                  run: "{run_fix} prettier --parser jsonc --list-different --write {files}"
                 # SYNC: shfmt
                 - name: shfmt
                   glob: "*.{sh,bash}"
@@ -510,7 +515,7 @@ check:
                 - name: config-file-validator
                   glob: "*.{editorconfig,json,ini,yaml,toml}"
                   exclude:
-                    # These aren't actually JSON files they're JSONC
+                    # These aren't actually JSON files, they're JSONC
                     - ".vscode/*.json"
                     - npins/*
                   run: chronic validator -groupby pass-fail -- {files}
