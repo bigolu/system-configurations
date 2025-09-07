@@ -185,7 +185,7 @@ function _mnd_is_cache_fresh {
   local -a watched_files
   # shellcheck disable=2312
   # PERF: The exit code of direnv is being masked by readarray, but the alternative
-  # ways to do this are slower, For example, I could use a pipeline, but that would
+  # ways to do this are slower. For example, I could use a pipeline, but that would
   # spawn a subprocess.
   readarray -d '' watched_files < <(direnv watch-print --null)
   local file
@@ -278,11 +278,11 @@ function _mnd_log_error {
   local -r message="$1"
 
   local color_normal=
-  local color_error=
+  local color_red_bold=
   if [[ -t 2 ]]; then
-    color_normal=$(printf '%b' '\e[m')
-    color_error=$(printf '%b' '\e[1m\e[31m')
+    printf -v color_normal '%b' '\e[m'
+    printf -v color_red_bold '%b' '\e[1m\e[31m'
   fi
 
-  log_error "${color_error}[minimal-nix-direnv] ERROR: ${message}${color_normal}"
+  log_error "${color_red_bold}[minimal-nix-direnv] ERROR: ${message}${color_normal}"
 }
