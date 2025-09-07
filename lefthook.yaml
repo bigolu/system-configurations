@@ -381,56 +381,54 @@ check:
                     - flake.lock
                     - npins/*
                   run: npins upgrade
+
+                # Formatters
+                # -------------------------------------------------------------------
                 # Formatters should run after the other fixes since some fixes may
                 # produce code that doesn't comply with the formatting.
-                #
-                # They're in a group to make it easy for editors to format on save by
-                # running `lefthook run check --jobs format --file <saved_file>`
-                - name: format
-                  group:
-                    jobs:
-                      # SYNC: taplo
-                      - name: taplo
-                        glob: "*.toml"
-                        run: "{run_fix} taplo format {files}"
-                      # SYNC: prettier
-                      - name: prettier
-                        glob: "*.{md,json,json5,jsonc,yaml}"
-                        exclude:
-                          # Don't format these since VS Code will
-                          - ".vscode/*.json"
-                          - npins/*
-                        run: "{run_fix} prettier --list-different --write {files}"
-                      # SYNC: shfmt
-                      - name: shfmt
-                        glob: "*.{sh,bash}"
-                        run: "{run_fix} shfmt --write {files}"
-                      # SYNC: fish_indent
-                      - name: fish_indent
-                        glob: "*.fish"
-                        run: "{run_fix} fish_indent --write {files}"
-                      # SYNC: nixfmt
-                      - name: nixfmt
-                        glob: "*.nix"
-                        exclude:
-                          - npins/*
-                        run: "{run_fix} nixfmt --verify {files}"
-                      # SYNC: stylua
-                      - name: stylua
-                        glob: "*.lua"
-                        run: "{run_fix} stylua --verify {files}"
-                      # SYNC: gofmt
-                      - name: gofmt
-                        glob: "*.go"
-                        run: "{run_fix} gofmt -w {files}"
-                      # SYNC: ruff-format
-                      - name: ruff-format
-                        glob: "*.py"
-                        run: "{run_fix} ruff format {files}"
-                      # SYNC: ruff-format-sort-imports
-                      - name: ruff-format-sort-imports
-                        glob: "*.py"
-                        run: "{run_fix} ruff check --select I --fix-only {files}"
+
+                # SYNC: taplo
+                - name: taplo
+                  glob: "*.toml"
+                  run: "{run_fix} taplo format {files}"
+                # SYNC: prettier
+                - name: prettier
+                  glob: "*.{md,json,json5,jsonc,yaml}"
+                  exclude:
+                    # Don't format these since VS Code will
+                    - ".vscode/*.json"
+                    - npins/*
+                  run: "{run_fix} prettier --list-different --write {files}"
+                # SYNC: shfmt
+                - name: shfmt
+                  glob: "*.{sh,bash}"
+                  run: "{run_fix} shfmt --write {files}"
+                # SYNC: fish_indent
+                - name: fish_indent
+                  glob: "*.fish"
+                  run: "{run_fix} fish_indent --write {files}"
+                # SYNC: nixfmt
+                - name: nixfmt
+                  glob: "*.nix"
+                  exclude:
+                    - npins/*
+                  run: "{run_fix} nixfmt --verify {files}"
+                # SYNC: stylua
+                - name: stylua
+                  glob: "*.lua"
+                  run: "{run_fix} stylua --verify {files}"
+                # SYNC: gofmt
+                - name: gofmt
+                  glob: "*.go"
+                  run: "{run_fix} gofmt -w {files}"
+                # SYNC: ruff-format
+                - name: ruff-format
+                  glob: "*.py"
+                  run: "{run_fix} ruff format {files}"
+                # SYNC: ruff-format-sort-imports
+                - name: ruff-format-sort-imports
+                  glob: "*.py"
+                  run: "{run_fix} ruff check --select I --fix-only {files}"
           - group:
               # It's safe to run these checks in parallel since they don't modify any
               # files

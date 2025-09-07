@@ -49,11 +49,11 @@ tools:
     lint-after-open: true
     lint-stdin: true
     lint-command: |
-      input=${INPUT}
-      substring=.github/workflows/
-      if [ "${input#*$substring}" != "$input" ]; then
-        actionlint -no-color -
-      fi
+      case ${INPUT} in
+        */.github/workflows/*)
+          actionlint -no-color -
+          ;;
+      esac
     lint-formats:
       - "%f:%l:%c: %m"
   # SYNC: markdownlint-cli2-lint
