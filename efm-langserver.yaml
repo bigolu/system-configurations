@@ -2,6 +2,8 @@
 
 version: 2
 
+lint-debounce: 200ms
+
 tools:
   # SYNC: taplo
   taplo: &taplo
