@@ -12,3 +12,8 @@ trailingComma = "none"
 files = ["*.md"]
 [overrides.options]
 proseWrap = "always"
+
+[[overrides]]
+files = [".vscode/*.json"]
+[overrides.options]
+parser = "jsonc"

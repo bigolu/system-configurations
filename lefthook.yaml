@@ -396,14 +396,7 @@ check:
                   glob: "*.{md,json,json5,jsonc,yaml}"
                   exclude:
                     - npins/*
-                    # These aren't actually JSON files, they're JSONC
-                    - ".vscode/*.json"
                   run: "{run_fix} prettier --list-different --write {files}"
-                # SYNC: prettier-vscode
-                - name: prettier-vscode
-                  # These aren't actually JSON files, they're JSONC
-                  glob: ".vscode/*.json"
-                  run: "{run_fix} prettier --parser jsonc --list-different --write {files}"
                 # SYNC: shfmt
                 - name: shfmt
                   glob: "*.{sh,bash}"
@@ -506,11 +499,9 @@ check:
                     isutf8 {files}
                 # SYNC: editorconfig-checker
                 - name: editorconfig-checker
-                  # I'm disabling the indentation size check because it applies to
-                  # comments as well and I don't want it to.
                   run: |
                     {exit_if_no_files} {files}
-                    editorconfig-checker --disable-indent-size {files}
+                    editorconfig-checker {files}
                 # SYNC: config-file-validator
                 - name: config-file-validator
                   glob: "*.{editorconfig,json,ini,yaml,toml}"

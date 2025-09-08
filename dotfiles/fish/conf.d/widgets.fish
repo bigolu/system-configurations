@@ -138,11 +138,11 @@ function man-widget --description 'Search manpages'
 
     if not set choice ( \
         FZF_DEFAULT_COMMAND='man -k .' \
-          fzf \
-            --tiebreak=chunk,begin,end \
-            --prompt 'manpages: ' \
-            --preview "eval 'MANWIDTH=\$FZF_PREVIEW_COLUMNS man '($parse_entry_command {})" \
-            --preview-window '75%' \
+            fzf \
+                --tiebreak=chunk,begin,end \
+                --prompt 'manpages: ' \
+                --preview "eval 'MANWIDTH=\$FZF_PREVIEW_COLUMNS man '($parse_entry_command {})" \
+                --preview-window '75%' \
     )
         return
     end

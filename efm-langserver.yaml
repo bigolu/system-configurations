@@ -27,24 +27,6 @@ tools:
           esac
           ;;
       esac
-  # SYNC: prettier-vscode
-  prettier-vscode: &prettier-vscode
-    format-stdin: true
-    format-command: |
-      # Using an outer and inner case statement to represent include and exclude
-      # globs respectively.
-      case ${INPUT} in
-        */.vscode/*.json)
-          case ${INPUT} in
-            *)
-              prettier --parser jsonc --stdin-filepath ${INPUT}
-              ;;
-          esac
-          ;;
-        *)
-          cat
-          ;;
-      esac
   # SYNC: shfmt
   shfmt: &shfmt
     format-stdin: true
@@ -211,7 +193,7 @@ tools:
     lint-after-open: true
     lint-stdin: false
     lint-on-save: true
-    lint-command: editorconfig-checker -no-color -format gcc --disable-indent-size ${INPUT}
+    lint-command: editorconfig-checker -no-color -format gcc ${INPUT}
     lint-formats:
       - "%f:%l:%c: %m"
 
