@@ -116,7 +116,7 @@ function build_and_eval_in_subshell {
     #
     # [1]: https://github.com/direnv/direnv/issues/222
     set -o posix
-    exec 1>&$stdout_copy
+    exec 1>&"$stdout_copy"
     export -p
   )
 }

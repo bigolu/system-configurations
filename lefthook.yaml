@@ -381,6 +381,13 @@ check:
                     - flake.lock
                     - npins/*
                   run: npins upgrade
+                - name: shellcheck-fix
+                  glob: "*.{sh,bash}"
+                  run: |
+                    # We don't want to use Bash's `pipefail` here because shellcheck
+                    # exits with 1 if it finds anything to fix.
+                    shellcheck --format diff {files} |
+                      {run_fix} git apply --allow-empty
 
                 # Formatters
                 # -------------------------------------------------------------------
@@ -459,7 +466,7 @@ check:
                 - name: markdownlint-cli2-lint
                   glob: "*.md"
                   run: markdownlint-cli2 {files}
-                - name: shellcheck
+                - name: shellcheck-lint
                   glob: "*.{sh,bash}"
                   run: shellcheck {files}
                 # SYNC: actionlint

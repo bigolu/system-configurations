@@ -1,3 +1,11 @@
 external-sources=true
-disable=1008,2096,2239
-enable=require-double-brackets,avoid-nullary-conditions,check-extra-masked-returns,check-set-e-suppressed,check-unassigned-uppercase,add-default-case
+enable=all
+# 2250[1]:
+#   This rule is not needed since 2154[2] already catches references to variables
+#   that don't exist.
+# 1008,2096,2239:
+#   These are all rules related to shebangs, but we don't use shebangs.
+#
+# [1]: https://www.shellcheck.net/wiki/SC2250
+# [2]: https://www.shellcheck.net/wiki/SC2154
+disable=2250,1008,2096,2239

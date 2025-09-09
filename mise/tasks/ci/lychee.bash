@@ -28,7 +28,7 @@ function main {
     add_workflow_url "$report"
     open_issue "$report"
   else
-    exit $lychee_exit_code
+    exit "$lychee_exit_code"
   fi
 }
 

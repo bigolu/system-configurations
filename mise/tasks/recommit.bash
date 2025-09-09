@@ -40,7 +40,7 @@ function main {
         remove_faulty_commit
       fi
 
-      exit $check_command_exit_code
+      exit "$check_command_exit_code"
       ;;
     'can-restore') ;&
     'restore')
