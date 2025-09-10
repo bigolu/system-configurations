@@ -19,10 +19,11 @@ let
     optionalAttrs
     getExe
     recursiveUpdate
-    concatStringsSep
+    concatMap
     substring
     foldl'
     replaceString
+    escapeShellArgs
     ;
   inherit (nixpkgs.stdenv) isLinux;
 
@@ -31,8 +32,14 @@ let
   filterPrograms =
     package: programsToKeep:
     let
-      findFilters = map (program: "! -name '${program}'") programsToKeep;
-      findFiltersAsString = concatStringsSep " " findFilters;
+      findFilters = concatMap (
+        program:
+        [
+          "!"
+          "-name"
+        ]
+        ++ [ program ]
+      ) programsToKeep;
     in
     nixpkgs.symlinkJoin {
       name = "${package.name}-partial";
@@ -40,7 +47,7 @@ let
       nativeBuildInputs = [ nixpkgs.makeWrapper ];
       postBuild = ''
         cd $out/bin
-        find . ${findFiltersAsString} -type f,l -exec rm -f {} +
+        find . ${escapeShellArgs findFilters} -type f,l -exec rm -f {} +
       '';
     };
 in
