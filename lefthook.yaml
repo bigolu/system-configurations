@@ -403,7 +403,14 @@ check:
                   glob: "*.{md,json,json5,jsonc,yaml}"
                   exclude:
                     - npins/*
-                  run: "{run_fix} prettier --list-different --write {files}"
+                  run: |
+                    {run_fix} prettier \
+                      --cache \
+                      --cache-location "$DEV_SHELL_STATE/prettier-cache" \
+                      --cache-strategy metadata \
+                      --list-different \
+                      --write \
+                      {files}
                 # SYNC: shfmt
                 - name: shfmt
                   glob: "*.{sh,bash}"
