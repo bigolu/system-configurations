@@ -25,10 +25,6 @@ vim.keymap.set({ "n" }, "<S-Enter>", "O<ESC>", {
   desc = "Insert newline below",
 })
 
-vim.keymap.set({ "n" }, "gF", "gf", {
-  desc = "Go to file [jump]",
-})
-
 -- leave cursor at the end of yanked text
 vim.keymap.set({ "x" }, "y", "ygv<Esc>", { silent = true })
 

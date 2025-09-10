@@ -13,8 +13,8 @@ tools:
   prettier: &prettier
     format-stdin: true
     format-command: |
-      # Using an outer and inner case statement to represent include and exclude
-      # globs respectively.
+      # The outer and inner case statements represent include and exclude globs
+      # respectively.
       case ${INPUT} in
         *)
           case ${INPUT} in
@@ -39,8 +39,8 @@ tools:
   nixfmt: &nixfmt
     format-stdin: true
     format-command: |
-      # Using an outer and inner case statement to represent include and exclude
-      # globs respectively.
+      # The outer and inner case statements represent include and exclude globs
+      # respectively.
       case ${INPUT} in
         *)
           case ${INPUT} in
@@ -75,8 +75,8 @@ tools:
     lint-after-open: true
     lint-stdin: true
     lint-command: |
-      # Using an outer and inner case statement to represent include and exclude
-      # globs respectively.
+      # The outer and inner case statements represent include and exclude globs
+      # respectively.
       case ${INPUT} in
         */.github/workflows/*)
           case ${INPUT} in
@@ -105,8 +105,8 @@ tools:
     lint-ignore-exit-code: true
     # dependencies: cat, mktemp, jq
     lint-command: |
-      # Using an outer and inner case statement to represent include and exclude
-      # globs respectively.
+      # The outer and inner case statements represent include and exclude globs
+      # respectively.
       case ${INPUT} in
         *)
           case ${INPUT} in
@@ -141,8 +141,8 @@ tools:
     lint-after-open: true
     lint-stdin: true
     lint-command: |
-      # Using an outer and inner case statement to represent include and exclude
-      # globs respectively.
+      # The outer and inner case statements represent include and exclude globs
+      # respectively.
       case ${INPUT} in
         *)
           case ${INPUT} in
@@ -165,8 +165,8 @@ tools:
     lint-ignore-exit-code: true
     # dependencies: cat, mktemp, jq
     lint-command: |
-      # Using an outer and inner case statement to represent include and exclude
-      # globs respectively.
+      # The outer and inner case statements represent include and exclude globs
+      # respectively.
       case ${INPUT} in
         *)
           case ${INPUT} in
