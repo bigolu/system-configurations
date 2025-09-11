@@ -1,27 +1,27 @@
 {
   "recommendations": [
-    "mkhl.direnv",
-    // I use this for jsonschema support
-    "tamasfe.even-better-toml",
-    "redhat.vscode-yaml",
-    "mads-hartmann.bash-ide-vscode",
     "bmalehorn.vscode-fish",
-    "sumneko.lua",
-    "jnoortheen.nix-ide",
-    "editorconfig.editorconfig",
-    "golang.go",
-    "tudoudou.json5-for-vscode",
-    "ms-python.debugpy",
     "charliermarsh.ruff",
+    "editorconfig.editorconfig",
     "ericsia.pythonsnippets3",
-    "njpwerner.autodocstring",
-    "ms-python.mypy-type-checker",
-    // I use this extension for its language server, powered by Jedi
-    "ms-python.python",
+    "golang.go",
     "hangxingliu.vscode-systemd-support",
+    "jnoortheen.nix-ide",
     "ltex-plus.vscode-ltex-plus",
-    "rogalmic.bash-debug",
+    "mads-hartmann.bash-ide-vscode",
+    "mkhl.direnv",
+    "ms-python.debugpy",
+    "ms-python.mypy-type-checker",
+    // For the language server
+    "ms-python.python",
     "ndonfris.fish-lsp",
+    "njpwerner.autodocstring",
+    "redhat.vscode-yaml",
+    "rogalmic.bash-debug",
+    "sumneko.lua",
+    // For jsonschema support
+    "tamasfe.even-better-toml",
+    "tudoudou.json5-for-vscode",
   ],
 
   "unwantedRecommendations": ["ms-python.vscode-pylance"],
