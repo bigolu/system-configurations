@@ -92,9 +92,9 @@ function diff_including_untracked {
       track "${initially_untracked_files[@]}"
 
       git diff |
-        # If git's stdout isn't a terminal, it won't use a pager. For the reasons
-        # described in the comment below, we don't want the pager's stdout to be a
-        # terminal. Instead, we manually pipe git's output through its pager.
+        # Git will only use its pager if its stdout is a terminal. However, for the
+        # reasons described in the comment below, we don't want the pager's stdout to
+        # be a terminal. Instead, we manually pipe git's output through its pager.
         git_pager |
         # Some pagers, like less, use an interactive fullscreen mode if its stdout is
         # a terminal, but we don't want that for these reasons:
