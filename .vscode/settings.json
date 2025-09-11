@@ -1,20 +1,29 @@
 {
-  "files.associations": {
-    ".envrc": "shellscript",
-  },
-  "editor.rulers": [85],
-  "editor.defaultFormatter": "llllvvuu.llllvvuu-glspc",
-
+  "debugpy.debugJustMyCode": false,
   // Automatically restart all the other extensions after loading the direnv
   // environment. This way the other extensions will have the environment as
   // well.
   "direnv.restart.automatic": true,
-
+  "editor.defaultFormatter": "llllvvuu.llllvvuu-glspc",
+  "editor.rulers": [85],
+  "evenBetterToml.taplo.bundled": false,
+  "files.associations": {
+    ".envrc": "shellscript",
+  },
+  "fish-lsp.useGlobalExecutable": true,
   "glspc.documentFilters": [{ "pattern": "**" }],
   "glspc.serverCommand": "efm-langserver",
   "glspc.serverCommandArguments": ["-c", "efm-langserver.yaml"],
   "glspc.trace.server": "verbose",
-
+  // So the editor doesn't lag
+  "go.lintFlags": ["--fast"],
+  "go.lintTool": "golangci-lint",
+  "ltex.completionEnabled": true,
+  "ltex.enabled": ["git-commit", "markdown"],
+  "Lua.misc.executablePath": "lua-language-server",
+  "mypy-type-checker.preferDaemon": true,
+  "mypy-type-checker.reportingScope": "workspace",
+  "mypy-type-checker.importStrategy": "fromEnvironment",
   "nix.enableLanguageServer": true,
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
@@ -32,25 +41,6 @@
       },
     },
   },
-
-  // So the editor doesn't lag
-  "go.lintFlags": ["--fast"],
-  "go.lintTool": "golangci-lint",
-
-  "ltex.completionEnabled": true,
-  "ltex.enabled": ["git-commit", "markdown"],
-
-  // Use our version for consistency
-  "evenBetterToml.taplo.bundled": false,
-
-  "python.languageServer": "Jedi",
-  "mypy-type-checker.preferDaemon": true,
-  "mypy-type-checker.reportingScope": "workspace",
-  "mypy-type-checker.importStrategy": "fromEnvironment",
   "python.defaultInterpreterPath": ".dev-shell-state/python/bin/python",
-  "debugpy.debugJustMyCode": false,
-
-  "Lua.misc.executablePath": "lua-language-server",
-
-  "fish-lsp.useGlobalExecutable": true,
+  "python.languageServer": "Jedi",
 }
