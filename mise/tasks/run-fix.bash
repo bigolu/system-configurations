@@ -91,20 +91,17 @@ function diff_including_untracked {
       readarray -d '' initially_untracked_files
       track "${initially_untracked_files[@]}"
 
-      pager="$(safe_git_config_get core.pager)"
       git diff |
-        # If git detects that stdout isn't a terminal, it won't use a pager. For the
-        # reasons described in the comment below, we don't want the pager's stdout to
-        # be a terminal. Instead, we manually pipe git's output through its pager.
-        eval "${pager:-cat}" |
-        # Some pagers, like less, may use an interactive fullscreen mode if its
-        # stdout is a terminal, but we don't want that for these reasons:
-        #   - This may be run non-interactively like in CI or through a git GUI.
-        #     While these environments are non-interactive they may still connect the
-        #     pager's stdout to a terminal.
-        #   - Even if this is run in an interactive terminal, I think users would
-        #     find it annoying if a fullscreen pager opened up every time a fix was
-        #     made.
+        # If git's stdout isn't a terminal, it won't use a pager. For the reasons
+        # described in the comment below, we don't want the pager's stdout to be a
+        # terminal. Instead, we manually pipe git's output through its pager.
+        git_pager |
+        # Some pagers, like less, use an interactive fullscreen mode if its stdout is
+        # a terminal, but we don't want that for these reasons:
+        #   - This may be run in a non-interactive terminal like in CI or through a
+        #     git GUI.
+        #   - Even if this is run in an interactive terminal, users may find it
+        #     annoying if a fullscreen pager opens up every time a fix is made.
         #
         # To ensure the pager doesn't use its fullscreen mode, we pipe its output to
         # `cat`. This way, the pager's stdout won't be a terminal.
@@ -130,10 +127,12 @@ function untrack {
   fi
 }
 
-function safe_git_config_get {
-  # If a config option isn't set, git exits with a non-zero code so the `|| true`
-  # stops the statement from failing.
-  git config get "$@" || true
+function git_pager {
+  if pager="$(git config get core.pager)"; then
+    eval "$pager"
+  else
+    cat
+  fi
 }
 
 main "$@"

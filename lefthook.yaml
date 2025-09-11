@@ -256,23 +256,15 @@ check:
         - dotfiles/cosmic/config/*
         - docs/*
       group:
-        # Enabling `piped` is useful for the scenario where there are issues found by
-        # fast checks, but not slow ones. Without `piped`, you would run all the
-        # checks only to find an issue with a fast check and then have to run all the
-        # checks again once that issue is fixed. With `piped`, the slow ones won't
-        # run since an issue was found by one of the faster ones. Once you fix the
-        # issue found by the fast check, then the slower ones will run. On the other
-        # hand, this means you'll have to keep rerunning checks that have already
-        # passed just to see the issues found by subsequent checks. To mitigate this,
-        # some of the checks are put in groups.
-        #
-        # One example of when this is useful is when there's a formatting issue,
-        # which is common if you aren't formatting the code in your IDE, but all of
-        # the other checks are successful. Without `piped`, you'd have to wait for
-        # all checks to complete, commit the formatted code, then run all the checks
-        # again. With `piped`, the checks stop after the group that contains the
-        # formatters finishes. This way, you can commit the formatted code and the
-        # next time you run the checks, all of them will run.
+        # Enabling `piped` is useful during local development when there are issues
+        # found by fast checks, but not slow ones. Without `piped`, you would run all
+        # the checks only to find an issue with a fast check and then have to run all
+        # the checks again once that issue is fixed. With `piped`, the slow ones
+        # won't run since an issue was found by one of the faster ones. Once you fix
+        # the issue found by the fast check, then the slower ones will run. On the
+        # other hand, this means you'll have to resolve issues one check at a time
+        # instead of resolving them at all at once. To mitigate this, some of the
+        # checks are put in groups.
         #
         # This is also useful for CI since you wouldn't want your CI runners to waste
         # time and money running slow checks if a fast one has already failed.
@@ -284,7 +276,7 @@ check:
           # Why fixes should run before other checks:
           #   - A fix could produce code that would fail another check
           #   - A fix could fix an issue that would have been found by another check
-          - name: fix
+          - name: 1-fixes
             group:
               jobs:
                 - name: flake-lock
@@ -441,7 +433,8 @@ check:
                 - name: ruff-format-sort-imports
                   glob: "*.py"
                   run: "{run_fix} ruff check --select I --fix-only {files}"
-          - group:
+          - name: "2"
+            group:
               # It's safe to run these checks in parallel since they don't modify any
               # files
               parallel: true
@@ -544,19 +537,22 @@ check:
                     - flake.nix
                     - flake.lock
                   run: nix config check
-          - name: nix-outputs
-            # Why `interactive` is enabled:
-            #   - This job can take a while so being able to see the output in real
-            #     time could reveal bottlenecks.
-            #   - If I can see the output in real time, I can spot accidental nix
-            #     cache misses and cancel the job instead of waiting for nix to
-            #     rebuild the package.
-            interactive: true
-            glob:
-              - "*.nix"
-              - flake.lock
-              - npins/*
-              - nix/*
-              - dotfiles/*
-              - gozip/*
-            run: bash -ceuo pipefail 'nix build --no-link --file . currentPlatformChecks 2>&1 | nom'
+          - name: "3"
+            group:
+              jobs:
+                - name: nix-outputs
+                  # Why `interactive` is enabled:
+                  #   - This job can take a while so being able to see the output in
+                  #     real time could reveal bottlenecks.
+                  #   - If I can see the output in real time, I can spot accidental
+                  #     nix cache misses and cancel the job instead of waiting for
+                  #     nix to rebuild the package.
+                  interactive: true
+                  glob:
+                    - "*.nix"
+                    - flake.lock
+                    - npins/*
+                    - nix/*
+                    - dotfiles/*
+                    - gozip/*
+                  run: bash -ceuo pipefail 'nix build --no-link --file . currentPlatformChecks 2>&1 | nom'
