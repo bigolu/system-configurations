@@ -32,14 +32,11 @@ let
   filterPrograms =
     package: programsToKeep:
     let
-      findFilters = concatMap (
-        program:
-        [
-          "!"
-          "-name"
-        ]
-        ++ [ program ]
-      ) programsToKeep;
+      findFilters = concatMap (program: [
+        "!"
+        "-name"
+        program
+      ]) programsToKeep;
     in
     nixpkgs.symlinkJoin {
       name = "${package.name}-partial";
