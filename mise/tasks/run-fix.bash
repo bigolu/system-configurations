@@ -5,9 +5,8 @@
 #MISE dir="{{cwd}}"
 
 # This script runs the given fix command and allows you to specify certain actions to
-# take after running the fix. A fix is anything that modifies the source code to
-# correct an issue. This includes things like formatters, code generators, and lint
-# fixers.
+# take after running the fix. A fix is anything that modifies the source code. This
+# includes things like formatters, code generators, and lint fixers.
 #
 # Usage: run-fix [fix_command]...
 #

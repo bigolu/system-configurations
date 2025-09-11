@@ -47,26 +47,26 @@ function use_nix {
   local IFS=' '
   local -r new_env_args_string="$env_type ${env_build_args[*]}"
 
-  local should_rebuild
-  _mnd_should_rebuild \
-    should_rebuild \
+  local should_reload
+  _mnd_should_reload \
+    should_reload \
     "$cached_env" "$cached_env_script" "$cached_env_args" "$new_env_args_string"
-  if [[ $should_rebuild != 'true' ]]; then
+  if [[ $should_reload != 'true' ]]; then
     # shellcheck disable=1090
     source "$cached_env_script"
     return 0
   fi
 
-  # This shell shouldn't exit if build/eval fails so we can fall back
+  # This shell shouldn't exit if loading fails so we can fall back
   set +o errexit
   local export_statements
   export_statements="$(
-    build_and_eval_in_subshell "$cache_directory" "$env_type" "${env_build_args[@]}"
+    load_new_env "$cache_directory" "$env_type" "${env_build_args[@]}"
   )"
-  local -r build_and_eval_exit_code=$?
+  local -r load_new_env_exit_code=$?
   set -o errexit
 
-  if ((build_and_eval_exit_code == 0)); then
+  if ((load_new_env_exit_code == 0)); then
     eval "$export_statements"
     _mnd_cache \
       "$cache_directory" "$env_type" \
@@ -90,7 +90,7 @@ function use_nix {
 #
 # It prints out its environment variables as `export` statements so they can be
 # loaded into the parent shell.
-function build_and_eval_in_subshell {
+function load_new_env {
   (
     # Redirect stdout to stderr until we're ready to print the export statements
     local stdout_copy
@@ -154,8 +154,8 @@ function _mnd_get_cache_directory {
   fi
 }
 
-function _mnd_should_rebuild {
-  local -n _should_rebuild=$1
+function _mnd_should_reload {
+  local -n _should_reload=$1
   local -r cached_env="$2"
   local -r cached_env_script="$3"
   local -r cached_env_args="$4"
@@ -171,9 +171,9 @@ function _mnd_should_rebuild {
       $(<"$cached_env_args") == "$new_env_args_string" &&
       $is_cache_fresh == 'true' ]]
   then
-    _should_rebuild=false
+    _should_reload=false
   else
-    _should_rebuild=true
+    _should_reload=true
   fi
 }
 
