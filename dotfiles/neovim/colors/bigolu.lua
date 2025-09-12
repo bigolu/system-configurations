@@ -265,7 +265,7 @@ local groups = {
 
   -- vim-matchup {{{
   MatchParen = { ctermfg = 14, bold = true, fg = colors.accent }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
-  MatchWord = "MatchParen",
+  MatchWord = {},
   MatchParenCur = "MatchParen",
   MatchWordCur = "MatchWord",
   -- }}}
