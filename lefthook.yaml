@@ -433,7 +433,7 @@ check:
                 - name: ruff-format-sort-imports
                   glob: "*.py"
                   run: "{run_fix} ruff check --select I --fix-only {files}"
-          - name: "2"
+          - name: 2
             group:
               # It's safe to run these checks in parallel since they don't modify any
               # files
@@ -537,7 +537,7 @@ check:
                     - flake.nix
                     - flake.lock
                   run: nix config check
-          - name: "3"
+          - name: 3-nix-outputs
             group:
               jobs:
                 - name: nix-outputs
