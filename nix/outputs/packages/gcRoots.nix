@@ -131,6 +131,7 @@ nixpkgs.callPackage (
             dixExe = getExe dix;
             ln = getExe' coreutils "ln";
             mkdir = getExe' coreutils "mkdir";
+            realpath = getExe' coreutils "realpath";
 
             directory =
               if scriptConfig.directory ? eval then
@@ -143,7 +144,7 @@ nixpkgs.callPackage (
 
             devShellDiffScript = ''
               if [[ -e ${devShellRootPath} ]]; then
-                ${dixExe} ${devShellRootPath} "$new_shell"
+                ${dixExe} "$(${realpath} ${devShellRootPath})" "$new_shell"
               fi
             '';
           in

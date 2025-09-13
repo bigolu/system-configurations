@@ -11,7 +11,6 @@ let
     stdenv
     ;
   inherit (stdenv) isLinux isDarwin;
-  inherit (builtins) currentSystem;
   inherit (lib)
     hm
     getExe
@@ -97,7 +96,7 @@ in
         nix-daemon-reload
         nix-diff
         nix-search-cli
-        inputs.nix-sweep.packages.${currentSystem}.default
+        nix-sweep
       ]
       ++ optionals isLinux [
         # for breakpointHook:

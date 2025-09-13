@@ -110,6 +110,9 @@ recursiveUpdateList [
       darwin-uninstaller
       ;
 
+    # They only have a flake interface
+    nix-sweep = inputs.nix-sweep.packages.${system}.default;
+
     nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
       interpreter = bash-script;
     };
