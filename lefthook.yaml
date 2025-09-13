@@ -270,13 +270,14 @@ check:
         # time and money running slow checks if a fast one has already failed.
         piped: true
         jobs:
-          # All fixes should be grouped together to make it easy to run them all in
+          # All fixers should be grouped together to make it easy to run them all in
           # an autofix workflow in CI.
           #
-          # Why fixes should run before other checks:
-          #   - A fix could produce code that would fail another check
-          #   - A fix could fix an issue that would have been found by another check
-          - name: 1-fixes
+          # Why fixers should run before other checks:
+          #   - A fixer could produce code that would fail another check
+          #   - A fixer could fix an issue that would have been found by another
+          #     check
+          - name: 1-fixers
             group:
               jobs:
                 - name: flake-lock
