@@ -6,9 +6,8 @@ nixpkgs.callPackage (
     bash,
     resholve,
     coreutils,
-    writeScriptBin,
-
     glibcLocales ? null,
+
     withLocales ? stdenv.isLinux,
     locales ? null,
   }:
@@ -25,7 +24,6 @@ nixpkgs.callPackage (
       escapeShellArg
       concatMapStringsSep
       optionalString
-      getExe
       ;
 
     bashPath = "${bash}/bin/bash";
@@ -65,53 +63,40 @@ nixpkgs.callPackage (
         ${activationScript}
       '';
 
-    setup =
-      let
-        name = "setup";
-      in
-      resholve.mkDerivation {
-        pname = "home-shell-${name}";
-        version = "0.0.1";
-        src = ./setup.bash;
-        dontConfigure = true;
-        dontBuild = true;
-        dontUnpack = true;
-        installPhase = ''
-          install -D $src $out/bin/${name}
-        '';
-        meta.mainProgram = name;
-        solutions = {
-          default = {
-            scripts = [ "bin/${name}" ];
-            interpreter = bashPath;
-            inputs = [ coreutils ];
-            execer = [
-              "cannot:${coreutils}/bin/mktemp"
-              "cannot:${coreutils}/bin/mkdir"
-              "cannot:${coreutils}/bin/ln"
-              "cannot:${coreutils}/bin/chmod"
-              "cannot:${coreutils}/bin/cp"
-            ];
-            keep = {
-              "$SHELL" = true;
-              "$BASH_PATH" = true;
-              "$set_xdg_env" = true;
-            };
-          };
-        };
-      };
-
-    programName = "${homeConfig.config.home.username}-shell";
+    name = "${homeConfig.config.home.username}-shell";
   in
-  (writeScriptBin programName ''
-    #!${bashPath}
-    BASH_PATH=${bashPath}
-    ACTIVATION_PACKAGE=${activationPackage}
-    USER_SHELL=${escapeShellArg shell}
-    INIT_SCRIPT=${escapeShellArg initScript}
-    source ${getExe setup}
-  '')
-  // {
-    meta.mainProgram = programName;
+  resholve.mkDerivation {
+    pname = name;
+    version = "0.0.1";
+    src = ./setup.bash;
+    meta.mainProgram = name;
+    dontUnpack = true;
+    installPhase = ''
+      install -D $src $out/bin/${name}
+    '';
+    fixupPhase = ''
+      bash=${bashPath} \
+        activation_package=${activationPackage} \
+        init_script=${escapeShellArg (escapeShellArg initScript)} \
+        user_shell=${escapeShellArg (escapeShellArg shell)} \
+        substituteAllInPlace $out/bin/${name}
+    '';
+    solutions.default = {
+      scripts = [ "bin/${name}" ];
+      interpreter = bashPath;
+      inputs = [ coreutils ];
+      execer = [
+        "cannot:${coreutils}/bin/mktemp"
+        "cannot:${coreutils}/bin/mkdir"
+        "cannot:${coreutils}/bin/ln"
+        "cannot:${coreutils}/bin/chmod"
+        "cannot:${coreutils}/bin/cp"
+      ];
+      keep = {
+        "$SHELL" = true;
+        "$BASH_PATH" = true;
+        "$set_xdg_env" = true;
+      };
+    };
   }
 ) { }

@@ -57,11 +57,14 @@ function copy_bundle_into_assets {
   cp "$bundle_store_path" "${asset_directory}/${bundle_name_with_platform}"
 }
 
-# Example: /nix/store/<hash>-foo -> foo-x86_64-linux
+# Example: /nix/store/<hash>-foo-0.0.1 -> foo-x86_64-linux
 function get_name_with_platform {
   local -r store_path="$1"
 
-  local -r name="${store_path#*-}"
+  # Remove version, assuming the nixpkgs convention for versioning
+  local name="${store_path%%-[0-9]*}"
+  # Remove everything before the beginning of the package name
+  name="${name#*-}"
 
   # e.g. x86_64-linux
   local platform

@@ -429,7 +429,7 @@ check:
                 - name: ruff-format
                   glob: "*.py"
                   run: "{run_fix} ruff format {files}"
-          - name: 2
+          - name: 2-linters
             group:
               # It's safe to run these checks in parallel since they don't modify any
               # files

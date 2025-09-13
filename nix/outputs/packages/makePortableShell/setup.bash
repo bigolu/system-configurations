@@ -1,14 +1,15 @@
+#!@bash@
+
 set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Inputs, via unexported variables:
-# ACTIVATION_PACKAGE
-# BASH_PATH
-# INIT_SCRIPT (optional)
-# USER_SHELL
+bash=@bash@
+activation_package=@activation_package@
+init_script=@init_script@
+user_shell=@user_shell@
 
 if [[ -t 2 ]]; then
   printf 'Setting up portable home...' >&2
@@ -38,9 +39,9 @@ xdg_cache_directory="$(make_directory_in_prefix 'cache')"
 
 # Some packages need one of their XDG Base directories to be mutable so if the
 # Nix store isn't writable we copy the directories into temporary ones.
-activation_package_config_directory="${ACTIVATION_PACKAGE:?}/home-files/.config"
-activation_package_data_directory="$ACTIVATION_PACKAGE/home-files/.local/share"
-if ! [[ -w $ACTIVATION_PACKAGE ]]; then
+activation_package_config_directory="${activation_package}/home-files/.config"
+activation_package_data_directory="$activation_package/home-files/.local/share"
+if ! [[ -w $activation_package ]]; then
   xdg_config_directory="$(make_directory_in_prefix config)"
   xdg_data_directory="$(make_directory_in_prefix data)"
   cp --no-preserve=mode --recursive --dereference \
@@ -65,10 +66,7 @@ xdg_env_vars=(
   XDG_RUNTIME_DIR="$xdg_runtime_directory"
   XDG_CACHE_HOME="$xdg_cache_directory"
 )
-set_xdg_env=(
-  export
-  "${xdg_env_vars[@]}"
-)
+set_xdg_env=(export "${xdg_env_vars[@]}")
 set_xdg_env_escaped="$(printf '%q ' "${set_xdg_env[@]}")"
 
 function add_directory_to_path {
@@ -89,7 +87,7 @@ function add_directory_to_path {
       fish)
         # I unexport the XDG Base directories so host programs pick up the host's XDG
         # directories.
-        printf >"$new_directory/$program_basename" '%s' "#!${BASH_PATH:?}
+        printf >"$new_directory/$program_basename" '%s' "#!${bash}
 $set_xdg_env_escaped
 exec $program \
   --init-command 'set --unexport XDG_CONFIG_HOME' \
@@ -102,7 +100,7 @@ exec $program \
       nvim)
         # I unexport the XDG Base directories so host programs pick up the host's XDG
         # directories.
-        printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
+        printf >"$new_directory/$program_basename" '%s' "#!$bash
 $set_xdg_env_escaped
 exec $program \
   -c 'unlet \$XDG_CONFIG_HOME' \
@@ -113,7 +111,7 @@ exec $program \
   \"\$@\""
         ;;
       *)
-        printf >"$new_directory/$program_basename" '%s' "#!$BASH_PATH
+        printf >"$new_directory/$program_basename" '%s' "#!$bash
 $set_xdg_env_escaped
 exec $program \"\$@\""
         ;;
@@ -125,11 +123,11 @@ exec $program \"\$@\""
   export PATH="$new_directory:$PATH"
 }
 
-add_directory_to_path "$ACTIVATION_PACKAGE/home-path/bin" 'bin'
-add_directory_to_path "$ACTIVATION_PACKAGE/home-files/.local/bin" 'bin-local'
-export XDG_DATA_DIRS="${XDG_DATA_DIRS+${XDG_DATA_DIRS}:}$ACTIVATION_PACKAGE/home-path/share"
+add_directory_to_path "$activation_package/home-path/bin" 'bin'
+add_directory_to_path "$activation_package/home-files/.local/bin" 'bin-local'
+export XDG_DATA_DIRS="${XDG_DATA_DIRS+${XDG_DATA_DIRS}:}$activation_package/home-path/share"
 export PORTABLE_HOME='true'
-shell="$(type -P "${USER_SHELL:?}")"
+shell="$(type -P "${user_shell}")"
 export SHELL="$shell"
 
 # Clear the message we printed earlier. Do it before the init script runs since the
@@ -138,7 +136,7 @@ if [[ -t 2 ]]; then
   printf '\33[2K\r' >&2
 fi
 
-if [[ -n ${INIT_SCRIPT:-} ]]; then
+if [[ -n ${init_script:-} ]]; then
   xdg_var_names=()
   for var in "${xdg_env_vars[@]}"; do
     xdg_var_names+=("${var%=*}")
@@ -150,7 +148,7 @@ if [[ -n ${INIT_SCRIPT:-} ]]; then
   done
 
   "${set_xdg_env[@]}"
-  eval "$INIT_SCRIPT"
+  eval "$init_script"
 
   for index in "${!xdg_var_names[@]}"; do
     name="${xdg_var_names[$index]}"
