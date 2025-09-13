@@ -62,12 +62,12 @@ templates:
 
 commit-msg:
   jobs:
-    - name: check-commit
+    - name: check
       # I enable `interactive` for some of the jobs in the `check` group so I need
       # `interactive` here as well or it won't work.
       interactive: true
-      # Running the commit message check, followed by the file checks, has the
-      # following advantages:
+      # Running the commit message and file checks during the commit-msg hook,
+      # instead of the pre-commit hook, has the following advantages:
       #   - We don't have to wait for the file checks to finish before we get to
       #     enter a commit message.
       #   - If there's a problem with the message, the file checks won't be run. This
@@ -75,10 +75,8 @@ commit-msg:
       #     problem which is important since the file checks usually take a lot
       #     longer.
       run: |
-        mise run recommit check {1} bash -ceuo pipefail '
-          lefthook run check-commit-message --file "$1"
-          printf "%s\0" "${@:2}" | lefthook run check --files-from-stdin
-        ' -- {1} {staged_files}
+        printf '%s\0' {1} {staged_files} |
+          mise run recommit check {1} lefthook run check --files-from-stdin
 
 prepare-commit-msg:
   jobs:
@@ -124,14 +122,6 @@ post-commit:
 #
 # [1]: https://lefthook.dev/configuration/glob.html
 # [2]: https://github.com/evilmartians/lefthook/pull/595
-
-check-commit-message:
-  # Custom hooks should always have a files command. See the comment below the
-  # "Custom Hooks" heading for why that is.
-  files: ":"
-  jobs:
-    - name: typos
-      run: typos {files}
 
 sync:
   # Custom hooks should always have a files command. See the comment below the
@@ -270,6 +260,12 @@ check:
         # time and money running slow checks if a fast one has already failed.
         piped: true
         jobs:
+          - name: 1-commit-checks
+            glob: "*/COMMIT_EDITMSG"
+            group:
+              jobs:
+                - name: typos
+                  run: typos --no-check-filenames {files}
           # All fixers should be grouped together to make it easy to run them all in
           # an autofix workflow in CI.
           #
@@ -277,7 +273,7 @@ check:
           #   - A fixer could produce code that would fail another check
           #   - A fixer could fix an issue that would have been found by another
           #     check
-          - name: 1-fixers
+          - name: 2-fixers
             group:
               jobs:
                 - name: flake-lock
@@ -430,7 +426,7 @@ check:
                 - name: ruff-format
                   glob: "*.py"
                   run: "{run_fix} ruff format {files}"
-          - name: 2-linters
+          - name: 3-linters
             group:
               # It's safe to run these checks in parallel since they don't modify any
               # files
@@ -534,7 +530,7 @@ check:
                     - flake.nix
                     - flake.lock
                   run: nix config check
-          - name: 3-nix-outputs
+          - name: 4-nix-outputs
             group:
               jobs:
                 - name: nix-outputs
