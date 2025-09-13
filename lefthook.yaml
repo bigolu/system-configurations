@@ -339,7 +339,7 @@ check:
                   exclude:
                     - npins/*
                   run: "{run_fix} deadnix --quiet --edit {files}"
-                - name: ruff
+                - name: ruff-fix
                   glob: "*.py"
                   run: "{run_fix} ruff check --fix-only {files}"
                 - name: statix-fix
@@ -429,10 +429,6 @@ check:
                 - name: ruff-format
                   glob: "*.py"
                   run: "{run_fix} ruff format {files}"
-                # SYNC: ruff-format-sort-imports
-                - name: ruff-format-sort-imports
-                  glob: "*.py"
-                  run: "{run_fix} ruff check --select I --fix-only {files}"
           - name: 2
             group:
               # It's safe to run these checks in parallel since they don't modify any
@@ -454,7 +450,7 @@ check:
                       echo "$issues"
                       exit 1
                     fi
-                - name: ruff
+                - name: ruff-lint
                   glob: "*.py"
                   run: ruff check {files}
                 - name: fish

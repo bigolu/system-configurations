@@ -65,10 +65,6 @@ tools:
   ruff: &ruff
     format-stdin: true
     format-command: ruff format --stdin-filename ${INPUT}
-  # SYNC: ruff-format-sort-imports
-  ruff-sort-imports: &ruff-sort-imports
-    format-stdin: true
-    format-command: ruff check --stdin-filename ${INPUT} --select I --fix-only
   # SYNC: actionlint
   actionlint: &actionlint
     lint-source: actionlint
@@ -229,7 +225,6 @@ languages:
     - <<: *gofmt
   python:
     - <<: *ruff
-    - <<: *ruff-sort-imports
   editorconfig:
     - <<: *config-file-validator
   ini:
