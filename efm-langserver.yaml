@@ -84,7 +84,7 @@ tools:
       esac
     lint-formats:
       - "%f:%l:%c: %m"
-  # SYNC: markdownlint-cli2-lint
+  # SYNC: markdownlint-cli2
   markdownlint-cli2: &markdownlint-cli2
     lint-source: markdownlint-cli2
     lint-after-open: true

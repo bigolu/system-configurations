@@ -379,7 +379,8 @@ check:
                   # statix doesn't support passing multiple files yet:
                   # https://github.com/oppiliappan/statix/issues/69
                   run: "{run_fix} parallel statix fix -- {files}"
-                - name: markdownlint-cli2-fix
+                # SYNC: markdownlint-cli2
+                - name: markdownlint-cli2
                   glob: "*.md"
                   run: "{run_fix} markdownlint-cli2 --fix {files}"
                 - name: go-mod-tidy
@@ -473,10 +474,6 @@ check:
                   # TODO: Fish doesn't support passing multiple files, I should open
                   # an issue.
                   run: parallel fish --no-execute -- {files}
-                # SYNC: markdownlint-cli2-lint
-                - name: markdownlint-cli2-lint
-                  glob: "*.md"
-                  run: markdownlint-cli2 {files}
                 - name: shellcheck-lint
                   glob: "*.{sh,bash}"
                   run: shellcheck {files}
