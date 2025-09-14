@@ -1102,15 +1102,19 @@
         <code>lefthook.yaml</code>.
       </p>
       <ul>
-        <li>
-          <strong>Usage</strong>: <code>check [-a --all-files] [jobs]…</code>
-        </li>
+        <li><strong>Usage</strong>: <code>check [FLAGS] [jobs]…</code></li>
       </ul>
       <p>Run jobs to find/fix issues</p>
       <h3>Arguments</h3>
       <h4><code>[jobs]…</code></h4>
       <p>Jobs to run. If none are passed then all of them will be run</p>
       <h3>Flags</h3>
+      <h4><code>-c --commit-messages-from &lt;commit&gt;</code></h4>
+      <p>
+        Check the commit messages from the provided commit to <code>HEAD</code>
+      </p>
+      <h4><code>-u --unpushed-commit-messages</code></h4>
+      <p>Check the messages of any commits that haven't been pushed</p>
       <h4><code>-a --all-files</code></h4>
       <p>Run on all files</p>
       <h2><code>copy-cosmic</code></h2>

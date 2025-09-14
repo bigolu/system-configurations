@@ -19,6 +19,13 @@
 #USAGE   fish -c 'complete --do-complete "lefthook run check --jobs "'
 #USAGE """#
 #USAGE
+#USAGE flag "-c --commit-messages-from <commit>" help="Check the commit messages from the provided commit to `HEAD`"
+#USAGE complete "commit" run=#"""
+#USAGE   git log -20 --pretty='%h %s'
+#USAGE """#
+#USAGE
+#USAGE flag "-u --unpushed-commit-messages" help="Check the messages of any commits that haven't been pushed"
+#USAGE
 #USAGE flag "-a --all-files" help="Run on all files"
 
 set -o errexit
@@ -27,5 +34,17 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+from=''
+if [[ ${usage_unpushed_commit_messages:-} == 'true' ]]; then
+  # `^` means not inclusive
+  from='^@{push}'
+elif [[ -n ${usage_commit_messages_from:-} ]]; then
+  # Remove commit message
+  #
+  # `^!` means inclusive
+  from="${usage_commit_messages_from%% *}^!"
+fi
+
 LEFTHOOK_CHECK_ALL_FILES="${usage_all_files:-}" \
+  LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM="$from" \
   lefthook run check --jobs "${usage_jobs:+${usage_jobs// /,}}"
