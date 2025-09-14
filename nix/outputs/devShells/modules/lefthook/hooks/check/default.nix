@@ -3,7 +3,7 @@
   imports = [
     ../../cli.nix
     ./lua-language-server.nix
-    # For `gofmt`, `go mod tidy`, `gopls`, and `golangci-lint`
+    # For `gofmt`, `go mod tidy`, `gopls`, and `go-tools`
     ../../../gozip.nix
     # For running mypy
     ../../../speakerctl.nix
@@ -18,7 +18,7 @@
     editorconfig-checker
     # For `fish_indent` and `fish`
     fish
-    golangci-lint
+    go-tools
     gomod2nix
     gopls
     markdown2html-converter

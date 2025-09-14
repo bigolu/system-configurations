@@ -353,10 +353,6 @@ check:
                 - name: go-mod-tidy
                   glob: gozip/go.{mod,sum}
                   run: "{run_fix} go -C gozip mod tidy"
-                - name: golangci-lint
-                  glob: "*.go"
-                  root: "gozip/"
-                  run: "{run_fix} golangci-lint run --fix"
                 - name: go-version
                   glob:
                     - flake.lock
@@ -424,14 +420,8 @@ check:
                   run: "{run_fix} ruff format {files}"
           - name: 3-linters
             group:
-              # It's safe to run these checks in parallel since they don't modify any
-              # files
               parallel: true
               jobs:
-                - name: golangci-lint
-                  glob: "*.go"
-                  root: "gozip/"
-                  run: golangci-lint run
                 - name: gopls
                   glob: "*.go"
                   run: |
@@ -526,6 +516,12 @@ check:
                     - flake.nix
                     - flake.lock
                   run: nix config check
+                # SYNC: staticcheck
+                - name: staticcheck
+                  glob: "*.go"
+                  # I'm not using the `root` setting to change directory because it
+                  # also acts as a file filter, which I don't want.
+                  run: "cd gozip && staticcheck ./..."
           - name: 4-nix-outputs
             group:
               jobs:

@@ -1,23 +1,18 @@
 {
   "debugpy.debugJustMyCode": false,
   // Automatically restart all the other extensions after loading the direnv
-  // environment. This way the other extensions will have the environment as
-  // well.
+  // environment. This way the other extensions will have the environment as well.
   "direnv.restart.automatic": true,
   "editor.defaultFormatter": "llllvvuu.llllvvuu-glspc",
   "editor.rulers": [85],
   "evenBetterToml.taplo.bundled": false,
-  "files.associations": {
-    ".envrc": "shellscript",
-  },
+  "files.associations": { ".envrc": "shellscript" },
   "fish-lsp.useGlobalExecutable": true,
   "glspc.documentFilters": [{ "pattern": "**" }],
   "glspc.serverCommand": "efm-langserver",
   "glspc.serverCommandArguments": ["-c", "efm-langserver.yaml"],
   "glspc.trace.server": "verbose",
-  // So the editor doesn't lag
-  "go.lintFlags": ["--fast"],
-  "go.lintTool": "golangci-lint",
+  "go.lintOnSave": "off",
   "ltex.completionEnabled": true,
   "ltex.enabled": ["git-commit", "markdown"],
   "Lua.misc.executablePath": "lua-language-server",
@@ -28,9 +23,7 @@
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
     "nixd": {
-      "nixpkgs": {
-        "expr": "import ./nix/packages",
-      },
+      "nixpkgs": { "expr": "import ./nix/packages" },
       "options": {
         "comp_2": {
           "expr": "(import ./. {}).darwinConfigurations.comp_2.options",

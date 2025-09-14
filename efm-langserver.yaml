@@ -176,7 +176,10 @@ tools:
               temp="$(mktemp --suffix "$extension")"
               cat >"$temp"
               nixpkgs-lint --include-unfinished-lints --format json -- "$temp" |
-                jq --raw-output --arg input "$input" '.[] | "\($input):\(.line):\(.column): \(.message)"'
+                jq \
+                  --raw-output \
+                  --arg input "$input" \
+                  '.[] | "\($input):\(.line):\(.column): \(.message)"'
               ;;
           esac
           ;;
@@ -190,6 +193,22 @@ tools:
     lint-stdin: false
     lint-on-save: true
     lint-command: editorconfig-checker -no-color -format gcc ${INPUT}
+    lint-formats:
+      - "%f:%l:%c: %m"
+  # SYNC: staticcheck
+  staticcheck: &staticcheck
+    lint-source: staticcheck
+    lint-after-open: true
+    lint-stdin: false
+    lint-on-save: true
+    lint-ignore-exit-code: true
+    # dependencies: jq
+    lint-command: |
+      cd gozip
+      staticcheck -f json ${INPUT} |
+        jq \
+          --raw-output \
+          '"\(.location.file):\(.location.line):\(.location.column): \(.message)"'
     lint-formats:
       - "%f:%l:%c: %m"
 
@@ -223,6 +242,7 @@ languages:
     - <<: *stylua
   go:
     - <<: *gofmt
+    - <<: *staticcheck
   python:
     - <<: *ruff
   editorconfig:
