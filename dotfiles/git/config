@@ -37,8 +37,8 @@
   add-intent-untracked = "!git ls-files --others --exclude-standard | xargs -I FILE git add --intent-to-add FILE"
   graph = log --oneline --graph --all
   recommit = "!git commit --edit --message \"$(sed -e \"/# ------------------------ >8 ------------------------/,$d\" -e \"/^#/d\" \"$(git rev-parse --git-dir)/COMMIT_EDITMSG\")\""
-  rc = rebase --continue
-  rd = "!git fetch --prune && git rebase origin/"$(git symbolic-ref refs/remotes/origin/HEAD | cut -f4 -d/)""
+  continue = rebase --continue
+  rebase-on-default = "!git fetch --prune && git rebase origin/"$(git symbolic-ref refs/remotes/origin/HEAD | cut -f4 -d/)""
   # To set the check command run: git config bigolu.check-command 'the command'
   #
   # If a config option isn't set, git exits with a non-zero code so the `echo` both
