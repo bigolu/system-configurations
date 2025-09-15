@@ -12,10 +12,8 @@ shopt -s inherit_errexit
 function main {
   local -r subcommand="$1"
 
-  local git_directory
-  git_directory="$(git rev-parse --absolute-git-dir)"
   # Intentionally global
-  faulty_commit="$git_directory/info/recommit-faulty-commit"
+  faulty_commit="$(git rev-parse --absolute-git-dir)/info/recommit-faulty-commit"
 
   case "$subcommand" in
     'check')
@@ -68,16 +66,15 @@ function main {
         temp="$(mktemp)"
 
         {
-          printf '%s\n\n' "$(<"$faulty_commit")"
-          # shellcheck disable=2016
-          printf '%s\n%s\n\n%s\n' \
-            'The commit message restored by `recommit` is above this comment.' \
-            'The original contents of the commit file are below:' \
-            "$(<"$commit_file")" |
-            # This adds '# ' to the beginning of any lines that don't start with '#'.
-            # It's important that all the commented lines be contiguous so git
-            # removes them from the commit message.
-            sed 's/^#\?/# /'
+          echo "$(<"$faulty_commit")"
+          {
+            # shellcheck disable=2016
+            echo ' (This commit message was restored by `recommit`)'
+            echo "$(<"$commit_file")"
+          } |
+            # This ensures all lines are comments since git only removes contiguous
+            # commented lines.
+            sed 's/^#\?/#/'
         } >"$temp"
 
         mv "$temp" "$commit_file"

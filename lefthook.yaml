@@ -77,6 +77,8 @@ commit-msg:
       # Some of the jobs in the `check` group have `interactive` enabled so it needs
       # to be enabled here as well.
       interactive: true
+      env:
+        RUN_FIX_ACTIONS: diff,stage,fail
       # Running the commit message and file checks during the commit-msg hook,
       # instead of the pre-commit hook, has the following advantages:
       #   - We don't have to wait for the file checks to finish before we get to
@@ -233,22 +235,19 @@ check:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: |
-    # Create files containing commit messages
-    #
-    # TODO: We should cache the files instead always recreating them, the file name
-    # can be the cache key since it contains the commit hash and hashes are unique.
-    # Though, we use short hashes which only guarantee uniqueness for a single
-    # project. We can either start using long hashes or store the files in a
-    # directory whose name is the absolute path to the project to guarantee files are
-    # separated per project.
+    set -eu
+
+    # Create files containing the specified commit messages
     if [ -n "$LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM" ]; then
-      temp_dir="$(mktemp --directory)"
+      directory="$(git rev-parse --git-dir)/info/commit-message-files"
+      mkdir -p "$directory"
       git log "$LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM" HEAD --pretty=%h |
         while IFS= read -r hash; do
-          temp="$temp_dir/commit-$hash.gitcommit"
-          git log --format=%B --max-count 1 "$hash" >"$temp"
-          # TODO: Absolute paths aren't working
-          realpath --relative-to "$PWD" "$temp"
+          file="$directory/$hash.gitcommit"
+          if [ ! -e "$file" ]; then
+            git log --format=%B --max-count 1 "$hash" >"$file"
+          fi
+          echo "$file"
         done
     fi
 

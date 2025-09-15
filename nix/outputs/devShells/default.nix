@@ -42,7 +42,7 @@ makeShells
       devshell = {
         packages = [ pkgs.npins ];
         startup.dev.text = ''
-          export RUN_FIX_ACTIONS='diff,stage,fail'
+          export RUN_FIX_ACTIONS='diff,fail'
         '';
       };
     };
