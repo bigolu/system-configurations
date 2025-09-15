@@ -13,32 +13,21 @@ function main {
   local -r subcommand="$1"
 
   # Intentionally global
-  faulty_commit="$(git rev-parse --absolute-git-dir)/info/recommit-faulty-commit"
+  backup="$(git rev-parse --absolute-git-dir)/info/recommit-message-backup"
 
   case "$subcommand" in
-    'check')
+    'clear')
+      clear_backup
+      ;;
+    'backup')
       local -r commit_file="$2"
-      local -ra check_command=("${@:3}")
-
-      # Only run if there's a line that doesn't start with '#' that has a
+      # Only backup if there's a line that doesn't start with '#' that has a
       # non-whitespace character. If there are no lines like that, we assume the
-      # commit would be aborted.
-      if ! grep --quiet --extended-regexp '^([^#[:space:]]|[^#].*[^[:space:]].*)' "$2"; then
-        exit 0
+      # commit would be aborted due to an empty message and as such, the post-commit
+      # hook would not run so we wouldn't remove our backup.
+      if grep --quiet --extended-regexp '^([^#[:space:]]|[^#].*[^[:space:]].*)' "$2"; then
+        extract_commit_message "$commit_file" >"$backup"
       fi
-
-      set +o errexit
-      "${check_command[@]}"
-      local -r check_command_exit_code=$?
-      set -o errexit
-
-      if ((check_command_exit_code != 0)); then
-        extract_commit_message "$commit_file" >"$faulty_commit"
-      else
-        remove_faulty_commit
-      fi
-
-      exit "$check_command_exit_code"
       ;;
     'can-restore') ;&
     'restore')
@@ -46,7 +35,7 @@ function main {
       local -r commit_source="${3:-}"
 
       local can_restore
-      if [[ -e $faulty_commit && $commit_source != 'message' && $commit_source != 'commit' ]]; then
+      if [[ -e $backup && $commit_source != 'message' && $commit_source != 'commit' ]]; then
         can_restore='true'
       else
         can_restore='false'
@@ -56,7 +45,7 @@ function main {
         if [[ $can_restore == 'true' ]]; then
           exit 0
         else
-          remove_faulty_commit
+          clear_backup
           exit 1
         fi
       fi
@@ -66,7 +55,7 @@ function main {
         temp="$(mktemp)"
 
         {
-          echo "$(<"$faulty_commit")"
+          echo "$(<"$backup")"
           {
             # shellcheck disable=2016
             echo ' (This commit message was restored by `recommit`)'
@@ -80,7 +69,7 @@ function main {
         mv "$temp" "$commit_file"
       fi
 
-      remove_faulty_commit
+      clear_backup
       ;;
     *)
       echo "recommit: Error, invalid subcommand: $subcommand" >&2
@@ -89,9 +78,9 @@ function main {
   esac
 }
 
-function remove_faulty_commit {
-  if [[ -e $faulty_commit ]]; then
-    rm "$faulty_commit"
+function clear_backup {
+  if [[ -e $backup ]]; then
+    rm "$backup"
   fi
 }
 

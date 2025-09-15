@@ -73,6 +73,8 @@ commit-msg:
     git diff --name-only --cached --diff-filter=ACMR
     echo {1}
   jobs:
+    - name: backup-commit-msg
+      run: mise run recommit backup {1}
     - name: check
       # Some of the jobs in the `check` group have `interactive` enabled so it needs
       # to be enabled here as well.
@@ -87,9 +89,7 @@ commit-msg:
       #     way we don't have to rerun file checks if the commit message has a
       #     problem which is important since the file checks usually take a lot
       #     longer.
-      run: |
-        printf '%s\0' {files} |
-          mise run recommit check {1} lefthook run check --files-from-stdin
+      run: printf '%s\0' {files} | lefthook run check --files-from-stdin
 
 prepare-commit-msg:
   jobs:
@@ -122,6 +122,8 @@ post-checkout:
 
 post-commit:
   jobs:
+    - name: remove-commit-msg-backup
+      run: mise run recommit clear
     - name: auto-sync
       run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
 
@@ -239,7 +241,7 @@ check:
 
     # Create files containing the specified commit messages
     if [ -n "$LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM" ]; then
-      directory="$(git rev-parse --git-dir)/info/commit-message-files"
+      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
       mkdir -p "$directory"
       git log "$LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM" HEAD --pretty=%h |
         while IFS= read -r hash; do
