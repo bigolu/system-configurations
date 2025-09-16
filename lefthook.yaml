@@ -529,7 +529,7 @@ commit-msg:
     git diff --name-only --cached --diff-filter=ACMR
     echo {1}
   jobs:
-    - name: backup-commit-msg
+    - name: backup-commit-message
       run: mise run recommit backup {1}
     # Running the commit message and file checks during the commit-msg hook, instead
     # of the pre-commit hook, has the following advantages:
@@ -547,7 +547,7 @@ commit-msg:
 
 prepare-commit-msg:
   jobs:
-    - name: restore-commit-msg
+    - name: restore-commit-message
       run: mise run recommit restore {0}
 
 post-rewrite:
@@ -576,7 +576,7 @@ post-checkout:
 
 post-commit:
   jobs:
-    - name: remove-commit-msg-backup
+    - name: remove-commit-message-backup
       run: mise run recommit clear
     - name: auto-sync
       run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
