@@ -552,7 +552,7 @@ prepare-commit-msg:
 
 post-rewrite:
   jobs:
-    - name: auto-sync
+    - name: sync
       # Some of the jobs in the `sync` group have `interactive` enabled so it needs
       # to be enabled here as well.
       interactive: true
@@ -560,7 +560,7 @@ post-rewrite:
 
 post-merge:
   jobs:
-    - name: auto-sync
+    - name: sync
       # Some of the jobs in the `sync` group have `interactive` enabled so it needs
       # to be enabled here as well.
       interactive: true
@@ -568,7 +568,7 @@ post-merge:
 
 post-checkout:
   jobs:
-    - name: auto-sync
+    - name: sync
       # Some of the jobs in the `sync` group have `interactive` enabled so it needs
       # to be enabled here as well.
       interactive: true
@@ -578,5 +578,5 @@ post-commit:
   jobs:
     - name: remove-commit-message-backup
       run: mise run recommit clear
-    - name: auto-sync
+    - name: sync
       run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
