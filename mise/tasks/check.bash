@@ -31,12 +31,15 @@ shopt -s inherit_errexit
 
 commit_range="${usage_commit_range:-}"
 if [[ -n $commit_range ]]; then
+  # TODO: Parse range
   start=
   end=
+
   hashes_string="$(git log "$start" "$end" --pretty=%h)"
   readarray -t hashes <<<"$hashes_string"
   for hash in "${hashes[@]}"; do
     # TODO: worktree or stash
+
     if [[ -n $usage_jobs ]]; then
       # It's easier to split a newline-delimited string than a space-delimited one
       # since herestring (<<<) adds a newline to the end of the string.
@@ -44,7 +47,9 @@ if [[ -n $commit_range ]]; then
     else
       jobs=()
     fi
-    RUN_FIX_ACTIONS='diff,fail' \
+
+    direnv exec . \
+      env RUN_FIX_ACTIONS='diff,fail' \
       mise run check --files "${usage_file_commit_range:-$hash}" "${jobs[@]}"
   done
 fi
