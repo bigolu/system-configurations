@@ -197,6 +197,13 @@ recursiveUpdateList [
           "hostname"
           "strings"
         ];
+        git-extras = filterPrograms nixpkgs.git-extras [
+          "git-continue"
+          "git-abort"
+          "git-wip"
+          "git-info"
+          "git-delete-merged-branches"
+        ];
       }
       // optionalAttrs isLinux {
         # The pstree from psmisc is preferred on linux for some reason:

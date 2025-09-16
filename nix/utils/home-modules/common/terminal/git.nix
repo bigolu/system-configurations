@@ -8,6 +8,7 @@
     delta
     difftastic
     mergiraf
+    partialPackages.git-extras
   ];
 
   repository = {
