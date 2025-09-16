@@ -265,12 +265,9 @@ check:
     # Untracked files
     git ls-files --others --exclude-standard
   jobs:
-    # This job only exists so the excludes below can get inherited by all of its
-    # descendants. There's an open feature request for a global exclude list[1]. If
-    # that gets implemented, I won't need this extra job anymore.
-    #
-    # [1]: https://github.com/evilmartians/lefthook/issues/593
-    - exclude:
+    # This job only exists to pass on its exclude list to its descendants.
+    - name: "-"
+      exclude:
         - gozip/gomod2nix.toml
         - ".vscode/ltex*"
         - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
