@@ -157,31 +157,42 @@ check:
   files: |
     set -eu
 
-    # Create files containing the specified commit messages
-    if [ -n "$LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM" ]; then
+    if [ -n "$LEFTHOOK_CHECK_COMMITS_FROM" ]; then
+      if [ "$LEFTHOOK_CHECK_ALL_FILES" = 'true' ]; then
+        git ls-files
+        # Untracked files
+        git ls-files --others --exclude-standard
+      fi
+
       directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
       mkdir -p "$directory"
-      git log "$LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM" HEAD --pretty=%h |
+      git log "$LEFTHOOK_CHECK_COMMITS_FROM" HEAD --pretty=%h |
         while IFS= read -r hash; do
+          # Put the commit message in a file
           file="$directory/$hash.gitcommit"
           if [ ! -e "$file" ]; then
             git log --format=%B --max-count 1 "$hash" >"$file"
           fi
           echo "$file"
-        done
-    fi
 
-    if [ "$LEFTHOOK_CHECK_ALL_FILES" = 'true' ]; then
-      git ls-files
+          if [ "$LEFTHOOK_CHECK_ALL_FILES" != 'true' ]; then
+            git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
+          fi
+        done |
+        sort --unique
     else
-      # These are the files that differ between the current branch and the default
-      # branch. We use the merge base in case the current branch is behind the
-      # default branch.
-      git diff --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"
-    fi
+      if [ "$LEFTHOOK_CHECK_ALL_FILES" = 'true' ]; then
+        git ls-files
+      else
+        # These are the files that differ between the current branch and the default
+        # branch. We use the merge base in case the current branch is behind the
+        # default branch.
+        git diff --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"
+      fi
 
-    # Untracked files
-    git ls-files --others --exclude-standard
+      # Untracked files
+      git ls-files --others --exclude-standard
+    fi
   jobs:
     # Why we have a root job:
     #   - To pass on its exclude list to its descendants

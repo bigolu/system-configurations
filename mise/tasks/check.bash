@@ -21,13 +21,13 @@
 #USAGE   fish -c 'complete --do-complete "lefthook run check --jobs "'
 #USAGE """#
 #USAGE
-#USAGE flag "-c --commit-messages-from <commit>" help="""
-#USAGE   Check the commit messages from the provided commit to `HEAD`
-#USAGE """
-#USAGE flag "-u --unpushed-commit-messages" help="""
-#USAGE   Check the messages of any commits that haven't been pushed
-#USAGE """
 #USAGE flag "-a --all-files" help="Run on all files"
+#USAGE flag "-c --commits-from <commit>" help="""
+#USAGE   Check the files and commit messages from the provided commit to `HEAD`
+#USAGE """
+#USAGE flag "-u --unpushed-commits" help="""
+#USAGE   Check the files and commit messages of any commits that haven't been pushed
+#USAGE """
 
 set -o errexit
 set -o nounset
@@ -39,12 +39,12 @@ from=''
 # Documentation for git range specifiers[1].
 #
 # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
-if [[ ${usage_unpushed_commit_messages:-} == 'true' ]]; then
+if [[ ${usage_unpushed_commits:-} == 'true' ]]; then
   from='^@{push}'
-elif [[ -n ${usage_commit_messages_from:-} ]]; then
-  from="$usage_commit_messages_from^!"
+elif [[ -n ${usage_commits_from:-} ]]; then
+  from="$usage_commits_from^!"
 fi
 
 LEFTHOOK_CHECK_ALL_FILES="${usage_all_files:-}" \
-  LEFTHOOK_CHECK_COMMIT_MESSAGES_FROM="$from" \
+  LEFTHOOK_CHECK_COMMITS_FROM="$from" \
   lefthook run check --jobs "${usage_jobs:+${usage_jobs// /,}}"
