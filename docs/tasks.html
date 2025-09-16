@@ -1090,15 +1090,15 @@
       <h2><code>check</code></h2>
       <p>
         Run jobs to find/fix issues with the code. If no flags are provided, it
-        will behave as if <code>--files uncommitted</code> was provided. The
-        list of jobs is in <code>lefthook.yaml</code>.
+        will behave as if <code>--files unpushed</code> was provided. The list
+        of jobs is in <code>lefthook.yaml</code>.
       </p>
       <ul>
         <li>
           <strong>Usage</strong>:
           <code
-            >check [-f --files &lt;file_commit_range&gt;] [-c --commits
-            &lt;commit_range&gt;] [jobs]…</code
+            >check [-f --files &lt;files&gt;] [-c --commits &lt;commits&gt;]
+            [jobs]…</code
           >
         </li>
       </ul>
@@ -1107,27 +1107,31 @@
       <h4><code>[jobs]…</code></h4>
       <p>Jobs to run. If none are passed then all of them will be run</p>
       <h3>Flags</h3>
-      <h4><code>-f --files &lt;file_commit_range&gt;</code></h4>
+      <h4><code>-f --files &lt;files&gt;</code></h4>
       <p>
-        Check the files of the commits in the given commit range.
-        <code>file_commit_range</code> has the form
-        <code>&lt;from&gt;..&lt;to&gt;</code> e.g. <code>17f0a477..HEAD</code>.
+        Check the files specified. <code>files</code> can be a commit range with
+        the format <code>&lt;start&gt;..&lt;end&gt;</code> e.g.
+        <code>17f0a477..HEAD</code>. This will check all the files changed in
+        all the commits within that range (the range excludes the start commit).
         You can also provide a single commit, e.g. <code>HEAD</code>, if you
-        only want to check one. Use the special value
-        <code>uncommitted</code> to check any files that having been committed
+        only want to check the files within one. Use the special value
+        <code>uncommitted</code> to check any files that haven't been committed
         including untracked files, <code>unpushed</code> to check the files of
         any commits that haven't been pushed, and <code>all</code> to check all
         tracked/untracked files.
       </p>
-      <h4><code>-c --commits &lt;commit_range&gt;</code></h4>
+      <h4><code>-c --commits &lt;commits&gt;</code></h4>
       <p>
-        Check the files and commit message of each commit in the provided commit
-        range. A commit range has the form
-        <code>&lt;from&gt;..&lt;to&gt;</code> e.g. <code>17f0a477..HEAD</code>.
-        You can also provide a single commit, e.g. <code>HEAD</code>, if you
-        only want to check one. Use the special value <code>unpushed</code> to
-        check any commits that haven't been pushed. Commits will be checked
-        individually to ensure all checks pass at each commit.
+        Check the files and commit message of each of the commits specified.
+        <code>commits</code> can be a commit range with the format
+        <code>&lt;start&gt;..&lt;end&gt;</code> e.g.
+        <code>17f0a477..HEAD</code>. This will check the files and commit
+        message of each commit within that range (the range excludes the start
+        commit). You can also provide a single commit, e.g. <code>HEAD</code>,
+        if you only want to check one. Use the special value
+        <code>unpushed</code> to check any commits that haven't been pushed.
+        Commits will be checked individually to ensure checks pass at each
+        commit.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>

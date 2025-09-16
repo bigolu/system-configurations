@@ -238,25 +238,14 @@ check:
   files: |
     set -e
 
-    print_files_in_range() {
-      range="$1"
-    }
-
     {
-      if [ -z "$LEFTHOOK_FILE_COMMIT_RANGE" && -z "$LEFTHOOK_COMMIT_RANGE" ]; then
-        LEFTHOOK_FILE_COMMIT_RANGE='uncommitted'
-      fi
-
-      if [ -n "$LEFTHOOK_FILE_COMMIT_RANGE" ]; then
-        case "$LEFTHOOK_FILE_COMMIT_RANGE" in
+      if [ -n "$LEFTHOOK_FILES" ]; then
+        case "$LEFTHOOK_FILES" in
           uncommitted)
             git diff --staged --name-only
             git diff --name-only
             # Untracked files
             git ls-files --others --exclude-standard
-            ;;
-          unpushed)
-            git diff --name-only '^@{push}' HEAD
             ;;
           all)
             git ls-files
@@ -264,27 +253,48 @@ check:
             git ls-files --others --exclude-standard
             ;;
           *)
-            print_files_in_range "$LEFTHOOK_FILE_COMMIT_RANGE"
+            # Documentation for git range specifiers[1].
+            #
+            # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
+            case "$LEFTHOOK_FILES" in
+              unpushed)
+                start='^@{push}'
+                end='HEAD'
+                ;;
+              *'..'*)
+                start="${LEFTHOOK_FILES%..*}"
+                end="${LEFTHOOK_FILES#*..}"
+                # In case start is ahead of end
+                start="$(git merge-base "$start" "$end")"
+                ;;
+              *)
+                start="$LEFTHOOK_FILES^!"
+                end="$start"
+                ;;
+            esac
+
+            git log "$start" "$end" --pretty=%h |
+              while IFS= read -r hash; do
+                git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
+              done
             ;;
         esac
       fi
 
-      if [ -n "$LEFTHOOK_COMMIT_RANGE" ]; then
+      if [ -n "$LEFTHOOK_COMMIT" ]; then
         directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
         mkdir -p "$directory"
-        git log "$LEFTHOOK_CHECK_COMMITS_FROM" HEAD --pretty=%h |
-          while IFS= read -r hash; do
-            # Put the commit message in a file
-            file="$directory/$hash.gitcommit"
-            if [ ! -e "$file" ]; then
-              git log --format=%B --max-count 1 "$hash" >"$file"
-            fi
-            echo "$file"
 
-            if [ -z "$LEFTHOOK_FILE_COMMIT_RANGE" ]; then
-              git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
-            fi
-          done
+        # Put the commit message in a file
+        file="$directory/$LEFTHOOK_COMMIT.gitcommit"
+        if [ ! -e "$file" ]; then
+          git log --format=%B --max-count 1 "$LEFTHOOK_COMMIT" >"$file"
+        fi
+        echo "$file"
+
+        if [ -z "$LEFTHOOK_FILES" ]; then
+          git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$LEFTHOOK_COMMIT"
+        fi
       fi
     } |
       sort --unique
