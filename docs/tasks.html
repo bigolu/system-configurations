@@ -1089,37 +1089,45 @@
       <p>The attribute path of the package to build e.g. packages.shell</p>
       <h2><code>check</code></h2>
       <p>
-        Run jobs to find/fix issues with the code. It runs on all files that
-        differ between the current branch and the default branch, and untracked
-        files. This is usually what you want since you can assume any files
-        merged into the default branch have no issues. You usually don't have to
-        run this manually since it runs during the git pre-commit hook, where it
-        only runs on staged files. The exception to this is when you make
-        changes to how any of the jobs work, like modifying
-        <code>lefthook.yaml</code> for example. In which case, you should run
-        this with the <code>--all-files</code> flag which forces the jobs to run
-        on all files, even unchanged ones. The list of jobs is in
-        <code>lefthook.yaml</code>.
+        Run jobs to find/fix issues with the code. If no flags are provided, it
+        will behave as if <code>--files uncommitted</code> was provided. The
+        list of jobs is in <code>lefthook.yaml</code>.
       </p>
       <ul>
-        <li><strong>Usage</strong>: <code>check [FLAGS] [jobs]…</code></li>
+        <li>
+          <strong>Usage</strong>:
+          <code
+            >check [-f --files &lt;file_commit_range&gt;] [-c --commits
+            &lt;commit_range&gt;] [jobs]…</code
+          >
+        </li>
       </ul>
       <p>Run jobs to find/fix issues</p>
       <h3>Arguments</h3>
       <h4><code>[jobs]…</code></h4>
       <p>Jobs to run. If none are passed then all of them will be run</p>
       <h3>Flags</h3>
-      <h4><code>-a --all-files</code></h4>
-      <p>Run on all files</p>
-      <h4><code>-c --commits-from &lt;commit&gt;</code></h4>
+      <h4><code>-f --files &lt;file_commit_range&gt;</code></h4>
       <p>
-        Check the files and commit messages from the provided commit to
-        <code>HEAD</code>
+        Check the files of the commits in the given commit range.
+        <code>file_commit_range</code> has the form
+        <code>&lt;from&gt;..&lt;to&gt;</code> e.g. <code>17f0a477..HEAD</code>.
+        You can also provide a single commit, e.g. <code>HEAD</code>, if you
+        only want to check one. Use the special value
+        <code>uncommitted</code> to check any files that having been committed
+        including untracked files, <code>unpushed</code> to check the files of
+        any commits that haven't been pushed, and <code>all</code> to check all
+        tracked/untracked files.
       </p>
-      <h4><code>-u --unpushed-commits</code></h4>
+      <h4><code>-c --commits &lt;commit_range&gt;</code></h4>
       <p>
-        Check the files and commit messages of any commits that haven't been
-        pushed
+        Check the files and commit message of each commit in the provided commit
+        range. A commit range has the form
+        <code>&lt;from&gt;..&lt;to&gt;</code> e.g. <code>17f0a477..HEAD</code>.
+        You can also provide a single commit, e.g. <code>HEAD</code>, if you
+        only want to check one. Use the special value <code>unpushed</code> to
+        check any commits that haven't been pushed. Commits will be checked
+        individually to ensure all checks pass at each commit.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>

@@ -236,44 +236,58 @@ check:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: |
-    set -eu
+    set -e
 
-    if [ -n "$LEFTHOOK_CHECK_COMMITS_FROM" ]; then
-      if [ "$LEFTHOOK_CHECK_ALL_FILES" = 'true' ]; then
-        git ls-files
-        # Untracked files
-        git ls-files --others --exclude-standard
+    print_files_in_range() {
+      range="$1"
+    }
+
+    {
+      if [ -z "$LEFTHOOK_FILE_COMMIT_RANGE" && -z "$LEFTHOOK_COMMIT_RANGE" ]; then
+        LEFTHOOK_FILE_COMMIT_RANGE='uncommitted'
       fi
 
-      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
-      mkdir -p "$directory"
-      git log "$LEFTHOOK_CHECK_COMMITS_FROM" HEAD --pretty=%h |
-        while IFS= read -r hash; do
-          # Put the commit message in a file
-          file="$directory/$hash.gitcommit"
-          if [ ! -e "$file" ]; then
-            git log --format=%B --max-count 1 "$hash" >"$file"
-          fi
-          echo "$file"
-
-          if [ "$LEFTHOOK_CHECK_ALL_FILES" != 'true' ]; then
-            git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
-          fi
-        done |
-        sort --unique
-    else
-      if [ "$LEFTHOOK_CHECK_ALL_FILES" = 'true' ]; then
-        git ls-files
-      else
-        # These are the files that differ between the current branch and the default
-        # branch. We use the merge base in case the current branch is behind the
-        # default branch.
-        git diff --diff-filter=d --name-only "$(git merge-base origin/HEAD HEAD)"
+      if [ -n "$LEFTHOOK_FILE_COMMIT_RANGE" ]; then
+        case "$LEFTHOOK_FILE_COMMIT_RANGE" in
+          uncommitted)
+            git diff --staged --name-only
+            git diff --name-only
+            # Untracked files
+            git ls-files --others --exclude-standard
+            ;;
+          unpushed)
+            git diff --name-only '^@{push}' HEAD
+            ;;
+          all)
+            git ls-files
+            # Untracked files
+            git ls-files --others --exclude-standard
+            ;;
+          *)
+            print_files_in_range "$LEFTHOOK_FILE_COMMIT_RANGE"
+            ;;
+        esac
       fi
 
-      # Untracked files
-      git ls-files --others --exclude-standard
-    fi
+      if [ -n "$LEFTHOOK_COMMIT_RANGE" ]; then
+        directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
+        mkdir -p "$directory"
+        git log "$LEFTHOOK_CHECK_COMMITS_FROM" HEAD --pretty=%h |
+          while IFS= read -r hash; do
+            # Put the commit message in a file
+            file="$directory/$hash.gitcommit"
+            if [ ! -e "$file" ]; then
+              git log --format=%B --max-count 1 "$hash" >"$file"
+            fi
+            echo "$file"
+
+            if [ -z "$LEFTHOOK_FILE_COMMIT_RANGE" ]; then
+              git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
+            fi
+          done
+      fi
+    } |
+      sort --unique
   jobs:
     # This job only exists to pass on its exclude list to its descendants.
     - name: "-"
