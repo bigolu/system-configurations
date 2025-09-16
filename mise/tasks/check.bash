@@ -1,33 +1,23 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter
+#! nix-shell --packages nix-shell-interpreter git-branchless
 #MISE description="Run jobs to find/fix issues"
-#USAGE long_about """
-#USAGE   Run jobs to find/fix issues with the code. It runs \
-#USAGE   on all files that differ between the current branch and the default branch, \
-#USAGE   and untracked files. This is usually what you want since you can assume any \
-#USAGE   files merged into the default branch have no issues. You usually don't have \
-#USAGE   to run this manually since it runs during the git pre-commit hook, where it \
-#USAGE   only runs on staged files. The exception to this is when you make changes to how \
-#USAGE   any of the jobs work, like modifying `lefthook.yaml` for example. In which \
-#USAGE   case, you should run this with the `--all-files` flag which forces the jobs to \
-#USAGE   run on all files, even unchanged ones. The list of jobs is in `lefthook.yaml`.
-#USAGE """
+#USAGE long_about "Run jobs to find/fix issues with the code. If no flags are provided, it will behave as if `--files unpushed` was provided. The list of jobs is in `lefthook.yaml`."
 #USAGE
-#USAGE arg "[jobs]" var=#true help="""
-#USAGE   Jobs to run. If none are passed then all of them will be run
-#USAGE """
+#USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
 #USAGE complete "jobs" run=#"""
 #USAGE   fish -c 'complete --do-complete "lefthook run check --jobs "'
 #USAGE """#
 #USAGE
-#USAGE flag "-a --all-files" help="Run on all files"
-#USAGE flag "-c --commits-from <commit>" help="""
-#USAGE   Check the files and commit messages from the provided commit to `HEAD`
-#USAGE """
-#USAGE flag "-u --unpushed-commits" help="""
-#USAGE   Check the files and commit messages of any commits that haven't been pushed
-#USAGE """
+#USAGE flag "-f --files <files>" help="Check the files specified" long_help="Check the files specified. `files` can be a commit range with the format `<start>..<end>` e.g. `17f0a477..HEAD`. This will check all the files changed in all the commits within that range (the range excludes the start commit). You can also provide a single commit, e.g. `HEAD`, if you only want to check the files within one. Use the special value `uncommitted` to check any files that haven't been committed including untracked files, `unpushed` to check the files of any commits that haven't been pushed, and `all` to check all tracked/untracked files."
+#USAGE complete "files" run=#"""
+#USAGE   printf '%s\n' uncommitted unpushed all
+#USAGE """#
+#USAGE
+#USAGE flag "-c --commits <commits>" help="Check the files/messages of the commits specified" long_help="Check the files and commit message of each of the commits specified. `commits` can be a commit range with the format `<start>..<end>` e.g. `17f0a477..HEAD`. This will check the files and commit message of each commit within that range (the range excludes the start commit). You can also provide a single commit, e.g. `HEAD`, if you only want to check one. Use the special value `unpushed` to check any commits that haven't been pushed. Commits will be checked individually to ensure checks pass at each commit."
+#USAGE complete "commits" run=#"""
+#USAGE   printf '%s\n' unpushed HEAD
+#USAGE """#
 
 set -o errexit
 set -o nounset
@@ -35,16 +25,44 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-from=''
-# Documentation for git range specifiers[1].
-#
-# [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
-if [[ ${usage_unpushed_commits:-} == 'true' ]]; then
-  from='^@{push}'
-elif [[ -n ${usage_commits_from:-} ]]; then
-  from="$usage_commits_from^!"
+if [[ -z ${usage_commits:-} && -z ${usage_files:-} ]]; then
+  usage_files='unpushed'
 fi
 
-LEFTHOOK_CHECK_ALL_FILES="${usage_all_files:-}" \
-  LEFTHOOK_CHECK_COMMITS_FROM="$from" \
-  lefthook run check --jobs "${usage_jobs:+${usage_jobs// /,}}"
+if [[ -n ${usage_commits:-} ]]; then
+  # Documentation for git range specifiers[1].
+  #
+  # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
+  case "$usage_commits" in
+    'unpushed')
+      start='^@{push}'
+      end='HEAD'
+      ;;
+    *'..'*)
+      start="${usage_commits%..*}"
+      end="${usage_commits#*..}"
+      # In case start is ahead of end
+      start="$(git merge-base "$start" "$end")"
+      ;;
+    *)
+      start="$usage_commits^!"
+      end="$start"
+      ;;
+  esac
+
+  hashes="$(git log "$start" "$end" --pretty=%h)"
+
+  # shellcheck disable=2016
+  IFS='|' LEFTHOOK=0 git-branchless test run --verbose --strategy worktree --no-cache --exec "
+    ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc
+    direnv exec . \
+      env \
+      RUN_FIX_ACTIONS='diff,stash,fail' \
+      LEFTHOOK_COMMIT=\"\$BRANCHLESS_TEST_COMMIT\" \
+      LEFTHOOK_FILES=$(printf '%q' "${usage_files:-}") \
+      lefthook run check --jobs $(printf '%q' "${usage_jobs:+${usage_jobs// /,}}")
+  " "${hashes//$'\n'/ | }"
+else
+  LEFTHOOK_FILES="${usage_files:-}" \
+    lefthook run check --jobs "${usage_jobs:+${usage_jobs// /,}}"
+fi
