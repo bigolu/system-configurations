@@ -45,88 +45,6 @@ templates:
     # as this function call.
     exit_if_no_files \
 
-# Git Hooks
-# -----------------------------------------------------------------------------------
-# Do not specify globs for any jobs that belong to a git hook because they won't be
-# applied unless their run command uses `{files}`. You could get around this by
-# adding something like `: {files};` to the beginning of every run command, but that
-# would lead to a subtle bug if you ever forgot to add it. For custom hooks, I get
-# around this by always specifying a `files` command at the hook level since the
-# documentation[1] states that globs will always be applied if a `files` command is
-# used. This does not seem to apply to git hooks though and I think that's a bug so I
-# should report it. There was a pull request for always applying globs, but it was
-# closed[2].
-#
-# [1]: https://lefthook.dev/configuration/glob.html
-# [2]: https://github.com/evilmartians/lefthook/pull/595
-
-commit-msg:
-  # If there are no staged files, lefthook won't run any job that uses the
-  # `{staged_files}` template. This can happen if you run `git commit --amend`
-  # without staging any files. This a problem since we would still want to run the
-  # job below so we can check the commit message. To work around this, we use a files
-  # command where we print the staged files, using the same command as lefthook[1],
-  # _and_ the commit message file.
-  #
-  # [1]: https://github.com/evilmartians/lefthook/blob/d1eb3be2522a2afa0da6cfa255d7843935af6812/internal/git/repository.goL35
-  files: |
-    git diff --name-only --cached --diff-filter=ACMR
-    echo {1}
-  jobs:
-    - name: backup-commit-msg
-      run: mise run recommit backup {1}
-    - name: check
-      # Some of the jobs in the `check` group have `interactive` enabled so it needs
-      # to be enabled here as well.
-      interactive: true
-      env:
-        RUN_FIX_ACTIONS: diff,stage,fail
-      # Running the commit message and file checks during the commit-msg hook,
-      # instead of the pre-commit hook, has the following advantages:
-      #   - We don't have to wait for the file checks to finish before we get to
-      #     enter a commit message.
-      #   - If there's a problem with the message, the file checks won't be run. This
-      #     way we don't have to rerun file checks if the commit message has a
-      #     problem which is important since the file checks usually take a lot
-      #     longer.
-      run: printf '%s\0' {files} | lefthook run check --files-from-stdin
-
-prepare-commit-msg:
-  jobs:
-    - name: restore-commit-msg
-      run: mise run recommit restore {0}
-
-post-rewrite:
-  jobs:
-    - name: auto-sync
-      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
-      # to be enabled here as well.
-      interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run auto-sync {0} -- lefthook run sync
-
-post-merge:
-  jobs:
-    - name: auto-sync
-      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
-      # to be enabled here as well.
-      interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run auto-sync {0} -- lefthook run sync
-
-post-checkout:
-  jobs:
-    - name: auto-sync
-      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
-      # to be enabled here as well.
-      interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run auto-sync {0} -- lefthook run sync
-
-post-commit:
-  jobs:
-    - name: remove-commit-msg-backup
-      run: mise run recommit clear
-    - name: auto-sync
-      run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
-
 # Custom Hooks
 # -----------------------------------------------------------------------------------
 # Lefthook only applies a job's glob if it, or the hook it belongs to, has a 'files'
@@ -265,8 +183,13 @@ check:
     # Untracked files
     git ls-files --others --exclude-standard
   jobs:
-    # This job only exists to pass on its exclude list to its descendants.
-    - name: "-"
+    # Why we have a root job:
+    #   - To pass on its exclude list to its descendants
+    #   - To use a YAML anchor since anchors can't be used with lists[1]
+    #
+    # [1]: https://github.com/yaml/yaml/issues/35
+    - &check-root-job
+      name: "-"
       exclude:
         - gozip/gomod2nix.toml
         - ".vscode/ltex*"
@@ -577,3 +500,83 @@ check:
                     - dotfiles/*
                     - gozip/*
                   run: bash -ceuo pipefail 'nix build --no-link --file . currentPlatformChecks 2>&1 | nom'
+
+# Git Hooks
+# -----------------------------------------------------------------------------------
+# Do not specify globs for any jobs that belong to a git hook because they won't be
+# applied unless their run command uses `{files}`. You could get around this by
+# adding something like `: {files};` to the beginning of every run command, but that
+# would lead to a subtle bug if you ever forgot to add it. For custom hooks, I get
+# around this by always specifying a `files` command at the hook level since the
+# documentation[1] states that globs will always be applied if a `files` command is
+# used. This does not seem to apply to git hooks though and I think that's a bug so I
+# should report it. There was a pull request for always applying globs, but it was
+# closed[2].
+#
+# [1]: https://lefthook.dev/configuration/glob.html
+# [2]: https://github.com/evilmartians/lefthook/pull/595
+
+commit-msg:
+  # If there are no staged files, lefthook won't run any job that uses the
+  # `{staged_files}` template. This can happen if you run `git commit --amend`
+  # without staging any files. This a problem since we would still want to run the
+  # job below so we can check the commit message. To work around this, we use a files
+  # command where we print the staged files, using the same command as lefthook[1],
+  # _and_ the commit message file.
+  #
+  # [1]: https://github.com/evilmartians/lefthook/blob/d1eb3be2522a2afa0da6cfa255d7843935af6812/internal/git/repository.goL35
+  files: |
+    git diff --name-only --cached --diff-filter=ACMR
+    echo {1}
+  jobs:
+    - name: backup-commit-msg
+      run: mise run recommit backup {1}
+    # Running the commit message and file checks during the commit-msg hook, instead
+    # of the pre-commit hook, has the following advantages:
+    #   - We don't have to wait for the file checks to finish before we get to enter
+    #     a commit message.
+    #   - If there's a problem with the message, the file checks won't be run. This
+    #     way we don't have to rerun file checks if the commit message has a problem
+    #     which is important since the file checks take a lot longer.
+    - name: "-"
+      env:
+        RUN_FIX_ACTIONS: diff,stage,fail
+      group:
+        jobs:
+          - <<: *check-root-job
+
+prepare-commit-msg:
+  jobs:
+    - name: restore-commit-msg
+      run: mise run recommit restore {0}
+
+post-rewrite:
+  jobs:
+    - name: auto-sync
+      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
+      # to be enabled here as well.
+      interactive: true
+      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run auto-sync {0} -- lefthook run sync
+
+post-merge:
+  jobs:
+    - name: auto-sync
+      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
+      # to be enabled here as well.
+      interactive: true
+      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run auto-sync {0} -- lefthook run sync
+
+post-checkout:
+  jobs:
+    - name: auto-sync
+      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
+      # to be enabled here as well.
+      interactive: true
+      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run auto-sync {0} -- lefthook run sync
+
+post-commit:
+  jobs:
+    - name: remove-commit-msg-backup
+      run: mise run recommit clear
+    - name: auto-sync
+      run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
