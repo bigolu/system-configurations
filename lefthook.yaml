@@ -238,66 +238,62 @@ check:
   files: |
     set -e
 
-    {
-      if [ -n "$LEFTHOOK_FILES" ]; then
-        case "$LEFTHOOK_FILES" in
-          uncommitted)
-            git diff --staged --name-only
-            git diff --name-only
-            # Untracked files
-            git ls-files --others --exclude-standard
-            ;;
-          all)
-            git ls-files
-            # Untracked files
-            git ls-files --others --exclude-standard
-            ;;
-          *)
-            # Documentation for git range specifiers[1].
-            #
-            # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
-            case "$LEFTHOOK_FILES" in
-              unpushed)
-                start='^@{push}'
-                end='HEAD'
-                ;;
-              *'..'*)
-                start="${LEFTHOOK_FILES%..*}"
-                end="${LEFTHOOK_FILES#*..}"
-                # In case start is ahead of end
-                start="$(git merge-base "$start" "$end")"
-                ;;
-              *)
-                start="$LEFTHOOK_FILES^!"
-                end="$start"
-                ;;
-            esac
-
-            git log "$start" "$end" --pretty=%h |
-              while IFS= read -r hash; do
-                git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
-              done
-            ;;
-        esac
+    # Put the commit message in a file
+    if [ -n "$LEFTHOOK_COMMIT" ]; then
+      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$LEFTHOOK_COMMIT"
+      mkdir -p "$directory"
+      file="$directory/COMMIT_EDITMSG"
+      if [ ! -e "$file" ]; then
+        git log --format=%B --max-count 1 "$LEFTHOOK_COMMIT" >"$file"
       fi
+      # TODO: Absolute paths don't work
+      realpath --relative-to="$PWD" "$file"
+    fi
 
-      if [ -n "$LEFTHOOK_COMMIT" ]; then
-        # Put the commit message in a file
-        directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$LEFTHOOK_COMMIT"
-        mkdir -p "$directory"
-        file="$directory/COMMIT_EDITMSG"
-        if [ ! -e "$file" ]; then
-          git log --format=%B --max-count 1 "$LEFTHOOK_COMMIT" >"$file"
-        fi
-        # TODO: Absolute paths don't work
-        realpath --relative-to="$PWD" "$file"
+    if [ -n "$LEFTHOOK_FILES" ]; then
+      case "$LEFTHOOK_FILES" in
+        uncommitted)
+          git diff --staged --name-only
+          git diff --name-only
+          # Untracked files
+          git ls-files --others --exclude-standard
+          ;;
+        all)
+          git ls-files
+          # Untracked files
+          git ls-files --others --exclude-standard
+          ;;
+        *)
+          # Documentation for git range specifiers[1].
+          #
+          # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
+          case "$LEFTHOOK_FILES" in
+            unpushed)
+              start='^@{push}'
+              end='HEAD'
+              ;;
+            *'..'*)
+              start="${LEFTHOOK_FILES%..*}"
+              end="${LEFTHOOK_FILES#*..}"
+              # In case start is ahead of end
+              start="$(git merge-base "$start" "$end")"
+              ;;
+            *)
+              start="$LEFTHOOK_FILES^!"
+              end="$start"
+              ;;
+          esac
 
-        if [ -z "$LEFTHOOK_FILES" ]; then
-          git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$LEFTHOOK_COMMIT"
-        fi
-      fi
-    } |
-      sort --unique
+          git log "$start" "$end" --pretty=%h |
+            while IFS= read -r hash; do
+              git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
+            done
+          ;;
+      esac |
+        sort --unique
+    else
+      git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$LEFTHOOK_COMMIT"
+    fi
   jobs:
     # This job only exists to pass on its exclude list to its descendants.
     - name: "-"
