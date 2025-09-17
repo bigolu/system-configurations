@@ -93,7 +93,7 @@ commit-msg:
         # non-whitespace character. If there are no lines like that, we assume the
         # commit would be aborted due to an empty message so we shouldn't bother
         # checking it.
-        if grep --quiet --extended-regexp '^([^#[:space:]]|[^#].*[^[:space:]].*)' {1}; then
+        if grep -qE '^([^#[:space:]]|[^#].*[^[:space:]].*)' {1}; then
           printf '%s\0' {files} | lefthook run check --files-from-stdin
         fi
 
