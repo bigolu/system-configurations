@@ -263,13 +263,13 @@ check:
 
     if [ -n "$LEFTHOOK_FILES" ]; then
       case "$LEFTHOOK_FILES" in
-        uncommitted)
+        'uncommitted')
           git diff --staged --name-only
           git diff --name-only
           # Untracked files
           git ls-files --others --exclude-standard
           ;;
-        all)
+        'all')
           git ls-files
           # Untracked files
           git ls-files --others --exclude-standard
@@ -279,8 +279,17 @@ check:
           #
           # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
           case "$LEFTHOOK_FILES" in
-            unpushed)
+            'unpushed')
               start='^@{push}'
+              end='HEAD'
+              ;;
+            'not-in-upstream')
+              ref='upstream/HEAD'
+              if ! git rev-parse --verify --quiet "$ref" >/dev/null; then
+                echo "Error: ref '$ref' does not exist" >&2
+                exit 1
+              fi
+              start="^$ref"
               end='HEAD'
               ;;
             *'..'*)

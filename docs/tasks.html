@@ -1090,8 +1090,8 @@
       <h2><code>check</code></h2>
       <p>
         Run jobs to find/fix issues with the code. If no flags are provided, it
-        will behave as if <code>--files unpushed</code> was provided. The list
-        of jobs is in <code>lefthook.yaml</code>.
+        will behave as if <code>--files uncommitted</code> was provided. The
+        list of jobs is in <code>lefthook.yaml</code>.
       </p>
       <ul>
         <li>
@@ -1117,8 +1117,11 @@
         only want to check the files within one. Use the special value
         <code>uncommitted</code> to check any files that haven't been committed
         including untracked files, <code>unpushed</code> to check the files of
-        any commits that haven't been pushed, and <code>all</code> to check all
-        tracked/untracked files.
+        any commits that haven't been pushed, <code>not-in-upstream</code> to
+        check the files of any commits that are not in
+        <code>upstream/HEAD</code> (there must be a remote named
+        <code>upstream</code> for this to work), and <code>all</code> to check
+        all tracked/untracked files.
       </p>
       <h4><code>-c --commits &lt;commits&gt;</code></h4>
       <p>
@@ -1129,9 +1132,11 @@
         message of each commit within that range (the range excludes the start
         commit). You can also provide a single commit, e.g. <code>HEAD</code>,
         if you only want to check one. Use the special value
-        <code>unpushed</code> to check any commits that haven't been pushed.
-        Commits will be checked individually to ensure checks pass at each
-        commit.
+        <code>unpushed</code> to check any commits that haven't been pushed or
+        <code>not-in-upstream</code> to check any commits that are not in
+        <code>upstream/HEAD</code> (there must be a remote named
+        <code>upstream</code> for this to work). Commits will be checked
+        individually to ensure checks pass at each commit.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>
