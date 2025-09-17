@@ -71,6 +71,10 @@ commit-msg:
     #   - If there's a problem with the message, the file checks won't be run. This
     #     way we don't have to rerun file checks if the commit message has a problem
     #     which is important since the file checks usually take a lot longer.
+    #
+    # Though this does have the disadvantage that you can't include any changes from
+    # fixers/formatters in the commit automatically. This is because the commit-msg
+    # hook can't change the contents of the commit.
     - name: check
       # Some of the jobs in the `check` group have `interactive` enabled so it needs
       # to be enabled here as well.
