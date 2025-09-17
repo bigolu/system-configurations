@@ -88,7 +88,14 @@ commit-msg:
         echo {1}
       env:
         RUN_FIX_ACTIONS: diff,stage,fail
-      run: printf '%s\0' {files} | lefthook run check --files-from-stdin
+      run: |
+        # Only run checks if there's a line that doesn't start with '#' that has a
+        # non-whitespace character. If there are no lines like that, we assume the
+        # commit would be aborted due to an empty message so we shouldn't bother
+        # checking it.
+        if grep --quiet --extended-regexp '^([^#[:space:]]|[^#].*[^[:space:]].*)' {1}; then
+          printf '%s\0' {files} | lefthook run check --files-from-stdin
+        fi
 
 prepare-commit-msg:
   jobs:
