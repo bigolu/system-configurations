@@ -55,6 +55,8 @@ if [[ -n ${usage_commits:-} ]]; then
   # Disable lefthook temporarily so git hooks don't run
   LEFTHOOK=0 git-branchless test run -vv --strategy worktree --no-cache --exec "
     ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc
+    # We use env from within the direnv environment so we can override the variables
+    # set by direnv.
     direnv exec . \
       env \
       LEFTHOOK=1 \
