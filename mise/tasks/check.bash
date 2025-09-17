@@ -52,7 +52,7 @@ if [[ -n ${usage_commits:-} ]]; then
 
   hashes="$(git log "$start" "$end" --pretty=%h)"
 
-  # shellcheck disable=2016
+  # Disable lefthook temporarily so git hooks don't run
   LEFTHOOK=0 git-branchless test run -vv --strategy worktree --no-cache --exec "
     ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc
     LEFTHOOK=1 \
