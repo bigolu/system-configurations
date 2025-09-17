@@ -55,11 +55,12 @@ if [[ -n ${usage_commits:-} ]]; then
   # Disable lefthook temporarily so git hooks don't run
   LEFTHOOK=0 git-branchless test run -vv --strategy worktree --no-cache --exec "
     ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc
-    LEFTHOOK=1 \
+    direnv exec . \
+      env \
+      LEFTHOOK=1 \
       LEFTHOOK_COMMIT=\"\$BRANCHLESS_TEST_COMMIT\" \
       LEFTHOOK_FILES=$(printf '%q' "${usage_files:-}") \
       RUN_FIX_ACTIONS='diff,stash,fail' \
-      direnv exec . \
       lefthook run check --jobs $(printf '%q' "${usage_jobs:+${usage_jobs// /,}}")
   " "${hashes//$'\n'/ | }"
 else
