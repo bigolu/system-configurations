@@ -53,13 +53,13 @@ if [[ -n ${usage_commits:-} ]]; then
   hashes="$(git log "$start" "$end" --pretty=%h)"
 
   # shellcheck disable=2016
-  IFS='|' LEFTHOOK=0 git-branchless test run --verbose --strategy worktree --no-cache --exec "
+  LEFTHOOK=0 git-branchless test run -vv --strategy worktree --no-cache --exec "
     ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc
-    direnv exec . \
-      env \
-      RUN_FIX_ACTIONS='diff,stash,fail' \
+    LEFTHOOK=1 \
       LEFTHOOK_COMMIT=\"\$BRANCHLESS_TEST_COMMIT\" \
       LEFTHOOK_FILES=$(printf '%q' "${usage_files:-}") \
+      RUN_FIX_ACTIONS='diff,stash,fail' \
+      direnv exec . \
       lefthook run check --jobs $(printf '%q' "${usage_jobs:+${usage_jobs// /,}}")
   " "${hashes//$'\n'/ | }"
 else
