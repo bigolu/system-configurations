@@ -535,7 +535,8 @@ check:
                   run: nixpkgs-lint --include-unfinished-lints -- {files}
                 # SYNC: typos
                 - name: typos
-                  exclude: "*/COMMIT_EDITMSG"
+                  exclude:
+                    - "*/COMMIT_EDITMSG"
                   run: |
                     {exit_if_no_files} {files}
                     typos {files}
@@ -543,13 +544,15 @@ check:
                   glob: "*.py"
                   run: mypy {files}
                 - name: isutf8
-                  exclude: "*/COMMIT_EDITMSG"
+                  exclude:
+                    - "*/COMMIT_EDITMSG"
                   run: |
                     {exit_if_no_files} {files}
                     isutf8 {files}
                 # SYNC: editorconfig-checker
                 - name: editorconfig-checker
-                  exclude: "*/COMMIT_EDITMSG"
+                  exclude:
+                    - "*/COMMIT_EDITMSG"
                   run: |
                     {exit_if_no_files} {files}
                     editorconfig-checker {files}
