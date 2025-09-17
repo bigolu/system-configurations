@@ -42,7 +42,7 @@ if [[ -n ${usage_commits:-} ]]; then
       start="${usage_commits%..*}"
       end="${usage_commits#*..}"
       # In case start is ahead of end
-      start="$(git merge-base "$start" "$end")"
+      start="^$(git merge-base "$start" "$end")"
       ;;
     *)
       start="$usage_commits^!"
