@@ -51,6 +51,9 @@ if [[ -n ${usage_commits:-} ]]; then
   esac
 
   hashes="$(git log "$start" "$end" --pretty=%h)"
+  if [[ -z $hashes ]]; then
+    exit 0
+  fi
 
   # Disable lefthook temporarily so git hooks don't run
   LEFTHOOK=0 git-branchless test run -vv --strategy worktree --no-cache --exec "
