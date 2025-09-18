@@ -262,8 +262,8 @@ check:
 
     case "$LEFTHOOK_FILES" in
       'uncommitted')
-        git diff --diff-filter=ACMR --staged --name-only
-        git diff --diff-filter=ACMR --name-only
+        # Staged and unstaged files
+        git diff --diff-filter=ACMR --name-only HEAD
         # Untracked files
         git ls-files --others --exclude-standard
         ;;
@@ -307,11 +307,11 @@ check:
         git log "$start" "$end" --pretty=%h |
           while IFS= read -r hash; do
             git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
-          done
+          done |
+          # Remove duplicates
+          sort --unique
         ;;
-    esac |
-      # Remove duplicates
-      sort --unique
+    esac
   jobs:
     # This job only exists to pass on its exclude list to its descendants.
     - name: "-"
