@@ -84,7 +84,7 @@ function fish_prompt --description 'Print the prompt'
         end
     end
     set --append prompt_lines (_make_line last)
-    set --prepend prompt_lines '' (set_color brblack)(string repeat --count $COLUMNS -- '─')
+    set --prepend prompt_lines (set_color --dim brblack)(string repeat --count $COLUMNS -- '─')$_color_normal
     printf (string join -- '\n' $prompt_lines)
 end
 
