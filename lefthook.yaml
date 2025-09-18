@@ -72,7 +72,7 @@ commit-msg:
     #     way we don't have to rerun file checks if the commit message has a problem
     #     which is important since the file checks usually take a lot longer.
     #
-    # Though this does have the disadvantage that you can't include any changes from
+    # However, one disadvantage is that you can't include any changes from
     # fixers/formatters in the commit automatically. This is because the commit-msg
     # hook can't change the contents of the commit.
     - name: check
