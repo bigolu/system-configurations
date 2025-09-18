@@ -1094,13 +1094,7 @@
         list of jobs is in <code>lefthook.yaml</code>.
       </p>
       <ul>
-        <li>
-          <strong>Usage</strong>:
-          <code
-            >check [-f --files &lt;files&gt;] [-c --commits &lt;commits&gt;]
-            [jobs]…</code
-          >
-        </li>
+        <li><strong>Usage</strong>: <code>check [FLAGS] [jobs]…</code></li>
       </ul>
       <p>Run jobs to find/fix issues</p>
       <h3>Arguments</h3>
@@ -1123,20 +1117,30 @@
         <code>upstream</code> for this to work), and <code>all</code> to check
         all tracked/untracked files.
       </p>
+      <h4><code>-r --rebase &lt;start&gt;</code></h4>
+      <p>
+        An interactive rebase will be started from the commit
+        <code>start</code>. An <code>exec</code> command will be added after
+        every commit which checks the files and message for that commit. Use the
+        special value <code>unpushed</code> to rebase any commits that haven't
+        been pushed or <code>not-in-upstream</code> to rebase any commits that
+        are not in <code>upstream/HEAD</code> (requires a remote named
+        <code>upstream</code>).
+      </p>
       <h4><code>-c --commits &lt;commits&gt;</code></h4>
       <p>
         Check the files and commit message of each of the commits specified.
         <code>commits</code> can be a commit range with the format
         <code>&lt;start&gt;..&lt;end&gt;</code> e.g.
         <code>17f0a477..HEAD</code>. This will check the files and commit
-        message of each commit within that range (the range excludes the start
-        commit). You can also provide a single commit, e.g. <code>HEAD</code>,
-        if you only want to check one. Use the special value
-        <code>unpushed</code> to check any commits that haven't been pushed or
-        <code>not-in-upstream</code> to check any commits that are not in
-        <code>upstream/HEAD</code> (there must be a remote named
+        message of each commit within that range. You can also provide a single
+        commit, e.g. <code>HEAD</code>, if you only want to check one. Use the
+        special value <code>unpushed</code> to check any commits that haven't
+        been pushed or <code>not-in-upstream</code> to check any commits that
+        are not in <code>upstream/HEAD</code> (there must be a remote named
         <code>upstream</code> for this to work). Commits will be checked
-        individually to ensure checks pass at each commit.
+        individually to ensure checks pass at each commit. The working tree must
+        be clean to run this, meaning there are no uncommitted changes.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>

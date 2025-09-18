@@ -280,23 +280,21 @@ check:
           # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
           case "$LEFTHOOK_FILES" in
             'unpushed')
-              start='^@{push}'
+              start="^$(git merge-base '@{push}' HEAD)"
               end='HEAD'
               ;;
             'not-in-upstream')
-              ref='upstream/HEAD'
-              if ! git rev-parse --verify --quiet "$ref" >/dev/null; then
-                echo "Error: ref '$ref' does not exist" >&2
+              upstream='upstream/HEAD'
+              if ! git rev-parse --verify --quiet "$upstream" >/dev/null; then
+                echo "Error: ref '$upstream' does not exist" >&2
                 exit 1
               fi
-              start="^$ref"
+              start="^$(git merge-base "$upstream" 'HEAD')"
               end='HEAD'
               ;;
             *'..'*)
-              start="${LEFTHOOK_FILES%..*}"
+              start="${LEFTHOOK_FILES%..*}^!"
               end="${LEFTHOOK_FILES#*..}"
-              # In case start is ahead of end
-              start="$(git merge-base "$start" "$end")"
               ;;
             *)
               start="$LEFTHOOK_FILES^!"
