@@ -268,9 +268,8 @@ check:
         git ls-files --others --exclude-standard
         ;;
       'all')
-        git ls-files
-        # Untracked files
-        git ls-files --others --exclude-standard
+        # Tracked and untracked files
+        git ls-files --cached --others --exclude-standard
         ;;
       *)
         # Documentation for git range specifiers[1].
