@@ -249,69 +249,69 @@ check:
   files: |
     set -e
 
-    # Put the commit message in a file
-    if [ -n "$LEFTHOOK_COMMIT" ]; then
-      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$(git rev-parse "$LEFTHOOK_COMMIT")"
+    if [ "$LEFTHOOK_INCLUDE_COMMIT_MESSAGE" = 'true' ]; then
+      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$(git rev-parse HEAD)"
       mkdir -p "$directory"
       file="$directory/COMMIT_EDITMSG"
       if [ ! -e "$file" ]; then
-        git log --format=%B --max-count 1 "$LEFTHOOK_COMMIT" >"$file"
+        git log --format=%B --max-count 1 HEAD >"$file"
       fi
       # TODO: Absolute paths don't work
       realpath --relative-to="$PWD" "$file"
     fi
 
-    if [ -n "$LEFTHOOK_FILES" ]; then
-      case "$LEFTHOOK_FILES" in
-        'uncommitted')
-          git diff --diff-filter=ACMR --staged --name-only
-          git diff --diff-filter=ACMR --name-only
-          # Untracked files
-          git ls-files --others --exclude-standard
-          ;;
-        'all')
-          git ls-files
-          # Untracked files
-          git ls-files --others --exclude-standard
-          ;;
-        *)
-          # Documentation for git range specifiers[1].
-          #
-          # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
-          case "$LEFTHOOK_FILES" in
-            'unpushed')
-              start="^$(git merge-base '@{push}' HEAD)"
-              end='HEAD'
-              ;;
-            'not-in-upstream')
-              upstream='upstream/HEAD'
-              if ! git rev-parse --verify --quiet "$upstream" >/dev/null; then
-                echo "Error: ref '$upstream' does not exist" >&2
-                exit 1
-              fi
-              start="^$(git merge-base "$upstream" 'HEAD')"
-              end='HEAD'
-              ;;
-            *'..'*)
-              start="${LEFTHOOK_FILES%..*}^!"
-              end="${LEFTHOOK_FILES#*..}"
-              ;;
-            *)
-              start="$LEFTHOOK_FILES^!"
-              end="$start"
-              ;;
-          esac
+    case "$LEFTHOOK_FILES" in
+      'uncommitted')
+        git diff --diff-filter=ACMR --staged --name-only
+        git diff --diff-filter=ACMR --name-only
+        # Untracked files
+        git ls-files --others --exclude-standard
+        ;;
+      'all')
+        git ls-files
+        # Untracked files
+        git ls-files --others --exclude-standard
+        ;;
+      *)
+        # Documentation for git range specifiers[1].
+        #
+        # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
+        case "$LEFTHOOK_FILES" in
+          'unpushed')
+            start="^$(git merge-base '@{push}' HEAD)"
+            end='HEAD'
+            ;;
+          'not-in-upstream')
+            upstream='upstream/HEAD'
+            if ! git rev-parse --verify --quiet "$upstream" >/dev/null; then
+              echo "Error: ref '$upstream' does not exist" >&2
+              exit 1
+            fi
+            start="^$(git merge-base "$upstream" 'HEAD')"
+            end='HEAD'
+            ;;
+          'head')
+            start='HEAD^!'
+            end="$start"
+            ;;
+          *'..'*)
+            start="${LEFTHOOK_FILES%..*}^!"
+            end="${LEFTHOOK_FILES#*..}"
+            ;;
+          *)
+            start="$LEFTHOOK_FILES^!"
+            end="$start"
+            ;;
+        esac
 
-          git log "$start" "$end" --pretty=%h |
-            while IFS= read -r hash; do
-              git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
-            done
-          ;;
-      esac |
-        sort --unique
-    else
-      git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$LEFTHOOK_COMMIT"
-    fi
+        git log "$start" "$end" --pretty=%h |
+          while IFS= read -r hash; do
+            git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
+          done
+        ;;
+    esac |
+      # Remove duplicates
+      sort --unique
   jobs:
     # This job only exists to pass on its exclude list to its descendants.
     - name: "-"

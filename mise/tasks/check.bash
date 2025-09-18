@@ -34,10 +34,8 @@ if [[ -z ${usage_rebase:-} && -z ${usage_commits:-} && -z ${usage_files:-} ]]; t
   usage_files='uncommitted'
 fi
 
-files="${usage_files:-}"
-escaped_files="$(printf '%q' "$files")"
 jobs="${usage_jobs:+${usage_jobs// /,}}"
-escaped_jobs="$(printf '%q' "$jobs")"
+lefthook_check_commit_command="env LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_FILES=$(printf '%q' "${usage_files:-head}") lefthook run check --jobs $(printf '%q' "$jobs")"
 
 if [[ -n ${usage_rebase:-} ]]; then
   # Documentation for git range specifiers[1].
@@ -60,10 +58,7 @@ if [[ -n ${usage_rebase:-} ]]; then
       ;;
   esac
 
-  git rebase \
-    --interactive \
-    --exec "env LEFTHOOK_COMMIT=HEAD LEFTHOOK_FILES=$escaped_files lefthook run check --jobs $escaped_jobs" \
-    "$start"
+  git rebase --interactive --exec "$lefthook_check_commit_command" "$start"
 elif [[ -n ${usage_commits:-} ]]; then
   # Documentation for git range specifiers[1].
   #
@@ -97,17 +92,15 @@ elif [[ -n ${usage_commits:-} ]]; then
     exit 0
   fi
 
-  # Disable lefthook temporarily so git hooks don't run.
+  # Disable lefthook so git hooks don't run when `git-branchless` checks out commits.
   #
   # We can't use the cache since the cache doesn't invalidate when the commit message
   # changes, only when the files in the commit change.
-  LEFTHOOK=0 git-branchless test run -vv --no-cache --exec "
-    # We use env from within the direnv environment so we can override the variables
-    # set by direnv.
-    direnv exec . \
-      env LEFTHOOK=1 LEFTHOOK_COMMIT=\"\$BRANCHLESS_TEST_COMMIT\" LEFTHOOK_FILES=$escaped_files \
-      lefthook run check --jobs $escaped_jobs
-  " "${hashes//$'\n'/ | }"
+  LEFTHOOK=0 git-branchless test run \
+    -vv \
+    --no-cache \
+    --exec "LEFTHOOK=1 direnv exec . $lefthook_check_commit_command" \
+    "${hashes//$'\n'/ | }"
 else
-  LEFTHOOK_FILES="$files" lefthook run check --jobs "$jobs"
+  LEFTHOOK_FILES="$usage_files" lefthook run check --jobs "$jobs"
 fi
