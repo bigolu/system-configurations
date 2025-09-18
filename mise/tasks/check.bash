@@ -22,10 +22,6 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-if [[ -z ${usage_rebase:-} && -z ${usage_commits:-} && -z ${usage_files:-} ]]; then
-  usage_files='uncommitted'
-fi
-
 jobs="${usage_jobs:+${usage_jobs// /,}}"
 lefthook_check_commit_command="env LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_FILES=$(printf '%q' "${usage_files:-head}") lefthook run check --jobs $(printf '%q' "$jobs")"
 
@@ -94,5 +90,5 @@ elif [[ -n ${usage_commits:-} ]]; then
     --exec "LEFTHOOK=1 direnv exec . $lefthook_check_commit_command" \
     "${hashes//$'\n'/ | }"
 else
-  LEFTHOOK_FILES="$usage_files" lefthook run check --jobs "$jobs"
+  LEFTHOOK_FILES="${usage_files:-uncommitted}" lefthook run check --jobs "$jobs"
 fi
