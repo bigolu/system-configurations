@@ -251,7 +251,7 @@ check:
 
     # Put the commit message in a file
     if [ -n "$LEFTHOOK_COMMIT" ]; then
-      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$LEFTHOOK_COMMIT"
+      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$(git rev-parse "$LEFTHOOK_COMMIT")"
       mkdir -p "$directory"
       file="$directory/COMMIT_EDITMSG"
       if [ ! -e "$file" ]; then
