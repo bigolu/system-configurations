@@ -2,10 +2,7 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter dix
 #MISE description='Preview system config application'
-#USAGE long_about """
-#USAGE   Show a preview of what changes would be made to the system if you applied \
-#USAGE   the current configuration.
-#USAGE """
+#USAGE long_about "Show a preview of what changes would be made to the system if you applied the current configuration."
 
 set -o errexit
 set -o nounset

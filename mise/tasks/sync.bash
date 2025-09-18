@@ -2,17 +2,10 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter
 #MISE description="Sync your environment with the code"
-#USAGE long_about """
-#USAGE   Run jobs to sync your environment with the code. For example, \
-#USAGE   running database migrations whenever the schema changes. You shouldn't have \
-#USAGE   to run this manually since git hooks are provided to automatically run this \
-#USAGE   after rebases, merges, and checkouts. The list of jobs is in `lefthook.yaml`.
-#USAGE """
+#USAGE long_about "Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes. You shouldn't have to run this manually since git hooks are provided to automatically run this after rebases, merges, and checkouts. The list of jobs is in `lefthook.yaml`."
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
-#USAGE complete "jobs" run=#"""
-#USAGE   fish -c 'complete --do-complete "lefthook run sync --jobs "'
-#USAGE """#
+#USAGE complete "jobs" run=#" fish -c 'complete --do-complete "lefthook run sync --jobs "' "#
 
 set -o errexit
 set -o nounset

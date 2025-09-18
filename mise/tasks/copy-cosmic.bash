@@ -1,9 +1,7 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter rsync
-#USAGE arg "<destination>" {
-#USAGE   choices "to-repo" "to-system"
-#USAGE }
+#USAGE arg "<destination>" { choices "to-repo" "to-system" }
 
 # TODO: Regarding the choices above: I prefixed them to 'to-' so it's clear from the
 # autocomplete menu that you're choosing the destination. You can specify a
