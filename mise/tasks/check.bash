@@ -34,6 +34,11 @@ if [[ -z ${usage_rebase:-} && -z ${usage_commits:-} && -z ${usage_files:-} ]]; t
   usage_files='uncommitted'
 fi
 
+files="${usage_files:-}"
+escaped_files="$(printf '%q' "$files")"
+jobs="${usage_jobs:+${usage_jobs// /,}}"
+escaped_jobs="$(printf '%q' "$jobs")"
+
 if [[ -n ${usage_rebase:-} ]]; then
   # Documentation for git range specifiers[1].
   #
@@ -57,7 +62,7 @@ if [[ -n ${usage_rebase:-} ]]; then
 
   git rebase \
     --interactive \
-    --exec "env LEFTHOOK_COMMIT=HEAD LEFTHOOK_FILES=$(printf '%q' "${usage_files:-}") lefthook run check --jobs $(printf '%q' "${usage_jobs:+${usage_jobs// /,}}")" \
+    --exec "env LEFTHOOK_COMMIT=HEAD LEFTHOOK_FILES=$escaped_files lefthook run check --jobs $escaped_jobs" \
     "$start"
 elif [[ -n ${usage_commits:-} ]]; then
   # Documentation for git range specifiers[1].
@@ -100,13 +105,9 @@ elif [[ -n ${usage_commits:-} ]]; then
     # We use env from within the direnv environment so we can override the variables
     # set by direnv.
     direnv exec . \
-      env \
-      LEFTHOOK=1 \
-      LEFTHOOK_COMMIT=\"\$BRANCHLESS_TEST_COMMIT\" \
-      LEFTHOOK_FILES=$(printf '%q' "${usage_files:-}") \
-      lefthook run check --jobs $(printf '%q' "${usage_jobs:+${usage_jobs// /,}}")
+      env LEFTHOOK=1 LEFTHOOK_COMMIT=\"\$BRANCHLESS_TEST_COMMIT\" LEFTHOOK_FILES=$escaped_files \
+      lefthook run check --jobs $escaped_jobs
   " "${hashes//$'\n'/ | }"
 else
-  LEFTHOOK_FILES="${usage_files:-}" \
-    lefthook run check --jobs "${usage_jobs:+${usage_jobs// /,}}"
+  LEFTHOOK_FILES="$files" lefthook run check --jobs "$jobs"
 fi
