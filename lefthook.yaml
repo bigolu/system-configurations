@@ -264,8 +264,8 @@ check:
     if [ -n "$LEFTHOOK_FILES" ]; then
       case "$LEFTHOOK_FILES" in
         'uncommitted')
-          git diff --staged --name-only
-          git diff --name-only
+          git diff --diff-filter=ACMR --staged --name-only
+          git diff --diff-filter=ACMR --name-only
           # Untracked files
           git ls-files --others --exclude-standard
           ;;
