@@ -14,7 +14,7 @@
 #USAGE complete "start" run=#" printf '%s\n' unpushed not-in-upstream "#
 #USAGE
 #USAGE flag "-c --commits <commits>" help="Check the files/messages of the commits specified" long_help="Check the files and commit message of each of the commits specified. `commits` can be a commit range with the format `<start>..<end>` e.g. `17f0a477..HEAD`. This will check the files and commit message of each commit within that range. You can also provide a single commit, e.g. `HEAD`, if you only want to check one. Use the special value `unpushed` to check any commits that haven't been pushed or `not-in-upstream` to check any commits that are not in `upstream/HEAD` (there must be a remote named `upstream` for this to work). Commits will be checked individually to ensure checks pass at each commit. If `--files` is also specified, the files specified by `--files` will be checked per commit instead of the files in the commit. The working tree must be clean to run this, meaning there are no uncommitted changes."
-#USAGE complete "commits" run=#" printf '%s\n' unpushed not-in-upstream HEAD "#
+#USAGE complete "commits" run=#" printf '%s\n' unpushed not-in-upstream head "#
 
 set -o errexit
 set -o nounset
@@ -64,6 +64,10 @@ elif [[ -n ${usage_commits:-} ]]; then
       fi
       start="^$(git merge-base "$upstream" 'HEAD')"
       end='HEAD'
+      ;;
+    'head')
+      start='HEAD^!'
+      end="$start"
       ;;
     *'..'*)
       start="${usage_commits%..*}^!"
