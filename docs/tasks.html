@@ -1125,7 +1125,9 @@
         special value <code>unpushed</code> to rebase any commits that haven't
         been pushed or <code>not-in-upstream</code> to rebase any commits that
         are not in <code>upstream/HEAD</code> (requires a remote named
-        <code>upstream</code>).
+        <code>upstream</code>). If <code>--files</code> is also specified, the
+        files specified by <code>--files</code> will be checked per commit
+        instead of the files in the commit.
       </p>
       <h4><code>-c --commits &lt;commits&gt;</code></h4>
       <p>
@@ -1139,8 +1141,11 @@
         been pushed or <code>not-in-upstream</code> to check any commits that
         are not in <code>upstream/HEAD</code> (there must be a remote named
         <code>upstream</code> for this to work). Commits will be checked
-        individually to ensure checks pass at each commit. The working tree must
-        be clean to run this, meaning there are no uncommitted changes.
+        individually to ensure checks pass at each commit. If
+        <code>--files</code> is also specified, the files specified by
+        <code>--files</code> will be checked per commit instead of the files in
+        the commit. The working tree must be clean to run this, meaning there
+        are no uncommitted changes.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>
