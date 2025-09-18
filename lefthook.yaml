@@ -304,10 +304,7 @@ check:
             ;;
         esac
 
-        git log "$start" "$end" --pretty=%h |
-          while IFS= read -r hash; do
-            git diff-tree -r --diff-filter=ACMR --no-commit-id --name-only "$hash"
-          done |
+        git log --format='' --name-only --diff-filter=ACMR "$start" "$end" |
           # Remove duplicates
           sort --unique
         ;;
