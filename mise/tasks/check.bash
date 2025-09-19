@@ -13,7 +13,7 @@
 #USAGE flag "-r --rebase <start>" help="Check commits using an interactive rebase" long_help="An interactive rebase will be started from the commit `start`. An `exec` command will be added after every commit which checks the files and message for that commit. Use the special value `unpushed` to rebase any commits that haven't been pushed or `not-in-upstream` to rebase any commits that are not in `upstream/HEAD` (requires a remote named `upstream`). If `--files` is also used, the files specified by `--files` will be checked per commit instead of the files in the commit. If you make a mistake and want to go back to where you were before the rebase, run `git reset --hard refs/project/ir-backup`."
 #USAGE complete "start" run=#" printf '%s\n' unpushed not-in-upstream "#
 #USAGE
-#USAGE flag "-c --commits <commits>" help="Check the files/messages of the commits specified" long_help="Check the files and commit message of each of the commits specified. `commits` can be a commit range with the format `<start>..<end>` e.g. `17f0a477..HEAD`. This will check the files and commit message of each commit within that range. You can also provide a single commit, e.g. `HEAD`, if you only want to check one. Use the special value `unpushed` to check any commits that haven't been pushed or `not-in-upstream` to check any commits that are not in `upstream/HEAD` (there must be a remote named `upstream` for this to work). Commits will be checked individually to ensure checks pass at each commit. If `--files` is also used, the files specified by `--files` will be checked per commit instead of the files in the commit. The working tree must be clean to run this, meaning there are no uncommitted changes."
+#USAGE flag "-c --commits <commits>" help="Check the files/messages of the commits specified" long_help="Check the files and commit message of each of the commits specified. `commits` can be a commit range with the format `<start>..<end>` e.g. `17f0a477..HEAD`. This will check the files and commit message of each commit within that range. You can also provide a single commit, e.g. `HEAD`, if you only want to check one. Use the special value `unpushed` to check any commits that haven't been pushed or `not-in-upstream` to check any commits that are not in `upstream/HEAD` (there must be a remote named `upstream` for this to work). Commits will be checked individually to ensure checks pass at each commit. If `--files` is also used, the files specified by `--files` will be checked per commit instead of the files in the commit."
 #USAGE complete "commits" run=#" printf '%s\n' unpushed not-in-upstream head "#
 
 set -o errexit
@@ -23,7 +23,6 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 jobs="${usage_jobs:+${usage_jobs// /,}}"
-lefthook_check_commit_command="env LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_FILES=$(printf '%q' "${usage_files:-head}") lefthook run check --jobs $(printf '%q' "$jobs")"
 
 if [[ -n ${usage_rebase:-} ]]; then
   # Documentation for git range specifiers[1].
@@ -50,7 +49,28 @@ if [[ -n ${usage_rebase:-} ]]; then
   # want to go back.
   git update-ref refs/project/ir-backup HEAD
 
-  git rebase --interactive --exec "$lefthook_check_commit_command" "$start"
+  if [[ -n ${jobs:-} ]]; then
+    readarray -t job_array <<<"${jobs//,/$'\n'}"
+    printf -v escaped_job_array '%q ' "${job_array[@]}"
+    escaped_job_array=" ${escaped_job_array%?}"
+  else
+    escaped_job_array=''
+  fi
+
+  if [[ -n ${usage_files:-} ]]; then
+    printf -v escaped_files ' --files %q' "$usage_files"
+  else
+    escaped_files=''
+  fi
+
+  # The arguments for this task should not be inherited by the one we run in `--exec`
+  # or any other tasks that get run during the interactive rebase.
+  unset "${!usage_@}"
+
+  git rebase \
+    --interactive \
+    --exec "mise run check --commits head$escaped_files$escaped_job_array" \
+    "$start"
 elif [[ -n ${usage_commits:-} ]]; then
   # Documentation for git range specifiers[1].
   #
@@ -95,7 +115,8 @@ elif [[ -n ${usage_commits:-} ]]; then
   LEFTHOOK=0 git-branchless test run \
     -vv \
     --no-cache \
-    --exec "LEFTHOOK=1 direnv exec . $lefthook_check_commit_command" \
+    --strategy worktree \
+    --exec "LEFTHOOK=1 LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_FILES=$(printf '%q' "${usage_files:-head}") RUN_FIX_ACTIONS='diff,stash,fail' lefthook run check --jobs $(printf '%q' "$jobs")" \
     "${hashes//$'\n'/ | }"
 else
   LEFTHOOK_FILES="${usage_files:-uncommitted}" lefthook run check --jobs "$jobs"
