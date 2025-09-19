@@ -67,7 +67,7 @@ xdg_env_vars=(
   XDG_CACHE_HOME="$xdg_cache_directory"
 )
 set_xdg_env=(export "${xdg_env_vars[@]}")
-set_xdg_env_escaped="$(printf '%q ' "${set_xdg_env[@]}")"
+IFS=' ' set_xdg_env_escaped="${set_xdg_env[*]@Q}"
 
 function add_directory_to_path {
   local directory="$1"

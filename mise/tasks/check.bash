@@ -51,17 +51,12 @@ if [[ -n ${usage_rebase:-} ]]; then
 
   if [[ -n ${jobs:-} ]]; then
     readarray -t job_array <<<"${jobs//,/$'\n'}"
-    printf -v escaped_job_array '%q ' "${job_array[@]}"
-    escaped_job_array=" ${escaped_job_array%?}"
+    printf -v escaped_job_array ' %q' "${job_array[@]}"
   else
     escaped_job_array=''
   fi
 
-  if [[ -n ${usage_files:-} ]]; then
-    printf -v escaped_files ' --files %q' "$usage_files"
-  else
-    escaped_files=''
-  fi
+  escaped_files="${usage_files:+ --files ${usage_files@Q}}"
 
   # The arguments for this task should not be inherited by the one we run in `--exec`
   # or any other tasks that get run during the interactive rebase.
@@ -108,6 +103,7 @@ elif [[ -n ${usage_commits:-} ]]; then
     exit 0
   fi
 
+  files="${usage_files:-head}"
   # Disable lefthook so git hooks don't run when `git-branchless` checks out commits.
   #
   # We can't use the cache since the cache doesn't invalidate when the commit message
@@ -116,7 +112,7 @@ elif [[ -n ${usage_commits:-} ]]; then
     -vv \
     --no-cache \
     --strategy worktree \
-    --exec "LEFTHOOK=1 LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_FILES=$(printf '%q' "${usage_files:-head}") RUN_FIX_ACTIONS='diff,stash,fail' lefthook run check --jobs $(printf '%q' "$jobs")" \
+    --exec "LEFTHOOK=1 LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_FILES=${files@Q} RUN_FIX_ACTIONS='diff,stash,fail' lefthook run check --jobs ${jobs@Q}" \
     "${hashes//$'\n'/ | }"
 else
   LEFTHOOK_FILES="${usage_files:-uncommitted}" lefthook run check --jobs "$jobs"
