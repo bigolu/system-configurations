@@ -12,19 +12,25 @@ shopt -s inherit_errexit
 function main {
   local -r subcommand="$1"
 
-  # Intentionally global
-  backup="$(git rev-parse --absolute-git-dir)/info/recommit-message-backup"
+  local -r program_name='commit-message-backup'
+
+  local backup
+  backup="$(git rev-parse --absolute-git-dir)/info/$program_name"
 
   case "$subcommand" in
-    'clear')
-      clear_backup
+    'remove')
+      remove "$backup"
       ;;
-    'backup')
+    'create')
       local -r commit_file="$2"
-      # Only backup if there's a line that doesn't start with '#' that has a
+      # Only make a backup if there's a line that doesn't start with '#' that has a
       # non-whitespace character. If there are no lines like that, we assume the
       # commit would be aborted due to an empty message and as such, the post-commit
       # hook would not run so we wouldn't remove our backup.
+      #
+      # The pattern to the left of the `|` matches lines with a single non-whitespace
+      # character and the pattern on the right matches lines with multiple whitespace
+      # characters.
       if grep --quiet --extended-regexp '^([^#[:space:]]|[^#].*[^[:space:]].*)' "$2"; then
         extract_commit_message "$commit_file" >"$backup"
       fi
@@ -45,40 +51,35 @@ function main {
         if [[ $can_restore == 'true' ]]; then
           exit 0
         else
-          clear_backup
+          remove "$backup"
           exit 1
         fi
       fi
 
       if [[ $can_restore == 'true' ]]; then
-        local temp
-        temp="$(mktemp)"
+        # Ensure all lines are comments since git only removes contiguous commented
+        # lines.
+        local commented_commit_file_contents
+        commented_commit_file_contents="$(sed 's/^#\?/#/' <"$commit_file")"
 
-        {
-          echo "$(<"$backup")"
-          {
-            # shellcheck disable=2016
-            echo ' (This commit message was restored by `recommit`)'
-            echo "$(<"$commit_file")"
-          } |
-            # This ensures all lines are comments since git only removes contiguous
-            # commented lines.
-            sed 's/^#\?/#/'
-        } >"$temp"
-
-        mv "$temp" "$commit_file"
+        printf '%s\n' \
+          "$(<"$backup")" \
+          "# (This commit message was restored by \`$program_name\`)" \
+          "$commented_commit_file_contents" \
+          >"$commit_file"
       fi
 
-      clear_backup
+      remove "$backup"
       ;;
     *)
-      echo "recommit: Error, invalid subcommand: $subcommand" >&2
+      echo "$program_name: Error, invalid subcommand: $subcommand" >&2
       exit 2
       ;;
   esac
 }
 
-function clear_backup {
+function remove {
+  local -r backup="$1"
   if [[ -e $backup ]]; then
     rm "$backup"
   fi
