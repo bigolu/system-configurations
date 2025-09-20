@@ -56,14 +56,14 @@
 function direnv_manual_reload {
   local layout_dir
   layout_dir="$(direnv_layout_dir)"
-  if [[ ! -e $layout_dir ]]; then
-    mkdir -p "$layout_dir"
-  fi
 
   local -r reload_file="$layout_dir/reload"
   if [[ ! -e $reload_file ]]; then
-    # This will create the file, like `touch`, without having to use an external
-    # command.
+    if [[ ! -e $layout_dir ]]; then
+      mkdir -p "$layout_dir"
+    fi
+
+    # Create a file without using an external command
     : >"$reload_file"
   fi
 
@@ -83,18 +83,17 @@ function _dmr_set_watch_list {
   # command in a temporary file, but I want to avoid going to disk.
   readarray -d '' watched_files < <(direnv watch-print --null)
 
-  local -a watched_files_to_keep
+  local -a allow_and_deny_files
   local file
   for file in "${watched_files[@]}"; do
-    # Keep direnv's allow/deny files, so `direnv block/allow` still triggers a
-    # reload.
-    if [[ $file =~ "${XDG_DATA_HOME:-$HOME/.local/share}/direnv/"* ]]; then
-      watched_files_to_keep+=("$file")
+    if [[ $file =~ "${XDG_DATA_HOME:-$HOME/.local/share}/direnv/"('allow'|'deny')'/'* ]]; then
+      allow_and_deny_files+=("$file")
     fi
   done
 
   unset DIRENV_WATCHES
-  watch_file "${watched_files_to_keep[@]}" "$reload_file"
+  # Keep the allow/deny files, so `direnv allow/deny` still triggers a reload.
+  watch_file "${allow_and_deny_files[@]}" "$reload_file"
 }
 
 function _dmr_disable_file_watching {

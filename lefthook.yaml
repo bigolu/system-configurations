@@ -253,7 +253,9 @@ check:
       directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$(git rev-parse HEAD)"
       file="$directory/COMMIT_EDITMSG"
       if [ ! -e "$file" ]; then
-        mkdir -p "$directory"
+        if [ ! -e "$directory" ]; then
+          mkdir -p "$directory"
+        fi
         git log --format=%B --max-count 1 HEAD >"$file"
       fi
       # TODO: Absolute paths don't work
