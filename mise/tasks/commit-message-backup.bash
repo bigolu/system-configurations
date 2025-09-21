@@ -41,7 +41,7 @@ function main {
       local -r commit_source="${3:-}"
 
       local can_restore
-      if [[ -e $backup && $commit_source != 'message' && $commit_source != 'commit' ]]; then
+      if [[ -e $backup && $commit_source != 'message' ]]; then
         can_restore='true'
       else
         can_restore='false'
@@ -57,16 +57,46 @@ function main {
       fi
 
       if [[ $can_restore == 'true' ]]; then
-        # Ensure all lines are comments since git only removes contiguous commented
-        # lines.
-        local commented_commit_file_contents
-        commented_commit_file_contents="$(sed 's/^#\?/#/' <"$commit_file")"
 
-        printf '%s\n' \
-          "$(<"$backup")" \
-          "# (This commit message was restored by \`$program_name\`)" \
-          "$commented_commit_file_contents" \
-          >"$commit_file"
+        # When `commit_source` is 'commit', we know `--amend` was provided, but we
+        # don't know if `--no-edit` was provided. We only want to restore if
+        # `--no-edit` wasn't provided. As a workaround, we will restore the backed up
+        # message as a comment. This way, if `--no-edit` was provided, the backed up
+        # message won't be used. If `--no-edit` wasn't provided, the user can take
+        # the restored message out of the comment themselves.
+        #
+        # TODO: See if git can let the prepare-commit-msg hook know if `--no-edit`
+        # was provided.
+        if [[ $commit_source == 'commit' ]]; then
+          commit_file_contents="$(<"$commit_file")"
+          did_insert='false'
+          while IFS= read -r line; do
+            # Insert the restored message just before the comment starts in the
+            # commit file.
+            if [[ $line == '#'* && $did_insert != 'true' ]]; then
+              printf '%s\n' \
+                "# Below is the commit message restored by \`$program_name\`:" \
+                "$(<"$backup")" \
+                '#' |
+                # Ensure all lines are comments since git only removes contiguous
+                # commented lines.
+                sed 's/^#\? \?/# /'
+              did_insert='true'
+            fi
+            echo "$line"
+          done <<<"$commit_file_contents" >"$commit_file"
+        else
+          # Ensure all lines are comments since git only removes contiguous commented
+          # lines.
+          local commented_commit_file_contents
+          commented_commit_file_contents="$(sed 's/^#\? \?/# /' <"$commit_file")"
+
+          printf '%s\n' \
+            "$(<"$backup")" \
+            "# (Commit message restored by \`$program_name\`)" \
+            "$commented_commit_file_contents" \
+            >"$commit_file"
+        fi
       fi
 
       remove "$backup"
