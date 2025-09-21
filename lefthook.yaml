@@ -278,16 +278,16 @@ check:
         #
         # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
         case "$LEFTHOOK_FILES" in
-          'unpushed')
+          'not-pushed')
             range="$(git merge-base '@{push}' HEAD).."
             ;;
-          'not-in-upstream')
-            upstream='upstream'
-            if ! git rev-parse --verify --quiet "$upstream" >/dev/null; then
-              echo "Error: Remote '$upstream' does not exist" >&2
+          'not-in-'*)
+            remote="${LEFTHOOK_FILES#not-in-}"
+            if ! git rev-parse --verify --quiet "$remote" >/dev/null; then
+              echo "error: Remote '$remote' does not exist" >&2
               exit 1
             fi
-            range="$(git merge-base "$upstream" 'HEAD').."
+            range="$(git merge-base "$remote" 'HEAD').."
             ;;
           'head')
             range='HEAD^!'
