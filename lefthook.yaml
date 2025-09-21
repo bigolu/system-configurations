@@ -279,8 +279,7 @@ check:
         # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
         case "$LEFTHOOK_FILES" in
           'unpushed')
-            start="^$(git merge-base '@{push}' HEAD)"
-            end='HEAD'
+            range="$(git merge-base '@{push}' HEAD)..HEAD"
             ;;
           'not-in-upstream')
             upstream='upstream/HEAD'
@@ -288,24 +287,20 @@ check:
               echo "Error: ref '$upstream' does not exist" >&2
               exit 1
             fi
-            start="^$(git merge-base "$upstream" 'HEAD')"
-            end='HEAD'
+            range="$(git merge-base "$upstream" 'HEAD')..HEAD"
             ;;
           'head')
-            start='HEAD^!'
-            end="$start"
+            range='HEAD^!'
             ;;
           *'..'*)
-            start="${LEFTHOOK_FILES%..*}^!"
-            end="${LEFTHOOK_FILES#*..}"
+            range="$LEFTHOOK_FILES"
             ;;
           *)
-            start="$LEFTHOOK_FILES^!"
-            end="$start"
+            range="$LEFTHOOK_FILES^!"
             ;;
         esac
 
-        git log --format='' --name-only --diff-filter=ACMR "$start" "$end" |
+        git log --format='' --name-only --diff-filter=ACMR "$range" |
           # Remove duplicates
           sort --unique
         ;;

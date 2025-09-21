@@ -1106,17 +1106,17 @@
         Check the files specified. <code>files</code> can be a commit range with
         the format <code>&lt;start&gt;..&lt;end&gt;</code> e.g.
         <code>17f0a477..HEAD</code>. This will check all the files changed in
-        all the commits within that range (the range excludes the start commit).
-        You can also provide a single commit, e.g. <code>HEAD</code>, if you
-        only want to check the files within one. Use the special value
-        <code>uncommitted</code> to check any files that haven't been committed
-        including untracked files, <code>unpushed</code> to check the files of
-        any commits that haven't been pushed, <code>not-in-upstream</code> to
-        check the files of any commits that are not in
-        <code>upstream/HEAD</code> (there must be a remote named
-        <code>upstream</code> for this to work), <code>head</code> to run on all
-        files in the current commit (i.e. HEAD), and <code>all</code> to check
-        all tracked/untracked files.
+        all the commits within that range (<code>&lt;start&gt;</code> is not
+        included in the range). You can also provide a single commit, e.g.
+        <code>HEAD</code>, if you only want to check the files within one. Use
+        the special value <code>uncommitted</code> to check any files that
+        haven't been committed including untracked files,
+        <code>unpushed</code> to check the files of any commits that haven't
+        been pushed, <code>not-in-upstream</code> to check the files of any
+        commits that are not in <code>upstream/HEAD</code> (there must be a
+        remote named <code>upstream</code> for this to work),
+        <code>head</code> to run on all files in the current commit (i.e. HEAD),
+        and <code>all</code> to check all tracked/untracked files.
       </p>
       <h4><code>-r --rebase &lt;start&gt;</code></h4>
       <p>
@@ -1138,11 +1138,12 @@
         <code>commits</code> can be a commit range with the format
         <code>&lt;start&gt;..&lt;end&gt;</code> e.g.
         <code>17f0a477..HEAD</code>. This will check the files and commit
-        message of each commit within that range. You can also provide a single
-        commit, e.g. <code>HEAD</code>, if you only want to check one. Use the
-        special value <code>unpushed</code> to check any commits that haven't
-        been pushed or <code>not-in-upstream</code> to check any commits that
-        are not in <code>upstream/HEAD</code> (there must be a remote named
+        message of each commit within that range (<code>&lt;start&gt;</code> is
+        not included in the range). You can also provide a single commit, e.g.
+        <code>HEAD</code>, if you only want to check one. Use the special value
+        <code>unpushed</code> to check any commits that haven't been pushed or
+        <code>not-in-upstream</code> to check any commits that are not in
+        <code>upstream/HEAD</code> (there must be a remote named
         <code>upstream</code> for this to work). Commits will be checked
         individually to ensure checks pass at each commit. If
         <code>--files</code> is also used, the files specified by
