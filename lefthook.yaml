@@ -279,15 +279,15 @@ check:
         # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
         case "$LEFTHOOK_FILES" in
           'unpushed')
-            range="$(git merge-base '@{push}' HEAD)..HEAD"
+            range="$(git merge-base '@{push}' HEAD).."
             ;;
           'not-in-upstream')
-            upstream='upstream/HEAD'
+            upstream='upstream'
             if ! git rev-parse --verify --quiet "$upstream" >/dev/null; then
-              echo "Error: ref '$upstream' does not exist" >&2
+              echo "Error: Remote '$upstream' does not exist" >&2
               exit 1
             fi
-            range="$(git merge-base "$upstream" 'HEAD')..HEAD"
+            range="$(git merge-base "$upstream" 'HEAD').."
             ;;
           'head')
             range='HEAD^!'

@@ -190,7 +190,7 @@ function should_sync {
 
       # If the destination commit has been pushed to the default branch, I assume the
       # user is going through the history to debug. As such, we shouldn't sync.
-      if git merge-base --is-ancestor "$2" origin/HEAD; then
+      if git merge-base --is-ancestor "$2" origin; then
         should_sync='false'
       fi
       ;;
