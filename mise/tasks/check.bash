@@ -33,12 +33,12 @@ if [[ -n ${usage_rebase:-} ]]; then
       start="$(git merge-base '@{push}' HEAD)"
       ;;
     'not-in-'*)
-      remote="${usage_rebase#not-in-}"
-      if ! git rev-parse --verify --quiet "$remote" >/dev/null; then
-        echo "error: Remote '$remote' does not exist" >&2
+      revision="${usage_rebase#not-in-}"
+      if ! git rev-parse --verify --quiet "$revision" >/dev/null; then
+        echo "error: Revision '$revision' does not exist" >&2
         exit 1
       fi
-      start="$(git merge-base "$remote" 'HEAD')"
+      start="$(git merge-base "$revision" 'HEAD')"
       ;;
     *)
       start="$usage_rebase^"
@@ -75,12 +75,12 @@ elif [[ -n ${usage_commits:-} ]]; then
       range="$(git merge-base '@{push}' HEAD).."
       ;;
     'not-in-'*)
-      remote="${usage_commits#not-in-}"
-      if ! git rev-parse --verify --quiet "$remote" >/dev/null; then
-        echo "error: Remote '$remote' does not exist" >&2
+      revision="${usage_commits#not-in-}"
+      if ! git rev-parse --verify --quiet "$revision" >/dev/null; then
+        echo "error: Revision '$revision' does not exist" >&2
         exit 1
       fi
-      range="$(git merge-base "$remote" 'HEAD').."
+      range="$(git merge-base "$revision" 'HEAD').."
       ;;
     'head')
       range='HEAD^!'
