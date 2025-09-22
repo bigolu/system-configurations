@@ -75,9 +75,9 @@ function main {
             # commit file.
             if [[ $line == '#'* && $did_insert != 'true' ]]; then
               printf '%s\n' \
-                "# Below is the commit message restored by \`$program_name\`:" \
+                "Below is the commit message restored by \`$program_name\`:" \
                 "$(<"$backup")" \
-                '#' |
+                '' |
                 # Ensure all lines are comments since git only removes contiguous
                 # commented lines.
                 sed 's/^#\? \?/# /'
