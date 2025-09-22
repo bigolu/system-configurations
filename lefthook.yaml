@@ -289,9 +289,6 @@ check:
             fi
             range="$(git merge-base "$revision" 'HEAD').."
             ;;
-          'head')
-            range='HEAD^!'
-            ;;
           *'..'*)
             range="$LEFTHOOK_FILES"
             ;;
