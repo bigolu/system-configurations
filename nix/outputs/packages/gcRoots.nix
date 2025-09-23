@@ -5,8 +5,8 @@
 #   verifying that a refactor doesn't change the dev shell or just seeing what has
 #   changed.
 # - Roots are joined into a single derivation so you'll only have a single GC root
-#   per project, or two if you enabled the dev shell GC root. This is reduces noise
-#   in the full list of GC roots for your system (/nix/var/nix/gcroots/auto).
+#   per project. This is reduces noise in the full list of GC roots for your system
+#   (/nix/var/nix/gcroots/auto).
 
 # There's an issue for having flakes retain a reference to their inputs[1].
 #
@@ -37,7 +37,7 @@ nixpkgs.callPackage (
       isList
       genericClosure
       getExe'
-      concatStringsSep
+      concatMapStrings
       filter
       genAttrs'
       nameValuePair
@@ -123,65 +123,38 @@ nixpkgs.callPackage (
       let
         derivation = writeTextFile {
           name = "roots.txt";
-          text = concatStringsSep "\n" roots;
+          text = concatMapStrings (root: "${root}\n") roots;
         };
 
         script =
           let
             dixExe = getExe dix;
             ln = getExe' coreutils "ln";
-            mkdir = getExe' coreutils "mkdir";
             realpath = getExe' coreutils "realpath";
 
-            directory =
-              if scriptConfig.directory ? eval then
-                ''"${scriptConfig.directory.eval}"''
+            rootPath =
+              if scriptConfig.rootPath ? eval then
+                ''"${scriptConfig.rootPath.eval}"''
               else
-                escapeShellArg scriptConfig.directory.text;
-
-            rootsPath = "${directory}/roots";
-            devShellRootPath = "${directory}/dev-shell-root";
+                escapeShellArg scriptConfig.rootPath.text;
 
             devShellDiffScript = ''
-              if [[ -e ${devShellRootPath} ]]; then
-                ${dixExe} "$(${realpath} ${devShellRootPath})" "$new_shell"
+              if [[ -e ${rootPath} ]]; then
+                ${dixExe} "$(${realpath} ${rootPath})" "$new_shell"
               fi
             '';
           in
-          # If the dev shell was bundled with `nix bundle`, then we shouldn't make
-          # the GC root. We use `nix-store --query --hash` to see if the path we want
-          # to make a root for is a valid store path. If it isn't, the shell was
-          # probably bundled. Instead of making a root, we make a plain symlink. This
-          # way, subsequent checks to see if the root is up to date will pass and we
-          # won't have to keep running `nix-store --query --hash` which will be
-          # slower than `[[ ... -ef ... ]]`.
           ''
-            if [[ ! ${rootsPath} -ef ${derivation} ]]; then
-              if
-                type -P nix-store >/dev/null &&
-                  nix-store --query --hash ${derivation} >/dev/null 2>&1
-              then
-                nix-store --add-root ${rootsPath} --realise ${derivation} >/dev/null
-              else
-                if [[ ! -e ${directory} ]]; then
-                  ${mkdir} --parents ${directory}
-                fi
-                ${ln} --force --no-dereference --symbolic ${derivation} ${rootsPath}
-              fi
-            fi
-          ''
-          + optionalString scriptConfig.devShell.enable ''
             # Users can't pass in the shell derivation since that would cause
             # infinite recursion: To get the shell's outPath, we need its shellHook
             # which would include this script. And to get this script, we need the
-            # shell's outPath. Instead, we make a separate GC root for the dev shell
-            # at runtime.
+            # shell's outPath. Instead, we make the GC root shell at runtime.
             #
             # We can't always rely on `builtins.placeholder "out"` pointing to the
-            # shell derivation because at least in the case of numtide/devshell, the
-            # shellHook is not on the same derivation as the shell. In those cases,
-            # we'll check certain environment variables that should have the shell
-            # store path.
+            # shell derivation because at least in the case of numtide/devshell,
+            # the shellHook is not on the same derivation as the shell. In those
+            # cases, we'll check certain environment variables that should have the
+            # shell store path.
             new_shell=
             if [[ -n $DEVSHELL_DIR ]]; then
               new_shell="$DEVSHELL_DIR"
@@ -189,18 +162,25 @@ nixpkgs.callPackage (
               new_shell=${placeholder "out"}
             fi
 
-            if [[ ! ${devShellRootPath} -ef "$new_shell" ]]; then
+            # The path to the GC roots derivation is included here to make it part
+            # of the dev shell closure: ${derivation}
+
+            if [[ ! ${rootPath} -ef "$new_shell" ]]; then
+              # If the dev shell was bundled with `nix bundle`, then we shouldn't
+              # make the GC root. We use `nix-store --query --hash` to see if the
+              # path we want to make a root for is a valid store path. If it isn't,
+              # the shell was probably bundled. Instead of making a root, we make a
+              # plain symlink. This way, subsequent checks to see if the root is up
+              # to date will pass and we won't have to keep running `nix-store
+              # --query --hash` which will be slower than `[[ ... -ef ... ]]`.
               if
                 type -P nix-store >/dev/null &&
                   nix-store --query --hash "$new_shell" >/dev/null 2>&1
               then
                 ${optionalString scriptConfig.devShell.diff devShellDiffScript}
-                nix-store --add-root ${devShellRootPath} --realise "$new_shell" >/dev/null
+                nix-store --add-root ${rootPath} --realise "$new_shell" >/dev/null
               else
-                if [[ ! -e ${directory} ]]; then
-                  ${mkdir} --parents ${directory}
-                fi
-                ${ln} --force --no-dereference --symbolic "$new_shell" ${devShellRootPath}
+                ${ln} --force --no-dereference --symbolic "$new_shell" ${rootPath}
               fi
             fi
           '';
@@ -211,10 +191,7 @@ nixpkgs.callPackage (
   let
     # Set defaults
     scriptConfig = recursiveUpdate {
-      devShell = {
-        diff = true;
-        enable = true;
-      };
+      devShell.diff = true;
     } config.script;
   in
   pipe config.roots [

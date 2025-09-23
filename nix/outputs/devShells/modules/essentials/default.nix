@@ -40,7 +40,7 @@ in
   devshell.startup = {
     gcRoots.text =
       (pkgs.gcRoots {
-        script.directory.eval = "$DEV_SHELL_STATE/gc-roots";
+        script.rootPath.eval = "$DEV_SHELL_STATE/gc-root";
         roots = {
           flake = {
             inherit inputs;
