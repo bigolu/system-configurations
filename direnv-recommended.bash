@@ -10,3 +10,6 @@ fi
 # This has to be after `direnv_manual_reload`. See the source code for
 # `direnv_manual_reload` to learn why.
 use_nix devshell --file . "devShells.${NIX_DEV_SHELL:-$default}"
+
+# TODO: Remove when lefthook v1.13.4 hits nixpkgs-unstable
+PATH_add "$(direnv_layout_dir)/bin" || true

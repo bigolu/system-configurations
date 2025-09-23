@@ -302,311 +302,303 @@ check:
           sort --unique
         ;;
     esac
+  exclude:
+    - gozip/gomod2nix.toml
+    - ".vscode/ltex*"
+    - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
+    - dotfiles/cosmic/config/*
+    - docs/*
+  # Enabling `piped` is useful during local development when there are issues found
+  # by fast checks, but not slow ones. Without `piped`, you would run all the checks
+  # only to find an issue with a fast check and then have to run all the checks again
+  # once that issue is fixed. With `piped`, the slow ones won't run since an issue
+  # was found by one of the faster ones. Once you fix the issue found by the fast
+  # check, then the slower ones will run. On the other hand, this means you'll have
+  # to resolve issues one check at a time instead of resolving them at all at once.
+  # To mitigate this, some of the checks are put in groups.
+  #
+  # This is also useful for CI since you wouldn't want your CI runners to waste time
+  # and money running slow checks if a fast one has already failed.
+  piped: true
   jobs:
-    # This job only exists to pass on its exclude list to its descendants.
-    - name: "-"
-      exclude:
-        - gozip/gomod2nix.toml
-        - ".vscode/ltex*"
-        - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
-        - dotfiles/cosmic/config/*
-        - docs/*
+    - name: 1-commit-checks
+      glob: "*/COMMIT_EDITMSG"
       group:
-        # Enabling `piped` is useful during local development when there are issues
-        # found by fast checks, but not slow ones. Without `piped`, you would run all
-        # the checks only to find an issue with a fast check and then have to run all
-        # the checks again once that issue is fixed. With `piped`, the slow ones
-        # won't run since an issue was found by one of the faster ones. Once you fix
-        # the issue found by the fast check, then the slower ones will run. On the
-        # other hand, this means you'll have to resolve issues one check at a time
-        # instead of resolving them at all at once. To mitigate this, some of the
-        # checks are put in groups.
-        #
-        # This is also useful for CI since you wouldn't want your CI runners to waste
-        # time and money running slow checks if a fast one has already failed.
-        piped: true
         jobs:
-          - name: 1-commit-checks
-            glob: "*/COMMIT_EDITMSG"
-            group:
-              jobs:
-                - name: typos
-                  run: typos --no-check-filenames {files}
-          # All fixers should be grouped together to make it easy to run them all in
-          # an autofix workflow in CI.
-          #
-          # Why fixers should run before other checks:
-          #   - A fixer could produce code that would fail another check
-          #   - A fixer could fix an issue that would have been found by another
-          #     check
-          - name: 2-fixers
-            group:
-              jobs:
-                - name: flake-lock
-                  glob: flake.nix
-                  run: "{run_fix} nix flake lock"
-                - name: readme-table-of-contents
-                  glob: README.md
-                  run: "{run_fix} doctoc README.md --github"
-                - name: readme-nix-version
-                  glob:
-                    - flake.lock
-                  run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
-                - name: readme-config-names
-                  glob: "*.nix"
-                  exclude:
-                    - npins/*
-                  run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
-                - name: readme-nixpkgs-commit
-                  glob:
-                    - flake.lock
-                  run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
-                - name: gomod2nix
-                  glob: gozip/go.mod
-                  run: "{run_fix} gomod2nix --dir gozip generate"
-                - name: task-docs
-                  glob: mise/*
-                  # TODO: markdown2html-converter hasn't been updated in a couple
-                  # years. I'd like to switch to markdown-to-html-cli[1], but it
-                  # isn't in nixpkgs. Maybe I can add it or make a request.
-                  #
-                  # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
-                  run: |
-                    {run_fix} bash -euc '
-                      markdown="$(mktemp --directory)/temp.md"
-                      html="docs/tasks.html"
-                      mise generate task-docs --style detailed --output "$markdown"
-                      markdown2html-converter \
-                        --no-cjk-fonts \
-                        --force \
-                        --title "Tasks" \
-                        --html-path "$html" \
-                        "$markdown"
-                      # Format the HTML so it is easier to review changes to it.
-                      #
-                      # I could also let the "prettier" job further down format this
-                      # file, but this would cause a problem: markdown2html-converter
-                      # always regenerates the HTML, even if the task documentation
-                      # is up to date. Since the format of the HTML from
-                      # markdown2html-converter does not match the format that
-                      # prettier would use, this task would always fail since it
-                      # would always make a change.
-                      prettier --list-different --write "$html"
-                    '
-                - name: deadnix
-                  glob: "*.nix"
-                  exclude:
-                    - npins/*
-                  run: "{run_fix} deadnix --quiet --edit {files}"
-                - name: ruff-fix
-                  glob: "*.py"
-                  run: "{run_fix} ruff check --fix-only {files}"
-                - name: statix-fix
-                  glob: "*.nix"
-                  exclude:
-                    - npins/*
-                    # I want to ignore a fix in this file, but statix doesn't support
-                    # ignoring fixes with comments[1] so I'll skip the whole file.
-                    #
-                    # [1]: https://github.com/oppiliappan/statix/issues/61
-                    - nix/packages/default.nix
-                  # statix doesn't support passing multiple files yet:
-                  # https://github.com/oppiliappan/statix/issues/69
-                  run: "{run_fix} parallel statix fix -- {files}"
-                # SYNC: markdownlint-cli2
-                - name: markdownlint-cli2
-                  glob: "*.md"
-                  run: "{run_fix} markdownlint-cli2 --fix {files}"
-                - name: go-mod-tidy
-                  glob: gozip/go.{mod,sum}
-                  run: "{run_fix} go -C gozip mod tidy"
-                - name: go-version
-                  glob:
-                    - flake.lock
-                  run: "{run_fix} mise run lefthook:check:add-go-version-to-go-mod"
-                - name: npins
-                  glob:
-                    - flake.lock
-                    - npins/*
-                  run: npins upgrade
-                - name: shellcheck-fix
-                  glob: "*.{sh,bash}"
-                  run: |
-                    # We don't want to use Bash's `pipefail` here because shellcheck
-                    # exits with 1 if it finds anything to fix.
-                    shellcheck --format diff {files} |
-                      {run_fix} git apply --allow-empty
+          - name: typos
+            run: typos --no-check-filenames {files}
+    # All fixers should be grouped together to make it easy to run them all in an
+    # autofix workflow in CI.
+    #
+    # Why fixers should run before other checks:
+    #   - A fixer could produce code that would fail another check
+    #   - A fixer could fix an issue that would have been found by another check
+    - name: 2-fixers
+      group:
+        jobs:
+          - name: flake-lock
+            glob: flake.nix
+            run: "{run_fix} nix flake lock"
+          - name: readme-table-of-contents
+            glob: README.md
+            run: "{run_fix} doctoc README.md --github"
+          - name: readme-nix-version
+            glob:
+              - flake.lock
+            run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
+          - name: readme-config-names
+            glob: "*.nix"
+            exclude:
+              - npins/*
+            run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
+          - name: readme-nixpkgs-commit
+            glob:
+              - flake.lock
+            run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
+          - name: gomod2nix
+            glob: gozip/go.mod
+            run: "{run_fix} gomod2nix --dir gozip generate"
+          - name: task-docs
+            glob: mise/*
+            # TODO: markdown2html-converter hasn't been updated in a couple years.
+            # I'd like to switch to markdown-to-html-cli[1], but it isn't in nixpkgs.
+            # Maybe I can add it or make a request.
+            #
+            # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
+            run: |
+              {run_fix} bash -euc '
+                markdown="$(mktemp --directory)/temp.md"
+                html="docs/tasks.html"
+                mise generate task-docs --style detailed --output "$markdown"
+                markdown2html-converter \
+                  --no-cjk-fonts \
+                  --force \
+                  --title "Tasks" \
+                  --html-path "$html" \
+                  "$markdown"
+                # Format the HTML so it is easier to review changes to it.
+                #
+                # I could also let the "prettier" job further down format this file,
+                # but this would cause a problem: markdown2html-converter always
+                # regenerates the HTML, even if the task documentation is up to date.
+                # Since the format of the HTML from markdown2html-converter does not
+                # match the format that prettier would use, this task would always
+                # fail since it would always make a change.
+                prettier --list-different --write "$html"
+              '
+          - name: deadnix
+            glob: "*.nix"
+            exclude:
+              - npins/*
+            run: "{run_fix} deadnix --quiet --edit {files}"
+          - name: ruff-fix
+            glob: "*.py"
+            run: "{run_fix} ruff check --fix-only {files}"
+          - name: statix-fix
+            glob: "*.nix"
+            exclude:
+              - npins/*
+              # I want to ignore a fix in this file, but statix doesn't support
+              # ignoring fixes with comments[1] so I'll skip the whole file.
+              #
+              # [1]: https://github.com/oppiliappan/statix/issues/61
+              - nix/packages/default.nix
+            # statix doesn't support passing multiple files yet:
+            # https://github.com/oppiliappan/statix/issues/69
+            run: "{run_fix} parallel statix fix -- {files}"
+          # SYNC: markdownlint-cli2
+          - name: markdownlint-cli2
+            glob: "*.md"
+            run: "{run_fix} markdownlint-cli2 --fix {files}"
+          - name: go-mod-tidy
+            glob: gozip/go.{mod,sum}
+            run: "{run_fix} go -C gozip mod tidy"
+          - name: go-version
+            glob:
+              - flake.lock
+            run: "{run_fix} mise run lefthook:check:add-go-version-to-go-mod"
+          - name: npins
+            glob:
+              - flake.lock
+              - npins/*
+            run: npins upgrade
+          - name: shellcheck-fix
+            glob: "*.{sh,bash}"
+            run: |
+              # We don't want to use Bash's `pipefail` here because shellcheck exits
+              # with 1 if it finds anything to fix.
+              shellcheck --format diff {files} |
+                {run_fix} git apply --allow-empty
 
-                # Formatters
-                # -------------------------------------------------------------------
-                # Formatters should run after the other fixes since some fixes may
-                # produce code that doesn't comply with the formatting.
+          # Formatters
+          # -------------------------------------------------------------------
+          # Formatters should run after the other fixes since some fixes may produce
+          # code that doesn't comply with the formatting.
 
-                # SYNC: taplo
-                - name: taplo
-                  glob: "*.toml"
-                  run: "{run_fix} taplo format {files}"
-                # SYNC: prettier
-                - name: prettier
-                  glob: "*.{md,json,json5,jsonc,yaml}"
-                  exclude:
-                    - npins/*
-                  run: |
-                    {run_fix} prettier \
-                      --cache \
-                      --cache-location "$DEV_SHELL_STATE/prettier-cache" \
-                      --cache-strategy metadata \
-                      --list-different \
-                      --write \
-                      {files}
-                # SYNC: shfmt
-                - name: shfmt
-                  glob: "*.{sh,bash}"
-                  run: "{run_fix} shfmt --write {files}"
-                # SYNC: fish_indent
-                - name: fish_indent
-                  glob: "*.fish"
-                  run: "{run_fix} fish_indent --write {files}"
-                # SYNC: nixfmt
-                - name: nixfmt
-                  glob: "*.nix"
-                  exclude:
-                    - npins/*
-                  run: "{run_fix} nixfmt --verify {files}"
-                # SYNC: stylua
-                - name: stylua
-                  glob: "*.lua"
-                  run: "{run_fix} stylua --verify {files}"
-                # SYNC: gofmt
-                - name: gofmt
-                  glob: "*.go"
-                  run: "{run_fix} gofmt -w {files}"
-                # SYNC: ruff-format
-                - name: ruff-format
-                  glob: "*.py"
-                  run: "{run_fix} ruff format {files}"
-          - name: 3-linters
-            group:
-              parallel: true
-              jobs:
-                - name: gopls
-                  glob: "*.go"
-                  run: |
-                    set -e
-                    # TODO: gopls should have an option for failing if an error was
-                    # found.
-                    issues="$(gopls check {files})"
-                    if [ -n "$issues" ]; then
-                      echo "$issues"
-                      exit 1
-                    fi
-                - name: ruff-lint
-                  glob: "*.py"
-                  run: ruff check {files}
-                - name: fish
-                  glob: "*.fish"
-                  # TODO: Fish doesn't support passing multiple files, I should open
-                  # an issue.
-                  run: parallel fish --no-execute -- {files}
-                - name: shellcheck-lint
-                  glob: "*.{sh,bash}"
-                  run: shellcheck {files}
-                # SYNC: actionlint
-                - name: actionlint
-                  glob: ".github/workflows/*.yaml"
-                  run: actionlint {files}
-                # SYNC: statix-lint
-                - name: statix-lint
-                  glob: "*.nix"
-                  exclude:
-                    - npins/*
-                    # I want to ignore a fix in this file, but statix doesn't support
-                    # ignoring fixes with comments[1] so I'll skip the whole file.
-                    #
-                    # [1]: https://github.com/oppiliappan/statix/issues/61
-                    - nix/packages/default.nix
-                  # statix doesn't support passing multiple files yet:
-                  # https://github.com/oppiliappan/statix/issues/69
-                  run: parallel statix check -- {files}
-                # SYNC: nixpkgs-lint
-                - name: nixpkgs-lint
-                  glob: "*.nix"
-                  exclude:
-                    - npins/*
-                  run: nixpkgs-lint --include-unfinished-lints -- {files}
-                # SYNC: typos
-                - name: typos
-                  exclude:
-                    - "*/COMMIT_EDITMSG"
-                  run: |
-                    {exit_if_no_files} {files}
-                    typos {files}
-                - name: mypy
-                  glob: "*.py"
-                  run: mypy {files}
-                - name: isutf8
-                  exclude:
-                    - "*/COMMIT_EDITMSG"
-                  run: |
-                    {exit_if_no_files} {files}
-                    isutf8 {files}
-                # SYNC: editorconfig-checker
-                - name: editorconfig-checker
-                  exclude:
-                    - "*/COMMIT_EDITMSG"
-                  run: |
-                    {exit_if_no_files} {files}
-                    editorconfig-checker {files}
-                # SYNC: config-file-validator
-                - name: config-file-validator
-                  glob: "*.{editorconfig,json,ini,yaml,toml}"
-                  exclude:
-                    # These aren't actually JSON files, they're JSONC
-                    - ".vscode/*.json"
-                    - npins/*
-                  run: chronic validator -groupby pass-fail -- {files}
-                - name: renovate-config-validator
-                  glob:
-                    - renovate.json5
-                    - renovate/*.json5
-                  run: renovate-config-validator --strict {files}
-                - name: lua-ls
-                  glob: dotfiles/neovim/*.lua
-                  run: |
-                    # --configpath is relative to the directory being checked so I'm
-                    # using an absolute path instead.
-                    lua-language-server \
-                      --logpath "$(mktemp --directory)/lua-ls-logs" \
-                      --check ./dotfiles/neovim \
-                      --configpath "$PWD/.luarc.json"
-                - name: nix-config
-                  glob:
-                    - "*.nix"
-                    - flake.nix
-                    - flake.lock
-                  run: nix config check
-                # SYNC: staticcheck
-                - name: staticcheck
-                  glob: "*.go"
-                  # I'm not using the `root` setting to change directory because it
-                  # also acts as a file filter, which I don't want.
-                  run: "cd gozip && staticcheck ./..."
-          - name: 4-nix-outputs
-            group:
-              jobs:
-                - name: nix-outputs
-                  # Why `interactive` is enabled:
-                  #   - This job can take a while so being able to see the output in
-                  #     real time could reveal bottlenecks.
-                  #   - If I can see the output in real time, I can spot accidental
-                  #     nix cache misses and cancel the job instead of waiting for
-                  #     nix to rebuild the package.
-                  interactive: true
-                  glob:
-                    - "*.nix"
-                    - flake.lock
-                    - npins/*
-                    - nix/*
-                    - dotfiles/*
-                    - gozip/*
-                  run: bash -ceuo pipefail 'nix build --no-link --file . currentPlatformChecks 2>&1 | nom'
+          # SYNC: taplo
+          - name: taplo
+            glob: "*.toml"
+            run: "{run_fix} taplo format {files}"
+          # SYNC: prettier
+          - name: prettier
+            glob: "*.{md,json,json5,jsonc,yaml}"
+            exclude:
+              - npins/*
+            run: |
+              {run_fix} prettier \
+                --cache \
+                --cache-location "$DEV_SHELL_STATE/prettier-cache" \
+                --cache-strategy metadata \
+                --list-different \
+                --write \
+                {files}
+          # SYNC: shfmt
+          - name: shfmt
+            glob: "*.{sh,bash}"
+            run: "{run_fix} shfmt --write {files}"
+          # SYNC: fish_indent
+          - name: fish_indent
+            glob: "*.fish"
+            run: "{run_fix} fish_indent --write {files}"
+          # SYNC: nixfmt
+          - name: nixfmt
+            glob: "*.nix"
+            exclude:
+              - npins/*
+            run: "{run_fix} nixfmt --verify {files}"
+          # SYNC: stylua
+          - name: stylua
+            glob: "*.lua"
+            run: "{run_fix} stylua --verify {files}"
+          # SYNC: gofmt
+          - name: gofmt
+            glob: "*.go"
+            run: "{run_fix} gofmt -w {files}"
+          # SYNC: ruff-format
+          - name: ruff-format
+            glob: "*.py"
+            run: "{run_fix} ruff format {files}"
+    - name: 3-linters
+      group:
+        parallel: true
+        jobs:
+          - name: gopls
+            glob: "*.go"
+            run: |
+              set -e
+              # TODO: gopls should have an option for failing if an error was found.
+              issues="$(gopls check {files})"
+              if [ -n "$issues" ]; then
+                echo "$issues"
+                exit 1
+              fi
+          - name: ruff-lint
+            glob: "*.py"
+            run: ruff check {files}
+          - name: fish
+            glob: "*.fish"
+            # TODO: Fish doesn't support passing multiple files, I should open an
+            # issue.
+            run: parallel fish --no-execute -- {files}
+          - name: shellcheck-lint
+            glob: "*.{sh,bash}"
+            run: shellcheck {files}
+          # SYNC: actionlint
+          - name: actionlint
+            glob: ".github/workflows/*.yaml"
+            run: actionlint {files}
+          # SYNC: statix-lint
+          - name: statix-lint
+            glob: "*.nix"
+            exclude:
+              - npins/*
+              # I want to ignore a fix in this file, but statix doesn't support
+              # ignoring fixes with comments[1] so I'll skip the whole file.
+              #
+              # [1]: https://github.com/oppiliappan/statix/issues/61
+              - nix/packages/default.nix
+            # statix doesn't support passing multiple files yet:
+            # https://github.com/oppiliappan/statix/issues/69
+            run: parallel statix check -- {files}
+          # SYNC: nixpkgs-lint
+          - name: nixpkgs-lint
+            glob: "*.nix"
+            exclude:
+              - npins/*
+            run: nixpkgs-lint --include-unfinished-lints -- {files}
+          # SYNC: typos
+          - name: typos
+            exclude:
+              - "*/COMMIT_EDITMSG"
+            run: |
+              {exit_if_no_files} {files}
+              typos {files}
+          - name: mypy
+            glob: "*.py"
+            run: mypy {files}
+          - name: isutf8
+            exclude:
+              - "*/COMMIT_EDITMSG"
+            run: |
+              {exit_if_no_files} {files}
+              isutf8 {files}
+          # SYNC: editorconfig-checker
+          - name: editorconfig-checker
+            exclude:
+              - "*/COMMIT_EDITMSG"
+            run: |
+              {exit_if_no_files} {files}
+              editorconfig-checker {files}
+          # SYNC: config-file-validator
+          - name: config-file-validator
+            glob: "*.{editorconfig,json,ini,yaml,toml}"
+            exclude:
+              # These aren't actually JSON files, they're JSONC
+              - ".vscode/*.json"
+              - npins/*
+            run: chronic validator -groupby pass-fail -- {files}
+          - name: renovate-config-validator
+            glob:
+              - renovate.json5
+              - renovate/*.json5
+            run: renovate-config-validator --strict {files}
+          - name: lua-ls
+            glob: dotfiles/neovim/*.lua
+            run: |
+              # --configpath is relative to the directory being checked so I'm
+              # using an absolute path instead.
+              lua-language-server \
+                --logpath "$(mktemp --directory)/lua-ls-logs" \
+                --check ./dotfiles/neovim \
+                --configpath "$PWD/.luarc.json"
+          - name: nix-config
+            glob:
+              - "*.nix"
+              - flake.nix
+              - flake.lock
+            run: nix config check
+          # SYNC: staticcheck
+          - name: staticcheck
+            glob: "*.go"
+            # I'm not using the `root` setting to change directory because it also
+            # acts as a file filter, which I don't want.
+            run: "cd gozip && staticcheck ./..."
+    - name: 4-nix-outputs
+      group:
+        jobs:
+          - name: nix-outputs
+            # Why `interactive` is enabled:
+            #   - This job can take a while so being able to see the output in real
+            #     time could reveal bottlenecks.
+            #   - If I can see the output in real time, I can spot accidental nix
+            #     cache misses and cancel the job instead of waiting for nix to
+            #     rebuild the package.
+            interactive: true
+            glob:
+              - "*.nix"
+              - flake.lock
+              - npins/*
+              - nix/*
+              - dotfiles/*
+              - gozip/*
+            run: bash -ceuo pipefail 'nix build --no-link --file . currentPlatformChecks 2>&1 | nom'
