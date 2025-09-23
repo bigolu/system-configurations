@@ -19,7 +19,6 @@
   pn = push --no-verify # typos:ignore
   a = add
   d = diff
-  lp = log -p
   dt = -c diff.external='difft --syntax-highlight off' diff
   lpt = -c diff.external='difft --syntax-highlight off' log -p --ext-diff
   undo = checkout --
@@ -31,6 +30,8 @@
   sla = log --oneline --graph --all
   l = log --first-parent --graph
   la = log --graph --all
+  lp = log --first-parent --patch
+  lpa = log --first-parent --patch --all
   mt = mergetool
   f = fetch
   # A safer force push. For more info read this:
