@@ -1090,8 +1090,8 @@
       <h2><code>check</code></h2>
       <p>
         Run jobs to find/fix issues with the code. If no flags are provided, it
-        will behave as if <code>--files uncommitted</code> was provided. The
-        list of jobs is in <code>lefthook.yaml</code>.
+        will behave as if <code>--files all</code> was provided. The list of
+        jobs is in <code>lefthook.yaml</code>.
       </p>
       <ul>
         <li><strong>Usage</strong>: <code>check [FLAGS] [jobs]…</code></li>
@@ -1103,43 +1103,20 @@
       <h3>Flags</h3>
       <h4><code>-f --files &lt;files&gt;</code></h4>
       <p>
-        Check the files specified. <code>files</code> can be a revision range
-        with the format <code>&lt;start&gt;..&lt;end&gt;</code>. This will check
-        all the files changed in all the commits within that range (<code
-          >&lt;start&gt;</code
-        >
-        is not included in the range). You can also provide a single revision,
-        e.g. <code>HEAD</code>, to only check the files within the commit
-        referenced by that revision. You can also use the format
-        <code>not-in-&lt;revision&gt;</code> to check any commits that are
-        ancestors of <code>HEAD</code>, but not ancestors of
-        <code>&lt;revision&gt;</code>. This is useful for checking commits that
-        haven't been merged to a remote e.g. <code>not-in-upstream</code>. Use
-        the special value <code>uncommitted</code> to check any files that
-        haven't been committed including untracked files,
-        <code>not-pushed</code> to check the files of any commits that haven't
-        been pushed, <code>head</code> to run on all files in the current commit
-        (i.e. HEAD), and <code>all</code> to check all tracked/untracked files.
-        See
-        <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
-          >git's documentation for specifying a revision</a
-        >.
+        Check the files specified. Use <code>all</code> to check all tracked and
+        untracked files. Use <code>head</code> to check the files in the
+        <code>HEAD</code> commit.
       </p>
       <h4><code>-r --rebase &lt;start&gt;</code></h4>
       <p>
         An interactive rebase will be started from the commit referenced by the
         revision in <code>start</code>. An <code>exec</code> command will be
         added after every commit which checks the files and message for that
-        commit. You can use the format <code>not-in-&lt;revision&gt;</code> to
-        rebase any commits that are ancestors of <code>HEAD</code>, but not
-        ancestors of <code>&lt;revision&gt;</code>. This is useful for checking
-        commits that haven't been merged to a remote e.g.
-        <code>not-in-upstream</code>. Use the special value
-        <code>not-pushed</code> to rebase any commits that haven't been pushed.
-        If <code>--files</code> is also used, the files specified by
-        <code>--files</code> will be checked per commit instead of the files in
-        the commit. If you make a mistake and want to go back to where you were
-        before the rebase, run
+        commit. Use the special value <code>not-pushed</code> to rebase any
+        commits that haven't been pushed. If <code>--files</code> is also used,
+        the files specified by <code>--files</code> will be checked per commit
+        instead of the files in the commit. If you make a mistake and want to go
+        back to where you were before the rebase, run
         <code>git reset --hard refs/project/ir-backup</code>. See
         <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
           >git's documentation for specifying a revision</a
@@ -1148,21 +1125,11 @@
       <h4><code>-c --commits &lt;commits&gt;</code></h4>
       <p>
         Check the files and commit message of each of the commits specified.
-        <code>commits</code> can be a revision range with the format
-        <code>&lt;start&gt;..&lt;end&gt;</code>. This will check the files and
-        commit message of each commit within that range (<code
-          >&lt;start&gt;</code
-        >
-        is not included in the range). <code>commits</code> can also have the
-        format <code>not-in-&lt;revision&gt;</code> to check any commits that
-        are ancestors of <code>HEAD</code>, but not ancestors of
-        <code>&lt;revision&gt;</code>. This is useful for checking commits that
-        haven't been merged to a remote e.g. <code>not-in-upstream</code>. You
-        can also provide a single commit, e.g. <code>HEAD</code>, if you only
-        want to check one. Use the special value <code>not-pushed</code> to
-        check any commits that haven't been pushed. Commits will be checked
-        individually to ensure checks pass at each commit. If
-        <code>--files</code> is also used, the files specified by
+        <code>commits</code> can be any revision, or revision range, that
+        <code>git log</code> accepts. Use the special value
+        <code>not-pushed</code> to check any commits that haven't been pushed.
+        Commits will be checked individually to ensure checks pass at each
+        commit. If <code>--files</code> is also used, the files specified by
         <code>--files</code> will be checked per commit instead of the files in
         the commit. See
         <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"

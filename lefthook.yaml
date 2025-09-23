@@ -60,51 +60,11 @@ templates:
 # [1]: https://lefthook.dev/configuration/glob.html
 # [2]: https://github.com/evilmartians/lefthook/pull/595
 
-commit-msg:
+pre-push:
   jobs:
-    - name: backup-commit-message
-      run: mise run commit-message-backup create {1}
-    # Running the commit message and file checks during the commit-msg hook, instead
-    # of the pre-commit hook, has the following advantages:
-    #   - We don't have to wait for the file checks to finish before we get to enter
-    #     a commit message.
-    #   - If there's a problem with the message, the file checks won't be run. This
-    #     way we don't have to rerun file checks if the commit message has a problem
-    #     which is important since the file checks usually take a lot longer.
-    #
-    # However, one disadvantage is that you can't include any changes from
-    # fixers/formatters in the commit automatically. This is because the commit-msg
-    # hook can't change the contents of the commit.
-    - name: check
-      # Some of the jobs in the `check` group have `interactive` enabled so it needs
-      # to be enabled here as well.
+    - name: interactive-rebase
       interactive: true
-      # If there are no staged files, lefthook won't run any job that uses the
-      # `{staged_files}` template. This can happen if you run `git commit --amend`
-      # without staging any files. This a problem since we would still want to run
-      # the job below so we can check the commit message. To work around this, we use
-      # a files command where we print the staged files, using the same command as
-      # lefthook[1], _and_ the commit message file.
-      #
-      # [1]: https://github.com/evilmartians/lefthook/blob/d1eb3be2522a2afa0da6cfa255d7843935af6812/internal/git/repository.goL35
-      files: |
-        git diff --name-only --cached --diff-filter=ACMR
-        echo {1}
-      env:
-        RUN_FIX_ACTIONS: diff,stage,fail
-      run: |
-        # Only run checks if there's a line that doesn't start with '#' that has a
-        # non-whitespace character. If there are no lines like that, we assume the
-        # commit would be aborted due to an empty message so we shouldn't bother
-        # checking it.
-        if grep -qE '^([^#[:space:]]|[^#].*[^[:space:]].*)' {1}; then
-          printf '%s\0' {files} | lefthook run check --files-from-stdin
-        fi
-
-prepare-commit-msg:
-  jobs:
-    - name: restore-commit-message
-      run: mise run commit-message-backup restore {0}
+      run: exit
 
 post-rewrite:
   jobs:
@@ -132,8 +92,6 @@ post-checkout:
 
 post-commit:
   jobs:
-    - name: remove-commit-message-backup
-      run: mise run commit-message-backup remove
     - name: sync
       run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
 
@@ -263,43 +221,16 @@ check:
     fi
 
     case "$LEFTHOOK_FILES" in
-      'uncommitted')
-        # Staged and unstaged files
-        git diff --diff-filter=ACMR --name-only HEAD
-        # Untracked files
-        git ls-files --others --exclude-standard
-        ;;
       'all')
         # Tracked and untracked files
         git ls-files --cached --others --exclude-standard
         ;;
+      'head')
+        git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
+        ;;
       *)
-        # Documentation for git range specifiers[1].
-        #
-        # [1]: https://git-scm.com/docs/git-rev-parse#_specifying_ranges
-        case "$LEFTHOOK_FILES" in
-          'not-pushed')
-            range="$(git merge-base '@{push}' HEAD).."
-            ;;
-          'not-in-'*)
-            revision="${LEFTHOOK_FILES#not-in-}"
-            if ! git rev-parse --verify --quiet "$revision" >/dev/null; then
-              echo "error: Revision '$revision' does not exist" >&2
-              exit 1
-            fi
-            range="$(git merge-base "$revision" 'HEAD').."
-            ;;
-          *'..'*)
-            range="$LEFTHOOK_FILES"
-            ;;
-          *)
-            range="$LEFTHOOK_FILES^!"
-            ;;
-        esac
-
-        git log --format='' --name-only --diff-filter=ACMR "$range" |
-          # Remove duplicates
-          sort --unique
+        echo "error: Unknown file specifier '$LEFTHOOK_FILES'" >&2
+        exit 1
         ;;
     esac
   exclude:
