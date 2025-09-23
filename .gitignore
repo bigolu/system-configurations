@@ -1,10 +1,15 @@
 # SYNC: gitignore
+
 .DS_Store
 .direnv
 .envrc
 .env
 .lycheecache
 gozip/vendor
+
+# nix
+result
+
 # TODO: This is only here for lua-language-server since it doesn't support
 # `.gitignore`s inside of directories.
 .dev-shell-state
