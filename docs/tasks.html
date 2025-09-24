@@ -1110,8 +1110,8 @@
         added after every commit which checks the files and message for that
         commit. Use the special value <code>not-pushed</code> to rebase any
         commits that haven't been pushed. If <code>--all-files</code> is also
-        used, all files will be checked per commit instead of the files in the
-        commit. If you make a mistake and want to go back to where you were
+        used, all files will be checked per commit instead of only the files in
+        the commit. If you make a mistake and want to go back to where you were
         before the rebase, run
         <code>git reset --hard refs/project/ir-backup</code>. See
         <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
@@ -1122,12 +1122,11 @@
       <p>
         Check the files and commit message of each of the commits specified.
         <code>commits</code> can be any revision, or revision range, that
-        <code>git log</code> accepts. Use the special value
-        <code>not-pushed</code> to check any commits that haven't been pushed or
-        <code>head</code> to check the files in the <code>HEAD</code> commit.
-        Commits will be checked individually to ensure checks pass at each
-        commit. If <code>--all-files</code> is also used, all files will be
-        checked per commit instead of the files in the commit. See
+        <code>git log</code> accepts. Use the special value <code>head</code> to
+        check the files in the <code>HEAD</code> commit. Commits will be checked
+        individually to ensure checks pass at each commit. If
+        <code>--all-files</code> is also used, all files will be checked per
+        commit instead of only the files in the commit. See
         <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
           >git's documentation for specifying a revision</a
         >.
