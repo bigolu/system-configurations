@@ -64,7 +64,14 @@ pre-push:
   jobs:
     - name: interactive-rebase
       interactive: true
-      run: exit
+      run: |
+        set -eu
+        before="$(git rev-parse HEAD)"
+        mise run check --rebase not-pushed
+        after="$(git rev-parse HEAD)"
+        if [ "$before" != "$after" ]; then
+          exit 1
+        fi
 
 post-rewrite:
   jobs:
@@ -220,19 +227,12 @@ check:
       realpath --relative-to="$PWD" "$file"
     fi
 
-    case "$LEFTHOOK_FILES" in
-      'all')
-        # Tracked and untracked files
-        git ls-files --cached --others --exclude-standard
-        ;;
-      'head')
-        git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
-        ;;
-      *)
-        echo "error: Unknown file specifier '$LEFTHOOK_FILES'" >&2
-        exit 1
-        ;;
-    esac
+    if [ "$LEFTHOOK_ALL_FILES" = 'true' ]; then
+      # Tracked and untracked files
+      git ls-files --cached --others --exclude-standard
+    else
+      git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
+    fi
   exclude:
     - gozip/gomod2nix.toml
     - ".vscode/ltex*"
