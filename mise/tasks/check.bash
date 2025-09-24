@@ -84,5 +84,5 @@ elif [[ -n ${usage_commits:-} ]]; then
       "${hashes//$'\n'/ | }"
   fi
 else
-  LEFTHOOK_ALL_FILES="${usage_all_files:-}" lefthook run check --jobs "$jobs"
+  LEFTHOOK_ALL_FILES='true' lefthook run check --jobs "$jobs"
 fi
