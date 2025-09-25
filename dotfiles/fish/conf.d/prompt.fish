@@ -34,7 +34,15 @@ function fish_prompt --description 'Print the prompt'
     # transient prompt
     if set --query TRANSIENT
         set --erase TRANSIENT
-        printf \n(set_color --reverse brblack)' '(path basename (prompt_pwd))'  '(date +'%T')' '$_color_normal' '
+
+        if set --query SHLVL && test $SHLVL -gt 1
+            set shlvl "$_color_normal$SHLVL$_color_border"
+            set shlvl " ($SHLVL)"
+        else
+            set shlvl ''
+        end
+
+        printf \n(set_color --bold brblack)'⦿︎  '(set_color normal)(set_color brblack)(path basename (prompt_pwd))'  '(date +'%T')$shlvl$_color_normal' '
         return
     else if set --query TRANSIENT_EMPTY
         set --erase TRANSIENT_EMPTY
@@ -84,7 +92,7 @@ function fish_prompt --description 'Print the prompt'
         end
     end
     set --append prompt_lines (_make_line last)
-    set --prepend prompt_lines (set_color --dim brblack)(string repeat --count $COLUMNS -- '─')$_color_normal
+    set --prepend prompt_lines ''
     printf (string join -- '\n' $prompt_lines)
 end
 
@@ -102,14 +110,15 @@ function _make_line --argument-names position context
         set line_connector $_color_border'├'$_color_normal
         printf $line_connector$context
     else if test $position = last
-        set line_connector $_color_border'└'$_color_normal
-        set arrows (set_color cyan)(_arrows)$_color_normal
+        if set --query SHLVL && test $SHLVL -gt 1
+            set shlvl "$_color_normal$SHLVL$_color_border"
+        else
+            set shlvl ''
+        end
+        set line_connector $_color_border"└$shlvl"$_color_normal
+        set arrows (set_color cyan)'>'$_color_normal
         printf $line_connector$arrows' '
     end
-end
-
-function _arrows
-    printf (string repeat -n $SHLVL '>')
 end
 
 function _python_context
