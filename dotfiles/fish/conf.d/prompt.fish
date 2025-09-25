@@ -34,14 +34,10 @@ function fish_prompt --description 'Print the prompt'
     # transient prompt
     if set --query TRANSIENT
         set --erase TRANSIENT
-
-        if set --query SHLVL && test $SHLVL -gt 1
-            set shlvl " / $SHLVL"
-        else
-            set shlvl ''
-        end
-
-        printf \n(set_color --bold brblack)'⦿︎ '(set_color normal)(set_color brblack)' / '(path basename (prompt_pwd))' / '(date +'%r')$shlvl' / '$_color_normal
+        set items \
+            (path basename (prompt_pwd)) \
+            (date +'%T')
+        printf \n(set_color --reverse brblack)' '(string join -- '  ' $items)' '$_color_normal' '
         return
     else if set --query TRANSIENT_EMPTY
         set --erase TRANSIENT_EMPTY
@@ -109,13 +105,8 @@ function _make_line --argument-names position context
         set line_connector $_color_border'├'$_color_normal
         printf $line_connector$context
     else if test $position = last
-        if set --query SHLVL && test $SHLVL -gt 1
-            set shlvl "$_color_normal$SHLVL$_color_border"
-        else
-            set shlvl ''
-        end
-        set line_connector $_color_border"└$shlvl"$_color_normal
-        set arrows (set_color cyan)'>'$_color_normal
+        set line_connector $_color_border'└'$_color_normal
+        set arrows (set_color cyan)(string repeat --count $SHLVL '>')$_color_normal
         printf $line_connector$arrows' '
     end
 end
