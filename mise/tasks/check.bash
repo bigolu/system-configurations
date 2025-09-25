@@ -77,7 +77,7 @@ elif [[ -n ${usage_commits:-} ]]; then
       -vv \
       --no-cache \
       --strategy worktree \
-      --exec "$command" \
+      --exec "ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc; direnv exec . env $command" \
       "${hashes//$'\n'/ | }"
   fi
 else
