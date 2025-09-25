@@ -36,13 +36,12 @@ function fish_prompt --description 'Print the prompt'
         set --erase TRANSIENT
 
         if set --query SHLVL && test $SHLVL -gt 1
-            set shlvl "$_color_normal$SHLVL$_color_border"
-            set shlvl " ($SHLVL)"
+            set shlvl " / $SHLVL"
         else
             set shlvl ''
         end
 
-        printf \n(set_color --bold brblack)'⦿︎  '(set_color normal)(set_color brblack)(path basename (prompt_pwd))'  '(date +'%T')$shlvl$_color_normal' '
+        printf \n(set_color --bold brblack)'⦿︎ '(set_color normal)(set_color brblack)' / '(path basename (prompt_pwd))' / '(date +'%r')$shlvl' / '$_color_normal
         return
     else if set --query TRANSIENT_EMPTY
         set --erase TRANSIENT_EMPTY
