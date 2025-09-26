@@ -2,12 +2,12 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter git-branchless
 #MISE description="Run jobs to find/fix issues"
-#USAGE long_about "Run jobs to find/fix issues with the code. If no flags are provided, it will behave as if `--all-files` was provided. The list of jobs is in `lefthook.yaml`."
+#USAGE long_about "Run jobs to find/fix issues with the code. The list of jobs is in `lefthook.yaml`."
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
 #USAGE complete "jobs" run=#" fish -c 'complete --do-complete "lefthook run check --jobs "' "#
 #USAGE
-#USAGE flag "-a --all-files" help="Check all files"
+#USAGE flag "-a --all-files" help="Check all files" long_help="This is can be used with `--rebase` or `--commits` to check all files instead of only the files in the commits being checked/rebased."
 #USAGE
 #USAGE flag "-r --rebase <start>" help="Check commits using an interactive rebase" long_help="An interactive rebase will be started from the commit referenced by the revision in `start`. An `exec` command will be added after every commit which checks the files and message for that commit. Use the special value `not-pushed` to rebase any commits that haven't been pushed. If `--all-files` is also used, all files will be checked per commit instead of only the files in the commit. If you make a mistake and want to go back to where you were before the rebase, run `git reset --hard refs/project/ir-backup`. See [git's documentation for specifying a revision](https://git-scm.com/docs/git-rev-parse#_specifying_revisions)."
 #USAGE complete "start" run=#" printf '%s\n' not-pushed "#

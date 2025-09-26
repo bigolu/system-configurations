@@ -1089,9 +1089,8 @@
       <p>The attribute path of the package to build e.g. packages.shell</p>
       <h2><code>check</code></h2>
       <p>
-        Run jobs to find/fix issues with the code. If no flags are provided, it
-        will behave as if <code>--all-files</code> was provided. The list of
-        jobs is in <code>lefthook.yaml</code>.
+        Run jobs to find/fix issues with the code. The list of jobs is in
+        <code>lefthook.yaml</code>.
       </p>
       <ul>
         <li><strong>Usage</strong>: <code>check [FLAGS] [jobs]…</code></li>
@@ -1102,7 +1101,11 @@
       <p>Jobs to run. If none are passed then all of them will be run</p>
       <h3>Flags</h3>
       <h4><code>-a --all-files</code></h4>
-      <p>Check all files</p>
+      <p>
+        This is can be used with <code>--rebase</code> or
+        <code>--commits</code> to check all files instead of only the files in
+        the commits being checked/rebased.
+      </p>
       <h4><code>-r --rebase &lt;start&gt;</code></h4>
       <p>
         An interactive rebase will be started from the commit referenced by the
