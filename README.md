@@ -32,9 +32,9 @@ people who want to manage their systems similarly.
      --nix-package-url "https://releases.nixos.org/nix/nix-2.28.5/nix-2.28.5-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
      --extra-conf "extra-trusted-users = $(whoami)" \
      --no-confirm
-   . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
 
-   nix shell \
+   "$SHELL" -lc '"$@"' -- \
+     nix shell \
      --override-flake nixpkgs github:NixOS/nixpkgs/ad4e6dd68c30bc8bd1860a27bc6f0c485bd7f3b6 \
      nixpkgs#git nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
      --command bash --noprofile --norc -euc '
