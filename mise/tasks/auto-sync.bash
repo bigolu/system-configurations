@@ -113,7 +113,9 @@ function main {
 function track_last_synced_commit {
   local last_commit_path
   last_commit_path="$(get_last_commit_path)"
-  git rev-parse HEAD >"$last_commit_path"
+  # By only tracking the file tree for a commit, our cache won't get invalidated by
+  # changes to metadata like the commit message.
+  git rev-parse 'HEAD^{tree}' >"$last_commit_path"
 }
 
 function get_last_commit_path {
