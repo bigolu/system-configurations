@@ -52,17 +52,6 @@ recursiveUpdateList [
   nixpkgs
   outputs.packages
   inputs.gomod2nix.outputs
-  (optionalAttrs isLinux {
-    # They don't make releases for x86_64-darwin.
-    #
-    # TODO: Remove when the lychee in nixpkgs gets this commit:
-    # https://github.com/lycheeverse/lychee/commit/213eca09d92b8daa76bb1f80f7698cb5c4014634
-    lychee = nixpkgs.runCommand "lychee" { } ''
-      mkdir -p $out/bin
-      cp ${pins."lychee-${system}"} $out/bin/lychee
-      chmod +x $out/bin/*
-    '';
-  })
   {
     # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
     # set it to `runCommandNoCC` to make the closure smaller.

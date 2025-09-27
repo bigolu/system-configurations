@@ -28,10 +28,7 @@ let
   pins =
     nixpkgs.lib.mapAttrs
       # Use derivation-based fetchers from nixpkgs for all pins.
-      #
-      # TODO: The nixpkgs fetcher doesn't produce the same hash as the builtin
-      # fetcher for lychee.
-      (name: pin: if name == "lychee-x86_64-linux" then pin else pin { pkgs = nixpkgs; })
+      (_name: pin: pin { pkgs = nixpkgs; })
       (import ./npins);
 in
 import ./nix/make-outputs.nix {
