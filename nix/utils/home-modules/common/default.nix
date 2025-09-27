@@ -12,6 +12,7 @@ let
   inherit (lib)
     optionalAttrs
     optionals
+    getExe
     ;
   inherit (pkgs) writeText;
   inherit (pkgs.stdenv) isDarwin isLinux;
@@ -24,7 +25,7 @@ let
       group = if isLinux then "sudo" else "admin";
     in
     writeText "10-bigolu" ''
-      %${group} ALL=(ALL:ALL) NOPASSWD: ${pkgs.runAsAdmin}/bin/run-as-admin
+      %${group} ALL=(ALL:ALL) NOPASSWD: ${getExe pkgs.run-as-admin}
       Defaults  env_keep += "TERMINFO"
       Defaults  env_keep += "PATH"
       Defaults  timestamp_timeout=30

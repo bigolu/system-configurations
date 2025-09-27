@@ -185,15 +185,7 @@ sync:
       #     misses and cancel the job instead of waiting for nix to rebuild the
       #     package.
       interactive: true
-      # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
-      #
-      # Use `realpath` since the sudoers config specifies the path of `run-as-admin`
-      # in the nix store, but `command` will return the path in my user's profile.
-      run: |
-        sudo -- \
-          "$(realpath "$(command -v run-as-admin)")" \
-          --path "$PATH" \
-          {direnv_exec} mise run system:sync
+      run: "{direnv_exec} mise run system:sync"
     - name: fish
       glob:
         - dotfiles/fish/conf.d/*.fish

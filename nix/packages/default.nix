@@ -300,7 +300,7 @@ recursiveUpdateList [
         '';
       };
 
-    runAsAdmin = nixpkgs.writeShellApplication {
+    run-as-admin = nixpkgs.writeShellApplication {
       name = "run-as-admin";
       runtimeInputs = [ nixpkgs.coreutils ];
       text = ''
@@ -313,6 +313,7 @@ recursiveUpdateList [
         #
         # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
 
+        # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
         if [[ "$1" == '--path' ]]; then
           PATH="$2:$PATH"
           shift 2

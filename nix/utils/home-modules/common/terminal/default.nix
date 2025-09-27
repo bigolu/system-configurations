@@ -51,7 +51,7 @@ in
       bat
       coreutils
       gnused
-      runAsAdmin
+      run-as-admin
       less
       rsync
       gawkInteractive
