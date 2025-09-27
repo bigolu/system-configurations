@@ -22,7 +22,6 @@ let
     concatMap
     substring
     foldl'
-    replaceString
     escapeShellArgs
     ;
   inherit (nixpkgs.stdenv) isLinux;
@@ -187,29 +186,7 @@ recursiveUpdateList [
     config-file-validator = nixpkgs.stdenv.mkDerivation {
       pname = "config-file-validator";
       version = "1.8.0";
-      # npins will fetch this input with `nixpkgs.fetchZip`. I want to set
-      # `stripRoot = false` in the call to `fetchZip`, but I can't so instead I
-      # override the postFetch hook and put the contents of the tar inside of a single
-      # directory.
-      src = pins."config-file-validator-${system}".outPath.overrideAttrs (
-        _finalAttrs: previousAttrs:
-        let
-          target = ''if [ $(ls -A "$unpackDir" | wc -l) != 1 ]; then'';
-          makeDirectory = ''
-            _new_root="$(mktemp --directory)"
-            _tmp="$_new_root/tmp"
-            mkdir "$_tmp"
-            mv "$unpackDir/"* "$_tmp/"
-            unpackDir="$_new_root"
-          '';
-        in
-        {
-          postFetch = replaceString target ''
-            ${makeDirectory}
-            ${target}
-          '' previousAttrs.postFetch;
-        }
-      );
+      src = pins."config-file-validator-${system}";
       installPhase = ''
         mkdir -p $out/bin
         cp $src/validator $out/bin/
