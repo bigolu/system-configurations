@@ -57,28 +57,11 @@ recursiveUpdateList [
     #
     # TODO: Remove when the lychee in nixpkgs gets this commit:
     # https://github.com/lycheeverse/lychee/commit/213eca09d92b8daa76bb1f80f7698cb5c4014634
-    lychee =
-      nixpkgs.runCommand "lychee"
-        {
-          src = pins."lychee-${system}".outPath.overrideAttrs (
-            _finalAttrs: prevAttrs: {
-              postFetch = ''
-                ${prevAttrs.postFetch}
-                # TODO: Match the behavior of builtins.fetchTarball when the tarball
-                # contains a single file since this is the behavior that npins bases
-                # its hash off of.
-                mv $out/* _tmp
-                rm -rf $out
-                mv _tmp $out
-              '';
-            }
-          );
-        }
-        ''
-          mkdir -p $out/bin
-          cp $src $out/bin/lychee
-          chmod +x $out/bin/*
-        '';
+    lychee = nixpkgs.runCommand "lychee" { } ''
+      mkdir -p $out/bin
+      cp ${pins."lychee-${system}"} $out/bin/lychee
+      chmod +x $out/bin/*
+    '';
   })
   {
     # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
