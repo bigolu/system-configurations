@@ -1100,22 +1100,14 @@
       <h4><code>[jobs]…</code></h4>
       <p>Jobs to run. If none are passed then all of them will be run</p>
       <h3>Flags</h3>
-      <h4><code>-a --all-files</code></h4>
-      <p>
-        This is can be used with <code>--rebase</code> or
-        <code>--commits</code> to check all files instead of only the files in
-        the commits being checked/rebased.
-      </p>
       <h4><code>-r --rebase &lt;start&gt;</code></h4>
       <p>
         An interactive rebase will be started from the commit referenced by the
         revision in <code>start</code>. An <code>exec</code> command will be
         added after every commit which checks the files and message for that
         commit. Use the special value <code>not-pushed</code> to rebase any
-        commits that haven't been pushed. If <code>--all-files</code> is also
-        used, all files will be checked per commit instead of only the files in
-        the commit. If you make a mistake and want to go back to where you were
-        before the rebase, run
+        commits that haven't been pushed. If you make a mistake and want to go
+        back to where you were before the rebase, run
         <code>git reset --hard refs/project/ir-backup</code>. See
         <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
           >git's documentation for specifying a revision</a
@@ -1127,12 +1119,16 @@
         <code>commits</code> can be any revision, or revision range, that
         <code>git log</code> accepts. Use the special value <code>head</code> to
         check the files in the <code>HEAD</code> commit. Commits will be checked
-        individually to ensure checks pass at each commit. If
-        <code>--all-files</code> is also used, all files will be checked per
-        commit instead of only the files in the commit. See
+        individually to ensure checks pass at each commit. See
         <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
           >git's documentation for specifying a revision</a
         >.
+      </p>
+      <h4><code>-a --all-files</code></h4>
+      <p>
+        This is can be used with <code>--rebase</code> or
+        <code>--commits</code> to check all files instead of only the files in
+        the commits being checked/rebased.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>
