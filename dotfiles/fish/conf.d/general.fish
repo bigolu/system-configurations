@@ -236,7 +236,7 @@ if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
 end
 function elevate
-    sudo -- (type --force-path run-as-admin) sudo --preserve-env=PATH,SHLVL,HOME --shell
+    sudo -- (type --force-path run-as-admin) --path "$PATH" sudo --preserve-env=PATH,SHLVL,HOME --shell
 end
 
 # Task runner

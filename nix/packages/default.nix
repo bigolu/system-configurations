@@ -325,7 +325,7 @@ recursiveUpdateList [
         else
           group='admin'
         fi
-        printf "%%$group		ALL = (ALL) NOPASSWD: ALL\n" > "$temp"
+        printf "%%$group		ALL = (ALL) NOPASSWD:SETENV: ALL\n" > "$temp"
 
         sudo chown --reference /etc/sudoers "$temp"
         sudo mv "$temp" /etc/sudoers.d/temp-config
