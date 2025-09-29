@@ -17,7 +17,7 @@ config="${usage_config:-$(<"${XDG_STATE_HOME:-$HOME/.local/state}/bigolu/system-
 run_as_admin="$(type -P run-as-admin)"
 if [[ $OSTYPE == linux* ]]; then
   activationScript="$(nix build --no-link --print-out-paths --file . "homeConfigurations.$config.activationPackage")/activate"
-  sudo -- "$run_as_admin" --path "$PATH" \
+  sudo --preserve-env -- "$run_as_admin" --path "$PATH" \
     env HOME_MANAGER_BACKUP_EXT='backup' "$activationScript"
 else
   temp="$(mktemp --suffix '.nix')"

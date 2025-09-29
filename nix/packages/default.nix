@@ -313,7 +313,6 @@ recursiveUpdateList [
         #
         # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
 
-        # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
         if [[ "$1" == '--path' ]]; then
           PATH="$2:$PATH"
           shift 2
@@ -333,7 +332,7 @@ recursiveUpdateList [
 
         set +o errexit
         # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
-        sudo -u "$SUDO_USER" "$(type -P env)" "PATH=$PATH" "$@"
+        sudo --preserve-env -u "$SUDO_USER" "$(type -P env)" "PATH=$PATH" "$@"
         exit_code=$?
         set -o errexit
 
