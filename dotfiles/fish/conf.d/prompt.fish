@@ -27,10 +27,6 @@ function fish_prompt --description 'Print the prompt'
     # issue: https://github.com/fish-shell/fish-shell/issues/8418
     printf \e\[0J
 
-    # This is what I want to display on the line that separates my prompt from
-    # the output of the last command.
-    set separator ''
-
     # transient prompt
     if set --query TRANSIENT
         set --erase TRANSIENT
