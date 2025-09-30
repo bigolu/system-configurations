@@ -155,8 +155,6 @@ sync:
         - "{nix,npins,smart_plug,dotfiles}/*"
         - "*.nix"
         - flake.lock
-        # This affects the task we use in `run`
-        - mise/tasks/*
       # - So I can input my password for `sudo`
       # - This job can take a while so being able to see the output in real time
       #   could reveal bottlenecks.
