@@ -117,7 +117,8 @@ sync:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: |
-    if [ -n "$AUTO_SYNC_LAST_COMMIT" ]; then
+    set -eu
+    if [ -n "${AUTO_SYNC_LAST_COMMIT:-}" ]; then
       git diff --name-only "$AUTO_SYNC_LAST_COMMIT" HEAD
     else
       git ls-files
@@ -126,100 +127,75 @@ sync:
     # This job is first since the other jobs may depend on the newly synced direnv
     # environment.
     - name: direnv
-      # Why `interactive` is enabled:
-      #   - This job can take a while so being able to see the output in real time
-      #     could reveal bottlenecks.
-      #   - If I can see the output in real time, I can spot accidental nix cache
-      #     misses and cancel the job instead of waiting for nix to rebuild the
-      #     package.
+      # - This job can take a while so being able to see the output in real time
+      #   could reveal bottlenecks.
+      # - If I can see the output in real time, I can spot accidental nix cache
+      #   misses and cancel the job instead of waiting for nix to rebuild the
+      #   package.
       interactive: true
       glob:
-        - direnv/*
-        - direnv-recommended.bash
-
-        # - So task dependencies can be reloaded into the dev shell.
-        # - If the task we run in the `run` command changes
-        - mise/tasks/*
-
-        # - These affect nix-direnv
-        # - If the version of any program that gets called here changes
-        - nix/*
-        - npins/*
-        - flake.nix
-        - flake.lock
-        - gozip/*
-
-        # If this configuration changes
         - lefthook.yaml
+        - direnv*
+        # Everything below affects the nix dev shell, which direnv loads
+        - "*.nix"
+        - flake.lock
+        - "{nix,npins,gozip,mise/tasks}/*"
       run: direnv-reload
-
     - name: lefthook
       only:
-        # We only need to sync this once since lefthook reinstalls hooks
-        # automatically.
+        # We only need to do this once since lefthook reinstalls hooks automatically.
         - run: '[ ! -e "$DEV_SHELL_STATE/lefthook-installed" ]'
       run: |
-        {direnv_exec} bash -euc '
-          lefthook install --force
-          touch "$DEV_SHELL_STATE/lefthook-installed"
-        '
+        set -eu
+        lefthook install --force
+        touch "$DEV_SHELL_STATE/lefthook-installed"
     - name: system
       glob:
-        - smart_plug/*
-        - dotfiles/*
-
-        # - These affect the system configuration
-        # - If the version of any program that gets called here changes
-        - nix/*
-        - npins/*
-        - flake.nix
-        - flake.lock
-
-        # If this configuration changes
         - lefthook.yaml
-      # Why `interactive` is enabled:
-      #   - So I can input my password for `sudo`
-      #   - This job can take a while so being able to see the output in real time
-      #     could reveal bottlenecks.
-      #   - If I can see the output in real time, I can spot accidental nix cache
-      #     misses and cancel the job instead of waiting for nix to rebuild the
-      #     package.
+        - "{nix,npins,smart_plug,dotfiles}/*"
+        - "*.nix"
+        - flake.lock
+        # This affects the task we use in `run`
+        - mise/tasks/*
+      # - So I can input my password for `sudo`
+      # - This job can take a while so being able to see the output in real time
+      #   could reveal bottlenecks.
+      # - If I can see the output in real time, I can spot accidental nix cache
+      #   misses and cancel the job instead of waiting for nix to rebuild the
+      #   package.
       interactive: true
       run: "{direnv_exec} mise run system:sync"
     - name: fish
       glob:
-        - dotfiles/fish/conf.d/*.fish
-
-        # - If the version of any program that gets called here changes
-        - nix/*
-        - npins/*
-        - flake.nix
-        - flake.lock
-
-        # If this configuration changes
         - lefthook.yaml
+        - dotfiles/fish/conf.d/*.fish
       run: "{direnv_exec} fish -c fish-reload"
 
 check:
   # Custom hooks should always have a files command. See the comment below the
   # "Custom Hooks" heading for why that is.
   files: |
-    set -e
+    set -eu
 
-    if [ "$LEFTHOOK_INCLUDE_COMMIT_MESSAGE" = 'true' ]; then
-      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files/$(git rev-parse HEAD)"
-      file="$directory/COMMIT_EDITMSG"
+    if [ "${LEFTHOOK_INCLUDE_COMMIT_MESSAGE:-}" = 'true' ]; then
+      message="$(git log --format=%B --max-count 1 HEAD)"
+      cksum_output="$(echo "$message" | cksum)"
+      checksum="${cksum_output%% *}"
+      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
+      file="$directory/$checksum.gitcommit"
       if [ ! -e "$file" ]; then
         if [ ! -e "$directory" ]; then
           mkdir -p "$directory"
         fi
-        git log --format=%B --max-count 1 HEAD >"$file"
+        echo "$message" >"$file"
+        # Make it read-only since we cache it
+        chmod -w "$file"
       fi
       # TODO: Absolute paths don't work
       realpath --relative-to="$PWD" "$file"
     fi
 
-    if [ "$LEFTHOOK_ALL_FILES" = 'true' ]; then
+    if [ "${LEFTHOOK_ALL_FILES:-}" = 'true' ]; then
       # Tracked and untracked files
       git ls-files --cached --others --exclude-standard
     else
@@ -245,7 +221,7 @@ check:
   piped: true
   jobs:
     - name: 1-commit-checks
-      glob: "*/COMMIT_EDITMSG"
+      glob: "*.gitcommit"
       group:
         jobs:
           - name: typos
@@ -408,7 +384,7 @@ check:
           - name: gopls
             glob: "*.go"
             run: |
-              set -e
+              set -eu
               # TODO: gopls should have an option for failing if an error was found.
               issues="$(gopls check {files})"
               if [ -n "$issues" ]; then
@@ -452,7 +428,7 @@ check:
           # SYNC: typos
           - name: typos
             exclude:
-              - "*/COMMIT_EDITMSG"
+              - "*.gitcommit"
             run: |
               {exit_if_no_files} {files}
               typos {files}
@@ -461,14 +437,14 @@ check:
             run: mypy {files}
           - name: isutf8
             exclude:
-              - "*/COMMIT_EDITMSG"
+              - "*.gitcommit"
             run: |
               {exit_if_no_files} {files}
               isutf8 {files}
           # SYNC: editorconfig-checker
           - name: editorconfig-checker
             exclude:
-              - "*/COMMIT_EDITMSG"
+              - "*.gitcommit"
             run: |
               {exit_if_no_files} {files}
               editorconfig-checker {files}
