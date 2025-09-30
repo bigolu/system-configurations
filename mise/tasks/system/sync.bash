@@ -15,6 +15,12 @@ shopt -s inherit_errexit
 
 config="${usage_config:-$(<"${XDG_STATE_HOME:-$HOME/.local/state}/bigolu/system-config-name")}"
 run_as_admin="$(type -P run-as-admin)"
+
+# Get the password now before `nom` is run since `nom`'s output will hide the
+# password input prompt. We have to use `run-as-admin` so that this doesn't require
+# the password when `run-as-admin` is in the sudoers file.
+sudo -- "$run_as_admin" true
+
 if [[ $OSTYPE == linux* ]]; then
   activationScript="$(nix build --no-link --print-out-paths --file . "homeConfigurations.$config.activationPackage")/activate"
   sudo --preserve-env -- "$run_as_admin" --path "$PATH" \
