@@ -236,6 +236,7 @@ if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
 end
 function elevate
+    # sudo policy on Pop!_OS won't let me use `--preserve-env`
     set env_vars
     for var_name in (set --names --export)
         set --append env_vars "$var_name=$$var_name"
