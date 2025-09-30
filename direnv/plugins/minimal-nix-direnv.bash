@@ -85,8 +85,11 @@ function use_nix {
   fi
 }
 
-# This is done in a subshell to prevent any failures within it from causing the
-# parent shell to exit.
+# Why this is done in a subshell:
+#   - To prevent any failures within it from causing the parent shell to exit.
+#   - If any failures occur, we don't have to worry about unsetting any environment
+#     variables that were set during the loading since they will only be set in the
+#     subshell.
 #
 # It prints out its environment variables as `export` statements so they can be
 # loaded into the parent shell.
