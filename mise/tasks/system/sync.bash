@@ -22,12 +22,26 @@ run_as_admin="$(type -P run-as-admin)"
 sudo -- "$run_as_admin" true
 
 if [[ $OSTYPE == linux* ]]; then
+  # sudo policy on Pop!_OS won't let me use `--preserve-env`
+  env_vars=()
+  readarray -t vars <<<"$(
+    set -o posix
+    export -p
+  )"
+  for var in "${vars[@]}"; do
+    # Remove everything from the first `=` onwards
+    var="${var%%=*}"
+    # Remove `export `
+    var="${var:7}"
+    env_vars+=("$var=${!var}")
+  done
+
   activationScript="$(nix build --no-link --print-out-paths --file . "homeConfigurations.$config.activationPackage")/activate"
-  sudo --preserve-env -- "$run_as_admin" --path "$PATH" \
-    env HOME_MANAGER_BACKUP_EXT='backup' "$activationScript"
+  sudo -- "$run_as_admin" \
+    env "${env_vars[@]}" HOME_MANAGER_BACKUP_EXT='backup' "$activationScript"
 else
   temp="$(mktemp --suffix '.nix')"
   echo "(import $PWD {}).darwinConfigurations.$config" >"$temp"
-  sudo -- "$run_as_admin" --path "$PATH" \
+  sudo -- "$run_as_admin" \
     sudo darwin-rebuild switch -I "darwin=$temp"
 fi |& nom

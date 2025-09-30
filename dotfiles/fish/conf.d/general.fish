@@ -236,7 +236,12 @@ if test (uname) = Darwin
     abbr --add --global -- sudoedit 'sudo --edit'
 end
 function elevate
-    sudo -- (type --force-path run-as-admin) --path "$PATH" sudo --preserve-env=PATH,SHLVL,HOME --shell
+    set env_vars
+    for var_name in (set --names --export)
+        set --append env_vars "$var_name=$$var_name"
+    end
+
+    sudo -- (type --force-path run-as-admin) sudo env $env_vars "$SHELL"
 end
 
 # Task runner

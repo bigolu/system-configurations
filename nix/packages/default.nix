@@ -304,41 +304,31 @@ recursiveUpdateList [
       name = "run-as-admin";
       runtimeInputs = [ nixpkgs.coreutils ];
       text = ''
-        # I want to run `darwin-rebuild switch` and only input my password once, but
-        # homebrew, rightly, invalidates the sudo cache before it runs[1] so I have to
-        # input my password again for subsequent steps in the rebuild. This script
-        # allows ANY command to be run without a password, for the duration of the
-        # specified command. It also runs the specified command as the user that
-        # launched this script, i.e. SUDO_USER, and not root.
+        # I want to run `darwin-rebuild/home-manager switch` and only input my
+        # password once, but homebrew, rightly, invalidates the sudo cache before it
+        # runs[1] so I have to input my password again for subsequent steps in the
+        # rebuild. This script allows ANY command to be run without a password, for
+        # the duration of the specified command. It also runs the specified command
+        # as the user that launched this script, i.e. SUDO_USER, and not root.
         #
         # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
 
-        if [[ "$1" == '--path' ]]; then
-          PATH="$2:$PATH"
-          shift 2
-        fi
-
         temp="$(mktemp)"
-        kernel="$(uname)"
-        if [[ $kernel == 'Linux' ]]; then
+        if [[ $OSTYPE == linux* ]]; then
           group='sudo'
         else
           group='admin'
         fi
-        printf "%%$group		ALL = (ALL) NOPASSWD:SETENV: ALL\n" > "$temp"
+        echo "%$group		ALL = (ALL) NOPASSWD:SETENV: ALL" >"$temp"
 
         sudo chown --reference /etc/sudoers "$temp"
         sudo mv "$temp" /etc/sudoers.d/temp-config
+        function remove_config {
+          sudo rm /etc/sudoers.d/temp-config
+        }
+        trap remove_config EXIT
 
-        set +o errexit
-        # sudo policy on Pop!_OS won't let me use --preserve-env=PATH
-        sudo --preserve-env -u "$SUDO_USER" "$(type -P env)" "PATH=$PATH" "$@"
-        exit_code=$?
-        set -o errexit
-
-        sudo rm /etc/sudoers.d/temp-config
-
-        exit $exit_code
+        sudo -u "$SUDO_USER" "$@"
       '';
     };
 
