@@ -32,7 +32,7 @@ function fish_prompt --description 'Print the prompt'
         set --erase TRANSIENT
         set items \
             (path basename (prompt_pwd)) \
-            (date +'%T')
+            (date +'%r')
         printf \n(set_color --reverse brblack)' '(string join -- '  ' $items)' '$_color_normal' '
         return
     else if set --query TRANSIENT_EMPTY
