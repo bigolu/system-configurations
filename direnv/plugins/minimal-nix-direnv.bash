@@ -131,9 +131,8 @@ function _mnd_cache {
     new_env="$5" cached_env="$6" \
     new_env_args_string="$7" cached_env_args="$8"
 
-  # Why we use `-f`:
-  #   - Avoid a race condition between multiple instances of direnv e.g. a direnv
-  #     editor extension and the terminal.
+  # We use `-f` to avoid a race condition between multiple instances of direnv e.g. a
+  # direnv editor extension and the terminal.
   rm -f "$cache_directory/"*
   echo "$new_env_script_contents" >"$cached_env_script"
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
