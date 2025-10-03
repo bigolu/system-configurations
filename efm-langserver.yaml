@@ -5,11 +5,9 @@ version: 2
 lint-debounce: 200ms
 
 tools:
-  # SYNC: taplo
   taplo: &taplo
     format-stdin: true
     format-command: taplo format --stdin-filepath ${INPUT} -
-  # SYNC: prettier
   prettier: &prettier
     format-stdin: true
     format-command: |
@@ -27,15 +25,12 @@ tools:
           esac
           ;;
       esac
-  # SYNC: shfmt
   shfmt: &shfmt
     format-stdin: true
     format-command: shfmt --filename ${INPUT} -
-  # SYNC: fish_indent
   fish_indent: &fish_indent
     format-stdin: true
     format-command: fish_indent
-  # SYNC: nixfmt
   nixfmt: &nixfmt
     format-stdin: true
     format-command: |
@@ -53,19 +48,15 @@ tools:
           esac
           ;;
       esac
-  # SYNC: stylua
   stylua: &stylua
     format-stdin: true
     format-command: stylua --verify --stdin-filepath ${INPUT} -
-  # SYNC: gofmt
   gofmt: &gofmt
     format-stdin: true
     format-command: gofmt
-  # SYNC: ruff-format
   ruff: &ruff
     format-stdin: true
     format-command: ruff format --stdin-filename ${INPUT}
-  # SYNC: actionlint
   actionlint: &actionlint
     lint-source: actionlint
     lint-after-open: true
@@ -84,7 +75,6 @@ tools:
       esac
     lint-formats:
       - "%f:%l:%c: %m"
-  # SYNC: markdownlint-cli2
   markdownlint-cli2: &markdownlint-cli2
     lint-source: markdownlint-cli2
     lint-after-open: true
@@ -93,7 +83,6 @@ tools:
     lint-formats:
       - "%f:%l:%c %m"
       - "%f:%l %m"
-  # SYNC: config-file-validator
   config-file-validator: &config-file-validator
     lint-source: config-file-validator
     lint-after-open: true
@@ -123,7 +112,6 @@ tools:
       esac
     lint-formats:
       - "%f: %m"
-  # SYNC: typos
   typos: &typos
     lint-source: typos
     lint-after-open: true
@@ -131,7 +119,6 @@ tools:
     lint-command: typos --color never --format brief -
     lint-formats:
       - "%f:%l:%c: %m"
-  # SYNC: statix-lint
   statix: &statix
     lint-source: statix
     lint-after-open: true
@@ -153,7 +140,6 @@ tools:
       esac
     lint-formats:
       - "%f>%l:%c:%t:%n:%m"
-  # SYNC: nixpkgs-lint
   nixpkgs-lint: &nixpkgs-lint
     lint-source: nixpkgs-lint
     lint-after-open: true
@@ -186,7 +172,6 @@ tools:
       esac
     lint-formats:
       - "%f:%l:%c: %m"
-  # SYNC: editorconfig-checker
   editorconfig-checker: &editorconfig-checker
     lint-source: editorconfig-checker
     lint-after-open: true
@@ -195,7 +180,6 @@ tools:
     lint-command: editorconfig-checker -no-color -format gcc ${INPUT}
     lint-formats:
       - "%f:%l:%c: %m"
-  # SYNC: staticcheck
   staticcheck: &staticcheck
     lint-source: staticcheck
     lint-after-open: true

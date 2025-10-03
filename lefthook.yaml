@@ -303,7 +303,6 @@ check:
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: "{run_fix} parallel statix fix -- {files}"
-          # SYNC: markdownlint-cli2
           - name: markdownlint-cli2
             glob: "*.md"
             run: "{run_fix} markdownlint-cli2 --fix {files}"
@@ -332,11 +331,9 @@ check:
           # Formatters should run after the other fixes since some fixes may produce
           # code that doesn't comply with the formatting.
 
-          # SYNC: taplo
           - name: taplo
             glob: "*.toml"
             run: "{run_fix} taplo format {files}"
-          # SYNC: prettier
           - name: prettier
             glob: "*.{md,json,json5,jsonc,yaml}"
             exclude:
@@ -349,29 +346,23 @@ check:
                 --list-different \
                 --write \
                 {files}
-          # SYNC: shfmt
           - name: shfmt
             glob: "*.{sh,bash}"
             run: "{run_fix} shfmt --write {files}"
-          # SYNC: fish_indent
           - name: fish_indent
             glob: "*.fish"
             run: "{run_fix} fish_indent --write {files}"
-          # SYNC: nixfmt
           - name: nixfmt
             glob: "*.nix"
             exclude:
               - npins/*
             run: "{run_fix} nixfmt --verify {files}"
-          # SYNC: stylua
           - name: stylua
             glob: "*.lua"
             run: "{run_fix} stylua --verify {files}"
-          # SYNC: gofmt
           - name: gofmt
             glob: "*.go"
             run: "{run_fix} gofmt -w {files}"
-          # SYNC: ruff-format
           - name: ruff-format
             glob: "*.py"
             run: "{run_fix} ruff format {files}"
@@ -400,11 +391,9 @@ check:
           - name: shellcheck-lint
             glob: "*.{sh,bash}"
             run: shellcheck {files}
-          # SYNC: actionlint
           - name: actionlint
             glob: ".github/workflows/*.yaml"
             run: actionlint {files}
-          # SYNC: statix-lint
           - name: statix-lint
             glob: "*.nix"
             exclude:
@@ -417,13 +406,11 @@ check:
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix check -- {files}
-          # SYNC: nixpkgs-lint
           - name: nixpkgs-lint
             glob: "*.nix"
             exclude:
               - npins/*
             run: nixpkgs-lint --include-unfinished-lints -- {files}
-          # SYNC: typos
           - name: typos
             exclude:
               - "*.gitcommit"
@@ -439,14 +426,12 @@ check:
             run: |
               {exit_if_no_files} {files}
               isutf8 {files}
-          # SYNC: editorconfig-checker
           - name: editorconfig-checker
             exclude:
               - "*.gitcommit"
             run: |
               {exit_if_no_files} {files}
               editorconfig-checker {files}
-          # SYNC: config-file-validator
           - name: config-file-validator
             glob: "*.{editorconfig,json,ini,yaml,toml}"
             exclude:
@@ -474,7 +459,6 @@ check:
               - flake.nix
               - flake.lock
             run: nix config check
-          # SYNC: staticcheck
           - name: staticcheck
             glob: "*.go"
             # I'm not using the `root` setting to change directory because it also
