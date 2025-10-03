@@ -29,7 +29,6 @@ nixpkgs.callPackage (
       getExe
       mapAttrsToList
       optionalString
-      recursiveUpdate
       isList
       genericClosure
       getExe'
@@ -132,8 +131,10 @@ nixpkgs.callPackage (
               rootPath =
                 if scriptConfig.rootPath ? eval then
                   ''"${scriptConfig.rootPath.eval}"''
+                else if scriptConfig.rootPath ? text then
+                  escapeShellArg scriptConfig.rootPath.text
                 else
-                  escapeShellArg scriptConfig.rootPath.text;
+                  escapeShellArg "dev-shell-gc-root";
             in
             ''
               # Users can't pass in the shell derivation since that would cause
@@ -169,7 +170,7 @@ nixpkgs.callPackage (
                   type -P nix-store >/dev/null &&
                     nix-store --query --hash "$new_shell" >/dev/null 2>&1
                 then
-                  ${optionalString scriptConfig.devShellDiff ''
+                  ${optionalString (scriptConfig.devShellDiff or true) ''
                     if [[ -e ${rootPath} ]]; then
                       ${dixExe} "$(${realpath} ${rootPath})" "$new_shell"
                     fi
@@ -185,15 +186,15 @@ nixpkgs.callPackage (
       derivation;
   in
   config:
-  let
-    # Set defaults
-    scriptConfig = recursiveUpdate {
-      devShellDiff = true;
-    } config.script;
-  in
   pipe config.roots [
     attrsToList
     (concatMap ({ name, value }: handlers.${name} value))
-    (roots: makeDerivation { inherit roots scriptConfig; })
+    (
+      roots:
+      makeDerivation {
+        inherit roots;
+        scriptConfig = config.script;
+      }
+    )
   ]
 ) { }
