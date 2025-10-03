@@ -109,7 +109,6 @@ nixpkgs.callPackage (
           # is false, then the outPath of any local flakes will not be a store path.
           # This includes the current flake and any inputs of type "path".
           (filter isStorePath)
-          handlers.path
         ];
     };
 
