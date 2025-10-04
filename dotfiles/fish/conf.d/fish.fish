@@ -13,7 +13,7 @@ printf '\033[5 q'
 
 set --global fish_color_normal
 set --global fish_color_command $fish_color_normal
-set --global fish_color_keyword $fish_color_normal --bold
+set --global fish_color_keyword $fish_color_normal
 set --global fish_color_quote brcyan
 set --global fish_color_redirection
 set --global fish_color_end $fish_color_keyword

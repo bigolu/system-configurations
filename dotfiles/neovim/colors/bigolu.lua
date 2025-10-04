@@ -124,12 +124,6 @@ local groups = {
   -- syntax groups {{{
   Comment = { ctermfg = 8, fg = colors[8] }, -- Any comment
 
-  Conditional = { ctermfg = 7, fg = colors[7], bold = true }, --   if, then, else, endif, switch, etc.
-  Repeat = "Conditional", --   for, do, while, etc.
-  Label = "Conditional", --   case, default, etc.
-  Keyword = "Conditional", --   any other keyword
-  Exception = "Conditional", --   try, catch, throw
-
   String = { ctermfg = 14, fg = colors.string }, --   A string constant: "this is a string"
   Character = "String", --   A character constant: 'c', '\n'
   -- }}}
@@ -265,7 +259,7 @@ local groups = {
 
   -- vim-matchup {{{
   MatchParen = { ctermfg = 14, bold = true, fg = colors.accent }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
-  MatchWord = {},
+  MatchWord = { ctermfg = 7, fg = colors[7], },
   MatchParenCur = "MatchParen",
   MatchWordCur = "MatchWord",
   -- }}}
