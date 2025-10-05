@@ -30,7 +30,7 @@ set --global fish_pager_color_selected_background --background=brblack
 set --global fish_color_operator $fish_color_normal
 set --global fish_color_escape $fish_color_redirection
 set --global fish_color_cwd
-set --global fish_color_autosuggestion brblack --bold
+set --global fish_color_autosuggestion brblack --italics
 set --global fish_color_user
 set --global fish_color_host
 set --global fish_pager_color_prefix cyan
