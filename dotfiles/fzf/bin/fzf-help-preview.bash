@@ -80,7 +80,7 @@ function make_hint_section {
   section_name="$1"
   hints=("${@:2}")
 
-  highlighted_hints="$(printf '%s\n' "${hints[@]}" | grep --color=always -E '(^.*:)')"
+  highlighted_hints="$(printf '%s\n' "${hints[@]}" | rg --color always '(^.*:)')"
   echo -e "\e[1m$section_name"$'\n'"$highlighted_hints"
 }
 

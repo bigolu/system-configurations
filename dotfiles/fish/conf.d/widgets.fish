@@ -157,7 +157,15 @@ function process-widget --description 'Manage processes'
     # regex.
     if test (uname) = Linux
         set reload_command 'ps -e --format user,pid,ppid,nice=NICE,start_time,etime,command --sort=-start_time'
-        set preview_command 'ps --pid {2} >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree --hide-threads --long --show-pids --unicode --show-parents --arguments {2} | grep --color=always --extended-regexp --regexp "[^└|─]+,$(echo {2})( .*|\$)" --regexp "^"'
+        set preview_command '
+            if not ps --pid {2} >/dev/null
+                echo "There is no running process with this ID."
+                exit
+            end
+            echo -s (set_color brblack) {} (set_color normal)
+            pstree --hide-threads --long --show-pids --unicode --show-parents --arguments {2} |
+                rg --color always --passthru "[^└|─]+,$(echo {2})( .*|\$)"
+        '
         set environment_flag e
         # Use 'sudo -v' so I'm not prompted for my password while strace is running,
         # since it will be running at the same time as fzf in a pipeline.
@@ -166,7 +174,15 @@ function process-widget --description 'Manage processes'
         set reload_command 'ps -e -o user,pid,ppid,nice=NICE,start,etime,command'
         # Using '-o pid' because without it I get the error:
         # time: requires entitlement
-        set preview_command 'ps -p {2} -o pid >/dev/null; or begin; echo "There is no running process with this ID."; exit; end; echo -s (set_color brblack) {} (set_color normal); pstree -w -g 3 -p {2} | grep --color=always --extended-regexp --regexp " 0*$(echo {2}) $(echo {1}) .*" --regexp "^"'
+        set preview_command '
+            if not ps -p {2} -o pid >/dev/null
+                echo "There is no running process with this ID."
+                exit
+            end
+            echo -s (set_color brblack) {} (set_color normal)
+            pstree -w -g 3 -p {2} |
+                rg --color always --passthru " 0*$(echo {2}) $(echo {1}) .*"
+        '
         set environment_flag -E
         # TODO: Since dtruss doesn't exit upon receiving SIGPIPE, after I exit the
         # fzf viewer for the dtruss output, I have to hit ctrl-c again to get dtruss
@@ -239,7 +255,7 @@ function file-widget --description 'Search files'
 
     set preview_command '
         # TODO: timg cannot detect the line and column count of the screen in fzf
-        if file --brief --mime-type {} | grep -q -i image
+        if file --brief --mime-type {} | rg --quiet --ignore-case image
             if set --export --names | string match --quiet --regex \'^VSCODE_.*\'
                 # TODO: timg should use iterm2 image mode for vscode
                 timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}

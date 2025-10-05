@@ -44,8 +44,6 @@ begin
 end
 abbr --add --global -- vim nvim
 
-set --global --export GREP_COLORS 'ms=00;36'
-
 # ls
 # use the long format
 abbr --add --position anywhere --global ll 'ls -l'

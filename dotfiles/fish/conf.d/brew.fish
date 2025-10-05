@@ -21,12 +21,19 @@ function brew-install-widget --description 'Install packages with brew'
         fzf \
         --bind 'ctrl-alt-o:preview(echo "Searching online...")+reload(brew search "" | tail -n +2)' \
         --prompt 'brew install ' \
-        # fzf triggers its loading animation for the preview window if the command hasn't completed
-        # and has outputted at least one line. To get a loading animation for the 'brew info' command
-        # we first echo a blank line and then clear it.
+        # fzf triggers its loading animation for the preview window if the
+        # command hasn't completed and has outputted at least one line. To get
+        # a loading animation for the 'brew info' command we first echo a blank
+        # line and then clear it.
         #
-        # The grep command is to highlight the different section names in the output.
-        --preview 'echo ""; printf "\033[2J"; HOMEBREW_COLOR=1 brew info {} | grep --color=always --extended-regexp --regexp "^.*: " --regexp "^"' \
+        # The rg command is to highlight the different section names in the
+        # output.
+        --preview '
+            echo ""
+            printf "\033[2J"
+            HOMEBREW_COLOR=1 brew info {} |
+                rg --color always --passthru "^.*: "
+        ' \
         --preview-window '75%' \
         --tiebreak=chunk,begin,end \
     )
@@ -42,12 +49,19 @@ function brew-uninstall-widget --description 'Uninstall packages with brew'
         FZF_DEFAULT_COMMAND='brew leaves --installed-on-request; brew ls --cask' \
         fzf \
             --prompt 'brew uninstall ' \
-            # fzf triggers its loading animation for the preview window if the command hasn't completed
-            # and has outputted at least one line. To get a loading animation for the 'brew info' command
-            # we first echo a blank line and then clear it.
+            # fzf triggers its loading animation for the preview window if the
+            # command hasn't completed and has outputted at least one line. To
+            # get a loading animation for the 'brew info' command we first echo
+            # a blank line and then clear it.
             #
-            # The grep command is to highlight the different section names in the output.
-            --preview 'echo ""; printf "\033[2J"; HOMEBREW_COLOR=1 brew info {} | grep --color=always --extended-regexp --regexp "^.*: " --regexp "^"' \
+            # The rg command is to highlight the different section names in the
+            # output.
+            --preview '
+                echo ""
+                printf "\033[2J"
+                HOMEBREW_COLOR=1 brew info {} |
+                    rg --color always --passthru "^.*: "
+            ' \
             --preview-window '75%' \
             --tiebreak=chunk,begin,end \
     )
