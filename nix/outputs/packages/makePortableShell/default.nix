@@ -94,7 +94,6 @@ nixpkgs.callPackage (
       ];
       keep = {
         "$SHELL" = true;
-        "$BASH_PATH" = true;
         "$set_xdg_env" = true;
       };
     };
