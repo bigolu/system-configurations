@@ -62,7 +62,7 @@ elif [[ -n ${usage_commits:-} ]]; then
     exit 0
   fi
 
-  command="LEFTHOOK=1 LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_ALL_FILES=${usage_all_files:-} lefthook run check --jobs ${jobs@Q}"
+  command="LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_ALL_FILES=${usage_all_files:-} lefthook run check --jobs ${jobs@Q}"
   readarray -t hashes_array <<<"$hashes"
   if ((${#hashes_array[@]} == 1)); then
     # This way fixes will be retained in the main worktree
@@ -77,7 +77,7 @@ elif [[ -n ${usage_commits:-} ]]; then
       -vv \
       --no-cache \
       --strategy worktree \
-      --exec "ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc; direnv exec . env $command" \
+      --exec "ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc; direnv exec . env LEFTHOOK=1 $command" \
       "${hashes//$'\n'/ | }"
   fi
 else
