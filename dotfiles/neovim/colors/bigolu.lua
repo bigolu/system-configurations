@@ -148,6 +148,7 @@ local groups = {
   CursorLine = { underline = true, sp = colors.guide }, -- Screen-line at the cursor, when 'cursorline' is set. Low-priority if foreground (ctermfg OR guifg) is not set.
   CursorLineNr = { underline = not vim.o.termguicolors, bg = colors.bg2, bold = true }, -- Like LineNr when 'cursorline' or 'relativenumber' is set for the cursor line.
   CursorLineSign = "CursorLineNr",
+  CursorLineFold = "CursorLineNr",
   -- }}}
 
   -- statusline/tabline {{{
