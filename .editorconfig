@@ -2,9 +2,10 @@
 # file. Otherwise, it would continue to search more parent directories.
 root = true
 
+# We don't set `end_of_line` so editors on Windows can use Windows' native line
+# ending, CRLF.
 [*]
 charset = utf-8
-end_of_line = lf
 insert_final_newline = true
 indent_style = space
 indent_size = 2
@@ -23,10 +24,3 @@ indent_size = unset
 # These are read by `shfmt`
 simplify = true
 switch_case_indent = true
-
-# These files were generated or copied so there's no need to validate anything. Below
-# are the settings that editorconfig-checker would validate.
-[{*.{plist,keylayout},COPYING.txt}]
-charset = unset
-end_of_line = unset
-insert_final_newline = unset

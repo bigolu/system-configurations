@@ -323,6 +323,16 @@ check:
               # with 1 if it finds anything to fix.
               shellcheck --format diff {files} |
                 git apply --allow-empty
+          - name: line-ending
+            exclude:
+              - npins/*
+              - "*.gitcommit"
+            run: |
+              set -eu
+              # We use the `--force` to force the conversion of binary files since
+              # dos2unix mistakenly considers some source code files to be binary.
+              chronic dos2unix --force --allow-chown --add-eol {files}
+              chronic mac2unix --force --allow-chown --add-eol {files}
 
           # Formatters
           # -------------------------------------------------------------------

@@ -1,10 +1,11 @@
 {
   "AllowedContentTypes": [
-    "JSON doesn't support comments so I'm using this field instead: editorconfig-checker should only validate charset, insert_final_newline, and end_of_line since failure to adhere to these could cause bugs. The other options, listed below, can be handled by formatters."
+    "JSON doesn't support comments so I'm using this field instead: editorconfig-checker should only validate charset and insert_final_newline since failure to adhere to these could cause bugs. The other options, listed below, can be handled by formatters. Since final newlines will automatically be added by `dos2unix`, we can disable insert_final_newline as well."
   ],
   "Disable": {
     "IndentSize": true,
     "Indentation": true,
-    "TrimTrailingWhitespace": true
+    "TrimTrailingWhitespace": true,
+    "InsertFinalNewline": true
   }
 }

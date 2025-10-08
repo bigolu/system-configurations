@@ -15,6 +15,7 @@
     coreutils
     deadnix
     doctoc
+    dos2unix
     editorconfig-checker
     # For `fish_indent` and `fish`
     fish
