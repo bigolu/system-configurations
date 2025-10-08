@@ -21,7 +21,6 @@ output:
   - failure
 
 templates:
-  run_fix: mise run run-fix
   # When `auto-sync` runs, some of the sync jobs may depend on something from the
   # newly synced direnv environment. To ensure those sync jobs run with the newly
   # synced direnv environment, we sync direnv first and run the rest of the jobs with
@@ -235,26 +234,26 @@ check:
         jobs:
           - name: flake-lock
             glob: flake.nix
-            run: "{run_fix} nix flake lock"
+            run: nix flake lock
           - name: readme-table-of-contents
             glob: README.md
-            run: "{run_fix} doctoc README.md --github"
+            run: doctoc README.md --github
           - name: readme-nix-version
             glob:
               - flake.lock
-            run: "{run_fix} mise run lefthook:check:add-nix-version-to-readme"
+            run: mise run lefthook:check:add-nix-version-to-readme
           - name: readme-config-names
             glob: "*.nix"
             exclude:
               - npins/*
-            run: "{run_fix} mise run lefthook:check:add-config-names-to-readme"
+            run: mise run lefthook:check:add-config-names-to-readme
           - name: readme-nixpkgs-commit
             glob:
               - flake.lock
-            run: "{run_fix} mise run lefthook:check:add-nixpkgs-commit-to-readme"
+            run: mise run lefthook:check:add-nixpkgs-commit-to-readme
           - name: gomod2nix
             glob: gozip/go.mod
-            run: "{run_fix} gomod2nix --dir gozip generate"
+            run: gomod2nix --dir gozip generate
           - name: task-docs
             glob: mise/*
             # TODO: markdown2html-converter hasn't been updated in a couple years.
@@ -263,7 +262,7 @@ check:
             #
             # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
             run: |
-              {run_fix} bash -euc '
+              bash -euc '
                 markdown="$(mktemp --directory)/temp.md"
                 html="docs/tasks.html"
                 mise generate task-docs --style detailed --output "$markdown"
@@ -287,10 +286,10 @@ check:
             glob: "*.nix"
             exclude:
               - npins/*
-            run: "{run_fix} deadnix --quiet --edit {files}"
+            run: deadnix --quiet --edit {files}
           - name: ruff-fix
             glob: "*.py"
-            run: "{run_fix} ruff check --fix-only {files}"
+            run: ruff check --fix-only {files}
           - name: statix-fix
             glob: "*.nix"
             exclude:
@@ -302,17 +301,17 @@ check:
               - nix/packages/default.nix
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
-            run: "{run_fix} parallel statix fix -- {files}"
+            run: parallel statix fix -- {files}
           - name: markdownlint-cli2
             glob: "*.md"
-            run: "{run_fix} markdownlint-cli2 --fix {files}"
+            run: markdownlint-cli2 --fix {files}
           - name: go-mod-tidy
             glob: gozip/go.{mod,sum}
-            run: "{run_fix} go -C gozip mod tidy"
+            run: go -C gozip mod tidy
           - name: go-version
             glob:
               - flake.lock
-            run: "{run_fix} mise run lefthook:check:add-go-version-to-go-mod"
+            run: mise run lefthook:check:add-go-version-to-go-mod
           - name: npins
             glob:
               - flake.lock
@@ -324,7 +323,7 @@ check:
               # We don't want to use Bash's `pipefail` here because shellcheck exits
               # with 1 if it finds anything to fix.
               shellcheck --format diff {files} |
-                {run_fix} git apply --allow-empty
+                git apply --allow-empty
 
           # Formatters
           # -------------------------------------------------------------------
@@ -333,13 +332,13 @@ check:
 
           - name: taplo
             glob: "*.toml"
-            run: "{run_fix} taplo format {files}"
+            run: taplo format {files}
           - name: prettier
             glob: "*.{md,json,json5,jsonc,yaml}"
             exclude:
               - npins/*
             run: |
-              {run_fix} prettier \
+              prettier \
                 --cache \
                 --cache-location "$DEV_SHELL_STATE/prettier-cache" \
                 --cache-strategy metadata \
@@ -348,24 +347,24 @@ check:
                 {files}
           - name: shfmt
             glob: "*.{sh,bash}"
-            run: "{run_fix} shfmt --write {files}"
+            run: shfmt --write {files}
           - name: fish_indent
             glob: "*.fish"
-            run: "{run_fix} fish_indent --write {files}"
+            run: fish_indent --write {files}
           - name: nixfmt
             glob: "*.nix"
             exclude:
               - npins/*
-            run: "{run_fix} nixfmt --verify {files}"
+            run: nixfmt --verify {files}
           - name: stylua
             glob: "*.lua"
-            run: "{run_fix} stylua --verify {files}"
+            run: stylua --verify {files}
           - name: gofmt
             glob: "*.go"
-            run: "{run_fix} gofmt -w {files}"
+            run: gofmt -w {files}
           - name: ruff-format
             glob: "*.py"
-            run: "{run_fix} ruff format {files}"
+            run: ruff format {files}
     - name: 3-linters
       group:
         parallel: true

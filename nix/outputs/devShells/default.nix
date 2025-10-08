@@ -39,12 +39,7 @@ makeShells
         ./modules/speakerctl.nix
       ];
 
-      devshell = {
-        packages = [ pkgs.npins ];
-        startup.dev.text = ''
-          export RUN_FIX_ACTIONS='diff,stage'
-        '';
-      };
+      devshell.packages = [ pkgs.npins ];
     };
 
     # CI essentials will be added to all CI shells by the default module.
