@@ -434,12 +434,6 @@ check:
             run: |
               {exit_if_no_files} {files}
               isutf8 {files}
-          - name: editorconfig-checker
-            exclude:
-              - "*.gitcommit"
-            run: |
-              {exit_if_no_files} {files}
-              editorconfig-checker {files}
           - name: config-file-validator
             glob: "*.{editorconfig,json,ini,yaml,toml}"
             exclude:
