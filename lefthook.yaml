@@ -262,26 +262,25 @@ check:
             #
             # [1]: https://github.com/jaywcjlove/markdown-to-html-cli
             run: |
-              bash -euc '
-                markdown="$(mktemp --directory)/temp.md"
-                html="docs/tasks.html"
-                mise generate task-docs --style detailed --output "$markdown"
-                markdown2html-converter \
-                  --no-cjk-fonts \
-                  --force \
-                  --title "Tasks" \
-                  --html-path "$html" \
-                  "$markdown"
-                # Format the HTML so it is easier to review changes to it.
-                #
-                # I could also let the "prettier" job further down format this file,
-                # but this would cause a problem: markdown2html-converter always
-                # regenerates the HTML, even if the task documentation is up to date.
-                # Since the format of the HTML from markdown2html-converter does not
-                # match the format that prettier would use, this task would always
-                # fail since it would always make a change.
-                prettier --list-different --write "$html"
-              '
+              set -eu
+              markdown="$(mktemp --directory)/temp.md"
+              html="docs/tasks.html"
+              mise generate task-docs --style detailed --output "$markdown"
+              markdown2html-converter \
+                --no-cjk-fonts \
+                --force \
+                --title "Tasks" \
+                --html-path "$html" \
+                "$markdown"
+              # Format the HTML so it is easier to review changes to it.
+              #
+              # I could also let the "prettier" job further down format this file,
+              # but this would cause a problem: markdown2html-converter always
+              # regenerates the HTML, even if the task documentation is up to date.
+              # Since the format of the HTML from markdown2html-converter does not
+              # match the format that prettier would use, this task would always fail
+              # since it would always make a change.
+              prettier --list-different --write "$html"
           - name: deadnix
             glob: "*.nix"
             exclude:
