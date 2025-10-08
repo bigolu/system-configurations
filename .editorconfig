@@ -19,14 +19,14 @@ indent_style = tab
 [*.md]
 indent_size = unset
 
-# These files were generated or copied so need to enforce a certain style
-[{*.{plist,keylayout},COPYING.txt}]
-insert_final_newline = unset
-indent_style = unset
-indent_size = unset
-trim_trailing_whitespace = unset
-
 [*.{sh,bash}]
 # These are read by `shfmt`
 simplify = true
 switch_case_indent = true
+
+# These files were generated or copied so there's no need to validate anything. Below
+# are the settings that editorconfig-checker would validate.
+[{*.{plist,keylayout},COPYING.txt}]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset

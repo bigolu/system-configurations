@@ -1,5 +1,10 @@
 {
+  "AllowedContentTypes": [
+    "JSON doesn't support comments so I'm using this field instead: editorconfig-checker should only validate charset, insert_final_newline, and end_of_line since failure to adhere to these could cause bugs. The other options, listed below, can be handled by formatters."
+  ],
   "Disable": {
-    "IndentSize": true
+    "IndentSize": true,
+    "Indentation": true,
+    "TrimTrailingWhitespace": true
   }
 }
