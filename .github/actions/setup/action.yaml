@@ -44,14 +44,12 @@ runs:
           ~/.cache/direnv-files
           ~/.cache/direnv
     - name: Load the direnv Environment
-      shell: nix run --file nix/packages bash-script -- {0}
+      shell: nix shell --file nix/packages direnv bash-script --command bash-script {0}
       run: |
-        direnv_wrapper="$(
-          nix build --no-link --print-out-paths --file nix/packages direnv-wrapper
-        )/bin/direnv-wrapper"
-
-        "$direnv_wrapper" direnv-recommended.bash export gha >> "$GITHUB_ENV"
+        echo 'source direnv-recommended.bash' >.envrc
+        direnv allow .
+        direnv export gha >>"$GITHUB_ENV"
         # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
         #
         # [1]: https://github.com/actions/toolkit/issues/655
-        "$direnv_wrapper" direnv-recommended.bash exec . bash -c 'echo "$PATH"' >> "$GITHUB_PATH"
+        direnv exec . bash -c 'echo "$PATH"' >>"$GITHUB_PATH"

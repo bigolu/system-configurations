@@ -16,6 +16,6 @@ in
     # For the save-cache action
     coreutils
     # For the setup action
-    direnv-wrapper
+    direnv
   ];
 }
