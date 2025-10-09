@@ -17,9 +17,6 @@ indent_size = 4
 [{go.{mod,sum},*.go}]
 indent_style = tab
 
-[*.md]
-indent_size = unset
-
 [*.{sh,bash}]
 # These are read by `shfmt`
 simplify = true
