@@ -187,6 +187,14 @@ tools:
           '"\(.location.file):\(.location.line):\(.location.column): \(.message)"'
     lint-formats:
       - "%f:%l:%c: %m"
+  editorconfig-checker: &editorconfig-checker
+    lint-source: editorconfig-checker
+    lint-after-open: true
+    lint-stdin: false
+    lint-on-save: true
+    lint-command: editorconfig-checker -no-color -format gcc ${INPUT}
+    lint-formats:
+      - "%f:%l:%c: %m"
 
 languages:
   toml:
@@ -227,3 +235,4 @@ languages:
     - <<: *config-file-validator
   =:
     - <<: *typos
+    - <<: *editorconfig-checker

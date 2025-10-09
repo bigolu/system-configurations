@@ -2,9 +2,9 @@
 # file. Otherwise, it would continue to search more parent directories.
 root = true
 
-# We don't set `end_of_line` so editors on Windows can use `CRLF`.
 [*]
 charset = utf-8
+end_of_line = lf
 insert_final_newline = true
 indent_style = space
 indent_size = 2
