@@ -41,7 +41,8 @@ vim.keymap.set({ "x", "n" }, "@", function()
   vim.cmd('execute "normal \\<Esc>"')
 
   local range = ""
-  for _, visual_mode in pairs({ "v", "V", "" }) do
+  local ctrl_v = vim.api.nvim_replace_termcodes("<C-v>", true, true, true)
+  for _, visual_mode in pairs({ "v", "V", ctrl_v }) do
     if mode == visual_mode then
       range = [['<,'>]]
       break
