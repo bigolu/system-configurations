@@ -2,8 +2,7 @@
 # file. Otherwise, it would continue to search more parent directories.
 root = true
 
-# We don't set `end_of_line` so editors on Windows can use Windows' native line
-# ending, CRLF.
+# We don't set `end_of_line` so editors on Windows can use `CRLF`.
 [*]
 charset = utf-8
 insert_final_newline = true
