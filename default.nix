@@ -9,8 +9,8 @@ in
   #   - The nixpkgs repo is about 200 MB so multiple checkouts would take up a lot of
   #     space.
   #   - It takes a while to evaluate nixpkgs i.e. `import <nixpkgs> {}`. For this
-  #     reason, unlike other inputs, we take an already-evaluated nixpkgs instead of
-  #     just the source code.
+  #     reason, unlike other inputs, we take an already-evaluated nixpkgs in addition
+  #     to the source code.
   #
   # For more info: https://zimbatm.com/notes/1000-instances-of-nixpkgs
   nixpkgs ? import (overrides.nixpkgs or myInputs.nixpkgs) {
