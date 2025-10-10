@@ -347,16 +347,6 @@ check:
       group:
         parallel: true
         jobs:
-          - name: gopls
-            glob: "*.go"
-            run: |
-              set -eu
-              # TODO: gopls should have an option for failing if an error was found.
-              issues="$(gopls check {files})"
-              if [ -n "$issues" ]; then
-                echo "$issues"
-                exit 1
-              fi
           - name: ruff-lint
             glob: "*.py"
             run: ruff check {files}

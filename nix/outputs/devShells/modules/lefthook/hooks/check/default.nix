@@ -3,7 +3,7 @@
   imports = [
     ../../cli.nix
     ./lua-language-server.nix
-    # For `gofmt`, `go mod tidy`, `gopls`, and `go-tools`
+    # For `gofmt`, `go mod tidy`, and `go-tools`
     ../../../gozip.nix
     # For running mypy
     ../../../speakerctl.nix
@@ -20,7 +20,6 @@
     fish
     go-tools
     gomod2nix
-    gopls
     markdown2html-converter
     markdownlint-cli2
     # TODO: I use `chronic` to hide the output of commands that produce a lot of

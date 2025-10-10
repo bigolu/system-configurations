@@ -1,7 +1,7 @@
 { pkgs, ... }:
 {
   imports = [
-    # For "llllvvuu.llllvvuu-glspc" which launches efm-langserver
+    # For extension "llllvvuu.llllvvuu-glspc"
     {
       devshell.packages = with pkgs; [
         efm-langserver
@@ -13,7 +13,7 @@
       ];
     }
 
-    # For "rogalmic.bash-debug"
+    # For extension "rogalmic.bash-debug"
     {
       # It needs bash, cat, mkfifo, rm, and pkill
       devshell.packages = with pkgs; [
@@ -25,15 +25,17 @@
   ];
 
   devshell.packages = with pkgs; [
-    # For "jnoortheen.nix-ide"
+    # For extension "jnoortheen.nix-ide"
     nixd
-    # For ndonfris.fish-lsp
+    # For extension "ndonfris.fish-lsp"
     fish-lsp
+    # For extension "golang.go"
+    gopls
   ];
 
-  # For "ms-python.python". Link python to a stable location so I don't have to
-  # update "python.defaultInterpreterPath" in settings.json when the nix store path
-  # for python changes.
+  # For extension "ms-python.python". Link python to a stable location so I don't
+  # have to update "python.defaultInterpreterPath" in settings.json when the nix
+  # store path for python changes.
   devshell.startup.vscode.text = ''
     symlink="$DEV_SHELL_STATE/python"
     target=${pkgs.speakerctl.python}
