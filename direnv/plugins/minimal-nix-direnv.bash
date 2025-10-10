@@ -223,10 +223,6 @@ function _mnd_build_new_env {
         "
       )
       ;&
-    # nixpkgs is changing the format for dev shells[1] so this will need to be
-    # updated when that happens.
-    #
-    # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
     'dev_shell')
       # Add the PID to the profile name to avoid a race condition between multiple
       # instances of direnv e.g. a direnv editor extension and the terminal. Without
@@ -236,6 +232,13 @@ function _mnd_build_new_env {
       local -r tmp_profile="$cache_directory/tmp-profile-$$"
 
       # shellcheck disable=2016
+      #
+      # We have to restore certain variables that nix and lix shouldn't be
+      # overwriting. When they stop overwriting these variables[1][2], we can remove
+      # this.
+      #
+      # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
+      # [2]: https://git.lix.systems/lix-project/lix/issues/979
       _new_env_script_contents='
         declare -A _mnd_values_to_restore=(
           ["NIX_BUILD_TOP"]=${NIX_BUILD_TOP:-__UNSET__}
