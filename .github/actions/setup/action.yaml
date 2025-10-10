@@ -1,5 +1,5 @@
 name: Setup
-description: Set up Nix and direnv
+description: Set up Nix
 runs:
   using: "composite"
   steps:
@@ -35,21 +35,3 @@ runs:
         restore-prefixes-first-match: nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-
         paths: |
           ~/.cache/gc-roots
-    - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
-      with:
-        # SYNC: cache-settings-direnv
-        nix: false
-        primary-key: direnv-${{ runner.os }}
-        paths: |
-          ~/.cache/direnv-files
-          ~/.cache/direnv
-    - name: Load the direnv Environment
-      shell: nix shell --file nix/packages direnv bash-script --command bash-script {0}
-      run: |
-        echo 'source direnv-recommended.bash' >.envrc
-        direnv allow .
-        direnv export gha >>"$GITHUB_ENV"
-        # TODO: Setting the PATH with GITHUB_ENV doesn't work[1].
-        #
-        # [1]: https://github.com/actions/toolkit/issues/655
-        direnv exec . bash -c 'echo "$PATH"' >>"$GITHUB_PATH"

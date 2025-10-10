@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 defaults:
   run:
-    shell: bash-script {0}
+    shell: nix run --file . devShells.ci-essentials -- bash-script {0}
 jobs:
   make-assets:
     strategy:

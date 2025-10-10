@@ -15,7 +15,5 @@ in
     bash-script
     # For the save-cache action
     coreutils
-    # For the setup action
-    direnv
   ];
 }
