@@ -77,7 +77,7 @@ elif [[ -n ${usage_commits:-} ]]; then
       -vv \
       --no-cache \
       --strategy worktree \
-      --exec "ln -sf $(printf '%q' "${PRJ_ROOT:?}/.envrc") .envrc; direnv exec . env LEFTHOOK=1 $command" \
+      --exec "nix run --file . devShells.development -- env LEFTHOOK=1 $command" \
       "${hashes//$'\n'/ | }"
   fi
 else
