@@ -22,12 +22,8 @@ output:
 
 templates:
   # When `auto-sync` runs, some of the sync jobs may depend on something from the
-  # newly synced direnv environment. To ensure those sync jobs run with the newly
-  # synced direnv environment, we sync direnv first and run the rest of the jobs with
-  # this template.
-  #
-  # Setting `DIRENV_LOG_FORMAT` to an empty string hides direnv's logs.
-  direnv_exec: DIRENV_LOG_FORMAT='' direnv exec .
+  # new nix dev shell.
+  run_in_dev_shell: nix run --file . devShells.development --
 
 # Git Hooks
 # -----------------------------------------------------------------------------------
@@ -108,8 +104,6 @@ sync:
       git ls-files
     fi
   jobs:
-    # This job is first since the other jobs may depend on the newly synced direnv
-    # environment.
     - name: direnv
       # - This job can take a while so being able to see the output in real time
       #   could reveal bottlenecks.
@@ -146,12 +140,12 @@ sync:
       #   misses and cancel the job instead of waiting for nix to rebuild the
       #   package.
       interactive: true
-      run: "{direnv_exec} mise run system:sync"
+      run: "{run_in_dev_shell} mise run system:sync"
     - name: fish
       glob:
         - lefthook.yaml
         - dotfiles/fish/conf.d/*.fish
-      run: "{direnv_exec} fish -c fish-reload"
+      run: "{run_in_dev_shell} fish -c fish-reload"
 
 check:
   # Custom hooks should always have a files command. See the comment below the
