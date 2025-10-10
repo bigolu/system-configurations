@@ -39,7 +39,13 @@ makeShells
         ./modules/speakerctl.nix
       ];
 
-      devshell.packages = [ pkgs.npins ];
+      devshell = {
+        packages = with pkgs; [ npins ];
+        startup.lefthook.text = ''
+          # TODO: Remove when lefthook v1.13.4 hits nixpkgs-unstable
+          PATH="$PRJ_ROOT/.direnv/bin''${PATH:+:$PATH}"
+        '';
+      };
     };
 
     # CI essentials will be added to all CI shells by the default module.
