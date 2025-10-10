@@ -210,12 +210,7 @@ function _mnd_build_new_env {
   local -a env_build_args=("${@:5}")
 
   case "$env_type" in
-    # numtide/devshell
-    'devshell')
-      _new_env="$(_mnd_nix build --no-link --print-out-paths "${env_build_args[@]}")"
-      _new_env_script_contents="$(<"$_new_env/env.bash")"
-      ;;
-    # `packages` is almost the same as `stdenv`. The only difference is that when
+    # `packages` is almost the same as `dev_shell`. The only difference is that when
     # `packages` is used, we define the dev shell on behalf of the user, containing
     # the packages they specify.
     'packages')
@@ -232,7 +227,7 @@ function _mnd_build_new_env {
     # updated when that happens.
     #
     # [1]: https://github.com/NixOS/nixpkgs/pull/330822/files
-    'stdenv')
+    'dev_shell')
       # Add the PID to the profile name to avoid a race condition between multiple
       # instances of direnv e.g. a direnv editor extension and the terminal. Without
       # this, one direnv instance can delete the tmp profile before the other
