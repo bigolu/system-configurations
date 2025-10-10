@@ -15,7 +15,8 @@ jobs:
         with:
           app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
           private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
-      - env:
+      - name: Run renovate
+        env:
           # secrets.GITHUB_TOKEN can't be used since actions performed with that
           # token will not trigger other workflows[1].
           #

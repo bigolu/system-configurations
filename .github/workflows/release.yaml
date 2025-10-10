@@ -38,7 +38,7 @@ jobs:
           merge-multiple: true
           # The destination
           path: assets
-      - name: Release
+      - name: Make release
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: mise run ci:release

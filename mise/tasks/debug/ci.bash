@@ -3,20 +3,7 @@
 #! nix-shell --packages nix-shell-interpreter coreutils
 #MISE description="Start a Bash shell in an environment that resembles CI"
 #USAGE arg "<nix_dev_shell>" help="The dev shell to load"
-#USAGE complete "nix_dev_shell" run=#"""
-#USAGE   nix eval \
-#USAGE     --file . devShells \
-#USAGE     --apply '
-#USAGE       with builtins;
-#USAGE       shells:
-#USAGE         concatStringsSep
-#USAGE           "\n"
-#USAGE           (filter
-#USAGE             (name: substring 0 (stringLength "ci-") name == "ci-")
-#USAGE             (attrNames shells))
-#USAGE     ' \
-#USAGE     --raw
-#USAGE """#
+#USAGE complete "nix_dev_shell" run=#" nix eval --raw --file . devShells --apply 'with builtins; shells: concatStringsSep "\n" (filter (name: substring 0 (stringLength "ci-") name == "ci-") (attrNames shells))' "#
 
 set -o errexit
 set -o nounset
