@@ -4,7 +4,7 @@ runs:
   using: "composite"
   steps:
     - id: pre-nix-cache-save
-      shell: nix run --file . devShells.save-cache-action -- bash-script {0}
+      shell: nix run --file . devShells.ci-save-cache-action -- bash-script {0}
       run: |
         old="$HOME/.cache/gc-roots"
 

@@ -55,15 +55,20 @@ in
               inherit inputs;
               exclude =
                 with inputs;
-                if isLinux then
-                  [
-                    nix-darwin
-                  ]
-                else
-                  [
-                    nix-flatpak
-                    nix-gl-host
-                  ];
+                (
+                  (optional inCi nix-sweep)
+                  ++ (
+                    if isLinux then
+                      [
+                        nix-darwin
+                      ]
+                    else
+                      [
+                        nix-flatpak
+                        nix-gl-host
+                      ]
+                  )
+                );
             };
 
             path = optionalAttrs (!inCi) (

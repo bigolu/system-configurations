@@ -48,15 +48,6 @@ makeShells
       };
     };
 
-    save-cache-action = {
-      devshell = {
-        packages = with pkgs; [
-          bash-script
-          coreutils
-        ];
-      };
-    };
-
     # CI essentials will be added to all CI shells by the default module.
     ci-essentials = { };
 
@@ -85,6 +76,15 @@ makeShells
           # can run the scripts in it.
           export RENOVATE_BOT_REPO="$PWD"
         '';
+      };
+    };
+
+    ci-save-cache-action = {
+      devshell = {
+        packages = with pkgs; [
+          bash-script
+          coreutils
+        ];
       };
     };
   }
