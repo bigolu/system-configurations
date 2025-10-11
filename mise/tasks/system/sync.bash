@@ -22,33 +22,14 @@ run_as_admin="$(type -P run-as-admin)"
 sudo -- "$run_as_admin" true
 
 if [[ $OSTYPE == linux* ]]; then
-  readarray -t exported_vars <<<"$(
-    set -o posix
-    export -p
-  )"
-
-  exported_set_vars=()
-  for var in "${exported_vars[@]}"; do
-    # `export` prints all exported variables, even if they're unset, so we filter
-    # them out.
-    if [[ -v $var ]]; then
-      exported_set_vars+=("$var")
-    fi
-  done
-
-  env_vars=()
-  for var in "${exported_set_vars[@]}"; do
-    # Remove everything from the first `=` onwards
-    var="${var%%=*}"
-    # Remove `export `
-    var="${var:7}"
-    env_vars+=("$var=${!var}")
-  done
-
   activationScript="$(nix build --no-link --print-out-paths --file . "homeConfigurations.$config.activationPackage")/activate"
   # sudo policy on Pop!_OS won't let me use `--preserve-env`
-  sudo -- "$run_as_admin" \
-    env "${env_vars[@]}" HOME_MANAGER_BACKUP_EXT='backup' "$activationScript"
+  env --null |
+    {
+      readarray -d '' env_vars
+      sudo -- "$run_as_admin" \
+        env "${env_vars[@]}" HOME_MANAGER_BACKUP_EXT='backup' "$activationScript"
+    }
 else
   temp="$(mktemp --suffix '.nix')"
   echo "(import $PWD {}).darwinConfigurations.$config" >"$temp"
