@@ -54,20 +54,18 @@ in
             flake = {
               inherit inputs;
               exclude =
-                with inputs;
-                (
-                  (optional inCi nix-sweep)
-                  ++ (
-                    if isLinux then
-                      [
-                        nix-darwin
-                      ]
-                    else
-                      [
-                        nix-flatpak
-                        nix-gl-host
-                      ]
-                  )
+                # PERF: It pulls in another nixpkgs
+                (optional inCi "nix-sweep")
+                ++ (
+                  if isLinux then
+                    [
+                      "nix-darwin"
+                    ]
+                  else
+                    [
+                      "nix-flatpak"
+                      "nix-gl-host"
+                    ]
                 );
             };
 

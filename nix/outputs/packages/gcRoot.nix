@@ -20,6 +20,7 @@ nixpkgs.callPackage (
     writeTextFile,
   }:
   let
+    inherit (builtins) elem;
     inherit (lib)
       pipe
       escapeShellArg
@@ -34,12 +35,9 @@ nixpkgs.callPackage (
       getExe'
       concatLines
       filter
-      genAttrs'
-      nameValuePair
       filterAttrs
       attrValues
       ;
-    inherit (lib.strings) unsafeDiscardStringContext;
 
     handlers = {
       /*
@@ -67,39 +65,25 @@ nixpkgs.callPackage (
               exclude ? [ ],
             }:
             let
-              processInputs =
-                let
-                  # PERF: So we can compare inputs by their outPath instead of having
-                  # to compare the entire attrset.
-                  excludeMap = genAttrs' exclude (
-                    # nix doesn't allow attribute keys to have string context[1].
-                    #
-                    # [1]: https://discourse.nixos.org/t/not-allowed-to-refer-to-a-store-path-error/5226/4
-                    input: nameValuePair (unsafeDiscardStringContext input.outPath) true
-                  );
-                  removeExcluded = filterAttrs (
-                    _name: input: !excludeMap ? ${unsafeDiscardStringContext input.outPath}
-                  );
-
-                  toClosureNodes = mapAttrsToList (
-                    # Used by `genericClosure` for equality checks
-                    _name: input: input // { key = input.outPath; }
-                  );
-                in
-                inputs:
-                pipe inputs [
-                  removeExcluded
-                  toClosureNodes
-                ];
+              removeExcluded = filterAttrs (name: _input: !(elem name exclude));
+              toClosureNodes = mapAttrsToList (
+                # Used by `genericClosure` for equality checks
+                _name: input: input // { key = input.outPath; }
+              );
             in
             # There may be cycles if a user sets `inputs.foo.inputs.bar.follows = ""`
             # which would point bar to `self`. This is sometimes done to remove
             # unnecessary inputs like development-only inputs. `genericClosure` will
             # handle this case.
             genericClosure {
-              startSet = processInputs inputs;
+              startSet = pipe inputs [
+                # We can only exclude direct inputs since nix will fetch an input,
+                # and of its transitive inputs, as soon as it's accessed.
+                removeExcluded
+                toClosureNodes
+              ];
               # Non-Flake inputs will not have inputs
-              operator = input: processInputs (input.inputs or { });
+              operator = input: toClosureNodes (input.inputs or { });
             };
         in
         config:
