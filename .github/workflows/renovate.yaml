@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 defaults:
   run:
-    shell: nix run --file . devShells.ci-renovate -- bash-script {0}
+    shell: nix run --file . devShells.ci-essentials -- bash-script {0}
 jobs:
   renovate:
     runs-on: ubuntu-24.04
@@ -16,6 +16,7 @@ jobs:
           app-id: ${{ vars.BIGOLU_BOT_APP_ID }}
           private-key: ${{ secrets.BIGOLU_BOT_PRIVATE_KEY }}
       - name: Run renovate
+        shell: nix run --file . devShells.ci-renovate -- bash-script {0}
         env:
           # secrets.GITHUB_TOKEN can't be used since actions performed with that
           # token will not trigger other workflows[1].
