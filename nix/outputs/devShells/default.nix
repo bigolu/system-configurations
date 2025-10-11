@@ -48,6 +48,15 @@ makeShells
       };
     };
 
+    save-cache-action = {
+      devshell = {
+        packages = with pkgs; [
+          bash-script
+          coreutils
+        ];
+      };
+    };
+
     # CI essentials will be added to all CI shells by the default module.
     ci-essentials = { };
 

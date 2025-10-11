@@ -47,9 +47,9 @@ in
     '';
 
     startup = {
-      gcRoots.text =
-        (pkgs.gcRoots {
-          script.rootPath.eval = "$DEV_SHELL_STATE/gc-root";
+      gcRoot.text =
+        (pkgs.gcRoot {
+          script.rootPath.eval = "$DEV_SHELL_STATE/gc-roots/${name}";
           roots = {
             flake = {
               inherit inputs;

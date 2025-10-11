@@ -181,7 +181,7 @@ nixpkgs.callPackage (
       derivation;
   in
   config:
-  pipe config.roots [
+  pipe (config.roots or { }) [
     attrsToList
     (concatMap ({ name, value }: handlers.${name} value))
     (roots: config.script // { inherit roots; })
