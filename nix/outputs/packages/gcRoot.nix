@@ -30,29 +30,16 @@ nixpkgs.callPackage (
       getExe
       mapAttrsToList
       optionalString
-      isList
       genericClosure
       getExe'
       concatLines
       filter
       filterAttrs
-      attrValues
+      id
       ;
 
     handlers = {
-      /*
-        config    = storePath | list[config] | attrSet[string -> config]
-        storePath = anything coercible to a store path
-      */
-      path =
-        config:
-        if isStorePath config then
-          [ config ]
-        else if isList config then
-          concatMap handlers.path config
-        else
-          # The set returned from npins has `__functor`
-          handlers.path (attrValues (removeAttrs config [ "__functor" ]));
+      paths = id;
 
       # There's an issue for having flakes retain a reference to their inputs[1].
       #
