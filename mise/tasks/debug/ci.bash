@@ -11,6 +11,8 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+# Isolate the environment by using temporary directories for any directory that may
+# be read from or written to.
 temp_home="$(mktemp --directory)"
 temp_dev_shell_state="$(mktemp --directory)"
 function clean_up {
@@ -25,7 +27,10 @@ function clean_up {
 }
 trap clean_up EXIT
 
-# flake-compat uses `builtins.fetchGit` which depends on git
+# Since we only assume that the CI machine has nix, nix is the only program added to
+# the nix shell.
+#
+# TODO: flake-compat uses `builtins.fetchGit` which depends on git
 # https://github.com/NixOS/nix/issues/3533
 nix shell \
   --ignore-environment \
