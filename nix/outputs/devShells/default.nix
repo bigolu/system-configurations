@@ -78,13 +78,4 @@ makeShells
         '';
       };
     };
-
-    ci-save-cache-action = {
-      devshell = {
-        packages = with pkgs; [
-          bash-script
-          coreutils
-        ];
-      };
-    };
   }
