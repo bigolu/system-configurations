@@ -2,10 +2,12 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter git-branchless
 #MISE description="Run jobs to find/fix issues"
-#USAGE long_about "Run jobs to find/fix issues with the code. The list of jobs is in `lefthook.yaml`."
+#USAGE long_about "Run jobs to find/fix issues with the code. The list of jobs is in `lefthook.yaml`. If no flags are passed, it will behave as if `--files` was passed."
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
 #USAGE complete "jobs" run=#" fish -c 'complete --do-complete "lefthook run check --jobs "' "#
+#USAGE
+#USAGE flag "-f --files" help="Check files with uncommitted changes" long_help="Check any files that have uncommitted changes."
 #USAGE
 #USAGE flag "-r --rebase <start>" help="Check commits using an interactive rebase" long_help="An interactive rebase will be started from the commit referenced by the revision in `start`. An `exec` command will be added after every commit which checks the files and message for that commit. Use the special value `not-pushed` to rebase any commits that haven't been pushed. If you make a mistake and want to go back to where you were before the rebase, run `git reset --hard refs/project/ir-backup`. See [git's documentation for specifying a revision](https://git-scm.com/docs/git-rev-parse#_specifying_revisions)."
 #USAGE complete "start" run=#" printf '%s\n' not-pushed "#
@@ -13,7 +15,7 @@
 #USAGE flag "-c --commits <commits>" help="Check the files/messages of the commits specified" long_help="Check the files and commit message of each of the commits specified. `commits` can be any revision, or revision range, that `git log` accepts. Use the special value `head` to check the files in the `HEAD` commit. Commits will be checked individually to ensure checks pass at each commit. See [git's documentation for specifying a revision](https://git-scm.com/docs/git-rev-parse#_specifying_revisions)."
 #USAGE complete "commits" run=#" printf '%s\n' head "#
 #USAGE
-#USAGE flag "-a --all-files" help="Check all files" long_help="This is can be used with `--rebase` or `--commits` to check all files instead of only the files in the commits being checked/rebased."
+#USAGE flag "-a --all-files" help="Check all files" long_help="This is can be used with `--rebase` or `--commits` to check all files instead of only the files in the commits being checked/rebased. It can also be used with `--files` to check all files instead of only the ones with uncommitted changes."
 
 set -o errexit
 set -o nounset
@@ -81,5 +83,7 @@ elif [[ -n ${usage_commits:-} ]]; then
       "${hashes//$'\n'/ | }"
   fi
 else
-  LEFTHOOK_ALL_FILES='true' lefthook run check --jobs "$jobs"
+  LEFTHOOK_ALL_FILES="${usage_all_files:-}" \
+    LEFTHOOK_UNCOMMITTED_FILES='true' \
+    lefthook run check --jobs "$jobs"
 fi

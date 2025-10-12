@@ -1090,7 +1090,8 @@
       <h2><code>check</code></h2>
       <p>
         Run jobs to find/fix issues with the code. The list of jobs is in
-        <code>lefthook.yaml</code>.
+        <code>lefthook.yaml</code>. If no flags are passed, it will behave as if
+        <code>--files</code> was passed.
       </p>
       <ul>
         <li><strong>Usage</strong>: <code>check [FLAGS] [jobs]…</code></li>
@@ -1100,6 +1101,8 @@
       <h4><code>[jobs]…</code></h4>
       <p>Jobs to run. If none are passed then all of them will be run</p>
       <h3>Flags</h3>
+      <h4><code>-f --files</code></h4>
+      <p>Check any files that have uncommitted changes.</p>
       <h4><code>-r --rebase &lt;start&gt;</code></h4>
       <p>
         An interactive rebase will be started from the commit referenced by the
@@ -1128,7 +1131,9 @@
       <p>
         This is can be used with <code>--rebase</code> or
         <code>--commits</code> to check all files instead of only the files in
-        the commits being checked/rebased.
+        the commits being checked/rebased. It can also be used with
+        <code>--files</code> to check all files instead of only the ones with
+        uncommitted changes.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>

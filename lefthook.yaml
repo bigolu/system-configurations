@@ -174,7 +174,13 @@ check:
     if [ "${LEFTHOOK_ALL_FILES:-}" = 'true' ]; then
       # Tracked and untracked files
       git ls-files --cached --others --exclude-standard
+    elif [ "${LEFTHOOK_UNCOMMITTED_FILES:-}" = 'true' ]; then
+      # Staged and unstaged files
+      git diff --diff-filter=ACMR --name-only HEAD
+      # Untracked files
+      git ls-files --others --exclude-standard
     else
+      # Files in the HEAD commit
       git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
     fi
   exclude:
