@@ -27,11 +27,11 @@ function clean_up {
 }
 trap clean_up EXIT
 
-# Since we only assume that the CI machine has nix, nix is the only program added to
-# the nix shell.
+# Since we only assume that the CI machine has nix and git, they're the only programs
+# added to the nix shell. We need git since flake-compat uses `builtins.fetchGit`
+# which depends on it[1].
 #
-# TODO: flake-compat uses `builtins.fetchGit` which depends on git
-# https://github.com/NixOS/nix/issues/3533
+# [1]: https://github.com/NixOS/nix/issues/3533
 nix shell \
   --ignore-environment \
   --set-env-var HOME "$temp_home" \

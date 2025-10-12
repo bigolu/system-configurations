@@ -20,14 +20,14 @@ let
     ;
   inherit (pkgs.stdenv) isLinux;
 
-  inCi = hasPrefix "ci-" name;
+  isCiDevShell = hasPrefix "ci-" name;
   bashCompletionShare = "${pkgs.bash-completion}/share";
 in
 {
   imports = [
     ../mise/cli.nix
   ]
-  ++ optional inCi ./ci;
+  ++ optional isCiDevShell ./ci;
 
   env = [
     {
@@ -81,7 +81,7 @@ in
               inherit inputs;
               exclude =
                 # PERF: It pulls in another nixpkgs
-                (optional inCi "nix-sweep")
+                (optional isCiDevShell "nix-sweep")
                 ++ (
                   if isLinux then
                     [
@@ -95,7 +95,7 @@ in
                 );
             };
 
-            paths = optionals (!inCi) (
+            paths = optionals (!isCiDevShell) (
               attrValues (
                 filterAttrs (
                   name: pin:
