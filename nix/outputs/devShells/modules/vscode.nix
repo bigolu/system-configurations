@@ -1,4 +1,10 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
+let
+  inherit (lib) getExe';
+  inherit (pkgs) coreutils;
+
+  ln = getExe' coreutils "ln";
+in
 {
   imports = [
     # For extension "llllvvuu.llllvvuu-glspc"
@@ -42,7 +48,7 @@
     # VS Code automatically reloads when the symlink to Python changes so I don't
     # want to recreate it unless it will point somewhere else.
     if [[ ! $symlink -ef $target ]]; then
-      ln --force --no-dereference --symbolic "$target" "$symlink"
+      ${ln} --force --no-dereference --symbolic "$target" "$symlink"
     fi
   '';
 }

@@ -1,4 +1,11 @@
-{ pkgs, ... }:
+{ pkgs, lib, ... }:
+let
+  inherit (lib) getExe';
+  inherit (pkgs) coreutils;
+
+  ln = getExe' coreutils "ln";
+  mkdir = getExe' coreutils "mkdir";
+in
 {
   devshell = {
     packages = with pkgs; [
@@ -11,13 +18,13 @@
         local -r symlink_path="$2"
 
         if [[ ! $target -ef $symlink_path ]]; then
-          ln --force --no-dereference --symbolic "$target" "$symlink_path"
+          ${ln} --force --no-dereference --symbolic "$target" "$symlink_path"
         fi
       }
 
       prefix="$DEV_SHELL_STATE/lua-libraries"
       if [[ ! -d $prefix ]]; then
-        mkdir -p "$prefix"
+        ${mkdir} -p "$prefix"
       fi
 
       symlink_if_target_changed \
