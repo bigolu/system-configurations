@@ -2,6 +2,8 @@ if not status is-interactive
     exit
 end
 
+abbr --add --global chase 'chase --verbose'
+abbr --add --global g git
 abbr --add --global x 'chmod +x'
 abbr --add --global du 'du --dereference --human-readable --summarize --apparent-size'
 function timg --wraps timg
@@ -199,8 +201,6 @@ function sh --wraps yash
     end
 end
 
-abbr --add --global chase 'chase --verbose'
-
 # broot
 function dui --wraps broot --description 'Check disk usage interactively'
     br --whale-spotting $argv
@@ -254,10 +254,3 @@ function _task_runner
     end
 end
 abbr --add --global run --function _task_runner
-
-# git
-abbr --add --global g git
-# TODO: My pre-commit hook doesn't run if I use an alias for 'commit'. Not sure if
-# that's a bug in git.
-abbr --command git c commit
-abbr --command git ca add -A '&&' git commit
