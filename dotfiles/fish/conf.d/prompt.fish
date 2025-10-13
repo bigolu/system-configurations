@@ -48,10 +48,9 @@ function fish_prompt --description 'Print the prompt'
         (_login_context) \
         (_status_context $last_status $last_pipestatus)
 
+    set prompt_lines
     set max_length (_prompt_max_length)
-    set new_contexts $contexts
-    set contexts
-    for context in $new_contexts
+    for context in $contexts
         if test -z "$context"
             continue
         end
@@ -61,14 +60,7 @@ function fish_prompt --description 'Print the prompt'
             set context (string shorten --max $max_length $context)
         end
 
-        set --append contexts (format_context $context)
-    end
-
-    set prompt_lines
-    for context in $contexts
-        if test -z "$context"
-            continue
-        end
+        set context (format_context $context)
 
         if not set --query prompt_lines[1]
             set --append prompt_lines (_make_line first $context)
@@ -76,8 +68,9 @@ function fish_prompt --description 'Print the prompt'
             set --append prompt_lines (_make_line middle $context)
         end
     end
-    set --append prompt_lines (_make_line last)
     set --prepend prompt_lines ''
+    set --append prompt_lines (_make_line last)
+
     printf (string join -- '\n' $prompt_lines)
 end
 
