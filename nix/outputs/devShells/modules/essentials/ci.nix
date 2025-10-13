@@ -1,6 +1,15 @@
-{ pkgs, extraModulesPath, ... }:
+{
+  pkgs,
+  extraModulesPath,
+  ...
+}:
 {
   imports = [ "${extraModulesPath}/locale.nix" ];
+
+  devshell.packages = with pkgs; [
+    # For the `run` steps in CI workflows
+    bash-script
+  ];
 
   extra.locale = {
     lang = "en_US.UTF-8";

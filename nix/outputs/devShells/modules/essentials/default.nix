@@ -27,7 +27,7 @@ in
   imports = [
     ../mise/cli.nix
   ]
-  ++ optional isCiDevShell ./ci;
+  ++ optional isCiDevShell ./ci.nix;
 
   env = [
     {
