@@ -97,6 +97,7 @@ in
         nix-diff
         nix-search-cli
         nix-sweep
+        nixpkgs-track
       ]
       ++ optionals isLinux [
         # for breakpointHook:
