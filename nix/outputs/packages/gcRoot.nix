@@ -65,7 +65,7 @@ nixpkgs.callPackage (
             genericClosure {
               startSet = pipe inputs [
                 # We can only exclude direct inputs since nix will fetch an input,
-                # and of its transitive inputs, as soon as it's accessed.
+                # and its transitive inputs, as soon as it's accessed.
                 removeExcluded
                 toClosureNodes
               ];
