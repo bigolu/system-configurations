@@ -24,7 +24,7 @@ project do it for me.
 - [Nix](https://nixos.org/) for dependencies. See the README at the root of this
   repository for installation instructions.
 - Direnv to manage the development environment. You can install this with nix by
-  running `nix profile install nixpkgs#direnv`.
+  running `nix profile add nixpkgs#direnv`.
 - A Kasa smart plug
 
 ## Usage

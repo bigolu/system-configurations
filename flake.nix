@@ -7,6 +7,8 @@
   #     `follows` since we make GC roots for all of the inputs in `flake.lock`.
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # https://github.com/NixOS/nixpkgs/issues/449970
+    nixpkgs-old.url = "github:nixos/nixpkgs/ad4e6dd68c30bc8bd1860a27bc6f0c485bd7f3b6";
 
     flake-compat.url = "git+https://git.lix.systems/lix-project/flake-compat";
 

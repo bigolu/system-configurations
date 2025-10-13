@@ -17,7 +17,7 @@ set --global fish_color_keyword $fish_color_normal
 set --global fish_color_quote brcyan
 set --global fish_color_redirection
 set --global fish_color_end $fish_color_keyword
-set --global fish_color_error red
+set --global fish_color_error --underline=curly ---underline-color red
 set --global fish_color_param $fish_color_normal
 set --global fish_color_option $fish_color_normal
 set --global fish_color_comment brblack

@@ -71,6 +71,8 @@ recursiveUpdateList [
       { }:
       self;
 
+    inherit (inputs.nixpkgs-old.outputs) actionlint;
+
     inherit (inputs.home-manager.outputs) home-manager;
     npins = inputs.npins.outputs;
 
@@ -426,7 +428,7 @@ recursiveUpdateList [
 
         ${
           getExe (
-            nixpkgs.cached-nix-shell.overrideAttrs (old: {
+            inputs.nixpkgs-old.outputs.cached-nix-shell.overrideAttrs (old: {
               patches = (old.patches or [ ]) ++ [ ./fix-trace.patch ];
             })
           )

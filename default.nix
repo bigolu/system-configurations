@@ -77,6 +77,11 @@ import ./nix/make-outputs.nix {
     # Combine our inputs with their outputs
     inputs = nixpkgs.lib.recursiveUpdate inputs {
       nixpkgs.outputs = nixpkgs;
+      nixpkgs-old.outputs = import inputs.nixpkgs-old {
+        # We provide values for these to avoid using their non-deterministic defaults.
+        config = { };
+        overlays = [ ];
+      };
       gitignore.outputs = import inputs.gitignore { inherit (nixpkgs) lib; };
       nix-gl-host.outputs = import inputs.nix-gl-host { pkgs = nixpkgs; };
       # TODO: Use the npins in nixpkgs once it has this commit:

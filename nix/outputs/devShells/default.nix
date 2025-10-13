@@ -41,10 +41,6 @@ makeShells
 
       devshell = {
         packages = with pkgs; [ npins ];
-        startup.lefthook.text = ''
-          # TODO: Remove when lefthook v1.13.4 hits nixpkgs-unstable
-          PATH="$PRJ_ROOT/.direnv/bin''${PATH:+:$PATH}"
-        '';
       };
     };
 

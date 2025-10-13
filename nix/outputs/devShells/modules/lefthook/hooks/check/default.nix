@@ -16,7 +16,6 @@
     deadnix
     doctoc
     editorconfig-checker
-    # For `fish_indent` and `fish`
     fish
     go-tools
     gomod2nix

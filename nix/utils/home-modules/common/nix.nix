@@ -58,7 +58,7 @@ let
       )"
       if [[ -n "$store_path_diff" ]]; then
         sudo --set-home ${nix} profile remove --all
-        sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
+        sudo --set-home ${nix} profile add "''${desired_store_paths[@]}"
         sudo --set-home ${nix-env} --delete-generations old
 
         # Restart the daemon so we can use the daemon from the version of nix we just
@@ -213,6 +213,8 @@ in
       keep-outputs = true;
 
       show-trace = true;
+
+      keep-going = true;
     };
   };
 }

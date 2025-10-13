@@ -2,6 +2,8 @@
 # run interactively. This is because some of the functions defined here will be called in a
 # non-interactive shell by fish-async-prompt.
 
+set fish_transient_prompt 1
+
 set _color_warning_text (set_color yellow)
 set _color_error_text (set_color red)
 set _color_success_text (set_color green)
@@ -27,19 +29,11 @@ function fish_prompt --description 'Print the prompt'
     # issue: https://github.com/fish-shell/fish-shell/issues/8418
     printf \e\[0J
 
-    # transient prompt
-    if set --query TRANSIENT
-        set --erase TRANSIENT
+    if contains -- --final-rendering $argv
         set items \
             (path basename (prompt_pwd)) \
             (date +'%r')
         printf \n(set_color --reverse brblack)' '(string join -- '  ' $items)' '$_color_normal' '
-        return
-    else if set --query TRANSIENT_EMPTY
-        set --erase TRANSIENT_EMPTY
-        # Return without printing anything. This results in the prompt being
-        # refreshed in-place since it erases the old prompt, prints nothing, and
-        # then draws the prompt again.
         return
     end
 

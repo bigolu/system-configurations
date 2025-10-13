@@ -205,7 +205,7 @@ abbr --add --global chase 'chase --verbose'
 function dui --wraps broot --description 'Check disk usage interactively'
     br --whale-spotting $argv
 end
-abbr --add --global t broot --cmd ':toggle_preview'
+abbr --add --global t broot --cmd "':toggle_preview;:toggle_watch'"
 abbr --add --global tl broot --sizes --dates --permissions
 
 # diffoscope
