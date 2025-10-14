@@ -77,8 +77,8 @@ nixpkgs.callPackage (
         pipe config [
           getInputsClosure
           # If these inputs came from `lix/flake-compat` and `copySourceTreeToStore`
-          # is false, then the outPath of any local flakes will not be a store path.
-          # This includes the current flake and any inputs of type "path".
+          # is false, then the outPath any direct inputs of type "path" will not be a
+          # store path.
           (filter isStorePath)
         ];
     };
