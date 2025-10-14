@@ -2,20 +2,13 @@
 # run interactively. This is because some of the functions defined here will be called in a
 # non-interactive shell by fish-async-prompt.
 
-set fish_transient_prompt 1
-
 set _color_warning_text (set_color yellow)
 set _color_error_text (set_color red)
 set _color_success_text (set_color green)
 set _color_normal (set_color normal)
 set _color_border (set_color brblack)
 
-function _prompt_max_length
-    # The max number of screen columns a context can use and still fit on one
-    # line. The 4 accounts for the 4 characters that make up the border, see
-    # `_make_line`. The max() is there so the value is never negative
-    math max\($COLUMNS - 4, 1\)
-end
+set fish_transient_prompt 1
 
 function fish_prompt --description 'Print the prompt'
     # I want the value of $status and $pipestatus for the last command executed
@@ -72,6 +65,13 @@ function fish_prompt --description 'Print the prompt'
     set --append prompt_lines (_make_line last)
 
     printf (string join -- '\n' $prompt_lines)
+end
+
+function _prompt_max_length
+    # The max number of screen columns a context can use and still fit on one
+    # line. The 4 accounts for the 4 characters that make up the border, see
+    # `_make_line`. The max() is there so the value is never negative
+    math max\($COLUMNS - 4, 1\)
 end
 
 function format_context --argument-names context
