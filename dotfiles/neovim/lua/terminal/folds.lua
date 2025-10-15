@@ -53,11 +53,7 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
 
 local function maybe_set_lsp_fold_method(client)
   local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
-  if not is_foldmethod_overridable then
-    return
-  end
-
-  if not client:supports_method("textDocument/foldingRange") then
+  if not is_foldmethod_overridable or not client:supports_method("textDocument/foldingRange") then
     return
   end
 
