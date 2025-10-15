@@ -61,7 +61,7 @@ function use_nix {
   set +o errexit
   local export_statements
   export_statements="$(
-    load_new_env "$cache_directory" "$env_type" "${env_build_args[@]}"
+    _mnd_load_new_env "$cache_directory" "$env_type" "${env_build_args[@]}"
   )"
   local -r load_new_env_exit_code=$?
   set -o errexit
@@ -93,7 +93,7 @@ function use_nix {
 #
 # It prints out its environment variables as `export` statements so they can be
 # loaded into the parent shell.
-function load_new_env {
+function _mnd_load_new_env {
   (
     # Redirect stdout to stderr until we're ready to print the export statements
     local stdout_copy
