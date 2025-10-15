@@ -105,14 +105,13 @@ function _dmr_disable_file_watching {
   # (watch|watch-list|watch-dir)`. We could account for that by using an exit trap
   # that sets the watch list. Maybe we should do that instead of disabling these
   # functions.
+  #
+  # shellcheck disable=2329
   function watch_file {
-    # shellcheck disable=2317
-    # ^ shellcheck says this command isn't reachable, but it is.
     :
   }
+  # shellcheck disable=2329
   function watch_dir {
-    # shellcheck disable=2317
-    # ^ shellcheck says this command isn't reachable, but it is.
     :
   }
 }
