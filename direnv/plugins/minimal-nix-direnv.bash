@@ -45,7 +45,7 @@ function use_nix {
   local -r cached_env_args="$cache_directory/env-args.txt"
 
   local IFS=' '
-  local -r new_env_args_string="$env_type ${env_build_args[*]}"
+  local -r new_env_args_string="$env_type ${env_build_args[*]@Q}"
 
   local should_reload
   _mnd_should_reload \
