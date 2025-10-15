@@ -68,10 +68,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 })
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
   callback = function(args)
-    -- TODO: A definition of get_clients in mini.nvim is being used by linters
-    -- instead of the one from the neovim runtime. Since it has a different signature
-    -- than the real one, linters think I'm calling it incorrectly.
-    ---@diagnostic disable-next-line: redundant-parameter
     for _, client in ipairs(vim.lsp.get_clients({ bufnr = args.buf })) do
       maybe_set_lsp_fold_method(client)
     end
