@@ -49,6 +49,10 @@ nixpkgs.callPackage (
           getInputsClosure =
             {
               inputs,
+              # We take strings so we can determine if an input should be excluded
+              # just by its name, i.e. the key in the `inputs` set. This way, we can
+              # avoid fetching an excluded input and its transitive inputs. For this
+              # same reason, we only allow direct inputs to be excluded.
               exclude ? [ ],
             }:
             let
@@ -64,8 +68,6 @@ nixpkgs.callPackage (
             # handle this case.
             genericClosure {
               startSet = pipe inputs [
-                # We can only exclude direct inputs since nix will fetch an input,
-                # and its transitive inputs, as soon as it's accessed.
                 removeExcluded
                 toClosureNodes
               ];
