@@ -226,16 +226,16 @@ check:
           - name: readme-nix-version
             glob:
               - flake.lock
-            run: mise run lefthook:check:add-nix-version-to-readme
+            run: mise run lefthook:add-nix-version-to-readme
           - name: readme-config-names
             glob: "*.nix"
             exclude:
               - npins/*
-            run: mise run lefthook:check:add-config-names-to-readme
+            run: mise run lefthook:add-config-names-to-readme
           - name: readme-nixpkgs-commit
             glob:
               - flake.lock
-            run: mise run lefthook:check:add-nixpkgs-commit-to-readme
+            run: mise run lefthook:add-nixpkgs-commit-to-readme
           - name: gomod2nix
             glob: gozip/go.mod
             run: gomod2nix --dir gozip generate
@@ -295,7 +295,7 @@ check:
           - name: go-version
             glob:
               - flake.lock
-            run: mise run lefthook:check:add-go-version-to-go-mod
+            run: mise run lefthook:add-go-version-to-go-mod
           - name: npins
             glob:
               - flake.lock
