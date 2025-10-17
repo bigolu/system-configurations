@@ -72,5 +72,7 @@ if IsRunningInTerminal then
   vim.keymap.set({ "n", "x" }, "[s", function()
     require("treesitter-context").go_to_context(vim.v.count1)
   end, { silent = true })
-  vim.keymap.set("n", [[\s]], vim.cmd.TSContextToggle, { desc = "Toggle sticky scroll [context]" })
+  vim.keymap.set("n", [[\s]], function()
+    vim.cmd.TSContext("toggle")
+  end)
 end
