@@ -135,13 +135,5 @@
         ],
       },
     },
-    {
-      // This is the last version of macOS that GitHub Actions still runs on Intel so
-      // I'll assume that if I specified this version, I don't want to upgrade.
-      matchDepTypes: ["github-runner"],
-      matchDepNames: ["macos"],
-      matchCurrentVersion: "13",
-      enabled: false,
-    },
   ],
 }

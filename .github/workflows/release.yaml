@@ -10,9 +10,7 @@ jobs:
       matrix:
         os:
           - ubuntu-24.04 # renovate: github-runner
-          # GitHub Actions runs macos-latest on aarch64 so instead I'll use the most
-          # recent version of macOS that they still run on x64.
-          - macos-13 # renovate: github-runner
+          - macos-15-intel # renovate: github-runner
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5

@@ -9,6 +9,11 @@
     ../../../speakerctl.nix
   ];
 
+  # TODO: Remove when using actionlint v1.7.8 or later
+  devshell.startup.check.text = ''
+    export LEFTHOOK_EXCLUDE="''${LEFTHOOK_EXCLUDE:+$LEFTHOOK_EXCLUDE,}actionlint"
+  '';
+
   devshell.packages = with pkgs; [
     actionlint
     config-file-validator
