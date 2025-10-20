@@ -8,7 +8,10 @@ let
   inherit (lib) mapAttrs;
 
   makeShells =
-    { extraModuleArgs, defaultModules }:
+    {
+      extraModuleArgs ? { },
+      defaultModule ? { },
+    }:
     mapAttrs (
       name: module:
       (inputs.devshell.outputs.eval {
@@ -16,7 +19,10 @@ let
           inherit name;
         };
         configuration = {
-          imports = defaultModules ++ [ module ];
+          imports = [
+            defaultModule
+            module
+          ];
           inherit name;
         };
       }).shell
@@ -25,7 +31,7 @@ in
 makeShells
   {
     extraModuleArgs = context;
-    defaultModules = [ ./modules/essentials ];
+    defaultModule = ./modules/essentials;
   }
   {
     development = {
