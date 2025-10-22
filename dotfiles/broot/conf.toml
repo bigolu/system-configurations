@@ -35,7 +35,7 @@ list = "never"
 invocation = "edit"
 key = "ctrl-e"
 apply_to = "file"
-external = "edit {file}"
+external = "\"$EDITOR\" {file}"
 leave_broot = false
 
 [[verbs]]
