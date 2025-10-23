@@ -103,6 +103,8 @@ nixpkgs.callPackage (
               ln = getExe' coreutils "ln";
               realpath = getExe' coreutils "realpath";
               path = if rootPath ? eval then ''"${rootPath.eval}"'' else escapeShellArg rootPath.text;
+              interactivePath = "${path}/interactive";
+              nonInteractivePath = "${path}/non-interactive";
             in
             ''
               # Users can't pass in the shell derivation since that would cause
@@ -125,7 +127,13 @@ nixpkgs.callPackage (
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
 
-              if [[ ! ${path} -ef "$new_shell" ]]; then
+              if [[ -t 0 && -t 1 ]]; then
+                path=${interactivePath}
+              else
+                path=${nonInteractivePath}
+              fi
+
+              if [[ ! $path -ef "$new_shell" ]]; then
                 # If the dev shell was bundled with `nix bundle`, then we shouldn't
                 # make the GC root. We use `nix-store --query --hash` to see if the
                 # path we want to make a root for is a valid store path. If it isn't,
@@ -139,13 +147,13 @@ nixpkgs.callPackage (
                     nix-store --query --hash "$new_shell" >/dev/null 2>&1
                 then
                   ${optionalString devShellDiff ''
-                    if [[ -e ${path} ]]; then
-                      ${dixExe} "$(${realpath} ${path})" "$new_shell"
+                    if [[ -e $path ]]; then
+                      ${dixExe} "$(${realpath} "$path")" "$new_shell"
                     fi
                   ''}
-                  nix-store --add-root ${path} --realise "$new_shell" >/dev/null
+                  nix-store --add-root "$path" --realise "$new_shell" >/dev/null
                 else
-                  ${ln} --force --no-dereference --symbolic "$new_shell" ${path}
+                  ${ln} --force --no-dereference --symbolic "$new_shell" "$path"
                 fi
               fi
             '';
