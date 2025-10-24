@@ -102,9 +102,10 @@ nixpkgs.callPackage (
               dixExe = getExe dix;
               ln = getExe' coreutils "ln";
               realpath = getExe' coreutils "realpath";
+              mkdir = getExe' coreutils "mkdir";
               path = if rootPath ? eval then ''"${rootPath.eval}"'' else escapeShellArg rootPath.text;
-              interactivePath = "${path}/interactive";
-              nonInteractivePath = "${path}/non-interactive";
+              shellGcRoot = "${path}/shell-gc-root";
+              shell = "${path}/shell";
             in
             ''
               # Users can't pass in the shell derivation since that would cause
@@ -127,13 +128,23 @@ nixpkgs.callPackage (
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
 
-              if [[ -t 1 ]]; then
-                path=${interactivePath}
-              else
-                path=${nonInteractivePath}
-              fi
+              ${optionalString devShellDiff ''
+                # If a terminal and IDE run this at the same time, the diff will only
+                # be printed by the process that updates the symlink. To ensure the
+                # diff is shown in the terminal, we only diff if stdout is connected
+                # to a terminal.
+                if [[ -t 1 && ! ${shell} -ef "$new_shell" ]]; then
+                  if [[ -e ${shell} ]]; then
+                    ${dixExe} "$(${realpath} ${shell})" "$new_shell"
+                  fi
+                  if [[ ! -e ${path} ]]; then
+                    ${mkdir} --parents ${path}
+                  fi
+                  ${ln} --force --no-dereference --symbolic "$new_shell" ${shell}
+                fi
+              ''}
 
-              if [[ ! $path -ef "$new_shell" ]]; then
+              if [[ ! ${shellGcRoot} -ef "$new_shell" ]]; then
                 # If the dev shell was bundled with `nix bundle`, then we shouldn't
                 # make the GC root. We use `nix-store --query --hash` to see if the
                 # path we want to make a root for is a valid store path. If it isn't,
@@ -146,14 +157,12 @@ nixpkgs.callPackage (
                   type -P nix-store >/dev/null &&
                     nix-store --query --hash "$new_shell" >/dev/null 2>&1
                 then
-                  ${optionalString devShellDiff ''
-                    if [[ -e $path ]]; then
-                      ${dixExe} "$(${realpath} "$path")" "$new_shell"
-                    fi
-                  ''}
-                  nix-store --add-root "$path" --realise "$new_shell" >/dev/null
+                  nix-store --add-root ${shellGcRoot} --realise "$new_shell" >/dev/null
                 else
-                  ${ln} --force --no-dereference --symbolic "$new_shell" "$path"
+                  if [[ ! -e ${path} ]]; then
+                    ${mkdir} --parents ${path}
+                  fi
+                  ${ln} --force --no-dereference --symbolic "$new_shell" ${shellGcRoot}
                 fi
               fi
             '';
