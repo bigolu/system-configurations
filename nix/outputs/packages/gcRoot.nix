@@ -108,11 +108,6 @@ nixpkgs.callPackage (
               shell = "${path}/shell";
             in
             ''
-              # Users can't pass in the shell derivation since that would cause
-              # infinite recursion: To get the shell's outPath, we need its shellHook
-              # which would include this script. And to get this script, we need the
-              # shell's outPath. Instead, we make the GC root at runtime.
-              #
               # We can't always rely on `builtins.placeholder "out"` pointing to the
               # shell derivation because at least in the case of numtide/devshell,
               # the shellHook is not on the same derivation as the shell. In those
@@ -134,9 +129,9 @@ nixpkgs.callPackage (
 
               ${optionalString devShellDiff ''
                 # If a terminal and IDE run this at the same time, the diff will only
-                # be printed by the process that updates the symlink. To ensure the
-                # diff is shown in the terminal, we only diff if stdout is connected
-                # to a terminal.
+                # be printed by the process that updates the GC root. To ensure the
+                # diff is shown in the terminal, we store a separate symlink to the
+                # dev shell that's only updated if stdout is connected to a terminal.
                 if [[ ! ${shell} -ef "$new_shell" && -t 1 ]]; then
                   if [[ -e ${shell} ]]; then
                     ${dixExe} "$(${realpath} ${shell})" "$new_shell"
