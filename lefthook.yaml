@@ -119,14 +119,6 @@ sync:
         - flake.lock
         - "{nix,npins,gozip,mise/tasks}/*"
       run: direnv-reload
-    - name: lefthook
-      only:
-        # We only need to do this once since lefthook reinstalls hooks automatically.
-        - run: '[ ! -e "$DEV_SHELL_STATE/lefthook-installed" ]'
-      run: |
-        set -eu
-        lefthook install --force
-        touch "$DEV_SHELL_STATE/lefthook-installed"
     - name: system
       glob:
         - lefthook.yaml
