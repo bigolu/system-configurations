@@ -127,7 +127,7 @@ nixpkgs.callPackage (
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
 
-              if [[ -t 0 && -t 1 ]]; then
+              if [[ -t 1 ]]; then
                 path=${interactivePath}
               else
                 path=${nonInteractivePath}

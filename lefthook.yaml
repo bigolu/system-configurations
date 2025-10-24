@@ -118,7 +118,9 @@ sync:
         - "*.nix"
         - flake.lock
         - "{nix,npins,gozip,mise/tasks}/*"
-      run: direnv-reload
+      run: |
+        direnv-reload
+        direnv exec . true
     - name: system
       glob:
         - lefthook.yaml
