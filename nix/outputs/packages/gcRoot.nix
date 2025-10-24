@@ -128,17 +128,18 @@ nixpkgs.callPackage (
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
 
+              if [[ ! -e ${path} ]]; then
+                ${mkdir} --parents ${path}
+              fi
+
               ${optionalString devShellDiff ''
                 # If a terminal and IDE run this at the same time, the diff will only
                 # be printed by the process that updates the symlink. To ensure the
                 # diff is shown in the terminal, we only diff if stdout is connected
                 # to a terminal.
-                if [[ -t 1 && ! ${shell} -ef "$new_shell" ]]; then
+                if [[ ! ${shell} -ef "$new_shell" && -t 1 ]]; then
                   if [[ -e ${shell} ]]; then
                     ${dixExe} "$(${realpath} ${shell})" "$new_shell"
-                  fi
-                  if [[ ! -e ${path} ]]; then
-                    ${mkdir} --parents ${path}
                   fi
                   ${ln} --force --no-dereference --symbolic "$new_shell" ${shell}
                 fi
@@ -159,9 +160,6 @@ nixpkgs.callPackage (
                 then
                   nix-store --add-root ${shellGcRoot} --realise "$new_shell" >/dev/null
                 else
-                  if [[ ! -e ${path} ]]; then
-                    ${mkdir} --parents ${path}
-                  fi
                   ${ln} --force --no-dereference --symbolic "$new_shell" ${shellGcRoot}
                 fi
               fi
