@@ -21,9 +21,20 @@ output:
   - failure
 
 templates:
-  # When `auto-sync` runs, some of the sync jobs may depend on something from the
-  # new nix dev shell.
-  run_in_dev_shell: nix run --file . devShells.development --
+  # When `auto-sync` runs, some of the sync jobs may depend on something from the new
+  # nix dev shell.
+  #
+  # Use `|-` so words put next to this template are put on same line as the last line
+  # in this template, making them arguments to the function call.
+  run_in_dev_shell: |-
+    run_in_dev_shell() {
+      if [ -n "${AUTO_SYNC_LAST_COMMIT:-}" ]; then
+        nix run --file . devShells.development -- "$@"
+      else
+        "$@"
+      fi
+    }
+    run_in_dev_shell
 
 # Git Hooks
 # -----------------------------------------------------------------------------------
