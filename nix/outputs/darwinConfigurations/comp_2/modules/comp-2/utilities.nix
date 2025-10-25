@@ -8,8 +8,7 @@
 }:
 let
   inherit (lib)
-    types
-    mkOption
+    mkEnableOption
     escapeShellArg
     makeBinPath
     optionalAttrs
@@ -71,10 +70,7 @@ let
   };
 in
 {
-  options.configureLoginShellForNixDarwin = mkOption {
-    type = types.bool;
-    default = false;
-  };
+  options.configureLoginShellForNixDarwin = mkEnableOption "the login shell configuration for nix-darwin";
 
   config = {
     system.activationScripts.postActivation.text = ''
