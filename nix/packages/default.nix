@@ -73,15 +73,7 @@ recursiveUpdateList [
 
     inherit (inputs.nixpkgs-old.outputs) actionlint;
 
-    inherit (inputs.home-manager.outputs) home-manager;
     npins = inputs.npins.outputs;
-
-    inherit (inputs.nix-darwin.outputs)
-      darwin-rebuild
-      darwin-option
-      darwin-version
-      darwin-uninstaller
-      ;
 
     # They only have a flake interface
     nix-sweep = inputs.nix-sweep.packages.${system}.default;
