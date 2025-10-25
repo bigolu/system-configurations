@@ -20,6 +20,9 @@ vim.keymap.del({ "n" }, "gqq")
 vim.keymap.set("n", "u", function()
   vscode.call("undo")
 end)
+vim.keymap.set("n", "<C-r>", function()
+  vscode.call("redo")
+end)
 
 -- There are three reasons why I'm disabling this:
 --
