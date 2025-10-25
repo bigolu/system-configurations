@@ -15,15 +15,13 @@ let
     mapAttrs (
       name: module:
       (inputs.devshell.outputs.eval {
-        extraSpecialArgs = extraModuleArgs // {
-          inherit name;
-        };
+        extraSpecialArgs = extraModuleArgs;
         configuration = {
           imports = [
             defaultModule
             module
           ];
-          inherit name;
+          devshell = { inherit name; };
         };
       }).shell
     );

@@ -1,10 +1,10 @@
 {
   pkgs,
   lib,
-  name,
   inputs,
   pins,
   system,
+  config,
   ...
 }:
 let
@@ -20,14 +20,15 @@ let
     ;
   inherit (pkgs.stdenv) isLinux;
 
+  inherit (config.devshell) name;
   isCiDevShell = hasPrefix "ci-" name;
   bashCompletionShare = "${pkgs.bash-completion}/share";
 in
 {
   imports = [
     ../mise/cli.nix
-  ]
-  ++ optional isCiDevShell ./ci.nix;
+    ./ci.nix
+  ];
 
   env = [
     {
