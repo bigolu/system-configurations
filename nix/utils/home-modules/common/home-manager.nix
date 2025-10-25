@@ -11,7 +11,6 @@ let
   inherit (lib)
     mkMerge
     mkIf
-    hm
     getExe
     ;
 in
@@ -52,13 +51,6 @@ mkMerge [
       # Show me what changed everytime I switch generations e.g. version updates or
       # added/removed files.
       activation = {
-        printGenerationDiff = hm.dag.entryAnywhere ''
-          # On the first activation, there won't be an old generation.
-          if [[ -n "''${oldGenPath:-}" ]] ; then
-            ${getExe pkgs.dix} $oldGenPath $newGenPath
-          fi
-        '';
-
         removeOldHomeManagerGenerations = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
           ${getExe pkgs.home-manager} expire-generations '1 second'
         '';

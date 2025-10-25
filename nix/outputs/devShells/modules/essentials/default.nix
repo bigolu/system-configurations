@@ -90,7 +90,6 @@ in
                     ]
                   else
                     [
-                      "nix-flatpak"
                       "nix-gl-host"
                     ]
                 );

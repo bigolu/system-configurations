@@ -1,8 +1,8 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter home-manager darwin-rebuild nix-output-monitor coreutils run-as-admin
-#MISE hide=true
+#! nix-shell --packages nix-shell-interpreter coreutils run-as-admin nh
 #USAGE arg "[config]" help="The name of the configuration to apply"
+#USAGE flag "-a --ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current and new generation and get confirmation before syncing."
 
 set -o errexit
 set -o nounset
@@ -10,29 +10,26 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# TODO: It would be nice if these tools accepted a file and an attribute path, like
-# the new nix CLI.
+flags=()
+if [[ ${usage_ask:-} == 'true' ]]; then
+  flags+=(--ask)
+fi
 
 config="${usage_config:-$(<"${XDG_STATE_HOME:-$HOME/.local/state}/bigolu/system-config-name")}"
-run_as_admin="$(type -P run-as-admin)"
-
-# Get the password now before `nom` is run since `nom`'s output will hide the
-# password input prompt. We have to use `run-as-admin` so that this doesn't require
-# the password when `run-as-admin` is in the sudoers file.
-sudo -- "$run_as_admin" true
-
 if [[ $OSTYPE == linux* ]]; then
-  activationScript="$(nix build --no-link --print-out-paths --file . "homeConfigurations.$config.activationPackage")/activate"
-  # sudo policy on Pop!_OS won't let me use `--preserve-env`
-  env --null |
-    {
-      readarray -d '' env_vars
-      sudo -- "$run_as_admin" \
-        env "${env_vars[@]}" HOME_MANAGER_BACKUP_EXT='backup' "$activationScript"
-    }
+  manager='home'
+  attr_path="homeConfigurations.$config"
+  flags+=(--backup-extension 'backup')
 else
-  temp="$(mktemp --suffix '.nix')"
-  echo "(import $PWD {}).darwinConfigurations.$config" >"$temp"
-  sudo -- "$run_as_admin" \
-    sudo darwin-rebuild switch -I "darwin=$temp"
-fi |& nom
+  manager='darwin'
+  attr_path="darwinConfigurations.$config"
+fi
+
+run_as_admin="$(type -P run-as-admin)"
+# The sudo policy on Pop!_OS won't inherit environment variables or let me use
+# `--preserve-env`
+shopt -s lastpipe
+env --null | { readarray -d '' env_vars; }
+sudo -- "$run_as_admin" \
+  env "${env_vars[@]}" \
+  nh "$manager" switch "${flags[@]}" --file . "$attr_path"

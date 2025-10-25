@@ -185,11 +185,11 @@ function _mnd_is_cache_fresh {
 
   _is_cache_fresh=true
   local -a watched_files
+  shopt -s lastpipe
   # shellcheck disable=2312
-  # PERF: The exit code of direnv is being masked by readarray, but the alternative
-  # ways to do this are slower. For example, I could use a pipeline, but that would
-  # spawn a subprocess.
-  readarray -d '' watched_files < <(direnv watch-print --null)
+  # pipefail will be enabled when direnv runs
+  direnv watch-print --null | { readarray -d '' watched_files; }
+  shopt -u lastpipe
   local file
   for file in "${watched_files[@]}"; do
     if

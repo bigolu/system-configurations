@@ -76,12 +76,11 @@ function _dmr_set_watch_list {
   local -r reload_file="$1"
 
   local -a watched_files
+  shopt -s lastpipe
   # shellcheck disable=2312
-  # PERF: The exit code of direnv is being masked by readarray, but it would be
-  # tricky to avoid that. I can't use a pipeline since I want to unset the
-  # DIRENV_WATCHES environment variable below. I could put the output of the direnv
-  # command in a temporary file, but I want to avoid going to disk.
-  readarray -d '' watched_files < <(direnv watch-print --null)
+  # pipefail will be enabled when direnv runs
+  direnv watch-print --null | { readarray -d '' watched_files; }
+  shopt -u lastpipe
 
   local -a allow_and_deny_files
   local file

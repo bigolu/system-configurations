@@ -1200,15 +1200,21 @@
       <h3>Arguments</h3>
       <h4><code>[jobs]…</code></h4>
       <p>Jobs to run. If none are passed then all of them will be run</p>
-      <h2><code>system:preview-sync</code></h2>
-      <p>
-        Show a preview of what changes would be made to the system if you
-        applied the current configuration.
-      </p>
+      <h2><code>system:sync</code></h2>
       <ul>
-        <li><strong>Usage</strong>: <code>system:preview-sync</code></li>
+        <li>
+          <strong>Usage</strong>: <code>system:sync [-a --ask] [config]</code>
+        </li>
       </ul>
-      <p>Preview system config application</p>
+      <h3>Arguments</h3>
+      <h4><code>[config]</code></h4>
+      <p>The name of the configuration to apply</p>
+      <h3>Flags</h3>
+      <h4><code>-a --ask</code></h4>
+      <p>
+        Show a diff of the current and new generation and get confirmation
+        before syncing.
+      </p>
     </article>
   </body>
 </html>
