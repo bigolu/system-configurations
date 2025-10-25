@@ -1,6 +1,5 @@
 {
   pkgs,
-  extraModulesPath,
   lib,
   config,
   ...
@@ -14,7 +13,7 @@ let
   isCiDevShell = hasPrefix "ci-" config.devshell.name;
 in
 {
-  imports = [ "${extraModulesPath}/locale.nix" ];
+  imports = [ ./locale.nix ];
 
   config = mkIf isCiDevShell {
     devshell.packages = with pkgs; [
@@ -22,14 +21,9 @@ in
       bash-script
     ];
 
-    extra.locale = {
+    locale = {
+      enable = true;
       lang = "en_US.UTF-8";
-      # The full set of locales is pretty big (~220MB) so I'll only include the one
-      # that will be used.
-      package = pkgs.glibcLocales.override {
-        allLocales = false;
-        locales = [ "en_US.UTF-8/UTF-8" ];
-      };
     };
   };
 }
