@@ -225,9 +225,17 @@ function get_default_branch {
 }
 
 function safe_git_config_get {
-  # If a config option isn't set, git exits with a non-zero code so the `|| true`
-  # stops the statement from failing.
-  git config get "$@" || true
+  # git exits with 1 if you try to get the value of a setting that isn't set, but we
+  # don't want the script to exit if that happens.
+  set +o errexit
+  git config get "$@"
+  local exit_code=$?
+  set -o errexit
+  if ((exit_code == 1)); then
+    return 0
+  else
+    return "$exit_code"
+  fi
 }
 
 main "$@"
