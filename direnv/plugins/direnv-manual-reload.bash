@@ -55,21 +55,37 @@
 # [3]: https://github.com/direnv/direnv-vscode
 function direnv_manual_reload {
   local layout_dir
-  layout_dir="$(direnv_layout_dir)"
+  layout_dir="$(_dmr_make_layout_dir)"
 
-  local -r reload_file="$layout_dir/reload"
-  if [[ ! -e $reload_file ]]; then
-    if [[ ! -e $layout_dir ]]; then
-      mkdir -p "$layout_dir"
-    fi
-
-    # Create a file without using an external command
-    : >"$reload_file"
-  fi
+  local reload_file
+  reload_file="$(_dmr_make_reload_file "$layout_dir")"
 
   _dmr_set_watch_list "$reload_file"
   _dmr_disable_file_watching
   _dmr_add_reload_program_to_path "$layout_dir" "$reload_file"
+}
+
+function _dmr_make_layout_dir {
+  local layout_dir
+  layout_dir="$(direnv_layout_dir)"
+
+  if [[ ! -e $layout_dir ]]; then
+    mkdir -p "$layout_dir"
+  fi
+
+  echo "$layout_dir"
+}
+
+function _dmr_make_reload_file {
+  local -r layout_dir="$1"
+
+  local -r reload_file="$layout_dir/reload"
+  if [[ ! -e $reload_file ]]; then
+    # Create a file without using an external command
+    true >"$reload_file"
+  fi
+
+  echo "$reload_file"
 }
 
 function _dmr_set_watch_list {
