@@ -22,7 +22,7 @@ in
         fi
       }
 
-      prefix="$DEV_SHELL_STATE/lua-libraries"
+      prefix="$PRJ_DATA_DIR/lua-libraries"
       if [[ ! -d $prefix ]]; then
         ${mkdir} -p "$prefix"
       fi

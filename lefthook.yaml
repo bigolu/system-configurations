@@ -329,7 +329,7 @@ check:
             run: |
               prettier \
                 --cache \
-                --cache-location "$DEV_SHELL_STATE/prettier-cache" \
+                --cache-location "$PRJ_DATA_DIR/prettier-cache" \
                 --cache-strategy metadata \
                 --list-different \
                 --write \

@@ -38,7 +38,7 @@ trap clean_up EXIT
 nix shell \
   --ignore-environment \
   --set-env-var HOME "$temp_home" \
-  --set-env-var DEV_SHELL_STATE "$temp_dev_shell_state" \
+  --set-env-var PRJ_DATA_DIR "$temp_dev_shell_state" \
   --set-env-var XDG_CACHE_HOME "${XDG_CACHE_HOME:-$HOME/.cache}" \
   --file nix/packages nix git \
   --command nix run --file . "devShells.${usage_nix_dev_shell:?}"

@@ -15,9 +15,9 @@ in
 
     startup.lefthook.text = ''
       # We only need to do this once since lefthook reinstalls hooks automatically.
-      if [[ ! -e "$DEV_SHELL_STATE/lefthook-installed" ]]; then
+      if [[ ! -e "$PRJ_DATA_DIR/lefthook-installed" ]]; then
         lefthook install --force
-        ${touch} "$DEV_SHELL_STATE/lefthook-installed"
+        ${touch} "$PRJ_DATA_DIR/lefthook-installed"
       fi
     '';
   };

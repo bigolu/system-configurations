@@ -10,7 +10,7 @@ in
   ];
 
   devshell.startup.mise.text = ''
-    trust_marker="$DEV_SHELL_STATE/mise-config-trusted"
+    trust_marker="$PRJ_DATA_DIR/mise-config-trusted"
     if [[ ! -e $trust_marker ]]; then
       mise trust --quiet
       echo >"$trust_marker"
