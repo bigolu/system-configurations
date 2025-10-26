@@ -42,7 +42,7 @@ function gh {
   if [[ ${CI:-} == 'true' ]]; then
     command gh "$@"
   else
-    echo 'gh:' "$@"
+    echo 'gh:' "$@" >&2
   fi
 }
 
