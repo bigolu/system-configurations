@@ -23,6 +23,7 @@ let
   inherit (config.devshell) name;
   isCiDevShell = hasPrefix "ci-" name;
   bashCompletionShare = "${pkgs.bash-completion}/share";
+  mkdir = getExe' pkgs.coreutils "mkdir";
 in
 {
   imports = [
@@ -42,7 +43,6 @@ in
   ];
 
   devshell = {
-    # TODO: Upstream
     interactive.autocomplete.text = ''
       export XDG_DATA_DIRS="${bashCompletionShare}''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
       source ${bashCompletionShare}/bash-completion/bash_completion
@@ -52,17 +52,12 @@ in
       # HACK: This should run before other startup scripts, but there's no way to
       # control the order. I noticed that they're sorted so I'm prefixing it with
       # 'AAA' in hopes that it gets put first.
-      AAAstateDirectory.text =
-        let
-          inherit (pkgs) coreutils;
-          mkdir = getExe' coreutils "mkdir";
-        in
-        ''
-          if [[ ! -e $PRJ_DATA_DIR ]]; then
-            ${mkdir} --parents "$PRJ_DATA_DIR"
-            echo '*' >"$PRJ_DATA_DIR/.gitignore"
-          fi
-        '';
+      AAAstateDirectory.text = ''
+        if [[ ! -e $PRJ_DATA_DIR ]]; then
+          ${mkdir} --parents "$PRJ_DATA_DIR"
+          echo '*' >"$PRJ_DATA_DIR/.gitignore"
+        fi
+      '';
 
       secrets.text = ''
         if [[ -e $PRJ_ROOT/.env ]]; then
