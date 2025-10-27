@@ -22,8 +22,8 @@ in
     ];
 
     locale = {
-      enable = true;
-      lang = "en_US.UTF-8";
+      enable = "ci";
+      language = "en_US.UTF-8";
     };
   };
 }

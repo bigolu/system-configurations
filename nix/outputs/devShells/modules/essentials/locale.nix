@@ -1,6 +1,7 @@
 # This is a fork of devshell's locale module with the following changes.
 #   - Added an enable option so you can unconditionally import it, but conditionally
 #     use it.
+#   - Support for only configuring the locale in CI.
 #   - If `lang` is specified, only include the locale for it.
 
 {
@@ -11,23 +12,34 @@
 }:
 let
   inherit (lib)
-    mkEnableOption
     mkOption
     types
     literalMD
     mkIf
+    escapeShellArg
+    optionalString
     ;
+  inherit (pkgs.stdenv) isLinux;
 
   cfg = config.locale;
 in
 {
   options.locale = {
-    enable = mkEnableOption "locale support";
+    enable = mkOption {
+      type = types.either types.bool (types.enum [ "ci" ]);
+      default = false;
+      description = ''
+        Whether to enable locale support. If set to `"ci"`, locale support will only
+        be configured if the `CI` environment variable is set to `"true"`. This way,
+        you can debug CI locally without changing the locale on the developer's
+        machine.
+      '';
+    };
 
-    lang = mkOption {
+    language = mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "Set the language for the project";
+      description = "The language for the project";
       example = "en_GB.UTF-8";
     };
 
@@ -35,36 +47,32 @@ in
       type = types.package;
       description = "The glibc locale package that will be used on Linux";
       default =
-        if cfg.lang == null then
+        if cfg.language == null then
           pkgs.glibcLocales
         else
           pkgs.glibcLocales.override {
             allLocales = false;
-            locales = [ "${cfg.lang}/UTF-8" ];
+            locales = [ "${cfg.language}/UTF-8" ];
           };
       defaultText = literalMD ''
-        If `locale.lang` is `null`, then `pkgs.glibcLocales` will be used. If
-        `locale.lang` is specified, then only the locale for that language will be
-        included.
+        If `locale.language` is `null`, then `pkgs.glibcLocales` will be used. If
+        `locale.language` is specified, then only the locale for that language will
+        be included.
       '';
     };
   };
 
-  config = mkIf cfg.enable {
-    env =
-      lib.optional pkgs.stdenv.isLinux {
-        name = "LOCALE_ARCHIVE";
-        value = "${cfg.package}/lib/locale/locale-archive";
-      }
-      ++ lib.optionals (cfg.lang != null) [
-        {
-          name = "LANG";
-          value = cfg.lang;
-        }
-        {
-          name = "LC_ALL";
-          value = cfg.lang;
-        }
-      ];
+  config = mkIf (cfg.enable == "ci" || cfg.enable) {
+    devshell.startup.locale.text = ''
+      if ${if (cfg.enable == "ci") then "[[ \${CI:-} == 'true' ]]" else "true"}; then
+        ${optionalString isLinux ''
+          export LOCALE_ARCHIVE=${cfg.package}/lib/locale/locale-archive
+        ''}
+        ${optionalString (cfg.language != null) ''
+          export LANG=${escapeShellArg cfg.language}
+          export LC_ALL="$LANG"
+        ''}
+      fi
+    '';
   };
 }
