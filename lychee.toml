@@ -60,7 +60,7 @@ exclude_path = [
   #
   # SYNC: gitignore
   '(^|/)\.git/',
-  '^\.dev-shell-state/',
+  '^\.data/',
   '(^|/)\.DS_Store$',
   '^\.direnv/',
   '^\.envrc$',

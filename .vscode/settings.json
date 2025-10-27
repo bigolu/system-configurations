@@ -34,6 +34,6 @@
       },
     },
   },
-  "python.defaultInterpreterPath": ".dev-shell-state/python/bin/python",
+  "python.defaultInterpreterPath": ".data/python/bin/python",
   "python.languageServer": "Jedi",
 }
