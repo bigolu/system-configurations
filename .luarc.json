@@ -5,10 +5,7 @@
     "libraryFiles": "Disable"
   },
   "workspace": {
-    "library": [
-      ".dev-shell-state/lua-libraries",
-      "../../.dev-shell-state/lua-libraries"
-    ],
+    "library": [".data/lua-libraries", "../../.data/lua-libraries"],
     "checkThirdParty": "Disable"
   },
   "runtime": {
