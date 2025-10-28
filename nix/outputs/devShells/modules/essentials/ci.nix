@@ -23,7 +23,7 @@ in
 
     locale = {
       enable = "ci";
-      language = "en_US.UTF-8";
+      locale = "en_US.UTF-8/UTF-8";
     };
   };
 }
