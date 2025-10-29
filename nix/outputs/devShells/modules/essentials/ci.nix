@@ -21,9 +21,6 @@ in
       bash-script
     ];
 
-    locale = {
-      enable = "ci";
-      locale = "en_US.UTF-8/UTF-8";
-    };
+    locale.locale = "en_US.UTF-8/UTF-8";
   };
 }

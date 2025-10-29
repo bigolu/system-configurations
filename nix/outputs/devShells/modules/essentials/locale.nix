@@ -32,19 +32,19 @@ in
   options.locale = {
     enable = mkOption {
       type = types.either types.bool (types.enum [ "ci" ]);
-      default = false;
+      default = "ci";
       description = ''
-        Whether to enable locale support. If set to `"ci"`, locale support will only
-        be configured if the `CI` environment variable is set to `"true"`. This way,
-        you can debug CI locally without changing the locale on the developer's
-        machine.
+        Whether to enable locale support. Doing so can help to [avoid locale-related issues on non-NixOS linux distributions](https://wiki.nixos.org/wiki/Locales#Troubleshooting_when_using_nix_on_non-NixOS_linux_distributions).
+        If set to `"ci"`, locale support will only be configured if the `CI`
+        environment variable is set to `"true"`. This way, you can debug CI
+        locally without changing your locale.
       '';
     };
 
     locale = mkOption {
       type = types.nullOr types.str;
       default = null;
-      description = "The locale for the project";
+      description = "The locale to use";
       example = "en_NG/UTF-8";
     };
 
