@@ -5,6 +5,7 @@
   pins,
   system,
   config,
+  extraModulesPath,
   ...
 }:
 let
@@ -27,6 +28,7 @@ let
 in
 {
   imports = [
+    "${extraModulesPath}/locale.nix"
     ../mise/cli.nix
     ./ci.nix
   ];
