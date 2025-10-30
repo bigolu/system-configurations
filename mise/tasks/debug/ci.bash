@@ -14,18 +14,18 @@ shopt -s inherit_errexit
 # Isolate the environment by using temporary directories for any directory that may
 # be read from or written to.
 temp_home="$(mktemp --directory)"
-temp_dev_shell_state="$(mktemp --directory)"
-function clean_up {
+temp_prj_data_dir="$(mktemp --directory)"
+function remove_temp_directories {
   # Go doesn't set the write permission on the directories it creates[1] so we have
   # to do that before deleting them.
   #
   # [1]: https://github.com/golang/go/issues/27161#issuecomment-418906507
   if [[ -e "$temp_home/go" ]]; then
-    chmod -R +w "$temp_home/go"
+    chmod --recursive +w "$temp_home/go"
   fi
-  rm -rf "$temp_home" "$temp_dev_shell_state"
+  rm --recursive --force "$temp_home" "$temp_prj_data_dir"
 }
-trap clean_up EXIT
+trap remove_temp_directories EXIT
 
 # Since we only assume that the CI machine has nix and git, they're the only programs
 # added to the nix shell. We need git since flake-compat uses `builtins.fetchGit`
@@ -38,7 +38,7 @@ trap clean_up EXIT
 nix shell \
   --ignore-environment \
   --set-env-var HOME "$temp_home" \
-  --set-env-var PRJ_DATA_DIR "$temp_dev_shell_state" \
+  --set-env-var PRJ_DATA_DIR "$temp_prj_data_dir" \
   --set-env-var XDG_CACHE_HOME "${XDG_CACHE_HOME:-$HOME/.cache}" \
   --file nix/packages nix git \
   --command nix run --file . "devShells.${usage_nix_dev_shell:?}"
