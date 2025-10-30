@@ -82,6 +82,11 @@ import ./nix/make-outputs.nix {
         config = { };
         overlays = [ ];
       };
+      nixpkgs-nixos.outputs = import inputs.nixpkgs-nixos {
+        # We provide values for these to avoid using their non-deterministic defaults.
+        config = { };
+        overlays = [ ];
+      };
       gitignore.outputs = import inputs.gitignore { inherit (nixpkgs) lib; };
       nix-gl-host.outputs = import inputs.nix-gl-host { pkgs = nixpkgs; };
       # TODO: Use the npins in nixpkgs once it has this commit:

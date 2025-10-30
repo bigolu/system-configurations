@@ -18,7 +18,7 @@ function main {
   # lychee exits with 2 if it finds broken links, but the script shouldn't exit if
   # that happens.
   set +o errexit
-  lychee --format markdown --output "$report" '**/*'
+  git ls-files | lychee --format markdown --output "$report" --files-from -
   local -r lychee_exit_code=$?
   set -o errexit
 

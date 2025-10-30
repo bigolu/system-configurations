@@ -35,7 +35,7 @@ people who want to manage their systems similarly.
 
    "$SHELL" -lc '"$@"' -- \
      nix shell \
-     --override-flake nixpkgs github:NixOS/nixpkgs/832e3b6db48508ae436c2c7bfc0cf914eac6938e \
+     --override-flake nixpkgs github:NixOS/nixpkgs/e99366c665bdd53b7b500ccdc5226675cfc51f45 \
      nixpkgs#git nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
      --command bash --noprofile --norc -euc '
        git clone \

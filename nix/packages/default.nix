@@ -53,10 +53,10 @@ recursiveUpdateList [
   inputs.gomod2nix.outputs
   {
     # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
-    # set it to `runCommandNoCC` to make the closure smaller.
+    # set it to `runCommand` to make the closure smaller.
     #
     # It's not defined in the recursive set below to avoid shadowing `pkgs`
-    pkgs.runCommandCC = nixpkgs.runCommandNoCC;
+    pkgs.runCommandCC = nixpkgs.runCommand;
   }
   rec {
     __functor =
@@ -72,6 +72,7 @@ recursiveUpdateList [
       self;
 
     inherit (inputs.nixpkgs-old.outputs) actionlint;
+    inherit (inputs.nixpkgs-nixos.outputs) lychee;
 
     npins = inputs.npins.outputs;
 

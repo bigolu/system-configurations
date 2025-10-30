@@ -55,19 +55,6 @@ exclude = [
   '^https://www\.gnu\.org/',
 ]
 exclude_path = [
-  # These would be ignored by the gitignore, but lychee doesn't respect the gitignore
-  # if you pass globs through the command line.
-  #
-  # SYNC: gitignore
-  '(^|/)\.git/',
-  '^\.data/',
-  '(^|/)\.DS_Store$',
-  '^\.direnv/',
-  '^\.envrc$',
-  '^\.env$',
-  '^\.lycheecache$',
-  '^gozip/vendor/',
-
   '^gozip/gomod2nix.toml$',
   '^.vscode/ltex',
   '^dotfiles/keyboard/US keyboard - no accent keys.bundle/',
