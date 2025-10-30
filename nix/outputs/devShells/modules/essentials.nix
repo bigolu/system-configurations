@@ -29,8 +29,7 @@ in
 {
   imports = [
     "${extraModulesPath}/locale.nix"
-    ../mise/cli.nix
-    ./ci.nix
+    ./mise/cli.nix
   ];
 
   env = [
@@ -45,6 +44,9 @@ in
   ];
 
   devshell = {
+    # For the `run` steps in CI workflows
+    packages = optional isCiDevShell pkgs.bash-script;
+
     interactive.autocomplete.text = ''
       export XDG_DATA_DIRS="${bashCompletionShare}''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
       source ${bashCompletionShare}/bash-completion/bash_completion

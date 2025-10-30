@@ -29,7 +29,7 @@ in
 makeShells
   {
     extraModuleArgs = context;
-    defaultModule = ./modules/essentials;
+    defaultModule = ./modules/essentials.nix;
   }
   {
     development = {
