@@ -71,7 +71,6 @@ recursiveUpdateList [
       { }:
       self;
 
-    inherit (inputs.nixpkgs-old.outputs) actionlint;
     inherit (inputs.nixpkgs-nixos.outputs) lychee;
 
     npins = inputs.npins.outputs;
@@ -421,7 +420,7 @@ recursiveUpdateList [
 
         ${
           getExe (
-            inputs.nixpkgs-old.outputs.cached-nix-shell.overrideAttrs (old: {
+            inputs.nixpkgs.outputs.cached-nix-shell.overrideAttrs (old: {
               patches = (old.patches or [ ]) ++ [ ./fix-trace.patch ];
             })
           )
