@@ -404,8 +404,11 @@ function color_for_exit_code --argument-names exit_code
 end
 
 function _nix_context
-    if set --query --export IN_NIX_SHELL IN_NIX_RUN
+    if set --query --export IN_NIX_SHELL || set --query --export IN_NIX_RUN
         printf nix
+        if set --query --export name
+            printf ": $name"
+        end
     end
 end
 
