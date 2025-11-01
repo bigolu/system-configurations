@@ -1,5 +1,5 @@
 diff --git a/nix-trace/trace-nix.c b/nix-trace/trace-nix.c
-index 6cd10b8..684d4b2 100644
+index 6cd10b8..13e5b2f 100644
 --- a/nix-trace/trace-nix.c
 +++ b/nix-trace/trace-nix.c
 @@ -21,6 +21,7 @@ static const char *pwd = NULL;
@@ -95,13 +95,17 @@ index 6cd10b8..684d4b2 100644
  
  WRAPPER(DIR *, opendir, (const char *path)) {
  	DIR *dirp = REAL(opendir)(path);
-@@ -257,6 +300,11 @@ static int enable(const char *path) {
+@@ -257,6 +300,15 @@ static int enable(const char *path) {
  		"/nix/store/", // assuming store paths are immutable
  		"/nix/var/nix/temproots/",
  		"/proc/",
 +		// On macOS 15.5 /dev/autofs_nowait was accessed, but I don't think devices
 +		// should be tracked in general.
 +		"/dev",
++		// On Pop!_OS
++		// /sys/fs/cgroup//user.slice/user-1000.slice/user@1000.service/app.slice/app-cosmic-code-5135.scope/cpu.max
++		// was accessed, but I don't think this directory should be tracked in general.
++		"/sys",
 +		tmp_prefix,
 +		nix_shell_tmp_prefix,
  		NULL,
