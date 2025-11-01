@@ -6,7 +6,7 @@
 }:
 let
   inherit (lib) removeSuffix replaceString readFile;
-  inherit (pkgs) system;
+  inherit (pkgs.stdenv.hostPlatform) system;
 
   # Since I use a custom `nix.linux-builder`, I use the linux-builder cached by
   # nixpkgs to build it. So before applying my config for the first time, I need to

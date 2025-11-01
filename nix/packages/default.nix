@@ -71,8 +71,6 @@ recursiveUpdateList [
       { }:
       self;
 
-    inherit (inputs.nixpkgs-nixos.outputs) lychee;
-
     npins = inputs.npins.outputs;
 
     # They only have a flake interface

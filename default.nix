@@ -77,11 +77,6 @@ import ./nix/make-outputs.nix {
     # Combine our inputs with their outputs
     inputs = nixpkgs.lib.recursiveUpdate inputs {
       nixpkgs.outputs = nixpkgs;
-      nixpkgs-nixos.outputs = import inputs.nixpkgs-nixos {
-        # We provide values for these to avoid using their non-deterministic defaults.
-        config = { };
-        overlays = [ ];
-      };
       nixpkgs-npins.outputs = import inputs.nixpkgs-npins {
         # We provide values for these to avoid using their non-deterministic defaults.
         config = { };
