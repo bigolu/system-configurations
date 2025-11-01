@@ -10,6 +10,9 @@
     # TODO: Remove this when the following PR reaches nixpkgs-unstable:
     # https://github.com/NixOS/nixpkgs/pull/456776
     nixpkgs-nixos.url = "github:nixos/nixpkgs/nixos-unstable-small";
+    # TODO: Remove when npins stops using the apple SDK that's been removed,
+    # `pkgs.darwin.apple_sdk`.
+    nixpkgs-npins.url = "github:nixos/nixpkgs/18dd725c29603f582cf1900e0d25f9f1063dbf11";
 
     flake-compat.url = "git+https://git.lix.systems/lix-project/flake-compat";
 
