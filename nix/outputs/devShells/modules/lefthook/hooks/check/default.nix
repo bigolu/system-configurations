@@ -6,7 +6,7 @@
     # For `gofmt`, `go mod tidy`, and `go-tools`
     ../../../gozip.nix
     # For running mypy
-    ../../../speakerctl.nix
+    pkgs.speakerctl.devshellModule
   ];
 
   devshell.packages = with pkgs; [
