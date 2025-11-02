@@ -9,6 +9,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+nix profile remove --all
 unformatted_size="$(
   nix path-info --closure-size /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment |
     awk '{ print $2 }'
