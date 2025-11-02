@@ -17,7 +17,7 @@ numfmt --to=iec-i --suffix=B --format="%.2f" -- "$unformatted_size"
 ls -R /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment
 cat /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment/manifest.nix
 for x in /nix/var/nix/gcroots/auto/*; do
-  chase "$x"
+  chase --verbose "$x"
   echo
 done
 
