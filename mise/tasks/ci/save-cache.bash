@@ -1,6 +1,6 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils
+#! nix-shell --packages nix-shell-interpreter coreutils gawk
 #MISE hide=true
 
 set -o errexit
@@ -8,6 +8,13 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
+
+unformatted_size="$(
+  nix path-info --closure-size /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment |
+    awk '{ print $2 }'
+)"
+numfmt --to=iec-i --suffix=B --format="%.2f" -- "$unformatted_size"
+ls -R /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment
 
 old="$HOME/.cache/gc-roots"
 
