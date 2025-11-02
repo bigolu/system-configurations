@@ -20,9 +20,11 @@ new="$(mktemp)"
   realpath --quiet --canonicalize-existing /nix/var/nix/gcroots/auto/*
   set -o errexit
 } |
-  # `comm` requires input files to be sorted. They also need to be sorted before
-  # comparing old to new.
-  sort >"$new"
+  # Why we sort:
+  #   - `comm`, used below, requires input files to be sorted
+  #   - So we can compare `$old` to `$new` below
+  #   - To deduplicate, which we do by using the `--unique` flag to `sort`
+  sort --unique >"$new"
 
 if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
   echo 'should-save=false' >>"${GITHUB_OUTPUT:?}"
