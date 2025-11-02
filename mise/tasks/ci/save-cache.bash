@@ -9,18 +9,9 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-nix profile remove --all
-unformatted_size="$(
-  nix path-info --closure-size /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment |
-    awk '{ print $2 }'
-)"
-numfmt --to=iec-i --suffix=B --format="%.2f" -- "$unformatted_size"
-ls -R /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment
-cat /nix/store/8bay2wvk4yym5ql9vpb2s06xngwslp1c-user-environment/manifest.nix
-for x in /nix/var/nix/gcroots/auto/*; do
-  chase --verbose "$x"
-  echo
-done
+# This way, we won't cache the user environment which is unnecessary since the
+# installer action will recreate it.
+rm -rf ~/.local/state/nix/profiles/profile-*
 
 old="$HOME/.cache/gc-roots"
 
