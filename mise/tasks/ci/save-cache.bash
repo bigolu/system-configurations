@@ -9,11 +9,12 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Put nix on the PATH before deleting the user environment
-nix="$(type -P nix)"
-nix="$(realpath "$nix")"
-nix_dir="$(dirname "$nix")"
-PATH="$nix_dir:$PATH"
+# Put nix-collect-garbage on the PATH before deleting the user profile since we use
+# it below.
+nix_collect_garbage="$(type -P nix-collect-garbage)"
+nix_collect_garbage="$(realpath "$nix_collect_garbage")"
+nix_collect_garbage_dir="$(dirname "$nix_collect_garbage")"
+PATH="$nix_collect_garbage_dir:$PATH"
 # This way, we won't cache the user environment which is unnecessary since the
 # installer action will recreate it.
 rm -rf ~/.local/state/nix/profiles/profile-*
