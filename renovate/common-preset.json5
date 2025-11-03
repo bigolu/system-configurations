@@ -127,13 +127,5 @@
         ],
       },
     },
-    {
-      matchDepNames: ["nix-community/nix-direnv"],
-      postUpgradeTasks: {
-        commands: [
-          'cached-nix-shell "$RENOVATE_BOT_REPO/renovate/global/scripts/update-nix-direnv-hash.bash" {{{packageFile}}}',
-        ],
-      },
-    },
   ],
 }
