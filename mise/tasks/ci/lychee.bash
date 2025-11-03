@@ -1,6 +1,6 @@
 #! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter gh lychee coreutils
+#! nix-shell --packages nix-shell-interpreter gh lychee coreutils git
 #MISE hide=true
 
 set -o errexit
