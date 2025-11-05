@@ -254,3 +254,12 @@ function _task_runner
     end
 end
 abbr --add --global run --function _task_runner
+
+# nix
+#
+# Lets me start a nix shell with python and the specified python packages.
+# Example: `pynix requests marshmallow`
+function pynix
+    nix shell --impure --expr \
+        "(import <nixpkgs> {}).python3.withPackages (p: [$(string replace --regex -- '(.*)' 'p.$1' $argv | string join ' ')])"
+end

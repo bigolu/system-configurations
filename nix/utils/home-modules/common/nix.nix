@@ -3,6 +3,7 @@
   inputs,
   lib,
   repositoryDirectory,
+  config,
   ...
 }:
 let
@@ -36,8 +37,8 @@ let
   syncNixVersionWithSystem =
     let
       # The path set by sudo on Pop!_OS doesn't include nix
-      nix = getExe pkgs.nix;
-      nix-env = getExe' pkgs.nix "nix-env";
+      nix = getExe pkgs.lix;
+      nix-env = getExe' pkgs.lix "nix-env";
     in
     hm.dag.entryAnywhere ''
       PATH="${
@@ -50,15 +51,15 @@ let
         )
       }:$PATH"
 
-      desired_store_paths=(${pkgs.nix} ${pkgs.cacert})
+      desired_store_paths=(${pkgs.lix} ${pkgs.cacert})
       store_path_diff="$(
         comm -3 \
         <(sudo --set-home ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
         <(printf '%s\n' "''${desired_store_paths[@]}" | sort)
       )"
       if [[ -n "$store_path_diff" ]]; then
-        sudo --set-home ${nix} profile remove --all
-        sudo --set-home ${nix} profile add "''${desired_store_paths[@]}"
+        sudo --set-home ${nix} profile remove '.*'
+        sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
         sudo --set-home ${nix-env} --delete-generations old
 
         # Restart the daemon so we can use the daemon from the version of nix we just
@@ -86,6 +87,37 @@ in
   # Don't make a command_not_found handler
   programs.nix-index.enableFishIntegration = false;
 
+  system = {
+    activation = {
+      inherit syncNixVersionWithSystem;
+    };
+
+    file = {
+      "${
+        if isLinux then "/usr/share/fish/vendor_conf.d" else "/usr/local/share/fish/vendor_conf.d"
+      }/zz-nix-fix.fish".source =
+        "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
+    }
+    // optionalAttrs isLinux {
+      "/etc/profile.d/bigolu-nix-locale-variable.sh".source =
+        "${repositoryDirectory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
+    };
+  };
+
+  nix = {
+    gc = {
+      automatic = true;
+      options = "--delete-old";
+      dates = "monthly";
+    };
+
+    registry = {
+      # Use the nixpkgs pinned by this project. By default, it pulls the latest
+      # version of nixpkgs-unstable.
+      nixpkgs.flake = inputs.nixpkgs;
+    };
+  };
+
   home = {
     packages =
       with pkgs;
@@ -112,110 +144,38 @@ in
     };
   };
 
-  system = {
-    activation = {
-      inherit syncNixVersionWithSystem;
-    };
-
-    file = {
-      "${
-        if isLinux then "/usr/share/fish/vendor_conf.d" else "/usr/local/share/fish/vendor_conf.d"
-      }/zz-nix-fix.fish".source =
-        "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
-    }
-    // optionalAttrs isLinux {
-      "/etc/profile.d/bigolu-nix-locale-variable.sh".source =
-        "${repositoryDirectory}/dotfiles/nix/bigolu-nix-locale-variable.sh";
-    };
-  };
-
-  repository = {
-    xdg = {
-      executable."nix" = {
-        source = "nix/bin";
-        recursive = true;
-      };
-
-      configFile."nix/repl-startup.nix".source = "nix/repl-startup.nix";
-    };
-  };
-
-  nix = {
-    gc = {
-      automatic = true;
-      options = "--delete-old";
-      dates = "monthly";
-    };
-
-    registry = {
-      # Use the nixpkgs pinned by this project. By default, it pulls the latest
-      # version of nixpkgs-unstable.
-      nixpkgs.flake = inputs.nixpkgs;
-    };
-
-    settings = {
-      experimental-features = [
-        "nix-command"
-        "flakes"
-      ];
-
-      # Don't warn me that the git repository is dirty
-      warn-dirty = false;
-
-      # Not sure if anything in nix still reads this, but I'll set it just in case.
-      nix-path = [ "nixpkgs=flake:nixpkgs" ];
-
-      # Disable the global flake registry until they stop fetching it
-      # unnecessarily: https://github.com/NixOS/nix/issues/9087
-      flake-registry = null;
-
-      substituters = [
-        "https://cache.nixos.org"
-        "https://nix-community.cachix.org"
-      ];
-
-      trusted-public-keys = [
-        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      ];
-
-      # Reasons why this should be enabled:
-      # https://github.com/NixOS/nix/issues/4442
-      always-allow-substitutes = true;
-
-      # I don't think this works on macOS:
-      # https://github.com/NixOS/nix/issues/7273
-      auto-optimise-store = !isDarwin;
-
-      build-users-group = "nixbld";
-
-      cores = 0;
-
-      # Increase the buffer limit to 5GiB since the buffer would often reach the
-      # default limit of 64MiB.
-      download-buffer-size = 5368709120;
-
-      max-jobs = "auto";
-
-      extra-sandbox-paths = [ ];
-
-      require-sigs = true;
-
-      # I don't think this works on macOS:
-      # https://github.com/NixOS/nix/issues/6049#issue-1125028427
-      sandbox = !isDarwin;
-
-      sandbox-fallback = false;
-
-      # Don't cache tarballs. This way if I do something like
-      # `nix run github:<repo>`, I will always get the up-to-date source
-      tarball-ttl = 0;
-
-      keep-outputs = true;
-
-      show-trace = true;
-
-      keep-going = true;
-    };
-  };
+  xdg.configFile."nix/nix.conf".text = ''
+    # Reasons why this should be enabled:
+    # https://github.com/NixOS/nix/issues/4442
+    always-allow-substitutes = true
+    # I don't think this works on macOS:
+    # https://github.com/NixOS/nix/issues/7273
+    auto-optimise-store = ${if isDarwin then "false" else "true"}
+    build-users-group = nixbld
+    cores = 0
+    experimental-features = nix-command flakes
+    extra-sandbox-paths =
+    # Disable the global flake registry until they stop fetching it
+    # unnecessarily: https://github.com/NixOS/nix/issues/9087
+    flake-registry =
+    keep-going = true
+    keep-outputs = true
+    max-jobs = auto
+    # Not sure if anything in nix still reads this, but I'll set it just in case.
+    nix-path = nixpkgs=flake:nixpkgs
+    repl-overlays = ${toString config.repository.fileSettings.relativePathRoot}/nix/repl-overlay.nix
+    require-sigs = true
+    # I don't think this works on macOS:
+    # https://github.com/NixOS/nix/issues/6049#issue-1125028427
+    sandbox = ${if isDarwin then "false" else "true"}
+    sandbox-fallback = false
+    show-trace = true
+    substituters = https://cache.nixos.org https://nix-community.cachix.org
+    # Don't cache tarballs. This way if I do something like
+    # `nix run github:<repo>`, I will always get the up-to-date source
+    tarball-ttl = 0
+    trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+    # Don't warn me that the git repository is dirty
+    warn-dirty = false
+  '';
 }

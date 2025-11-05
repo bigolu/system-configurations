@@ -4,12 +4,12 @@
 # access them more easily and override packages.
 
 let
-  inherit ((import ../.. { }).context)
+  inherit (import ../.. { }) context;
+  inherit (context)
     inputs
     outputs
     pkgs
     lib
-    nixpkgs
     utils
     pins
     system
@@ -24,6 +24,19 @@ let
     foldl'
     escapeShellArgs
     ;
+
+  lixOverlay =
+    final: prev:
+    let
+      inherit (final.lixPackageSets.stable) lix;
+      useLix = name: prev.${name}.override { nix = lix; };
+    in
+    {
+      inherit lix;
+      comma = useLix "comma";
+    };
+  nixpkgs = context.nixpkgs.extend lixOverlay;
+
   inherit (nixpkgs.stdenv) isLinux;
 
   recursiveUpdateList = foldl' recursiveUpdate { };
@@ -418,7 +431,7 @@ recursiveUpdateList [
 
         ${
           getExe (
-            inputs.nixpkgs.outputs.cached-nix-shell.overrideAttrs (old: {
+            nixpkgs.cached-nix-shell.overrideAttrs (old: {
               patches = (old.patches or [ ]) ++ [ ./fix-trace.patch ];
             })
           )

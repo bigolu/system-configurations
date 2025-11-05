@@ -425,12 +425,6 @@ check:
                 --logpath "$(mktemp --directory)/lua-ls-logs" \
                 --check ./dotfiles/neovim \
                 --configpath "$PWD/.luarc.json"
-          - name: nix-config
-            glob:
-              - "*.nix"
-              - flake.nix
-              - flake.lock
-            run: nix config check
           - name: staticcheck
             glob: "*.go"
             # I'm not using the `root` setting to change directory because it also

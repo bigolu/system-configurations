@@ -43,6 +43,8 @@ in
   ids.gids.nixbld = 350;
 
   nix = {
+    package = pkgs.lix;
+
     gc = {
       automatic = true;
       options = "--delete-old";
