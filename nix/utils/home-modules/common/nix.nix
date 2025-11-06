@@ -36,9 +36,9 @@ let
 
   syncNixVersionWithSystem =
     let
-      # The path set by sudo on Pop!_OS doesn't include nix
-      nix = getExe pkgs.lix;
-      nix-env = getExe' pkgs.lix "nix-env";
+      nixPackage = pkgs.lix;
+      nix = getExe nixPackage;
+      nix-env = getExe' nixPackage "nix-env";
     in
     hm.dag.entryAnywhere ''
       PATH="${
@@ -51,7 +51,7 @@ let
         )
       }:$PATH"
 
-      desired_store_paths=(${pkgs.lix} ${pkgs.cacert})
+      desired_store_paths=(${nixPackage} ${pkgs.cacert})
       store_path_diff="$(
         comm -3 \
         <(sudo --set-home ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
