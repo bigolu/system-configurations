@@ -45,6 +45,12 @@ makeShells
 
       devshell = {
         packages = with pkgs; [ npins ];
+        startup.repl-overlay.text = ''
+          export NIX_CONFIG="
+            ''${NIX_CONFIG:-}
+            extra-repl-overlays = $PWD/nix/repl-overlay.nix
+          "
+        '';
       };
     };
 
