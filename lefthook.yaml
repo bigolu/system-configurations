@@ -448,4 +448,4 @@ check:
               - nix/*
               - dotfiles/*
               - gozip/*
-            run: bash -ceuo pipefail 'nix build --no-link --file . currentPlatformChecks 2>&1 | nom'
+            run: nom build --no-link --file . currentPlatformChecks

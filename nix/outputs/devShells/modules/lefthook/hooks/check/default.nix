@@ -28,6 +28,7 @@
     # I also use this for `isutf8` and `parallel`. `parallel` is used to run any
     # check that doesn't support multiple file arguments.
     moreutils
+    nix-output-monitor
     nixfmt-rfc-style
     nixpkgs-lint-community
     nodePackages.prettier
@@ -40,8 +41,5 @@
     stylua
     taplo
     typos
-    nix-output-monitor
-    bash
-    jq
   ];
 }
