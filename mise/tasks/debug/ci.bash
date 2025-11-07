@@ -35,10 +35,13 @@ trap remove_temp_directories EXIT
 # cache so we don't have to re-fetch tarballs like `flake-compat`.
 #
 # [1]: https://github.com/NixOS/nix/issues/3533
+env="$(type -P env)"
 nix shell \
   --ignore-environment \
-  --set-env-var HOME "$temp_home" \
-  --set-env-var PRJ_DATA_DIR "$temp_prj_data_dir" \
-  --set-env-var XDG_CACHE_HOME "${XDG_CACHE_HOME:-$HOME/.cache}" \
   --file nix/packages nix git \
-  --command nix run --file . "devShells.${usage_nix_dev_shell:?}"
+  --command \
+  "$env" \
+  HOME="$temp_home" \
+  PRJ_DATA_DIR="$temp_prj_data_dir" \
+  XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}" \
+  nix run --file . "devShells.${usage_nix_dev_shell:?}"
