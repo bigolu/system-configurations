@@ -159,15 +159,24 @@ check:
     set -eu
 
     if [ "${LEFTHOOK_INCLUDE_COMMIT_MESSAGE:-}" = 'true' ]; then
+      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
+      if [ ! -e "$directory" ]; then
+        mkdir -p "$directory"
+      fi
+
+      # Limit the number of files made
+      file_count="$(ls -1 "$directory" | wc -l)"
+      if [ "$file_count" -gt 100 ]; then
+        rm "$directory/"*
+      fi
+
       message="$(git log --format=%B --max-count 1 HEAD)"
+
       cksum_output="$(echo "$message" | cksum)"
       checksum="${cksum_output%% *}"
-      directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
+
       file="$directory/$checksum.gitcommit"
       if [ ! -e "$file" ]; then
-        if [ ! -e "$directory" ]; then
-          mkdir -p "$directory"
-        fi
         echo "$message" >"$file"
         # Make it read-only since we cache it
         chmod -w "$file"
