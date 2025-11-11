@@ -1,25 +1,33 @@
 # Remove large or unnecessary packages from the portable shell
 { pkgs, lib, ... }:
 let
-  inherit (lib) pipe nameValuePair listToAttrs;
+  inherit (lib) genAttrs optionals const;
+  inherit (pkgs) runCommand;
+  inherit (pkgs.stdenv) isDarwin;
 
-  makeEmptyPackage = packageName: pkgs.writeScriptBin packageName "";
+  emptyPackage =
+    # `lib.getExe` will be called with these packages so `meta.mainProgram` must be
+    # set.
+    runCommand "empty-package" { meta.mainProgram = "program"; } ''
+      # `pkgs.buildEnv` will be called with these packages and the path "/bin" so
+      # "bin" needs to exist.
+      mkdir --parents $out/bin
+    '';
 
-  makeEmptyPackageSet =
-    packageNames:
-    pipe packageNames [
-      (map (packageName: nameValuePair packageName (makeEmptyPackage packageName)))
-      listToAttrs
-    ];
+  makeEmptyPackageSet = packageNames: genAttrs packageNames (const emptyPackage);
 in
-makeEmptyPackageSet [
-  "comma"
-  "timg"
-  "ripgrep-all"
-  "lesspipe"
-  "diffoscopeMinimal"
-  "difftastic"
-  "nix"
-  # This is large on macOS where perl is ~1 GB because of the Apple SDK
-  "moreutils"
-]
+makeEmptyPackageSet (
+  [
+    "comma"
+    "diffoscopeMinimal"
+    "difftastic"
+    "lesspipe"
+    "nix"
+    "ripgrep-all"
+    "timg"
+  ]
+  ++ optionals isDarwin [
+    # This is over 1GB
+    "moreutils"
+  ]
+)
