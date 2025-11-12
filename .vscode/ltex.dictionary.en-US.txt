@@ -78,3 +78,4 @@ Kasa
 mainloop
 Direnv
 Podman
+Lix

@@ -19,17 +19,14 @@ people who want to manage their systems similarly.
 
 1. In the last command below, replace `<comp_1|comp_2>` with only the name of
    the config to apply. Then run the commands which will install Nix, clone the
-   repo, and apply the config. Instead of using the `curl` command below, you
-   can also download this Nix installer from [their
-   site][determinate-systems-installer-install].
+   repo, and apply the config.
 
-   > NOTE: The installer may have changed since this was written so make sure
-   > the installation command below is still valid.
+   > NOTE: The [Lix installer][lix-installer] may have changed since this was
+   > written so make sure the installation command below is still valid.
 
    ```bash
-   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | \
-     sh -s -- install \
-     --nix-package-url "https://releases.nixos.org/nix/nix-2.31.2/nix-2.31.2-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
+   curl -sSf -L https://install.lix.systems/lix | sh -s -- install \
+     --nix-package-url "https://releases.lix.systems/lix/lix-2.93.3/lix-2.93.3-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
      --extra-conf "extra-trusted-users = $(whoami)" \
      --no-confirm
 
@@ -77,8 +74,7 @@ is helpful when you only need to use the configuration temporarily and not apply
 it, like when you're on a remote host or in a container. You can download it
 from the [releases page][releases].
 
-[determinate-systems-installer-install]:
-  https://github.com/DeterminateSystems/nix-installer?tab=readme-ov-file#install-nix
+[lix-installer]: https://lix.systems/install/
 [home-manager]: https://github.com/nix-community/home-manager
 [nix-darwin]: https://github.com/nix-darwin/nix-darwin
 [releases]: https://github.com/bigolu/system-configurations/releases/latest

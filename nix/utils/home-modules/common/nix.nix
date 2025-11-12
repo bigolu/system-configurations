@@ -11,7 +11,7 @@ let
     writeShellApplication
     stdenv
     ;
-  inherit (stdenv) isLinux isDarwin;
+  inherit (stdenv) isLinux;
   inherit (lib)
     hm
     getExe
@@ -148,9 +148,6 @@ in
     # Reasons why this should be enabled:
     # https://github.com/NixOS/nix/issues/4442
     always-allow-substitutes = true
-    # I don't think this works on macOS:
-    # https://github.com/NixOS/nix/issues/7273
-    auto-optimise-store = ${if isDarwin then "false" else "true"}
     build-users-group = nixbld
     cores = 0
     experimental-features = nix-command flakes
@@ -165,10 +162,6 @@ in
     nix-path = nixpkgs=flake:nixpkgs
     repl-overlays = ${toString config.repository.fileSettings.relativePathRoot}/nix/repl-overlay.nix
     require-sigs = true
-    # I don't think this works on macOS:
-    # https://github.com/NixOS/nix/issues/6049#issue-1125028427
-    sandbox = ${if isDarwin then "false" else "true"}
-    sandbox-fallback = false
     show-trace = true
     substituters = https://cache.nixos.org https://nix-community.cachix.org
     # Don't cache tarballs. This way if I do something like

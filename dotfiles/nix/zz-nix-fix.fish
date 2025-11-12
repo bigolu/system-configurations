@@ -7,13 +7,12 @@
 # change though:
 # https://github.com/fish-shell/fish-shell/issues/5394#issuecomment-593139513
 
-# I don't want to use this variable. Only thing I know that sets this is the Determinate Systems Nix
-# installer
+# I don't want to use this variable, but the nix fish config sets it.
 set fish_user_paths
 
 # use a function to scope variables
 function __fish_path_fix
-    # TODO: The Determinate Systems Nix installer adds nix to the $PATH even if the shell wasn't
+    # TODO: The nix fish config adds nix to the $PATH even if the shell wasn't
     # launched in login mode. Specifically:
     #   - Its fish config is not guarded by a login-mode check
     #   - Its zsh config is in /etc/zshrc which gets run whenever zsh is interactive, regardless
@@ -38,7 +37,7 @@ function __fish_path_fix
         set PATH $new_path
     end
 
-    # TODO: For fish, the Determinate Systems Nix installer moves entries to the front of the $PATH
+    # TODO: The nix fish config moves entries to the front of the $PATH
     # if they already existed unlike bash where it adds them again to the front, resulting in
     # duplicate entries. The latter case is handled by the code above, but for the former case the
     # following code will detect $PATH entries that were moved closer to the front of $PATH and put
