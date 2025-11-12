@@ -3,7 +3,6 @@
   inputs,
   lib,
   repositoryDirectory,
-  config,
   ...
 }:
 let
@@ -87,6 +86,11 @@ in
   # Don't make a command_not_found handler
   programs.nix-index.enableFishIntegration = false;
 
+  repository.xdg.configFile = {
+    "nix/repl-overlay.nix".source = "nix/repl-overlay.nix";
+    "nix/nix.conf".source = "nix/nix.conf";
+  };
+
   system = {
     activation = {
       inherit syncNixVersionWithSystem;
@@ -143,32 +147,4 @@ in
       '';
     };
   };
-
-  xdg.configFile."nix/nix.conf".text = ''
-    # Reasons why this should be enabled:
-    # https://github.com/NixOS/nix/issues/4442
-    always-allow-substitutes = true
-    build-users-group = nixbld
-    cores = 0
-    experimental-features = nix-command flakes
-    extra-sandbox-paths =
-    # Disable the global flake registry until they stop fetching it
-    # unnecessarily: https://github.com/NixOS/nix/issues/9087
-    flake-registry =
-    keep-going = true
-    keep-outputs = true
-    max-jobs = auto
-    # Not sure if anything in nix still reads this, but I'll set it just in case.
-    nix-path = nixpkgs=flake:nixpkgs
-    repl-overlays = ${toString config.repository.fileSettings.relativePathRoot}/nix/repl-overlay.nix
-    require-sigs = true
-    show-trace = true
-    substituters = https://cache.nixos.org https://nix-community.cachix.org
-    # Don't cache tarballs. This way if I do something like
-    # `nix run github:<repo>`, I will always get the up-to-date source
-    tarball-ttl = 0
-    trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-    # Don't warn me that the git repository is dirty
-    warn-dirty = false
-  '';
 }
