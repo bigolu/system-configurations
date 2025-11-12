@@ -1,2 +1,1 @@
-_info: _final: _prev:
-import (builtins.getEnv "PRJ_ROOT") { }
+_info: _final: _prev: { outputs = import (builtins.getEnv "PRJ_ROOT") { }; }
