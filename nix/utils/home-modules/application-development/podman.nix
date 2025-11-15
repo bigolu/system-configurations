@@ -15,8 +15,11 @@ let
 in
 {
   repository.xdg.configFile = {
-    "containers/policy.json".source = "containers/policy.json";
-    "containers/registries.conf".source = "containers/registries.conf";
+    "containers" = {
+      source = "containers";
+      # I'm linking recursively because podman makes files in this directory
+      recursive = true;
+    };
   };
 
   home.packages =
