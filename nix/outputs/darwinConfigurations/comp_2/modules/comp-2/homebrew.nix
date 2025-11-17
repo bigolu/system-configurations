@@ -30,7 +30,10 @@
     # below I'm copying the programs it needs into a directory that is on its $PATH.
     #
     # The stackline plugin needs yabai.
-    test -e /usr/local/bin/yabai && rm /usr/local/bin/yabai
-    cp ${config.services.yabai.package}/bin/yabai /usr/local/bin/
+    source=${config.services.yabai.package}/bin/yabai
+    destination=/usr/local/bin/yabai
+    if ! [[ $destination -ef $source ]]; then
+      cp --force "$source" "$destination"
+    fi
   '';
 }
