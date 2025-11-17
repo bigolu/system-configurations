@@ -8,11 +8,6 @@
       extraFlags = [ "--quiet" ];
     };
 
-    brews = [
-      "podman"
-      "podman-compose"
-    ];
-
     casks = [
       "hammerspoon"
       "visual-studio-code"
