@@ -27,7 +27,8 @@
       matchManagers: ["nix"],
       postUpgradeTasks: {
         commands: [
-          "nix run --file . devShells.ci-essentials -- mise run lefthook:add-lix-version-to-readme ::: lefthook:add-nixpkgs-commit-to-readme ::: lefthook:add-go-version-to-go-mod",
+          // Disable `raw` so tasks can run in parallel
+          "MISE_RAW=false nix run --file . devShells.ci-essentials -- mise run lefthook:add-lix-version-to-readme ::: lefthook:add-nixpkgs-commit-to-readme ::: lefthook:add-go-version-to-go-mod",
         ],
       },
     },
