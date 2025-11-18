@@ -5,12 +5,11 @@
     "libraryFiles": "Disable"
   },
   "workspace": {
-    "library": [".data/lua-libraries", "../../.data/lua-libraries"],
+    "library": ["$LUA_LIBRARY_NIX", "$LUA_LIBRARY_HAMMERSPOON"],
     "checkThirdParty": "Disable"
   },
   "runtime": {
-    "version": "LuaJIT",
-    "path": ["?.lua"]
+    "version": "LuaJIT"
   },
   "telemetry": {
     "enable": false
