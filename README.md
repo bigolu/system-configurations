@@ -25,8 +25,8 @@ people who want to manage their systems similarly.
    > written so make sure the installation command below is still valid.
 
    ```bash
-   curl -sSf -L https://install.lix.systems/lix |
-     sh -s -- install \
+     sh -c "$(curl -sSf -L https://install.lix.systems/lix)" -- \
+       install \
        --nix-package-url "https://releases.lix.systems/lix/lix-2.93.3/lix-2.93.3-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
        --extra-conf "extra-trusted-users = $(whoami)" \
        --no-confirm &&
