@@ -106,10 +106,21 @@
             systems ++ [ builtins.currentSystem ]
         );
     in
-    eachSystem (system: {
-      bundlers = rec {
-        inherit ((import ./. { inherit system; }).bundlers) rootless;
-        default = rootless;
-      };
-    });
+    eachSystem (
+      system:
+      let
+        outputs = import ./. { inherit system; };
+      in
+      {
+        bundlers = rec {
+          inherit (outputs.bundlers) rootless;
+          default = rootless;
+        };
+
+        apps.default = {
+          type = "app";
+          program = "${outputs.packages.init-config}/bin/init-config";
+        };
+      }
+    );
 }

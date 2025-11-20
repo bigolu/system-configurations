@@ -145,7 +145,7 @@ sync:
       #   misses and cancel the job instead of waiting for nix to rebuild the
       #   package.
       interactive: true
-      run: "{run_in_dev_shell} mise run system:sync"
+      run: "{run_in_dev_shell} mise run system-sync"
     - name: fish
       glob:
         - lefthook.yaml
@@ -246,10 +246,6 @@ check:
             exclude:
               - npins/*
             run: mise run lefthook:add-config-names-to-readme
-          - name: readme-nixpkgs-commit
-            glob:
-              - flake.lock
-            run: mise run lefthook:add-nixpkgs-commit-to-readme
           - name: gomod2nix
             glob: gozip/go.mod
             run: gomod2nix --dir gozip generate

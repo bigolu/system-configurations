@@ -10,39 +10,27 @@ people who want to manage their systems similarly.
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Applying a Configuration](#applying-a-configuration)
+- [Initializing a Configuration](#initializing-a-configuration)
 - [Running the Portable Configuration](#running-the-portable-configuration)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-## Applying a Configuration
+## Initializing a Configuration
 
 1. In the last command below, replace `<comp_1|comp_2>` with only the name of
-   the config to apply. Then run the commands which will install Nix, clone the
-   repo, and apply the config.
+   the config to apply. Then run the commands which will install Nix and
+   initialize the config.
 
    > NOTE: The [Lix installer][lix-installer] may have changed since this was
    > written so make sure the installation command below is still valid.
 
    ```bash
-   curl -sSf -L https://install.lix.systems/lix | sh -s -- install \
+   curl -sSf -L https://install.lix.systems/lix |
+     sh -s -- install \
      --nix-package-url "https://releases.lix.systems/lix/lix-2.93.3/lix-2.93.3-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
      --extra-conf "extra-trusted-users = $(whoami)" \
-     --no-confirm
-
-   "$SHELL" -lc '"$@"' -- \
-     nix shell \
-     --override-flake nixpkgs github:NixOS/nixpkgs/a7fc11be66bdfb5cdde611ee5ce381c183da8386 \
-     nixpkgs#git nixpkgs#direnv nixpkgs#bash nixpkgs#coreutils \
-     --command bash --noprofile --norc -euc '
-       git clone \
-         https://github.com/bigolu/system-configurations.git \
-         ~/code/system-configurations
-       cd ~/code/system-configurations
-       echo "source direnv-recommended.bash" >.envrc
-       direnv allow
-       direnv exec . mise run system:init <comp_1|comp_2>
-     '
+     --no-confirm &&
+     "$SHELL" -lc '"$@"' -- nix run github:bigolu/system-configurations -- <comp_1|comp_2>
    ```
 
 2. Post-Install steps:

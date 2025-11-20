@@ -1,19 +1,24 @@
-#! Though we don't use shebangs, cached-nix-shell expects the first line to be one so we put this on the first line instead.
-#! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils git
-#MISE description='Initialize the system'
-#MISE hide=true
-#MISE depends_post='sync'
-#USAGE arg "<configuration>" help="The name of the configuration to apply"
-
 set -o errexit
 set -o nounset
 set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+configuration="${1:?}"
+
+if [[ ! -d ~/code/system-configurations ]]; then
+  git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations
+fi
+cd ~/code/system-configurations
+if [[ ! -e .envrc ]]; then
+  echo "source direnv-recommended.bash" >.envrc
+fi
+direnv allow
+direnv_export="$(direnv export bash)"
+eval "$direnv_export"
+
 if [[ $OSTYPE == linux* ]]; then
-  mise run system:sync "${usage_configuration:?}"
+  mise run system-sync "$configuration"
   # shellcheck disable=2016
   echo 'Consider copying COSMIC settings to the system by running `mise run copy-cosmic to-system`'
 else
@@ -37,6 +42,8 @@ else
   # Apply the config with the bootstrap builders.
   for builder in bootstrap1 bootstrap2; do
     echo "$builder" >"$builder_file"
-    mise run system:sync "${usage_configuration:?}"
+    mise run system-sync "$configuration"
   done
 fi
+
+mise run sync

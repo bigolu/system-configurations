@@ -23,6 +23,6 @@ configs="$(
 )"
 
 perl -wsi -pe '
-  $count += s{(replace `|system:init )(<).*?(>)}{$1$2$configs$3};
+  $count += s{(replace `|-- )(<).*?(>)}{$1$2$configs$3};
   END { die "failed to substitute" if $count != 2 }
 ' -- -configs="$configs" README.md
