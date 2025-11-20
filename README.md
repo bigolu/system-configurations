@@ -1,9 +1,7 @@
 # System Configurations
 
-This repository holds the [Home Manager][home-manager] and
-[nix-darwin][nix-darwin] configurations for my machines. I don't expect anyone
-else to use this, but I figured I'd leave the repo public as a resource for
-people who want to manage their systems similarly.
+The [Home Manager][home-manager] and [nix-darwin][nix-darwin] configurations for
+my machines.
 
 ## Table of Contents
 
