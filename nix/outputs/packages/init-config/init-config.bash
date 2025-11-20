@@ -46,4 +46,4 @@ else
   done
 fi
 
-mise run sync
+LEFTHOOK_EXCLUDE='system' mise run sync
