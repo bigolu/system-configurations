@@ -17,9 +17,9 @@ people who want to manage their systems similarly.
 
 ## Initializing a Configuration
 
-1. In the last command below, replace `<comp_1|comp_2>` with only the name of
-   the config to apply. Then run the commands which will install Nix and
-   initialize the config.
+1. In the last command below, replace `REPLACE_ME` with the name of the config
+   to apply. Valid config names are: `comp_1` `comp_2`. Then run the commands
+   which will install Nix and initialize the config.
 
    > NOTE: The [Lix installer][lix-installer] may have changed since this was
    > written so make sure the installation command below is still valid.
@@ -31,7 +31,7 @@ people who want to manage their systems similarly.
        --extra-conf "extra-trusted-users = $(whoami)" \
        --no-confirm &&
      "$SHELL" -lc '"$@"' -- \
-       nix run github:bigolu/system-configurations -- <comp_1|comp_2>
+       nix run github:bigolu/system-configurations -- REPLACE_ME
    ```
 
 2. Post-Install steps:

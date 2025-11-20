@@ -10,19 +10,24 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 configs="$(
+  # shellcheck disable=2016
   nix eval \
     --file . context.outputs \
     --apply '
       outputs:
         with builtins;
         concatStringsSep
-          "|"
-          (attrNames (outputs.homeConfigurations // outputs.darwinConfigurations))
+          " "
+          (
+            map
+            (name: "`${name}`")
+            (attrNames (outputs.homeConfigurations // outputs.darwinConfigurations))
+          )
     ' \
     --raw
 )"
 
 perl -wsi -pe '
-  $count += s{(replace `|-- )(<).*?(>)}{$1$2$configs$3};
-  END { die "failed to substitute" if $count != 2 }
+  $count += s{(Valid config names are: ).*?(\.)}{$1$configs$2};
+  END { die "failed to substitute" if $count != 1 }
 ' -- -configs="$configs" README.md
