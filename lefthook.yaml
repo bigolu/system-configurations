@@ -234,9 +234,6 @@ check:
           - name: flake-lock
             glob: flake.nix
             run: nix flake lock
-          - name: readme-table-of-contents
-            glob: README.md
-            run: doctoc README.md --github
           - name: readme-lix-version
             glob:
               - flake.lock

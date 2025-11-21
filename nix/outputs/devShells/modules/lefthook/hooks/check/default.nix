@@ -14,7 +14,6 @@
     config-file-validator
     coreutils
     deadnix
-    doctoc
     editorconfig-checker
     fish
     go-tools

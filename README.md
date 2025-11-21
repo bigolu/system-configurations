@@ -3,16 +3,6 @@
 The [Home Manager][home-manager] and [nix-darwin][nix-darwin] configurations for
 my machines.
 
-## Table of Contents
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-- [Initializing a Configuration](#initializing-a-configuration)
-- [Running the Portable Configuration](#running-the-portable-configuration)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 ## Initializing a Configuration
 
 1. In the last command below, replace `REPLACE_ME` with the name of the config
