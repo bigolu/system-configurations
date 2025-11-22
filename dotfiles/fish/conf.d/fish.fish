@@ -42,39 +42,9 @@ set --global fish_color_cancel $fish_color_autosuggestion
 set --global fish_color_valid_path
 
 abbr --add --global r fish-reload
-bind ctrl-b beginning-of-line
-bind ctrl-k __fish_man_page
-functions --erase fish_command_not_found
 
 # Don't print a greeting when a new interactive fish shell is started
 set --global fish_greeting ''
-
-# navigate history
-bind ctrl-\[ up-or-search
-bind ctrl-\] down-or-search
-
-# Set the binding on fish_prompt since something else was overriding it during
-# shell startup.
-function __set_tab_bind --on-event fish_prompt
-    # I only want this to run once so delete the function.
-    functions -e (status current-function)
-
-    bind tab '
-        if commandline --search-field >/dev/null
-            commandline -f complete
-        else
-            commandline -f complete-and-search
-        end
-    '
-
-    bind shift-tab '
-        if commandline --search-field >/dev/null
-            commandline -f complete-and-search
-        else
-            commandline -f complete
-        end
-    '
-end
 
 # use ctrl+z to resume the most recently suspended job
 function _resume_job
@@ -126,6 +96,8 @@ function _resume_job
     commandline -f repaint
 end
 bind ctrl-z _resume_job
+
+bind ctrl-b beginning-of-line
 
 # Set the binding on fish_prompt since something else was overriding it.
 function __set_reload_keybind --on-event fish_prompt
@@ -183,6 +155,137 @@ function variable-widget --description 'Search shell/environment variables'
     echo $to_insert
 end
 abbr --add --global vw variable-widget
+
+# Use tab to select an autocomplete entry with fzf
+#
+# TODO: When the builtin fuzzy pager supports selecting multiple items I can
+# probably switch back to it:
+# https://github.com/fish-shell/fish-shell/issues/1898
+function _insert_entries_into_commandline
+    # Remove the tab and description, leaving only the completion items.
+    set entries $(string split -f1 -- \t $argv)
+    set entry (string join -- ' ' $entries)
+
+    set space ' '
+
+    # None of this applies if there are multiple entries
+    if test (count $entries) -eq 1
+        # Don't add a space if the entry is an abbreviation so it can expand.
+        #
+        # TODO: This assumes that an abbreviation can only be expanded if
+        # it's the first token in the commandline. However, with the flag
+        # '--position anywhere', abbreviations can be expanded anywhere in the
+        # commandline so I should check for that flag.
+        #
+        # We determine if the entry will be the first token by checking for
+        # an empty commandline. We trim spaces because spaces don't count as
+        # tokens. We also check for a commandline with a single token where the
+        # character before the cursor isn't a space e.g. `prefix|`.
+        set commandline "$(commandline)"
+        set trimmed_commandline (string trim "$commandline")
+        if test -z "$trimmed_commandline"
+            set is_first 1
+        else
+            set token_count (count (string split --no-empty -- ' ' "$commandline"))
+            set last_char (string sub --start -1 -- "$commandline")
+            if test "$token_count" -eq 1
+                and test "$last_char" != ' '
+                set is_first 1
+            end
+        end
+        if abbr --query -- "$entry"
+            and test -n "$is_first"
+            set space ''
+        end
+
+        # Don't add a space if the item is a directory and ends in a slash.
+        #
+        # Use eval so expansions are done e.g. environment variables,
+        # tildes. For scenarios like (bar is cursor) `echo "$HOME/|"` where the
+        # autocomplete entry will include the left quote, but not the right
+        # quote. I remove the left quote so `test -d` works.
+        if test "$(string sub --length 1 --start 1 -- "$entry")" = '"'
+            and test "$(string sub --start -1 -- "$entry")" != '"'
+            set balanced_quote_entry (string sub --start 2 -- "$entry")
+        else
+            set balanced_quote_entry "$entry"
+        end
+        if eval test -d "$balanced_quote_entry" && test "$(string sub --start -1 -- "$entry")" = /
+            set space ''
+        end
+    end
+
+    # retain the part of the token after the cursor. use case: autocompleting
+    # inside quotes (bar is cursor) `echo "$HOME/|"`
+    set token_after_cursor "$(string sub --start (math (string length -- "$(commandline --current-token --cut-at-cursor)") + 1) -- "$(commandline --current-token)")"
+    set replacement "$entry$space$token_after_cursor"
+
+    # if it ends in `""` or `" "` (when we add a space), remove one quote. use
+    # case: autocompleting a file inside quotes (bar is cursor) `echo "/|"`
+    set replacement (string replace --regex -- '"'$space'"$' $space'"' "$replacement")
+    or set replacement (string replace --regex -- "'$space'\$" $space"'" "$replacement")
+
+    commandline --replace --current-token -- "$replacement"
+end
+function _fzf_complete
+    set candidates (complete --escape --do-complete -- "$(commandline --cut-at-cursor)")
+    set candidate_count (count $candidates)
+    # I only want to repaint if fzf is shown, but if I use `fzf --select-1` fzf
+    # won't be shown when there's one candidate and there is no way to tell
+    # if that's how fzf exited so instead I'll check the amount of candidates
+    # beforehand an only use fzf is there's more than 1. Same situation with
+    # --exit-0.
+    if test $candidate_count -eq 1
+        _insert_entries_into_commandline $candidates
+    else if test $candidate_count -gt 1
+        set current_token (commandline --current-token --cut-at-cursor)
+
+        set current_token_flags
+        if test -n "$current_token"
+            # I set the current token as the delimiter so I can exclude from what
+            # gets searched. Since the current token is in the beginning of the
+            # string, it will be the first field index so I'll start searching from
+            # 2.
+            set --append current_token_flags \
+                --delimiter '^'(string escape --style regex -- $current_token) \
+                --nth '2..'
+        end
+
+        if set entries ( \
+            printf %s\n $candidates \
+            # Use a different color for the completion item description
+            | string replace --ignore-case --regex -- \
+                '(?<prefix>^'(string escape --style regex -- "$current_token")')(?<item>[^\t]*)((?<whitespace>\t)(?<description>.*))?' \
+                (set_color cyan)'$prefix'(set_color normal)'$item'(set_color brblack)'$whitespace$description' \
+            | fzf \
+                --height (math "max(6,min(10,$(math "floor($(math .35 \* $LINES))")))") \
+                --preview-window '2,border-left,right,60%' \
+                --no-header \
+                --bind 'backward-eof:abort,start:toggle-preview' \
+                --no-hscroll \
+                --tiebreak=begin,chunk \
+                --border rounded \
+                --margin 0,2,0,2 \
+                --prompt $current_token \
+                --no-separator \
+                $current_token_flags \
+        )
+            _insert_entries_into_commandline $entries
+        end
+    end
+
+    # this should be done whenever a binding produces output (see: man bind)
+    commandline -f repaint
+end
+# Set the binding on fish_prompt since something else was overriding it during
+# shell startup.
+function __set_fzf_tab_complete --on-event fish_prompt
+    # I only want this to run once so delete the function.
+    functions -e (status current-function)
+    bind tab _fzf_complete
+end
+# Keep normal tab complete on shift+tab to expand wildcards.
+bind shift-tab complete
 
 # Reload all fish instances
 function _reload_fish --on-variable _fish_reload_indicator
@@ -243,11 +346,15 @@ abbr --add bash_style_history_expansion \
     --regex '\!(\!|\^|\$|\-?\d+:?)' \
     --function _bash_style_history_expansion
 
+bind ctrl-k __fish_man_page
+
+# navigate history
+bind ctrl-\[ up-or-search
+bind ctrl-\] down-or-search
+
 # While the builtin edit_command_buffer retains the cursor position when going from
 # the command line to the editor, this one also retains the cursor position when
 # going from the editor back to the command line.
-#
-# TODO: Upstream
 function __edit_commandline
     set buffer "$(commandline)"
     set index (commandline --cursor)
@@ -289,3 +396,5 @@ function __remove_paginate_keybind --on-event fish_prompt
     functions -e (status current-function)
     bind --erase --preset alt-p
 end
+
+functions --erase fish_command_not_found
