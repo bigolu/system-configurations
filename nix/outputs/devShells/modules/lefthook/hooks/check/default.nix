@@ -11,6 +11,7 @@
 
   devshell.packages = with pkgs; [
     actionlint
+    bash
     config-file-validator
     coreutils
     deadnix

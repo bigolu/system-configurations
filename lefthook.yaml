@@ -311,10 +311,20 @@ check:
           - name: shellcheck-fix
             glob: "*.{sh,bash}"
             run: |
-              # We don't want to use Bash's `pipefail` here because shellcheck exits
-              # with 1 if it finds anything to fix.
-              shellcheck --format diff {files} |
-                git apply --allow-empty
+              bash -eu -o pipefail -c '
+                {
+                  set +o errexit
+                  shellcheck --format diff "$@"
+                  exit_code=$?
+                  set -o errexit
+                  # shellcheck exits with 0 if it does not find any issues and 1 if it
+                  # does. Any other exit code should be considered a failure.
+                  if (( exit_code > 1 )); then
+                    exit 1
+                  fi
+                } |
+                  git apply --allow-empty
+              ' -- {files}
 
           # Formatters
           # -------------------------------------------------------------------
