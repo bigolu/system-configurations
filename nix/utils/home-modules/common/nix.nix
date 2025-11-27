@@ -115,11 +115,7 @@ in
       dates = "monthly";
     };
 
-    registry = {
-      # Use the nixpkgs pinned by this project. By default, it pulls the latest
-      # version of nixpkgs-unstable.
-      nixpkgs.flake = inputs.nixpkgs;
-    };
+    registry.nixpkgs.flake = inputs.nixpkgs;
   };
 
   home = {
