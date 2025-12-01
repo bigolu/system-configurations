@@ -46,6 +46,7 @@ exclude = [
   'https://github\.com/\$owner/\$repo/tree/\%s',
   'file://\$\(pwd/',
   'https://releases\.nixos\.org/nix/nix-.*-\$\(uname',
+  'https://releases\.lix\.systems/lix/lix-2\.93\.3/lix-2\.93\.3-\$\(uname',
 
   # It seems I can't send more than one request at a time to gnu.org without being
   # rate-limited. When lychee supports per-site concurrency limits[1], I'll use it.
