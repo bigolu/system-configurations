@@ -4,7 +4,6 @@
   // environment. This way the other extensions will have the environment as well.
   "direnv.restart.automatic": true,
   "editor.defaultFormatter": "llllvvuu.llllvvuu-glspc",
-  "editor.rulers": [85],
   "evenBetterToml.taplo.bundled": false,
   "files.associations": { ".envrc": "shellscript" },
   "fish-lsp.useGlobalExecutable": true,
