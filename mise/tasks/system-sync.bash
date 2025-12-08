@@ -29,7 +29,7 @@ run_as_admin="$(type -P run-as-admin)"
 # The sudo policy on Pop!_OS won't inherit environment variables or let me use
 # `--preserve-env`
 shopt -s lastpipe
-env --null | { readarray -d '' env_vars; }
+env --null | readarray -d '' env_vars
 sudo -- "$run_as_admin" \
   env "${env_vars[@]}" \
   nh "$manager" switch "${flags[@]}" --file . "$attr_path"
