@@ -10,7 +10,7 @@ let
     writeShellApplication
     stdenv
     ;
-  inherit (stdenv) isLinux;
+  inherit (stdenv) isLinux isDarwin;
   inherit (lib)
     hm
     getExe
@@ -18,6 +18,7 @@ let
     optionals
     optionalAttrs
     getExe'
+    optionalString
     ;
 
   # TODO: Won't be needed if the daemon auto-reloads:
@@ -97,9 +98,7 @@ in
     };
 
     file = {
-      "${
-        if isLinux then "/usr/share/fish/vendor_conf.d" else "/usr/local/share/fish/vendor_conf.d"
-      }/zz-nix-fix.fish".source =
+      "/usr${optionalString isDarwin "/local"}/share/fish/vendor_conf.d/zz-nix-fix.fish".source =
         "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
     }
     // optionalAttrs isLinux {
