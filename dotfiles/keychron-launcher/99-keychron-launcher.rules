@@ -1,0 +1,4 @@
+# Keyboard
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3434", ATTRS{idProduct}=="0720", MODE="0660", GROUP="sudo", TAG+="uaccess", TAG+="udev-acl"
+# Mouse
+KERNEL=="hidraw*", SUBSYSTEM=="hidraw", ATTRS{idVendor}=="3434", ATTRS{idProduct}=="d064", MODE="0660", GROUP="sudo", TAG+="uaccess", TAG+="udev-acl"

@@ -25,11 +25,11 @@
     # output even when they exit successfully. I should see if I could change
     # this upstream.
     #
-    # I also use this for `isutf8` and `parallel`. `parallel` is used to run any
-    # check that doesn't support multiple file arguments.
+    # I also use `parallel` to run any check that doesn't support multiple file
+    # arguments.
     moreutils
     nix-output-monitor
-    nixfmt-rfc-style
+    nixfmt
     nixpkgs-lint-community
     nodePackages.prettier
     # for renovate-config-validator

@@ -1,6 +1,6 @@
 (
     output: "DP-1",
-    source: Path("/usr/share/backgrounds/cosmic/orion_nebula_nasa_heic0601a.jpg"),
+    source: Path("/home/biggs/Pictures/pexels-nicole-avagliano-1132392-2312040-rotated-90.jpg"),
     filter_by_theme: false,
     rotation_frequency: 300,
     filter_method: Lanczos,

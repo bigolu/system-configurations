@@ -79,11 +79,7 @@ in
             flake = {
               inherit inputs;
               exclude =
-                (optionals isCiDevShell [
-                  "nixpkgs-npins"
-                  # PERF: It pulls in another nixpkgs
-                  "nix-sweep"
-                ])
+                (optional isCiDevShell "nixpkgs-npins")
                 ++ (
                   if isLinux then
                     [

@@ -242,6 +242,8 @@ function _mnd_build_new_env {
       _new_env_script_contents='
         declare -A _mnd_values_to_restore=(
           ["NIX_BUILD_TOP"]=${NIX_BUILD_TOP:-__UNSET__}
+          ["NIX_ATTRS_JSON_FILE"]=${NIX_ATTRS_JSON_FILE:-__UNSET__}
+          ["NIX_ATTRS_SH_FILE"]=${NIX_ATTRS_SH_FILE:-__UNSET__}
           ["TMP"]=${TMP:-__UNSET__}
           ["TMPDIR"]=${TMPDIR:-__UNSET__}
           ["TEMP"]=${TEMP:-__UNSET__}

@@ -81,7 +81,7 @@ let
 in
 {
   imports = [
-    (import "${inputs.nix-index-database}/home-manager-module.nix" inputs.nix-index-database)
+    (import "${inputs.nix-index-database}/home-manager-module.nix")
   ];
 
   # Don't make a command_not_found handler

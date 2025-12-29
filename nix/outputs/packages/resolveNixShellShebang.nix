@@ -85,7 +85,7 @@ nixpkgs.callPackage (
             #
             # So this match will match everything after the package flag i.e.
             # 'package1 package2'.
-            (lib.match ''^${nixShellDirectivePrefix} (--packages|-p) (.*)'')
+            (lib.match "^${nixShellDirectivePrefix} (--packages|-p) (.*)")
             (matches: if matches != null then lib.elemAt matches 1 else null)
             (packageString: if packageString != null then lib.splitString " " packageString else [ ])
             (map (packageName: pkgs.${packageName}))

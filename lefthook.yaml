@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/evilmartians/lefthook/master/schema.json
 
+glob_matcher: doublestar
+
 # TODO: Lefthook sets its colors based on the background color of the terminal to
 # ensure good contrast[1], but it doesn't seem to be working for me so I'm using ANSI
 # colors instead. I should report this.
@@ -124,19 +126,20 @@ sync:
       interactive: true
       glob:
         - lefthook.yaml
-        - direnv*
+        - direnv-recommended.bash
+        - "direnv/**/*"
         # Everything below affects the nix dev shell, which direnv loads
-        - "*.nix"
+        - "**/*.nix"
         - flake.lock
-        - "{nix,npins,gozip,mise/tasks}/*"
+        - "{nix,npins,gozip,mise/tasks}/**/*"
       run: |
         direnv-reload
         direnv exec . true
     - name: system
       glob:
         - lefthook.yaml
-        - "{nix,npins,smart_plug,dotfiles}/*"
-        - "*.nix"
+        - "{nix,npins,smart_plug,dotfiles}/**/*"
+        - "**/*.nix"
         - flake.lock
       # - So I can input my password for `sudo`
       # - This job can take a while so being able to see the output in real time
@@ -200,9 +203,9 @@ check:
   exclude:
     - gozip/gomod2nix.toml
     - ".vscode/ltex*"
-    - dotfiles/keyboard/US keyboard - no accent keys.bundle/*
-    - dotfiles/cosmic/config/*
-    - docs/*
+    - dotfiles/keyboard/US keyboard - no accent keys.bundle/**/*
+    - dotfiles/cosmic/config/**/*
+    - docs/**/*
   # Enabling `piped` is useful during local development when there are issues found
   # by fast checks, but not slow ones. Without `piped`, you would run all the checks
   # only to find an issue with a fast check and then have to run all the checks again
@@ -217,7 +220,7 @@ check:
   piped: true
   jobs:
     - name: 1-commit-checks
-      glob: "*.gitcommit"
+      glob: "**/*.gitcommit"
       group:
         jobs:
           - name: typos
@@ -235,19 +238,18 @@ check:
             glob: flake.nix
             run: nix flake lock
           - name: readme-lix-version
-            glob:
-              - flake.lock
+            glob: flake.lock
             run: mise run lefthook:add-lix-version-to-readme
           - name: readme-config-names
-            glob: "*.nix"
+            glob: "**/*.nix"
             exclude:
-              - npins/*
+              - npins/**/*
             run: mise run lefthook:add-config-names-to-readme
           - name: gomod2nix
             glob: gozip/go.mod
             run: gomod2nix --dir gozip generate
           - name: task-docs
-            glob: mise/*
+            glob: mise/**/*
             # TODO: markdown2html-converter hasn't been updated in a couple years.
             # I'd like to switch to markdown-to-html-cli[1], but it isn't in nixpkgs.
             # Maybe I can add it or make a request.
@@ -274,17 +276,17 @@ check:
               # since it would always make a change.
               prettier --list-different --write "$html"
           - name: deadnix
-            glob: "*.nix"
+            glob: "**/*.nix"
             exclude:
-              - npins/*
+              - npins/**/*
             run: deadnix --quiet --edit {files}
           - name: ruff-fix
-            glob: "*.py"
+            glob: "**/*.py"
             run: ruff check --fix-only {files}
           - name: statix-fix
-            glob: "*.nix"
+            glob: "**/*.nix"
             exclude:
-              - npins/*
+              - npins/**/*
               # I want to ignore a fix in this file, but statix doesn't support
               # ignoring fixes with comments[1] so I'll skip the whole file.
               #
@@ -294,22 +296,21 @@ check:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix fix -- {files}
           - name: markdownlint-cli2
-            glob: "*.md"
+            glob: "**/*.md"
             run: markdownlint-cli2 --fix {files}
           - name: go-mod-tidy
             glob: gozip/go.{mod,sum}
             run: go -C gozip mod tidy
           - name: go-version
-            glob:
-              - flake.lock
+            glob: flake.lock
             run: mise run lefthook:add-go-version-to-go-mod
           - name: npins
             glob:
               - flake.lock
-              - npins/*
+              - npins/**/*
             run: npins upgrade
           - name: shellcheck-fix
-            glob: "*.{sh,bash}"
+            glob: "**/*.{sh,bash}"
             run: |
               bash -eu -o pipefail -c '
                 {
@@ -332,12 +333,12 @@ check:
           # code that doesn't comply with the formatting.
 
           - name: taplo
-            glob: "*.toml"
+            glob: "**/*.toml"
             run: taplo format {files}
           - name: prettier
-            glob: "*.{md,json,json5,jsonc,yaml}"
+            glob: "**/*.{md,json,json5,jsonc,yaml}"
             exclude:
-              - npins/*
+              - npins/**/*
             run: |
               prettier \
                 --cache \
@@ -347,47 +348,47 @@ check:
                 --write \
                 {files}
           - name: shfmt
-            glob: "*.{sh,bash}"
+            glob: "**/*.{sh,bash}"
             run: shfmt --write {files}
           - name: fish_indent
-            glob: "*.fish"
+            glob: "**/*.fish"
             run: fish_indent --write {files}
           - name: nixfmt
-            glob: "*.nix"
+            glob: "**/*.nix"
             exclude:
-              - npins/*
+              - npins/**/*
             run: nixfmt --verify {files}
           - name: stylua
-            glob: "*.lua"
+            glob: "**/*.lua"
             run: stylua --verify {files}
           - name: gofmt
-            glob: "*.go"
+            glob: "**/*.go"
             run: gofmt -w {files}
           - name: ruff-format
-            glob: "*.py"
+            glob: "**/*.py"
             run: ruff format {files}
     - name: 3-linters
       group:
         parallel: true
         jobs:
           - name: ruff-lint
-            glob: "*.py"
+            glob: "**/*.py"
             run: ruff check {files}
           - name: fish
-            glob: "*.fish"
+            glob: "**/*.fish"
             # TODO: Fish doesn't support passing multiple files, I should open an
             # issue.
             run: parallel fish --no-execute -- {files}
           - name: shellcheck-lint
-            glob: "*.{sh,bash}"
+            glob: "**/*.{sh,bash}"
             run: shellcheck {files}
           - name: actionlint
             glob: ".github/workflows/*.yaml"
             run: actionlint {files}
           - name: statix-lint
-            glob: "*.nix"
+            glob: "**/*.nix"
             exclude:
-              - npins/*
+              - npins/**/*
               # I want to ignore a fix in this file, but statix doesn't support
               # ignoring fixes with comments[1] so I'll skip the whole file.
               #
@@ -397,39 +398,35 @@ check:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix check -- {files}
           - name: nixpkgs-lint
-            glob: "*.nix"
+            glob: "**/*.nix"
             exclude:
-              - npins/*
+              - npins/**/*
             run: nixpkgs-lint --include-unfinished-lints -- {files}
           - name: typos
             exclude:
-              - "*.gitcommit"
+              - "**/*.gitcommit"
             run: typos {files}
           - name: mypy
-            glob: "*.py"
+            glob: "**/*.py"
             run: mypy {files}
-          - name: isutf8
-            exclude:
-              - "*.gitcommit"
-            run: isutf8 {files}
           - name: editorconfig-checker
             exclude:
-              - "*.gitcommit"
+              - "**/*.gitcommit"
             run: editorconfig-checker {files}
           - name: config-file-validator
-            glob: "*.{editorconfig,json,ini,yaml,toml}"
+            glob: "**/*.{editorconfig,json,ini,yaml,toml}"
             exclude:
               # These aren't actually JSON files, they're JSONC
-              - ".vscode/*.json"
-              - npins/*
+              - ".vscode/**/*.json"
+              - npins/**/*
             run: chronic validator -groupby pass-fail -- {files}
           - name: renovate-config-validator
             glob:
               - renovate.json5
-              - renovate/*.json5
+              - renovate/**/*.json5
             run: renovate-config-validator --strict {files}
           - name: lua-ls
-            glob: dotfiles/neovim/*.lua
+            glob: dotfiles/neovim/**/*.lua
             run: |
               # --configpath is relative to the directory being checked so I'm
               # using an absolute path instead.
@@ -438,7 +435,7 @@ check:
                 --check ./dotfiles/neovim \
                 --configpath "$PWD/.luarc.json"
           - name: staticcheck
-            glob: "*.go"
+            glob: "**/*.go"
             # I'm not using the `root` setting to change directory because it also
             # acts as a file filter, which I don't want.
             run: "cd gozip && staticcheck ./..."
@@ -454,10 +451,10 @@ check:
             #     rebuild the package.
             interactive: true
             glob:
-              - "*.nix"
+              - "**/*.nix"
               - flake.lock
-              - npins/*
-              - nix/*
-              - dotfiles/*
-              - gozip/*
+              - npins/**/*
+              - nix/**/*
+              - dotfiles/**/*
+              - gozip/**/*
             run: nom build --no-link --file . currentPlatformChecks

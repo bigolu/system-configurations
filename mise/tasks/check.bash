@@ -5,7 +5,7 @@
 #USAGE long_about "Run jobs to find/fix issues with the code. The list of jobs is in `lefthook.yaml`. If no flags are passed, it will behave as if `--files` was passed."
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
-#USAGE complete "jobs" run=#" fish -c 'complete --do-complete "lefthook run check --jobs "' "#
+#USAGE complete "jobs" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
 #USAGE
 #USAGE flag "-f --files" help="Check files with uncommitted changes" long_help="Check any files that have uncommitted changes."
 #USAGE
@@ -22,8 +22,6 @@ set -o nounset
 set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
-
-jobs="${usage_jobs:+${usage_jobs// /,}}"
 
 if [[ -n ${usage_rebase:-} ]]; then
   case "$usage_rebase" in
@@ -49,41 +47,64 @@ if [[ -n ${usage_rebase:-} ]]; then
     --interactive \
     --exec "mise run check --commits head$all_files$jobs" \
     "$start"
-elif [[ -n ${usage_commits:-} ]]; then
-  case "$usage_commits" in
-    'head')
-      range='HEAD^!'
-      ;;
-    *)
-      range="$usage_commits"
-      ;;
-  esac
-
-  hashes="$(git log "$range" --pretty=%h)"
-  if [[ -z $hashes ]]; then
-    exit 0
-  fi
-
-  command="LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true LEFTHOOK_ALL_FILES=${usage_all_files:-} lefthook run check --jobs ${jobs@Q}"
-  readarray -t hashes_array <<<"$hashes"
-  if ((${#hashes_array[@]} == 1)); then
-    # This way fixes will be retained in the main worktree
-    eval "$command"
-  else
-    # Disable lefthook so git hooks don't run when `git-branchless` checks out
-    # commits.
-    #
-    # We can't use the cache since the cache doesn't invalidate when the commit
-    # message changes, only when the files in the commit change.
-    LEFTHOOK=0 git-branchless test run \
-      -vv \
-      --no-cache \
-      --strategy worktree \
-      --exec "nix run --file . devShells.development -- env LEFTHOOK=1 $command" \
-      "${hashes//$'\n'/ | }"
-  fi
 else
-  LEFTHOOK_ALL_FILES="${usage_all_files:-}" \
-    LEFTHOOK_UNCOMMITTED_FILES='true' \
-    lefthook run check --jobs "$jobs"
+  # herestring (<<<) adds a newline to the end of the string so if `usage_jobs` is
+  # empty, `readarray` would set `jobs` to an array with a single empty string in
+  # it instead of an empty array. To avoid this, we only use `readarray` if
+  # `usage_jobs` isn't empty.
+  if [[ -n ${usage_jobs:-} ]]; then
+    # It's easier to split a newline-delimited string than a space-delimited one
+    # since herestring (<<<) adds a newline to the end of the string.
+    readarray -t jobs <<<"${usage_jobs// /$'\n'}"
+  else
+    jobs=()
+  fi
+  job_flags=()
+  for job in "${jobs[@]}"; do
+    job_flags+=(--job "$job")
+  done
+  lefthook_command=(env LEFTHOOK_ALL_FILES="${usage_all_files:-}" lefthook run check "${job_flags[@]}")
+
+  if [[ -n ${usage_commits:-} ]]; then
+    lefthook_command=(env LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true "${lefthook_command[@]}")
+
+    case "$usage_commits" in
+      'head')
+        range='HEAD^!'
+        ;;
+      *)
+        range="$usage_commits"
+        ;;
+    esac
+
+    hashes="$(git log "$range" --pretty=%h)"
+    if [[ -z $hashes ]]; then
+      exit 0
+    fi
+
+    readarray -t hashes_array <<<"$hashes"
+    if ((${#hashes_array[@]} == 1)); then
+      # Don't use git-branchless so fixes can be retained in the main worktree
+      "${lefthook_command[@]}"
+    else
+      # We enable lefthook since it gets disabled below
+      lefthook_command=(nix run --file . devShells.development -- env LEFTHOOK=1 "${lefthook_command[@]}")
+
+      # Disable lefthook so git hooks don't run when `git-branchless` checks out
+      # commits.
+      #
+      # We can't use the cache since the cache doesn't invalidate when the
+      # commit message changes, only when the files in the commit change.
+      #
+      # NOTE: The command given with `--exec` will be run with `sh -c`.
+      LEFTHOOK=0 git-branchless test run \
+        -vv \
+        --no-cache \
+        --strategy worktree \
+        --exec "${lefthook_command[@]@Q}" \
+        "${hashes//$'\n'/ | }"
+    fi
+  else
+    LEFTHOOK_UNCOMMITTED_FILES='true' "${lefthook_command[@]}"
+  fi
 fi

@@ -66,7 +66,11 @@ let
         "${pkgs.keyd}/lib/systemd/system/keyd.service"
       ];
 
-      file."/etc/keyd/default.conf".source = "${repositoryDirectory}/dotfiles/keyd/default.conf";
+      file = {
+        "/etc/keyd/default.conf".source = "${repositoryDirectory}/dotfiles/keyd/default.conf";
+        "/etc/udev/rules.d/99-keychron-launcher.rules".source =
+          "${repositoryDirectory}/dotfiles/keychron-launcher/99-keychron-launcher.rules";
+      };
 
       activation = {
         # Needs to be before systemd services are started since the
@@ -84,29 +88,10 @@ let
           sudo systemctl restart keyd.service &>/dev/null
         '';
 
-        setKeyboardToMacMode = hm.dag.entryAfter [ "writeBoundary" ] ''
-          # source: https://unix.stackexchange.com/questions/121395/on-an-apple-keyboard-under-linux-how-do-i-make-the-function-keys-work-without-t
-          #
-          # TODO: Why does macOS respect the mode set directly through my keyboard, but
-          # Linux doesn't?
-
-          desired_fnmode=1
-
-          current_fnmode_file=/sys/module/hid_apple/parameters/fnmode
-          current_fnmode="$(<"$current_fnmode_file")"
-          if ((desired_fnmode != current_fnmode)); then
-            # Set it for this boot
-            echo $desired_fnmode | sudo tee "$current_fnmode_file"
-          fi
-
-          conf_file='/etc/modprobe.d/hid_apple.conf'
-          conf_line="options hid_apple fnmode=$desired_fnmode"
-          if [[ ! -e $conf_file ]] || ! grep -q "$conf_line" <"$conf_file"; then
-            # Persist it so it gets set automatically on future boots
-            echo "$conf_line" \
-              | sudo tee -a "$conf_file"
-            sudo update-initramfs -u -k all
-          fi
+        # So the Keychron Launcher config can take effect immediately
+        udev = hm.dag.entryAfter [ "installSystemFiles" ] ''
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger
         '';
       };
     };

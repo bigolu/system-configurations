@@ -102,7 +102,8 @@ import ./nix/make-outputs.nix {
         inherit (self.callPackage "${inputs.gomod2nix}/builder" { inherit (self) gomod2nix; })
           buildGoApplication
           mkGoEnv
-          mkVendorEnv
+          mkGoCacheEnv
+          hooks
           ;
       });
       nix-darwin.outputs = (import inputs.nix-darwin { pkgs = nixpkgs; }) // {
