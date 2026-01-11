@@ -103,22 +103,16 @@ nixpkgs.callPackage (
               ln = getExe' coreutils "ln";
               realpath = getExe' coreutils "realpath";
               mkdir = getExe' coreutils "mkdir";
+              tail = getExe' coreutils "tail";
               path = if rootPath ? eval then ''"${rootPath.eval}"'' else escapeShellArg rootPath.text;
               shellGcRoot = "${path}/shell-gc-root";
               shell = "${path}/shell";
             in
             ''
-              # We can't always rely on `builtins.placeholder "out"` pointing to the
-              # shell derivation because at least in the case of numtide/devshell,
-              # the shellHook is not on the same derivation as the shell. In those
-              # cases, we'll check certain environment variables that should have the
-              # shell store path.
-              new_shell=
-              if [[ -n $DEVSHELL_DIR ]]; then
-                new_shell="$DEVSHELL_DIR"
-              else
-                new_shell=${placeholder "out"}
-              fi
+              new_shell="$(
+                nix-store --query --referrers-closure ${placeholder "out"} |
+                  ${tail} --lines 1
+              )"
 
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
