@@ -105,22 +105,40 @@ nixpkgs.callPackage (
               mkdir = getExe' coreutils "mkdir";
               tail = getExe' coreutils "tail";
               touch = getExe' coreutils "touch";
+              mktemp = getExe' coreutils "mktemp";
+              rm = getExe' coreutils "rm";
+              mv = getExe' coreutils "mv";
+
               path = if rootPath ? eval then ''"${rootPath.eval}"'' else escapeShellArg rootPath.text;
               shellGcRoot = "${path}/shell-gc-root";
               shell = "${path}/shell";
+              shellStorePathDir = "${path}/shell-store-path";
             in
             ''
-              new_shell="$(
-                nix-store --query --referrers-closure ${placeholder "out"} |
-                  ${tail} --lines 1
-              )"
-
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
 
               if [[ ! -e ${path} ]]; then
                 ${mkdir} --parents ${path}
               fi
+
+              # PERF: Cache the shell store path
+              shell_store_path=${shellStorePathDir}/"''${DEVSHELL_DIR//\//%}"
+              if [[ ! -e "$shell_store_path" ]]; then
+                # Add `--force` to avoid race condition between multiple direnv instances
+                ${rm} --recursive --force ${shellStorePathDir}
+                # Add `--parents` to avoid race condition between multiple
+                # direnv instances
+                ${mkdir} --parents ${shellStorePathDir}
+
+                # Create the file this way for atomicity to avoid race condition
+                # between multiple direnv instances
+                temp="$(${mktemp})"
+                nix-store --query --referrers-closure ${placeholder "out"} |
+                  ${tail} --lines 1 >"$temp"
+                ${mv} --force "$temp" "$shell_store_path"
+              fi
+              new_shell="$(<"$shell_store_path")"
 
               ${optionalString devShellDiff ''
                 # If a terminal and IDE run this at the same time, the diff will only
