@@ -104,6 +104,7 @@ nixpkgs.callPackage (
               realpath = getExe' coreutils "realpath";
               mkdir = getExe' coreutils "mkdir";
               tail = getExe' coreutils "tail";
+              touch = getExe' coreutils "touch";
               path = if rootPath ? eval then ''"${rootPath.eval}"'' else escapeShellArg rootPath.text;
               shellGcRoot = "${path}/shell-gc-root";
               shell = "${path}/shell";
@@ -151,6 +152,13 @@ nixpkgs.callPackage (
                 else
                   ${ln} --force --no-dereference --symbolic "$new_shell" ${shellGcRoot}
                 fi
+              else
+                # Users of `nh`[1] can delete GC roots that haven't been
+                # modified in a certain amount of time. To avoid deleting this
+                # GC root, we'll update the modification time.
+                #
+                # [1]: https://github.com/nix-community/nh
+                ${touch} --no-dereference ${shellGcRoot}
               fi
             '';
         };
