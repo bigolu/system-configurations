@@ -134,14 +134,33 @@ function _mnd_cache {
   # We use `-f` to avoid a race condition between multiple instances of direnv e.g. a
   # direnv editor extension and the terminal.
   rm -f "$cache_directory/"*
-  echo "$new_env_script_contents" >"$cached_env_script"
+
+  # It must be atomic to avoid a race condition between multiple instances
+  # of direnv e.g. a direnv editor extension and the terminal.
+  atomic_make_file "$new_env_script_contents" "$cached_env_script"
+
   # We use `-nf` to avoid a race condition between multiple instances of direnv e.g.
   # a direnv editor extension and the terminal.
   ln -nfs "$new_env" "$cached_env"
-  echo "$new_env_args_string" >"$cached_env_args"
+
+  # It must be atomic to avoid a race condition between multiple instances
+  # of direnv e.g. a direnv editor extension and the terminal.
+  atomic_make_file "$new_env_args_string" "$cached_env_args"
+
   if [[ $env_type == 'packages' ]]; then
     _mnd_nix build --out-link "$cache_directory/env-gc-root" "$new_env"
   fi
+}
+
+function atomic_make_file {
+  local -r content="$1"
+  local -r path="$2"
+
+  local temp
+  temp="$(mktemp)"
+
+  echo "$content" >"$temp"
+  mv "$temp" "$path"
 }
 
 function _mnd_get_cache_directory {
