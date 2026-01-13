@@ -160,7 +160,9 @@ function atomic_make_file {
   temp="$(mktemp)"
 
   echo "$content" >"$temp"
-  mv "$temp" "$path"
+  # We use `-f` to avoid a race condition between multiple instances of direnv e.g. a
+  # direnv editor extension and the terminal.
+  mv -f "$temp" "$path"
 }
 
 function _mnd_get_cache_directory {
