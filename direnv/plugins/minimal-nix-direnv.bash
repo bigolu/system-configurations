@@ -231,6 +231,10 @@ function _mnd_build_new_env {
   local -a env_build_args=("${@:5}")
 
   case "$env_type" in
+    'numtide_dev_shell')
+      _new_env="$(_mnd_nix build --no-link --print-out-paths "${env_build_args[@]}")"
+      _new_env_script_contents="$(<"$_new_env/env.bash")"
+      ;;
     # `packages` is almost the same as `dev_shell`. The only difference is that when
     # `packages` is used, we define the dev shell on behalf of the user, containing
     # the packages they specify.
