@@ -6,12 +6,14 @@
 #   - nix-direnv will only fall back to the old environment if the _build_ of the new
 #     environment fails. This plugin will also fall back if the _evaluation_ of the
 #     new environment fails.
-#   - (Almost) No GC root creation: Dev shell implementations already provide a way
-#     to set up the environment e.g. `shellHook` for nix's devShell or `startup.*`
-#     for numtide's devshell. Therefore, nix should be able to handle all of its
-#     environment management itself so it can be less dependent on direnv. To help
-#     with this, I wrote a nix utility that handles GC roots. The one exception to
-#     this is `packages` since they don't belong to a dev shell.
+#   - Almost no GC root creation: Dev shell implementations already provide a
+#     way to set up the environment e.g. `shellHook` for nix's devShell or
+#     `startup.*` for numtide's devshell. Therefore, nix should be able to
+#     handle all of its environment management itself so it can be less
+#     dependent on direnv. To help with this, I wrote a nix utility that handles
+#     GC roots. The exceptions to this are the `packages` and `dev_shell` types
+#     since you can't make a GC root for a dev shell created with nixpkgs.mkShell from
+#     its shellHook.
 #   - No manual reload: If you want to reload manually, you can use my
 #     direnv-manual-reload plugin. In most of the `.envrc` files that I've seen, the
 #     only thing done is loading a nix environment so a dedicated command to reload
@@ -147,7 +149,7 @@ function _mnd_cache {
   # of direnv e.g. a direnv editor extension and the terminal.
   atomic_make_file "$new_env_args_string" "$cached_env_args"
 
-  if [[ $env_type == 'packages' ]]; then
+  if [[ $env_type == 'packages' || $env_type == 'dev_shell' ]]; then
     _mnd_nix build --out-link "$cache_directory/env-gc-root" "$new_env"
   fi
 }
