@@ -111,8 +111,8 @@ nixpkgs.callPackage (
 
               path = if rootPath ? eval then ''"${rootPath.eval}"'' else escapeShellArg rootPath.text;
               shellGcRoot = "${path}/shell-gc-root";
-              shell = "${path}/shell";
-              shellStorePathDir = "${path}/shell-store-path";
+              shellToDiff = "${path}/shell-to-diff";
+              shellStorePathPrefix = "${path}/shell-store-path";
             in
             ''
               # The path to the GC roots derivation is included here to make it part
@@ -122,34 +122,37 @@ nixpkgs.callPackage (
                 ${mkdir} --parents ${path}
               fi
 
-              # PERF: Cache the shell store path
-              shell_store_path=${shellStorePathDir}/"''${DEVSHELL_DIR//\//%}"
-              if [[ ! -e "$shell_store_path" ]]; then
-                # Add `--force` to avoid race condition between multiple direnv instances
-                ${rm} --recursive --force ${shellStorePathDir}
-                # Add `--parents` to avoid race condition between multiple
-                # direnv instances
-                ${mkdir} --parents ${shellStorePathDir}
+              shell_store_path=${shellStorePathPrefix}"''${DEVSHELL_DIR//\//-}"
+              if [[ -e "$shell_store_path" ]]; then
+                new_shell="$(<"$shell_store_path")"
+              else
+                new_shell="$(
+                  nix-store --query --referrers-closure ${placeholder "out"} |
+                    ${tail} --lines 1
+                )"
 
+                # PERF: Cache the shell store path
+                #
+                # Remove the old cached path.
+                # Add `--force` to avoid race condition between multiple direnv instances
+                ${rm} --force ${shellStorePathPrefix}*
                 # Create the file this way for atomicity to avoid race condition
                 # between multiple direnv instances
                 temp="$(${mktemp})"
-                nix-store --query --referrers-closure ${placeholder "out"} |
-                  ${tail} --lines 1 >"$temp"
+                echo "$new_shell" >"$temp"
                 ${mv} --force "$temp" "$shell_store_path"
               fi
-              new_shell="$(<"$shell_store_path")"
 
               ${optionalString devShellDiff ''
                 # If a terminal and IDE run this at the same time, the diff will only
                 # be printed by the process that updates the GC root. To ensure the
                 # diff is shown in the terminal, we store a separate symlink to the
                 # dev shell that's only updated if stdout is connected to a terminal.
-                if [[ ! ${shell} -ef "$new_shell" && -t 1 ]]; then
-                  if [[ -e ${shell} ]]; then
-                    ${dixExe} "$(${realpath} ${shell})" "$new_shell"
+                if [[ ! ${shellToDiff} -ef "$new_shell" && -t 1 ]]; then
+                  if [[ -e ${shellToDiff} ]]; then
+                    ${dixExe} "$(${realpath} ${shellToDiff})" "$new_shell"
                   fi
-                  ${ln} --force --no-dereference --symbolic "$new_shell" ${shell}
+                  ${ln} --force --no-dereference --symbolic "$new_shell" ${shellToDiff}
                 fi
               ''}
 
