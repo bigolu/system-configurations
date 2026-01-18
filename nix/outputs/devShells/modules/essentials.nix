@@ -78,18 +78,7 @@ in
           roots = {
             flake = {
               inherit inputs;
-              exclude =
-                (optional isCiDevShell "nixpkgs-npins")
-                ++ (
-                  if isLinux then
-                    [
-                      "nix-darwin"
-                    ]
-                  else
-                    [
-                      "nix-gl-host"
-                    ]
-                );
+              exclude = if isLinux then [ "nix-darwin" ] else [ "nix-gl-host" ];
             };
 
             paths = optionals (!isCiDevShell) (

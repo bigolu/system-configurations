@@ -84,8 +84,6 @@ recursiveUpdateList [
       { }:
       self;
 
-    npins = inputs.npins.outputs;
-
     # They only have a flake interface
     nix-sweep = inputs.nix-sweep.packages.${system}.default;
 

@@ -78,17 +78,8 @@ import ./nix/make-outputs.nix {
     # Combine our inputs with their outputs
     inputs = nixpkgs.lib.recursiveUpdate inputs {
       nixpkgs.outputs = nixpkgs;
-      nixpkgs-npins.outputs = import inputs.nixpkgs-npins {
-        localSystem = system;
-        # We provide values for these to avoid using their non-deterministic defaults.
-        config = { };
-        overlays = [ ];
-      };
       gitignore.outputs = import inputs.gitignore { inherit (nixpkgs) lib; };
       nix-gl-host.outputs = import inputs.nix-gl-host { pkgs = nixpkgs; };
-      # TODO: Use the npins in nixpkgs once it has this commit:
-      # https://github.com/andir/npins/commit/afa9fe50cb0bff9ba7e9f7796892f71722b2180d
-      npins.outputs = import inputs.npins { pkgs = self.inputs.nixpkgs-npins.outputs; };
       nix-mk-shell-bin.outputs.lib.mkShellBin = import "${inputs.nix-mk-shell-bin}/make.nix";
       devshell.outputs = import inputs.devshell {
         inherit nixpkgs;

@@ -273,38 +273,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-npins": {
-      "locked": {
-        "lastModified": 1744536153,
-        "narHash": "sha256-awS2zRgF4uTwrOKwwiJcByDzDOdo3Q1rPZbiHQg/N38=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "18dd725c29603f582cf1900e0d25f9f1063dbf11",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "18dd725c29603f582cf1900e0d25f9f1063dbf11",
-        "type": "github"
-      }
-    },
-    "npins": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1764162026,
-        "narHash": "sha256-EWA14ovB/5UFiK9fmEYtofIMbGnVeJ/4yK0aJEJXtsI=",
-        "owner": "andir",
-        "repo": "npins",
-        "rev": "84a362d77fb3c487ad759c80547facb028f4d96f",
-        "type": "github"
-      },
-      "original": {
-        "owner": "andir",
-        "repo": "npins",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "devshell": "devshell",
@@ -318,9 +286,7 @@
         "nix-index-database": "nix-index-database",
         "nix-mk-shell-bin": "nix-mk-shell-bin",
         "nix-sweep": "nix-sweep",
-        "nixpkgs": "nixpkgs",
-        "nixpkgs-npins": "nixpkgs-npins",
-        "npins": "npins"
+        "nixpkgs": "nixpkgs"
       }
     },
     "systems": {

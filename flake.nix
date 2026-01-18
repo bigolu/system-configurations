@@ -7,9 +7,6 @@
   #     `follows` since we make GC roots for all of the inputs in `flake.lock`.
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    # TODO: Remove when npins stops using the apple SDK that's been removed,
-    # `pkgs.darwin.apple_sdk`.
-    nixpkgs-npins.url = "github:nixos/nixpkgs/18dd725c29603f582cf1900e0d25f9f1063dbf11";
 
     flake-compat.url = "git+https://git.lix.systems/lix-project/flake-compat";
 
@@ -43,11 +40,6 @@
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    npins = {
-      url = "github:andir/npins";
-      flake = false;
     };
 
     nix-mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
