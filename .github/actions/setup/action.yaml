@@ -11,7 +11,7 @@ runs:
         nix_conf: |
           show-trace = true
           # This way, if we fail to build something, we can make its derivation a GC
-          # root so the derivation's dependencies, don't get garbage collected. Since
+          # root and the derivation's dependencies won't get garbage collected. Since
           # they won't get garbage collected, they'll be cached and we won't lose our
           # build progress.
           #
@@ -19,8 +19,7 @@ runs:
           #
           # [1]: https://github.com/NixOS/nix/issues/7561
           keep-outputs = true
-          # We only want the derivations of failed builds. Doing this will save
-          # space.
+          # This will save a lot of space since we also enabled `keep-outputs`.
           keep-derivations = false
     - uses: nix-community/cache-nix-action/restore@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
       with:
