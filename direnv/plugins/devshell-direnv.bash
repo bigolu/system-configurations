@@ -140,10 +140,10 @@ function _devshell_cache {
 
   # It must be atomic to avoid a race condition between multiple instances
   # of direnv e.g. a direnv editor extension and the terminal.
-  atomic_make_file "$new_devshell_args_string" "$cached_devshell_args"
+  _devshell_atomic_make_file "$new_devshell_args_string" "$cached_devshell_args"
 }
 
-function atomic_make_file {
+function _devshell_atomic_make_file {
   local -r content="$1"
   local -r path="$2"
 
