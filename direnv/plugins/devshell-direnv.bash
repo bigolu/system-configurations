@@ -37,8 +37,8 @@ function use_devshell {
   local cache_directory
   _devshell_get_cache_directory cache_directory
   local -r last_cache_time="$cache_directory/last-cache-time"
-  local -r cached_devshell_script="$cache_directory/devshell.bash"
-  local -r cached_devshell_args="$cache_directory/devshell-args.txt"
+  local -r cached_devshell_script="$cache_directory/env.bash"
+  local -r cached_devshell_args="$cache_directory/args.txt"
 
   local IFS=' '
   local -r new_devshell_args_string="${devshell_build_args[*]@Q}"
