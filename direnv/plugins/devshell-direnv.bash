@@ -199,7 +199,7 @@ function _devshell_is_cache_fresh {
   shopt -s lastpipe
   # shellcheck disable=2312
   # pipefail will be enabled when direnv runs
-  direnv watch-print --null | { readarray -d '' watched_files; }
+  direnv watch-print --null | readarray -d '' watched_files
   shopt -u lastpipe
   local file
   for file in "${watched_files[@]}"; do

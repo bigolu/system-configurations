@@ -93,7 +93,7 @@ function _dmr_set_watch_list {
   shopt -s lastpipe
   # shellcheck disable=2312
   # pipefail will be enabled when direnv runs
-  direnv watch-print --null | { readarray -d '' watched_files; }
+  direnv watch-print --null | readarray -d '' watched_files
   shopt -u lastpipe
 
   local -a allow_and_deny_files
