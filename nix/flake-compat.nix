@@ -18,20 +18,16 @@
 # [2]: https://github.com/NixOS/nix/issues/3121
 # [3]: https://git.lix.systems/lix-project/flake-compat#copying-to-the-store
 
-(import
-  (
-    let
-      lock = builtins.fromJSON (builtins.readFile ../flake.lock);
-      inherit (lock.nodes.flake-compat.locked) narHash rev url;
-    in
-    builtins.fetchTarball {
-      url = "${url}/archive/${rev}.tar.gz";
-      sha256 = narHash;
-    }
-  )
-  {
+let
+  lockFile = builtins.fromJSON (builtins.readFile ../flake.lock);
+  flake-compat-node = lockFile.nodes.${lockFile.nodes.root.inputs.flake-compat};
+  flake-compat = builtins.fetchTarball {
+    inherit (flake-compat-node.locked) url;
+    sha256 = flake-compat-node.locked.narHash;
+  };
+
+  flake = import flake-compat {
     src = ../.;
-    # See the comment at the top of the file for why this is done.
-    copySourceTreeToStore = false;
-  }
-).defaultNix
+  };
+in
+flake.defaultNix
