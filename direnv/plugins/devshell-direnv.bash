@@ -81,15 +81,11 @@ function use_devshell {
   fi
 }
 
-# Why this is done in a subshell:
-#   - To prevent any failures within it from causing the parent shell to exit.
-#   - If any failures occur, we don't have to worry about unsetting any environment
-#     variables that were set during the loading since they will only be set in the
-#     subshell.
-#
-# It prints out its environment variables as `export` statements so they can be
-# loaded into the parent shell.
+# Load the new devshell and print all environment variables as `export`
+# statements
 function _devshell_load_new_devshell {
+  # This is done in a subshell to prevent any failures within it from causing
+  # the parent shell to exit.
   (
     # Redirect stdout to stderr until we're ready to print the export statements
     local stdout_copy
