@@ -127,7 +127,7 @@ nixpkgs.callPackage (
                 new_shell="$(<"$shell_store_path")"
               else
                 new_shell="$(
-                  nix-store --query --referrers-closure ${placeholder "out"} |
+                  nix-store --query --referrers-closure "$DEVSHELL_DIR" |
                     ${tail} --lines 1
                 )"
 
@@ -148,7 +148,7 @@ nixpkgs.callPackage (
                 # be printed by the process that updates the GC root. To ensure the
                 # diff is shown in the terminal, we store a separate symlink to the
                 # dev shell that's only updated if stdout is connected to a terminal.
-                if [[ ! ${shellToDiff} -ef "$new_shell" && -t 1 ]]; then
+                if [[ ( ! ${shellToDiff} -ef "$new_shell" ) && -t 1 ]]; then
                   if [[ -e ${shellToDiff} ]]; then
                     ${dixExe} "$(${realpath} ${shellToDiff})" "$new_shell"
                   fi
