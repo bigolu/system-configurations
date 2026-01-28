@@ -118,6 +118,28 @@ nixpkgs.callPackage (
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
 
+              # If the dev shell was bundled using `nix bundle`, then are things
+              # we can no longer assume:
+              #   - The presence of the `nix-store` binary: The bundle may be
+              #     run from a machine that doesn't have nix installed so we
+              #     can't assume `nix-store` exists.
+              #   - The validity of store paths: The store paths in the bundle
+              #     may not exist in the user's nix store. Here are some
+              #     examples of when the store paths may not be valid:
+              #       - If the bundler rewrites store paths, then `nix-store`
+              #         won't see them in the user's store.
+              #       - If the dev shell bundle mounts a nix store and we make a
+              #         GC root, then if we run the dev shell outside of a
+              #         bundle, the store path we made a GC root for may not
+              #         exist in the user's store.
+              #
+              # Given the above, we always check that a store path exists in the
+              # nix store before using it.
+              function _has_store_paths {
+                type -P nix-store >/dev/null &&
+                  nix-store --query --hash "$@" >/dev/null 2>&1
+              }
+
               if [[ ! -e ${path} ]]; then
                 ${mkdir} --parents ${path}
               fi
@@ -126,10 +148,18 @@ nixpkgs.callPackage (
               if [[ -e "$shell_store_path" ]]; then
                 new_shell="$(<"$shell_store_path")"
               else
-                new_shell="$(
-                  nix-store --query --referrers-closure "$DEVSHELL_DIR" |
-                    ${tail} --lines 1
-                )"
+                if _has_store_paths "$DEVSHELL_DIR"; then
+                  # TODO: `$DEVSHELL_DIR` is not the top-level derivation for
+                  # the dev shell. We use this command to find it. Ideally,
+                  # devshell would set an environment variable that contains the
+                  # path to the top-level derivation.
+                  new_shell="$(
+                    nix-store --query --referrers-closure "$DEVSHELL_DIR" |
+                      ${tail} --lines 1
+                  )"
+                else
+                  new_shell="$DEVSHELL_DIR"
+                fi
 
                 # PERF: Cache the shell store path
                 #
@@ -149,7 +179,7 @@ nixpkgs.callPackage (
                 # diff is shown in the terminal, we store a separate symlink to the
                 # dev shell that's only updated if stdout is connected to a terminal.
                 if [[ ( ! ${shellToDiff} -ef "$new_shell" ) && -t 1 ]]; then
-                  if [[ -e ${shellToDiff} ]]; then
+                  if [[ -e ${shellToDiff} ]] && _has_store_paths ${shellToDiff} "$new_shell"; then
                     ${dixExe} "$(${realpath} ${shellToDiff})" "$new_shell"
                   fi
                   ${ln} --force --no-dereference --symbolic "$new_shell" ${shellToDiff}
@@ -157,20 +187,13 @@ nixpkgs.callPackage (
               ''}
 
               if [[ ! ${shellGcRoot} -ef "$new_shell" ]]; then
-                # If the dev shell was bundled with `nix bundle`, then we shouldn't
-                # make the GC root. We use `nix-store --query --hash` to see if the
-                # path we want to make a root for is a valid store path. If it isn't,
-                # the shell was probably bundled. Instead of making a root, we make a
-                # plain symlink. This way, subsequent checks to see if the root is up
-                # to date will pass and we won't have to keep running the
-                # `nix-store --query --hash` command below which will be slower than
-                # the `[[ ... -ef ... ]]` conditional above.
-                if
-                  type -P nix-store >/dev/null &&
-                    nix-store --query --hash "$new_shell" >/dev/null 2>&1
-                then
+                if _has_store_paths "$new_shell"; then
                   nix-store --add-root ${shellGcRoot} --realise "$new_shell" >/dev/null
                 else
+                  # This way, subsequent checks to see if the root is up to date
+                  # will pass and we won't have to keep running the `nix-store
+                  # --query --hash` command below which will be slower than the
+                  # `[[ ... -ef ... ]]` conditional above.
                   ${ln} --force --no-dereference --symbolic "$new_shell" ${shellGcRoot}
                 fi
               else

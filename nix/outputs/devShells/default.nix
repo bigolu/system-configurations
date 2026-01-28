@@ -46,6 +46,9 @@ makeShells
       devshell = {
         packages = with pkgs; [ npins ];
         startup.repl-overlay.text = ''
+          # TODO
+          export LEFTHOOK_EXCLUDE=4-nix-outputs
+
           export NIX_CONFIG="
             ''${NIX_CONFIG:-}
             extra-repl-overlays = $PWD/nix/repl-overlay.nix
