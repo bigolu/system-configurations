@@ -17,18 +17,25 @@ function fish_prompt --description 'Print the prompt'
     set last_status $status
     set last_pipestatus $pipestatus
 
+    if contains -- --final-rendering $argv
+        _transient_prompt
+    else
+        _full_prompt $last_status $last_pipestatus
+    end
+end
+
+function _transient_prompt
+    set items \
+        (path basename (prompt_pwd)) \
+        (date +'%r')
+    printf \n(set_color --reverse brblack)' '(string join -- '  ' $items)' '$_color_normal' '
+end
+
+function _full_prompt --argument-names last_status last_pipestatus
     # TODO: This clears the text in the terminal after the cursor. If we don't
     # do this, multiline prompts might not display properly.
     # issue: https://github.com/fish-shell/fish-shell/issues/8418
     printf \e\[0J
-
-    if contains -- --final-rendering $argv
-        set items \
-            (path basename (prompt_pwd)) \
-            (date +'%r')
-        printf \n(set_color --reverse brblack)' '(string join -- '  ' $items)' '$_color_normal' '
-        return
-    end
 
     set contexts \
         (_job_context) \
@@ -53,8 +60,6 @@ function fish_prompt --description 'Print the prompt'
             set context (string shorten --max $max_length $context)
         end
 
-        set context (format_context $context)
-
         if not set --query prompt_lines[1]
             set --append prompt_lines (_make_line first $context)
         else
@@ -74,7 +79,7 @@ function _prompt_max_length
     math max\($COLUMNS - 4, 1\)
 end
 
-function format_context --argument-names context
+function _add_context_border --argument-names context
     set left_border $_color_border'╼['$_color_normal
     set right_border $_color_border']'$_color_normal
     printf %s $left_border$context$right_border
@@ -83,10 +88,10 @@ end
 function _make_line --argument-names position context
     if test $position = first
         set line_connector $_color_border'┌'$_color_normal
-        printf $line_connector$context
+        printf $line_connector(_add_context_border $context)
     else if test $position = middle
         set line_connector $_color_border'├'$_color_normal
-        printf $line_connector$context
+        printf $line_connector(_add_context_border $context)
     else if test $position = last
         set line_connector $_color_border'└'$_color_normal
         set arrows (set_color cyan)(string repeat --count $SHLVL '>')$_color_normal
@@ -363,14 +368,14 @@ function _status_context
         return
     end
 
-    set formatted_exit_code (format_exit_code $last_status)
+    set formatted_exit_code (_format_exit_code $last_status)
 
     set context "status: $formatted_exit_code"
 
     if test (count $last_pipestatus) -gt 1
         set pipestatus_formatted
         for code in $last_pipestatus
-            set --append pipestatus_formatted (format_exit_code $code)
+            set --append pipestatus_formatted (_format_exit_code $code)
         end
         set pipestatus_formatted (string join ', ' $pipestatus_formatted)
 
@@ -379,8 +384,8 @@ function _status_context
 
     printf $context
 end
-function format_exit_code --argument-names exit_code
-    set color (color_for_exit_code $exit_code)
+function _format_exit_code --argument-names exit_code
+    set color (_color_for_exit_code $exit_code)
     set formatted_exit_code $color$exit_code$_color_normal
 
     set signal (fish_status_to_signal $exit_code)
@@ -391,7 +396,7 @@ function format_exit_code --argument-names exit_code
 
     printf $formatted_exit_code
 end
-function color_for_exit_code --argument-names exit_code
+function _color_for_exit_code --argument-names exit_code
     set warning_codes 130
     set color $_color_success_text
     if contains $exit_code $warning_codes
