@@ -190,10 +190,11 @@ nixpkgs.callPackage (
                 if _has_store_paths "$new_shell"; then
                   nix-store --add-root ${shellGcRoot} --realise "$new_shell" >/dev/null
                 else
-                  # This way, subsequent checks to see if the root is up to date
-                  # will pass and we won't have to keep running the `nix-store
-                  # --query --hash` command below which will be slower than the
-                  # `[[ ... -ef ... ]]` conditional above.
+                  # PERF: By doing this, subsequent checks to see if the GC root
+                  # is up to date will pass and we won't have to keep calling
+                  # the `_has_store_paths` function above. We want to avoid
+                  # calling that function since it shells out to `nix-store`
+                  # which would be slow.
                   ${ln} --force --no-dereference --symbolic "$new_shell" ${shellGcRoot}
                 fi
               else
