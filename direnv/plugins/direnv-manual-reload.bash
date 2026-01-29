@@ -136,9 +136,6 @@ function _dmr_add_direnv_wrapper_to_path {
   local -r directory="$1"
   local -r reload_file="$2"
 
-  local direnv_path
-  direnv_path="$(type -P direnv)"
-
   # We can't use `$(direnv_layout_dir)/bin` because other plugins use that and
   # if they add that directory to the path before us, then when we try to get
   # the path to direnv above, we may get the path to our wrapper.
@@ -152,7 +149,10 @@ function _dmr_add_direnv_wrapper_to_path {
   PATH_add "$bin_directory"
 
   local -r wrapper_prefix='direnv-wrapper-'
-  local -r direnv_wrapper="$directory/${wrapper_prefix}${direnv_path//\//-}"
+  # shellcheck disable=2154
+  #
+  # direnv sets this variable
+  local -r direnv_wrapper="$directory/${wrapper_prefix}${direnv//\//-}"
   if [[ ! -e $direnv_wrapper ]]; then
     # Remove an outdated wrapper.
     #
@@ -163,7 +163,7 @@ function _dmr_add_direnv_wrapper_to_path {
   fi
 
   local -r reload_file_escaped="$(printf '%q' "$reload_file")"
-  local -r direnv_path_escaped="$(printf '%q' "$direnv_path")"
+  local -r direnv_path_escaped="$(printf '%q' "$direnv")"
   local -r reload_program_content="#!/usr/bin/env bash
     if ((\$# == 1)) && [[ \$1 == 'reload' ]] && [[ \$DIRENV_MANUAL_RELOAD == 'true' ]]; then
       touch $reload_file_escaped
