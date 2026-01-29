@@ -133,7 +133,7 @@ sync:
         - flake.lock
         - "{nix,npins,gozip,mise/tasks}/**/*"
       run: |
-        direnv-reload
+        direnv reload
         direnv exec . true
     - name: system
       glob:
