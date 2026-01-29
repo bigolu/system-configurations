@@ -176,8 +176,8 @@ function _dmr_add_direnv_wrapper_to_path {
         # The direnv binary must have moved since this wrapper was made so we'll
         # try to find it on the PATH.
         #
-        # TODO: This won't work if direnv isn't on the PATH or if there's a
-        # newline in the path to direnv
+        # TODO: This won't work if there's a newline in the path to direnv since
+        # \`type\` separates the paths by a newline.
         paths_string=\"\$(type -Pa direnv)\"
         readarray -t paths <<<\"\$paths_string\"
         for path in \"\${paths[@]}\"; do
