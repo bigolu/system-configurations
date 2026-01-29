@@ -31,9 +31,6 @@ trap remove_temp_directories EXIT
 # added to the nix shell. We need git since flake-compat uses `builtins.fetchGit`
 # which depends on it[1].
 #
-# We keep the cache directory so we can reuse nix's cache. Especially the tarball
-# cache so we don't have to re-fetch tarballs like `flake-compat`.
-#
 # [1]: https://github.com/NixOS/nix/issues/3533
 env="$(type -P env)"
 nix shell \
@@ -43,5 +40,4 @@ nix shell \
   "$env" \
   HOME="$temp_home" \
   PRJ_DATA_DIR="$temp_prj_data_dir" \
-  XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}" \
   nix run --file . "devShells.${usage_nix_dev_shell:?}"
