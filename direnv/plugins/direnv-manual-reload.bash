@@ -164,11 +164,36 @@ function _dmr_add_direnv_wrapper_to_path {
 
   local -r reload_file_escaped="$(printf '%q' "$reload_file")"
   local -r direnv_path_escaped="$(printf '%q' "$direnv")"
+  local -r bin_directory_escaped="$(printf '%q' "$bin_directory")"
   local -r reload_program_content="#!/usr/bin/env bash
     if ((\$# == 1)) && [[ \$1 == 'reload' ]] && [[ \$DIRENV_MANUAL_RELOAD == 'true' ]]; then
       touch $reload_file_escaped
     else
-      $direnv_path_escaped \"\$@\"
+      direnv_path=''
+      if [[ -e $direnv_path_escaped ]]; then
+        direnv_path=$direnv_path_escaped
+      else
+        # The direnv binary must have moved since this wrapper was made so we'll
+        # try to find it on the PATH.
+        #
+        # TODO: This won't work if direnv isn't on the PATH or if there's a
+        # newline in the path to direnv
+        paths_string=\"\$(type -Pa direnv)\"
+        readarray -t paths <<<\"\$paths_string\"
+        for path in \"\${paths[@]}\"; do
+          if [[ \$path != $bin_directory_escaped/direnv ]]; then
+            direnv_path=\"\$path\"
+            break
+          fi
+        done
+      fi
+
+      if [[ -n \"\$direnv_path\" ]]; then
+        \"\$direnv_path\" \"\$@\"
+      else
+        echo '[direnv-manual-reload-wrapper] Error: Unable to find the real direnv binary' >&2
+        exit 1
+      fi
     fi
   "
 
