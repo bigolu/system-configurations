@@ -148,9 +148,6 @@ function _dmr_add_direnv_wrapper_to_path {
     mkdir -p "$bin_directory"
   fi
   # Ensure we don't add the same directory to the PATH twice.
-  #
-  # This shouldn't be done in `_dmr_make_bin_directory` since it gets run in a
-  # subshell.
   PATH_rm "$bin_directory"
   PATH_add "$bin_directory"
 
