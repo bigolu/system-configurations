@@ -1,6 +1,6 @@
 # This plugin loads and caches a devshell created by numtide/devshell[1]. The
-# cache is invalidated whenever a watched file is modified. If it fails to load
-# a new devshell, it'll fall back to the last cached one.
+# cache is invalidated whenever a watched file is modified. There is also an
+# option to fall back to the last cached devshell if the new one fails to load.
 #
 # Differences from nix-direnv:
 #   - This plugin only supports numtide/devshell[1].
@@ -71,7 +71,7 @@ function use_devshell {
       "$DEVSHELL_NEW_DEVSHELL_SCRIPT" "$cached_devshell_script" \
       "$new_devshell_args_string" "$cached_devshell_args"
     unset DEVSHELL_NEW_DEVSHELL_SCRIPT
-  elif [[ -e $cached_devshell_script ]]; then
+  elif [[ ${DEVSHELL_DIRENV_FALLBACK:-} == 'true' && -e $cached_devshell_script ]]; then
     _devshell_log_error 'Something went wrong, loading the last devshell'
     touch "$last_cache_time"
     # shellcheck disable=1090
