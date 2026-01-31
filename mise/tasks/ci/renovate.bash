@@ -24,9 +24,9 @@ if [[ ''${CI:-} != 'true' ]]; then
   export RENOVATE_DRY_RUN='full'
 fi
 
-# Post-Upgrade tasks are executed in the directory of the repo that's
-# currently being processed. I'm going to save the path to this repo so I
-# can run the scripts in it.
-export RENOVATE_BOT_REPO="$PWD"
+# I want to run scripts from this repository in Renovate's `postUpgradeTasks`.
+# Since `postUpgradeTasks` are executed in the directory of the repo that's
+# currently being processed, I'll save the path to this repository's scripts.
+export RENOVATE_BOT_SCRIPT_DIRECTORY="$PWD/renovate/global/scripts"
 
 renovate
