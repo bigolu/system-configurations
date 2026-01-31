@@ -47,7 +47,7 @@ makeShells
         packages = with pkgs; [ npins ];
         startup.repl-overlay.text = ''
           # TODO
-          export LEFTHOOK_EXCLUDE='4-nix-outputs,system'
+          export LEFTHOOK_EXCLUDE='4-nix-outputs,system,fish'
 
           export NIX_CONFIG="
             ''${NIX_CONFIG:-}
