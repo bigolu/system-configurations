@@ -51,6 +51,7 @@
   # stops the statement from failing and provides a default value.
   check-commit = "!eval \"$(git config get bigolu.check-command || echo false)\""
   rc = rebase --continue
+  ignored = -c status.showUntrackedFiles=normal status --ignored
 [init]
   defaultBranch = master
 [merge]
