@@ -54,6 +54,18 @@ vim.keymap.set({ "n", "x" }, "gq", function()
   vscode.call("rewrap.rewrapComment")
 end)
 
+-- Bookmarks {{{
+vim.keymap.set("n", "m/", function()
+  vscode.call("bookmarks.listFromAllFiles")
+end)
+vim.keymap.set("n", "mt", function()
+  vscode.call("bookmarks.toggle")
+end)
+vim.keymap.set("n", "mT", function()
+  vscode.call("bookmarks.toggleLabeled")
+end)
+-- }}}
+
 -- Toggle visual elements {{{
 local function toggle(values, setting)
   local current = vscode.get_config(setting)
