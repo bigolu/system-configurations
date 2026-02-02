@@ -17,4 +17,4 @@ vim.g.mapleader = " "
 
 require("base")
 require("terminal")
-require("_vscode")
+require("vs-code")

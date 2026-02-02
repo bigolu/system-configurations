@@ -1,7 +1,5 @@
 -- vim:foldmethod=marker
 
--- The '_' in the beginning of the file name is to avoid a collision with vscode-neovim which already has a module named 'vscode'
-
 if not vim.g.vscode then
   return
 end
