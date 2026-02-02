@@ -166,7 +166,11 @@ function _dmr_add_direnv_wrapper_to_path {
   local -r direnv_path_escaped="$(printf '%q' "$direnv")"
   local -r bin_directory_escaped="$(printf '%q' "$bin_directory")"
   local -r reload_program_content="#!/usr/bin/env bash
-    if ((\$# == 1)) && [[ \$1 == 'reload' ]] && [[ \$DIRENV_MANUAL_RELOAD == 'true' ]]; then
+    set -o errexit
+    set -o nounset
+    set -o pipefail
+
+    if ((\$# == 1)) && [[ \$1 == 'reload' ]] && [[ \${DIRENV_MANUAL_RELOAD:-} == 'true' ]]; then
       touch $reload_file_escaped
     else
       direnv_path=''
