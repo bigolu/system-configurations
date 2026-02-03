@@ -15,7 +15,7 @@ my machines.
    ```bash
      sh -c "$(curl -sSf -L https://install.lix.systems/lix)" -- \
        install \
-       --nix-package-url "https://releases.lix.systems/lix/lix-2.93.3/lix-2.93.3-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
+       --nix-package-url "https://releases.lix.systems/lix/lix-2.94.0/lix-2.94.0-$(uname -m)-$(uname -s | tr '[:upper:]' '[:lower:]').tar.xz" \
        --extra-conf "extra-trusted-users = $(whoami)" \
        --no-confirm &&
      "$SHELL" -lc 'nix run github:bigolu/system-configurations -- REPLACE_ME'

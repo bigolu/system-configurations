@@ -1,17 +1,23 @@
 {
   pkgs,
+  pins,
   ...
 }:
 let
-  inherit (pkgs) linkFarm neovim;
+  inherit (pkgs)
+    linkFarm
+    neovim
+    vimUtils
+    vimPlugins
+    ;
 in
 {
   home.packages = [
     neovim
     (linkFarm "my-vim-pack" {
       # Put the pack under share/ so neovim can automatically find it
-      "share/nvim/site" = pkgs.vimUtils.packDir {
-        bigolu.start = with pkgs.vimPlugins; [
+      "share/nvim/site" = vimUtils.packDir {
+        bigolu.start = with vimPlugins; [
           camelcasemotion
           dial-nvim
           lazy-lsp-nvim
@@ -33,7 +39,7 @@ in
           vim-sleuth
 
           # TODO: should be upstreamed to nixpkgs
-          (nixpkgs.vimUtils.buildVimPlugin {
+          (vimUtils.buildVimPlugin {
             pname = "vim-caser";
             version = pins.vim-caser.revision;
             src = pins.vim-caser;
