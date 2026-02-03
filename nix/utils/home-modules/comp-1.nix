@@ -2,13 +2,17 @@
   lib,
   pkgs,
   repositoryDirectory,
+  inputs,
   ...
 }:
 {
   services.flatpak.packages = [ "org.qbittorrent.qBittorrent" ];
 
   system = {
-    file."/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/dotfiles/sysctl/local.conf";
+    file = {
+      "/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/dotfiles/sysctl/local.conf";
+      "/usr/lib/udev/60-openrgb.rules".source = inputs.openrgb-udev-rules;
+    };
 
     activation = {
       # Whenever I resume from suspension on Pop!_OS, I get a black screen

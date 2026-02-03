@@ -53,6 +53,12 @@
       url = "github:jzbor/nix-sweep";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    openrgb-udev-rules = {
+      url = "https://openrgb.org/releases/release_0.9/60-openrgb.rules";
+      flake = false;
+      type = "file";
+    };
   };
 
   # This is only used for bundlers since the nix CLI only accepts a flakeref for

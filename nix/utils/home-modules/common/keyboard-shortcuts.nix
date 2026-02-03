@@ -87,12 +87,6 @@ let
         restartKeyd = hm.dag.entryAfter [ "installSystemFiles" ] ''
           sudo systemctl restart keyd.service &>/dev/null
         '';
-
-        # So the Keychron Launcher config can take effect immediately
-        udev = hm.dag.entryAfter [ "installSystemFiles" ] ''
-          sudo udevadm control --reload-rules
-          sudo udevadm trigger
-        '';
       };
     };
 

@@ -273,6 +273,18 @@
         "type": "github"
       }
     },
+    "openrgb-udev-rules": {
+      "flake": false,
+      "locked": {
+        "narHash": "sha256-UmobZnEuLEIwmWEV+nabGgTTERTMa6mUywG4GADZu2c=",
+        "type": "file",
+        "url": "https://openrgb.org/releases/release_0.9/60-openrgb.rules"
+      },
+      "original": {
+        "type": "file",
+        "url": "https://openrgb.org/releases/release_0.9/60-openrgb.rules"
+      }
+    },
     "root": {
       "inputs": {
         "devshell": "devshell",
@@ -286,7 +298,8 @@
         "nix-index-database": "nix-index-database",
         "nix-mk-shell-bin": "nix-mk-shell-bin",
         "nix-sweep": "nix-sweep",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "openrgb-udev-rules": "openrgb-udev-rules"
       }
     },
     "systems": {

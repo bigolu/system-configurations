@@ -97,6 +97,11 @@ in
         '';
     }
     // optionalAttrs isLinux {
+      udev = hm.dag.entryAfter [ "installSystemFiles" ] ''
+        sudo udevadm control --reload-rules
+        sudo udevadm trigger
+      '';
+
       installSystemUnits = hm.dag.entryAfter [ "writeBoundary" ] ''
         OLD_PATH="$PATH"
         PATH="$PATH:${pkgs.moreutils}/bin"
