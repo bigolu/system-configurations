@@ -14,7 +14,9 @@ vim.o.laststatus = 0
 -- see if I'll press another 'q'.
 vim.keymap.del({ "n" }, "gqq")
 
--- If I use neovim's undo, VS Code counts it as an explicit save and formats the file
+-- TODO: If I use neovim's undo, VS Code counts it as an explicit save and
+-- formats the file. Calling VS Code's undo from here also counts as an explicit
+-- save so I should see if that can be changed.
 vim.keymap.set("n", "u", function()
   vscode.call("undo")
 end)
