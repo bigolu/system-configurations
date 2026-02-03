@@ -53,7 +53,7 @@ vim.keymap.set({ "n", "x" }, "gq", function()
 end)
 
 -- Bookmarks {{{
-vim.keymap.set("n", "m/", function()
+vim.keymap.set("n", "<Leader>m", function()
   vscode.call("bookmarks.listFromAllFiles")
 end)
 vim.keymap.set("n", "mm", function()
@@ -61,6 +61,12 @@ vim.keymap.set("n", "mm", function()
 end)
 vim.keymap.set("n", "mM", function()
   vscode.call("bookmarks.toggleLabeled")
+end)
+vim.keymap.set("n", "[m", function()
+  vscode.call("bookmarks.jumpToPrevious")
+end)
+vim.keymap.set("n", "]m", function()
+  vscode.call("bookmarks.jumpToNext")
 end)
 -- }}}
 
