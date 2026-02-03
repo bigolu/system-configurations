@@ -122,37 +122,6 @@ recursiveUpdateList [
       # Merge with the original package to retain attributes like meta
       lib.recursiveUpdate oldNeovim wrappedNeovim;
 
-    myVimPluginPack = nixpkgs.vimUtils.packDir {
-      bigolu.start = with nixpkgs.vimPlugins; [
-        camelcasemotion
-        dial-nvim
-        lazy-lsp-nvim
-        mini-nvim
-        nvim-lightbulb
-        nvim-lspconfig
-        nvim-treesitter.withAllGrammars
-        nvim-treesitter-context
-        # TODO: Originally, it used `nvim-treesitter-legacy`, but you can't have
-        # multiple versions of `nvim-treesitter` in use at once.
-        (nvim-treesitter-endwise.overrideAttrs { dependencies = [ nvim-treesitter ]; })
-        nvim-treesitter-textobjects
-        nvim-ts-autotag
-        treesj
-        vim-abolish
-        vim-matchup
-        # For indentexpr
-        vim-nix
-        vim-sleuth
-
-        # TODO: should be upstreamed to nixpkgs
-        (nixpkgs.vimUtils.buildVimPlugin {
-          pname = "vim-caser";
-          version = pins.vim-caser.revision;
-          src = pins.vim-caser;
-        })
-      ];
-    };
-
     # TODO: They don't seem to be making releases anymore. I should check with the
     # author and possibly have nixpkgs track master instead.
     fishPlugins.async-prompt = nixpkgs.fishPlugins.async-prompt.overrideAttrs (_old: {

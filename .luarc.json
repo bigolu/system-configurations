@@ -5,7 +5,11 @@
     "libraryFiles": "Disable"
   },
   "workspace": {
-    "library": ["$LUA_LIBRARY_NIX", "$LUA_LIBRARY_HAMMERSPOON"],
+    "library": [
+      "$LUA_LIBRARY_NEOVIM_RUNTIME",
+      "$LUA_LIBRARY_NEOVIM_PLUGINS",
+      "$LUA_LIBRARY_HAMMERSPOON"
+    ],
     "checkThirdParty": "Disable"
   },
   "runtime": {
