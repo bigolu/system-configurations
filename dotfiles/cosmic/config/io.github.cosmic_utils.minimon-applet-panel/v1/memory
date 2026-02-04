@@ -1,6 +1,6 @@
 (
-    chart_visible: true,
-    label_visible: false,
+    chart_visible: false,
+    label_visible: true,
     chart: Ring,
     colors: (
         ring: (
@@ -23,15 +23,15 @@
                 alpha: 255,
             ),
             graph1: (
-                red: 29,
-                green: 172,
-                blue: 214,
+                red: 43,
+                green: 43,
+                blue: 43,
                 alpha: 255,
             ),
             graph2: (
-                red: 85,
-                green: 85,
-                blue: 85,
+                red: 43,
+                green: 43,
+                blue: 43,
                 alpha: 255,
             ),
             graph3: (

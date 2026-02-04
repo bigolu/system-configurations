@@ -23,9 +23,9 @@
                 alpha: 255,
             ),
             graph1: (
-                red: 255,
-                green: 6,
-                blue: 0,
+                red: 85,
+                green: 85,
+                blue: 85,
                 alpha: 255,
             ),
             graph2: (
