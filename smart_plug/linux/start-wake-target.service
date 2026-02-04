@@ -1,12 +1,13 @@
 # The goal of this service to start wake.target after sleep has ended. This is
 # tricky because systemd does not allow you to order one unit's start after the
-# stopping of another unit. One way around this is to order your unit after what I
-# call the "sleep services". The sleep services are systemd-suspend.service,
-# systemd-hybrid-sleep.service, and systemd-hibernate.service. Since they are
-# oneshot services, they end when their ExecStart commands end so if you order
-# your unit to start after they start your're effectively ordering your unit to
-# start after they end. At this point, you may be wondering why I can't just
-# order wake.target to start after the sleep services like so:
+# stopping of another unit. One way around this is to order your unit after what
+# I call the "sleep services". The sleep services are systemd-suspend.service,
+# systemd-hybrid-sleep.service, and systemd-hibernate.service. Since they're
+# oneshot services, and they don't set RemainAfterExit, they end when their
+# ExecStart commands end so if you order your unit to start after they start
+# you're effectively ordering your unit to start after they end. At this point,
+# you may be wondering why I can't just order wake.target to start after the
+# sleep services like so:
 #
 #   [Unit]
 #   After=systemd-suspend.service systemd-hybrid-sleep.service systemd-hibernate.service
@@ -20,8 +21,9 @@
 # sleep.target to ensure that when sleep.target starts, wake.target ends.
 #
 # This service works because by the time the ExecStart commands in the sleep
-# services end, sleep.target has stopped. So by ordering this service After the
-# sleep services, the ExecStart command in this service can start wake.target.
+# services end, sleep.target has stopped. This is because sleep.target sets
+# StopWhenUnneeded. So by ordering this service After the sleep services, the
+# ExecStart command in this service can start wake.target.
 
 [Unit]
 Description=Starts the wake target
