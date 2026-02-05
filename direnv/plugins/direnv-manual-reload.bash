@@ -152,7 +152,7 @@ function _dmr_add_direnv_wrapper_to_path {
   # shellcheck disable=2154
   #
   # direnv sets this variable
-  local -r direnv_wrapper="$directory/${wrapper_prefix}${direnv//\//-}"
+  local -r direnv_wrapper="$directory/${wrapper_prefix}${direnv//\//-}.bash"
   if [[ ! -e $direnv_wrapper ]]; then
     # Remove an outdated wrapper.
     #
