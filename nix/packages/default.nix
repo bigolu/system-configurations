@@ -23,7 +23,9 @@ let
     substring
     foldl'
     escapeShellArgs
+    optional
     ;
+  inherit (pkgs.stdenv.hostPlatform) isDarwin;
 
   lixOverlay =
     final: prev:
@@ -467,5 +469,10 @@ recursiveUpdateList [
       in
       # Merge with the original package to retain attributes like meta
       recursiveUpdate oldBroot newBroot;
+
+    # TODO: Remove this when the build is fixed in nixpkgs
+    renovate = nixpkgs.renovate.overrideAttrs (old: {
+      nativeBuildInputs = old.nativeBuildInputs ++ optional isDarwin nixpkgs.cctools.libtool;
+    });
   }
 ]
