@@ -8,13 +8,6 @@
 -- isn't invalidated properly.
 vim.loader.enable(false)
 
-local has_ttyin = vim.fn.has("ttyin") == 1
-local has_ttyout = vim.fn.has("ttyout") == 1
-IsRunningInTerminal = has_ttyout or has_ttyin
-
--- This needs to be set before <leader> is used in a mapping
-vim.g.mapleader = " "
-
 require("base")
 require("terminal")
 require("vs-code")
