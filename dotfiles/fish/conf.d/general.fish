@@ -263,3 +263,11 @@ function pynix
     nix shell --impure --expr \
         "(import <nixpkgs> {}).python3.withPackages (p: [$(string replace --regex -- '(.*)' 'p.$1' $argv | string join ' ')])"
 end
+function check_nix_cache
+    set hash (nix eval --raw $argv)
+    and set hash (basename $hash)
+    and set hash (string replace --regex '\-.*' '' $hash)
+    and set url https://cache.nixos.org/$hash.narinfo
+    and echo Checking $url
+    and curl $url
+end
