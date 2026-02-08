@@ -24,7 +24,7 @@ c.appearance.vertSpacing = 1.2 -- Amount of vertical space between indicators
 
 c.appearance.offset = {} -- Offset controls position of stack indicators relative to the window
 c.appearance.offset.y = 2 -- Distance from top of the window to render indicators
-c.appearance.offset.x = 3 -- Distance away from the edge of the window to render indicator
+c.appearance.offset.x = 4 -- Distance away from the edge of the window to render indicator
 
 c.appearance.shouldFade = true -- Enable/disable fade animations
 c.appearance.fadeDuration = 0.2 -- Duration of fade animations (seconds)

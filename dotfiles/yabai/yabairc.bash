@@ -24,7 +24,13 @@ yabai -m config window_origin_display cursor
 yabai -m config window_opacity on
 yabai -m config mouse_drop_action swap
 yabai -m config window_zoom_persist off
-yabai -m config window_gap 7
+
+gap=12
+yabai -m config window_gap "$gap"
+yabai -m config left_padding "$gap"
+yabai -m config right_padding "$gap"
+yabai -m config top_padding "$gap"
+yabai -m config bottom_padding "$gap"
 
 # All the macOS system GUIs e.g. System Preferences
 yabai -m rule --add label=system app="^System .*$" title=".*" manage=off
