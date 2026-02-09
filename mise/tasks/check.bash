@@ -92,9 +92,10 @@ if [[ -n ${usage_commits:-} ]]; then
     # We use `nix run ...` to ensure that we use the development environment at
     # the commit being tested.
     #
-    # We unset `PRJ_ROOT` so nix doesn't reuse the current value of `PRJ_ROOT`
-    # and instead uses `PWD` which will be the path to the worktree.
-    lefthook_command=(env --unset=PRJ_ROOT nix run --file . devShells.development -- env LEFTHOOK=1 "${lefthook_command[@]}")
+    # We unset `PRJ_ROOT` and `PRJ_DATA_DIR` so nix doesn't reuse their current
+    # values. This way, nix will set new values relative to the directory of the
+    # worktree.
+    lefthook_command=(env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR nix run --file . devShells.development -- env LEFTHOOK=1 "${lefthook_command[@]}")
 
     # Disable lefthook so git hooks don't run when `git-branchless` checks out
     # commits.
@@ -109,7 +110,8 @@ if [[ -n ${usage_commits:-} ]]; then
       --no-cache \
       --strategy worktree \
       --exec "${lefthook_command[*]@Q}" \
-      --interactive \
+      --jobs 0 \
+      --verbose \
       "${hashes//$'\n'/ | }"
   fi
 
