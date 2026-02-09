@@ -87,22 +87,23 @@ if [[ -n ${usage_commits:-} ]]; then
     # don't want to have that restriction.
     "${lefthook_command[@]}"
   else
-    # We enable lefthook since it gets disabled below.
-    #
-    # We use `nix run ...` to ensure that we use the development environment at
-    # the commit being tested.
-    #
-    # We unset `PRJ_ROOT` and `PRJ_DATA_DIR` so nix doesn't reuse their current
-    # values. This way, nix will set new values relative to the directory of the
-    # worktree.
-    lefthook_command=(env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR nix run --file . devShells.development -- env LEFTHOOK=1 "${lefthook_command[@]}")
+    lefthook_command=(
+      # Now the nix environment we load below can set new values for these
+      # variables relative to the directory of the worktree.
+      env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
+      # Use the environment of the commit being tested.
+      nix run --file . devShells.development --
+      # We enable lefthook since it gets disabled below.
+      env LEFTHOOK=1
+      "${lefthook_command[@]}"
+    )
 
     # Disable lefthook so git hooks don't run when `git-branchless` checks out
     # commits.
     #
-    # We can't use the cache since the cache doesn't invalidate when the commit
-    # message changes, only when the files in the commit change, and we lint
-    # commit messages.
+    # We can't use the cache since it isn't invalidated when the commit message
+    # changes, only when the files in the commit change. This is a problem since
+    # we lint commit messages.
     #
     # NOTE: The command given with `--exec` will be run with `sh -c`.
     LEFTHOOK=0 git-branchless test run \
@@ -111,7 +112,6 @@ if [[ -n ${usage_commits:-} ]]; then
       --strategy worktree \
       --exec "${lefthook_command[*]@Q}" \
       --jobs 0 \
-      --verbose \
       "${hashes//$'\n'/ | }"
   fi
 
