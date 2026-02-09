@@ -118,7 +118,7 @@ nixpkgs.callPackage (
               # The path to the GC roots derivation is included here to make it part
               # of the dev shell closure: ${derivation}
 
-              if [[ $DEVSHELL_GC_ROOT != 'false' ]]; then
+              if [[ ''${DEVSHELL_GC_ROOT:-} != 'false' ]]; then
                 # If the dev shell was bundled using `nix bundle`, then are things
                 # we can no longer assume:
                 #   - The presence of the `nix-store` binary: The bundle may be
