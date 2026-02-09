@@ -78,7 +78,14 @@ in
           roots = {
             flake = {
               inherit inputs;
-              exclude = if isLinux then [ "nix-darwin" ] else [ "nix-gl-host" ];
+              exclude =
+                if isLinux then
+                  [ "nix-darwin" ]
+                else
+                  [
+                    "nix-gl-host"
+                    "openrgb-udev-rules"
+                  ];
             };
 
             paths = optionals (!isCiDevShell) (
