@@ -98,6 +98,10 @@ if [[ -n ${usage_commits:-} ]]; then
       "${lefthook_command[@]}"
     )
 
+    if [[ ${CI:-} != 'true' ]]; then
+      lefthook_command=(env DEVSHELL_GC_ROOT=false "${lefthook_command[@]}")
+    fi
+
     # Disable lefthook so git hooks don't run when `git-branchless` checks out
     # commits.
     #
