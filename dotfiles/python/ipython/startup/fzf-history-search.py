@@ -59,12 +59,7 @@ def history_widget(event: Any, history_files: list[str] | None = None) -> None:
             input="\0".join(get_history_entries(history_files)).encode("utf-8"),
         )
 
-        # This startup file is also used by `jupyter console`, which doesn't use prompt
-        # toolkit, and may fail importing it.
-        try:
-            import prompt_toolkit
-        except (ImportError, ValueError):
-            return
+        import prompt_toolkit
 
         event.current_buffer.document = prompt_toolkit.document.Document(
             choice.decode("utf-8").strip()
@@ -83,21 +78,17 @@ def is_using_prompt_toolkit() -> bool:
 
 
 def main() -> None:
+    # This startup file is also used by `jupyter console`, which doesn't use
+    # prompt toolkit
     if not is_using_prompt_toolkit():
         return
 
-    # This startup file is also used by `jupyter console`, which doesn't use prompt
-    # toolkit, and may fail importing it.
-    try:
-        from prompt_toolkit.keys import Keys
-    except (ImportError, ValueError):
-        return
+    from prompt_toolkit.keys import Keys
 
     ipython = get_ipython()
     assert ipython is not None
 
-    key_bindings = ipython.pt_app.key_bindings
-    key_bindings.add(Keys.ControlR, filter=True)(history_widget)
+    ipython.pt_app.key_bindings.add(Keys.ControlR, filter=True)(history_widget)
 
 
 main()
