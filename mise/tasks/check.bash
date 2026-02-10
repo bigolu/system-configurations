@@ -98,6 +98,8 @@ if [[ -n ${usage_commits:-} ]]; then
       "${lefthook_command[@]}"
     )
 
+    # If we created a GC root in a development environment, it would never get
+    # cleaned up.
     if [[ ${CI:-} != 'true' ]]; then
       lefthook_command=(env DEVSHELL_GC_ROOT=false "${lefthook_command[@]}")
     fi
