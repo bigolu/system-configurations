@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/evilmartians/lefthook/master/schema.json
 
+no_auto_install: true
 glob_matcher: doublestar
 
 # TODO: Lefthook sets its colors based on the background color of the terminal to
@@ -154,6 +155,9 @@ sync:
         - lefthook.yaml
         - dotfiles/fish/conf.d/*.fish
       run: "{run_in_dev_shell} fish -c fish-reload"
+    - name: lefthook
+      glob: lefthook.yaml
+      run: "{run_in_dev_shell} lefthook install --force"
 
 check:
   # Custom hooks should always have a files command. See the comment below the
