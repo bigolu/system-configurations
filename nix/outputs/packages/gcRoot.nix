@@ -85,7 +85,7 @@ nixpkgs.callPackage (
         ];
     };
 
-    makeDerivation =
+    makeRootsDerivation =
       {
         roots,
         rootPath ? {
@@ -94,7 +94,7 @@ nixpkgs.callPackage (
         devShellDiff ? true,
       }:
       let
-        derivation = writeTextFile {
+        rootsDerivation = writeTextFile {
           name = "roots.txt";
           text = concatLines roots;
           passthru.script =
@@ -116,7 +116,7 @@ nixpkgs.callPackage (
             in
             ''
               # The path to the GC roots derivation is included here to make it part
-              # of the dev shell closure: ${derivation}
+              # of the dev shell closure: ${rootsDerivation}
 
               if [[ ''${DEVSHELL_GC_ROOT:-} != 'false' ]]; then
                 # If the dev shell was bundled using `nix bundle`, then are things
@@ -210,13 +210,13 @@ nixpkgs.callPackage (
             '';
         };
       in
-      derivation;
+      rootsDerivation;
   in
   config:
   pipe (config.roots or { }) [
     attrsToList
     (concatMap ({ name, value }: handlers.${name} value))
     (roots: config.script // { inherit roots; })
-    makeDerivation
+    makeRootsDerivation
   ]
 ) { }
