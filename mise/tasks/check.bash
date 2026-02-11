@@ -94,7 +94,7 @@ if [[ -n ${usage_commits:-} ]]; then
       # Use the environment of the commit being tested.
       nix run --file . devShells.development --
       # We enable lefthook since it gets disabled below.
-      env LEFTHOOK=1
+      env LEFTHOOK=true
       "${lefthook_command[@]}"
     )
 
@@ -112,7 +112,7 @@ if [[ -n ${usage_commits:-} ]]; then
     # we lint commit messages.
     #
     # NOTE: The command given with `--exec` will be run with `sh -c`.
-    LEFTHOOK=0 git-branchless test run \
+    LEFTHOOK=false git-branchless test run \
       -vv \
       --no-cache \
       --strategy worktree \
