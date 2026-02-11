@@ -101,7 +101,7 @@ function check_commits {
     # We enable lefthook since it gets disabled below.
     lefthook_env_variables+=(LEFTHOOK=true)
 
-    git_branchless_command=(
+    git_branchless_exec_command=(
       # So we can use the environment of the commit being tested
       env "${nix_run_env_variables[@]}"
       nix run --file . devShells.development --
@@ -122,7 +122,7 @@ function check_commits {
       -vv \
       --no-cache \
       --strategy worktree \
-      --exec "${git_branchless_command[*]@Q}" \
+      --exec "${git_branchless_exec_command[*]@Q}" \
       --jobs 0 \
       "${hashes//$'\n'/ | }"
   fi
