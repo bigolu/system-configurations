@@ -160,5 +160,5 @@
     bandwidth: 62500000,
     unit: Some(0),
     variant: Combined,
-    show_bytes: false,
+    show_bytes: true,
 )
