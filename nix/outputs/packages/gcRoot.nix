@@ -171,10 +171,17 @@ nixpkgs.callPackage (
                 fi
 
                 ${optionalString devShellDiff ''
-                  # If a terminal and IDE run this at the same time, the diff will only
-                  # be printed by the process that updates the GC root. To ensure the
-                  # diff is shown in the terminal, we store a separate symlink to the
-                  # dev shell that's only updated if stdout is connected to a terminal.
+                  # If a terminal and IDE run this at the same time, which can
+                  # happen if you use direnv and vscode-direnv with auto-reload
+                  # enabled, the diff will only be printed by the process that
+                  # updates the GC root. To ensure the diff is shown in the
+                  # terminal, we store a separate symlink to the dev shell
+                  # that's only updated if stdout is connected to a terminal.
+                  #
+                  # TODO: If direnv only allowed one process to reload a direnv
+                  # environment at a time then this wouldn't be needed. This
+                  # should probably be done anyway to avoid race conditions so I
+                  # should open an issue.
                   if [[ ( ! ${shellToDiff} -ef "$new_shell" ) && -t 1 ]]; then
                     if
                       [[ -e ${shellToDiff} ]] &&
