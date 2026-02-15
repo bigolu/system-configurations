@@ -53,6 +53,9 @@ vim.keymap.del({ "n" }, "==")
 vim.keymap.set({ "n", "x" }, "gq", function()
   vscode.call("rewrap.rewrapComment")
 end)
+vim.keymap.set({ "n" }, "gQ", function()
+  vscode.call("editor.action.formatDocument")
+end)
 
 -- Bookmarks {{{
 vim.keymap.set("n", "<Leader>m", function()

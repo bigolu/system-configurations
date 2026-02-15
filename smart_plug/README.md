@@ -1,13 +1,10 @@
 # Smart Plug Controller
 
-This project contains:
-
-- A script to turn a Kasa smart plug on and off.
-
-- A daemon to automatically turn it on after the computer starts up or is woken
-  up and turn it off before the computer suspends, hibernates, restarts, or
-  shuts down. The daemon is created using [systemd][systemd] and
-  [Hammerspoon][hammerspoon] for Linux and macOS respectively.
+This project contains a daemon to automatically turn a Kasa smart plug on after
+the computer starts up or is woken up and turn it off before the computer
+suspends, hibernates, restarts, or shuts down. The daemon is created using
+[systemd][systemd] and [Hammerspoon][hammerspoon] for Linux and macOS
+respectively.
 
 ## Why
 
@@ -18,23 +15,6 @@ project do it for me.
 
 > TIP: If the speaker makes a POP noise when you connect/disconnect the sound
 > source, then you probably turned the devices on/off in the wrong order.
-
-## Requirements
-
-- [Nix](https://nixos.org/) for dependencies. See the README at the root of this
-  repository for installation instructions.
-- Direnv to manage the development environment. You can install this with nix by
-  running `nix profile add nixpkgs#direnv`.
-- A Kasa smart plug
-
-## Usage
-
-- Run `python smart_plug.py --help`
-
-## Development
-
-- Enter the repository directory and run `direnv allow`. That will load all the
-  dependencies.
 
 [systemd]: https://systemd.io/
 [hammerspoon]: https://www.hammerspoon.org/
