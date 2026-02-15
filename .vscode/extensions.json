@@ -1,21 +1,14 @@
 {
   "recommendations": [
     "bmalehorn.vscode-fish",
-    "charliermarsh.ruff",
     "editorconfig.editorconfig",
-    "ericsia.pythonsnippets3",
     "golang.go",
     "hangxingliu.vscode-systemd-support",
     "jnoortheen.nix-ide",
     "ltex-plus.vscode-ltex-plus",
     "mads-hartmann.bash-ide-vscode",
     "mkhl.direnv",
-    "ms-python.debugpy",
-    "ms-python.mypy-type-checker",
-    // For the language server
-    "ms-python.python",
     "ndonfris.fish-lsp",
-    "njpwerner.autodocstring",
     "redhat.vscode-yaml",
     "rogalmic.bash-debug",
     "sumneko.lua",
@@ -23,6 +16,4 @@
     "tamasfe.even-better-toml",
     "tudoudou.json5-for-vscode",
   ],
-
-  "unwantedRecommendations": ["ms-python.vscode-pylance"],
 }

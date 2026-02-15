@@ -284,9 +284,6 @@ check:
             exclude:
               - npins/**/*
             run: deadnix --quiet --edit {files}
-          - name: ruff-fix
-            glob: "**/*.py"
-            run: ruff check --fix-only {files}
           - name: statix-fix
             glob: "**/*.nix"
             exclude:
@@ -368,16 +365,10 @@ check:
           - name: gofmt
             glob: "**/*.go"
             run: gofmt -w {files}
-          - name: ruff-format
-            glob: "**/*.py"
-            run: ruff format {files}
     - name: 3-linters
       group:
         parallel: true
         jobs:
-          - name: ruff-lint
-            glob: "**/*.py"
-            run: ruff check {files}
           - name: fish
             glob: "**/*.fish"
             # TODO: Fish doesn't support passing multiple files, I should open an
@@ -410,9 +401,6 @@ check:
             exclude:
               - "**/*.gitcommit"
             run: typos {files}
-          - name: mypy
-            glob: "**/*.py"
-            run: mypy {files}
           - name: editorconfig-checker
             exclude:
               - "**/*.gitcommit"

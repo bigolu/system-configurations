@@ -54,9 +54,6 @@ tools:
   gofmt: &gofmt
     format-stdin: true
     format-command: gofmt
-  ruff: &ruff
-    format-stdin: true
-    format-command: ruff format --stdin-filename ${INPUT}
   actionlint: &actionlint
     lint-source: actionlint
     lint-after-open: true
@@ -227,8 +224,6 @@ languages:
   go:
     - <<: *gofmt
     - <<: *staticcheck
-  python:
-    - <<: *ruff
   editorconfig:
     - <<: *config-file-validator
   ini:

@@ -40,7 +40,6 @@ makeShells
         ./modules/vscode.nix
         ./modules/lefthook/hooks/check
         ./modules/lefthook/hooks/sync.nix
-        pkgs.speakerctl.devshellModule
       ];
 
       devshell = {

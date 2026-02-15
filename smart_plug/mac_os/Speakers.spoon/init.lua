@@ -75,10 +75,10 @@ local function listen(speakerctl_path)
   end
 end
 
--- Using an interactive-login shell because Nix's zsh configuration only
--- runs in interactive mode and I installed `speakerctl` with Nix. I set an
--- environment variable so I can detect when I'm doing this from my zsh config,
--- see zshrc.zsh for details.
+-- Using an interactive-login shell because Nix's zsh configuration only runs in
+-- interactive mode and I installed `speakerctl` with Nix. I set an environment
+-- variable so I can detect when I'm doing this from my zsh config, see
+-- zshrc.zsh for details.
 get_command_output("/usr/bin/env", {
   "HAMMERSPOON_RESOLVING_ENVIRONMENT=1",
   os.getenv("SHELL"),

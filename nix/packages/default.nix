@@ -320,33 +320,13 @@ recursiveUpdateList [
     speakerctl =
       let
         programName = "speakerctl";
-        pythonEnv = nixpkgs.python3.withPackages (
-          pythonPackages: with pythonPackages; [
-            pip
-            python-kasa
-            diskcache
-            ipython
-            platformdirs
-            psutil
-            types-psutil
-            mypy
-          ]
-        );
       in
       nixpkgs.writeShellApplication {
         name = programName;
-        runtimeInputs = [ pythonEnv ];
+        runtimeInputs = [ nixpkgs.python3Packages.python-kasa ];
         meta.mainProgram = programName;
-
-        passthru = {
-          devshellModule = {
-            devshell.packages = [ pythonEnv ];
-          };
-          python = pythonEnv;
-        };
-
         text = ''
-          python ${projectRoot + /smart_plug/smart_plug.py} "$@"
+          kasa --alias plug "$@"
         '';
       };
 

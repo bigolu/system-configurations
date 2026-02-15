@@ -1,9 +1,6 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
-  inherit (lib) getExe';
   inherit (pkgs) coreutils;
-
-  ln = getExe' coreutils "ln";
 in
 {
   imports = [
@@ -38,17 +35,4 @@ in
     # For extension "golang.go"
     gopls
   ];
-
-  # For extension "ms-python.python". Link python to a stable location so I don't
-  # have to update "python.defaultInterpreterPath" in settings.json when the nix
-  # store path for python changes.
-  devshell.startup.vscode.text = ''
-    symlink="$PRJ_DATA_DIR/python"
-    target=${pkgs.speakerctl.python}
-    # VS Code automatically reloads when the symlink to Python changes so I don't
-    # want to recreate it unless it will point somewhere else.
-    if [[ ! $symlink -ef $target ]]; then
-      ${ln} --force --no-dereference --symbolic "$target" "$symlink"
-    fi
-  '';
 }

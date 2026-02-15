@@ -1,5 +1,4 @@
 {
-  "debugpy.debugJustMyCode": false,
   // Automatically restart all the other extensions after loading the direnv
   // environment. This way the other extensions will have the environment as well.
   "direnv.restart.automatic": true,
@@ -10,14 +9,13 @@
   "glspc.documentFilters": [{ "pattern": "**" }],
   "glspc.serverCommand": "efm-langserver",
   "glspc.serverCommandArguments": ["-c", "efm-langserver.yaml"],
+  // TODO: VS Code says this setting is unknown, but glspc is in fact reading
+  // it.
   "glspc.trace.server": "verbose",
   "go.lintOnSave": "off",
   "ltex.completionEnabled": true,
   "ltex.enabled": ["git-commit", "markdown"],
   "Lua.misc.executablePath": "lua-language-server",
-  "mypy-type-checker.preferDaemon": true,
-  "mypy-type-checker.reportingScope": "workspace",
-  "mypy-type-checker.importStrategy": "fromEnvironment",
   "nix.enableLanguageServer": true,
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
@@ -33,6 +31,4 @@
       },
     },
   },
-  "python.defaultInterpreterPath": ".data/python/bin/python",
-  "python.languageServer": "Jedi",
 }

@@ -5,8 +5,6 @@
     ./lua-language-server.nix
     # For `gofmt`, `go mod tidy`, and `go-tools`
     ../../../gozip.nix
-    # For running mypy
-    pkgs.speakerctl.devshellModule
   ];
 
   devshell.packages = with pkgs; [
@@ -34,7 +32,6 @@
     nodePackages.prettier
     # for renovate-config-validator
     renovate
-    ruff
     shellcheck
     shfmt
     statix

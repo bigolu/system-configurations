@@ -22,24 +22,20 @@ After=network.target
 [Service]
 # I'm using the oneshot type so I can use RemainAfterExit, see below.
 Type=oneshot
-# This service should still be considered active after the ExecStart command ends.
-# This way, ExecStop will run when the service hits one of the specified conflicts,
-# sleep.target or shutdown.target.
+# This service should still be considered active after the ExecStart command
+# ends. This way, ExecStop will run when the service hits one of the specified
+# conflicts, sleep.target or shutdown.target.
 RemainAfterExit=yes
-# Make multiple discovery attempts to account for network unavailability. For
-# example, when the machine first starts up, or wakes from sleep, the
-# network may not be online yet. I could have this service start after
+# Increase the discovery timeout to account for network unavailability. For
+# example, when the machine first starts up, or wakes from sleep, the network
+# may not be online yet. I could have this service start after
 # network-online.target, but systemd does not recommend relying on it[1]. Also,
-# that target is not useful for sleep/wake: Despite the network being turned
-# off before sleep and restarted on wake, network-online.target remains active
-# the entire time.
-#
-# I want the service to stop attempting to connect after 3 minutes. Since
-# discovery times out after 5 seconds, 36 attempts * 5 seconds = 180 seconds
-# i.e. 3 minutes.
+# that target is not useful for sleep/wake: Despite the network being turned off
+# before sleep and restarted on wake, network-online.target remains active the
+# entire time.
 #
 # [1]: https://systemd.io/NETWORK_ONLINE/
-ExecStart=@speakerctl@ --attempts 36 on
+ExecStart=@speakerctl@ --discovery-timeout 180 on
 ExecStop=@speakerctl@ off
 
 [Install]
