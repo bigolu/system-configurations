@@ -18,7 +18,6 @@ in
     };
     shell = "fish";
     activation = [
-      "fzfSetup"
       "batSetup"
     ];
   }
