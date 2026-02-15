@@ -45,8 +45,10 @@ vim.keymap.set({ "n", "x" }, "<Leader><Leader>", function()
   vscode.call("editor.action.showContextMenu")
 end)
 
--- vscode-neovim maps this to the formatter configured in vscode, but I'd rather use
--- the vim mapping which fixes indentation.
+-- Formatting {{{
+--
+-- vscode-neovim maps this to the formatter configured in vscode, but I'd rather
+-- use the vim mapping which fixes indentation.
 vim.keymap.del({ "n", "x" }, "=")
 vim.keymap.del({ "n" }, "==")
 
@@ -56,6 +58,7 @@ end)
 vim.keymap.set({ "n" }, "gQ", function()
   vscode.call("editor.action.formatDocument")
 end)
+-- }}}
 
 -- Bookmarks {{{
 vim.keymap.set("n", "<Leader>m", function()
