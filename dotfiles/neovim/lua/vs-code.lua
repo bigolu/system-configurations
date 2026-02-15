@@ -51,7 +51,6 @@ end)
 -- use the vim mapping which fixes indentation.
 vim.keymap.del({ "n", "x" }, "=")
 vim.keymap.del({ "n" }, "==")
-
 vim.keymap.set({ "n", "x" }, "gq", function()
   vscode.call("rewrap.rewrapComment")
 end)
