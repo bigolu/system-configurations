@@ -35,6 +35,7 @@ vim.api.nvim_create_autocmd({ "BufRead" }, {
   end,
 })
 
+local filetypes_with_treesitter_parser = require("nvim-treesitter.parsers")
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
   callback = function(_)
     local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
@@ -42,9 +43,9 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
       return
     end
 
-    if require("nvim-treesitter.parsers").has_parser() then
+    if filetypes_with_treesitter_parser[vim.bo.filetype] ~= nil then
       vim.wo.foldmethod = "expr"
-      vim.wo.foldexpr = "nvim_treesitter#foldexpr()"
+      vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
     else
       vim.wo.foldmethod = "indent"
     end
