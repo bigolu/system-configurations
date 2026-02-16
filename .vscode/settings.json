@@ -2,16 +2,18 @@
   // Automatically restart all the other extensions after loading the direnv
   // environment. This way the other extensions will have the environment as well.
   "direnv.restart.automatic": true,
-  "editor.defaultFormatter": "llllvvuu.llllvvuu-glspc",
+  "editor.defaultFormatter": "maximsmol.vscode-lsp-generic",
   "evenBetterToml.taplo.bundled": false,
   "files.associations": { ".envrc": "shellscript" },
   "fish-lsp.useGlobalExecutable": true,
-  "glspc.documentFilters": [{ "pattern": "**" }],
-  "glspc.serverCommand": "efm-langserver",
-  "glspc.serverCommandArguments": ["-c", "efm-langserver.yaml"],
-  // TODO: VS Code says this setting is unknown, but glspc is in fact reading
-  // it.
-  "glspc.trace.server": "verbose",
+  "lsp_generic_client.servers": {
+    "efm-langserver": {
+      "name": "efm-langserver",
+      "path": "efm-langserver",
+      "args": ["-c", "efm-langserver.yaml"],
+      "documentSelector": [{ "pattern": "**", "scheme": "file" }],
+    },
+  },
   "go.lintOnSave": "off",
   "ltex.completionEnabled": true,
   "ltex.enabled": ["git-commit", "markdown"],
