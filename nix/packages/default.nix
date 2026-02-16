@@ -145,8 +145,6 @@ recursiveUpdateList [
           "strings"
         ];
         git-extras = filterPrograms nixpkgs.git-extras [
-          "git-continue"
-          "git-abort"
           "git-wip"
           "git-info"
           "git-delete-merged-branches"
