@@ -26,7 +26,7 @@ Type=oneshot
 # ends. This way, ExecStop will run when the service hits one of the specified
 # conflicts, sleep.target or shutdown.target.
 RemainAfterExit=yes
-# Increase the discovery timeout to account for network unavailability. For
+# Increase the connection timeout to account for network unavailability. For
 # example, when the machine first starts up, or wakes from sleep, the network
 # may not be online yet. I could have this service start after
 # network-online.target, but systemd does not recommend relying on it[1]. Also,
@@ -35,7 +35,7 @@ RemainAfterExit=yes
 # entire time.
 #
 # [1]: https://systemd.io/NETWORK_ONLINE/
-ExecStart=@speakerctl@ --discovery-timeout 180 on
+ExecStart=@speakerctl@ on 180
 ExecStop=@speakerctl@ off
 
 [Install]

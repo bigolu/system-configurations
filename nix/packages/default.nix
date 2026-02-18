@@ -321,10 +321,19 @@ recursiveUpdateList [
       in
       nixpkgs.writeShellApplication {
         name = programName;
-        runtimeInputs = [ nixpkgs.python3Packages.python-kasa ];
+        runtimeInputs = with nixpkgs; [
+          bash
+          python3Packages.python-kasa
+          coreutils
+        ];
         meta.mainProgram = programName;
         text = ''
-          kasa --alias plug "$@"
+          # shellcheck disable=2016
+          timeout "''${2:-10}s" bash -c '
+            until kasa --alias plug "$1"; do
+              true
+            done
+          ' -- "$1"
         '';
       };
 
