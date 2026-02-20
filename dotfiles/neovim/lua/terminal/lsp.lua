@@ -19,6 +19,13 @@ vim.keymap.set("n", [[\i]], function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), { bufnr = 0 })
 end, { desc = "Toggle inlay hints" })
 
+vim.keymap.del({ "n" }, "grt")
+vim.keymap.del({ "n" }, "gri")
+vim.keymap.del({ "n" }, "grr")
+vim.keymap.del({ "n" }, "gra")
+vim.keymap.del({ "n" }, "grn")
+vim.keymap.set("n", "gr", vim.lsp.buf.references)
+
 -- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
 ---@diagnostic disable-next-line: duplicate-set-field
