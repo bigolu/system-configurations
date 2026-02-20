@@ -183,6 +183,14 @@ vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_node_provider = 0
 vim.g.loaded_perl_provider = 0
+
+-- I have a mapping for `gr` so having mappings with a prefix of `gr` would make
+-- vim wait for more input before executing the `gr` mapping.
+vim.keymap.del({ "n" }, "grt")
+vim.keymap.del({ "n" }, "gri")
+vim.keymap.del({ "n" }, "grr")
+vim.keymap.del({ "n" }, "gra")
+vim.keymap.del({ "n" }, "grn")
 -- }}}
 
 -- Option overrides {{{
