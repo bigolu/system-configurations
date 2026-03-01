@@ -184,6 +184,13 @@ function StatusLine()
     maximized = "%#StatusLine# "
   end
 
+  local search_count = nil
+  -- searchcount can fail e.g. if unbalanced braces in search pattern
+  local ok, search_count_info = pcall(vim.fn.searchcount)
+  if ok and search_count_info["total"] > 0 then
+    search_count = " " .. search_count_info["current"] .. "∕" .. search_count_info["total"]
+  end
+
   local lsp_info = nil
   local language_server_count_for_current_buffer = #vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
   if language_server_count_for_current_buffer > 0 then
@@ -224,6 +231,7 @@ function StatusLine()
     reg_recording,
     statusline_separator,
     maximized,
+    search_count,
     position,
     filetype,
     fileformat,
