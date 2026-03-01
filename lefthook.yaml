@@ -51,7 +51,7 @@ templates:
 # should report it. There was a pull request for always applying globs, but it was
 # closed[2].
 #
-# [1]: https://lefthook.dev/configuration/glob.html
+# [1]: https://lefthook.dev/configuration/glob/
 # [2]: https://github.com/evilmartians/lefthook/pull/595
 
 pre-push:
