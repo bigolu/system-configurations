@@ -36,7 +36,7 @@ RemainAfterExit=yes
 #
 # [1]: https://systemd.io/NETWORK_ONLINE/
 ExecStart=@speakerctl@ on 180
-ExecStop=@speakerctl@ off 20
+ExecStop=@speakerctl@ off
 
 [Install]
 # Start the service when the system either wakes or first reaches the graphical
