@@ -156,7 +156,8 @@ sync:
         - dotfiles/fish/conf.d/*.fish
       run: "{run_in_dev_shell} fish -c fish-reload"
     - name: lefthook
-      glob: lefthook.yaml
+      skip:
+        - run: lefthook check-install
       run: "{run_in_dev_shell} lefthook install --force"
 
 check:
