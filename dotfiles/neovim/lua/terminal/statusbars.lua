@@ -187,7 +187,7 @@ function StatusLine()
   local search_count = nil
   -- searchcount can fail e.g. if unbalanced braces in search pattern
   local ok, search_count_info = pcall(vim.fn.searchcount)
-  if ok and search_count_info["total"] > 0 then
+  if ok and (search_count_info["total"] or 0) > 0 then
     search_count = " " .. search_count_info["current"] .. "/" .. search_count_info["total"]
   end
 
