@@ -93,11 +93,11 @@ local function marker_fold_object()
     return ":<C-U>silent!normal![zV]z<CR>"
   end
 end
-vim.keymap.set({ "x" }, "iz", marker_fold_object, {
+vim.keymap.set({ "x" }, "iz", marker_fold_object, { -- typos:ignore
   desc = "Inner fold",
   expr = true,
 })
-vim.keymap.set({ "o" }, "iz", ":normal viz<CR>", {
+vim.keymap.set({ "o" }, "iz", ":normal viz<CR>", { -- typos:ignore
   desc = "Inner fold",
 })
 vim.keymap.set({ "x" }, "az", ":<C-U>silent!normal![zV]z<CR>", {

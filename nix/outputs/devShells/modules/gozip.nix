@@ -2,7 +2,10 @@
 {
   devshell = {
     packagesFrom = [
-      (pkgs.mkGoEnv { pwd = utils.projectRoot + /gozip; })
+      (pkgs.mkGoEnv {
+        pwd = utils.projectRoot + /gozip;
+        inherit (pkgs) go;
+      })
     ];
 
     startup.go.text = ''

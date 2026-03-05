@@ -6,7 +6,7 @@ extend-ignore-re = [
   # exclusions[1].
   #
   # [1]: https://github.com/crate-ci/typos/issues/316
-  "(?Rm)^.*(#|//)\\s*typos:ignore$",
+  "(?Rm)^.*(#|//|--)\\s*typos:ignore$",
 ]
 
 # TODO: There's an open issue for adding file types to typos for git's files, like

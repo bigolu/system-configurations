@@ -49,11 +49,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-sweep = {
-      url = "github:jzbor/nix-sweep";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     openrgb-udev-rules = {
       url = "https://openrgb.org/releases/release_0.9/60-openrgb.rules";
       flake = false;

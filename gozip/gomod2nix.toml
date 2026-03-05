@@ -1,24 +1,30 @@
 schema = 3
 
 [mod]
-  [mod."github.com/klauspost/compress"]
-    version = "v1.18.0"
-    hash = "sha256-jc5pMU/HCBFOShMcngVwNMhz9wolxjOb579868LtOuk="
-  [mod."github.com/mitchellh/colorstring"]
-    version = "v0.0.0-20190213212951-d06e56a500db"
-    hash = "sha256-dg5havre+NkxU85tbWXgdhjVtVnkNfTVa999HX+JVbQ="
-  [mod."github.com/rivo/uniseg"]
-    version = "v0.4.7"
-    hash = "sha256-rDcdNYH6ZD8KouyyiZCUEy8JrjOQoAkxHBhugrfHjFo="
-  [mod."github.com/schollz/progressbar/v3"]
-    version = "v3.18.0"
-    hash = "sha256-Y0sGKTmX8r/OfzGrotDQ9HAAx19Mr2JzW7Mu50Hvnk4="
-  [mod."golang.org/x/sync"]
-    version = "v0.16.0"
-    hash = "sha256-sqKDRESeMzLe0jWGWltLZL/JIgrn0XaIeBWCzVN3Bks="
-  [mod."golang.org/x/sys"]
-    version = "v0.35.0"
-    hash = "sha256-ZKM8pesQE6NAFZeKQ84oPn5JMhGr8g4TSwLYAsHMGSI="
-  [mod."golang.org/x/term"]
-    version = "v0.34.0"
-    hash = "sha256-faLolF6EUSSaC0ZwRiKH5JF/TmtcMQ+m+RWWl6Pk1PU="
+  [mod.'github.com/klauspost/compress']
+    version = 'v1.18.0'
+    hash = 'sha256-jc5pMU/HCBFOShMcngVwNMhz9wolxjOb579868LtOuk='
+
+  [mod.'github.com/mitchellh/colorstring']
+    version = 'v0.0.0-20190213212951-d06e56a500db'
+    hash = 'sha256-dg5havre+NkxU85tbWXgdhjVtVnkNfTVa999HX+JVbQ='
+
+  [mod.'github.com/rivo/uniseg']
+    version = 'v0.4.7'
+    hash = 'sha256-rDcdNYH6ZD8KouyyiZCUEy8JrjOQoAkxHBhugrfHjFo='
+
+  [mod.'github.com/schollz/progressbar/v3']
+    version = 'v3.18.0'
+    hash = 'sha256-Y0sGKTmX8r/OfzGrotDQ9HAAx19Mr2JzW7Mu50Hvnk4='
+
+  [mod.'golang.org/x/sync']
+    version = 'v0.16.0'
+    hash = 'sha256-sqKDRESeMzLe0jWGWltLZL/JIgrn0XaIeBWCzVN3Bks='
+
+  [mod.'golang.org/x/sys']
+    version = 'v0.35.0'
+    hash = 'sha256-ZKM8pesQE6NAFZeKQ84oPn5JMhGr8g4TSwLYAsHMGSI='
+
+  [mod.'golang.org/x/term']
+    version = 'v0.34.0'
+    hash = 'sha256-faLolF6EUSSaC0ZwRiKH5JF/TmtcMQ+m+RWWl6Pk1PU='

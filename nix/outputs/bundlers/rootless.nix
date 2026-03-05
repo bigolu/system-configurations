@@ -43,10 +43,7 @@ nixpkgs.callPackage (
 
           # Adding these tags so the gozip executable is linked statically.
           # More info: https://mt165.co.uk/blog/static-link-go/index.html
-          tags = [
-            "osusergo"
-            "netgo"
-          ];
+          tags = "osusergo,netgo";
         };
       in
       mkDerivation {

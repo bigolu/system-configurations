@@ -23,9 +23,7 @@ let
     substring
     foldl'
     escapeShellArgs
-    optional
     ;
-  inherit (pkgs.stdenv.hostPlatform) isDarwin;
 
   lixOverlay =
     final: prev:
@@ -85,9 +83,6 @@ recursiveUpdateList [
       # must be a set with either no attributes or default values for all attributes.
       { }:
       self;
-
-    # They only have a flake interface
-    nix-sweep = inputs.nix-sweep.packages.${system}.default;
 
     nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
       interpreter = bash-script;
@@ -456,10 +451,5 @@ recursiveUpdateList [
       in
       # Merge with the original package to retain attributes like meta
       recursiveUpdate oldBroot newBroot;
-
-    # TODO: Remove this when the build is fixed in nixpkgs
-    renovate = nixpkgs.renovate.overrideAttrs (old: {
-      nativeBuildInputs = old.nativeBuildInputs ++ optional isDarwin nixpkgs.cctools.libtool;
-    });
   }
 ]
