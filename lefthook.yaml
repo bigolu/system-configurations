@@ -127,7 +127,7 @@ sync:
       interactive: true
       glob:
         - lefthook.yaml
-        - direnv-recommended.bash
+        - .envrc-recommended.bash
         - "direnv/**/*"
         # Everything below affects the nix dev shell, which direnv loads
         - "**/*.nix"

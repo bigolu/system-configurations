@@ -11,7 +11,7 @@ if [[ ! -d ~/code/system-configurations ]]; then
 fi
 cd ~/code/system-configurations
 if [[ ! -e .envrc ]]; then
-  echo "source direnv-recommended.bash" >.envrc
+  echo "source .envrc-recommended.bash" >.envrc
 fi
 direnv allow
 direnv_export="$(direnv export bash)"
