@@ -16,4 +16,4 @@ if [[ ! -e $go_mod_directory/gomod2nix.toml ]]; then
   exit
 fi
 
-gomod2nix --dir "$go_mod_directory" generate
+gomod2nix --dir "$go_mod_directory" generate --with-deps

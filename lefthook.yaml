@@ -252,7 +252,7 @@ check:
             run: mise run lefthook:add-config-names-to-readme
           - name: gomod2nix
             glob: gozip/go.mod
-            run: gomod2nix --dir gozip generate
+            run: gomod2nix --dir gozip generate --with-deps
           - name: task-docs
             glob: mise/**/*
             # TODO: markdown2html-converter hasn't been updated in a couple years.

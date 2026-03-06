@@ -1,4 +1,17 @@
 schema = 3
+cachePackages = [
+  'github.com/klauspost/compress',
+  'github.com/klauspost/compress/fse',
+  'github.com/klauspost/compress/huff0',
+  'github.com/klauspost/compress/zstd',
+  'github.com/mitchellh/colorstring',
+  'github.com/rivo/uniseg',
+  'github.com/schollz/progressbar/v3',
+  'golang.org/x/sync/errgroup',
+  'golang.org/x/sync/semaphore',
+  'golang.org/x/sys/unix',
+  'golang.org/x/term'
+]
 
 [mod]
   [mod.'github.com/klauspost/compress']
