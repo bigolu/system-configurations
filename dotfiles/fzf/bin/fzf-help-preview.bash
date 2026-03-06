@@ -16,6 +16,23 @@ shopt -s inherit_errexit
 # FZF_HINTS='ctrl+a: additional binding' fzf --preview fzf-help-preview
 
 function main {
+  hint_sections=()
+
+  widget_specific_hint_section="$(make_hint_section_from_fzf_hints)"
+  if [[ -n $widget_specific_hint_section ]]; then
+    hint_sections+=("$widget_specific_hint_section")
+  fi
+
+  local -a default_hint_sections
+  make_default_hint_sections default_hint_sections
+  hint_sections+=("${default_hint_sections[@]}")
+
+  join $'\n\n' "${hint_sections[@]}"
+}
+
+function make_default_hint_sections {
+  local -n ref=$1
+
   navigation="$(
     make_hint_section \
       'Navigation' \
@@ -55,25 +72,15 @@ function main {
       '<query1> | <query2>: match any query'
   )"
 
-  default_hint_sections=(
-    "${navigation[@]}"
-    "${history[@]}"
-    "${preview_window[@]}"
-    "${search_syntax[@]}"
-  )
+  # shellcheck disable=2034
+  ref=("$navigation" "$history" "$preview_window" "$search_syntax")
+}
 
-  hint_sections=("${default_hint_sections[@]}")
+function make_hint_section_from_fzf_hints {
   if [[ -n ${FZF_HINTS:-} ]]; then
     readarray -t widget_specific_hints < <(echo -e "$FZF_HINTS")
-    widget_specific_hint_section="$(make_hint_section 'Widget-Specific' "${widget_specific_hints[@]}")"
-
-    hint_sections=(
-      "$widget_specific_hint_section"
-      "${hint_sections[@]}"
-    )
+    make_hint_section 'Widget-Specific' "${widget_specific_hints[@]}"
   fi
-
-  join $'\n\n' "${hint_sections[@]}"
 }
 
 function make_hint_section {
