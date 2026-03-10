@@ -59,7 +59,7 @@ nixpkgs.callPackage (
           #
           # I have a separate option for the derivation because you may not want to
           # do this if `keep-outputs` is enabled.
-          if [[ "''${NIX_SHEBANG_GC_ROOTS_INCLUDE_DRV:-}" == 'true' ]]; then
+          # if [[ "''${NIX_SHEBANG_GC_ROOTS_INCLUDE_DRV:-}" == 'true' ]]; then
             db="$NIX_STORE/../var/nix/db/db.sqlite"
             nix_shell_derivation_query="
               SELECT ValidPaths.path
@@ -68,7 +68,7 @@ nixpkgs.callPackage (
               WHERE DerivationOutputs.path='$out'
             "
             gc_roots_to_make+=("$(${sqlite3} "$db" "$nix_shell_derivation_query")")
-          fi
+          # fi
 
           nix build --out-link "$gc_root_dir/root" "''${gc_roots_to_make[@]}"
         fi
