@@ -221,7 +221,7 @@ function _direnv_context
     end
 
     # DIRENV_DIR starts with a '-', the `string sub` removes it
-    set directory (string sub --start 2 -- $DIRENV_DIR | path basename)
+    set directory (string sub --start 2 -- $DIRENV_DIR | string replace -- $HOME '~')
 
     set blocked ''
     # TODO: A better way to check this is in the works: https://github.com/direnv/direnv/pull/1010
