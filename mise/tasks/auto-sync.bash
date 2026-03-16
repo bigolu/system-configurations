@@ -176,23 +176,20 @@ function should_sync {
       # There's nothing to do in this case
       ;;
     'post-checkout')
-      # We should only sync if this is a branch/commit checkout and not a file
-      # checkout. The documentation says the third argument to the hook is '1' if
-      # it's a branch checkout, but this seems to include checkouts to arbitrary
-      # commits as well.
-      if (($3 != 1)); then
-        should_sync='false'
-      fi
-
-      # Don't run when we're in the middle of a pull/rebase, post-merge/post-rewrite
-      # will run when the pull/rebase is finished.
-      if [[ $last_reflog_entry =~ $pull_rebase_regex ]]; then
-        should_sync='false'
-      fi
-
-      # If the destination commit has been pushed to the default branch, I assume the
-      # user is going through the history to debug. As such, we shouldn't sync.
-      if git merge-base --is-ancestor "$2" origin; then
+      if
+        # We should only sync if this is a branch/commit checkout and not a file
+        # checkout. The documentation says the third argument to the hook is '1'
+        # if it's a branch checkout, but this seems to include checkouts to
+        # arbitrary commits as well.
+        (($3 != 1)) ||
+          # Don't run when we're in the middle of a pull/rebase,
+          # post-merge/post-rewrite will run when the pull/rebase is finished.
+          [[ $last_reflog_entry =~ $pull_rebase_regex ]] ||
+          # If the destination commit has been pushed to the default branch, I
+          # assume the user is going through the history to debug. As such, we
+          # shouldn't sync.
+          git merge-base --is-ancestor "$2" origin
+      then
         should_sync='false'
       fi
       ;;
