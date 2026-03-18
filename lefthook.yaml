@@ -432,6 +432,9 @@ check:
             # I'm not using the `root` setting to change directory because it also
             # acts as a file filter, which I don't want.
             run: "cd gozip && staticcheck ./..."
+          - name: keyd
+            glob: "**/keyd/default.conf"
+            run: keyd check {files}
     - name: 4-nix-outputs
       group:
         jobs:
