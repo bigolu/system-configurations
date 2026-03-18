@@ -195,8 +195,7 @@ tools:
   keyd: &keyd
     lint-source: keyd
     lint-after-open: true
-    lint-stdin: false
-    lint-on-save: true
+    lint-stdin: true
     lint-command: |
       # The outer and inner case statements represent include and exclude globs
       # respectively.
@@ -204,13 +203,13 @@ tools:
         */keyd/default.conf)
           case ${INPUT} in
             *)
-              keyd check ${INPUT}
+              keyd check /dev/fd/0
               ;;
           esac
           ;;
       esac
     lint-formats:
-      - "%.%#: %f:%l: %m"
+      - "%.%#: %.%#:%l: %m"
       - "%.%#: %m"
 
 languages:
