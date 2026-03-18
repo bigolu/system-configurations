@@ -119,13 +119,6 @@ recursiveUpdateList [
       # Merge with the original package to retain attributes like meta
       lib.recursiveUpdate oldNeovim wrappedNeovim;
 
-    # TODO: They don't seem to be making releases anymore. I should check with the
-    # author and possibly have nixpkgs track master instead.
-    fishPlugins.async-prompt = nixpkgs.fishPlugins.async-prompt.overrideAttrs (_old: {
-      version = pins.fish-async-prompt.revision;
-      src = pins.fish-async-prompt;
-    });
-
     partialPackages = nixpkgs.lib.recurseIntoAttrs (
       {
         xargs = filterPrograms nixpkgs.findutils [ "xargs" ];

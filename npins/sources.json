@@ -10,19 +10,6 @@
       "url": "https://github.com/Boeing/config-file-validator/releases/download/v1.8.0/validator-v1.8.0-linux-amd64.tar.gz",
       "hash": "sha256-3cxk+gC0V54VwrIyGFHmIs4TD8IqqixnPDbs+XTG0CU="
     },
-    "fish-async-prompt": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "acomagu",
-        "repo": "fish-async-prompt"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "316aa03c875b58e7c7f7d3bc9a78175aa47dbaa8",
-      "url": "https://github.com/acomagu/fish-async-prompt/archive/316aa03c875b58e7c7f7d3bc9a78175aa47dbaa8.tar.gz",
-      "hash": "sha256-J7y3BjqwuEH4zDQe4cWylLn+Vn2Q5pv0XwOSPwhw/Z0="
-    },
     "keyd": {
       "type": "Git",
       "repository": {
@@ -32,9 +19,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "30434c9382a24995e12d6c3f630cb28c48acdf66",
-      "url": "https://github.com/rvaiya/keyd/archive/30434c9382a24995e12d6c3f630cb28c48acdf66.tar.gz",
-      "hash": "sha256-qPOP5X3Pcj+vA/00PBdBI+dRqfUPzxHL4Cz9e85delA="
+      "revision": "7c0aecb8bfd34dc8642bf4eefd2e59c89e61cec3",
+      "url": "https://github.com/rvaiya/keyd/archive/7c0aecb8bfd34dc8642bf4eefd2e59c89e61cec3.tar.gz",
+      "hash": "sha256-l7yjGpicX1ly4UwF7gcOTaaHPRnxVUMwZkH70NDLL5M="
     },
     "spoons": {
       "type": "Git",
@@ -45,9 +32,9 @@
       },
       "branch": "master",
       "submodules": false,
-      "revision": "e5b871250346c3fe93bac0d431fc75f6f0e2f92a",
-      "url": "https://github.com/Hammerspoon/Spoons/archive/e5b871250346c3fe93bac0d431fc75f6f0e2f92a.tar.gz",
-      "hash": "sha256-ZRSRb2QW8hrTkdCg5xezF09DntPocE842rc4ZKt7aHY="
+      "revision": "5c20bcecc380acff5f0f5df7a718c5679aaaf62a",
+      "url": "https://github.com/Hammerspoon/Spoons/archive/5c20bcecc380acff5f0f5df7a718c5679aaaf62a.tar.gz",
+      "hash": "sha256-LeMsmm/au7GbnETVAUNNABanjU1byXpYbzWG/5nT4sM="
     },
     "stackline": {
       "type": "Git",
