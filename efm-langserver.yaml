@@ -203,7 +203,7 @@ tools:
         */keyd/default.conf)
           case ${INPUT} in
             *)
-              keyd check /dev/fd/0
+              keyd check /dev/stdin
               ;;
           esac
           ;;
