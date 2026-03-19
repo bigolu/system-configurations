@@ -197,6 +197,11 @@ tools:
     lint-after-open: true
     lint-stdin: true
     lint-command: |
+      # Linux only
+      if ! type -P keyd >/dev/null; then
+        exit 0
+      fi
+
       # The outer and inner case statements represent include and exclude globs
       # respectively.
       case ${INPUT} in
