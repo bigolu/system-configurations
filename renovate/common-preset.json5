@@ -76,8 +76,10 @@
   ],
   // Nix support is currently in beta so you have to opt in.
   //
-  // TODO: I'm disabling nix until the following bug is fixed:
-  // https://github.com/renovatebot/renovate/pull/33991
+  // TODO: I'm disabling nix until these issues are fixed:
+  // https://github.com/renovatebot/renovate/pull/37899
+  // https://github.com/renovatebot/renovate/pull/40282
+  // https://github.com/renovatebot/renovate/pull/40867
   nix: { enabled: false },
   packageRules: [
     {
