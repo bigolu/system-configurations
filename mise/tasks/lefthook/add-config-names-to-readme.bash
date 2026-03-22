@@ -10,10 +10,10 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 configs="$(
-  # shellcheck disable=2016
-  nix eval \
-    --file . context.outputs \
-    --apply '
+	# shellcheck disable=2016
+	nix eval \
+		--file . context.outputs \
+		--apply '
       outputs:
         with builtins;
         concatStringsSep
@@ -24,7 +24,7 @@ configs="$(
             (attrNames (outputs.homeConfigurations // outputs.darwinConfigurations))
           )
     ' \
-    --raw
+		--raw
 )"
 
 perl -wsi -pe '

@@ -23,36 +23,36 @@ old="$HOME/.cache/gc-roots"
 
 new="$(mktemp)"
 {
-  # We only want extant symlink destinations to be printed, but we don't want
-  # realpath to exit with a non-zero code if it encounters a broken symlink since
-  # that would cause the script to exit.
-  set +o errexit
-  realpath --quiet --canonicalize-existing /nix/var/nix/gcroots/auto/*
-  set -o errexit
+	# We only want extant symlink destinations to be printed, but we don't want
+	# realpath to exit with a non-zero code if it encounters a broken symlink since
+	# that would cause the script to exit.
+	set +o errexit
+	realpath --quiet --canonicalize-existing /nix/var/nix/gcroots/auto/*
+	set -o errexit
 } |
-  # Why we sort:
-  #   - `comm`, used below, requires input files to be sorted
-  #   - So we can compare `$old` to `$new` below
-  #   - To deduplicate, which we do by using the `--unique` flag to `sort`
-  sort --unique >"$new"
+	# Why we sort:
+	#   - `comm`, used below, requires input files to be sorted
+	#   - So we can compare `$old` to `$new` below
+	#   - To deduplicate, which we do by using the `--unique` flag to `sort`
+	sort --unique >"$new"
 
 if [[ -e $old && $(<"$old") == $(<"$new") ]]; then
-  echo 'should-save=false' >>"${GITHUB_OUTPUT:?}"
-  exit
+	echo 'should-save=false' >>"${GITHUB_OUTPUT:?}"
+	exit
 else
-  echo 'should-save=true' >>"$GITHUB_OUTPUT"
+	echo 'should-save=true' >>"$GITHUB_OUTPUT"
 fi
 
 if [[ -e $old ]]; then
-  echo '::group::GC roots diff'
-  echo 'Added roots:'
-  comm --nocheck-order -13 "$old" "$new"
-  echo
-  echo 'Removed roots:'
-  comm --nocheck-order -23 "$old" "$new"
-  echo '::endgroup::'
+	echo '::group::GC roots diff'
+	echo 'Added roots:'
+	comm --nocheck-order -13 "$old" "$new"
+	echo
+	echo 'Removed roots:'
+	comm --nocheck-order -23 "$old" "$new"
+	echo '::endgroup::'
 else
-  echo 'Old cache did not exist'
+	echo 'Old cache did not exist'
 fi
 echo '::group::All new roots'
 cat "$new"
@@ -79,9 +79,9 @@ sudo rm -rf ~root/.cache/nix
 # example, `nix flake archive` uses `fetchTree`.
 paths_to_delete=()
 for path in ~/.cache/nix/*; do
-  if [[ ! $path =~ fetcher-cache* ]]; then
-    paths_to_delete+=("$path")
-  fi
+	if [[ ! $path =~ fetcher-cache* ]]; then
+		paths_to_delete+=("$path")
+	fi
 done
 rm -rf "${paths_to_delete[@]}"
 

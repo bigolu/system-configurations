@@ -12,67 +12,67 @@ shopt -s inherit_errexit
 issue_title='Link Checker Report'
 
 function main {
-  local report
-  report="$(mktemp)"
+	local report
+	report="$(mktemp)"
 
-  # lychee exits with 2 if it finds broken links, but the script shouldn't exit if
-  # that happens.
-  set +o errexit
-  git ls-files | lychee --format markdown --output "$report" --files-from -
-  local -r lychee_exit_code=$?
-  set -o errexit
+	# lychee exits with 2 if it finds broken links, but the script shouldn't exit if
+	# that happens.
+	set +o errexit
+	git ls-files | lychee --format markdown --output "$report" --files-from -
+	local -r lychee_exit_code=$?
+	set -o errexit
 
-  if ((lychee_exit_code == 0)); then
-    close_issue
-  elif ((lychee_exit_code == 2)); then
-    add_workflow_url "$report"
-    open_issue "$report"
-  else
-    exit "$lychee_exit_code"
-  fi
+	if ((lychee_exit_code == 0)); then
+		close_issue
+	elif ((lychee_exit_code == 2)); then
+		add_workflow_url "$report"
+		open_issue "$report"
+	else
+		exit "$lychee_exit_code"
+	fi
 }
 
 function add_workflow_url {
-  local -r report="$1"
-  echo \
-    "<footer><a href=\"${GITHUB_WORKFLOW_RUN_URL:-}\">Workflow run</a></footer>" \
-    >>"$report"
+	local -r report="$1"
+	echo \
+		"<footer><a href=\"${GITHUB_WORKFLOW_RUN_URL:-}\">Workflow run</a></footer>" \
+		>>"$report"
 }
 
 function open_issue {
-  local -r report="$1"
+	local -r report="$1"
 
-  local issue_number
-  issue_number="$(find_issue)"
-  if [[ -n $issue_number ]]; then
-    gh issue edit --body-file "$report" "$issue_number"
-  else
-    gh issue create --title "$issue_title" --body-file "$report"
-  fi
+	local issue_number
+	issue_number="$(find_issue)"
+	if [[ -n $issue_number ]]; then
+		gh issue edit --body-file "$report" "$issue_number"
+	else
+		gh issue create --title "$issue_title" --body-file "$report"
+	fi
 }
 
 function close_issue {
-  local issue_number
-  issue_number="$(find_issue)"
-  if [[ -n $issue_number ]]; then
-    gh issue close "$issue_number" \
-      --reason 'not planned' \
-      --comment "This issue was closed by a [subsequent, successful workflow run](${GITHUB_WORKFLOW_RUN_URL:-})."
-  fi
+	local issue_number
+	issue_number="$(find_issue)"
+	if [[ -n $issue_number ]]; then
+		gh issue close "$issue_number" \
+			--reason 'not planned' \
+			--comment "This issue was closed by a [subsequent, successful workflow run](${GITHUB_WORKFLOW_RUN_URL:-})."
+	fi
 }
 
 function find_issue {
-  gh issue list \
-    --json title,number \
-    --jq ".[] | select(.title == \"$issue_title\") | .number"
+	gh issue list \
+		--json title,number \
+		--jq ".[] | select(.title == \"$issue_title\") | .number"
 }
 
 function gh {
-  if [[ ${CI:-} == 'true' ]]; then
-    command gh "$@"
-  else
-    echo 'gh:' "$@" >&2
-  fi
+	if [[ ${CI:-} == 'true' ]]; then
+		command gh "$@"
+	else
+		echo 'gh:' "$@" >&2
+	fi
 }
 
 main "$@"

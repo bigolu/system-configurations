@@ -44,25 +44,25 @@ vim.o.shortmess = "ltToOFs"
 vim.keymap.set("", "<C-s>", vim.cmd.wall)
 
 local function c_x(buffer)
-  vim.keymap.set("", "<C-x>", function()
-    vim.cmd([[
+	vim.keymap.set("", "<C-x>", function()
+		vim.cmd([[
       confirm xall
     ]])
-  end, {
-    buffer = buffer,
-  })
+	end, {
+		buffer = buffer,
+	})
 end
 c_x()
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "gitrebase",
-  callback = function()
-    c_x(true)
-  end,
+	pattern = "gitrebase",
+	callback = function()
+		c_x(true)
+	end,
 })
 
 -- suspend vim
 vim.keymap.set({ "n", "i", "x" }, "<C-z>", "<Cmd>suspend<CR>", {
-  desc = "Suspend [background]",
+	desc = "Suspend [background]",
 })
 
 -- To have separate mappings for <Tab> and <C-i> you have to map both. Since I
@@ -71,54 +71,54 @@ vim.keymap.set({ "n", "i", "x" }, "<C-z>", "<Cmd>suspend<CR>", {
 vim.keymap.set({ "n" }, "<C-i>", "<C-i>")
 
 vim.keymap.set("n", [[\ ]], function()
-  vim.o.list = not vim.o.list
+	vim.o.list = not vim.o.list
 end, { silent = true, desc = "Toggle whitespace indicator" })
 vim.keymap.set("n", [[\n]], function()
-  vim.o.number = not vim.o.number
+	vim.o.number = not vim.o.number
 end, { silent = true, desc = "Toggle line numbers" })
 
 vim.keymap.set("n", "<C-q>", function()
-  vim.cmd([[
+	vim.cmd([[
     silent! wall
   ]])
 
-  local tab_count = vim.fn.tabpagenr("$")
+	local tab_count = vim.fn.tabpagenr("$")
 
-  local function is_not_float(window)
-    return vim.api.nvim_win_get_config(window).relative == ""
-  end
-  local window_count = #vim.tbl_filter(is_not_float, vim.api.nvim_list_wins())
+	local function is_not_float(window)
+		return vim.api.nvim_win_get_config(window).relative == ""
+	end
+	local window_count = #vim.tbl_filter(is_not_float, vim.api.nvim_list_wins())
 
-  -- If this is the last tab and window, exit vim
-  local is_last_window = window_count == 1
-  if tab_count == 1 and is_last_window then
-    local is_linked_to_file = #vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()) > 0
-    -- Only `confirm` if the buffer is linked to a file
-    if is_linked_to_file then
-      vim.cmd([[
+	-- If this is the last tab and window, exit vim
+	local is_last_window = window_count == 1
+	if tab_count == 1 and is_last_window then
+		local is_linked_to_file = #vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()) > 0
+		-- Only `confirm` if the buffer is linked to a file
+		if is_linked_to_file then
+			vim.cmd([[
         confirm qall
       ]])
-    else
-      -- add '!' to ignore unsaved changes
-      vim.cmd([[
+		else
+			-- add '!' to ignore unsaved changes
+			vim.cmd([[
         qall!
       ]])
-    end
-    return
-  end
+		end
+		return
+	end
 
-  vim.cmd.close()
+	vim.cmd.close()
 end, { silent = true, desc = "Close pane [split,window]" })
 -- }}}
 
 -- Autosave {{{
 -- Emulates the behavior of VS Code's autosave "onFocusChange"
 vim.api.nvim_create_autocmd({ "FocusLost", "VimSuspend", "BufLeave" }, {
-  callback = function(_)
-    vim.cmd([[
+	callback = function(_)
+		vim.cmd([[
       silent! wall
     ]])
-  end,
+	end,
 })
 -- }}}
 
@@ -144,31 +144,31 @@ vim.o.showcmdloc = "statusline"
 
 vim.keymap.set("c", "<C-a>", "<C-b>", { remap = true })
 vim.keymap.set({ "ca" }, "lua", function()
-  if vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == "lua" then
-    return "lua="
-  else
-    return "lua"
-  end
+	if vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == "lua" then
+		return "lua="
+	else
+		return "lua"
+	end
 end, { expr = true })
 vim.keymap.set({ "ca" }, "h", function()
-  if vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == "h" then
-    return "tab help"
-  else
-    return "h"
-  end
+	if vim.fn.getcmdtype() == ":" and vim.fn.getcmdline() == "h" then
+		return "tab help"
+	else
+		return "h"
+	end
 end, { expr = true })
 
 vim.api.nvim_create_autocmd("CmdlineEnter", {
-  pattern = [=[[/\?]]=],
-  callback = function()
-    vim.o.hlsearch = true
-  end,
+	pattern = [=[[/\?]]=],
+	callback = function()
+		vim.o.hlsearch = true
+	end,
 })
 vim.api.nvim_create_autocmd("CmdlineLeave", {
-  pattern = [=[[/\?]]=],
-  callback = function()
-    vim.o.hlsearch = false
-  end,
+	pattern = [=[[/\?]]=],
+	callback = function()
+		vim.o.hlsearch = false
+	end,
 })
 -- }}}
 
@@ -176,9 +176,9 @@ vim.api.nvim_create_autocmd("CmdlineLeave", {
 vim.keymap.set("t", "jk", [[<C-\><C-n>]])
 
 vim.api.nvim_create_autocmd("TermOpen", {
-  callback = function(_)
-    vim.cmd.startinsert()
-  end,
+	callback = function(_)
+		vim.cmd.startinsert()
+	end,
 })
 -- }}}
 

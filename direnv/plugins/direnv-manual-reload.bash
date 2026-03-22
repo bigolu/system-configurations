@@ -49,123 +49,123 @@
 # [2]: https://github.com/nix-community/nix-direnv?tab=readme-ov-file#tracked-files
 # [3]: https://github.com/direnv/direnv-vscode
 function direnv_manual_reload {
-  local directory
-  directory="$(_dmr_make_directory)"
+	local directory
+	directory="$(_dmr_make_directory)"
 
-  local reload_file
-  reload_file="$(_dmr_make_reload_file "$directory")"
+	local reload_file
+	reload_file="$(_dmr_make_reload_file "$directory")"
 
-  _dmr_set_watch_list "$reload_file"
-  _dmr_disable_file_watching
-  _dmr_add_direnv_wrapper_to_path "$directory" "$reload_file"
-  # If the user calls `direnv_manual_reload` in their config and then removes
-  # it, the original `direnv reload` behavior should be restored. To do this, we
-  # set an environment variable when `direnv_manual_reload` is called and the
-  # direnv wrapper will only use the manual-reload behavior when this variable
-  # is set.
-  export DIRENV_MANUAL_RELOAD=true
+	_dmr_set_watch_list "$reload_file"
+	_dmr_disable_file_watching
+	_dmr_add_direnv_wrapper_to_path "$directory" "$reload_file"
+	# If the user calls `direnv_manual_reload` in their config and then removes
+	# it, the original `direnv reload` behavior should be restored. To do this, we
+	# set an environment variable when `direnv_manual_reload` is called and the
+	# direnv wrapper will only use the manual-reload behavior when this variable
+	# is set.
+	export DIRENV_MANUAL_RELOAD=true
 }
 
 function _dmr_make_directory {
-  local directory
-  directory="$(direnv_layout_dir)/manual-reload"
+	local directory
+	directory="$(direnv_layout_dir)/manual-reload"
 
-  if [[ ! -e $directory ]]; then
-    mkdir -p "$directory"
-  fi
+	if [[ ! -e $directory ]]; then
+		mkdir -p "$directory"
+	fi
 
-  echo "$directory"
+	echo "$directory"
 }
 
 function _dmr_make_reload_file {
-  local -r directory="$1"
+	local -r directory="$1"
 
-  local -r reload_file="$directory/reload"
-  if [[ ! -e $reload_file ]]; then
-    # Create a file without using an external command
-    true >"$reload_file"
-  fi
+	local -r reload_file="$directory/reload"
+	if [[ ! -e $reload_file ]]; then
+		# Create a file without using an external command
+		true >"$reload_file"
+	fi
 
-  echo "$reload_file"
+	echo "$reload_file"
 }
 
 function _dmr_set_watch_list {
-  local -r reload_file="$1"
+	local -r reload_file="$1"
 
-  local -a watched_files
-  shopt -s lastpipe
-  # shellcheck disable=2312
-  # pipefail will be enabled when direnv runs
-  direnv watch-print --null | readarray -d '' watched_files
-  shopt -u lastpipe
+	local -a watched_files
+	shopt -s lastpipe
+	# shellcheck disable=2312
+	# pipefail will be enabled when direnv runs
+	direnv watch-print --null | readarray -d '' watched_files
+	shopt -u lastpipe
 
-  local -a allow_and_deny_files
-  local file
-  for file in "${watched_files[@]}"; do
-    if [[ $file =~ "${XDG_DATA_HOME:-$HOME/.local/share}/direnv/"('allow'|'deny')'/'* ]]; then
-      allow_and_deny_files+=("$file")
-    fi
-  done
+	local -a allow_and_deny_files
+	local file
+	for file in "${watched_files[@]}"; do
+		if [[ $file =~ "${XDG_DATA_HOME:-$HOME/.local/share}/direnv/"('allow'|'deny')'/'* ]]; then
+			allow_and_deny_files+=("$file")
+		fi
+	done
 
-  unset DIRENV_WATCHES
-  # Keep the allow/deny files, so `direnv allow/deny` still triggers a reload.
-  watch_file "${allow_and_deny_files[@]}" "$reload_file"
+	unset DIRENV_WATCHES
+	# Keep the allow/deny files, so `direnv allow/deny` still triggers a reload.
+	watch_file "${allow_and_deny_files[@]}" "$reload_file"
 }
 
 function _dmr_disable_file_watching {
-  # Override the watch functions from the direnv stdlib with no-ops.
-  #
-  # TODO: While these are the only public APIs for modifying the watch list, users
-  # could still mutate the DIRENV_WATCHES environment variable directly or call the
-  # private subcommands in direnv for manipulating the watch list e.g. `direnv
-  # (watch|watch-list|watch-dir)`. We could account for that by using an exit trap
-  # that sets the watch list. Maybe we should do that instead of disabling these
-  # functions.
-  #
-  # shellcheck disable=2329
-  function watch_file {
-    :
-  }
-  # shellcheck disable=2329
-  function watch_dir {
-    :
-  }
+	# Override the watch functions from the direnv stdlib with no-ops.
+	#
+	# TODO: While these are the only public APIs for modifying the watch list, users
+	# could still mutate the DIRENV_WATCHES environment variable directly or call the
+	# private subcommands in direnv for manipulating the watch list e.g. `direnv
+	# (watch|watch-list|watch-dir)`. We could account for that by using an exit trap
+	# that sets the watch list. Maybe we should do that instead of disabling these
+	# functions.
+	#
+	# shellcheck disable=2329
+	function watch_file {
+		:
+	}
+	# shellcheck disable=2329
+	function watch_dir {
+		:
+	}
 }
 
 function _dmr_add_direnv_wrapper_to_path {
-  local -r directory="$1"
-  local -r reload_file="$2"
+	local -r directory="$1"
+	local -r reload_file="$2"
 
-  # We can't use `$(direnv_layout_dir)/bin` because other plugins use that and
-  # if they add that directory to the path before us, then when we try to get
-  # the path to direnv above, we may get the path to our wrapper.
-  local bin_directory
-  bin_directory="$directory/bin"
-  if [[ ! -e $bin_directory ]]; then
-    mkdir -p "$bin_directory"
-  fi
-  # Ensure we don't add the same directory to the PATH twice.
-  PATH_rm "$bin_directory"
-  PATH_add "$bin_directory"
+	# We can't use `$(direnv_layout_dir)/bin` because other plugins use that and
+	# if they add that directory to the path before us, then when we try to get
+	# the path to direnv above, we may get the path to our wrapper.
+	local bin_directory
+	bin_directory="$directory/bin"
+	if [[ ! -e $bin_directory ]]; then
+		mkdir -p "$bin_directory"
+	fi
+	# Ensure we don't add the same directory to the PATH twice.
+	PATH_rm "$bin_directory"
+	PATH_add "$bin_directory"
 
-  local -r wrapper_prefix='direnv-wrapper-'
-  # shellcheck disable=2154
-  #
-  # direnv sets this variable
-  local -r direnv_wrapper="$directory/${wrapper_prefix}${direnv//\//-}.bash"
-  if [[ ! -e $direnv_wrapper ]]; then
-    # Remove an outdated wrapper.
-    #
-    # `-f` avoids an error if it doesn't exist and avoids a race condition
-    # between multiple instances of direnv e.g. a direnv editor extension and
-    # the terminal.
-    rm -f "$directory/$wrapper_prefix"*
-  fi
+	local -r wrapper_prefix='direnv-wrapper-'
+	# shellcheck disable=2154
+	#
+	# direnv sets this variable
+	local -r direnv_wrapper="$directory/${wrapper_prefix}${direnv//\//-}.bash"
+	if [[ ! -e $direnv_wrapper ]]; then
+		# Remove an outdated wrapper.
+		#
+		# `-f` avoids an error if it doesn't exist and avoids a race condition
+		# between multiple instances of direnv e.g. a direnv editor extension and
+		# the terminal.
+		rm -f "$directory/$wrapper_prefix"*
+	fi
 
-  local -r reload_file_escaped="$(printf '%q' "$reload_file")"
-  local -r direnv_path_escaped="$(printf '%q' "$direnv")"
-  local -r bin_directory_escaped="$(printf '%q' "$bin_directory")"
-  local -r reload_program_content="#!/usr/bin/env bash
+	local -r reload_file_escaped="$(printf '%q' "$reload_file")"
+	local -r direnv_path_escaped="$(printf '%q' "$direnv")"
+	local -r bin_directory_escaped="$(printf '%q' "$bin_directory")"
+	local -r reload_program_content="#!/usr/bin/env bash
     set -o errexit
     set -o nounset
     set -o pipefail
@@ -201,30 +201,30 @@ function _dmr_add_direnv_wrapper_to_path {
     fi
   "
 
-  # TODO(perf): To avoid always remaking this file, we could add the version of this
-  # script to the file name and make a symlink to it without the version. This way,
-  # we could do a `-e` check to avoid creating the file again. This isn't done
-  # because this script currently isn't versioned.
-  _dmr_atomic_make_file "$reload_program_content" "$direnv_wrapper"
+	# TODO(perf): To avoid always remaking this file, we could add the version of this
+	# script to the file name and make a symlink to it without the version. This way,
+	# we could do a `-e` check to avoid creating the file again. This isn't done
+	# because this script currently isn't versioned.
+	_dmr_atomic_make_file "$reload_program_content" "$direnv_wrapper"
 
-  if [[ ! -x $direnv_wrapper ]]; then
-    chmod +x "$direnv_wrapper"
-  fi
+	if [[ ! -x $direnv_wrapper ]]; then
+		chmod +x "$direnv_wrapper"
+	fi
 
-  # We use `-f` to avoid a race condition between multiple instances of direnv e.g.
-  # a direnv editor extension and the terminal.
-  ln -fs "$direnv_wrapper" "$bin_directory/direnv"
+	# We use `-f` to avoid a race condition between multiple instances of direnv e.g.
+	# a direnv editor extension and the terminal.
+	ln -fs "$direnv_wrapper" "$bin_directory/direnv"
 }
 
 function _dmr_atomic_make_file {
-  local -r content="$1"
-  local -r path="$2"
+	local -r content="$1"
+	local -r path="$2"
 
-  local temp
-  temp="$(mktemp)"
+	local temp
+	temp="$(mktemp)"
 
-  echo "$content" >"$temp"
-  # We use `-f` to avoid a race condition between multiple instances of direnv e.g. a
-  # direnv editor extension and the terminal.
-  mv -f "$temp" "$path"
+	echo "$content" >"$temp"
+	# We use `-f` to avoid a race condition between multiple instances of direnv e.g. a
+	# direnv editor extension and the terminal.
+	mv -f "$temp" "$path"
 }

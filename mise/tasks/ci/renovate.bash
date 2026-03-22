@@ -21,7 +21,7 @@ export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
 export LOG_LEVEL='debug'
 
 if [[ ''${CI:-} != 'true' ]]; then
-  export RENOVATE_DRY_RUN='full'
+	export RENOVATE_DRY_RUN='full'
 fi
 
 # I want to run scripts from this repository in Renovate's `postUpgradeTasks`.

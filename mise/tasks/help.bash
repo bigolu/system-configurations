@@ -10,9 +10,9 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 if [[ $OSTYPE == linux* ]]; then
-  opener='xdg-open'
+	opener='xdg-open'
 else
-  opener='open'
+	opener='open'
 fi
 
 "$opener" "$PWD/docs/tasks.html"

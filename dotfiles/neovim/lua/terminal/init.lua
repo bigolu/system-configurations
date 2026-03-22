@@ -1,5 +1,5 @@
 if not IsRunningInTerminal then
-  return
+	return
 end
 
 require("terminal.aesthetic")

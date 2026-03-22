@@ -1,8 +1,12 @@
 #:schema https://json.schemastore.org/prettierrc
 
-# Prettier shouldn't be adding trailing commas to jsonc since
-# that's not in the spec. Until they fix this I'll disable it:
-# https://github.com/prettier/prettier/issues/15956
+# While there's no official specification for jsonc, there's a draft which
+# states that some jsonc parsers may not have support for trailing commas[1]. To
+# be safe, we won't use them. There's an open issue to have prettier stop adding
+# trailing commas[2].
+#
+# [1]: https://jsonc.org/#:~:text=Trailing%20commas
+# [2]: https://github.com/prettier/prettier/issues/15956
 [[overrides]]
 files = ["*.jsonc"]
 [overrides.options]

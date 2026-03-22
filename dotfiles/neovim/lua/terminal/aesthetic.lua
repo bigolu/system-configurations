@@ -17,17 +17,17 @@ vim.cmd.colorscheme("bigolu")
 local blink = "blinkwait0-blinkon150-blinkoff150"
 local bar = "ver25"
 local function set_cursor()
-  -- Block cursor in normal mode, thin line in insert mode, and underline in replace
-  -- mode
-  vim.o.guicursor = string.format("n-v:block-%s,i-c-ci-ve:%s-%s,r-cr-o:hor20-%s", blink, bar, blink, blink)
+	-- Block cursor in normal mode, thin line in insert mode, and underline in replace
+	-- mode
+	vim.o.guicursor = string.format("n-v:block-%s,i-c-ci-ve:%s-%s,r-cr-o:hor20-%s", blink, bar, blink, blink)
 end
 local function reset_cursor()
-  vim.o.guicursor = string.format("a:%s-%s", bar, blink)
+	vim.o.guicursor = string.format("a:%s-%s", bar, blink)
 end
 set_cursor()
 vim.api.nvim_create_autocmd({ "VimLeave", "VimSuspend" }, {
-  callback = reset_cursor,
+	callback = reset_cursor,
 })
 vim.api.nvim_create_autocmd({ "VimResume" }, {
-  callback = set_cursor,
+	callback = set_cursor,
 })

@@ -10,7 +10,7 @@ shopt -s inherit_errexit
 # windows, which I don't want, so I only set tiling mode if it isn't already set
 layout="$(yabai -m config layout)"
 if [[ $layout != 'bsp' ]]; then
-  yabai -m config layout bsp
+	yabai -m config layout bsp
 fi
 
 # Remove existing signal handlers. The remove command will fail if there's
@@ -43,15 +43,15 @@ yabai -m rule --add label=firefox app="^Firefox$" title="^Log in to your PayPal 
 
 # Hide the stack indicators if the current window is maximized and not in a stack.
 function hide_stackline {
-  if
-    yabai -m query --windows --window |
-      jq --exit-status '."has-fullscreen-zoom" and ."stack-index" == 0' 1>/dev/null 2>&1
-  then
-    alpha=0
-  else
-    alpha=1
-  fi
-  hs -c "if stackline.config:get([[appearance.alpha]]) ~= $alpha then stackline.config:set([[appearance.alpha]], $alpha) end"
+	if
+		yabai -m query --windows --window |
+			jq --exit-status '."has-fullscreen-zoom" and ."stack-index" == 0' 1>/dev/null 2>&1
+	then
+		alpha=0
+	else
+		alpha=1
+	fi
+	hs -c "if stackline.config:get([[appearance.alpha]]) ~= $alpha then stackline.config:set([[appearance.alpha]], $alpha) end"
 }
 call_hide_stackline="$(declare -f hide_stackline)"$'\n''hide_stackline'
 yabai -m signal --add label=hidestackline event=window_resized action="$call_hide_stackline"

@@ -22,7 +22,7 @@
 # [1]: https://unix.stackexchange.com/questions/257571/why-does-bashrc-check-whether-the-current-shell-is-interactive
 # [2]: https://stackoverflow.com/a/415444
 if [[ $- != *i* ]]; then
-  return
+	return
 fi
 
 # There are a few cases where Bash get launched interactively even though it won't be
@@ -46,12 +46,12 @@ fi
 # [2]: https://github.com/microsoft/vscode/issues/177126#issuecomment-1630889619
 # [3]: https://github.com/microsoft/vscode/issues/163186
 if [[ -n ${VSCODE_RESOLVING_ENVIRONMENT:-} ]] || [[ ! -t 1 ]]; then
-  return
+	return
 fi
 
 # If the current shell isn't fish, exec into fish. My reason for doing this is in
 # README.md
 fish_path="$(type -P fish)"
 if [[ ${SHELL##*/} != 'fish' ]] && [[ -n $fish_path ]]; then
-  SHELL="$fish_path" exec fish
+	SHELL="$fish_path" exec fish
 fi

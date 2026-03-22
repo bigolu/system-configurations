@@ -14,10 +14,10 @@ temp="$(mktemp --directory)"
 #
 # shellcheck disable=2016
 doppler run \
-  --mount "$temp/doppler-mount" \
-  --mount-format 'env' \
-  --only-secrets GH_TOKEN \
-  --only-secrets GITHUB_TOKEN \
-  --only-secrets RENOVATE_TOKEN \
-  -- \
-  bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >.env'
+	--mount "$temp/doppler-mount" \
+	--mount-format 'env' \
+	--only-secrets GH_TOKEN \
+	--only-secrets GITHUB_TOKEN \
+	--only-secrets RENOVATE_TOKEN \
+	-- \
+	bash -c 'cat "$DOPPLER_CLI_SECRETS_PATH" >.env'

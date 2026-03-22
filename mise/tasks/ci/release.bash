@@ -12,38 +12,38 @@ shopt -s inherit_errexit
 tag='latest'
 
 function main {
-  delete_old_release
-  make_new_release
+	delete_old_release
+	make_new_release
 }
 
 function delete_old_release {
-  gh release delete "$tag" --yes --cleanup-tag
+	gh release delete "$tag" --yes --cleanup-tag
 }
 
 function make_new_release {
-  local title
-  title="$(date +'%Y.%m.%d')"
+	local title
+	title="$(date +'%Y.%m.%d')"
 
-  local checksum_file
-  checksum_file="$(mktemp --directory)/checksums.txt"
-  # This way only the basenames of the assets will be put in the checksum file
-  pushd assets >/dev/null
-  sha256sum -- * >"$checksum_file"
-  popd >/dev/null
+	local checksum_file
+	checksum_file="$(mktemp --directory)/checksums.txt"
+	# This way only the basenames of the assets will be put in the checksum file
+	pushd assets >/dev/null
+	sha256sum -- * >"$checksum_file"
+	popd >/dev/null
 
-  gh release create "$tag" \
-    --latest \
-    --title "$title" \
-    --notes-file .github/release_notes.md \
-    assets/* "$checksum_file"
+	gh release create "$tag" \
+		--latest \
+		--title "$title" \
+		--notes-file .github/release_notes.md \
+		assets/* "$checksum_file"
 }
 
 function gh {
-  if [[ ${CI:-} == 'true' ]]; then
-    command gh "$@"
-  else
-    echo 'gh:' "$@" >&2
-  fi
+	if [[ ${CI:-} == 'true' ]]; then
+		command gh "$@"
+	else
+		echo 'gh:' "$@" >&2
+	fi
 }
 
 main

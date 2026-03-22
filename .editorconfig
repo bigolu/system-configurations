@@ -2,21 +2,15 @@
 # file. Otherwise, it would continue to search more parent directories.
 root = true
 
+# We use editorconfig-checker to ensure that all files adhere to the settings in
+# this config. We only configure the options below since failure to adhere to them
+# could cause bugs. The other options that editorconfig supports can be handled by formatters.
 [*]
 charset = utf-8
 end_of_line = lf
 insert_final_newline = true
-indent_style = space
-indent_size = 2
-trim_trailing_whitespace = true
 
-[*.{fish,py}]
-indent_size = 4
-
-[{go.{mod,sum},*.go}]
-indent_style = tab
-
-[*.{sh,bash}]
 # These are read by `shfmt`
+[*.{sh,bash}]
 simplify = true
 switch_case_indent = true

@@ -12,7 +12,7 @@ shopt -s inherit_errexit
 other_stacked_window="$(yabai -m query --windows --window stack.prev 2>/dev/null || yabai -m query --windows --window stack.next 2>/dev/null)"
 other_stacked_window_id="$(jq --raw-output '.id' <<<"$other_stacked_window")"
 if [[ -z $other_stacked_window_id ]]; then
-  exit 1
+	exit 1
 fi
 
 # remove current window from stack

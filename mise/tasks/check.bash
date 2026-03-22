@@ -24,143 +24,143 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 function main {
-  if [[ -n ${usage_rebase:-} ]]; then
-    check_commits_with_rebase
-  elif [[ -n ${usage_commits:-} ]]; then
-    check_commits
-  else
-    # Assume `--files` was given
-    check_files
-  fi
+	if [[ -n ${usage_rebase:-} ]]; then
+		check_commits_with_rebase
+	elif [[ -n ${usage_commits:-} ]]; then
+		check_commits
+	else
+		# Assume `--files` was given
+		check_files
+	fi
 }
 
 function check_commits_with_rebase {
-  local start=''
-  if [[ $usage_rebase == 'not-pushed' ]]; then
-    start="$(git merge-base '@{push}' HEAD)"
-  else
-    start="$usage_rebase"
-  fi
+	local start=''
+	if [[ $usage_rebase == 'not-pushed' ]]; then
+		start="$(git merge-base '@{push}' HEAD)"
+	else
+		start="$usage_rebase"
+	fi
 
-  # Save a reference to the commit we were on before the rebase started, in case
-  # we want to go back.
-  git update-ref refs/project/ir-backup HEAD
+	# Save a reference to the commit we were on before the rebase started, in case
+	# we want to go back.
+	git update-ref refs/project/ir-backup HEAD
 
-  local -r all_files="${usage_all_files:+ --all-files}"
-  local -r jobs=${usage_jobs:+ $usage_jobs}
-  # The arguments for this task should not be inherited by the one we run in `--exec`
-  # or any other tasks that get run during the interactive rebase.
-  unset "${!usage_@}"
+	local -r all_files="${usage_all_files:+ --all-files}"
+	local -r jobs=${usage_jobs:+ $usage_jobs}
+	# The arguments for this task should not be inherited by the one we run in `--exec`
+	# or any other tasks that get run during the interactive rebase.
+	unset "${!usage_@}"
 
-  git rebase \
-    --interactive \
-    --exec "mise run check --commits head$all_files$jobs" \
-    "$start"
+	git rebase \
+		--interactive \
+		--exec "mise run check --commits head$all_files$jobs" \
+		"$start"
 }
 
 function check_commits {
-  local range=''
-  if [[ $usage_commits == 'head' ]]; then
-    range='HEAD^!'
-  else
-    range="$usage_commits"
-  fi
-  local hashes
-  hashes="$(git log "$range" --pretty=%h)"
-  if [[ -z $hashes ]]; then
-    exit 0
-  fi
+	local range=''
+	if [[ $usage_commits == 'head' ]]; then
+		range='HEAD^!'
+	else
+		range="$usage_commits"
+	fi
+	local hashes
+	hashes="$(git log "$range" --pretty=%h)"
+	if [[ -z $hashes ]]; then
+		exit 0
+	fi
 
-  local -a lefthook_command
-  make_lefthook_command lefthook_command
+	local -a lefthook_command
+	make_lefthook_command lefthook_command
 
-  local -a lefthook_env_variables=(LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true)
-  if [[ -n ${usage_all_files:-} ]]; then
-    lefthook_env_variables+=(LEFTHOOK_ALL_FILES=true)
-  fi
+	local -a lefthook_env_variables=(LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true)
+	if [[ -n ${usage_all_files:-} ]]; then
+		lefthook_env_variables+=(LEFTHOOK_ALL_FILES=true)
+	fi
 
-  if [[ $usage_commits == 'head' ]]; then
-    # When we run this task with `--rebase`, we check each commit by running
-    # this same task with `--commits head` at each commit. When we do this, we
-    # want any fixes that get made by lefthook to be applied to the current
-    # worktree. git-branchless discards any changes that get made so we don't
-    # use it here.
-    env "${lefthook_env_variables[@]}" "${lefthook_command[@]}"
-  else
-    local -a nix_run_env_variables=(
-      # Now the nix environment we load below can set new values for these
-      # variables relative to the directory of the worktree.
-      --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
-    )
-    # If we created a GC root in a development environment, it would never get
-    # cleaned up.
-    if [[ ${CI:-} != 'true' ]]; then
-      nix_run_env_variables+=(DEVSHELL_GC_ROOT=false)
-    fi
+	if [[ $usage_commits == 'head' ]]; then
+		# When we run this task with `--rebase`, we check each commit by running
+		# this same task with `--commits head` at each commit. When we do this, we
+		# want any fixes that get made by lefthook to be applied to the current
+		# worktree. git-branchless discards any changes that get made so we don't
+		# use it here.
+		env "${lefthook_env_variables[@]}" "${lefthook_command[@]}"
+	else
+		local -a nix_run_env_variables=(
+			# Now the nix environment we load below can set new values for these
+			# variables relative to the directory of the worktree.
+			--unset=PRJ_ROOT --unset=PRJ_DATA_DIR
+		)
+		# If we created a GC root in a development environment, it would never get
+		# cleaned up.
+		if [[ ${CI:-} != 'true' ]]; then
+			nix_run_env_variables+=(DEVSHELL_GC_ROOT=false)
+		fi
 
-    # We enable lefthook since it gets disabled below.
-    lefthook_env_variables+=(LEFTHOOK=true)
+		# We enable lefthook since it gets disabled below.
+		lefthook_env_variables+=(LEFTHOOK=true)
 
-    git_branchless_exec_command=(
-      # So we can use the environment of the commit being tested
-      env "${nix_run_env_variables[@]}"
-      nix run --file . devShells.development --
+		git_branchless_exec_command=(
+			# So we can use the environment of the commit being tested
+			env "${nix_run_env_variables[@]}"
+			nix run --file . devShells.development --
 
-      env "${lefthook_env_variables[@]}"
-      "${lefthook_command[@]}"
-    )
+			env "${lefthook_env_variables[@]}"
+			"${lefthook_command[@]}"
+		)
 
-    # Disable lefthook so git hooks don't run when `git-branchless` checks out
-    # commits.
-    #
-    # We can't use the cache since it isn't invalidated when the commit message
-    # changes, only when the files in the commit change. This is a problem since
-    # we lint commit messages.
-    #
-    # NOTE: The command given with `--exec` will be run with `sh -c`.
-    LEFTHOOK=false git-branchless test run \
-      -vv \
-      --no-cache \
-      --strategy worktree \
-      --exec "${git_branchless_exec_command[*]@Q}" \
-      --jobs 0 \
-      "${hashes//$'\n'/ | }"
-  fi
+		# Disable lefthook so git hooks don't run when `git-branchless` checks out
+		# commits.
+		#
+		# We can't use the cache since it isn't invalidated when the commit message
+		# changes, only when the files in the commit change. This is a problem since
+		# we lint commit messages.
+		#
+		# NOTE: The command given with `--exec` will be run with `sh -c`.
+		LEFTHOOK=false git-branchless test run \
+			-vv \
+			--no-cache \
+			--strategy worktree \
+			--exec "${git_branchless_exec_command[*]@Q}" \
+			--jobs 0 \
+			"${hashes//$'\n'/ | }"
+	fi
 }
 
 function check_files {
-  local -a lefthook_command
-  make_lefthook_command lefthook_command
+	local -a lefthook_command
+	make_lefthook_command lefthook_command
 
-  local files_env_variable=''
-  if [[ -n ${usage_all_files:-} ]]; then
-    files_env_variable='LEFTHOOK_ALL_FILES=true'
-  else
-    files_env_variable='LEFTHOOK_UNCOMMITTED_FILES=true'
-  fi
+	local files_env_variable=''
+	if [[ -n ${usage_all_files:-} ]]; then
+		files_env_variable='LEFTHOOK_ALL_FILES=true'
+	else
+		files_env_variable='LEFTHOOK_UNCOMMITTED_FILES=true'
+	fi
 
-  env "$files_env_variable" "${lefthook_command[@]}"
+	env "$files_env_variable" "${lefthook_command[@]}"
 }
 
 function make_lefthook_command {
-  local -n _lefthook_command=$1
+	local -n _lefthook_command=$1
 
-  # herestring (<<<) adds a newline to the end of the string so if `usage_jobs` is
-  # empty, `readarray` would set `jobs` to an array with a single empty string in
-  # it instead of an empty array. To avoid this, we only use `readarray` if
-  # `usage_jobs` isn't empty.
-  local -a jobs
-  if [[ -n ${usage_jobs:-} ]]; then
-    # It's easier to split a newline-delimited string than a space-delimited one
-    # since herestring (<<<) adds a newline to the end of the string.
-    readarray -t jobs <<<"${usage_jobs// /$'\n'}"
-  fi
-  local -a job_flags=()
-  for job in "${jobs[@]}"; do
-    job_flags+=(--job "$job")
-  done
+	# herestring (<<<) adds a newline to the end of the string so if `usage_jobs` is
+	# empty, `readarray` would set `jobs` to an array with a single empty string in
+	# it instead of an empty array. To avoid this, we only use `readarray` if
+	# `usage_jobs` isn't empty.
+	local -a jobs
+	if [[ -n ${usage_jobs:-} ]]; then
+		# It's easier to split a newline-delimited string than a space-delimited one
+		# since herestring (<<<) adds a newline to the end of the string.
+		readarray -t jobs <<<"${usage_jobs// /$'\n'}"
+	fi
+	local -a job_flags=()
+	for job in "${jobs[@]}"; do
+		job_flags+=(--job "$job")
+	done
 
-  _lefthook_command=(lefthook run check "${job_flags[@]}")
+	_lefthook_command=(lefthook run check "${job_flags[@]}")
 }
 
 main

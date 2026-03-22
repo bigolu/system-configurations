@@ -24,22 +24,22 @@ input_file="$1"
 #     A …
 #     T …
 djvused "$input_file" -e 'ls' |
-  {
-    while IFS= read -r file_info; do
-      page="${file_info%% [APIT]*}"
-      page="${page// /}"
-      file_to_page+=("$page")
-    done
+	{
+		while IFS= read -r file_info; do
+			page="${file_info%% [APIT]*}"
+			page="${page// /}"
+			file_to_page+=("$page")
+		done
 
-    remove_non_pages() {
-      # Remove all occurrences of \x0c due to a non-page.
-      file=-1
-      while IFS= read -r -d $'\x0c' file_text; do
-        file=$((file + 1))
-        [[ ${file_to_page[$file]} == '' ]] && continue
-        echo "$file_text"$'\x0c'
-      done
-    }
+		remove_non_pages() {
+			# Remove all occurrences of \x0c due to a non-page.
+			file=-1
+			while IFS= read -r -d $'\x0c' file_text; do
+				file=$((file + 1))
+				[[ ${file_to_page[$file]} == '' ]] && continue
+				echo "$file_text"$'\x0c'
+			done
+		}
 
-    djvused "$input_file" -e 'print-pure-txt' | remove_non_pages
-  }
+		djvused "$input_file" -e 'print-pure-txt' | remove_non_pages
+	}

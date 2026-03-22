@@ -20,18 +20,18 @@ repo='dotfiles/cosmic/config/'
 system="$HOME/.config/cosmic/"
 
 case "${usage_destination:?}" in
-  'to-repo')
-    source="$system"
-    destination="$repo"
-    ;;
-  'to-system')
-    source="$repo"
-    destination="$system"
-    ;;
-  *)
-    # It shouldn't ever reach this case
-    exit 1
-    ;;
+	'to-repo')
+		source="$system"
+		destination="$repo"
+		;;
+	'to-system')
+		source="$repo"
+		destination="$system"
+		;;
+	*)
+		# It shouldn't ever reach this case
+		exit 1
+		;;
 esac
 
 rsync --recursive "$source" "$destination"

@@ -2,28 +2,28 @@ vim.opt.matchpairs:append("<:>")
 
 -- select the text that was just pasted
 vim.keymap.set({ "n" }, "gp", function()
-  vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "y", LastPasteStartLine, LastPasteStartCol, {})
-  vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "z", LastPasteEndLine, LastPasteEndCol, {})
-  return string.format("`y%s`z", (LastPasteStartLine == LastPasteEndLine) and "v" or "V")
+	vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "y", LastPasteStartLine, LastPasteStartCol, {})
+	vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "z", LastPasteEndLine, LastPasteEndCol, {})
+	return string.format("`y%s`z", (LastPasteStartLine == LastPasteEndLine) and "v" or "V")
 end, {
-  desc = "Last pasted text",
-  expr = true,
+	desc = "Last pasted text",
+	expr = true,
 })
 
 -- move to left and right side of last selection
 vim.keymap.set({ "n" }, "[v", "'<", {
-  desc = "Start of last selection",
+	desc = "Start of last selection",
 })
 vim.keymap.set({ "n" }, "]v", "'>", {
-  desc = "End of last selection",
+	desc = "End of last selection",
 })
 
 -- move to left and right side of last yank
 vim.keymap.set({ "n" }, "[y", "'[", {
-  desc = "Start of last yank",
+	desc = "Start of last yank",
 })
 vim.keymap.set({ "n" }, "]y", "']", {
-  desc = "End of last yank",
+	desc = "End of last yank",
 })
 
 vim.keymap.set({ "n", "x" }, "j", "gj")
@@ -39,36 +39,36 @@ vim.keymap.set({ "n", "x" }, "<C-l>", "6l")
 
 -- Using the paragraph motions won't add to the jump stack
 vim.keymap.set({ "n" }, "}", [[<Cmd>keepjumps normal! }<CR>]], {
-  desc = "End of paragraph",
+	desc = "End of paragraph",
 })
 vim.keymap.set({ "n" }, "{", [[<Cmd>keepjumps normal! {<CR>]], {
-  desc = "Start of paragraph",
+	desc = "Start of paragraph",
 })
 vim.keymap.set({ "n", "x" }, "]p", "}", { remap = true, desc = "End of paragraph" })
 vim.keymap.set({ "n", "x" }, "[p", "{", { remap = true, desc = "Start of paragraph" })
 
 -- Move to beginning and end of line
 vim.keymap.set({ "n" }, "<C-e>", "$", {
-  desc = "End of line",
+	desc = "End of line",
 })
 vim.keymap.set({ "i" }, "<C-a>", "<ESC>^i", {
-  desc = "First non-blank of line [start]",
+	desc = "First non-blank of line [start]",
 })
 vim.keymap.set({ "i" }, "<C-e>", "<ESC>$a", {
-  desc = "End of line",
+	desc = "End of line",
 })
 local function c_a(buffer)
-  vim.keymap.set({ "n" }, "<C-a>", "^", {
-    desc = "First non-blank of line [start]",
-    buffer = buffer,
-  })
+	vim.keymap.set({ "n" }, "<C-a>", "^", {
+		desc = "First non-blank of line [start]",
+		buffer = buffer,
+	})
 end
 c_a()
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "gitrebase",
-  callback = function()
-    c_a(true)
-  end,
+	pattern = "gitrebase",
+	callback = function()
+		c_a(true)
+	end,
 })
 
 -- andymass/vim-matchup
@@ -86,23 +86,23 @@ vim.keymap.set({ "n", "x" }, "z;", "z%", { remap = true })
 vim.g.camelcasemotion_key = ","
 
 local function marker_fold_object()
-  -- excluded first and last lines for marker folds
-  if vim.wo.foldmethod == "marker" then
-    return ":<C-U>silent!normal![zjV]zk<CR>"
-  else
-    return ":<C-U>silent!normal![zV]z<CR>"
-  end
+	-- excluded first and last lines for marker folds
+	if vim.wo.foldmethod == "marker" then
+		return ":<C-U>silent!normal![zjV]zk<CR>"
+	else
+		return ":<C-U>silent!normal![zV]z<CR>"
+	end
 end
 vim.keymap.set({ "x" }, "iz", marker_fold_object, { -- typos:ignore
-  desc = "Inner fold",
-  expr = true,
+	desc = "Inner fold",
+	expr = true,
 })
 vim.keymap.set({ "o" }, "iz", ":normal viz<CR>", { -- typos:ignore
-  desc = "Inner fold",
+	desc = "Inner fold",
 })
 vim.keymap.set({ "x" }, "az", ":<C-U>silent!normal![zV]z<CR>", {
-  desc = "Outer fold",
+	desc = "Outer fold",
 })
 vim.keymap.set({ "o" }, "az", ":normal vaz<CR>", {
-  desc = "Outer fold",
+	desc = "Outer fold",
 })

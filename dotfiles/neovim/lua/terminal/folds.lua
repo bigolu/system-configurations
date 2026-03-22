@@ -5,11 +5,11 @@ vim.o.foldtext = ""
 vim.keymap.set("n", "<Tab>", [[<Cmd>silent! normal! za<CR>]])
 
 local function toggle_all_folds()
-  if vim.o.foldlevel > 0 then
-    return "zM"
-  else
-    return "zR"
-  end
+	if vim.o.foldlevel > 0 then
+		return "zM"
+	else
+		return "zR"
+	end
 end
 vim.keymap.set("n", "<S-Tab>", toggle_all_folds, { silent = true, expr = true })
 
@@ -27,50 +27,50 @@ vim.keymap.set({ "n", "x" }, "]<Tab>", "]z")
 -- to be a problem with modelines, but it seems to work. I put the autocmd here
 -- because it needs to fire before the autocmds of any fold providers.
 vim.api.nvim_create_autocmd({ "BufRead" }, {
-  callback = function()
-    vim.cmd([[
+	callback = function()
+		vim.cmd([[
       setlocal foldmethod&
       setlocal foldexpr&
     ]])
-  end,
+	end,
 })
 
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
-  callback = function(_)
-    local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
-    if not is_foldmethod_overridable then
-      return
-    end
+	callback = function(_)
+		local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff", "expr" }, vim.wo.foldmethod)
+		if not is_foldmethod_overridable then
+			return
+		end
 
-    local parser, _error = vim.treesitter.get_parser(nil, nil, { error = false })
-    if parser ~= nil then
-      vim.wo.foldmethod = "expr"
-      vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-    else
-      vim.wo.foldmethod = "indent"
-    end
-  end,
+		local parser, _error = vim.treesitter.get_parser(nil, nil, { error = false })
+		if parser ~= nil then
+			vim.wo.foldmethod = "expr"
+			vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+		else
+			vim.wo.foldmethod = "indent"
+		end
+	end,
 })
 
 local function maybe_set_lsp_fold_method(client)
-  local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
-  if not is_foldmethod_overridable or not client:supports_method("textDocument/foldingRange") then
-    return
-  end
+	local is_foldmethod_overridable = not vim.tbl_contains({ "marker", "diff" }, vim.wo.foldmethod)
+	if not is_foldmethod_overridable or not client:supports_method("textDocument/foldingRange") then
+		return
+	end
 
-  vim.wo.foldmethod = "expr"
-  vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
+	vim.wo.foldmethod = "expr"
+	vim.wo.foldexpr = "v:lua.vim.lsp.foldexpr()"
 end
 vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    maybe_set_lsp_fold_method(client)
-  end,
+	callback = function(args)
+		local client = vim.lsp.get_client_by_id(args.data.client_id)
+		maybe_set_lsp_fold_method(client)
+	end,
 })
 vim.api.nvim_create_autocmd({ "BufEnter" }, {
-  callback = function(args)
-    for _, client in ipairs(vim.lsp.get_clients({ bufnr = args.buf })) do
-      maybe_set_lsp_fold_method(client)
-    end
-  end,
+	callback = function(args)
+		for _, client in ipairs(vim.lsp.get_clients({ bufnr = args.buf })) do
+			maybe_set_lsp_fold_method(client)
+		end
+	end,
 })

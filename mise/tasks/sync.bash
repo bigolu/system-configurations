@@ -18,16 +18,16 @@ shopt -s inherit_errexit
 # it instead of an empty array. To avoid this, we only use `readarray` if
 # `usage_jobs` isn't empty.
 if [[ -n ${usage_jobs:-} ]]; then
-  # It's easier to split a newline-delimited string than a space-delimited one
-  # since herestring (<<<) adds a newline to the end of the string.
-  readarray -t jobs <<<"${usage_jobs// /$'\n'}"
+	# It's easier to split a newline-delimited string than a space-delimited one
+	# since herestring (<<<) adds a newline to the end of the string.
+	readarray -t jobs <<<"${usage_jobs// /$'\n'}"
 else
-  jobs=()
+	jobs=()
 fi
 
 job_flags=()
 for job in "${jobs[@]}"; do
-  job_flags+=(--job "$job")
+	job_flags+=(--job "$job")
 done
 
 lefthook run sync "${job_flags[@]}"

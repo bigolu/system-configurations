@@ -16,14 +16,14 @@ shopt -s inherit_errexit
 temp_home="$(mktemp --directory)"
 temp_prj_data_dir="$(mktemp --directory)"
 function remove_temp_directories {
-  # Go doesn't set the write permission on the directories it creates[1] so we have
-  # to do that before deleting them.
-  #
-  # [1]: https://github.com/golang/go/issues/27161#issuecomment-418906507
-  if [[ -e "$temp_home/go" ]]; then
-    chmod --recursive +w "$temp_home/go"
-  fi
-  rm --recursive --force "$temp_home" "$temp_prj_data_dir"
+	# Go doesn't set the write permission on the directories it creates[1] so we have
+	# to do that before deleting them.
+	#
+	# [1]: https://github.com/golang/go/issues/27161#issuecomment-418906507
+	if [[ -e "$temp_home/go" ]]; then
+		chmod --recursive +w "$temp_home/go"
+	fi
+	rm --recursive --force "$temp_home" "$temp_prj_data_dir"
 }
 trap remove_temp_directories EXIT
 
@@ -34,10 +34,10 @@ trap remove_temp_directories EXIT
 # [1]: https://github.com/NixOS/nix/issues/3533
 env="$(type -P env)"
 nix shell \
-  --ignore-environment \
-  --file nix/packages nix git \
-  --command \
-  "$env" \
-  HOME="$temp_home" \
-  PRJ_DATA_DIR="$temp_prj_data_dir" \
-  nix run --file . "devShells.${usage_nix_dev_shell:?}"
+	--ignore-environment \
+	--file nix/packages nix git \
+	--command \
+	"$env" \
+	HOME="$temp_home" \
+	PRJ_DATA_DIR="$temp_prj_data_dir" \
+	nix run --file . "devShells.${usage_nix_dev_shell:?}"
