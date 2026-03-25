@@ -221,15 +221,6 @@ recursiveUpdateList [
       '';
     };
 
-    myFonts = nixpkgs.symlinkJoin {
-      pname = "my-fonts";
-      version = unstableVersion;
-      paths = with nixpkgs; [
-        nerd-fonts.symbols-only
-        jetbrains-mono
-      ];
-    };
-
     speakerctl =
       let
         programName = "speakerctl";

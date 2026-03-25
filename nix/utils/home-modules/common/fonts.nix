@@ -2,12 +2,23 @@
   lib,
   pkgs,
   hasGui,
+  utils,
   ...
 }:
 let
   inherit (pkgs.stdenv) isLinux;
   inherit (lib) mkMerge mkIf;
-  inherit (pkgs) myFonts;
+  inherit (pkgs) symlinkJoin;
+  inherit (utils) unstableVersion;
+
+  myFonts = symlinkJoin {
+    pname = "my-fonts";
+    version = unstableVersion;
+    paths = with pkgs; [
+      nerd-fonts.symbols-only
+      jetbrains-mono
+    ];
+  };
 in
 mkMerge [
   (mkIf hasGui {
