@@ -1,6 +1,6 @@
 #!
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter renovate git go regenerate-gomod2nix-lock
+#! nix-shell --packages nix-shell-interpreter renovate git go regenerate-gomod2nix-lock mod
 #MISE hide=true
 
 # Regarding the nix shell dependencies above:
@@ -8,6 +8,8 @@
 #   - go is needed for the values "gomodTidy" and "gomodUpdateImportPaths" of the
 #     Renovate config setting "postUpdateOptions".
 #   - regenerate-gomod2nix-lock is needed for a Renovate "postUpgradeTask"
+#   - mod is needed for the value "gomodUpdateImportPaths" of the
+#     Renovate config setting "postUpdateOptions".
 
 set -o errexit
 set -o nounset
