@@ -9,8 +9,6 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-nix-env -q || nix profile list
-
 old="$HOME/.cache/gc-roots"
 
 new="$(mktemp)"
