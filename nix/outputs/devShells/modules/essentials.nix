@@ -97,15 +97,10 @@ in
                   && (
                     !(elem pin (
                       with pins;
-                      if isLinux then
-                        [
-                          spoons
-                          stackline
-                        ]
-                      else
-                        [
-                          keyd
-                        ]
+                      optionals isLinux [
+                        spoons
+                        stackline
+                      ]
                     ))
                   )
                 ) pins

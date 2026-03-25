@@ -20,7 +20,6 @@ let
     getExe
     recursiveUpdate
     concatMap
-    substring
     foldl'
     escapeShellArgs
     ;
@@ -153,82 +152,6 @@ recursiveUpdateList [
         ];
       };
     };
-
-    # Normally I'd use overrideAttrs, but that wouldn't affect
-    # keyd-application-mapper.
-    #
-    # TODO: This derivation should instead be defined as a function that takes the
-    # final derivation attributes so I can override it properly.
-    keyd =
-      let
-        # TODO: I'm assuming that the first 10 characters is enough for it to be
-        # unique.
-        version = "2.5.0-${substring 0 10 pins.keyd.revision}";
-
-        src = pins.keyd;
-
-        pypkgs = nixpkgs.python3.pkgs;
-
-        appMap = pypkgs.buildPythonApplication rec {
-          pname = "keyd-application-mapper";
-          inherit version src;
-          format = "other";
-
-          postPatch = ''
-            substituteInPlace scripts/${pname} \
-              --replace-fail /bin/sh ${nixpkgs.runtimeShell}
-          '';
-
-          propagatedBuildInputs = with pypkgs; [ xlib ];
-
-          dontBuild = true;
-
-          installPhase = ''
-            install -Dm555 -t $out/bin scripts/${pname}
-          '';
-
-          meta.mainProgram = "keyd-application-mapper";
-        };
-      in
-      nixpkgs.stdenv.mkDerivation {
-        pname = "keyd";
-        inherit version src;
-
-        postPatch = ''
-          substituteInPlace Makefile \
-            --replace-fail /usr/local ""
-
-          substituteInPlace keyd.service.in \
-            --replace-fail @PREFIX@ $out
-        '';
-
-        installFlags = [ "DESTDIR=${placeholder "out"}" ];
-
-        buildInputs = [ nixpkgs.systemd ];
-
-        enableParallelBuilding = true;
-
-        postInstall = ''
-          ln -sf ${getExe appMap} $out/bin/${appMap.pname}
-          rm -rf $out/etc
-
-          # TODO: keyd only links the service if /run/systemd/system exists[1]. I
-          # should see if this can be changed.
-          #
-          # [1]: https://github.com/rvaiya/keyd/blob/9c758c0e152426cab3972256282bc7ee7e2f808e/Makefile#L51
-          mkdir -p $out/lib/systemd/system
-          cp keyd.service.in $out/lib/systemd/system/keyd.service
-        '';
-
-        passthru.tests.keyd = nixpkgs.nixosTests.keyd;
-
-        meta = with lib; {
-          description = "Key remapping daemon for Linux";
-          license = licenses.mit;
-          maintainers = with maintainers; [ alfarel ];
-          platforms = platforms.linux;
-        };
-      };
 
     ripgrep-all =
       let
