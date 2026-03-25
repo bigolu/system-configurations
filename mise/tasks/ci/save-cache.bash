@@ -9,10 +9,12 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Store path to nix-collect-garbage before deleting the user profile since we use
+# Put nix-collect-garbage on the PATH before deleting the user profile since we use
 # it below.
 nix_collect_garbage="$(type -P nix-collect-garbage)"
 nix_collect_garbage="$(realpath "$nix_collect_garbage")"
+nix_collect_garbage_dir="$(dirname "$nix_collect_garbage")"
+PATH="$nix_collect_garbage_dir:$PATH"
 # This way, we won't cache the user environment which is unnecessary since the
 # installer action will recreate it.
 rm -rf ~/.local/state/nix/profiles/profile-*
@@ -60,7 +62,7 @@ echo '::endgroup::'
 # happen because on a cache miss, we restore from the most recently used cache entry
 # so we have to avoid accumulating data from old cache entries over time.
 echo '::group::Garbage collection logs'
-"$nix_collect_garbage" --delete-old
+nix-collect-garbage --delete-old
 echo '::endgroup::'
 
 cp "$new" "$old"
