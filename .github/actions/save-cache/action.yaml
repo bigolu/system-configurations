@@ -7,7 +7,7 @@ runs:
       shell: nix run --file . devShells.ci-essentials -- bash {0}
       run: mise run ci:save-cache
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
-      uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
+      uses: nix-community/cache-nix-action/save@7df957e333c1e5da7721f60227dbba6d06080569 # v7
       with:
         # SYNC: cache-settings-nix
         #

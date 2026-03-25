@@ -15,8 +15,8 @@ cachePackages = [
 
 [mod]
   [mod.'github.com/klauspost/compress']
-    version = 'v1.18.0'
-    hash = 'sha256-jc5pMU/HCBFOShMcngVwNMhz9wolxjOb579868LtOuk='
+    version = 'v1.18.5'
+    hash = 'sha256-H9b5iFJf4XbEnkGQCjGQAJ3aYhVDiolKrDewTbhuzQo='
 
   [mod.'github.com/mitchellh/colorstring']
     version = 'v0.0.0-20190213212951-d06e56a500db'
@@ -27,17 +27,17 @@ cachePackages = [
     hash = 'sha256-rDcdNYH6ZD8KouyyiZCUEy8JrjOQoAkxHBhugrfHjFo='
 
   [mod.'github.com/schollz/progressbar/v3']
-    version = 'v3.18.0'
-    hash = 'sha256-Y0sGKTmX8r/OfzGrotDQ9HAAx19Mr2JzW7Mu50Hvnk4='
+    version = 'v3.19.0'
+    hash = 'sha256-ABW5J1C0XgtVYV+7N6g6/ZGMKOzF4iingBS7ruvO5S8='
 
   [mod.'golang.org/x/sync']
-    version = 'v0.16.0'
-    hash = 'sha256-sqKDRESeMzLe0jWGWltLZL/JIgrn0XaIeBWCzVN3Bks='
+    version = 'v0.20.0'
+    hash = 'sha256-ybcjhCfK6lroUM0yswUvWooW8MOQZBXyiSqoxG6Uy0Y='
 
   [mod.'golang.org/x/sys']
-    version = 'v0.35.0'
-    hash = 'sha256-ZKM8pesQE6NAFZeKQ84oPn5JMhGr8g4TSwLYAsHMGSI='
+    version = 'v0.42.0'
+    hash = 'sha256-LhNedvUEJbPYyR6EoU91rfOr3DBBoauLOcMcyqghEos='
 
   [mod.'golang.org/x/term']
-    version = 'v0.34.0'
-    hash = 'sha256-faLolF6EUSSaC0ZwRiKH5JF/TmtcMQ+m+RWWl6Pk1PU='
+    version = 'v0.41.0'
+    hash = 'sha256-EQVhfumFhP5O1Qo2PxWpESwC4EnIpfyjMIlMWbobAUQ='
