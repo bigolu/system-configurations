@@ -12,6 +12,7 @@ shopt -s inherit_errexit
 # Store path to nix-collect-garbage before deleting the user profile since we use
 # it below.
 nix_collect_garbage="$(type -P nix-collect-garbage)"
+nix_collect_garbage="$(realpath "$nix_collect_garbage")"
 # This way, we won't cache the user environment which is unnecessary since the
 # installer action will recreate it.
 rm -rf ~/.local/state/nix/profiles/profile-*
