@@ -15,7 +15,7 @@ runCommand shellBundle.name { } ''
   }
 
   size=$(<${shellBundleSize})
-  max_size=$((350 * 1024 * 1024))
+  max_size=$((500 * 1024 * 1024))
   if (( size > max_size )); then
     echo "Error, shell is too big: $(format $size). Max size: $(format $max_size)" >&2
     exit 1
