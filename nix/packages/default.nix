@@ -276,5 +276,21 @@ recursiveUpdateList [
         } "$@"
       '';
     };
+
+    regenerate-gomod2nix-lock = nixpkgs.writeShellApplication {
+      name = "regenerate-gomod2nix-lock";
+      runtimeInputs = [ inputs.gomod2nix.outputs.gomod2nix ];
+      text = ''
+        go_mod_directory="$1"
+
+        # If there isn't already a gomod2nix lock in the same directory as go.mod, then I
+        # assume this project isn't using gomod2nix.
+        if [[ ! -e $go_mod_directory/gomod2nix.toml ]]; then
+          exit
+        fi
+
+        gomod2nix --dir "$go_mod_directory" generate --with-deps
+      '';
+    };
   }
 ]

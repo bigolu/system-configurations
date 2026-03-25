@@ -124,10 +124,7 @@
     {
       matchManagers: ["gomod"],
       postUpgradeTasks: {
-        commands: [
-          "cached-nix-shell regenerate-gomod2nix-lock.bash {{{packageFileDir}}}",
-        ],
-        workingDirTemplate: "{{{env.RENOVATE_BOT_SCRIPT_DIRECTORY}}}",
+        commands: ["regenerate-gomod2nix-lock {{{packageFileDir}}}"],
       },
     },
   ],
