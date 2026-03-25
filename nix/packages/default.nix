@@ -153,6 +153,17 @@ recursiveUpdateList [
       };
     };
 
+    keyd = nixpkgs.keyd.overrideAttrs (old: {
+      postInstall = old.postInstall + ''
+        # TODO: keyd only links the service if /run/systemd/system exists[1]. I
+        # should see if this can be changed.
+        #
+        # [1]: https://github.com/rvaiya/keyd/blob/9c758c0e152426cab3972256282bc7ee7e2f808e/Makefile#L51
+        mkdir -p $out/lib/systemd/system
+        cp keyd.service.in $out/lib/systemd/system/keyd.service
+      '';
+    });
+
     ripgrep-all =
       let
         dependencies = nixpkgs.symlinkJoin {
