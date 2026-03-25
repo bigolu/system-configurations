@@ -45,7 +45,7 @@ in
 
   devshell = {
     # For the `run` steps in CI workflows
-    packages = optional isCiDevShell pkgs.bash-script;
+    packages = optional isCiDevShell pkgs.bash;
 
     interactive.autocomplete.text = ''
       export XDG_DATA_DIRS="${bashCompletionShare}''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"

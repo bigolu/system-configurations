@@ -65,13 +65,6 @@ recursiveUpdateList [
   outputs.packages
   inputs.gomod2nix.outputs
   {
-    # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
-    # set it to `runCommand` to make the closure smaller.
-    #
-    # It's not defined in the recursive set below to avoid shadowing `pkgs`
-    pkgs.runCommandCC = nixpkgs.runCommand;
-  }
-  rec {
     __functor =
       self:
       # This file will be put on the NIX_PATH as 'nixpkgs' when we run cached-nix-shell
@@ -84,9 +77,9 @@ recursiveUpdateList [
       { }:
       self;
 
-    nix-shell-interpreter = outputs.packages.nix-shell-interpreter.override {
-      interpreter = bash-script;
-    };
+    # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
+    # set it to `runCommand` to make the closure smaller.
+    pkgs.runCommandCC = nixpkgs.runCommand;
 
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
 
@@ -322,32 +315,6 @@ recursiveUpdateList [
               true
             done
           ' -- "$1"
-        '';
-      };
-
-    bash-script =
-      let
-        initFile = nixpkgs.writeTextFile {
-          name = "init-file";
-          text = ''
-            set -o errexit
-            set -o nounset
-            set -o pipefail
-            shopt -s nullglob
-            shopt -s inherit_errexit
-            # Prevent child Bash shells from loading these settings
-            unset BASH_ENV
-          '';
-        };
-      in
-      nixpkgs.writeShellApplication {
-        name = "bash-script";
-        meta.description = ''
-          Bash with settings applied for running scripts non-interactively.
-        '';
-        runtimeInputs = [ nixpkgs.bash ];
-        text = ''
-          BASH_ENV=${initFile} exec bash --noprofile --norc "$@"
         '';
       };
 

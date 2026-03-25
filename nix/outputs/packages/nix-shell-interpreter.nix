@@ -3,9 +3,10 @@ nixpkgs.callPackage (
   {
     sqlite,
     bash,
-    interpreter ? bash,
     lib,
     writeShellApplication,
+
+    interpreter ? bash,
   }:
   let
     inherit (lib) getExe;

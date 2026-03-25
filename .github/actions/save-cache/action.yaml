@@ -4,7 +4,7 @@ runs:
   using: "composite"
   steps:
     - id: pre-nix-cache-save
-      shell: nix run --file . devShells.ci-essentials -- bash-script {0}
+      shell: nix run --file . devShells.ci-essentials -- bash {0}
       run: mise run ci:save-cache
     - if: steps.pre-nix-cache-save.outputs.should-save == 'true'
       uses: nix-community/cache-nix-action/save@135667ec418502fa5a3598af6fb9eb733888ce6a # v6
