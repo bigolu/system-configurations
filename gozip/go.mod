@@ -5,10 +5,10 @@ go 1.23.0
 toolchain go1.25.7
 
 require (
-	github.com/klauspost/compress v1.18.0 // direct
-	github.com/schollz/progressbar/v3 v3.18.0 // direct
-	golang.org/x/sync v0.16.0 // direct
-	golang.org/x/term v0.34.0 // direct
+	github.com/klauspost/compress v1.18.5 // direct
+	github.com/schollz/progressbar/v3 v3.19.0 // direct
+	golang.org/x/sync v0.20.0 // direct
+	golang.org/x/term v0.41.0 // direct
 )
 
 require (
