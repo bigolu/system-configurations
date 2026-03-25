@@ -9,12 +9,9 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# Put nix-collect-garbage on the PATH before deleting the user profile since we use
+# Store path to nix-collect-garbage before deleting the user profile since we use
 # it below.
 nix_collect_garbage="$(type -P nix-collect-garbage)"
-nix_collect_garbage="$(realpath "$nix_collect_garbage")"
-nix_collect_garbage_dir="$(dirname "$nix_collect_garbage")"
-PATH="$nix_collect_garbage_dir:$PATH"
 # This way, we won't cache the user environment which is unnecessary since the
 # installer action will recreate it.
 rm -rf ~/.local/state/nix/profiles/profile-*
@@ -62,27 +59,7 @@ echo '::endgroup::'
 # happen because on a cache miss, we restore from the most recently used cache entry
 # so we have to avoid accumulating data from old cache entries over time.
 echo '::group::Garbage collection logs'
-nix-collect-garbage --delete-old
+"$nix_collect_garbage" --delete-old
 echo '::endgroup::'
-
-# Delete these directories for the same reason as above.
-#
-# TODO: I don't want these directories to be cached, but they're added by default by
-# cache-nix-action. I tried to remove them by adding `!<path>` the `paths` input, but
-# it didn't work which I think is because of this issue[1]. On one of my workflows,
-# these directories were ~200 MB so removing them should save a lot of space.
-#
-# [1]: https://github.com/actions/toolkit/issues/713
-sudo rm -rf ~root/.cache/nix
-# If `fetchTree` is used and nix doesn't find a valid cache entry in `fetcher-cache`
-# it will refetch the content. To avoid that we keep the `fetcher-cache`. For
-# example, `nix flake archive` uses `fetchTree`.
-paths_to_delete=()
-for path in ~/.cache/nix/*; do
-	if [[ ! $path =~ fetcher-cache* ]]; then
-		paths_to_delete+=("$path")
-	fi
-done
-rm -rf "${paths_to_delete[@]}"
 
 cp "$new" "$old"
