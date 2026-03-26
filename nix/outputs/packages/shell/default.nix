@@ -10,6 +10,7 @@ in
   {
     homeConfig = makeConfiguration {
       configName = "portable";
+      username = "bigolu";
       packageOverrides = import ./package-overrides.nix context;
       hasGui = false;
       modules = [
