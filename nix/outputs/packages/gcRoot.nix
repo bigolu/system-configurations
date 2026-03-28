@@ -201,7 +201,7 @@ nixpkgs.callPackage (
                     # PERF: By doing this, subsequent checks to see if the GC root
                     # is up to date will pass and we won't have to keep calling
                     # the `has_store_paths` function above. We want to avoid
-                    # calling that function since it shells out to `nix-store`
+                    # calling that function since it runs `nix-store`
                     # which would be slow.
                     ${ln} --force --no-dereference --symbolic "$new_shell" ${shellGcRoot}
                   fi

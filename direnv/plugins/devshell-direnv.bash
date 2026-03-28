@@ -18,7 +18,7 @@
 #     nix would be redundant.
 #   - No automatic file watching: I don't think there's a way to do it that will
 #     satisfy all use cases so users will still have to run `watch_file`
-#     themselves. It's also a bit expensive to call since it shells out to
+#     themselves. It's also a bit expensive to call since it runs
 #     `direnv` so ideally you only call it once. And if users don't like the
 #     files that were automatically watched, I'd have to also provide an option
 #     to disable it. Instead, you can try the following which should work for
