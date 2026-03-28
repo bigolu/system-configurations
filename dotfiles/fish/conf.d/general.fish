@@ -266,9 +266,9 @@ end
 function nix-is-cached
     nix build --dry-run -j0 $argv
 end
-function nix-roots
+function nix-store-size
     nix-sweep analyze --all
 end
-function nix-roots-clean
+function nix-store-clean
     nix-sweep tidyup-gc-roots
 end
