@@ -206,11 +206,12 @@ nixpkgs.callPackage (
                     ${ln} --force --no-dereference --symbolic "$new_shell" ${shellGcRoot}
                   fi
                 else
-                  # Users of `nh`[1] can delete GC roots that haven't been
-                  # modified in a certain amount of time. To avoid deleting this
-                  # GC root, we'll update the modification time.
+                  # `nh`[1] and `nix-sweep`[2] can delete GC roots that haven't been
+                  # modified in a certain amount of time. To avoid having this
+                  # GC root get deleted, we'll update the modification time.
                   #
                   # [1]: https://github.com/nix-community/nh
+                  # [2]: https://github.com/jzbor/nix-sweep
                   ${touch} --no-dereference ${shellGcRoot}
                 fi
               fi
