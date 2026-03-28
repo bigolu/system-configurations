@@ -17,7 +17,6 @@ if test (uname) = Linux
     abbr --add --position anywhere --global pbcopy fish_clipboard_copy
     abbr --add --global trash 'trash put'
 end
-set -gx DIRENV_LOG_FORMAT ''
 
 # less
 # This isn't in the portable home
