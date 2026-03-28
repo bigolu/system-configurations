@@ -270,5 +270,5 @@ function nix-roots
     nix-sweep analyze --all
 end
 function nix-roots-clean
-    nix-sweep tidyup-gc-roots --force --older '3 months'
+    nix-sweep tidyup-gc-roots
 end
