@@ -458,13 +458,6 @@ check:
             run: |
               bash -eu -o pipefail -c '
                 dest="$PRJ_DATA_DIR/gc-roots/checks"
-                backup="${dest}-backup"
-                if [[ -e $dest ]]; then
-                  mv "$dest" "$backup"
-                fi
-                if nix-fast-build --out-link "$dest/root" --file default.nix -A currentPlatformChecks; then
-                  rm -rf "$backup"
-                elif [[ -e $backup ]]; then
-                  mv "$backup" "$dest"
-                fi
+                rm -rf "$dest"
+                nix-fast-build --out-link "$dest/root" --file default.nix -A currentPlatformChecks
               '
