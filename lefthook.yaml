@@ -455,4 +455,4 @@ check:
               - nix/**/*
               - dotfiles/**/*
               - gozip/**/*
-            run: nom build --no-link --file . currentPlatformChecks
+            run: nom build --out-link "$PRJ_DATA_DIR/gc-roots/checks" --file . currentPlatformChecks
