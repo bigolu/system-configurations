@@ -54,6 +54,12 @@
       flake = false;
       type = "file";
     };
+
+    # TODO: Remove when v1.4.0 reaches nixpkgs
+    nix-fast-build = {
+      url = "github:Mic92/nix-fast-build";
+      flake = false;
+    };
   };
 
   # This is only used for bundlers since the nix CLI only accepts a flakeref for

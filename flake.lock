@@ -132,6 +132,22 @@
         "type": "github"
       }
     },
+    "nix-fast-build": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1774759198,
+        "narHash": "sha256-xl/XzBrlbELlqvuWLDvjqHRc61WR5SeYBMVJInhDuSA=",
+        "owner": "Mic92",
+        "repo": "nix-fast-build",
+        "rev": "bfc06c68a9c7ac7a931487d21aa7cf0fb29a75ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "Mic92",
+        "repo": "nix-fast-build",
+        "type": "github"
+      }
+    },
     "nix-flatpak": {
       "locked": {
         "lastModified": 1739444422,
@@ -239,6 +255,7 @@
         "gomod2nix": "gomod2nix",
         "home-manager": "home-manager",
         "nix-darwin": "nix-darwin",
+        "nix-fast-build": "nix-fast-build",
         "nix-flatpak": "nix-flatpak",
         "nix-gl-host": "nix-gl-host",
         "nix-index-database": "nix-index-database",

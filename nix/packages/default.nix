@@ -82,6 +82,8 @@ recursiveUpdateList [
 
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
 
+    nix-fast-build = inputs.nix-fast-build.outputs;
+
     neovim =
       let
         oldNeovim = nixpkgs.neovim-unwrapped;

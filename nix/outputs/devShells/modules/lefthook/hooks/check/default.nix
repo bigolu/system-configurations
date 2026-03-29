@@ -26,7 +26,7 @@
     # I also use `parallel` to run any check that doesn't support multiple file
     # arguments.
     moreutils
-    nix-output-monitor
+    nix-fast-build
     nixfmt
     nixpkgs-lint-community
     nodePackages.prettier
