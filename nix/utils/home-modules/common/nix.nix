@@ -134,6 +134,7 @@ in
         # for breakpointHook:
         # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
         cntr
+        nix-gl-host
       ];
 
     activation = {
