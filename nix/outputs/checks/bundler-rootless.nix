@@ -13,7 +13,7 @@ let
   bundledHello = outputs.bundlers.rootless nixpkgs.hello;
 in
 testEqualContents {
-  assertion = "Bundled hello has the same output as unbundled hello";
+  assertion = "Output of bundled hello matches unbundled hello";
   expected = runCommand "expected" { } ''
     ${hello} >$out
   '';
