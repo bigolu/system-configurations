@@ -1,10 +1,4 @@
 {
-  # Why we use a flake to track our evaluation inputs:
-  #   - Flakes will track inputs recursively which makes it easy to create GC roots
-  #     for all of them.
-  #   - It allows flake users to override our inputs using `follows` and vice-versa.
-  #     Though we use our inputs' stable nix interfaces, we still need to use
-  #     `follows` since we make GC roots for all of the inputs in `flake.lock`.
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
@@ -49,6 +43,9 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    # I would like to fetch this with npins, but it's not supported[1].
+    #
+    # [1]: https://github.com/andir/npins/issues/163
     openrgb-udev-rules = {
       url = "https://openrgb.org/releases/release_0.9/60-openrgb.rules";
       flake = false;
@@ -62,8 +59,9 @@
     };
   };
 
-  # This is only used for bundlers since the nix CLI only accepts a flakeref for
-  # `--bundler`.
+  # I only define these outputs so I can use:
+  #   - `nix bundle --bundler <this_repo>#`
+  #   - `nix run <this_repo>`
   outputs =
     _:
     let
