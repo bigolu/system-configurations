@@ -29,7 +29,7 @@
     nix-fast-build
     nixfmt
     nixpkgs-lint-community
-    nodePackages.prettier
+    prettier
     # for renovate-config-validator
     renovate
     shellcheck
