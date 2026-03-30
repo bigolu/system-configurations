@@ -126,7 +126,9 @@
     },
     "gomod2nix": {
       "inputs": {
-        "flake-utils": "flake-utils",
+        "flake-utils": [
+          "flake-utils"
+        ],
         "nixpkgs": [
           "nixpkgs"
         ]
@@ -328,6 +330,7 @@
       "inputs": {
         "devshell": "devshell",
         "flake-compat": "flake-compat",
+        "flake-utils": "flake-utils",
         "gitignore": "gitignore",
         "gomod2nix": "gomod2nix",
         "home-manager": "home-manager",
