@@ -337,7 +337,7 @@ check:
           - name: taplo-fix
             glob: "**/*.toml"
             run: taplo format {files}
-          - name: prettier
+          - name: prettier-fix
             glob: "**/*.{md,json,json5,jsonc,yaml}"
             exclude:
               - npins/**/*
@@ -406,14 +406,18 @@ check:
             exclude:
               - "**/*.gitcommit"
             run: editorconfig-checker {files}
-          - name: config-file-validator
-            skip: true
-            glob: "**/*.{json,yaml}"
+          # Technically prettier is a formatter, but we're using it here to check syntax
+          - name: prettier-lint
+            glob: "**/*.{json,json5,jsonc,yaml}"
             exclude:
-              # These aren't actually JSON files, they're JSONC
-              - ".vscode/**/*.json"
-              - npins/**/*.json
-            run: chronic validator -groupby pass-fail -- {files}
+              - npins/**/*
+            run: |
+              prettier \
+                --check \
+                --cache \
+                --cache-location "$PRJ_DATA_DIR/prettier-cache" \
+                --cache-strategy metadata \
+                {files}
           - name: renovate-config-validator
             glob:
               - renovate.json5

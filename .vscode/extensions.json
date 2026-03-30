@@ -12,7 +12,6 @@
     "redhat.vscode-yaml",
     "rogalmic.bash-debug",
     "sumneko.lua",
-    // For jsonschema support and syntax linting
     "tamasfe.even-better-toml",
     "tudoudou.json5-for-vscode",
   ],

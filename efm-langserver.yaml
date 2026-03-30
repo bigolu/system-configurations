@@ -80,36 +80,6 @@ tools:
     lint-formats:
       - "%f:%l:%c %m"
       - "%f:%l %m"
-  config-file-validator: &config-file-validator
-    lint-source: config-file-validator
-    lint-after-open: true
-    lint-stdin: true
-    lint-ignore-exit-code: true
-    # dependencies: cat, mktemp, jq
-    lint-command: |
-      exit
-      # The outer and inner case statements represent include and exclude globs
-      # respectively.
-      case ${INPUT} in
-        *)
-          case ${INPUT} in
-            */npins/* | */.vscode/*.json)
-              :
-              ;;
-            *)
-              input=${INPUT}
-              basename="${input##*/}"
-              extension=".${basename##*.}"
-              temp="$(mktemp --suffix "$extension")"
-              cat >"$temp"
-              validator -groupby pass-fail -reporter json -- "$temp" |
-                jq --raw-output --arg input "$input" '.files.Failed.[]? | "\($input): \(.error)"'
-              ;;
-          esac
-          ;;
-      esac
-    lint-formats:
-      - "%f: %m"
   typos: &typos
     lint-source: typos
     lint-after-open: true
@@ -221,13 +191,11 @@ tools:
 languages:
   toml:
     - <<: *taplo
-    - <<: *config-file-validator
   markdown:
     - <<: *prettier
     - <<: *markdownlint-cli2
   json:
     - <<: *prettier
-    - <<: *config-file-validator
   jsonc:
     - <<: *prettier
   json5:
@@ -235,7 +203,6 @@ languages:
   yaml:
     - <<: *prettier
     - <<: *actionlint
-    - <<: *config-file-validator
   shellscript:
     - <<: *shfmt
   fish:
@@ -249,10 +216,6 @@ languages:
   go:
     - <<: *gofmt
     - <<: *staticcheck
-  editorconfig:
-    - <<: *config-file-validator
-  ini:
-    - <<: *config-file-validator
   properties:
     - <<: *keyd
   =:

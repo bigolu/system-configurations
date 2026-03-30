@@ -11,6 +11,7 @@ in
 
         # These are used in the efm-langserver config
         coreutils
+        jq
         # efm-langserver launches commands with`sh`
         dash
       ];
