@@ -79,7 +79,6 @@ import ./nix/make-outputs.nix {
     inputs = nixpkgs.lib.recursiveUpdate inputs {
       nixpkgs.outputs = nixpkgs;
       gitignore.outputs = import inputs.gitignore { inherit (nixpkgs) lib; };
-      nix-gl-host.outputs = import inputs.nix-gl-host { pkgs = nixpkgs; };
       nix-mk-shell-bin.outputs.lib.mkShellBin = import "${inputs.nix-mk-shell-bin}/make.nix";
       nix-fast-build.outputs = nixpkgs.callPackage inputs.nix-fast-build { };
       devshell.outputs = import inputs.devshell {

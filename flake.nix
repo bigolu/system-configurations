@@ -27,7 +27,7 @@
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=v0.6.0";
 
     nix-gl-host = {
-      url = "github:numtide/nix-gl-host";
+      url = "github:arilotter/nix-gl-host-rs";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -63,7 +63,7 @@
   #   - `nix bundle --bundler <this_repo>#`
   #   - `nix run <this_repo>`
   outputs =
-    _:
+    inputs:
     let
       # Everything below was taken from https://github.com/numtide/flake-utils
 
@@ -106,7 +106,12 @@
     eachSystem (
       system:
       let
-        outputs = import ./. { inherit system; };
+        outputs = import ./. {
+          inherit system;
+          # This way, if someone sets `.follows` for any of this flake's inputs,
+          # they'll be used.
+          overrides = inputs;
+        };
       in
       {
         bundlers = rec {
