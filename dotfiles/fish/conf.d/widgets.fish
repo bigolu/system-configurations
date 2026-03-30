@@ -327,11 +327,4 @@ function history-widget --description 'Search history'
 
     commandline --replace -- $choices
 end
-# The script in conf.d for the plugin 'jorgebucaran/autopair.fish' is deleting
-# my ctrl+h keybind that I define in here. As a workaround, I set this keybind
-# when the first prompt is loaded which should be after autopair is loaded.
-function __set_fzf_history_keybind --on-event fish_prompt
-    # I only want this to run once so delete the function.
-    functions -e (status current-function)
-    bind ctrl-h history-widget
-end
+bind ctrl-h history-widget

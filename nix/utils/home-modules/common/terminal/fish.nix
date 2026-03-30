@@ -7,7 +7,6 @@
   programs.fish.enable = true;
 
   home.packages = with pkgs.fishPlugins; [
-    autopair-fish
     async-prompt
     done
   ];
