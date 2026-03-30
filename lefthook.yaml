@@ -407,7 +407,7 @@ check:
               - "**/*.gitcommit"
             run: editorconfig-checker {files}
           - name: config-file-validator
-            glob: "**/*.{editorconfig,json,ini,yaml,toml}"
+            glob: "**/*.{editorconfig,json,yaml,toml}"
             exclude:
               # These aren't actually JSON files, they're JSONC
               - ".vscode/**/*.json"
