@@ -211,17 +211,17 @@ check:
     - dotfiles/keyboard/US keyboard - no accent keys.bundle/**/*
     - dotfiles/cosmic/config/**/*
     - docs/**/*
-  # Enabling `piped` is useful during local development when there are issues found
-  # by fast checks, but not slow ones. Without `piped`, you would run all the checks
-  # only to find an issue with a fast check and then have to run all the checks again
-  # once that issue is fixed. With `piped`, the slow ones won't run since an issue
-  # was found by one of the faster ones. Once you fix the issue found by the fast
-  # check, then the slower ones will run. On the other hand, this means you'll have
-  # to resolve issues one check at a time instead of resolving them at all at once.
-  # To mitigate this, some of the checks are put in groups.
+  # Enabling `piped` is useful during local development when there are issues
+  # found by fast checks, but not slow ones. Without `piped`, you would run all
+  # the checks only to find an issue with a fast check and then have to run all
+  # the checks again once that issue is fixed. With `piped`, the slow ones won't
+  # run since an issue was found by one of the faster ones. Once you fix the
+  # issue found by the fast check, then the slower ones will run. However, this
+  # means you'll have to resolve issues one check at a time instead of resolving
+  # them at all at once. To mitigate this, some of the checks are put in groups.
   #
-  # This is also useful for CI since you wouldn't want your CI runners to waste time
-  # and money running slow checks if a fast one has already failed.
+  # This is also useful for CI since you wouldn't want your CI runners to waste
+  # time and money running slow checks if a fast one has already failed.
   piped: true
   jobs:
     - name: 1-commit-checks
