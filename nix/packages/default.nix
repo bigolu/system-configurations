@@ -11,7 +11,6 @@ let
     pkgs
     lib
     utils
-    pins
     system
     ;
   inherit (utils) unstableVersion projectRoot;
@@ -81,7 +80,6 @@ recursiveUpdateList [
     pkgs.runCommandCC = nixpkgs.runCommand;
 
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
-
     nix-fast-build = inputs.nix-fast-build.outputs;
     nix-gl-host = inputs.nix-gl-host.packages.${system}.default;
 
@@ -139,22 +137,6 @@ recursiveUpdateList [
         pstree = filterPrograms nixpkgs.psmisc [ "pstree" ];
       }
     );
-
-    config-file-validator = nixpkgs.stdenv.mkDerivation {
-      pname = "config-file-validator";
-      version = "1.8.0";
-      src = pins."config-file-validator-${system}";
-      installPhase = ''
-        mkdir -p $out/bin
-        cp $src/validator $out/bin/
-      '';
-      meta = {
-        platforms = [
-          "x86_64-linux"
-          "x86_64-darwin"
-        ];
-      };
-    };
 
     keyd = nixpkgs.keyd.overrideAttrs (old: {
       postInstall = old.postInstall + ''

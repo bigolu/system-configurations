@@ -10,7 +10,6 @@
   devshell.packages = with pkgs; [
     actionlint
     bash
-    config-file-validator
     coreutils
     deadnix
     editorconfig-checker
@@ -19,12 +18,7 @@
     gomod2nix
     markdown2html-converter
     markdownlint-cli2
-    # TODO: I use `chronic` to hide the output of commands that produce a lot of
-    # output even when they exit successfully. I should see if I could change
-    # this upstream.
-    #
-    # I also use `parallel` to run any check that doesn't support multiple file
-    # arguments.
+    # I use `parallel` to run any check that doesn't support multiple file arguments.
     moreutils
     nix-fast-build
     nixfmt

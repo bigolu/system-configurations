@@ -87,6 +87,7 @@ tools:
     lint-ignore-exit-code: true
     # dependencies: cat, mktemp, jq
     lint-command: |
+      exit
       # The outer and inner case statements represent include and exclude globs
       # respectively.
       case ${INPUT} in

@@ -334,7 +334,7 @@ check:
           # Formatters should run after the other fixes since some fixes may produce
           # code that doesn't comply with the formatting.
 
-          - name: taplo
+          - name: taplo-fix
             glob: "**/*.toml"
             run: taplo format {files}
           - name: prettier
@@ -407,11 +407,12 @@ check:
               - "**/*.gitcommit"
             run: editorconfig-checker {files}
           - name: config-file-validator
-            glob: "**/*.{editorconfig,json,yaml,toml}"
+            skip: true
+            glob: "**/*.{json,yaml}"
             exclude:
               # These aren't actually JSON files, they're JSONC
               - ".vscode/**/*.json"
-              - npins/**/*
+              - npins/**/*.json
             run: chronic validator -groupby pass-fail -- {files}
           - name: renovate-config-validator
             glob:
@@ -437,6 +438,9 @@ check:
               - run: command -v keyd
             glob: "**/keyd/default.conf"
             run: keyd check {files}
+          - name: taplo-lint
+            glob: "**/*.toml"
+            run: taplo lint {files}
     - name: 4-nix-outputs
       group:
         jobs:

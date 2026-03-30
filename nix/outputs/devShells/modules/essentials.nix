@@ -3,7 +3,6 @@
   lib,
   inputs,
   pins,
-  system,
   config,
   extraModulesPath,
   ...
@@ -16,7 +15,6 @@ let
     getExe'
     elem
     filterAttrs
-    hasSuffix
     attrValues
     ;
   inherit (pkgs.stdenv) isLinux;
@@ -93,7 +91,6 @@ in
                 filterAttrs (
                   name: pin:
                   (name != "__functor")
-                  && ((hasPrefix "config-file-validator-" name) -> (hasSuffix system name))
                   && (
                     !(elem pin (
                       with pins;

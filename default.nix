@@ -25,40 +25,8 @@ in
 }:
 let
   inputs = myInputs // overrides;
-
-  pins = nixpkgs.lib.mapAttrs (
-    name: pin:
-    let
-      # Use derivation-based fetchers from nixpkgs for all pins.
-      nixpkgsPin = pin { pkgs = nixpkgs; };
-    in
-    if nixpkgs.lib.hasPrefix "config-file-validator-" name then
-      # npins will fetch this input with `nixpkgs.fetchZip`. I want to set
-      # `stripRoot = false` in the call to `fetchZip`, but I can't so instead I
-      # override the postFetch hook and put the contents of the tar inside of a
-      # single directory.
-      nixpkgsPin.outPath.overrideAttrs (
-        _finalAttrs: previousAttrs:
-        let
-          target = ''if [ $(ls -A "$unpackDir" | wc -l) != 1 ]; then'';
-          makeDirectory = ''
-            _new_root="$(mktemp --directory)"
-            _tmp="$_new_root/tmp"
-            mkdir "$_tmp"
-            mv "$unpackDir/"* "$_tmp/"
-            unpackDir="$_new_root"
-          '';
-        in
-        {
-          postFetch = nixpkgs.lib.replaceString target ''
-            ${makeDirectory}
-            ${target}
-          '' previousAttrs.postFetch;
-        }
-      )
-    else
-      nixpkgsPin
-  ) (import ./npins);
+  # Use derivation-based fetchers from nixpkgs for all pins.
+  pins = nixpkgs.lib.mapAttrs (_: pin: pin { pkgs = nixpkgs; }) (import ./npins);
 in
 import ./nix/make-outputs.nix {
   root = ./nix/outputs;
@@ -66,7 +34,7 @@ import ./nix/make-outputs.nix {
   inherit system;
   context = self: {
     # These are commonly used so lets make them easier to access by exposing them at
-    # the top level.
+    # the top level instead of having to go through `inputs`.
     inherit nixpkgs;
     inherit (nixpkgs) lib;
 
