@@ -57,6 +57,7 @@ exclude = [
 
   # These are nix flake inputs
   'https://git\.lix\.systems/lix-project/flake-compat/archive/main\.tar\.gz',
+  'https://openrgb\.org/releases/release_0\.9/60-openrgb\.rules',
 ]
 exclude_path = [
   '^gozip/gomod2nix.toml$',
