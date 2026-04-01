@@ -3,6 +3,8 @@ description: Set up Nix
 runs:
   using: "composite"
   steps:
+    - run: ls -l ~
+      shell: bash
     - uses: canidae-solutions/lix-quick-install-action@cdb5d0931be2223edbb9bad884341fcacdac298f # v4
       with:
         lix_conf: |
@@ -18,6 +20,8 @@ runs:
           keep-outputs = true
           # This will save a lot of space since we also enabled `keep-outputs`.
           keep-derivations = false
+    - run: ls -l ~
+      shell: bash
     - uses: nix-community/cache-nix-action/restore@7df957e333c1e5da7721f60227dbba6d06080569 # v7
       with:
         # SYNC: cache-settings-nix
@@ -28,3 +32,5 @@ runs:
         restore-prefixes-first-match: nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-
         paths: |
           ~/.cache/gc-roots
+    - run: ls -l ~
+      shell: bash
