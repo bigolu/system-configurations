@@ -20,13 +20,13 @@ jobs:
     steps:
       - run: echo "$USER"; pwd
         shell: bash
-      - run: ls -l ~ || true
+      - run: ls -al ~ || true
         shell: bash
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ls -l ~ || true
+      - run: ls -al ~ || true
         shell: bash
       - uses: ./.github/actions/setup
-      - run: ls -l ~ || true
+      - run: ls -al ~ || true
         shell: bash
       - name: Run lychee
         env:
