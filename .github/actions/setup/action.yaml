@@ -28,3 +28,11 @@ runs:
         restore-prefixes-first-match: nix-${{ github.ref_name }}-${{ github.workflow }}-${{ github.job }}-${{ runner.arch }}-${{ runner.os }}-
         paths: |
           ~/.cache/gc-roots
+    # TODO: When the action above restores the cache, the folders it creates are
+    # owned by the root user. I think this is because they extract the cache
+    # from its tar archive using sudo[1]. I should open an issue.
+    #
+    # [1]: https://github.com/nix-community/cache-nix-action/blob/a100bc2d2b42a2556e7205eb0025f6807e752d4d/src/utils/action.ts#L111
+    - name: Give the current user write access to the cache
+      shell: bash
+      run: sudo chmod -R u+w ~/.cache
