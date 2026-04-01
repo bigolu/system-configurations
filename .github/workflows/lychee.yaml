@@ -18,11 +18,11 @@ jobs:
   lychee:
     runs-on: ubuntu-24.04
     steps:
-      - run: ls -l ~
+      - run: ls -l ~ || true
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-      - run: ls -l ~
+      - run: ls -l ~ || true
       - uses: ./.github/actions/setup
-      - run: ls -l ~
+      - run: ls -l ~ || true
       - name: Run lychee
         env:
           # To avoid being rate-limited by GitHub
