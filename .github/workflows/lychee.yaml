@@ -36,3 +36,5 @@ jobs:
         run: echo pass
       - if: always()
         uses: ./.github/actions/save-cache
+      - run: ls -al ~ || true
+        shell: bash
