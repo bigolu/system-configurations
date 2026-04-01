@@ -20,6 +20,8 @@ runs:
           keep-outputs = true
           # This will save a lot of space since we also enabled `keep-outputs`.
           keep-derivations = false
+    - run: mkdir ~/.test
+      shell: bash
     - run: ls -al ~ || true
       shell: bash
     - uses: nix-community/cache-nix-action/restore@7df957e333c1e5da7721f60227dbba6d06080569 # v7
