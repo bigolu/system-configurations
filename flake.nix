@@ -71,8 +71,7 @@
       let
         outputs = import ./. {
           inherit system;
-          # This way, if someone sets `.follows` for any of this flake's inputs,
-          # they'll be used.
+          nixpkgs = inputs.nixpkgs.legacyPackages.${system};
           overrides = inputs;
         };
       in
