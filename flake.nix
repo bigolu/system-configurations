@@ -64,9 +64,6 @@
     flake-utils.url = "github:numtide/flake-utils";
   };
 
-  # I only define these outputs so I can use:
-  #   - `nix bundle --bundler <this_repo>#`
-  #   - `nix run <this_repo>`
   outputs =
     inputs:
     inputs.flake-utils.lib.eachDefaultSystem (
