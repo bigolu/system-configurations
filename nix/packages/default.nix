@@ -11,7 +11,6 @@ let
     pkgs
     lib
     utils
-    system
     ;
   inherit (utils) unstableVersion projectRoot;
   inherit (lib)
@@ -81,7 +80,7 @@ recursiveUpdateList [
 
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
     nix-fast-build = inputs.nix-fast-build.outputs;
-    nix-gl-host = inputs.nix-gl-host.packages.${system}.default;
+    nix-gl-host = inputs.nix-gl-host.outputs;
 
     neovim =
       let
