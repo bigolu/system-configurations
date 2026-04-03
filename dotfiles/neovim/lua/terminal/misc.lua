@@ -198,3 +198,21 @@ require("nvim-ts-autotag").setup()
 -- Automatically add closing keywords (e.g. function/endfunction in vimscript)
 vim.keymap.set({ "n" }, "o", "A<CR>", { remap = true })
 -- }}}
+
+-- Aesthetic {{{
+vim.o.linebreak = true
+vim.o.breakat = " ^I"
+vim.o.cursorline = true
+vim.o.cursorlineopt = "number"
+vim.o.wrap = true
+vim.o.listchars = "tab: ,space:·,eol:$"
+vim.opt.fillchars:append("eob: ,lastline:>")
+-- Neovim sets termguicolors asynchronously, since querying the terminal could be
+-- slow over SSH, so it usually isn't set by the time I set the colorscheme. Instead,
+-- I'll just set it now.
+vim.o.termguicolors = true
+vim.cmd.colorscheme("bigolu")
+-- Block cursor in normal mode, thin line in insert mode, and underline in replace mode
+local blink = "blinkwait0-blinkon150-blinkoff150"
+vim.o.guicursor = string.format("n-v:block-%s,i-c-ci-ve:%s-%s,r-cr-o:hor20-%s", blink, "ver25", blink, blink)
+-- }}}
