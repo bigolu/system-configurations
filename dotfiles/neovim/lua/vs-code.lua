@@ -10,6 +10,9 @@ vim.g.clipboard = vim.g.vscode_clipboard
 
 vim.o.laststatus = 0
 
+-- TODO: Workaround for https://github.com/vscode-neovim/vscode-neovim/pull/2515
+vim.o.cmdheight = 999
+
 -- I use `gq` to format my comments so I'm removing this so nvim won't wait to
 -- see if I'll press another 'q'.
 vim.keymap.del({ "n" }, "gqq")
