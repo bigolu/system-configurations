@@ -25,7 +25,7 @@
 #     most cases:
 #     ```
 #     shopt -s globstar
-#     watch_file nix/** **/*.nix **/flake.lock
+#     watch_file nix/**/* **/*.nix **/flake.lock
 #     shopt +s globstar
 #     ```
 #
