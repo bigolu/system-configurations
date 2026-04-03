@@ -43,7 +43,7 @@ in
   ids.gids.nixbld = 350;
 
   nix = {
-    package = pkgs.lix;
+    package = pkgs.lixPackageSet.lix;
 
     gc = {
       automatic = true;

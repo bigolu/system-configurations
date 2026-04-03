@@ -36,7 +36,7 @@ let
 
   syncNixVersionWithSystem =
     let
-      nixPackage = pkgs.lix;
+      nixPackage = pkgs.lixPackageSet.lix;
       nix = getExe nixPackage;
       nix-env = getExe' nixPackage "nix-env";
     in

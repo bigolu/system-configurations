@@ -27,16 +27,13 @@ let
     let
       # Lix no longer supports x86_64-darwin
       lixPackageSet = final.lixPackageSets.${if isLinux then "latest" else "lix_2_94"};
-      inherit (lixPackageSet) lix;
-      useLix = name: prev.${name}.override { nix = lix; };
     in
     {
-      inherit lix;
       lixPackageSet = lixPackageSet // {
         # TODO: Remove this when comma is added to lixPackageSets[1].
         #
         # [1]: https://github.com/NixOS/nixpkgs/pull/462022
-        comma = useLix "comma";
+        comma = prev.comma.override { nix = lixPackageSet.lix; };
       };
     };
   nixpkgs = context.nixpkgs.extend lixOverlay;

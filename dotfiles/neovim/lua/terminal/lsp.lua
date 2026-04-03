@@ -71,7 +71,7 @@ local function create_refresh_autocmd(buffer)
 	code_lens_refresh_autocmd_ids_by_buffer[buffer] = vim.api.nvim_create_autocmd({ "CursorHold", "InsertLeave" }, {
 		desc = "code lens refresh",
 		callback = function()
-			vim.lsp.codelens.refresh({ bufnr = buffer })
+			vim.lsp.codelens.enable(true, { bufnr = buffer })
 		end,
 		buffer = buffer,
 	})
@@ -108,7 +108,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
 				local is_refresh_autocmd_active = refresh_autocmd_id ~= -1
 				if is_refresh_autocmd_active then
 					delete_refresh_autocmd(buffer)
-					vim.lsp.codelens.clear(client.id, buffer)
+					vim.lsp.codelens.enable(false, { bufnr = buffer })
 				else
 					create_refresh_autocmd(buffer)
 				end

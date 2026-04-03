@@ -258,4 +258,4 @@ vim.o.statusline = "%!v:lua.StatusLine()"
 vim.o.statuscolumn = "%!v:lua.StatusColumn()"
 vim.o.signcolumn = "yes:1"
 vim.o.foldcolumn = "1"
-vim.opt.fillchars:append("foldopen:,foldclose:,foldsep: ")
+vim.opt.fillchars:append("foldopen:,foldclose:,foldsep: ,foldinner: ")
