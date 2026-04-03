@@ -25,7 +25,8 @@ let
   lixOverlay =
     final: prev:
     let
-      inherit (final.lixPackageSets.stable) lix;
+      # Lix no longer supports x86_64-darwin
+      inherit (final.lixPackageSets.${if isLinux then "latest" else "lix_2_94"}) lix;
       useLix = name: prev.${name}.override { nix = lix; };
     in
     {
