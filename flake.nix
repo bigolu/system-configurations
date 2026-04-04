@@ -31,7 +31,8 @@
 
     nix-gl-host = {
       url = "github:arilotter/nix-gl-host-rs";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # TODO: It doesn't build with my version of nixpkgs
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
 
     nix-index-database = {
