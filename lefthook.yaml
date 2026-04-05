@@ -243,6 +243,9 @@ check:
             glob: flake.nix
             run: nix flake lock
           - name: readme-lix-version
+            skip:
+              - run: |
+                  [ "$(uname)" = Darwin ]
             glob: flake.lock
             run: mise run lefthook:add-lix-version-to-readme
           - name: readme-config-names
