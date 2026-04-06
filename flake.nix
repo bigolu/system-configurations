@@ -84,7 +84,7 @@
 
         apps.default = {
           type = "app";
-          program = "${outputs.packages.init-config}/bin/init-config";
+          program = "${inputs.nixpkgs.lib.getExe outputs.packages.init-config}";
         };
       }
     );
