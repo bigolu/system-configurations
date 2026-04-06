@@ -123,7 +123,7 @@ in
       [
         nix-tree
         nix-melt
-        comma
+        lixPackageSet.comma
         nix-daemon-reload
         nix-diff
         nix-search-cli
