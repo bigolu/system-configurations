@@ -27,17 +27,22 @@ function remove_temp_directories {
 }
 trap remove_temp_directories EXIT
 
+env="$(type -P env)"
+# Get the directory containing nix so we can add it to the PATH below
+nix_path="$(type -P nix)"
+nix_dir="${nix_path%/*}"
+
 # Since we only assume that the CI machine has nix and git, they're the only programs
 # added to the nix shell. We need git since flake-compat uses `builtins.fetchGit`
 # which depends on it[1].
 #
 # [1]: https://github.com/NixOS/nix/issues/3533
-env="$(type -P env)"
-nix shell \
+PATH="$nix_dir" nix shell \
 	--ignore-environment \
-	--file nix/packages nix git \
+	--keep PATH \
+	--file nix/packages git \
 	--command \
 	"$env" \
 	HOME="$temp_home" \
 	PRJ_DATA_DIR="$temp_prj_data_dir" \
-	nix run --file . "devShells.${usage_nix_dev_shell:?}"
+	nix run --file . "devShells.${usage_nix_dev_shell:?}" -- bash --noprofile --norc
