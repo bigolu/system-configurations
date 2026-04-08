@@ -36,7 +36,7 @@ keybind = alt+six=goto_tab:6
 keybind = alt+seven=goto_tab:7
 keybind = alt+eight=goto_tab:8
 keybind = alt+nine=goto_tab:9
-keybind = alt+shift+d=toggle_tab_overview
+keybind = alt+w=toggle_tab_overview
 keybind = alt+minus=new_split:down
 keybind = alt+backslash=new_split:right
 keybind = alt+h=goto_split:left
