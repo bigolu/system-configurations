@@ -1,7 +1,12 @@
 # Remove large or unnecessary packages from the portable shell
 { pkgs, lib, ... }:
 let
-  inherit (lib) genAttrs optionals const;
+  inherit (lib)
+    optionals
+    foldl'
+    recursiveUpdate
+    setAttrByPath
+    ;
   inherit (pkgs) runCommand;
   inherit (pkgs.stdenv) isDarwin;
 
@@ -14,20 +19,32 @@ let
       mkdir --parents $out/bin
     '';
 
-  makeEmptyPackageSet = packageNames: genAttrs packageNames (const emptyPackage);
+  recursiveUpdateList = foldl' recursiveUpdate { };
+
+  makeEmptyPackageSet =
+    packagePaths: recursiveUpdateList (map (path: setAttrByPath path emptyPackage) packagePaths);
 in
-makeEmptyPackageSet (
+{
+  fish = pkgs.fishMinimal;
+  git = pkgs.gitMinimal;
+}
+// (makeEmptyPackageSet (
   [
-    "comma"
-    "diffoscopeMinimal"
-    "difftastic"
-    "lesspipe"
-    "nix"
-    "ripgrep-all"
-    "timg"
+    [
+      "lixPackageSet"
+      "comma"
+    ]
+    [
+      "lixPackageSet"
+      "lix"
+    ]
+    [ "diffoscopeMinimal" ]
+    [ "difftastic" ]
+    [ "lesspipe" ]
+    [ "ripgrep-all" ]
+    [ "timg" ]
   ]
   ++ optionals isDarwin [
-    # This is over 1GB
-    "moreutils"
+    [ "moreutils" ]
   ]
-)
+))

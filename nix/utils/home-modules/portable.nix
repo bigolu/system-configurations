@@ -2,7 +2,11 @@
 # dependencies on large packages.
 { lib, pkgs, ... }:
 let
-  inherit (lib) mkForce optionalAttrs hm;
+  inherit (lib)
+    mkForce
+    optionalAttrs
+    hm
+    ;
   inherit (pkgs.stdenv) isLinux;
 
   # These variables contain the path to the locale archive in

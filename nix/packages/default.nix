@@ -64,7 +64,6 @@ in
 recursiveUpdateList [
   nixpkgs
   outputs.packages
-  inputs.gomod2nix.outputs
   {
     __functor =
       self:
@@ -85,6 +84,13 @@ recursiveUpdateList [
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
     nix-fast-build = inputs.nix-fast-build.outputs;
     nix-gl-host = inputs.nix-gl-host.outputs;
+    inherit (inputs.gomod2nix.outputs)
+      gomod2nix
+      buildGoApplication
+      mkGoEnv
+      mkGoCacheEnv
+      hooks
+      ;
 
     neovim =
       let

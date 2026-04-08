@@ -16,6 +16,7 @@ let
     isAttrs
     isPath
     id
+    recursiveUpdate
     ;
   inherit (pkgs) runCommand;
 
@@ -41,7 +42,7 @@ let
         inherit pkgs;
         modules = modules ++ [
           commonModule
-          { _module.args.pkgs = mkForce (pkgs // packageOverrides); }
+          { _module.args.pkgs = mkForce (recursiveUpdate pkgs packageOverrides); }
         ];
 
         # SYNC: SPECIAL-ARGS
