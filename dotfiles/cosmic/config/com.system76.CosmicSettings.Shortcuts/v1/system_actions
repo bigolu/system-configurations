@@ -1,3 +1,3 @@
 {
-    Terminal: "cosmic-term",
+    Terminal: "/usr/bin/ghostty --gtk-single-instance=true",
 }
