@@ -44,19 +44,31 @@ activation_package_data_directory="$activation_package/home-files/.local/share"
 if ! [[ -w $activation_package ]]; then
 	xdg_config_directory="$(make_directory_in_prefix config)"
 	xdg_data_directory="$(make_directory_in_prefix data)"
-	cp --no-preserve=mode --recursive --dereference \
-		"$activation_package_config_directory"/* "$xdg_config_directory"
-	cp --no-preserve=mode --recursive --dereference \
-		"$activation_package_data_directory"/* "$xdg_data_directory"
+
+	activation_package_config_directory_contents=("$activation_package_config_directory"/*)
+	if ((${#activation_package_config_directory_contents[@]} > 0)); then
+		cp --no-preserve=mode --recursive --dereference \
+			"${activation_package_config_directory_contents[@]}" "$xdg_config_directory"
+	fi
+
+	activation_package_data_directory_contents=("$activation_package_data_directory"/*)
+	if ((${#activation_package_data_directory_contents[@]} > 0)); then
+		cp --no-preserve=mode --recursive --dereference \
+			"${activation_package_data_directory_contents[@]}" "$xdg_data_directory"
+	fi
 else
 	xdg_config_directory="$activation_package_config_directory"
 	xdg_data_directory="$activation_package_data_directory"
 
 	# This way we have a reference to all the XDG base directories from the prefix
-	config_in_prefix="$(make_directory_in_prefix 'config')"
-	ln --symbolic "$xdg_config_directory" "$config_in_prefix"
-	data_in_prefix="$(make_directory_in_prefix 'data')"
-	ln --symbolic "$xdg_data_directory" "$data_in_prefix"
+	if [[ -e $xdg_config_directory ]]; then
+		config_in_prefix="$(make_directory_in_prefix 'config')"
+		ln --symbolic "$xdg_config_directory" "$config_in_prefix"
+	fi
+	if [[ -e $xdg_data_directory ]]; then
+		data_in_prefix="$(make_directory_in_prefix 'data')"
+		ln --symbolic "$xdg_data_directory" "$data_in_prefix"
+	fi
 fi
 
 xdg_env_vars=(
