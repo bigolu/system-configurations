@@ -8,7 +8,8 @@ nixpkgs.callPackage (
     direnv,
     perl,
     coreutils,
-    writeShellApplication,
+    symlinkJoin,
+    makeWrapper,
   }:
   let
     inherit (lib) getExe getExe';
@@ -46,16 +47,16 @@ nixpkgs.callPackage (
       };
     };
   in
-  writeShellApplication {
-    name = "run-as-admin";
-    # direnv plugins assume these are on the PATH
-    runtimeInputs = [
-      direnv
-      bash
-      coreutils
-    ];
-    text = ''
-      ${getExe script}
+  symlinkJoin {
+    inherit (script) pname version;
+    paths = [ script ];
+    nativeBuildInputs = [ makeWrapper ];
+    postBuild = ''
+      # direnv plugins assume these are on the PATH
+      wrapProgram $out/bin/init-config \
+        --prefix PATH : ${direnv}/bin \
+        --prefix PATH : ${bash}/bin \
+        --prefix PATH : ${coreutils}/bin
     '';
   }
 ) { }
