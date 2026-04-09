@@ -49,6 +49,7 @@ nixpkgs.callPackage (
   in
   symlinkJoin {
     inherit (script) pname version;
+    meta.mainProgram = script.meta.mainProgram;
     paths = [ script ];
     nativeBuildInputs = [ makeWrapper ];
     postBuild = ''
