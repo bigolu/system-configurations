@@ -77,10 +77,7 @@
         };
       in
       {
-        bundlers = rec {
-          inherit (outputs.bundlers) rootless;
-          default = rootless;
-        };
+        bundlers.default = outputs.bundlers.rootless;
 
         apps.default = {
           type = "app";
