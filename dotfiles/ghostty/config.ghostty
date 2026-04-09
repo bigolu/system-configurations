@@ -28,7 +28,6 @@ keybind = shift+insert=paste_from_clipboard
 keybind = alt+r=reload_config
 keybind = alt+shift+left_bracket=move_tab:-1
 keybind = alt+shift+right_bracket=move_tab:1
-keybind = alt+t=new_tab
 keybind = alt+left_bracket=previous_tab
 keybind = alt+right_bracket=next_tab
 keybind = alt+one=goto_tab:1
