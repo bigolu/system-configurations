@@ -188,7 +188,7 @@ local groups = {
   -- Tree-Sitter {{{
   ["@comment.documentation"] = "Comment",
   ["@number.comment"] = "@comment.documentation",
-  ["@comment.todo"] = {bold = true,},
+  ["@comment.todo"] = "TODO",
   ["@comment.error"] = "@comment.todo",
   ["@comment.note"] = "@comment.todo",
   ["@comment.warning"] = "@comment.todo",
@@ -247,7 +247,7 @@ local groups = {
   CodeActionSign = { ctermfg = 3, fg = colors[3] },
   Underlined = { underline = true }, -- Text that stands out, HTML links
   Ignore = { ctermfg = 0, fg = colors[0] }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
-  Todo = { bold = true }, -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
+  Todo = "Comment", -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
   tutorLink = "Underlined",
   tutorX = "DiagnosticError",
   tutorOk = "DiagnosticOk",
