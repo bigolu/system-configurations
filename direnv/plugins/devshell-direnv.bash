@@ -22,7 +22,12 @@
 #     ideally you only call it once. And if users don't like the files that were
 #     automatically watched, I'd have to also provide an option to disable it.
 #     Instead, you can try something like the following which should work for
-#     most cases: `watch_dir nix **/*.nix **/flake.lock`
+#     most cases:
+#     ```
+#     shopt -s globstar
+#     watch_dir nix **/*.nix **/flake.lock
+#     shopt +s globstar
+#     ```
 #
 # [1]: https://github.com/numtide/devshell
 
