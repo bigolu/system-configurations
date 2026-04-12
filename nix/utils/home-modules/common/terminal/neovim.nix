@@ -26,9 +26,7 @@ in
           nvim-lspconfig
           nvim-treesitter.withAllGrammars
           nvim-treesitter-context
-          # TODO: Originally, it used `nvim-treesitter-legacy`, but you can't have
-          # multiple versions of `nvim-treesitter` in use at once.
-          (nvim-treesitter-endwise.overrideAttrs { dependencies = [ nvim-treesitter ]; })
+          nvim-treesitter-endwise
           nvim-treesitter-textobjects
           nvim-ts-autotag
           treesj
