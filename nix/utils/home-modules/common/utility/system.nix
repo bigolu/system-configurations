@@ -21,6 +21,7 @@ let
     optionalAttrs
     mapAttrs
     attrValues
+    escapeShellArg
     ;
   inherit (pkgs.stdenv) isLinux;
 in
@@ -76,23 +77,12 @@ in
           group = if isLinux then "sudo" else "wheel";
         in
         hm.dag.entryAfter [ "writeBoundary" ] ''
-          function install_file {
-            local -r source="$1"
-            local -r target="$2"
+          ${foldl (acc: next: ''
+            ${acc}
             sudo install \
               --compare -D --no-target-directory \
               --owner=root --group=${group} --mode='u=rwx,g=r,o=r' \
-              "$source" "$target"
-          }
-
-          ${foldl (acc: next: ''
-            ${acc}
-            install_file ${
-              escapeShellArgs [
-                next.source
-                next.target
-              ]
-            }
+              ${escapeShellArg next.source} ${escapeShellArg next.target}
           '') "" (attrValues config.system.file)}
         '';
     }
