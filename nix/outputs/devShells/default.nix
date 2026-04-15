@@ -38,7 +38,7 @@ makeShells
         ./modules/mise/tasks.nix
         ./modules/mise/task-autocomplete.nix
         ./modules/vscode.nix
-        ./modules/lefthook/hooks/check
+        ./modules/lefthook/hooks/check.nix
         ./modules/lefthook/hooks/sync.nix
       ];
 

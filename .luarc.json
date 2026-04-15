@@ -1,14 +1,14 @@
 {
-  "$schema": "https://raw.githubusercontent.com/sumneko/vscode-lua/master/setting/schema.json",
+  "$schema": "https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json",
   "diagnostics": {
     "unusedLocalExclude": ["_*"],
     "libraryFiles": "Disable"
   },
   "workspace": {
     "library": [
-      "$LUA_LIBRARY_NEOVIM_RUNTIME",
-      "$LUA_LIBRARY_NEOVIM_PLUGINS",
-      "$LUA_LIBRARY_HAMMERSPOON"
+      "$HOME/.nix-profile/share/nvim/runtime",
+      "$HOME/.nix-profile/share/nvim/site/pack/bigolu/start",
+      "$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
     ],
     "checkThirdParty": "Disable"
   },

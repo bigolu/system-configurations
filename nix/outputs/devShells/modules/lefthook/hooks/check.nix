@@ -1,10 +1,9 @@
 { pkgs, ... }:
 {
   imports = [
-    ../../cli.nix
-    ./lua-language-server.nix
+    ../cli.nix
     # For `gofmt`, `go mod tidy`, and `go-tools`
-    ../../../gozip.nix
+    ../../gozip.nix
   ];
 
   devshell.packages = with pkgs; [
@@ -16,6 +15,7 @@
     fish
     go-tools
     gomod2nix
+    lua-language-server
     markdown2html-converter
     markdownlint-cli2
     # I use `parallel` to run any check that doesn't support multiple file arguments.

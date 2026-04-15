@@ -33,4 +33,16 @@
       },
     },
   },
+  "json.schemaDownload.trustedDomains": {
+    "https://raw.githubusercontent.com/LuaLS/vscode-lua/": true,
+
+    // These were the defaults, but I don't think VS Code will merge these
+    // settings so I'm listing them here.
+    "https://raw.githubusercontent.com/microsoft/vscode/": true,
+    "https://raw.githubusercontent.com/devcontainers/spec/": true,
+    "https://www.schemastore.org/": true,
+    "https://json.schemastore.org/": true,
+    "https://json-schema.org/": true,
+    "https://developer.microsoft.com/json-schemas/": true,
+  },
 }
