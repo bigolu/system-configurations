@@ -267,7 +267,6 @@ local groups = {
 
   -- mini.nvim {{{
   MiniIndentscopeSymbol = { ctermfg = 15, fg = colors.guide },
-  Clear = "Identifier",
   MiniCursorword = { underline = not vim.o.termguicolors, bg = colors.bg2 },
   MiniOperatorsExchangeFrom = "Visual",
   MiniCompletionActiveParameter = { ctermfg = 14, fg = colors.accent, },

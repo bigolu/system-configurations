@@ -343,6 +343,7 @@ end)
 if IsRunningInTerminal then
 	require("mini.misc").setup_restore_cursor({ center = false })
 	require("mini.pairs").setup()
+	require("mini.cursorword").setup()
 	require("mini.snippets").setup({
 		mappings = {
 			expand = "",
@@ -386,30 +387,6 @@ if IsRunningInTerminal then
 		end
 	end, {
 		desc = "Toggle maximize window [zoom]",
-	})
-	-- }}}
-
-	-- cursorword {{{
-	require("mini.cursorword").setup()
-
-	local cursorword_highlight_name = "MiniCursorword"
-	local function disable_cursorword()
-		vim.opt_local.winhighlight:append(cursorword_highlight_name .. ":Clear")
-	end
-	local function enable_cursorword()
-		vim.opt_local.winhighlight:remove(cursorword_highlight_name)
-	end
-
-	-- Don't highlight in inactive windows
-	vim.api.nvim_create_autocmd("WinLeave", {
-		callback = function(_)
-			disable_cursorword()
-		end,
-	})
-	vim.api.nvim_create_autocmd("WinEnter", {
-		callback = function(_)
-			enable_cursorword()
-		end,
 	})
 	-- }}}
 
