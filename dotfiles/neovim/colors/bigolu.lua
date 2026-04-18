@@ -285,6 +285,7 @@ local groups = {
   MiniPickMatchCurrent = {underline = not vim.o.termguicolors, bg = colors.bg2, },
   MiniNotifyBorder = { ctermfg = 8, fg = colors[8], bg = colors.notification, },
   MiniNotifyNormal = { italic = not vim.o.termguicolors, bg = colors.notification },
+  MiniCursorwordCurrent = {},
   -- }}}
 }
 
