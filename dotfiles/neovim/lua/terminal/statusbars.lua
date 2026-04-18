@@ -247,9 +247,8 @@ function StatusColumn()
 
 	local git = "%s"
 	local fold = "%C "
-	local margin = "%#Normal# "
 
-	return git .. line_number .. fold .. margin
+	return git .. line_number .. fold
 end
 
 vim.o.laststatus = 3
