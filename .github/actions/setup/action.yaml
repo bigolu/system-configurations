@@ -36,4 +36,4 @@ runs:
     - name: Set user/group of cache to current user
       shell: bash
       run: |
-        [ -e ~/.cache ] && sudo chown -R "$USER:$USER" ~/.cache
+        [ -e ~/.cache ] && sudo chown -R "$USER" ~/.cache
