@@ -36,6 +36,6 @@ runs:
     - name: Set user/group of cache to current user
       shell: bash
       run: |
-        if [ -e ~/.cache ];
+        if [ -e ~/.cache ]; then
           sudo chown -R "$USER" ~/.cache
         fi
