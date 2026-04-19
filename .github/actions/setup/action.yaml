@@ -35,4 +35,5 @@ runs:
     # [1]: https://github.com/nix-community/cache-nix-action/blob/a100bc2d2b42a2556e7205eb0025f6807e752d4d/src/utils/action.ts#L111
     - name: Set user/group of cache to current user
       shell: bash
-      run: sudo chown -R "$USER:$USER" ~/.cache
+      run: |
+        [ -e ~/.cache ] && sudo chown -R "$USER:$USER" ~/.cache
