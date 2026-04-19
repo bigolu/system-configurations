@@ -223,6 +223,7 @@ local groups = {
   ["@string.special.url.comment"] = "@string.special.url",
   ["@string.documentation.python"] = "Comment",
   ["@character"] = "Character",
+  ["@character.printf"] = { ctermfg = 7, fg = colors[7] }, -- e.g. `%s` in `printf("foo: %s")`
   ["@label"] = "Label",
   ["@label.yaml"] = { ctermfg = 7, fg = colors[7] },
   ["@keyword"] = "Keyword",
