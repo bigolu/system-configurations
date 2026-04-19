@@ -541,7 +541,9 @@ if IsRunningInTerminal then
 				return vim.iter(notifications)
 					:filter(function(notification)
 						-- TODO: I'm getting some warnings on startup since lazy-lsp is using the old nvim-lspconfig API
-						return notification.level ~= "WARN"
+						local msg = notification.msg
+						return string.find(msg, "lspconfig-nvim-0.11", 1, true) ~= nil
+							and string.find(msg, '"ty" not found', 1, true) ~= nil
 					end)
 					:totable()
 			end,
