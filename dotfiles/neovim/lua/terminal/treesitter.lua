@@ -11,7 +11,7 @@ vim.cmd.syntax("manual")
 vim.api.nvim_create_autocmd("FileType", {
 	callback = function()
 		if not is_current_buffer_too_big_to_highlight() then
-			local parser, _error = vim.treesitter.get_parser(nil, nil, { error = false })
+			local parser, _error = vim.treesitter.get_parser()
 			if parser ~= nil then
 				vim.treesitter.start()
 			elseif vim.tbl_contains(filetypes_with_regex_highlights, vim.bo.filetype) then

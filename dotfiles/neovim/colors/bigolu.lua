@@ -114,6 +114,10 @@ local groups = {
   DiagnosticFloatingOk = "DiagnosticOk", -- Used to color "Ok" diagnostic messages in diagnostics float.
   DiagnosticUnnecessary = { ctermfg = 8, undercurl = true, sp = colors[8] },
   DiagnosticDeprecated = "DiagnosticUnnecessary",
+  DiagnosticSignError = "DiagnosticError",
+  DiagnosticSignWarn = "DiagnosticWarn",
+  DiagnosticSignInfo = "DiagnosticInfo",
+  DiagnosticSignHint = "DiagnosticHint",
   -- }}}
 
   -- float {{{
@@ -154,11 +158,7 @@ local groups = {
   -- statusline/tabline {{{
   StatusLine = { ctermfg = 15, reverse = not vim.o.termguicolors, bg = colors.bg2 },
   StatusLineMode = { bold = true, },
-  StatusLineErrorText = { ctermfg = 1, fg = colors[1], },
-  StatusLineWarningText = { ctermfg = 3, fg = colors[3], },
-  StatusLineStandoutText = "StatusLineWarningText",
-  StatusLineInfoText = { ctermfg = 4, fg = colors[4], },
-  StatusLineHintText = "StatusLineInfoText",
+  StatusLineStandoutText = { ctermfg = 3, fg = colors[3], },
   StatusLineRecordingIndicator = { ctermfg = 1, fg = colors[1], },
   TabLine = "StatusLine",
   TabLineFill = "TabLine",

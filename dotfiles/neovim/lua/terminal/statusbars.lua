@@ -116,34 +116,10 @@ function StatusLine()
 		readonly = "%#StatusLineStandoutText#" .. indicator
 	end
 
-	local diagnostic_data = {
-		{
-			severity = vim.diagnostic.severity.HINT,
-			icon = "%#StatusLineHintText# ",
-		},
-		{
-			severity = vim.diagnostic.severity.INFO,
-			icon = "%#StatusLineInfoText# ",
-		},
-		{
-			severity = vim.diagnostic.severity.WARN,
-			icon = "%#StatusLineWarningText# ",
-		},
-		{
-			severity = vim.diagnostic.severity.ERROR,
-			icon = "%#StatusLineErrorText# ",
-		},
-	}
-	local diagnostic_list = {}
-	for _, datum in ipairs(diagnostic_data) do
-		local count = vim.diagnostic.count(0, { severity = datum.severity })[datum.severity] or 0
-		if count > 0 then
-			table.insert(diagnostic_list, datum.icon .. count)
-		end
-	end
 	local diagnostics = nil
-	if #diagnostic_list > 0 then
-		diagnostics = table.concat(diagnostic_list, " ")
+	local diagnostic_status = vim.diagnostic.status()
+	if diagnostic_status ~= "" then
+		diagnostics = diagnostic_status
 	end
 
 	local mixed_indentation = nil

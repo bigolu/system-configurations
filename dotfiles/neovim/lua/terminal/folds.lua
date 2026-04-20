@@ -42,7 +42,7 @@ vim.api.nvim_create_autocmd({ "BufEnter" }, {
 			return
 		end
 
-		local parser, _error = vim.treesitter.get_parser(nil, nil, { error = false })
+		local parser, _error = vim.treesitter.get_parser()
 		if parser ~= nil then
 			vim.wo.foldmethod = "expr"
 			vim.wo.foldexpr = "v:lua.vim.treesitter.foldexpr()"

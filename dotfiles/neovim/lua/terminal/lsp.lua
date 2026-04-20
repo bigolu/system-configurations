@@ -1,5 +1,3 @@
-local methods = vim.lsp.protocol.Methods
-
 vim.keymap.set("n", "<S-l>", vim.diagnostic.open_float, { desc = "Diagnostic modal" })
 vim.keymap.set("n", "[l", function()
 	vim.diagnostic.jump({ count = -1 })
@@ -16,9 +14,12 @@ vim.keymap.set("n", [[\d]], function()
 	vim.diagnostic.reset(nil, vim.api.nvim_get_current_buf())
 end, { desc = "Toggle diagnostics for buffer" })
 vim.keymap.set("n", [[\i]], function()
-	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), { bufnr = 0 })
+	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
 end, { desc = "Toggle inlay hints" })
 vim.keymap.set("n", "gr", vim.lsp.buf.references)
+vim.keymap.set("n", [[\l]], function()
+	vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+end, { desc = "Toggle code lenses" })
 
 -- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
@@ -53,67 +54,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		local client = vim.lsp.get_client_by_id(args.data.client_id)
 		assert(client ~= nil)
 		client.server_capabilities.semanticTokensProvider = nil
-	end,
-})
-
--- codelens utils
-local code_lens_refresh_autocmd_ids_by_buffer = {}
-local function create_refresh_autocmd(buffer)
-	local refresh_autocmd_id = code_lens_refresh_autocmd_ids_by_buffer[buffer]
-	if refresh_autocmd_id ~= -1 then
-		vim.notify(
-			"Not creating another code lens refresh autocmd since it doesn't look like the old one was removed. The id of the old one is: "
-				.. refresh_autocmd_id,
-			vim.log.levels.ERROR
-		)
-		return
-	end
-	code_lens_refresh_autocmd_ids_by_buffer[buffer] = vim.api.nvim_create_autocmd({ "CursorHold", "InsertLeave" }, {
-		desc = "code lens refresh",
-		callback = function()
-			vim.lsp.codelens.enable(true, { bufnr = buffer })
-		end,
-		buffer = buffer,
-	})
-end
-local function delete_refresh_autocmd(buffer)
-	local refresh_autocmd_id = code_lens_refresh_autocmd_ids_by_buffer[buffer]
-	if refresh_autocmd_id == -1 then
-		vim.notify(
-			"Unable to to remove the code lens refresh autocmd because its id was not found",
-			vim.log.levels.ERROR
-		)
-		return
-	end
-	vim.api.nvim_del_autocmd(refresh_autocmd_id)
-	code_lens_refresh_autocmd_ids_by_buffer[buffer] = -1
-end
-
-vim.api.nvim_create_autocmd("LspAttach", {
-	-- Should be idempotent since it may be called multiple times for the same buffer
-	-- if a server registers a capability dynamically.
-	callback = function(context)
-		local client = vim.lsp.get_client_by_id(context.data.client_id)
-		assert(client ~= nil)
-		local buffer = context.buf
-
-		if client:supports_method(methods.textDocument_codeLens) then
-			if code_lens_refresh_autocmd_ids_by_buffer[buffer] == nil then
-				code_lens_refresh_autocmd_ids_by_buffer[buffer] = -1
-				create_refresh_autocmd(buffer)
-			end
-
-			vim.keymap.set("n", [[\l]], function()
-				local refresh_autocmd_id = code_lens_refresh_autocmd_ids_by_buffer[buffer]
-				local is_refresh_autocmd_active = refresh_autocmd_id ~= -1
-				if is_refresh_autocmd_active then
-					delete_refresh_autocmd(buffer)
-					vim.lsp.codelens.enable(false, { bufnr = buffer })
-				else
-					create_refresh_autocmd(buffer)
-				end
-			end, { desc = "Toggle code lenses", buffer = buffer })
-		end
 	end,
 })
 
