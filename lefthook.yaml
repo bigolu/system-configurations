@@ -342,7 +342,7 @@ check:
             run: taplo format {files}
           # This also acts a syntax checker for these file types since prettier
           # will fail if the files aren't syntactically correct.
-          - name: prettier-fix
+          - name: prettier
             glob: "**/*.{md,json,json5,jsonc,yaml}"
             exclude:
               - npins/**/*
