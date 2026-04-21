@@ -96,7 +96,12 @@ require("mini.operators").setup({
 -- }}}
 
 -- indentscope {{{
-require("mini.indentscope").setup({
+local indentscope = require("mini.indentscope")
+
+indentscope.setup({
+	draw = {
+		animation = indentscope.gen_animation.linear({ unit = "total", duration = 100 }),
+	},
 	mappings = {
 		object_scope = "iI",
 		object_scope_with_border = "aI",
