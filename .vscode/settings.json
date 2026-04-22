@@ -4,15 +4,19 @@
   "direnv.restart.automatic": true,
   "editor.defaultFormatter": "maximsmol.vscode-lsp-generic",
   "evenBetterToml.taplo.bundled": false,
-  "files.associations": { ".envrc": "shellscript" },
+  "files.associations": {
+    ".envrc": "shellscript",
+    "**/renovate/*.json": "jsonc",
+    "renovate.json": "jsonc"
+  },
   "fish-lsp.useGlobalExecutable": true,
   "lsp_generic_client.servers": {
     "efm-langserver": {
       "name": "efm-langserver",
       "path": "efm-langserver",
       "args": ["-c", "efm-langserver.yaml"],
-      "documentSelector": [{ "pattern": "**", "scheme": "file" }],
-    },
+      "documentSelector": [{ "pattern": "**", "scheme": "file" }]
+    }
   },
   "go.lintOnSave": "off",
   "ltex.completionEnabled": true,
@@ -25,15 +29,16 @@
       "nixpkgs": { "expr": "import ./nix/packages" },
       "options": {
         "comp_2": {
-          "expr": "(import ./. {}).darwinConfigurations.comp_2.options",
+          "expr": "(import ./. {}).darwinConfigurations.comp_2.options"
         },
         "comp_1": {
-          "expr": "(import ./. {}).homeConfigurations.comp_1.options",
-        },
-      },
-    },
+          "expr": "(import ./. {}).homeConfigurations.comp_1.options"
+        }
+      }
+    }
   },
   "json.schemaDownload.trustedDomains": {
     "https://raw.githubusercontent.com/LuaLS/vscode-lua/": true,
-  },
+    "https://docs.renovatebot.com/": true
+  }
 }

@@ -198,8 +198,6 @@ languages:
     - <<: *prettier
   jsonc:
     - <<: *prettier
-  json5:
-    - <<: *prettier
   yaml:
     - <<: *prettier
     - <<: *actionlint

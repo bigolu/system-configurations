@@ -7,22 +7,22 @@
 //
 // [1]: https://github.com/renovatebot/renovate/issues/7373#issuecomment-824815983
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
-  description: "This preset contains all of the settings that I usually add to a configuration. I use this as a starting point for my projects.",
-  extends: ["config:best-practices"],
-  commitMessageLowerCase: "never",
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "This preset contains all of the settings that I usually add to a configuration. I use this as a starting point for my projects.",
+  "extends": ["config:best-practices"],
+  "commitMessageLowerCase": "never",
   // This is an experimental feature that may be removed at any time so you have to
   // opt in: https://github.com/renovatebot/renovate/discussions/20542
-  osvVulnerabilityAlerts: true,
-  postUpdateOptions: ["gomodTidy", "gomodUpdateImportPaths"],
-  separateMultipleMajor: true,
-  customManagers: [
+  "osvVulnerabilityAlerts": true,
+  "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
+  "separateMultipleMajor": true,
+  "customManagers": [
     {
-      customType: "regex",
-      datasourceTemplate: "github-releases",
-      depNameTemplate: "nix-community/nix-direnv",
-      managerFilePatterns: ["/(^|/)direnv/.*$/"],
-      matchStrings: [
+      "customType": "regex",
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "nix-community/nix-direnv",
+      "managerFilePatterns": ["/(^|/)direnv/.*$/"],
+      "matchStrings": [
         // This will match text with the following pattern:
         //
         //   # renovate: nix-direnv
@@ -31,8 +31,8 @@
         // Where <separator> is anything that can separate two tokens in Bash i.e. a
         // ' ' or a backslash followed by a newline, which allows you to continue a
         // statement on another line.
-        "#\\s+renovate: nix-direnv\\s+source_url( |\\\\\\n)+['\"]https://raw\\.githubusercontent\\.com/nix-community/nix-direnv/(?<currentValue>.+)/direnvrc['\"]",
-      ],
+        "#\\s+renovate: nix-direnv\\s+source_url( |\\\\\\n)+['\"]https://raw\\.githubusercontent\\.com/nix-community/nix-direnv/(?<currentValue>.+)/direnvrc['\"]"
+      ]
     },
 
     // This manager will update GitHub Actions runner versions that are _not_
@@ -40,22 +40,22 @@
     // that are specified with the `runs-on` key. This will account for runner
     // versions that I specify in variables.
     {
-      customType: "regex",
-      depTypeTemplate: "github-runner",
-      datasourceTemplate: "github-runners",
+      "customType": "regex",
+      "depTypeTemplate": "github-runner",
+      "datasourceTemplate": "github-runners",
       // These file matches were taken from the Renovate GitHub Actions manager:
       // https://docs.renovatebot.com/modules/manager/github-actions/#file-matching
-      managerFilePatterns: [
+      "managerFilePatterns": [
         "/(^|/)(workflow-templates|\\.(?:github|gitea|forgejo)/(?:workflows|actions))/.+\\.ya?ml$/",
-        "/(^|/)action\\.ya?ml$/",
+        "/(^|/)action\\.ya?ml$/"
       ],
-      matchStrings: [
+      "matchStrings": [
         // This regex will match text in the form
         // '<depName>-<currentVersion> # renovate: github-runner'. If there are multiple dashes,
         // depName is everything up until the first dash.
-        "(?<depName>[^\\s]+?)-(?<currentValue>.*)\\s+#\\s+renovate: github-runner",
-      ],
-    },
+        "(?<depName>[^\\s]+?)-(?<currentValue>.*)\\s+#\\s+renovate: github-runner"
+      ]
+    }
   ],
   // Nix support is currently in beta so you have to opt in.
   //
@@ -63,15 +63,15 @@
   // https://github.com/renovatebot/renovate/pull/37899
   // https://github.com/renovatebot/renovate/pull/40282
   // https://github.com/renovatebot/renovate/pull/40867
-  nix: { enabled: false },
-  packageRules: [
+  "nix": { "enabled": false },
+  "packageRules": [
     {
-      description: "Use nixpkgs versioning for inputs of the form 'nixos-YY.MM'",
+      "description": "Use nixpkgs versioning for inputs of the form 'nixos-YY.MM'",
 
-      matchManagers: ["nix"],
-      matchCurrentValue: "/nixos-[0-9]{2}\\.[0-9]{2}/i",
+      "matchManagers": ["nix"],
+      "matchCurrentValue": "/nixos-[0-9]{2}\\.[0-9]{2}/i",
 
-      versioning: "nixpkgs",
+      "versioning": "nixpkgs"
     },
     {
       // I prefer updating all flake inputs together. I prefer this because for
@@ -83,32 +83,32 @@
       // new version of the input.
       //
       // [1]: https://zimbatm.com/notes/1000-instances-of-nixpkgs
-      matchManagers: ["nix"],
-      groupName: "flake inputs",
+      "matchManagers": ["nix"],
+      "groupName": "flake inputs"
     },
     {
-      description: "Group non-breaking updates together and auto-merge them",
+      "description": "Group non-breaking updates together and auto-merge them",
 
-      matchUpdateTypes: ["minor", "patch", "pin", "pinDigest", "digest"],
-      matchJsonata: ["isBreaking != true"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "pinDigest", "digest"],
+      "matchJsonata": ["isBreaking != true"],
 
-      groupName: "Non-breaking updates",
+      "groupName": "Non-breaking updates",
 
-      automerge: true,
+      "automerge": true,
       // I'm using the branch type, instead of the pull request type, for auto merge
       // so I don't get notifications for them.
-      automergeType: "branch",
+      "automergeType": "branch",
       // Normally, I only run CI checks for pull requests, but since I'm configuring
       // Renovate to merge directly from a branch I need to run checks on those
       // branches. To identify these branches in CI, I'm adding a prefix to their
       // name.
-      additionalBranchPrefix: "branch-automerge/",
+      "additionalBranchPrefix": "branch-automerge/"
     },
     {
-      matchManagers: ["gomod"],
-      postUpgradeTasks: {
-        commands: ["regenerate-gomod2nix-lock {{{packageFileDir}}}"],
-      },
-    },
-  ],
+      "matchManagers": ["gomod"],
+      "postUpgradeTasks": {
+        "commands": ["regenerate-gomod2nix-lock {{{packageFileDir}}}"]
+      }
+    }
+  ]
 }

@@ -12,7 +12,6 @@
     "redhat.vscode-yaml",
     "rogalmic.bash-debug",
     "sumneko.lua",
-    "tamasfe.even-better-toml",
-    "tudoudou.json5-for-vscode",
-  ],
+    "tamasfe.even-better-toml"
+  ]
 }

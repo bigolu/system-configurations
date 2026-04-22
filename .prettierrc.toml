@@ -8,16 +8,15 @@
 # [1]: https://jsonc.org/#:~:text=Trailing%20commas
 # [2]: https://github.com/prettier/prettier/issues/15956
 [[overrides]]
-files = ["*.jsonc"]
+files = ["*.jsonc", ".vscode/*.json", "renovate/*.json", "renovate.json"]
 [overrides.options]
 trailingComma = "none"
+# Technically, we don't need to set this for files that end in `.jsonc`. We do
+# it anyway so we can keep all the options for files that use the jsonc parser
+# in the same place.
+parser = "jsonc"
 
 [[overrides]]
 files = ["*.md"]
 [overrides.options]
 proseWrap = "always"
-
-[[overrides]]
-files = [".vscode/*.json"]
-[overrides.options]
-parser = "jsonc"

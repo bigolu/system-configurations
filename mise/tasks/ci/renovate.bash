@@ -17,7 +17,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-export RENOVATE_CONFIG_FILE="$PWD/renovate/global/config.json5"
+export RENOVATE_CONFIG_FILE="$PWD/renovate/global-config.json"
 
 # If a CI run fails, we'll have all the debug information without
 # having to rerun it.

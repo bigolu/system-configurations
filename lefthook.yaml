@@ -343,7 +343,7 @@ check:
           # This also acts a syntax checker for these file types since prettier
           # will fail if the files aren't syntactically correct.
           - name: prettier
-            glob: "**/*.{md,json,json5,jsonc,yaml}"
+            glob: "**/*.{md,json,jsonc,yaml}"
             exclude:
               - npins/**/*
             run: |
@@ -413,8 +413,11 @@ check:
             run: editorconfig-checker {files}
           - name: renovate-config-validator
             glob:
-              - renovate.json5
-              - renovate/**/*.json5
+              - renovate.json
+              - renovate/common-preset.json
+            run: renovate-config-validator --no-global --strict {files}
+          - name: renovate-config-validator-global
+            glob: renovate/global-config.json
             run: renovate-config-validator --strict {files}
           - name: lua-ls
             glob: dotfiles/neovim/**/*.lua
