@@ -1,5 +1,5 @@
 {
-  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  $schema: "https://docs.renovatebot.com/renovate-global-schema.json",
 
   // Renovate recommends changing the branch prefix if you're self hosting to
   // avoid interference with the hosted Renovate[1]. For this reason I also
