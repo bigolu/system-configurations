@@ -37,6 +37,7 @@ keybind = alt+slash=toggle_command_palette
 keybind = alt+up=resize_split:up,10
 keybind = alt+w=toggle_tab_overview
 keybind = ctrl+-=unbind
+keybind = ctrl+equal=unbind
 keybind = ctrl+shift+i=inspector:toggle
 keybind = performable:alt+h=goto_split:left
 keybind = performable:alt+j=goto_split:down
