@@ -1,18 +1,10 @@
-// TODO: Regarding the automerge settings: I used to have them in a separate preset,
-// since they are repeated a few times in this config. However,
-// `renovate-config-validator` would consider the config invalid, despite the fact
-// that the `renovate` program had no problem using it. An issue was opened for this
-// where a Renovate author said they never intended for presets to be used inside of
-// package rules[1]. The issue has since gone stale, but maybe I should reopen it.
-//
-// [1]: https://github.com/renovatebot/renovate/issues/7373#issuecomment-824815983
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "This preset contains all of the settings that I usually add to a configuration. I use this as a starting point for my projects.",
   "extends": ["config:best-practices"],
   "commitMessageLowerCase": "never",
-  // This is an experimental feature that may be removed at any time so you have to
-  // opt in: https://github.com/renovatebot/renovate/discussions/20542
+  // Since this is an experimental feature you have to opt in:
+  // https://github.com/renovatebot/renovate/discussions/20542
   "osvVulnerabilityAlerts": true,
   "postUpdateOptions": ["gomodTidy", "gomodUpdateImportPaths"],
   "separateMultipleMajor": true,

@@ -2,11 +2,11 @@
   "$schema": "https://docs.renovatebot.com/renovate-global-schema.json",
 
   // Renovate recommends changing the branch prefix if you're self hosting to
-  // avoid interference with the hosted Renovate[1]. For this reason I also
+  // avoid interference with the hosted Renovate[1]. For this reason, I also
   // changed some other settings that may interfere with hosted Renovate. I
-  // don't plan to run hosted Renovate alongside my self-hosted one, but if
-  // I have a problem with my self-hosted Renovate, I can run the hosted one
-  // alongside it to compare behaviors without worrying about them clashing.
+  // don't plan to run the hosted Renovate alongside my self-hosted one, but if
+  // I have a problem with my self-hosted Renovate, I want to be able to run the
+  // hosted one to compare behaviors without worrying about them clashing.
   //
   // [1]: https://github.com/renovatebot/github-action?tab=readme-ov-file#configurationfile
   "branchPrefix": "renovate-self-hosted/",
@@ -20,9 +20,6 @@
   "username": "bigolu-renovate[bot]",
   "gitAuthor": "bigolu Renovate Bot <179542175+bigolu-renovate[bot]@users.noreply.github.com>",
 
-  // Allow any commands, like post-upgrade commands, to be run
   "allowedCommands": [".*"],
-
-  // Pass all environment variables to package managers
   "exposeAllEnv": true
 }
