@@ -10,7 +10,7 @@ confirm-close-surface = false
 copy-on-select = clipboard
 cursor-style = bar
 focus-follows-mouse = true
-font-family = "JetBrains Mono NL"
+font-family = "Iosevka Custom"
 keybind = alt+-=new_split:down
 keybind = alt+1=goto_tab:1
 keybind = alt+2=goto_tab:2
