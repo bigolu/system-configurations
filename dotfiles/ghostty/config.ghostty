@@ -45,7 +45,7 @@ keybind = performable:alt+k=goto_split:up
 keybind = performable:alt+l=goto_split:right
 keybind = shift+insert=paste_from_clipboard
 macos-option-as-alt = true
-macos-titlebar-style = tabs
+macos-titlebar-style = native
 notify-on-command-finish = unfocused
 notify-on-command-finish-action = no-bell,notify
 notify-on-command-finish-after = 1s
@@ -53,3 +53,4 @@ quit-after-last-window-closed = true
 theme = dark:bigolu-dark.ghostty,light:bigolu-light.ghostty
 window-padding-balance = true
 window-padding-color = extend
+window-theme = ghostty

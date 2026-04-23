@@ -19,6 +19,5 @@ foreground = #E6ECF7
 cursor-color = #E6ECF7
 selection-background = #3d424d
 selection-foreground = cell-foreground
-window-theme = ghostty
 window-titlebar-background = #292d38
 window-titlebar-foreground = #E6ECF7
