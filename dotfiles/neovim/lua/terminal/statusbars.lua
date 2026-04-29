@@ -196,7 +196,7 @@ function StatusLine()
 		fileencoding = "%#StatusLine#" .. string.upper(vim.o.fileencoding)
 	end
 
-	local position = "%#StatusLine#" .. "%l:%c"
+	local position = "%#StatusLine#" .. "Ln:%l Col:%c"
 
 	local basename = "%t"
 
