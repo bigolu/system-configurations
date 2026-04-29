@@ -541,17 +541,6 @@ if IsRunningInTerminal then
 			format = function(data)
 				return data.msg
 			end,
-
-			sort = function(notifications)
-				return vim.iter(notifications)
-					:filter(function(notification)
-						-- TODO: I'm getting some warnings on startup since lazy-lsp is using the old nvim-lspconfig API
-						local msg = notification.msg
-						return string.find(msg, "lspconfig-nvim-0.11", 1, true) ~= nil
-							and string.find(msg, '"ty" not found', 1, true) ~= nil
-					end)
-					:totable()
-			end,
 		},
 		window = {
 			winblend = 0,
