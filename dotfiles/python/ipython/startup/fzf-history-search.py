@@ -1,8 +1,8 @@
 # Based on this: https://github.com/infokiller/config-public/blob/30984c5234c382b1b5eb097872a535458cd6ec70/.config/ipython/profile_default/startup/ext/fzf_history.py
 
+from pathlib import Path
 import os
 import sqlite3
-import subprocess
 import sys
 from sqlite3 import Connection
 from subprocess import CalledProcessError, check_output
@@ -38,10 +38,9 @@ def history_widget(event: Any, history_files: list[str] | None = None) -> None:
     xdg_data_directory = os.environ.get(
         "XDG_DATA_HOME", f"{os.environ['HOME']}/.local/share"
     )
-    fzf_history_directory = f"{xdg_data_directory}/fzf"
-    fzf_history_file = f"{fzf_history_directory}/fzf-ipython-history.txt"
-    subprocess.run(["mkdir", "-p", fzf_history_directory])
-    subprocess.run(["touch", fzf_history_file])
+    fzf_history_file = Path(f"{xdg_data_directory}/fzf/fzf-ipython-history.txt")
+    fzf_history_file.parent.mkdir(parents=True, exist_ok=True)
+    fzf_history_file.touch()
 
     try:
         choice = check_output(
@@ -56,13 +55,13 @@ def history_widget(event: Any, history_files: list[str] | None = None) -> None:
                 "--preview-window=follow",
                 "--preview=echo {} | bat --language python",
             ],
-            input="\0".join(get_history_entries(history_files)).encode("utf-8"),
+            input="\0".join(get_history_entries(history_files)).encode(),
         )
 
         import prompt_toolkit
 
         event.current_buffer.document = prompt_toolkit.document.Document(
-            choice.decode("utf-8").strip()
+            choice.decode().strip()
         )
     except CalledProcessError as error:
         # 130 is returned when the user exits without picking something
