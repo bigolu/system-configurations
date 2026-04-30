@@ -441,27 +441,24 @@ check:
           - name: taplo-lint
             glob: "**/*.toml"
             run: taplo lint {files}
-    - name: 4-nix-outputs
-      group:
-        jobs:
-          - name: nix-outputs
-            # Why `interactive` is enabled:
-            #   - This job can take a while so being able to see the output in real
-            #     time could reveal bottlenecks.
-            #   - If I can see the output in real time, I can spot accidental nix
-            #     cache misses and cancel the job instead of waiting for nix to
-            #     rebuild the package.
-            interactive: true
-            glob:
-              - "**/*.nix"
-              - flake.lock
-              - npins/**/*
-              - nix/**/*
-              - dotfiles/**/*
-              - gozip/**/*
-            run: |
-              bash -eu -o pipefail -c '
-                dest="$PRJ_DATA_DIR/gc-roots/checks"
-                rm -rf "$dest"
-                nix-fast-build --out-link "$dest/root" --file default.nix -A currentPlatformChecks
-              '
+    - name: 4-nix-checks
+      # Why `interactive` is enabled:
+      #   - This job can take a while so being able to see the output in real
+      #     time could reveal bottlenecks.
+      #   - If I can see the output in real time, I can spot accidental nix
+      #     cache misses and cancel the job instead of waiting for nix to
+      #     rebuild the package.
+      interactive: true
+      glob:
+        - "**/*.nix"
+        - flake.lock
+        - npins/**/*
+        - nix/**/*
+        - dotfiles/**/*
+        - gozip/**/*
+      run: |
+        bash -eu -o pipefail -c '
+          dest="$PRJ_DATA_DIR/gc-roots/checks"
+          rm -rf "$dest"
+          nix-fast-build --out-link "$dest/root" --file default.nix -A currentPlatformChecks
+        '
