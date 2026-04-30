@@ -55,10 +55,7 @@
   // https://github.com/renovatebot/renovate/pull/37899
   // https://github.com/renovatebot/renovate/pull/40282
   // https://github.com/renovatebot/renovate/pull/40867
-  "nix": {
-    "enabled": true,
-    "lockFileMaintenance": { "enabled": false }
-  },
+  "nix": { "enabled": false },
   "packageRules": [
     {
       "description": "Use nixpkgs versioning for inputs of the form 'nixos-YY.MM'",
