@@ -10,15 +10,15 @@ vim.keymap.set("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
 vim.keymap.set("n", "gn", vim.lsp.buf.rename, { desc = "Rename variable" })
 vim.keymap.set({ "n", "v" }, "ga", vim.lsp.buf.code_action, { desc = "Code actions" })
 vim.keymap.set("n", "gl", vim.lsp.codelens.run, { desc = "Run code lens" })
+vim.keymap.set("n", "gr", vim.lsp.buf.references)
 vim.keymap.set("n", [[\d]], function()
 	vim.diagnostic.reset(nil, vim.api.nvim_get_current_buf())
 end, { desc = "Toggle diagnostics for buffer" })
 vim.keymap.set("n", [[\i]], function()
-	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+	vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 end, { desc = "Toggle inlay hints" })
-vim.keymap.set("n", "gr", vim.lsp.buf.references)
 vim.keymap.set("n", [[\l]], function()
-	vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+	vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled())
 end, { desc = "Toggle code lenses" })
 
 -- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
@@ -56,6 +56,8 @@ vim.api.nvim_create_autocmd("LspAttach", {
 		client.server_capabilities.semanticTokensProvider = nil
 	end,
 })
+
+vim.lsp.codelens.enable(true)
 
 require("nvim-lightbulb").setup({
 	autocmd = { enabled = true },
