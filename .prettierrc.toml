@@ -1,12 +1,17 @@
 #:schema https://json.schemastore.org/prettierrc
 
 [[overrides]]
-# Files containing JSONC
-files = ["*.jsonc", ".vscode/*.json", "renovate/*.json", "renovate.json"]
+files = [
+  "*.jsonc",
+  # These files also contain JSONC
+  ".vscode/*.json",
+  "renovate/*.json",
+  "renovate.json",
+]
 [overrides.options]
-# Technically, we don't need to set this for files that already end in `.jsonc`.
-# We do it anyway so we can keep all the options for files containing JSONC in
-# the same place.
+# Technically, we don't need to set this for files that match the `*.jsonc`
+# pattern since they will already use the `jsonc` parser. We do it anyway so we
+# can keep all the options for files containing JSONC in the same place.
 parser = "jsonc"
 # While there's no official specification for JSONC, there's a draft which
 # states that some JSONC parsers may not have support for trailing commas[1]. To
