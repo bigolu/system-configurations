@@ -70,16 +70,12 @@ require("nvim-lightbulb").setup({
 -- An error is printed if nix isn't available
 if vim.fn.executable("nix") == 1 then
 	local excluded_servers = {
-		-- Only use Ruff and ty for Python
 		"pylyzer",
 		"jedi_language_server",
 		"pyright",
 		"basedpyright",
 		"pylsp",
-
-		-- Use nixd instead
 		"nil_ls",
-
 		"quick_lint_js",
 	}
 	-- These language servers match a lot of file types so I'm only running them if
