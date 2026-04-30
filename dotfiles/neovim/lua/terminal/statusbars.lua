@@ -211,11 +211,11 @@ function StatusLine()
 		statusline_separator,
 		maximized,
 		search_count,
+		lsp_info,
 		position,
 		filetype,
 		fileformat,
 		fileencoding,
-		lsp_info,
 		basename
 	)
 end
