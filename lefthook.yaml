@@ -219,12 +219,13 @@ check:
   # issue found by the fast check, then the slower ones will run. However, this
   # means you'll have to resolve issues one check at a time instead of resolving
   # them at all at once. To mitigate this, some of the checks are put in groups.
+  # Using groups also allows you run the checks within that group in parallel.
   #
-  # This is also useful for CI since you wouldn't want your CI runners to waste
-  # time and money running slow checks if a fast one has already failed.
+  # This is also useful for CI since you wouldn't want to waste time and money
+  # running slow checks if a fast one has already failed.
   piped: true
   jobs:
-    - name: 1-commit-checks
+    - name: commit-message
       glob: "**/*.gitcommit"
       group:
         jobs:
@@ -236,7 +237,7 @@ check:
     # Why fixers should run before other checks:
     #   - A fixer could produce code that would fail another check
     #   - A fixer could fix an issue that would have been found by another check
-    - name: 2-fixers
+    - name: fix
       group:
         jobs:
           - name: flake-lock
@@ -371,7 +372,7 @@ check:
           - name: gofmt
             glob: "**/*.go"
             run: gofmt -w {files}
-    - name: 3-linters
+    - name: lint
       group:
         parallel: true
         jobs:
@@ -441,7 +442,7 @@ check:
           - name: taplo-lint
             glob: "**/*.toml"
             run: taplo lint {files}
-    - name: 4-nix-checks
+    - name: nix
       # Why `interactive` is enabled:
       #   - This job can take a while so being able to see the output in real
       #     time could reveal bottlenecks.
