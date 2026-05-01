@@ -25,7 +25,7 @@ if vim.o.background == "dark" then
     accent = "#88C0D0",
     bg2 = "#2f333e",
     error_bg = "#2e2129",
-    guide = "#373c47",
+    guide = "#4a4f5a",
     inactive_number = "#505c73",
     info_bg = "#1c2935",
     inlay_bg = "#292d38",
@@ -240,13 +240,13 @@ local groups = {
   Folded = { italic = not vim.o.termguicolors, bg = colors.pmenu }, -- Line used for closed folds
   Ignore = { ctermfg = 0, fg = colors[0] }, -- Left blank, hidden |hl-Ignore| (May be invisible here in template)
   MsgArea = "StatusLine", -- Area for messages and cmdline
-  NonText = { ctermfg = 8, fg = colors[8] }, -- '@' at the end of the window, characters from 'showbreak' and other characters that do not really exist in the text (e.g., ">" displayed when a double-wide character doesn't fit at the end of the line). See also |hl-EndOfBuffer|.
+  NonText = { ctermfg = 8, fg = colors.guide }, -- '@' at the end of the window, characters from 'showbreak' and other characters that do not really exist in the text (e.g., ">" displayed when a double-wide character doesn't fit at the end of the line). See also |hl-EndOfBuffer|.
   SpellBad = "Error", -- Word that is not recognized by the spellchecker. |spell| Combined with the highlighting used otherwise.
   SpellCap = "Warning", -- Word that should start with a capital. |spell| Combined with the highlighting used otherwise.
   Substitute = "Search", -- |:substitute| replacement text highlighting
   Todo = "Comment", -- Anything that needs extra attention; mostly the keywords TODO FIXME and XXX
   Underlined = { underline = true }, -- Text that stands out, HTML links
-  Whitespace = { ctermfg = 8, fg = colors[8] }, -- "nbsp", "space", "tab" and "trail" in 'listchars'
+  Whitespace = { ctermfg = 8, fg = colors.guide }, -- "nbsp", "space", "tab" and "trail" in 'listchars'
   WinSeparator = "Whitespace", -- Separator between window splits. Inherits from |hl-VertSplit| by default, which it will replace eventually.
   tutorLink = "Underlined",
   tutorOk = "DiagnosticOk",
