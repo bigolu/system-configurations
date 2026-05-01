@@ -221,7 +221,7 @@ check:
   # running slow checks if a fast one has already failed.
   piped: true
   jobs:
-    - name: commit-message
+    - name: commit
       glob: "**/*.gitcommit"
       group:
         jobs:
