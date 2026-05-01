@@ -166,14 +166,10 @@ function StatusLine()
 		search_count = " " .. search_count_info["current"] .. "/" .. search_count_info["total"]
 	end
 
-	local lsp_info = nil
-	local language_server_count = #vim.lsp.get_clients()
-	local language_server_count_for_current_buffer = #vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
-	if language_server_count > 0 then
-		lsp_info = "%#StatusLine# " .. language_server_count_for_current_buffer
-		if language_server_count_for_current_buffer ~= language_server_count then
-			lsp_info = lsp_info .. "/" .. language_server_count
-		end
+	local lsp = nil
+	local lsp_client_count = #vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf() })
+	if lsp_client_count > 0 then
+		lsp = "%#StatusLine# " .. lsp_client_count
 	end
 
 	local filetype = nil
@@ -211,7 +207,7 @@ function StatusLine()
 		statusline_separator,
 		maximized,
 		search_count,
-		lsp_info,
+		lsp,
 		position,
 		filetype,
 		fileformat,
