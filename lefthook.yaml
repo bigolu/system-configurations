@@ -17,10 +17,6 @@ colors:
 
 output:
   - execution_info
-  # Even if a command succeeds, it still may be useful to see its output in case it
-  # prints a warning for a deprecated feature or the fact that the project is no
-  # longer being maintained.
-  - execution_out
   - failure
 
 templates:
