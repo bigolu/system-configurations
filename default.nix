@@ -16,7 +16,10 @@ in
   nixpkgs ? import (overrides.nixpkgs or myInputs.nixpkgs) {
     localSystem = system;
     # We provide values for these to avoid using their non-deterministic defaults.
-    config = { };
+    config = {
+      # TODO: I should open an issue with the project for adding a license
+      allowUnfreePredicate = pkg: pkg.pname == "camelcasemotion";
+    };
     overlays = [ ];
   },
 

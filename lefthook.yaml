@@ -460,5 +460,5 @@ check:
         bash -eu -o pipefail -c '
           dest="$PRJ_DATA_DIR/gc-roots/checks"
           rm -rf "$dest"
-          nix-fast-build --out-link "$dest/root" --file default.nix -A currentPlatformChecks
+          nix-fast-build --out-link "$dest/root" --file nix/current-platform-checks.nix
         '

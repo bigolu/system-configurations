@@ -2,7 +2,7 @@ module github.com/bigolu/gozip
 
 go 1.25.0
 
-toolchain go1.26.1
+toolchain go1.26.2
 
 require (
 	github.com/klauspost/compress v1.18.5 // direct
