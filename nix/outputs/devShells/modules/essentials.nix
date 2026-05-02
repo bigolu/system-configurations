@@ -12,7 +12,6 @@ let
     optional
     hasPrefix
     optionals
-    getExe'
     elem
     filterAttrs
     attrValues
@@ -21,90 +20,54 @@ let
 
   inherit (config.devshell) name;
   isCiDevShell = hasPrefix "ci-" name;
-  bashCompletionShare = "${pkgs.bash-completion}/share";
-  mkdir = getExe' pkgs.coreutils "mkdir";
 in
 {
   imports = [
     "${extraModulesPath}/locale.nix"
     ./mise/cli.nix
-  ];
+  ]
+  ++ (with inputs.devshell-modules.outputs.devshellModules; [
+    minimal
+    autocomplete
+    state
+    secrets
+    gcRoot
+  ]);
 
-  env = [
-    {
-      name = "DEVSHELL_NO_MOTD";
-      value = 1;
-    }
-    {
-      name = "NIXPKGS_PATH";
-      unset = true;
-    }
-  ];
+  # For the `run` steps in CI workflows
+  devshell.packages = optional isCiDevShell pkgs.bash;
 
-  devshell = {
-    # For the `run` steps in CI workflows
-    packages = optional isCiDevShell pkgs.bash;
+  secrets.dotenv.enable = true;
 
-    interactive.autocomplete.text = ''
-      export XDG_DATA_DIRS="${bashCompletionShare}''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
-      source ${bashCompletionShare}/bash-completion/bash_completion
-    '';
-
-    startup = {
-      # HACK: This should run before other startup scripts, but there's no way to
-      # control the order. I noticed that they're sorted so I'm prefixing it with
-      # 'AAA' in hopes that it gets put first.
-      AAAstateDirectory.text = ''
-        if [[ ! -e $PRJ_DATA_DIR ]]; then
-          ${mkdir} --parents "$PRJ_DATA_DIR"
-          echo '*' >"$PRJ_DATA_DIR/.gitignore"
-        fi
-      '';
-
-      secrets.text = ''
-        if [[ -e $PRJ_ROOT/.env ]]; then
-          # Export any variables that are modified/created
-          set -a
-          source "$PRJ_ROOT/.env"
-          set +a
-        fi
-      '';
-
-      gcRoot.text =
-        (pkgs.gcRoot {
-          script.rootPath.eval = "$PRJ_DATA_DIR/gc-roots/${name}";
-          roots = {
-            flake = {
-              inherit inputs;
-              exclude =
-                if isLinux then
-                  [ "nix-darwin" ]
-                else
-                  [
-                    "nix-gl-host"
-                    "openrgb-udev-rules"
-                  ];
-            };
-
-            paths = optionals (!isCiDevShell) (
-              attrValues (
-                filterAttrs (
-                  name: pin:
-                  (name != "__functor")
-                  && (
-                    !(elem pin (
-                      with pins;
-                      optionals isLinux [
-                        spoons
-                        stackline
-                      ]
-                    ))
-                  )
-                ) pins
-              )
-            );
-          };
-        }).script;
+  gcRoot.roots = {
+    flake = {
+      inherit inputs;
+      exclude =
+        if isLinux then
+          [ "nix-darwin" ]
+        else
+          [
+            "nix-gl-host"
+            "openrgb-udev-rules"
+          ];
     };
+
+    paths = optionals (!isCiDevShell) (
+      attrValues (
+        filterAttrs (
+          name: pin:
+          (name != "__functor")
+          && (
+            !(elem pin (
+              with pins;
+              optionals isLinux [
+                spoons
+                stackline
+              ]
+            ))
+          )
+        ) pins
+      )
+    );
   };
 }

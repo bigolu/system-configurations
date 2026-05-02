@@ -35,6 +35,21 @@
         "type": "github"
       }
     },
+    "devshell-modules": {
+      "locked": {
+        "lastModified": 1777701357,
+        "narHash": "sha256-6QB40GSgZkN5eOW0L1aWBEPL1IKWIHkG/ENSHq/02CE=",
+        "owner": "bigolu",
+        "repo": "devshell-modules",
+        "rev": "66e76e4849bfc036edc312b99590b9bc83bec3ae",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bigolu",
+        "repo": "devshell-modules",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "lastModified": 1751685974,
@@ -340,6 +355,7 @@
     "root": {
       "inputs": {
         "devshell": "devshell",
+        "devshell-modules": "devshell-modules",
         "flake-compat": "flake-compat",
         "flake-utils": "flake-utils",
         "gitignore": "gitignore",

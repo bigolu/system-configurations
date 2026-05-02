@@ -53,6 +53,7 @@ import ./nix/make-outputs.nix {
       nix-mk-shell-bin.outputs.lib.mkShellBin = import "${inputs.nix-mk-shell-bin}/make.nix";
       nix-fast-build.outputs = nixpkgs.callPackage inputs.nix-fast-build { };
       nix-gl-host.outputs = inputs.nix-gl-host.packages.${system}.default;
+      devshell-modules.outputs = import inputs.devshell-modules;
       devshell.outputs = import inputs.devshell {
         inherit nixpkgs;
         inputs = { inherit (inputs) nixpkgs; };

@@ -63,6 +63,8 @@
     };
 
     flake-utils.url = "github:numtide/flake-utils";
+
+    devshell-modules.url = "github:bigolu/devshell-modules";
   };
 
   outputs =
