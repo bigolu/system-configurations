@@ -82,7 +82,6 @@ recursiveUpdateList [
     pkgs.runCommandCC = nixpkgs.runCommand;
 
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
-    nix-fast-build = inputs.nix-fast-build.outputs;
     nix-gl-host = inputs.nix-gl-host.outputs;
     inherit (inputs.gomod2nix.outputs)
       gomod2nix

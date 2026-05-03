@@ -56,12 +56,6 @@
       type = "file";
     };
 
-    # TODO: Remove when v1.4.0 reaches nixpkgs
-    nix-fast-build = {
-      url = "github:Mic92/nix-fast-build";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     flake-utils.url = "github:numtide/flake-utils";
 
     devshell-modules.url = "github:bigolu/devshell-modules";
