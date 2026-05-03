@@ -1,26 +1,12 @@
-// The goal of this config is to be able to update everything at once. Then I will
-// manually run the Renovate bot when I want to update. I'm doing this because I have
-// no automated tests.
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "local>bigolu/system-configurations//renovate/common-preset.json",
-    "group:all"
-  ],
-  // Auto-Merge even if no tests are run
-  "ignoreTests": true,
+  "extends": ["github>bigolu/renovate//presets/base.json", "group:all"],
   "packageRules": [
     {
-      "description": "Auto-Merge everything",
-
+      "description": "Remove branch prefix",
       "matchPackageNames": ["*"],
-
-      "automerge": true,
-      // I'm using the branch type, instead of the pull request type, so I don't
-      // get notifications for a merge.
-      "automergeType": "branch",
-      // The `common-preset` adds a prefix to certain update types so I'll
-      // remove it.
+      // The base preset adds a prefix to certain update types, but I don't
+      // want one so I'll remove it.
       "additionalBranchPrefix": ""
     },
     {

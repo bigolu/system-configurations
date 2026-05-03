@@ -411,11 +411,7 @@ check:
           - name: renovate-config-validator
             glob:
               - renovate.json
-              - renovate/common-preset.json
             run: renovate-config-validator --no-global --strict {files}
-          - name: renovate-config-validator-global
-            glob: renovate/global-config.json
-            run: renovate-config-validator --strict {files}
           - name: lua-ls
             glob: dotfiles/neovim/**/*.lua
             run: |

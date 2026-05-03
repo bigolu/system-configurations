@@ -271,18 +271,6 @@ recursiveUpdateList [
       '';
     };
 
-    regenerate-gomod2nix-lock = nixpkgs.writeShellApplication {
-      name = "regenerate-gomod2nix-lock";
-      runtimeInputs = [ inputs.gomod2nix.outputs.gomod2nix ];
-      text = ''
-        go_mod_directory="$1"
-
-        if [[ -e $go_mod_directory/gomod2nix.toml ]]; then
-          gomod2nix --dir "$go_mod_directory" generate --with-deps
-        fi
-      '';
-    };
-
     # TODO: I shouldn't have to do this. Either nixpkgs should add the shell config
     # files or the tool itself should generate the files as part of its build script,
     # as direnv does[2].

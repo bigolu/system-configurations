@@ -5,7 +5,6 @@ files = [
   "*.jsonc",
   # These files also contain JSONC
   ".vscode/*.json",
-  "renovate/*.json",
   "renovate.json",
 ]
 [overrides.options]
