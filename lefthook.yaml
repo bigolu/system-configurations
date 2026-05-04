@@ -57,7 +57,10 @@ pre-push:
       run: |
         set -eu
         before="$(git rev-parse HEAD)"
-        mise run check --rebase not-pushed
+        # TODO: Without redirecting /dev/tty, the UI for my editor, neovim,
+        # doesn't show up. I think the problem is that lefthook isn't connecting
+        # this job to /dev/tty, despite me enabling `interactive`.
+        mise run check --rebase not-pushed </dev/tty >/dev/tty 2>&1
         after="$(git rev-parse HEAD)"
         if [ "$before" != "$after" ]; then
           exit 1
