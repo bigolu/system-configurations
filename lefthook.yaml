@@ -61,7 +61,7 @@ pre-push:
         # TODO: Without redirecting /dev/tty, the UI for my editor, neovim,
         # doesn't show up. I think the problem is that lefthook isn't connecting
         # this job to /dev/tty, despite me enabling `interactive`.
-        mise run check --rebase not-pushed </dev/tty >/dev/tty 2>&1
+        mise run check rebase not-pushed </dev/tty >/dev/tty 2>&1
         after="$(git rev-parse HEAD)"
         if [ "$before" != "$after" ]; then
           exit 1
@@ -193,18 +193,26 @@ check:
       realpath --relative-to="$PWD" "$file"
     fi
 
-    if [ "${LEFTHOOK_ALL_FILES:-}" = 'true' ]; then
-      # Tracked and untracked files
-      git ls-files --cached --others --exclude-standard
-    elif [ "${LEFTHOOK_UNCOMMITTED_FILES:-}" = 'true' ]; then
-      # Staged and unstaged files
-      git diff --diff-filter=ACMR --name-only HEAD
-      # Untracked files
-      git ls-files --others --exclude-standard
-    else
-      # Files in the HEAD commit
-      git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
-    fi
+    case "${LEFTHOOK_FILES:-}" in
+      'uncommitted')
+        # Staged and unstaged files
+        git diff --diff-filter=ACMR --name-only HEAD
+        # Untracked files
+        git ls-files --others --exclude-standard
+        ;;
+      'head')
+        # Files in the HEAD commit
+        git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
+        ;;
+      'all')
+        # Tracked and untracked files
+        git ls-files --cached --others --exclude-standard
+        ;;
+      *)
+        # It shouldn't ever reach this case
+        exit 1
+        ;;
+    esac
   exclude:
     - gozip/gomod2nix.toml
     - ".vscode/ltex*"
