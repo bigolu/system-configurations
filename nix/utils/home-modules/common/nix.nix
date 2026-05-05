@@ -6,10 +6,7 @@
   ...
 }:
 let
-  inherit (pkgs)
-    writeShellApplication
-    stdenv
-    ;
+  inherit (pkgs) stdenv;
   inherit (stdenv) isLinux isDarwin;
   inherit (lib)
     hm
@@ -20,19 +17,6 @@ let
     getExe'
     optionalString
     ;
-
-  # TODO: Won't be needed if the daemon auto-reloads:
-  # https://github.com/NixOS/nix/issues/8939
-  nix-daemon-reload = writeShellApplication {
-    name = "nix-daemon-reload";
-    text = ''
-      if [[ $OSTYPE == linux* ]]; then
-        sudo systemctl restart nix-daemon.service
-      else
-        sudo launchctl kickstart -k system/org.nixos.nix-daemon
-      fi
-    '';
-  };
 
   syncNixVersionWithSystem =
     let
@@ -67,7 +51,7 @@ let
         # definition changed.
         if [[ $OSTYPE == linux* ]]; then
           sudo systemctl daemon-reload
-          sudo ${getExe nix-daemon-reload}
+          sudo systemctl restart nix-daemon.socket
         else
           sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist
           sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist
@@ -124,7 +108,6 @@ in
         nix-tree
         nix-melt
         lixPackageSet.comma
-        nix-daemon-reload
         nix-diff
         nix-search-cli
         nix-sweep
