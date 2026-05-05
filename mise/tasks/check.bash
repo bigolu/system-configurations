@@ -15,7 +15,7 @@
 #USAGE flag "-c --commits <commits>" help="Check the files/messages of the commits specified" long_help="Check the files and commit message of each of the commits specified. `commits` can be any revision, or revision range, that `git log` accepts. Use the special value `head` to check the files in the `HEAD` commit. Commits will be checked individually to ensure checks pass at each commit. See [git's documentation for specifying a revision](https://git-scm.com/docs/git-rev-parse#_specifying_revisions)."
 #USAGE complete "commits" run=#" printf '%s\n' head "#
 #USAGE
-#USAGE flag "-a --all-files" help="Check all files" long_help="This is can be used with `--rebase` or `--commits` to check all files instead of only the files in the commits being checked/rebased. It can also be used with `--files` to check all files instead of only the ones with uncommitted changes."
+#USAGE flag "-a --all-files" help="Check all files" long_help="This can be used to check all files instead of the files that are normally checked by `--rebase`, `--commits`, or `--files`."
 
 set -o errexit
 set -o nounset
