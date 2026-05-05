@@ -53,7 +53,7 @@ templates:
 
 pre-push:
   jobs:
-    - name: interactive-rebase
+    - name: check
       interactive: true
       run: |
         set -eu
