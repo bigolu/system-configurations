@@ -59,18 +59,6 @@ function check_commits_with_rebase {
 }
 
 function check_commits {
-	local range=''
-	if [[ $usage_commits == 'head' ]]; then
-		range='HEAD^!'
-	else
-		range="$usage_commits"
-	fi
-	local hashes
-	hashes="$(git log "$range" --pretty=%h)"
-	if [[ -z $hashes ]]; then
-		exit 0
-	fi
-
 	local -a lefthook_command
 	make_lefthook_command lefthook_command
 
@@ -89,23 +77,21 @@ function check_commits {
 		return
 	fi
 
-	local -a nix_run_env_variables=(
-		# Now the nix environment we load below can set new values for these
-		# variables relative to the directory of the worktree.
-		--unset=PRJ_ROOT --unset=PRJ_DATA_DIR
-	)
-	# If we created a GC root in a development environment, it would never get
-	# cleaned up.
-	if [[ ${CI:-} != 'true' ]]; then
-		nix_run_env_variables+=(DEVSHELL_GC_ROOT=false)
+	local hashes
+	hashes="$(git log "$usage_commits" --pretty=%h)"
+	if [[ -z $hashes ]]; then
+		return 0
 	fi
 
 	# We enable lefthook since it gets disabled below.
 	lefthook_env_variables+=(LEFTHOOK=true)
 
 	git_branchless_exec_command=(
-		# So we can use the environment of the commit being tested
-		env "${nix_run_env_variables[@]}"
+		# Use the nix environment of the commit being tested.
+		#
+		# Unset these environment variables so the nix environment can set new
+		# values for these variables relative to the directory of the worktree.
+		env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
 		nix run --file . devShells.development --
 
 		env "${lefthook_env_variables[@]}"
