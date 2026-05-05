@@ -12,7 +12,7 @@
 #USAGE cmd "commits" {
 #USAGE 	help "Check the files/messages of the commits specified"
 #USAGE 	long_help "Check the files and commit message of each of the commits specified."
-#USAGE 	arg "<commits>" long_help="`commits` can be any revision, or revision range, that `git log` accepts. Use the special value `head` to check the files in the `HEAD` commit. Commits will be checked individually to ensure checks pass at each commit. See [git's documentation for specifying a revision](https://git-scm.com/docs/git-rev-parse#_specifying_revisions)."
+#USAGE 	arg "<commits>" long_help="Any revision range that `git log` accepts. Use the special value `head` to check the files in the `HEAD` commit. See [git's documentation for specifying a revision](https://git-scm.com/docs/git-rev-parse#_specifying_revisions)."
 #USAGE 	complete "commits" run=#" printf '%s\n' head "#
 #USAGE }
 #USAGE
