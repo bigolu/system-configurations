@@ -1088,21 +1088,29 @@
       <h4><code>&lt;attr_path&gt;</code></h4>
       <p>The attribute path of the package to build e.g. packages.shell</p>
       <h2><code>check</code></h2>
-      <p>
-        Run jobs to find/fix issues with the code. The list of jobs is in
-        <code>lefthook.yaml</code>. If no flags are passed, it will behave as if
-        <code>--files</code> was passed.
-      </p>
+      <p>Run jobs to find/fix issues in the code.</p>
       <ul>
         <li><strong>Usage</strong>: <code>check [FLAGS] [jobs]…</code></li>
       </ul>
       <p>Run jobs to find/fix issues</p>
       <h3>Arguments</h3>
       <h4><code>[jobs]…</code></h4>
-      <p>Jobs to run. If none are passed then all of them will be run</p>
+      <p>
+        Jobs to run. If none are passed then all of them will be run. The list
+        of jobs is in <code>lefthook.yaml</code>.
+      </p>
       <h3>Flags</h3>
+      <h4><code>-a --all-files</code></h4>
+      <p>
+        Check all files instead of the files that are normally checked by
+        <code>--rebase</code>, <code>--commits</code>, or <code>--files</code>.
+      </p>
       <h4><code>-f --files</code></h4>
-      <p>Check any files that have uncommitted changes.</p>
+      <p>
+        Check any files that have uncommitted changes. This is the default
+        behavior if <code>--rebase</code> and <code>--commits</code> are not
+        passed.
+      </p>
       <h4><code>-r --rebase &lt;start&gt;</code></h4>
       <p>
         An interactive rebase will be started from the commit referenced by the
@@ -1126,12 +1134,6 @@
         <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
           >git's documentation for specifying a revision</a
         >.
-      </p>
-      <h4><code>-a --all-files</code></h4>
-      <p>
-        This can be used to check all files instead of the files that are
-        normally checked by <code>--rebase</code>, <code>--commits</code>, or
-        <code>--files</code>.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>
