@@ -86,46 +86,47 @@ function check_commits {
 		# worktree. git-branchless discards any changes that get made so we don't
 		# use it here.
 		env "${lefthook_env_variables[@]}" "${lefthook_command[@]}"
-	else
-		local -a nix_run_env_variables=(
-			# Now the nix environment we load below can set new values for these
-			# variables relative to the directory of the worktree.
-			--unset=PRJ_ROOT --unset=PRJ_DATA_DIR
-		)
-		# If we created a GC root in a development environment, it would never get
-		# cleaned up.
-		if [[ ${CI:-} != 'true' ]]; then
-			nix_run_env_variables+=(DEVSHELL_GC_ROOT=false)
-		fi
-
-		# We enable lefthook since it gets disabled below.
-		lefthook_env_variables+=(LEFTHOOK=true)
-
-		git_branchless_exec_command=(
-			# So we can use the environment of the commit being tested
-			env "${nix_run_env_variables[@]}"
-			nix run --file . devShells.development --
-
-			env "${lefthook_env_variables[@]}"
-			"${lefthook_command[@]}"
-		)
-
-		# Disable lefthook so git hooks don't run when `git-branchless` checks out
-		# commits.
-		#
-		# We can't use the cache since it isn't invalidated when the commit message
-		# changes, only when the files in the commit change. This is a problem since
-		# we lint commit messages.
-		#
-		# NOTE: The command given with `--exec` will be run with `sh -c`.
-		LEFTHOOK=false git-branchless test run \
-			-vv \
-			--no-cache \
-			--strategy worktree \
-			--exec "${git_branchless_exec_command[*]@Q}" \
-			--jobs 0 \
-			"${hashes//$'\n'/ | }"
+		return
 	fi
+
+	local -a nix_run_env_variables=(
+		# Now the nix environment we load below can set new values for these
+		# variables relative to the directory of the worktree.
+		--unset=PRJ_ROOT --unset=PRJ_DATA_DIR
+	)
+	# If we created a GC root in a development environment, it would never get
+	# cleaned up.
+	if [[ ${CI:-} != 'true' ]]; then
+		nix_run_env_variables+=(DEVSHELL_GC_ROOT=false)
+	fi
+
+	# We enable lefthook since it gets disabled below.
+	lefthook_env_variables+=(LEFTHOOK=true)
+
+	git_branchless_exec_command=(
+		# So we can use the environment of the commit being tested
+		env "${nix_run_env_variables[@]}"
+		nix run --file . devShells.development --
+
+		env "${lefthook_env_variables[@]}"
+		"${lefthook_command[@]}"
+	)
+
+	# Disable lefthook so git hooks don't run when `git-branchless` checks out
+	# commits.
+	#
+	# We can't use the cache since it isn't invalidated when the commit message
+	# changes, only when the files in the commit change. This is a problem since
+	# we lint commit messages.
+	#
+	# NOTE: The command given with `--exec` will be run with `sh -c`.
+	LEFTHOOK=false git-branchless test run \
+		-vv \
+		--no-cache \
+		--strategy worktree \
+		--exec "${git_branchless_exec_command[*]@Q}" \
+		--jobs 0 \
+		"${hashes//$'\n'/ | }"
 }
 
 function check_files {
