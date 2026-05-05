@@ -4,8 +4,6 @@
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the code. You can control how the code is checked by passing one of the subcommands: `files`, `commits`, or `rebase`. The default subcommand is `files`."
 #USAGE
-#USAGE default_subcommand files
-#USAGE
 #USAGE cmd "files" {
 #USAGE 	help "Check files with uncommitted changes"
 #USAGE 	long_help "Check any files that have uncommitted changes."
