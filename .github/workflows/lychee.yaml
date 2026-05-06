@@ -27,4 +27,4 @@ jobs:
           GITHUB_WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: exit; mise run ci:lychee
       - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@29b73d2482ddeafd9f7b2db2096e477a37a37575
+        uses: bigolu/cache-nix-gc-roots-action/save@514bc6864116475a5a83633d680c90f7f722e10f
