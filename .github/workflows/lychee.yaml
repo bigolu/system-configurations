@@ -25,6 +25,6 @@ jobs:
           # To avoid being rate-limited by GitHub
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_WORKFLOW_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-        run: exit; mise run ci:lychee
+        run: mise run ci:lychee
       - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@5baffea8b7ed7fd5e8649d5d99d75d4cc75d5870
+        uses: bigolu/cache-nix-gc-roots-action/save@ec84b616f120fb0c7ebcdf81f2862845e5d7f551

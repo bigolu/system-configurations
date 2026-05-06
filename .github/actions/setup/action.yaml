@@ -18,4 +18,4 @@ runs:
           keep-outputs = true
           # This will save a lot of space since we also enabled `keep-outputs`.
           keep-derivations = false
-    - uses: bigolu/cache-nix-gc-roots-action/restore@29b73d2482ddeafd9f7b2db2096e477a37a37575
+    - uses: bigolu/cache-nix-gc-roots-action/restore@ec84b616f120fb0c7ebcdf81f2862845e5d7f551
