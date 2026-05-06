@@ -18,7 +18,6 @@ colors:
 output:
   - execution_info
   - failure
-  - summary
 
 templates:
   # When `auto-sync` runs, some of the sync jobs may depend on something from the new
