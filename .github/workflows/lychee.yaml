@@ -11,6 +11,8 @@ on:
     #
     # [1]: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule
     - cron: "43 0 1 * *"
+permissions:
+  actions: "write"
 defaults:
   run:
     shell: nix run --file . devShells.ci-essentials -- bash {0}
