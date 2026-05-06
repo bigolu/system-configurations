@@ -23,7 +23,7 @@ jobs:
           name: assets-${{ matrix.os }}
           path: ${{ steps.make-assets.outputs.asset-directory }}
       - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@971f86bcaf348cd55e42d6f423f8340a101c6f45
+        uses: bigolu/cache-nix-gc-roots-action/save@bb673b1ab9ec00f077b961beeb0fe611a217ce8b
   release:
     needs: make-assets
     runs-on: ubuntu-24.04
@@ -41,4 +41,4 @@ jobs:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: mise run ci:release
       - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@971f86bcaf348cd55e42d6f423f8340a101c6f45
+        uses: bigolu/cache-nix-gc-roots-action/save@bb673b1ab9ec00f077b961beeb0fe611a217ce8b
