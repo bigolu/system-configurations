@@ -12,6 +12,7 @@ on:
     # [1]: https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#schedule
     - cron: "43 0 1 * *"
 permissions:
+  # `cache-nix-gc-roots-action` needs this permission to purge old caches
   actions: "write"
 defaults:
   run:
