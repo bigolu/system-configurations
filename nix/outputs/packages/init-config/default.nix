@@ -16,7 +16,7 @@ nixpkgs.callPackage (
 
     script = resholve.mkDerivation {
       pname = name;
-      version = "0.0.1";
+      version = "0.1.0";
       src = ./init-config.bash;
       meta.mainProgram = name;
       dontUnpack = true;
