@@ -58,7 +58,7 @@ function direnv_manual_reload {
 	_dmr_set_watch_list "$reload_file"
 	_dmr_disable_file_watching
 	_dmr_add_direnv_wrapper_to_path "$directory" "$reload_file"
-	# If the user calls `direnv_manual_reload` in their config and then removes
+	# If the user adds a call to `direnv_manual_reload` to their config and then removes
 	# it, the original `direnv reload` behavior should be restored. To do this, we
 	# set an environment variable when `direnv_manual_reload` is called and the
 	# direnv wrapper will only use the manual-reload behavior when this variable
