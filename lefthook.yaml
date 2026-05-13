@@ -3,11 +3,9 @@
 no_auto_install: true
 glob_matcher: doublestar
 
-# TODO: Lefthook sets its colors based on the background color of the terminal to
-# ensure good contrast[1], but it doesn't seem to be working for me so I'm using ANSI
-# colors instead. I should report this.
+# TODO: The default colors have bad contrast. There's an issue for changing them[1].
 #
-# [1]: https://github.com/evilmartians/lefthook/pull/482
+# [1]: https://github.com/evilmartians/lefthook/issues/1404
 colors:
   cyan: 6
   gray: 8

@@ -12,6 +12,7 @@
     "redhat.vscode-yaml",
     "rogalmic.bash-debug",
     "sumneko.lua",
-    "tamasfe.even-better-toml"
+    "tamasfe.even-better-toml",
+    "maximsmol.vscode-lsp-generic"
   ]
 }
