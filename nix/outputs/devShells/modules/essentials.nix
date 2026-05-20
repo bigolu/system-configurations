@@ -30,14 +30,11 @@ in
     minimal
     autocomplete
     state
-    secrets
     gcRoot
   ]);
 
   # For the `run` steps in CI workflows
   devshell.packages = optional isCiDevShell pkgs.bash;
-
-  secrets.dotenv.enable = true;
 
   gcRoot.roots = {
     flake = {
