@@ -19,3 +19,5 @@ foreground = #000000
 cursor-color = #000000
 selection-background = #eaeef2
 selection-foreground = cell-foreground
+window-titlebar-background = #e3e5e7
+window-titlebar-foreground = #000000
