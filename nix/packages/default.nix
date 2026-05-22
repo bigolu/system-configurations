@@ -11,6 +11,8 @@ let
     pkgs
     lib
     utils
+    system
+    pins
     ;
   inherit (utils) unstableVersion projectRoot;
   inherit (lib)
@@ -63,6 +65,7 @@ let
 in
 recursiveUpdateList [
   nixpkgs
+  { llm-agents = inputs.llm-agents.packages.${system}; }
   outputs.packages
   {
     __functor =
@@ -90,6 +93,8 @@ recursiveUpdateList [
       mkGoCacheEnv
       hooks
       ;
+
+    zerobox = nixpkgs.linkFarm "zerobox" { "bin/zerobox" = pins.zerobox; };
 
     neovim =
       let

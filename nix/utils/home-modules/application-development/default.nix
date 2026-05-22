@@ -4,7 +4,7 @@
   ...
 }:
 let
-  inherit (lib) optionalAttrs;
+  inherit (lib) optionalAttrs hm;
   inherit (pkgs.stdenv) isLinux;
 in
 {
@@ -18,11 +18,24 @@ in
     ];
   };
 
-  home.packages = with pkgs; [
-    cloudflared
-    doppler
-    direnv
-  ];
+  home = {
+    packages = with pkgs; [
+      cloudflared
+      doppler
+      direnv
+      llm-agents.claude-code
+      zerobox
+    ];
+
+    activation.zeroboxWorkaround = hm.dag.entryAfter [ "writeBoundary" ] ''
+      cd ~
+      for file in .bashrc .bash_profile .zshrc .zlogin; do
+        temp="$file-zerobox-bak"
+        mv -f "$file" "$temp"
+        cp -f "$temp" "$file"
+      done
+    '';
+  };
 
   repository = {
     home.file = {
