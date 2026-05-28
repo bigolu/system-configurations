@@ -18,16 +18,20 @@ function main {
 	local lychee_exit_code
 	lychee_exit_code="$(run_lychee "$report")"
 
-	# All links are valid
-	if ((lychee_exit_code == 0)); then
-		close_issue
-	# There are broken links
-	elif ((lychee_exit_code == 2)); then
-		add_workflow_url "$report"
-		open_issue "$report"
-	else
-		exit "$lychee_exit_code"
-	fi
+	case "$lychee_exit_code" in
+		# There are no broken links
+		0)
+			close_issue
+			;;
+		# There are broken links
+		2)
+			add_workflow_url "$report"
+			open_issue "$report"
+			;;
+		*)
+			exit "$lychee_exit_code"
+			;;
+	esac
 }
 
 function run_lychee {
