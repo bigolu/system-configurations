@@ -15,21 +15,36 @@ function main {
 	local report
 	report="$(mktemp)"
 
-	# lychee exits with 2 if it finds broken links, but the script shouldn't exit if
-	# that happens.
-	set +o errexit
-	git ls-files | lychee --format markdown --output "$report" --files-from -
-	local -r lychee_exit_code=$?
-	set -o errexit
+	local lychee_exit_code
+	lychee_exit_code="$(run_lychee "$report")"
 
+	# All links are valid
 	if ((lychee_exit_code == 0)); then
 		close_issue
+	# There are broken links
 	elif ((lychee_exit_code == 2)); then
 		add_workflow_url "$report"
 		open_issue "$report"
 	else
 		exit "$lychee_exit_code"
 	fi
+}
+
+function run_lychee {
+	local -r report="$1"
+
+	# Reserve stdout for printing lychee's exit code
+	local stdout
+	exec {stdout}>&1
+	exec 1>&2
+
+	git ls-files |
+		{
+			set +o errexit
+			lychee --format markdown --output "$report" --files-from -
+			echo $? 1>&"$stdout"
+			set -o errexit
+		}
 }
 
 function add_workflow_url {
