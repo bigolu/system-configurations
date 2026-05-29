@@ -1088,77 +1088,44 @@
       <h4><code>&lt;attr_path&gt;</code></h4>
       <p>The attribute path of the package to build e.g. packages.shell</p>
       <h2><code>check</code></h2>
-      <p>
-        Run jobs to find/fix issues in the code. You can control how the code is
-        checked by passing one of the subcommands: <code>files</code>,
-        <code>commits</code>, or <code>rebase</code>. The default subcommand is
-        <code>files</code>.
-      </p>
+      <p>Run jobs to find/fix issues in the commits specified.</p>
       <ul>
-        <li>
-          <strong>Usage</strong>:
-          <code
-            >check [-a --all-files] [-j --job… &lt;job&gt;]
-            &lt;SUBCOMMAND&gt;</code
-          >
-        </li>
+        <li><strong>Usage</strong>: <code>check [FLAGS] [start]</code></li>
       </ul>
       <p>Run jobs to find/fix issues</p>
-      <h3>Global Flags</h3>
+      <h3>Arguments</h3>
+      <h4><code>[start]</code></h4>
+      <p>
+        The commit to start checking from. Use the special value
+        <code>head</code> to check only the <code>HEAD</code> commit. Use
+        <code>not-pushed</code> to start from the first commit that hasn't been
+        pushed. See
+        <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
+          >git's documentation for specifying a revision</a
+        >. When <code>head</code> is used, the current
+        <a href="https://git-scm.com/docs/git-worktree">git worktree</a> will be
+        checked. Otherwise, a different worktree will be created for each commit
+        being checked, so they can be checked in parallel.
+      </p>
+      <p><strong>Default:</strong> <code>head</code></p>
+      <h3>Flags</h3>
       <h4><code>-a --all-files</code></h4>
       <p>
-        Check all files instead of the files that are normally checked by
-        <code>files</code>, <code>commits</code>, or <code>rebase</code>.
+        Check all files instead of only the files changed in the commit being
+        checked.
       </p>
       <h4><code>-j --job… &lt;job&gt;</code></h4>
       <p>
         Job to run. If none are passed then all of them will be run. The list of
         jobs is in <code>lefthook.yaml</code> under the <code>check</code> hook.
       </p>
-      <h3><code>check files</code></h3>
-      <ul>
-        <li><strong>Usage</strong>: <code>check files</code></li>
-      </ul>
-      <p>Check any files that have uncommitted changes.</p>
-      <h3><code>check commits</code></h3>
-      <ul>
-        <li>
-          <strong>Usage</strong>: <code>check commits &lt;commits&gt;</code>
-        </li>
-      </ul>
-      <p>
-        Check the files and commit message of each of the commits specified.
-      </p>
-      <h4>Arguments</h4>
-      <h5><code>&lt;commits&gt;</code></h5>
-      <p>
-        Any revision range that <code>git log</code> accepts. Use the special
-        value <code>head</code> to check the files in the
-        <code>HEAD</code> commit. See
-        <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
-          >git's documentation for specifying a revision</a
-        >.
-      </p>
-      <h3><code>check rebase</code></h3>
-      <ul>
-        <li><strong>Usage</strong>: <code>check rebase &lt;start&gt;</code></li>
-      </ul>
+      <h4><code>-r --rebase</code></h4>
       <p>
         Check commits using an interactive rebase. An <code>exec</code> command
         will be added after every commit which checks the files and message for
         that commit. If you make a mistake and want to go back to where you were
         before the rebase, run
         <code>git reset --hard refs/project/ir-backup</code>.
-      </p>
-      <h4>Arguments</h4>
-      <h5><code>&lt;start&gt;</code></h5>
-      <p>
-        The revision to start the interactive rebase from. Use the special value
-        <code>not-pushed</code> to rebase any commits that haven't been pushed.
-        See
-        <a href="https://git-scm.com/docs/git-rev-parse#_specifying_revisions"
-          >git's documentation for specifying a revision</a
-        >.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>
@@ -1173,16 +1140,6 @@
         <li><code>to-repo</code></li>
         <li><code>to-system</code></li>
       </ul>
-      <h2><code>debug:build</code></h2>
-      <ul>
-        <li>
-          <strong>Usage</strong>: <code>debug:build &lt;attr_path&gt;</code>
-        </li>
-      </ul>
-      <p>Run <code>nix build</code> in debug mode</p>
-      <h3>Arguments</h3>
-      <h4><code>&lt;attr_path&gt;</code></h4>
-      <p>The attribute path of the package to build e.g. packages.shell</p>
       <h2><code>debug:ci</code></h2>
       <ul>
         <li>
@@ -1193,11 +1150,6 @@
       <h3>Arguments</h3>
       <h4><code>&lt;nix_dev_shell&gt;</code></h4>
       <p>The dev shell to load</p>
-      <h2><code>debug:renovate</code></h2>
-      <ul>
-        <li><strong>Usage</strong>: <code>debug:renovate</code></li>
-      </ul>
-      <p>Run renovate against the repo</p>
       <h2><code>debug:shell</code></h2>
       <ul>
         <li><strong>Usage</strong>: <code>debug:shell [-b --bundle]</code></li>
