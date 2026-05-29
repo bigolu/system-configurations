@@ -57,7 +57,7 @@ function check_commits_with_rebase {
 
 	git rebase \
 		--interactive \
-		--exec "mise run check head$all_files$job_flags_string" \
+		--exec "mise run check$all_files$job_flags_string" \
 		"$start"
 }
 
