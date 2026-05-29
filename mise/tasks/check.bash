@@ -4,7 +4,7 @@
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the commits specified."
 #USAGE
-#USAGE arg "<start>" default="head" long_help="The commit to start checking from. Use the special value `head` to check only the `HEAD` commit. Use `not-pushed` to start from the first commit that hasn't been pushed. See [git's documentation for specifying a revision](https://git-scm.com/docs/git-rev-parse#_specifying_revisions). When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
+#USAGE arg "<start>" default="head" long_help="The commit to start checking from. Use the special value `head` to check only the `HEAD` commit. Use `not-pushed` to start from the first commit that hasn't been pushed. When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
 #USAGE complete "start" run=#" printf '%s\n' not-pushed head "#
 #USAGE
 #USAGE flag "-a --all-files" help="Check all files" long_help="Check all files instead of only the files changed in the commit being checked."
@@ -12,7 +12,7 @@
 #USAGE flag "-j --job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
 #USAGE complete "job" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
 #USAGE
-#USAGE flag "-r --rebase" help="Use interactive rebase" long_help="Check commits using an interactive rebase. An `exec` command will be added after every commit which checks the files and message for that commit. If you make a mistake and want to go back to where you were before the rebase, run `git reset --hard refs/project/ir-backup`."
+#USAGE flag "-r --rebase" help="Use interactive rebase" long_help="Check commits using an interactive rebase. An `exec` command will be added after every commit to check it. If you make a mistake and want to go back to where you were before the rebase, run `git reset --hard refs/project/ir-backup`."
 
 set -o errexit
 set -o nounset
@@ -32,6 +32,8 @@ function check_commits_with_rebase {
 	local start=''
 	if [[ ${usage_start:?} == 'not-pushed' ]]; then
 		start="$(git merge-base '@{push}' HEAD)"
+	elif [[ ${usage_start:?} == 'head' ]]; then
+		start='HEAD^'
 	else
 		start="${usage_start}^"
 	fi
@@ -82,8 +84,14 @@ function check_commits {
 		return
 	fi
 
+	if [[ ${usage_start:?} == 'not-pushed' ]]; then
+		start="$(git merge-base '@{push}' HEAD)"
+	else
+		start="${usage_start}^"
+	fi
+
 	local hashes
-	hashes="$(git log "${usage_start}^..HEAD" --pretty=%h)"
+	hashes="$(git log "${start}..HEAD" --pretty=%h)"
 	if [[ -z $hashes ]]; then
 		return 0
 	fi
