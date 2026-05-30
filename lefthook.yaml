@@ -55,10 +55,12 @@ pre-push:
       run: |
         set -eu
         before="$(git rev-parse HEAD)"
+        # Stop the interactive rebase editor from launching by setting it to a no-op.
+        #
         # TODO: Without redirecting /dev/tty, the UI for my editor, neovim,
         # doesn't show up. I think the problem is that lefthook isn't connecting
         # this job to /dev/tty, despite me enabling `interactive`.
-        mise run check --rebase not-pushed </dev/tty >/dev/tty 2>&1
+        GIT_SEQUENCE_EDITOR=: mise run check --rebase not-pushed </dev/tty >/dev/tty 2>&1
         after="$(git rev-parse HEAD)"
         if [ "$before" != "$after" ]; then
           exit 1
