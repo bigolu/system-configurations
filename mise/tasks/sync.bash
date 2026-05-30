@@ -6,6 +6,8 @@
 #USAGE
 #USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
 #USAGE complete "jobs" run=#" fish -c 'complete --do-complete "lefthook run sync --job "' "#
+#USAGE
+#USAGE flag "-a --ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job."
 
 set -o errexit
 set -o nounset

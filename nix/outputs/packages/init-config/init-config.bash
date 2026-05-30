@@ -18,7 +18,7 @@ direnv_export="$(direnv export bash)"
 eval "$direnv_export"
 
 if [[ $OSTYPE == linux* ]]; then
-	mise run system-sync "$configuration"
+	mise run lefthook:system-sync "$configuration"
 	# shellcheck disable=2016
 	echo 'Consider copying COSMIC settings to the system by running `mise run copy-cosmic to-system`'
 else
@@ -42,7 +42,7 @@ else
 	# Apply the config with the bootstrap builders.
 	for builder in bootstrap1 bootstrap2; do
 		echo "$builder" >"$builder_file"
-		mise run system-sync "$configuration"
+		mise run lefthook:system-sync "$configuration"
 	done
 fi
 

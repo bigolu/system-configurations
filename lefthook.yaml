@@ -157,8 +157,10 @@ sync:
       # - If I can see the output in real time, I can spot accidental nix cache
       #   misses and cancel the job instead of waiting for nix to rebuild the
       #   package.
+      # - If the `--ask` flag is passed to the mise `sync` task, then
+      #   `lefthook:system-sync` will prompt the user for confirmation.
       interactive: true
-      run: "{run_in_dev_shell} mise run system-sync"
+      run: "{run_in_dev_shell} mise run lefthook:system-sync"
     - name: fish
       glob:
         - lefthook.yaml

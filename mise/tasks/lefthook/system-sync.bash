@@ -1,8 +1,8 @@
 #!
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter coreutils run-as-admin nh
+#MISE hide=true
 #USAGE arg "[config]" help="The name of the configuration to apply"
-#USAGE flag "-a --ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current and new generation and get confirmation before syncing."
 
 set -o errexit
 set -o nounset
@@ -11,6 +11,7 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 flags=()
+# `usage_ask` is an argument for the `sync` task
 if [[ ${usage_ask:-} == 'true' ]]; then
 	flags+=(--ask)
 fi
