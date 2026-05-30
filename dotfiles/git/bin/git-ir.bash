@@ -24,4 +24,9 @@ fi
 # want to go back. To restore from this point use: git reset --hard refs/bigolu/ir-backup
 git update-ref refs/bigolu/ir-backup HEAD
 
-git rebase --interactive --exec 'git check-commit' "$start_commit"
+exec_args=()
+if git config get bigolu.check-command >/dev/null 2>&1; then
+	exec_args=(--exec 'git check-commit')
+fi
+
+git rebase --interactive "${exec_args[@]}" "$start_commit"
