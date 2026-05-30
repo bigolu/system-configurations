@@ -1108,9 +1108,13 @@
       <h3>Flags</h3>
       <h4><code>-a --all-files</code></h4>
       <p>
-        Check all files instead of only the files changed in the commit being
-        checked.
+        For faster development, jobs are only run when the files related to it
+        are changed in the commit. Use this flag to consider all files changed
+        instead of only the files changed in the commit being checked. Instead
+        of using this flag, you can also set the environment variable
+        <code>ALL_FILES</code> to <code>true</code>.
       </p>
+      <p><strong>Environment Variable:</strong> <code>ALL_FILES</code></p>
       <h4><code>-j --job… &lt;job&gt;</code></h4>
       <p>
         Job to run. If none are passed then all of them will be run. The list of

@@ -7,7 +7,7 @@
 #USAGE arg "<start>" default="head" long_help="The commit to start checking from. Use the special value `head` to check only the `HEAD` commit. Use `not-pushed` to start from the first commit that hasn't been pushed. When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
 #USAGE complete "start" run=#" printf '%s\n' not-pushed head "#
 #USAGE
-#USAGE flag "-a --all-files" help="Check all files" long_help="Check all files instead of only the files changed in the commit being checked."
+#USAGE flag "-a --all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files related to it are changed in the commit. Use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
 #USAGE
 #USAGE flag "-j --job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
 #USAGE complete "job" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
