@@ -1090,16 +1090,18 @@
       <h2><code>check</code></h2>
       <p>Run jobs to find/fix issues in the commits specified.</p>
       <ul>
-        <li><strong>Usage</strong>: <code>check [FLAGS] [start]</code></li>
+        <li>
+          <strong>Usage</strong>:
+          <code>check [-a --all-files] [-j --job… &lt;job&gt;] [range]</code>
+        </li>
       </ul>
       <p>Run jobs to find/fix issues</p>
       <h3>Arguments</h3>
-      <h4><code>[start]</code></h4>
+      <h4><code>[range]</code></h4>
       <p>
-        The commit to start checking from. Use the special value
-        <code>head</code> to check only the <code>HEAD</code> commit. Use
-        <code>not-pushed</code> to start from the first commit that hasn't been
-        pushed. When <code>head</code> is used, the current
+        Any commit range that <code>git log</code> accepts. Use the special
+        value <code>head</code> to check only the <code>HEAD</code> commit. When
+        <code>head</code> is used, the current
         <a href="https://git-scm.com/docs/git-worktree">git worktree</a> will be
         checked. Otherwise, a different worktree will be created for each commit
         being checked, so they can be checked in parallel.
@@ -1119,13 +1121,6 @@
       <p>
         Job to run. If none are passed then all of them will be run. The list of
         jobs is in <code>lefthook.yaml</code> under the <code>check</code> hook.
-      </p>
-      <h4><code>-r --rebase</code></h4>
-      <p>
-        Check commits using an interactive rebase. An <code>exec</code> command
-        will be added after every commit to check it. If you make a mistake and
-        want to go back to where you were before the rebase, run
-        <code>git reset --hard refs/project/ir-backup</code>.
       </p>
       <h2><code>copy-cosmic</code></h2>
       <ul>

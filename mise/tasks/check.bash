@@ -4,15 +4,13 @@
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the commits specified."
 #USAGE
-#USAGE arg "<start>" default="head" long_help="The commit to start checking from. Use the special value `head` to check only the `HEAD` commit. Use `not-pushed` to start from the first commit that hasn't been pushed. When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
-#USAGE complete "start" run=#" printf '%s\n' not-pushed head "#
+#USAGE arg "<range>" default="head" long_help="Any commit range that `git log` accepts. Use the special value `head` to check only the `HEAD` commit. When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
+#USAGE complete "range" run=#" printf '%s\n' head "#
 #USAGE
 #USAGE flag "-a --all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files related to it are changed in the commit. Use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
 #USAGE
 #USAGE flag "-j --job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
 #USAGE complete "job" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
-#USAGE
-#USAGE flag "-r --rebase" help="Use interactive rebase" long_help="Check commits using an interactive rebase. An `exec` command will be added after every commit to check it. If you make a mistake and want to go back to where you were before the rebase, run `git reset --hard refs/project/ir-backup`."
 
 set -o errexit
 set -o nounset
@@ -21,49 +19,6 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 function main {
-	if [[ -n ${usage_rebase:-} ]]; then
-		check_commits_with_rebase
-	else
-		check_commits
-	fi
-}
-
-function check_commits_with_rebase {
-	local start=''
-	if [[ ${usage_start:?} == 'not-pushed' ]]; then
-		start="$(git merge-base '@{push}' HEAD)"
-	elif [[ ${usage_start:?} == 'head' ]]; then
-		start='HEAD^'
-	else
-		start="${usage_start}^"
-	fi
-
-	# Save a reference to the commit we were on before the rebase started, in case
-	# we want to go back.
-	git update-ref refs/project/ir-backup HEAD
-
-	local -r all_files="${usage_all_files:+ --all-files}"
-
-	local -a job_flags=()
-	make_job_flags job_flags
-	local job_flags_string
-	if ((${#job_flags[@]} > 0)); then
-		job_flags_string=" ${job_flags[*]}"
-	else
-		job_flags_string=''
-	fi
-
-	# The arguments for this task should not be inherited by the one we run in `--exec`
-	# or any other tasks that get run during the interactive rebase.
-	unset "${!usage_@}"
-
-	git rebase \
-		--interactive \
-		--exec "mise run check$all_files$job_flags_string" \
-		"$start"
-}
-
-function check_commits {
 	local -a lefthook_command
 	make_lefthook_command lefthook_command
 
@@ -74,7 +29,7 @@ function check_commits {
 		lefthook_env_variables+=(LEFTHOOK_FILES=head)
 	fi
 
-	if [[ ${usage_start:?} == 'head' ]]; then
+	if [[ ${usage_range:?} == 'head' ]]; then
 		# When we run this task with the subcommand `rebase`, we check each commit
 		# by running this same task with the arguments `commits head` at each
 		# commit. When we do this, we want any fixes that get made by lefthook to be
@@ -84,14 +39,8 @@ function check_commits {
 		return
 	fi
 
-	if [[ ${usage_start:?} == 'not-pushed' ]]; then
-		start="$(git merge-base '@{push}' HEAD)"
-	else
-		start="${usage_start}^"
-	fi
-
 	local hashes
-	hashes="$(git log "${start}..HEAD" --pretty=%H)"
+	hashes="$(git log "$usage_range" --pretty=%H)"
 	if [[ -z $hashes ]]; then
 		return 0
 	fi
