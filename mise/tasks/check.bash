@@ -7,7 +7,7 @@
 #USAGE arg "<range>" default="head" long_help="Any commit range that `git log` accepts. Use the special value `head` to check only the `HEAD` commit. When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
 #USAGE complete "range" run=#" printf '%s\n' head "#
 #USAGE
-#USAGE flag "-a --all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files related to it are changed in the commit. Use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
+#USAGE flag "-a --all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files relevant to a job are changed in the commit. However, the list of relevant files for a job is not perfect so you can use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
 #USAGE
 #USAGE flag "-j --job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
 #USAGE complete "job" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
