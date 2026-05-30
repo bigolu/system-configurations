@@ -1,6 +1,6 @@
 #!
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter git-branchless
+#! nix-shell --packages nix-shell-interpreter git-branchless git
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the commits specified."
 #USAGE
@@ -91,7 +91,7 @@ function check_commits {
 	fi
 
 	local hashes
-	hashes="$(git log "${start}..HEAD" --pretty=%h)"
+	hashes="$(git log "${start}..HEAD" --pretty=%H)"
 	if [[ -z $hashes ]]; then
 		return 0
 	fi
