@@ -2,12 +2,12 @@
 #! nix-shell -i nix-shell-interpreter
 #! nix-shell --packages nix-shell-interpreter
 #MISE description="Sync your environment with the code"
-#USAGE long_about "Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes. The list of jobs is in `lefthook.yaml`."
+#USAGE long_about "Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes."
 #USAGE
-#USAGE arg "[jobs]" var=#true help="Jobs to run. If none are passed then all of them will be run"
+#USAGE flag "--job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `sync` hook."
 #USAGE complete "jobs" run=#" fish -c 'complete --do-complete "lefthook run sync --job "' "#
 #USAGE
-#USAGE flag "-a --ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job."
+#USAGE flag "--ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job."
 
 set -o errexit
 set -o nounset
@@ -15,21 +15,10 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-# herestring (<<<) adds a newline to the end of the string so if `usage_jobs` is
-# empty, `readarray` would set `jobs` to an array with a single empty string in
-# it instead of an empty array. To avoid this, we only use `readarray` if
-# `usage_jobs` isn't empty.
-if [[ -n ${usage_jobs:-} ]]; then
-	# It's easier to split a newline-delimited string than a space-delimited one
-	# since herestring (<<<) adds a newline to the end of the string.
-	readarray -t jobs <<<"${usage_jobs// /$'\n'}"
-else
-	jobs=()
-fi
-
-job_flags=()
-for job in "${jobs[@]}"; do
-	job_flags+=(--job "$job")
+command=(lefthook run sync)
+for arg in "$@"; do
+	if [[ $arg != '--ask' ]]; then
+		command+=("$arg")
+	fi
 done
-
-lefthook run sync "${job_flags[@]}"
+"${command[@]}"

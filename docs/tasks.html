@@ -1162,18 +1162,21 @@
       <h2><code>sync</code></h2>
       <p>
         Run jobs to sync your environment with the code. For example, running
-        database migrations whenever the schema changes. The list of jobs is in
-        <code>lefthook.yaml</code>.
+        database migrations whenever the schema changes.
       </p>
       <ul>
-        <li><strong>Usage</strong>: <code>sync [-a --ask] [jobs]…</code></li>
+        <li>
+          <strong>Usage</strong>: <code>sync [--job… &lt;job&gt;] [--ask]</code>
+        </li>
       </ul>
       <p>Sync your environment with the code</p>
-      <h3>Arguments</h3>
-      <h4><code>[jobs]…</code></h4>
-      <p>Jobs to run. If none are passed then all of them will be run</p>
       <h3>Flags</h3>
-      <h4><code>-a --ask</code></h4>
+      <h4><code>--job… &lt;job&gt;</code></h4>
+      <p>
+        Job to run. If none are passed then all of them will be run. The list of
+        jobs is in <code>lefthook.yaml</code> under the <code>sync</code> hook.
+      </p>
+      <h4><code>--ask</code></h4>
       <p>
         Show a diff of the current state and the new state, and ask for
         confirmation, before syncing. This is only supported by the
