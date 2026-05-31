@@ -194,7 +194,7 @@ check:
     - name: commit
       files: |
         set -eu
-        file="$(git rev-parse --git-dir)/info/lefthook-commit-message.txt"
+        file="$(git rev-parse --git-dir)/lefthook-commit-message.txt"
         git log --format=%B --max-count 1 HEAD >"$file"
         echo "$file"
       group:
