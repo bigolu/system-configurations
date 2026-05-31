@@ -7,9 +7,9 @@
 #USAGE arg "<range>" default="head" long_help="Any commit range that `git log` accepts. Use the special value `head` to check only the `HEAD` commit. When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
 #USAGE complete "range" run=#" printf '%s\n' head "#
 #USAGE
-#USAGE flag "-a --all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files relevant to a job are changed in the commit. However, the list of relevant files for a job is not perfect so you can use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
+#USAGE flag "--all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files relevant to a job are changed in the commit. However, the list of relevant files for a job is not perfect so you can use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
 #USAGE
-#USAGE flag "-j --job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
+#USAGE flag "--job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
 #USAGE complete "job" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
 
 set -o errexit
@@ -20,7 +20,7 @@ shopt -s inherit_errexit
 
 function main {
 	local -a lefthook_command
-	make_lefthook_command lefthook_command
+	make_lefthook_command lefthook_command "$@"
 
 	if [[ ${usage_range:?} == 'head' ]]; then
 		# When we run on the HEAD commit, we want any fixes that get made by lefthook to be
@@ -68,33 +68,19 @@ function main {
 
 function make_lefthook_command {
 	local -n _lefthook_command=$1
+	local -ra script_args=("${@:2}")
 
-	local -a job_flags=()
-	make_job_flags job_flags
+	_lefthook_command=(lefthook run check)
 
-	_lefthook_command=(lefthook run check "${job_flags[@]}")
+	for arg in "${script_args[@]}"; do
+		if [[ $arg != "$usage_range" ]]; then
+			_lefthook_command+=("$arg")
+		fi
+	done
 
-	if [[ -n ${usage_all_files:-} ]]; then
+	if [[ ${ALL_FILES:-} == 'true' ]]; then
 		_lefthook_command+=(--all-files)
 	fi
 }
 
-function make_job_flags {
-	local -n _job_flags=$1
-
-	# herestring (<<<) adds a newline to the end of the string so if `usage_job` is
-	# empty, `readarray` would set `jobs` to an array with a single empty string in
-	# it instead of an empty array. To avoid this, we only use `readarray` if
-	# `usage_job` isn't empty.
-	local -a jobs
-	if [[ -n ${usage_job:-} ]]; then
-		# It's easier to split a newline-delimited string than a space-delimited one
-		# since herestring (<<<) adds a newline to the end of the string.
-		readarray -t jobs <<<"${usage_job// /$'\n'}"
-	fi
-	for job in "${jobs[@]}"; do
-		_job_flags+=(--job "$job")
-	done
-}
-
-main
+main "$@"

@@ -1092,7 +1092,7 @@
       <ul>
         <li>
           <strong>Usage</strong>:
-          <code>check [-a --all-files] [-j --job… &lt;job&gt;] [range]</code>
+          <code>check [--all-files] [--job… &lt;job&gt;] [range]</code>
         </li>
       </ul>
       <p>Run jobs to find/fix issues</p>
@@ -1108,7 +1108,7 @@
       </p>
       <p><strong>Default:</strong> <code>head</code></p>
       <h3>Flags</h3>
-      <h4><code>-a --all-files</code></h4>
+      <h4><code>--all-files</code></h4>
       <p>
         For faster development, jobs are only run when the files relevant to a
         job are changed in the commit. However, the list of relevant files for a
@@ -1118,7 +1118,7 @@
         <code>ALL_FILES</code> to <code>true</code>.
       </p>
       <p><strong>Environment Variable:</strong> <code>ALL_FILES</code></p>
-      <h4><code>-j --job… &lt;job&gt;</code></h4>
+      <h4><code>--job… &lt;job&gt;</code></h4>
       <p>
         Job to run. If none are passed then all of them will be run. The list of
         jobs is in <code>lefthook.yaml</code> under the <code>check</code> hook.
