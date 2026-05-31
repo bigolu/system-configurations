@@ -22,20 +22,11 @@ function main {
 	local -a lefthook_command
 	make_lefthook_command lefthook_command
 
-	local -a lefthook_env_variables=(LEFTHOOK_INCLUDE_COMMIT_MESSAGE=true)
-	if [[ -n ${usage_all_files:-} ]]; then
-		lefthook_env_variables+=(LEFTHOOK_FILES=all)
-	else
-		lefthook_env_variables+=(LEFTHOOK_FILES=head)
-	fi
-
 	if [[ ${usage_range:?} == 'head' ]]; then
-		# When we run this task with the subcommand `rebase`, we check each commit
-		# by running this same task with the arguments `commits head` at each
-		# commit. When we do this, we want any fixes that get made by lefthook to be
+		# When we run on the HEAD commit, we want any fixes that get made by lefthook to be
 		# applied to the current worktree. git-branchless discards any changes that
 		# get made so we don't use it here.
-		env "${lefthook_env_variables[@]}" "${lefthook_command[@]}"
+		"${lefthook_command[@]}"
 		return
 	fi
 
@@ -45,9 +36,6 @@ function main {
 		return 0
 	fi
 
-	# We enable lefthook since it gets disabled below.
-	lefthook_env_variables+=(LEFTHOOK=true)
-
 	git_branchless_exec_command=(
 		# Use the nix environment of the commit being tested.
 		#
@@ -56,7 +44,8 @@ function main {
 		env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
 		nix run --file . devShells.development --
 
-		env "${lefthook_env_variables[@]}"
+		# We enable lefthook since it gets disabled below.
+		env LEFTHOOK=true
 		"${lefthook_command[@]}"
 	)
 
@@ -84,6 +73,10 @@ function make_lefthook_command {
 	make_job_flags job_flags
 
 	_lefthook_command=(lefthook run check "${job_flags[@]}")
+
+	if [[ -n ${usage_all_files:-} ]]; then
+		_lefthook_command+=(--all-files)
+	fi
 }
 
 function make_job_flags {
