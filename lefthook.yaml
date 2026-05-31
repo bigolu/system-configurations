@@ -210,8 +210,7 @@ check:
         git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
         ;;
       'all')
-        # Tracked and untracked files
-        git ls-files --cached --others --exclude-standard
+        git ls-files
         ;;
       *)
         # It shouldn't ever reach this case
