@@ -4,8 +4,7 @@
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the commits specified."
 #USAGE
-#USAGE arg "<range>" default="head" long_help="Any commit range that `git log` accepts. Use the special value `head` to check only the `HEAD` commit. When `head` is used, the current [git worktree](https://git-scm.com/docs/git-worktree) will be checked. Otherwise, a different worktree will be created for each commit being checked, so they can be checked in parallel."
-#USAGE complete "range" run=#" printf '%s\n' head "#
+#USAGE arg "<range>" default="HEAD^!" long_help="Any commit range that `git log` accepts. By default only the head commit is checked."
 #USAGE
 #USAGE flag "--all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files relevant to a job are changed in the commit. However, the list of relevant files for a job is not perfect so you can use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
 #USAGE
@@ -28,44 +27,44 @@ if [[ ${ALL_FILES:-} == 'true' ]]; then
 	_lefthook_command+=(--all-files)
 fi
 
-if [[ ${usage_range:?} == 'head' ]]; then
-	# When we run on the HEAD commit, we want any fixes that get made by lefthook to be
-	# applied to the current worktree. git-branchless discards any changes that
-	# get made so we don't use it here.
-	"${lefthook_command[@]}"
-	exit
-fi
-
 hashes="$(git log "$usage_range" --pretty=%H)"
 if [[ -z $hashes ]]; then
 	exit
 fi
+hashes="${hashes//$'\n'/ | }"
+
+if [[ ${CI:-} != 'true' ]]; then
+	# Disable lefthook so git hooks don't run when `git-branchless` runs git commands.
+	#
+	# TODO: This doesn't work if `--strategy worktree` is used though I'm not sure why.
+	LEFTHOOK=false git-branchless test fix \
+		--verbose --verbose \
+		--force-rewrite \
+		--exec 'LEFTHOOK=true lefthook run check --job fix' \
+		"$hashes"
+fi
 
 git_branchless_exec_command=(
-	# Use the nix environment of the commit being tested.
+	# Use the nix environment of the commit being tested. This is necessary since we'll be in a new worktree.
 	#
 	# Unset these environment variables so the nix environment can set new
 	# values for these variables relative to the directory of the worktree.
-	env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
-	nix run --file . devShells.development --
+	# env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
+	# nix run --file . devShells.development --
 
 	# We enable lefthook since it gets disabled below.
 	env LEFTHOOK=true
 	"${lefthook_command[@]}"
 )
-
-# Disable lefthook so git hooks don't run when `git-branchless` checks out
-# commits.
+# Disable lefthook so git hooks don't run when `git-branchless` runs git commands.
 #
 # We can't use the cache since it isn't invalidated when the commit message
 # changes, only when the files in the commit change. This is a problem since
 # we lint commit messages.
-#
-# NOTE: The command given with `--exec` will be run with `sh -c`.
 LEFTHOOK=false git-branchless test run \
-	-vv \
+	--verbose --verbose \
 	--no-cache \
 	--strategy worktree \
 	--exec "${git_branchless_exec_command[*]@Q}" \
 	--jobs 0 \
-	"${hashes//$'\n'/ | }"
+	"$hashes"
