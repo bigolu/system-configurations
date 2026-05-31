@@ -55,9 +55,6 @@ pre-push:
       run: |
         set -eu
         before="$(git rev-parse HEAD)"
-        # Save a reference to the commit we were on before the rebase started, in case
-        # we want to go back.
-        git update-ref refs/project/ir-backup HEAD
         # Do an interactive rebase of the commits that haven't been pushed yet.
         #
         # Stop the interactive rebase editor from launching by setting it to a no-op.
