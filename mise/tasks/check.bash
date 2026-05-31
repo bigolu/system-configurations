@@ -62,7 +62,6 @@ git_branchless_exec_command=(
 LEFTHOOK=false git-branchless test run \
 	--verbose --verbose \
 	--no-cache \
-	--strategy worktree \
-	--exec "${git_branchless_exec_command[*]@Q}" \
 	--jobs 0 \
+	--exec "${git_branchless_exec_command[*]@Q}" \
 	"${hashes//$'\n'/ | }"
