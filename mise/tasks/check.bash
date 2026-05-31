@@ -18,69 +18,54 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-function main {
-	local -a lefthook_command
-	make_lefthook_command lefthook_command "$@"
-
-	if [[ ${usage_range:?} == 'head' ]]; then
-		# When we run on the HEAD commit, we want any fixes that get made by lefthook to be
-		# applied to the current worktree. git-branchless discards any changes that
-		# get made so we don't use it here.
-		"${lefthook_command[@]}"
-		return
+lefthook_command=(lefthook run check)
+for arg in "$@"; do
+	if [[ $arg != "${usage_range:?}" ]]; then
+		_lefthook_command+=("$arg")
 	fi
+done
+if [[ ${ALL_FILES:-} == 'true' ]]; then
+	_lefthook_command+=(--all-files)
+fi
 
-	local hashes
-	hashes="$(git log "$usage_range" --pretty=%H)"
-	if [[ -z $hashes ]]; then
-		return 0
-	fi
+if [[ ${usage_range:?} == 'head' ]]; then
+	# When we run on the HEAD commit, we want any fixes that get made by lefthook to be
+	# applied to the current worktree. git-branchless discards any changes that
+	# get made so we don't use it here.
+	"${lefthook_command[@]}"
+	exit
+fi
 
-	git_branchless_exec_command=(
-		# Use the nix environment of the commit being tested.
-		#
-		# Unset these environment variables so the nix environment can set new
-		# values for these variables relative to the directory of the worktree.
-		env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
-		nix run --file . devShells.development --
+hashes="$(git log "$usage_range" --pretty=%H)"
+if [[ -z $hashes ]]; then
+	exit
+fi
 
-		# We enable lefthook since it gets disabled below.
-		env LEFTHOOK=true
-		"${lefthook_command[@]}"
-	)
-
-	# Disable lefthook so git hooks don't run when `git-branchless` checks out
-	# commits.
+git_branchless_exec_command=(
+	# Use the nix environment of the commit being tested.
 	#
-	# We can't use the cache since it isn't invalidated when the commit message
-	# changes, only when the files in the commit change. This is a problem since
-	# we lint commit messages.
-	#
-	# NOTE: The command given with `--exec` will be run with `sh -c`.
-	LEFTHOOK=false git-branchless test run \
-		-vv \
-		--no-cache \
-		--strategy worktree \
-		--exec "${git_branchless_exec_command[*]@Q}" \
-		--jobs 0 \
-		"${hashes//$'\n'/ | }"
-}
+	# Unset these environment variables so the nix environment can set new
+	# values for these variables relative to the directory of the worktree.
+	env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
+	nix run --file . devShells.development --
 
-function make_lefthook_command {
-	local -n _lefthook_command=$1
-	local -ra script_args=("${@:2}")
+	# We enable lefthook since it gets disabled below.
+	env LEFTHOOK=true
+	"${lefthook_command[@]}"
+)
 
-	_lefthook_command=(lefthook run check)
-
-	for arg in "${script_args[@]}"; do
-		if [[ $arg != "$usage_range" ]]; then
-			_lefthook_command+=("$arg")
-		fi
-	done
-
-	if [[ ${ALL_FILES:-} == 'true' ]]; then
-		_lefthook_command+=(--all-files)
-	fi
-}
-
-main "$@"
+# Disable lefthook so git hooks don't run when `git-branchless` checks out
+# commits.
+#
+# We can't use the cache since it isn't invalidated when the commit message
+# changes, only when the files in the commit change. This is a problem since
+# we lint commit messages.
+#
+# NOTE: The command given with `--exec` will be run with `sh -c`.
+LEFTHOOK=false git-branchless test run \
+	-vv \
+	--no-cache \
+	--strategy worktree \
+	--exec "${git_branchless_exec_command[*]@Q}" \
+	--jobs 0 \
+	"${hashes//$'\n'/ | }"
