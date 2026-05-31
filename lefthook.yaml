@@ -199,8 +199,7 @@ check:
         set -eu
         file="$(git rev-parse --git-dir)/info/lefthook-commit-message.txt"
         git log --format=%B --max-count 1 HEAD >"$file"
-        # TODO: Absolute paths don't work
-        realpath --relative-to="$PWD" "$file"
+        echo "$file"
       group:
         jobs:
           - name: typos
