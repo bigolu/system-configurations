@@ -197,30 +197,8 @@ check:
     - name: commit
       files: |
         set -eu
-
-        directory="$(git rev-parse --git-dir)/info/lefthook-commit-message-files"
-        if [ ! -e "$directory" ]; then
-          mkdir -p "$directory"
-        fi
-
-        # Limit the number of files made
-        file_count="$(ls -1 "$directory" | wc -l)"
-        if [ "$file_count" -gt 100 ]; then
-          rm "$directory/"*
-        fi
-
-        message="$(git log --format=%B --max-count 1 HEAD)"
-
-        cksum_output="$(echo "$message" | cksum)"
-        checksum="${cksum_output%% *}"
-
-        file="$directory/$checksum.gitcommit"
-        if [ ! -e "$file" ]; then
-          echo "$message" >"$file"
-          # Make it read-only since we cache it
-          chmod -w "$file"
-        fi
-
+        file="$(git rev-parse --git-dir)/info/lefthook-commit-message.txt"
+        git log --format=%B --max-count 1 HEAD >"$file"
         # TODO: Absolute paths don't work
         realpath --relative-to="$PWD" "$file"
       group:
