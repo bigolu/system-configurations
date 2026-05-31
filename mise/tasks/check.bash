@@ -1,10 +1,10 @@
 #!
 #! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter git-branchless git
+#! nix-shell --packages nix-shell-interpreter git-branchless
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the commits specified."
 #USAGE
-#USAGE arg "<range>" default="head" long_help="Any commit range that `git log` accepts. By default only the head commit is checked."
+#USAGE arg "<start>" default="HEAD" long_help="The commit to start checking from. Commits from `start` to the current commit (`HEAD`) will be checked. By default only `HEAD` is checked."
 #USAGE
 #USAGE flag "--all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, we decide whether a job runs, and which files it runs on, based on the files changed by the commit being checked. This way, you can skip checks that aren't related to the files you changed. However, sometimes a job is skipped when it shouldn't be so you can use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
 #USAGE
@@ -19,7 +19,7 @@ shopt -s inherit_errexit
 
 lefthook_command=(lefthook run check)
 for arg in "$@"; do
-	if [[ $arg != "${usage_range:?}" ]]; then
+	if [[ $arg != "${usage_start:?}" ]]; then
 		_lefthook_command+=("$arg")
 	fi
 done
@@ -27,16 +27,13 @@ if [[ ${ALL_FILES:-} == 'true' ]]; then
 	_lefthook_command+=(--all-files)
 fi
 
-if [[ ${usage_range:?} == 'head' ]]; then
-	# When we run on the HEAD commit, we want any fixes that get made by lefthook to be
-	# applied to the current worktree. git-branchless discards any changes that
-	# get made so we don't use it here.
+if [[ $usage_start == 'HEAD' ]]; then
+	# Normally, we use git-branchless to run the checks since it can check multiple
+	# commits in parallel. However, git-branchless discards any changes that get
+	# made while running checks, which would discard any fixes that are made. To
+	# work around this, we don't use git-branchless when we're only running on the
+	# HEAD commit.
 	"${lefthook_command[@]}"
-	exit
-fi
-
-hashes="$(git log "$usage_range" --pretty=%H)"
-if [[ -z $hashes ]]; then
 	exit
 fi
 
@@ -64,4 +61,4 @@ LEFTHOOK=false git-branchless test run \
 	--no-cache \
 	--jobs 0 \
 	--exec "${git_branchless_exec_command[*]@Q}" \
-	"${hashes//$'\n'/ | }"
+	"${usage_start}:HEAD"

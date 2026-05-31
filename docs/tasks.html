@@ -1092,17 +1092,18 @@
       <ul>
         <li>
           <strong>Usage</strong>:
-          <code>check [--all-files] [--job… &lt;job&gt;] [range]</code>
+          <code>check [--all-files] [--job… &lt;job&gt;] [start]</code>
         </li>
       </ul>
       <p>Run jobs to find/fix issues</p>
       <h3>Arguments</h3>
-      <h4><code>[range]</code></h4>
+      <h4><code>[start]</code></h4>
       <p>
-        Any commit range that <code>git log</code> accepts. By default only the
-        head commit is checked.
+        The commit to start checking from. Commits from <code>start</code> to
+        the current commit (<code>HEAD</code>) will be checked. By default only
+        <code>HEAD</code> is checked.
       </p>
-      <p><strong>Default:</strong> <code>head</code></p>
+      <p><strong>Default:</strong> <code>HEAD</code></p>
       <h3>Flags</h3>
       <h4><code>--all-files</code></h4>
       <p>
