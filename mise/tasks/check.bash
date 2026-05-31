@@ -4,7 +4,7 @@
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the commits specified."
 #USAGE
-#USAGE arg "<range>" default="HEAD^!" long_help="Any commit range that `git log` accepts. By default only the head commit is checked."
+#USAGE arg "<range>" default="head" long_help="Any commit range that `git log` accepts. By default only the head commit is checked."
 #USAGE
 #USAGE flag "--all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, jobs are only run when the files relevant to a job are changed in the commit. However, the list of relevant files for a job is not perfect so you can use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
 #USAGE
@@ -27,30 +27,28 @@ if [[ ${ALL_FILES:-} == 'true' ]]; then
 	_lefthook_command+=(--all-files)
 fi
 
+if [[ ${usage_range:?} == 'head' ]]; then
+	# When we run on the HEAD commit, we want any fixes that get made by lefthook to be
+	# applied to the current worktree. git-branchless discards any changes that
+	# get made so we don't use it here.
+	"${lefthook_command[@]}"
+	exit
+fi
+
 hashes="$(git log "$usage_range" --pretty=%H)"
 if [[ -z $hashes ]]; then
 	exit
 fi
-hashes="${hashes//$'\n'/ | }"
-
-if [[ ${CI:-} != 'true' ]]; then
-	# Disable lefthook so git hooks don't run when `git-branchless` runs git commands.
-	#
-	# TODO: This doesn't work if `--strategy worktree` is used though I'm not sure why.
-	LEFTHOOK=false git-branchless test fix \
-		--verbose --verbose \
-		--force-rewrite \
-		--exec 'LEFTHOOK=true lefthook run check --job fix' \
-		"$hashes"
-fi
 
 git_branchless_exec_command=(
-	# Use the nix environment of the commit being tested. This is necessary since we'll be in a new worktree.
+	# Load the nix environment since we'll be in a new worktree and may need to do
+	# some setup.
 	#
-	# Unset these environment variables so the nix environment can set new
-	# values for these variables relative to the directory of the worktree.
-	# env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
-	# nix run --file . devShells.development --
+	# Unset these environment variables so the nix environment can set
+	# new values for these variables relative to the directory of the
+	# worktree.
+	env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
+	nix run --file . devShells.development --
 
 	# We enable lefthook since it gets disabled below.
 	env LEFTHOOK=true
@@ -67,4 +65,4 @@ LEFTHOOK=false git-branchless test run \
 	--strategy worktree \
 	--exec "${git_branchless_exec_command[*]@Q}" \
 	--jobs 0 \
-	"$hashes"
+	"${hashes//$'\n'/ | }"
