@@ -1106,12 +1106,14 @@
       <h3>Flags</h3>
       <h4><code>--all-files</code></h4>
       <p>
-        For faster development, jobs are only run when the files relevant to a
-        job are changed in the commit. However, the list of relevant files for a
-        job is not perfect so you can use this flag to consider all files
-        changed instead of only the files changed in the commit being checked.
-        Instead of using this flag, you can also set the environment variable
-        <code>ALL_FILES</code> to <code>true</code>.
+        For faster development, we decide whether a job runs, and which files it
+        runs on, based on the files changed by the commit being checked. This
+        way, you can skip checks that aren't related to the files you changed.
+        However, sometimes a job is skipped when it shouldn't be so you can use
+        this flag to consider all files changed instead of only the files
+        changed in the commit being checked. Instead of using this flag, you can
+        also set the environment variable <code>ALL_FILES</code> to
+        <code>true</code>.
       </p>
       <p><strong>Environment Variable:</strong> <code>ALL_FILES</code></p>
       <h4><code>--job… &lt;job&gt;</code></h4>
