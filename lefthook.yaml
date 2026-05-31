@@ -55,9 +55,9 @@ pre-push:
       run: |
         set -eu
         before="$(git rev-parse HEAD)"
-        # Do an interactive rebase of the commits that haven't been pushed yet.
+        # Run an interactive rebase to check the commits that haven't been pushed yet.
         #
-        # Stop the interactive rebase editor from launching by setting it to a no-op.
+        # Stop the sequence editor from launching by setting it to a no-op.
         git \
           -c sequence.editor=: \
           rebase \
@@ -65,6 +65,7 @@ pre-push:
           --exec 'mise run check' \
           "$(git merge-base '@{push}' HEAD)"
         after="$(git rev-parse HEAD)"
+        # A commit was changed so abort the push by exiting with a non-zero code.
         if [ "$before" != "$after" ]; then
           exit 1
         fi
