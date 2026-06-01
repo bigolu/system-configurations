@@ -205,9 +205,6 @@ check:
         jobs:
           - name: typos
             run: typos --no-check-filenames {files}
-    # All fixers should be grouped together to make it easy to run them all in an
-    # autofix workflow in CI.
-    #
     # Why fixers should run before other checks:
     #   - A fixer could produce code that would fail another check
     #   - A fixer could fix an issue that would have been found by another check
