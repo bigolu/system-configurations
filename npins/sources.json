@@ -1,5 +1,11 @@
 {
   "pins": {
+    "openrgb-udev-rules": {
+      "type": "Url",
+      "url": "https://openrgb.org/releases/release_0.9/60-openrgb.rules",
+      "unpack": false,
+      "hash": "sha256-txvs6bHped0IVUoktwA7bXu2136lVOJhNUI/hMGvqzg="
+    },
     "spoons": {
       "type": "Git",
       "repository": {
@@ -40,10 +46,11 @@
       "hash": "sha256-PXAY01O/cHvAdWx3V/pyWFeiV5qJGvLcAKhl5DQc0Ps="
     },
     "zerobox": {
-      "type": "Tarball",
+      "type": "Url",
       "url": "https://github.com/afshinm/zerobox/releases/download/v0.3.3/zerobox-x86_64-unknown-linux-gnu.tar.gz",
+      "unpack": true,
       "hash": "sha256-1bWLYyER6dn7W+f/m9k4tVQuUrQdeoT7agNBKV0KoJc="
     }
   },
-  "version": 7
+  "version": 8
 }

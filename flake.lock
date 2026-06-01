@@ -227,11 +227,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1776698769,
-        "narHash": "sha256-GelwBD5XrSO9/bpcVrB4QZfXYJf4EUsiu+zgQoGeYQw=",
+        "lastModified": 1780341420,
+        "narHash": "sha256-s3i9TMBGfzqtgbIfzmF9zSzIkX0Lrpn91nZUKyV2wVQ=",
         "owner": "nix-community",
         "repo": "home-manager",
-        "rev": "1072f064e2c47a249f09800e7c0fe4e96ab9b433",
+        "rev": "8962c2a0f464a5054bb77fade78eac568cd01264",
         "type": "github"
       },
       "original": {
@@ -401,11 +401,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1777425547,
-        "narHash": "sha256-d57AbflkNfZNoFaZDzssEq1RfPoM9dLtOGI2O+N/68Q=",
+        "lastModified": 1780246643,
+        "narHash": "sha256-4T1KWX7xWGQMs9hNZ24IOY3aYOi8D6+5WtkNRBSttB8=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "ebc08544afa77957cc348ba72dc490ec73b87f68",
+        "rev": "3109eaae18e09d0b8aef23dc2579e7d94b8d4b4e",
         "type": "github"
       },
       "original": {
@@ -413,18 +413,6 @@
         "ref": "nixpkgs-unstable",
         "repo": "nixpkgs",
         "type": "github"
-      }
-    },
-    "openrgb-udev-rules": {
-      "flake": false,
-      "locked": {
-        "narHash": "sha256-UmobZnEuLEIwmWEV+nabGgTTERTMa6mUywG4GADZu2c=",
-        "type": "file",
-        "url": "https://openrgb.org/releases/release_0.9/60-openrgb.rules"
-      },
-      "original": {
-        "type": "file",
-        "url": "https://openrgb.org/releases/release_0.9/60-openrgb.rules"
       }
     },
     "root": {
@@ -442,8 +430,7 @@
         "nix-gl-host": "nix-gl-host",
         "nix-index-database": "nix-index-database",
         "nix-mk-shell-bin": "nix-mk-shell-bin",
-        "nixpkgs": "nixpkgs_3",
-        "openrgb-udev-rules": "openrgb-udev-rules"
+        "nixpkgs": "nixpkgs_3"
       }
     },
     "rust-overlay": {

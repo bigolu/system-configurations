@@ -2,7 +2,7 @@
   lib,
   pkgs,
   repositoryDirectory,
-  inputs,
+  pins,
   utils,
   ...
 }:
@@ -35,7 +35,7 @@ in
   system = {
     file = {
       "/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/dotfiles/sysctl/local.conf";
-      "/usr/lib/udev/60-openrgb.rules".source = inputs.openrgb-udev-rules;
+      "/usr/lib/udev/60-openrgb.rules".source = pins.openrgb-udev-rules;
     };
 
     activation = {

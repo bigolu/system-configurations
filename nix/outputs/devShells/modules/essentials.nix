@@ -39,14 +39,7 @@ in
   gcRoot.roots = {
     flake = {
       inherit inputs;
-      exclude =
-        if isLinux then
-          [ "nix-darwin" ]
-        else
-          [
-            "nix-gl-host"
-            "openrgb-udev-rules"
-          ];
+      exclude = if isLinux then [ "nix-darwin" ] else [ "nix-gl-host" ];
     };
 
     paths = optionals (!isCiDevShell) (

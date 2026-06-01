@@ -20,11 +20,11 @@ shopt -s inherit_errexit
 lefthook_command=(lefthook run check)
 for arg in "$@"; do
 	if [[ $arg != "${usage_start:?}" ]]; then
-		_lefthook_command+=("$arg")
+		lefthook_command+=("$arg")
 	fi
 done
 if [[ ${ALL_FILES:-} == 'true' ]]; then
-	_lefthook_command+=(--all-files)
+	lefthook_command+=(--all-files)
 fi
 
 if [[ $usage_start == 'HEAD' ]]; then

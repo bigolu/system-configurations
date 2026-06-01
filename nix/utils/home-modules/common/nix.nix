@@ -9,59 +9,10 @@ let
   inherit (pkgs) stdenv;
   inherit (stdenv) isLinux isDarwin;
   inherit (lib)
-    hm
-    getExe
-    makeBinPath
     optionals
     optionalAttrs
-    getExe'
     optionalString
     ;
-
-  syncNixVersionWithSystem =
-    let
-      nixPackage = pkgs.lixPackageSet.lix;
-      nix = getExe nixPackage;
-      nix-env = getExe' nixPackage "nix-env";
-    in
-    hm.dag.entryAnywhere ''
-      PATH="${
-        makeBinPath (
-          with pkgs;
-          [
-            coreutils
-            jq
-          ]
-        )
-      }:$PATH"
-
-      desired_store_paths=(${nixPackage} ${pkgs.cacert})
-      store_path_diff="$(
-        comm -3 \
-        <(sudo --set-home ${nix} profile list --json | jq --raw-output '.elements | keys[] as $k | .[$k].storePaths[]' | sort) \
-        <(printf '%s\n' "''${desired_store_paths[@]}" | sort)
-      )"
-      if [[ -n "$store_path_diff" ]]; then
-        sudo --set-home ${nix} profile remove '.*'
-        sudo --set-home ${nix} profile install "''${desired_store_paths[@]}"
-        sudo --set-home ${nix-env} --delete-generations old
-
-        # Restart the daemon so we can use the daemon from the version of nix we just
-        # installed, but first restart the service manager in case the service
-        # definition changed.
-        if [[ $OSTYPE == linux* ]]; then
-          sudo systemctl daemon-reload
-          sudo systemctl restart nix-daemon.socket
-        else
-          sudo launchctl unload /Library/LaunchDaemons/org.nixos.nix-daemon.plist
-          sudo launchctl load /Library/LaunchDaemons/org.nixos.nix-daemon.plist
-        fi
-        while ! nix-store -q --hash ${stdenv.shell} &>/dev/null; do
-          echo "waiting for nix-daemon" >&2
-          sleep 0.5
-        done
-      fi
-    '';
 in
 {
   imports = [
@@ -77,10 +28,6 @@ in
   };
 
   system = {
-    activation = {
-      inherit syncNixVersionWithSystem;
-    };
-
     file = {
       "/usr${optionalString isDarwin "/local"}/share/fish/vendor_conf.d/zz-nix-fix.fish".source =
         "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
@@ -112,6 +59,7 @@ in
         nix-search-cli
         nix-sweep
         nixpkgs-track
+        dix
       ]
       ++ optionals isLinux [
         # for breakpointHook:

@@ -47,15 +47,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # I would like to fetch this with npins, but it's not supported[1].
-    #
-    # [1]: https://github.com/andir/npins/issues/163
-    openrgb-udev-rules = {
-      url = "https://openrgb.org/releases/release_0.9/60-openrgb.rules";
-      flake = false;
-      type = "file";
-    };
-
     flake-utils.url = "github:numtide/flake-utils";
 
     devshell-modules.url = "github:bigolu/devshell-modules";

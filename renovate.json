@@ -13,7 +13,7 @@
       "matchManagers": ["nix"],
       "postUpgradeTasks": {
         "commands": [
-          "nix run --file . devShells.ci-essentials -- mise run lefthook:add-lix-version-to-readme ::: lefthook:add-go-version-to-go-mod"
+          "nix run --file . devShells.ci-essentials -- mise run lefthook:add-go-version-to-go-mod"
         ]
       }
     },
