@@ -55,15 +55,19 @@ pre-push:
       run: |
         set -eu
         before="$(git rev-parse HEAD)"
-        # Run an interactive rebase to check the commits that haven't been pushed yet.
+        # Run an interactive rebase to check the commits that haven't been
+        # pushed yet.
         #
         # Stop the sequence editor from launching by setting it to a no-op.
+        #
+        # TODO: Despite me enabling `interactive`, this script doesn't get
+        # connected to /dev/tty so I have to do it with manual redirections.
         git \
           -c sequence.editor=: \
           rebase \
           --interactive \
           --exec 'mise run check' \
-          "$(git merge-base '@{push}' HEAD)"
+          "$(git merge-base '@{push}' HEAD)" </dev/tty >/dev/tty 2>&1
         after="$(git rev-parse HEAD)"
         # A commit was changed so abort the push by exiting with a non-zero code.
         if [ "$before" != "$after" ]; then
