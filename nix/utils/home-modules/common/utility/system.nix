@@ -72,19 +72,21 @@ in
     ) config.system.activation;
 
     system.activation = {
-      installSystemFiles =
-        let
-          group = if isLinux then "sudo" else "wheel";
-        in
-        hm.dag.entryAfter [ "writeBoundary" ] ''
-          ${foldl (acc: next: ''
-            ${acc}
-            sudo install \
-              --compare -D --no-target-directory \
-              --owner=root --group=${group} --mode='u=rwx,g=r,o=r' \
-              ${escapeShellArg next.source} ${escapeShellArg next.target}
-          '') "" (attrValues config.system.file)}
-        '';
+      installSystemFiles = hm.dag.entryAfter [ "writeBoundary" ] ''
+        if [[ "$(uname)" = Darwin ]] || grep -q fedora </etc/os-release; then
+          group=wheel
+        else
+          group=sudo
+        fi
+
+        ${foldl (acc: next: ''
+          ${acc}
+          sudo install \
+            --compare -D --no-target-directory \
+            --owner=root --group="''$group" --mode='u=rwx,g=r,o=r' \
+            ${escapeShellArg next.source} ${escapeShellArg next.target}
+        '') "" (attrValues config.system.file)}
+      '';
     }
     // optionalAttrs isLinux {
       udev = hm.dag.entryAfter [ "installSystemFiles" ] ''

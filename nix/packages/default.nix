@@ -27,8 +27,7 @@ let
   lixOverlay =
     final: prev:
     let
-      # Lix no longer supports x86_64-darwin
-      lixPackageSet = final.lixPackageSets.${if isLinux then "latest" else "lix_2_94"};
+      lixPackageSet = final.lixPackageSets.latest;
     in
     {
       lixPackageSet = lixPackageSet // {
