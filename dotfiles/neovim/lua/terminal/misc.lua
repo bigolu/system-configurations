@@ -99,20 +99,18 @@ vim.keymap.set("n", "<C-q>", function()
 		local is_linked_to_file = #vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()) > 0
 		-- Only `confirm` if the buffer is linked to a file
 		if is_linked_to_file then
-			vim.cmd([[
-        confirm qall
-      ]])
+			vim.cmd([[confirm qall]])
 		else
 			-- add '!' to ignore unsaved changes
-			vim.cmd([[
-        qall!
-      ]])
+			vim.cmd([[qall!]])
 		end
 		return
 	end
 
 	vim.cmd.close()
 end, { silent = true, desc = "Close pane [split,window]" })
+
+vim.keymap.set("i", "<C-v>", "<C-r>+")
 -- }}}
 
 -- Autosave {{{
