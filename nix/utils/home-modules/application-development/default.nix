@@ -51,8 +51,6 @@ in
         recursive = true;
       };
       "direnv/direnv.toml".source = "direnv/direnv.toml";
-      "direnv/direnvrc".source = "direnv/direnvrc";
-      "direnv/autocomplete-hooks.fish".source = "direnv/autocomplete-hooks.fish";
       # Zed only recognizes the ".json" extension, but it's actually jsonc
       "zed/settings.json".source = "zed/settings.jsonc";
     };
