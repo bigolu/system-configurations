@@ -4,7 +4,7 @@ let
 in
 {
   imports = [
-    # For extension "llllvvuu.llllvvuu-glspc"
+    # For extension "maximsmol.vscode-lsp-generic"
     {
       devshell.packages = with pkgs; [
         efm-langserver
