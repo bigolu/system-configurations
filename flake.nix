@@ -57,10 +57,10 @@
       url = "github:bigolu/direnv-shell-hooks";
       inputs = {
         nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
 
         # Remove development dependencies
         devshell.follows = "";
-        flake-compat.follows = "flake-compat";
         devshell-modules.follows = "";
       };
     };
