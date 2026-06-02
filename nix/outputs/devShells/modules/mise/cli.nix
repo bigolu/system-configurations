@@ -18,8 +18,9 @@ in
 
     export NIX_SHEBANG_NIXPKGS="$PWD/nix/packages"
 
-    # I don't want to make GC roots outside of CI because unlike CI, where new
-    # virtual machines are created for each run, they'll just accumulate.
+    # We include all dependencies for nix shebang scripts in the dev shell. And
+    # since we make a GC root for the dev shell, we don't need GC roots for the
+    # individual nix shebang scripts.
     if [[ ''${CI:-} == 'true' ]]; then
       export NIX_SHEBANG_GC_ROOTS_DIR="$(${mktemp} --directory)"
     fi
