@@ -12,20 +12,15 @@
 #     able to handle all of the environment management themselves so they can be
 #     less dependent on direnv. To help with this, I wrote a nix utility that
 #     handles GC roots.
-#   - No manual reload: If you want to reload manually, you can use my
-#     direnv-manual-reload plugin. In most of the `.envrc` files that I've seen,
-#     the only thing done is loading a devshell so a dedicated command to reload
-#     nix would be redundant.
+#   - No manual reload: I don't see the need for it.
 #   - No automatic file watching: I don't think there's a way to do it that will
 #     satisfy all use cases so users will still have to run `watch_{file,dir}`
 #     themselves. It's also a bit expensive to call since it runs `direnv` so
-#     ideally you only call it once. And if users don't like the files that were
-#     automatically watched, I'd have to also provide an option to disable it.
-#     Instead, you can try something like the following which should work for
-#     most cases:
+#     ideally you only call it once. Instead, you can try something like the
+#     following which should work for most cases:
 #     ```
 #     shopt -s globstar
-#     watch_dir nix **/*.nix **/flake.lock
+#     watch_file **/*.nix **/flake.lock
 #     shopt +s globstar
 #     ```
 #
