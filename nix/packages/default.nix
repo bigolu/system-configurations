@@ -38,7 +38,11 @@ let
         comma = prev.comma.override { nix = lixPackageSet.lix; };
       };
     };
-  nixpkgs = context.nixpkgs.extend lixOverlay;
+
+  nixpkgs = context.nixpkgs.appendOverlays [
+    lixOverlay
+    inputs.direnv-shell-hooks.outputs.overlays.default
+  ];
 
   inherit (nixpkgs.stdenv) isLinux;
 

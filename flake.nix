@@ -52,6 +52,18 @@
     devshell-modules.url = "github:bigolu/devshell-modules";
 
     llm-agents.url = "github:numtide/llm-agents.nix";
+
+    direnv-shell-hooks = {
+      url = "github:bigolu/direnv-shell-hooks";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+
+        # Remove development dependencies
+        devshell.follows = "";
+        flake-compat.follows = "flake-compat";
+        devshell-modules.follows = "";
+      };
+    };
   };
 
   outputs =
