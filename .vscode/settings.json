@@ -36,8 +36,5 @@
       }
     }
   },
-  "json.schemaDownload.trustedDomains": {
-    "https://raw.githubusercontent.com/LuaLS/vscode-lua/": true,
-    "https://docs.renovatebot.com/": true
-  }
+  "json.schemaDownload.trustedDomains": { "*": true }
 }

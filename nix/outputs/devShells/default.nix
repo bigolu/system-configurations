@@ -47,7 +47,7 @@ makeShells
         startup.repl-overlay.text = ''
           export NIX_CONFIG="
             ''${NIX_CONFIG:-}
-            extra-repl-overlays = $PWD/nix/repl-overlay.nix
+            extra-repl-overlays = $PRJ_ROOT/nix/repl-overlay.nix
           "
         '';
       };
