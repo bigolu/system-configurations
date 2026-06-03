@@ -1,15 +1,5 @@
 vim.opt.matchpairs:append("<:>")
 
--- select the text that was just pasted
-vim.keymap.set({ "n" }, "gp", function()
-	vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "y", LastPasteStartLine, LastPasteStartCol, {})
-	vim.api.nvim_buf_set_mark(vim.api.nvim_get_current_buf(), "z", LastPasteEndLine, LastPasteEndCol, {})
-	return string.format("`y%s`z", (LastPasteStartLine == LastPasteEndLine) and "v" or "V")
-end, {
-	desc = "Last pasted text",
-	expr = true,
-})
-
 -- move to left and right side of last selection
 vim.keymap.set({ "n" }, "[v", "'<", {
 	desc = "Start of last selection",
