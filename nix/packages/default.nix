@@ -41,6 +41,7 @@ let
   nixpkgs = context.nixpkgs.appendOverlays [
     lixOverlay
     inputs.direnv-shell-hooks.outputs.overlays.default
+    inputs.git-auto-sync.outputs.overlays.default
   ];
 
   inherit (nixpkgs.stdenv) isLinux;

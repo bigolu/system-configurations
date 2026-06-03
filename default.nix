@@ -54,6 +54,7 @@ import ./nix/make-outputs.nix {
       nix-gl-host.outputs = inputs.nix-gl-host.packages.${system}.default;
       devshell-modules.outputs = import inputs.devshell-modules;
       direnv-shell-hooks.outputs = (import "${inputs.direnv-shell-hooks}/nix/flake-compat.nix").outputs;
+      git-auto-sync.outputs = (import "${inputs.git-auto-sync}/nix/flake-compat.nix").outputs;
       devshell.outputs = import inputs.devshell {
         inherit nixpkgs;
         inputs = { inherit (inputs) nixpkgs; };

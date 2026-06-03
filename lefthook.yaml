@@ -18,14 +18,14 @@ output:
   - failure
 
 templates:
-  # When `auto-sync` runs, some of the sync jobs may depend on something from the new
+  # When `git-auto-sync` runs, some of the sync jobs may depend on something from the new
   # nix dev shell.
   #
   # Use `|-` so words put next to this template are put on same line as the last line
   # in this template, making them arguments to the function call.
   run_in_dev_shell: |-
     run_in_dev_shell() {
-      if [ -n "${AUTO_SYNC_LAST_COMMIT:-}" ]; then
+      if [ -n "${GIT_AUTO_SYNC_LAST_COMMIT:-}" ]; then
         nix run --file . devShells.development -- "$@"
       else
         "$@"
@@ -80,7 +80,7 @@ post-rewrite:
       # Some of the jobs in the `sync` group have `interactive` enabled so it needs
       # to be enabled here as well.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-rewrite' mise run auto-sync {0} -- lefthook run sync
+      run: GIT_AUTO_SYNC_HOOK_NAME='post-rewrite' git-auto-sync {0} -- lefthook run sync
 
 post-merge:
   jobs:
@@ -88,7 +88,7 @@ post-merge:
       # Some of the jobs in the `sync` group have `interactive` enabled so it needs
       # to be enabled here as well.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-merge' mise run auto-sync {0} -- lefthook run sync
+      run: GIT_AUTO_SYNC_HOOK_NAME='post-merge' git-auto-sync {0} -- lefthook run sync
 
 post-checkout:
   jobs:
@@ -96,12 +96,12 @@ post-checkout:
       # Some of the jobs in the `sync` group have `interactive` enabled so it needs
       # to be enabled here as well.
       interactive: true
-      run: AUTO_SYNC_HOOK_NAME='post-checkout' mise run auto-sync {0} -- lefthook run sync
+      run: GIT_AUTO_SYNC_HOOK_NAME='post-checkout' git-auto-sync {0} -- lefthook run sync
 
 post-commit:
   jobs:
     - name: sync
-      run: AUTO_SYNC_HOOK_NAME='post-commit' mise run auto-sync
+      run: GIT_AUTO_SYNC_HOOK_NAME='post-commit' git-auto-sync
 
 # Custom Hooks
 # -----------------------------------------------------------------------------------
@@ -119,8 +119,8 @@ sync:
   # "Custom Hooks" heading for why that is.
   files: |
     set -eu
-    if [ -n "${AUTO_SYNC_LAST_COMMIT:-}" ]; then
-      git diff --name-only "$AUTO_SYNC_LAST_COMMIT" HEAD
+    if [ -n "${GIT_AUTO_SYNC_LAST_COMMIT:-}" ]; then
+      git diff --name-only "$GIT_AUTO_SYNC_LAST_COMMIT" HEAD
     else
       git ls-files
     fi

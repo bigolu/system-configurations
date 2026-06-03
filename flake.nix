@@ -64,6 +64,18 @@
         devshell-modules.follows = "";
       };
     };
+
+    git-auto-sync = {
+      url = "github:bigolu/git-auto-sync";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
+
+        # Remove development dependencies
+        devshell.follows = "";
+        devshell-modules.follows = "";
+      };
+    };
   };
 
   outputs =
