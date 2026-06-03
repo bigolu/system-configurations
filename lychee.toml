@@ -60,7 +60,6 @@ exclude = [
   'https://openrgb\.org/releases/release_0\.9/60-openrgb\.rules',
 ]
 exclude_path = [
-  '^gozip/gomod2nix.toml$',
   '^.vscode/ltex',
   '^dotfiles/keyboard/US keyboard - no accent keys.bundle/',
   '^dotfiles/cosmic/config/',

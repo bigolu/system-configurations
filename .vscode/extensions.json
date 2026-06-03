@@ -2,7 +2,6 @@
   "recommendations": [
     "bmalehorn.vscode-fish",
     "editorconfig.editorconfig",
-    "golang.go",
     "hangxingliu.vscode-systemd-support",
     "jnoortheen.nix-ide",
     "ltex-plus.vscode-ltex-plus",

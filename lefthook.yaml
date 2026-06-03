@@ -139,7 +139,7 @@ sync:
         # Everything below affects the nix dev shell, which direnv loads
         - "**/*.nix"
         - flake.lock
-        - "{nix,npins,gozip,mise/tasks}/**/*"
+        - "{nix,npins,mise/tasks}/**/*"
       run: |
         direnv reload
         direnv exec . true
@@ -176,7 +176,6 @@ check:
   # Files in the HEAD commit
   files: git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
   exclude:
-    - gozip/gomod2nix.toml
     - ".vscode/ltex*"
     - dotfiles/keyboard/US keyboard - no accent keys.bundle/**/*
     - dotfiles/cosmic/config/**/*
@@ -219,9 +218,6 @@ check:
             exclude:
               - npins/**/*
             run: mise run lefthook:add-config-names-to-readme
-          - name: gomod2nix
-            glob: gozip/go.mod
-            run: gomod2nix --dir gozip generate --with-deps
           - name: task-docs
             glob: mise/**/*
             # TODO: markdown2html-converter hasn't been updated in a couple years.
@@ -269,12 +265,6 @@ check:
           - name: markdownlint-cli2
             glob: "**/*.md"
             run: markdownlint-cli2 --fix {files}
-          - name: go-mod-tidy
-            glob: gozip/go.{mod,sum}
-            run: go -C gozip mod tidy
-          - name: go-version
-            glob: flake.lock
-            run: mise run lefthook:add-go-version-to-go-mod
           - name: npins
             glob:
               - flake.lock
@@ -334,9 +324,6 @@ check:
           - name: stylua
             glob: "**/*.lua"
             run: stylua --verify {files}
-          - name: gofmt
-            glob: "**/*.go"
-            run: gofmt -w {files}
     - name: lint
       group:
         parallel: true
@@ -386,11 +373,6 @@ check:
                 --logpath "$(mktemp --directory)/lua-ls-logs" \
                 --check ./dotfiles/neovim \
                 --configpath "$PWD/.luarc.json"
-          - name: staticcheck
-            glob: "**/*.go"
-            # I'm not using the `root` setting to change directory because it also
-            # acts as a file filter, which I don't want.
-            run: "cd gozip && staticcheck ./..."
           - name: keyd
             only:
               - run: command -v keyd
@@ -413,7 +395,6 @@ check:
         - npins/**/*
         - nix/**/*
         - dotfiles/**/*
-        - gozip/**/*
       run: |
         bash -eu -o pipefail -c '
           dest="$PRJ_DATA_DIR/gc-roots/checks"

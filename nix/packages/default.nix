@@ -90,16 +90,10 @@ recursiveUpdateList [
 
     resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
     nix-gl-host = inputs.nix-gl-host.outputs;
-    inherit (inputs.gomod2nix.outputs)
-      gomod2nix
-      buildGoApplication
-      mkGoEnv
-      mkGoCacheEnv
-      hooks
-      ;
 
     zerobox = nixpkgs.linkFarm "zerobox" { "bin/zerobox" = pins.zerobox; };
     makePortableHome = inputs.nix-portable-home.outputs;
+    bundlerRootless = inputs.nix-rootless-bundler.outputs.bundlers.${system}.rootless;
 
     neovim =
       let

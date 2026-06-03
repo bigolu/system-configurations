@@ -336,9 +336,11 @@
     "gomod2nix": {
       "inputs": {
         "flake-utils": [
+          "nix-rootless-bundler",
           "flake-utils"
         ],
         "nixpkgs": [
+          "nix-rootless-bundler",
           "nixpkgs"
         ]
       },
@@ -517,6 +519,35 @@
         "type": "github"
       }
     },
+    "nix-rootless-bundler": {
+      "inputs": {
+        "devshell": [],
+        "devshell-modules": [],
+        "flake-compat": [
+          "flake-compat"
+        ],
+        "flake-utils": [
+          "flake-utils"
+        ],
+        "gomod2nix": "gomod2nix",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1780530728,
+        "narHash": "sha256-0EmK0BMD5eDRA9dWkhCU0O5Bjuy49IEipCHdrkQ24hM=",
+        "owner": "bigolu",
+        "repo": "nix-rootless-bundler",
+        "rev": "b216217f893a5cb27a8f99be1fc7a8597c0a2192",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bigolu",
+        "repo": "nix-rootless-bundler",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1778869304,
@@ -586,7 +617,6 @@
         "flake-utils": "flake-utils",
         "git-auto-sync": "git-auto-sync",
         "gitignore": "gitignore",
-        "gomod2nix": "gomod2nix",
         "home-manager": "home-manager",
         "llm-agents": "llm-agents",
         "nix-darwin": "nix-darwin",
@@ -595,6 +625,7 @@
         "nix-index-database": "nix-index-database",
         "nix-mk-shell-bin": "nix-mk-shell-bin",
         "nix-portable-home": "nix-portable-home",
+        "nix-rootless-bundler": "nix-rootless-bundler",
         "nixpkgs": "nixpkgs_3"
       }
     },

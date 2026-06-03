@@ -3,7 +3,6 @@
 .envrc
 .env
 .lycheecache
-gozip/vendor
 
 # nix
 result

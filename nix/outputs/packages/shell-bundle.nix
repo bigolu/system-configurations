@@ -6,7 +6,7 @@
 let
   inherit (pkgs) runCommand closureInfo;
 
-  shellBundle = outputs.bundlers.rootless outputs.packages.shell;
+  shellBundle = pkgs.bundlerRootless outputs.packages.shell;
   shellBundleSize = "${closureInfo { rootPaths = [ shellBundle ]; }}/total-nar-size";
 in
 runCommand shellBundle.name { } ''

@@ -34,7 +34,6 @@ makeShells
   {
     development = {
       imports = [
-        ./modules/gozip.nix
         ./modules/mise/tasks.nix
         ./modules/mise/task-autocomplete.nix
         ./modules/vscode.nix

@@ -17,7 +17,6 @@
       "documentSelector": [{ "pattern": "**", "scheme": "file" }]
     }
   },
-  "go.lintOnSave": "off",
   "ltex.completionEnabled": true,
   "ltex.enabled": ["git-commit", "markdown"],
   "Lua.misc.executablePath": "lua-language-server",

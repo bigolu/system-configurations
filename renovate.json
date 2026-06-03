@@ -8,20 +8,6 @@
       // The base preset adds a prefix to certain update types, but I don't
       // want one so I'll remove it.
       "additionalBranchPrefix": ""
-    },
-    {
-      "matchManagers": ["nix"],
-      "postUpgradeTasks": {
-        "commands": [
-          "nix run --file . devShells.ci-essentials -- mise run lefthook:add-go-version-to-go-mod"
-        ]
-      }
-    },
-    {
-      // I'll use the version of Go that nixpkgs has
-      "matchDatasources": ["golang-version"],
-      "matchDepNames": ["go"],
-      "enabled": false
     }
   ]
 }

@@ -2,8 +2,6 @@
 {
   imports = [
     ../cli.nix
-    # For `gofmt`, `go mod tidy`, and `go-tools`
-    ../../gozip.nix
   ];
 
   devshell.packages = with pkgs; [
@@ -13,8 +11,6 @@
     deadnix
     editorconfig-checker
     fish
-    go-tools
-    gomod2nix
     lua-language-server
     markdown2html-converter
     markdownlint-cli2

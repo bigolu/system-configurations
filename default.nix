@@ -58,6 +58,8 @@ import ./nix/make-outputs.nix {
       nix-portable-home.outputs =
         nixpkgs.callPackage "${inputs.nix-portable-home}/nix/outputs/legacyPackages/makePortableHome"
           { };
+      nix-rootless-bundler.outputs =
+        (import "${inputs.nix-rootless-bundler}/nix/flake-compat.nix").outputs;
       devshell.outputs = import inputs.devshell {
         inherit nixpkgs;
         inputs = { inherit (inputs) nixpkgs; };
@@ -65,15 +67,6 @@ import ./nix/make-outputs.nix {
       home-manager.outputs = (import inputs.home-manager { pkgs = nixpkgs; }) // {
         nix-darwin = "${inputs.home-manager}/nix-darwin";
       };
-      gomod2nix.outputs = nixpkgs.lib.makeScope nixpkgs.newScope (self: {
-        gomod2nix = self.callPackage inputs.gomod2nix.outPath { };
-        inherit (self.callPackage "${inputs.gomod2nix}/builder" { inherit (self) gomod2nix; })
-          buildGoApplication
-          mkGoEnv
-          mkGoCacheEnv
-          hooks
-          ;
-      });
       nix-darwin.outputs = (import inputs.nix-darwin { pkgs = nixpkgs; }) // {
         darwinSystem = nixpkgs.lib.pipe "${inputs.nix-darwin}/flake.nix" [
           import

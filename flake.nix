@@ -4,14 +4,6 @@
 
     flake-compat.url = "https://git.lix.systems/lix-project/flake-compat/archive/main.tar.gz";
 
-    gomod2nix = {
-      url = "github:nix-community/gomod2nix";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
-
     gitignore = {
       url = "github:hercules-ci/gitignore.nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -88,6 +80,19 @@
         devshell-modules.follows = "";
       };
     };
+
+    nix-rootless-bundler = {
+      url = "github:bigolu/nix-rootless-bundler";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+        flake-compat.follows = "flake-compat";
+
+        # Remove development dependencies
+        devshell.follows = "";
+        devshell-modules.follows = "";
+      };
+    };
   };
 
   outputs =
@@ -102,8 +107,6 @@
         };
       in
       {
-        bundlers.default = outputs.bundlers.rootless;
-
         apps.default = {
           type = "app";
           program = "${inputs.nixpkgs.lib.getExe outputs.packages.init-config}";

@@ -51,9 +51,6 @@ tools:
   stylua: &stylua
     format-stdin: true
     format-command: stylua --verify --stdin-filepath ${INPUT} -
-  gofmt: &gofmt
-    format-stdin: true
-    format-command: gofmt
   actionlint: &actionlint
     lint-source: actionlint
     lint-after-open: true
@@ -140,21 +137,6 @@ tools:
       esac
     lint-formats:
       - "%f:%l:%c: %m"
-  staticcheck: &staticcheck
-    lint-source: staticcheck
-    lint-after-open: true
-    lint-stdin: false
-    lint-on-save: true
-    lint-ignore-exit-code: true
-    # dependencies: jq
-    lint-command: |
-      cd gozip
-      staticcheck -f json ${INPUT} |
-        jq \
-          --raw-output \
-          '"\(.location.file):\(.location.line):\(.location.column): \(.message)"'
-    lint-formats:
-      - "%f:%l:%c: %m"
   editorconfig-checker: &editorconfig-checker
     lint-source: editorconfig-checker
     lint-after-open: true
@@ -211,9 +193,6 @@ languages:
     - <<: *nixpkgs-lint
   lua:
     - <<: *stylua
-  go:
-    - <<: *gofmt
-    - <<: *staticcheck
   properties:
     - <<: *keyd
   =:
