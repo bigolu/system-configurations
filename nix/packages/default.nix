@@ -99,6 +99,7 @@ recursiveUpdateList [
       ;
 
     zerobox = nixpkgs.linkFarm "zerobox" { "bin/zerobox" = pins.zerobox; };
+    makePortableHome = inputs.nix-portable-home.outputs;
 
     neovim =
       let

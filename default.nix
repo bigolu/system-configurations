@@ -55,6 +55,9 @@ import ./nix/make-outputs.nix {
       devshell-modules.outputs = import inputs.devshell-modules;
       direnv-shell-hooks.outputs = (import "${inputs.direnv-shell-hooks}/nix/flake-compat.nix").outputs;
       git-auto-sync.outputs = (import "${inputs.git-auto-sync}/nix/flake-compat.nix").outputs;
+      nix-portable-home.outputs =
+        nixpkgs.callPackage "${inputs.nix-portable-home}/nix/outputs/legacyPackages/makePortableHome"
+          { };
       devshell.outputs = import inputs.devshell {
         inherit nixpkgs;
         inputs = { inherit (inputs) nixpkgs; };
