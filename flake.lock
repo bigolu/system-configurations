@@ -535,11 +535,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780530728,
-        "narHash": "sha256-0EmK0BMD5eDRA9dWkhCU0O5Bjuy49IEipCHdrkQ24hM=",
+        "lastModified": 1780533761,
+        "narHash": "sha256-Loe+B4g5Ris6DbLsUkDTssbZs+ZPX/PXnLWoYKgzKWs=",
         "owner": "bigolu",
         "repo": "nix-rootless-bundler",
-        "rev": "b216217f893a5cb27a8f99be1fc7a8597c0a2192",
+        "rev": "2d62b9d777108846cccffe42a822d970a8d4d084",
         "type": "github"
       },
       "original": {

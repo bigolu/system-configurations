@@ -93,7 +93,7 @@ recursiveUpdateList [
 
     zerobox = nixpkgs.linkFarm "zerobox" { "bin/zerobox" = pins.zerobox; };
     makePortableHome = inputs.nix-portable-home.outputs;
-    bundlerRootless = inputs.nix-rootless-bundler.outputs.bundlers.${system}.rootless;
+    bundlerRootless = inputs.nix-rootless-bundler.outputs.bundlers.${system}.default;
 
     neovim =
       let
