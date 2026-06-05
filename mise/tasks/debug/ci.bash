@@ -1,6 +1,6 @@
-#!
-#! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils
+# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
+#! nix-shell -i bash
+#! nix-shell --packages bash coreutils
 #MISE description="Start a Bash shell in an environment that resembles CI"
 #USAGE arg "<nix_dev_shell>" help="The dev shell to load"
 #USAGE complete "nix_dev_shell" run=#" nix eval --raw --file . devShells --apply 'with builtins; shells: concatStringsSep "\n" (filter (name: substring 0 (stringLength "ci-") name == "ci-") (attrNames shells))' "#

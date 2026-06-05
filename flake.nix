@@ -32,8 +32,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-mk-shell-bin.url = "github:rrbutani/nix-mk-shell-bin";
-
     devshell = {
       url = "github:numtide/devshell";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -83,6 +81,19 @@
 
     nix-rootless-bundler = {
       url = "github:bigolu/nix-rootless-bundler";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-utils.follows = "flake-utils";
+        flake-compat.follows = "flake-compat";
+
+        # Remove development dependencies
+        devshell.follows = "";
+        devshell-modules.follows = "";
+      };
+    };
+
+    cached-nix-shell = {
+      url = "github:bigolu/cached-nix-shell";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-utils.follows = "flake-utils";

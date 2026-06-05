@@ -50,7 +50,6 @@ import ./nix/make-outputs.nix {
     inputs = nixpkgs.lib.recursiveUpdate inputs {
       nixpkgs.outputs = nixpkgs;
       gitignore.outputs = import inputs.gitignore { inherit (nixpkgs) lib; };
-      nix-mk-shell-bin.outputs.lib.mkShellBin = import "${inputs.nix-mk-shell-bin}/make.nix";
       nix-gl-host.outputs = inputs.nix-gl-host.packages.${system}.default;
       devshell-modules.outputs = import inputs.devshell-modules;
       direnv-shell-hooks.outputs = (import "${inputs.direnv-shell-hooks}/nix/flake-compat.nix").outputs;
@@ -60,6 +59,7 @@ import ./nix/make-outputs.nix {
           { };
       nix-rootless-bundler.outputs =
         (import "${inputs.nix-rootless-bundler}/nix/flake-compat.nix").outputs;
+      cached-nix-shell.outputs = (import "${inputs.cached-nix-shell}/nix/flake-compat.nix").outputs;
       devshell.outputs = import inputs.devshell {
         inherit nixpkgs;
         inputs = { inherit (inputs) nixpkgs; };

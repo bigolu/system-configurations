@@ -1,7 +1,4 @@
-{ pkgs, lib, ... }:
-let
-  mktemp = lib.getExe' pkgs.coreutils "mktemp";
-in
+{ pkgs, ... }:
 {
   devshell.packages = with pkgs; [
     mise
@@ -16,13 +13,12 @@ in
       echo >"$trust_marker"
     fi
 
-    export NIX_SHEBANG_NIXPKGS="$PWD/nix/packages"
+    export CNS_NIXPKGS="$PWD/nix/packages"
 
-    # We include all dependencies for nix shebang scripts in the dev shell. And
-    # since we make a GC root for the dev shell, we don't need GC roots for the
-    # individual nix shebang scripts.
-    if [[ ''${CI:-} == 'true' ]]; then
-      export NIX_SHEBANG_GC_ROOTS_DIR="$(${mktemp} --directory)"
-    fi
+    # We include the dependencies for all nix shebang scripts in the development
+    # devshell. Since we already make a GC root for the devshell, we don't need
+    # GC roots for individual nix shebang scripts in a development devshell,
+    # only CI.
+    export CNS_GC_ROOT="''${CI:-}"
   '';
 }

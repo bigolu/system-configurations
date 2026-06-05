@@ -12,13 +12,13 @@ let
     fileset
     ;
   inherit (utils) projectRoot;
-  inherit (pkgs) resolveNixShellShebang;
+  inherit (pkgs) parseNixShebang;
 in
 {
   devshell.packages = pipe (projectRoot + /mise/tasks) [
     (fileset.fileFilter (file: file.hasExt "bash"))
     fileset.toList
-    (concatMap (script: (resolveNixShellShebang script).packages))
+    (concatMap (script: (parseNixShebang script).packages))
     unique
   ];
 }

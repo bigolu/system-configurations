@@ -1,6 +1,6 @@
-#!
-#! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils run-as-admin nh
+# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
+#! nix-shell -i bash
+#! nix-shell --packages bash coreutils run-as-admin nh
 #MISE hide=true
 #USAGE arg "[config]" help="The name of the configuration to apply"
 

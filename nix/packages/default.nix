@@ -42,6 +42,10 @@ let
     lixOverlay
     inputs.direnv-shell-hooks.outputs.overlays.default
     inputs.git-auto-sync.outputs.overlays.default
+    inputs.cached-nix-shell.outputs.overlays.default
+    (_final: prev: {
+      parseNixShebang = prev.parseNixShebang.override { inherit pkgs; };
+    })
   ];
 
   inherit (nixpkgs.stdenv) isLinux;
@@ -88,10 +92,9 @@ recursiveUpdateList [
     # set it to `runCommand` to make the closure smaller.
     pkgs.runCommandCC = nixpkgs.runCommand;
 
-    resolveNixShellShebang = outputs.packages.resolveNixShellShebang.override { inherit pkgs; };
     nix-gl-host = inputs.nix-gl-host.outputs;
 
-    zerobox = nixpkgs.linkFarm "zerobox" { "bin/zerobox" = pins.zerobox; };
+    zerobox = nixpkgs.linkFarm "zerobox" { "bin/zerobox" = "${pins.zerobox}/zerobox"; };
     makePortableHome = inputs.nix-portable-home.outputs;
     bundlerRootless = inputs.nix-rootless-bundler.outputs.bundlers.${system}.default;
 
@@ -136,11 +139,6 @@ recursiveUpdateList [
           "toybox"
           "hostname"
           "strings"
-        ];
-        git-extras = filterPrograms nixpkgs.git-extras [
-          "git-wip"
-          "git-info"
-          "git-delete-merged-branches"
         ];
       }
       // optionalAttrs isLinux {
@@ -239,40 +237,6 @@ recursiveUpdateList [
           ' -- "$1"
         '';
       };
-
-    cached-nix-shell = nixpkgs.writeShellApplication {
-      name = "cached-nix-shell";
-      meta.description = ''
-        A wrapper for cached-nix-shell that adds a nixpkgs entry to NIX_PATH before
-        calling the real cached-nix-shell.
-      '';
-      text = ''
-        # The nixpkgs entry on the NIX_PATH is used for two things:
-        #   - nixpkgs.runCommandCC is used to run a shebang script
-        #   - The packages listed with -p/--packages are considered attribute
-        #     names in nixpkgs
-        #
-        # I intentionally set this variable through a wrapper and not
-        # through a dev shell to avoid breaking `comma`[1] in a development
-        # environment. If I did set it, then comma would use this nixpkgs
-        # instead of the one for my system. Even if I were ok with that, I
-        # didn't build an index for this nixpkgs so comma wouldn't be able to
-        # use it anyway.
-        #
-        # [1]: https://github.com/nix-community/comma
-        if [[ -n ''${NIX_SHEBANG_NIXPKGS:-} ]]; then
-          export NIX_PATH="nixpkgs=$NIX_SHEBANG_NIXPKGS''${NIX_PATH:+:$NIX_PATH}"
-        fi
-
-        ${
-          getExe (
-            nixpkgs.cached-nix-shell.overrideAttrs (old: {
-              patches = (old.patches or [ ]) ++ [ ./fix-trace.patch ];
-            })
-          )
-        } "$@"
-      '';
-    };
 
     # TODO: I shouldn't have to do this. Either nixpkgs should add the shell config
     # files or the tool itself should generate the files as part of its build script,

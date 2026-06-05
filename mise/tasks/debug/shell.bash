@@ -1,6 +1,6 @@
-#!
-#! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter coreutils
+# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
+#! nix-shell -i bash
+#! nix-shell --packages bash coreutils
 #MISE description="Start `.#shell` in an empty environment"
 #USAGE flag "-b --bundle" help="Use `nix bundle` (slower)"
 

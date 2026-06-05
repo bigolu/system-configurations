@@ -1,6 +1,6 @@
-#!
-#! nix-shell -i nix-shell-interpreter
-#! nix-shell --packages nix-shell-interpreter rsync
+# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
+#! nix-shell -i bash
+#! nix-shell --packages bash rsync
 #USAGE arg "<destination>" { choices "to-repo" "to-system" }
 
 # TODO: Regarding the choices above: I prefixed them to 'to-' so it's clear from the
