@@ -3,9 +3,12 @@
 # way you can edit a file and have the changes applied instantly without having to
 # switch generations.
 #
-# TODO: I probably wouldn't need this if Home Manager did what is suggested here:
-# https://github.com/nix-community/home-manager/issues/3032
-
+# Related: https://github.com/nix-community/home-manager/issues/3032
+{
+  # It takes a string/path and returns a string/path. For example, you can
+  # filter out files that aren't tracked by git.
+  directoryFilter ? (x: x),
+}:
 {
   lib,
   config,
@@ -26,8 +29,6 @@ let
     foldlAttrs
     pipe
     splitString
-    optionals
-    inPureEvalMode
     length
     pathExists
     filter
@@ -35,7 +36,6 @@ let
     listToAttrs
     hasAttr
     concatMap
-    isStorePath
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (lib.strings) unsafeDiscardStringContext;
@@ -56,12 +56,10 @@ in
       executable = mkOption {
         type = types.nullOr types.bool;
         default = null;
-        # Marked `internal` and `readOnly` since it needs to be passed to
-        # home-manager, but the user shouldn't set it. This is because permissions
-        # on a symlink are ignored, only the source's permissions are considered.
-        # Also I got an error when I tried to set it to `true`.
-        internal = true;
-        readOnly = true;
+        # Permissions on a symlink are ignored, only the source's permissions
+        # are considered.
+        internal = config.repository.fileSettings.editableInstall;
+        readOnly = config.repository.fileSettings.editableInstall;
       };
       recursive = mkOption {
         type = types.bool;
@@ -129,26 +127,24 @@ in
           description = "Use symlinks instead of copies.";
         };
 
-        relativePathRoot = mkOption {
-          type = types.oneOf [
-            types.str
-            types.path
-          ];
-          apply = toString;
-          description = "Relative paths used as the source for any file are assumed to be relative to this directory.";
-          default = if inPureEvalMode then config.repository.fileSettings.flake.root.path else null;
-        };
-
-        flake.root = {
-          # Only needed to turn absolute path strings to Paths if pure eval is
-          # enabled.
-          path = mkOption {
-            type = types.str;
-            description = "Absolute path to the root of the flake.";
+        relativePathRoot = {
+          symlink = mkOption {
+            type = types.oneOf [
+              types.str
+              types.path
+            ];
+            apply = toString;
+            description = "This is only used if you enable `editableInstall` and use a relative path for the source of any file. Symlinks will be made relative to this directory. You should only need to set this if you use flake pure evaluation.";
+            default = config.repository.fileSettings.relativePathRoot.access;
           };
-          storePath = mkOption {
-            type = types.path;
-            description = "Store path of the flake";
+
+          access = mkOption {
+            type = types.oneOf [
+              types.str
+              types.path
+            ];
+            apply = toString;
+            description = "If you use a relative path for the source of any file, they will be accessed using paths relative to this directory. For example, for listing the files in a directory or filtering its contents.";
           };
         };
       };
@@ -181,28 +177,15 @@ in
 
   config =
     let
-      flakePath = config.repository.fileSettings.flake.root.path;
-      flakeStorePath = config.repository.fileSettings.flake.root.storePath;
-      inherit (config.repository.fileSettings) relativePathRoot;
       isRelativePath = path: !hasPrefix "/" path;
-      toAbsolutePath =
-        fileSource: if isRelativePath fileSource then "${relativePathRoot}/${fileSource}" else fileSource;
-
-      toPath =
+      relativePathRootSymlink = config.repository.fileSettings.relativePathRoot.symlink;
+      relativePathRootAccess = config.repository.fileSettings.relativePathRoot.access;
+      toAbsolutePathSymlink =
         fileSource:
-        pipe fileSource (
-          [
-            toAbsolutePath
-          ]
-          ++ optionals inPureEvalMode [
-            # You can make a string into a Path by concatenating it with a Path.
-            # However, in pure evaluation mode all Paths must be inside the the
-            # nix store so we remove the path to the flake root and then append the
-            # result to the store path for the flake.
-            (removePrefix flakePath)
-            (sourceRelativeToFlakeRoot: flakeStorePath + sourceRelativeToFlakeRoot)
-          ]
-        );
+        if isRelativePath fileSource then "${relativePathRootSymlink}/${fileSource}" else fileSource;
+      toAbsolutePathAccess =
+        fileSource:
+        if isRelativePath fileSource then "${relativePathRootAccess}/${fileSource}" else fileSource;
 
       toHomeManagerFile =
         file:
@@ -233,8 +216,13 @@ in
           removeNonHomeManagerAttrs = file: removeAttrs file [ "removeExtension" ];
 
           homeManagerSource = pipe file.source [
-            toAbsolutePath
-            (if isEditableInstall then mkOutOfStoreSymlink else toPath)
+            (
+              source:
+              if isEditableInstall then
+                (mkOutOfStoreSymlink (toAbsolutePathSymlink source))
+              else
+                toAbsolutePathAccess source
+            )
             (callIf (isExecutable file && !isEditableInstall) replaceShebangInterpreter)
           ];
 
@@ -262,10 +250,8 @@ in
       getHomeManagerFileSetForFilesInDirectory =
         directory:
         pipe directory.source [
-          toPath
-
-          # Flakes have built-in gitignore support
-          (path: callIf (!inPureEvalMode) utils.gitFilter (if isStorePath path then path else /. + path))
+          toAbsolutePathAccess
+          directoryFilter
 
           # Use relative paths to account for the case where the source directory
           # doesn't match the directory we list the files from. This can happen
@@ -299,13 +285,10 @@ in
 
       assertions =
         let
-          # TODO: These paths should be normalized first
-          isRelativePathRootInFlakeDirectory = hasPrefix flakePath relativePathRoot;
-
           fileSourceExists =
             source:
             pipe source [
-              toPath
+              toAbsolutePathAccess
               pathExists
             ];
           fileSets = with config.repository; [
@@ -327,12 +310,6 @@ in
           {
             assertion = allFileSourcesExist;
             message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
-          }
-        ]
-        ++ optionals inPureEvalMode [
-          {
-            assertion = isRelativePathRootInFlakeDirectory;
-            message = "config.repository.fileSettings.relativePathRoot must be inside the flake directory. relativePathRoot: ${relativePathRoot}, flake directory: ${flakePath}";
           }
         ];
     in
