@@ -30,7 +30,7 @@
           "expr": "(import ./nix/flake-compat.nix).outputs.darwinConfigurations.comp_2.options"
         },
         "comp_1": {
-          "expr": "(import ./nix/flake-compat.nix).outputs.homeConfigurations.comp_1.options"
+          "expr": "(import ./nix/flake-compat.nix).outputsForCurrentSystem.legacyPackages.homeConfigurations.comp_1.options"
         }
       }
     }

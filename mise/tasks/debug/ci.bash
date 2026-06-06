@@ -16,13 +16,6 @@ shopt -s inherit_errexit
 temp_home="$(mktemp --directory)"
 temp_prj_data_dir="$(mktemp --directory)"
 function remove_temp_directories {
-	# Go doesn't set the write permission on the directories it creates[1] so we have
-	# to do that before deleting them.
-	#
-	# [1]: https://github.com/golang/go/issues/27161#issuecomment-418906507
-	if [[ -e "$temp_home/go" ]]; then
-		chmod --recursive +w "$temp_home/go"
-	fi
 	rm --recursive --force "$temp_home" "$temp_prj_data_dir"
 }
 trap remove_temp_directories EXIT
