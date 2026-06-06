@@ -11,9 +11,9 @@ shopt -s nullglob
 shopt -s inherit_errexit
 
 if [[ ${usage_bundle:-} == 'true' ]]; then
-	shell="$(nix build --no-link --print-out-paths --file . packages.shell-bundle)"
+	shell="$(nix build --no-link --print-out-paths --file nix/flake-compat.nix outputsForCurrentSystem.packages.shell-bundle)"
 else
-	shell_directory="$(nix build --print-out-paths --no-link --file . packages.shell)/bin"
+	shell_directory="$(nix build --print-out-paths --no-link --file nix/flake-compat.nix outputsForCurrentSystem.packages.shell)/bin"
 	# Use '*' so I don't have to hard code the program name
 	shell="$(echo "$shell_directory"/*)"
 fi

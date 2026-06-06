@@ -6,7 +6,7 @@ my machines.
 ## Initializing a Configuration
 
 1. In the last command below, replace `REPLACE_ME` with the name of the config
-   to apply. Valid config names are: `comp_1` `comp_2` `comp_3`. Then run the
+   to apply. Valid config names are: `biggs@comp_1` `biggs@comp_2`. Then run the
    commands which will install Nix and initialize the config.
 
    > NOTE: The [Lix installer][lix-installer] may have changed since this was

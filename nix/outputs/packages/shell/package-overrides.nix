@@ -1,7 +1,7 @@
 # Remove large or unnecessary packages from the portable shell
-{ pkgs, lib, ... }:
+pkgs:
 let
-  inherit (lib)
+  inherit (pkgs.lib)
     optionals
     foldl'
     recursiveUpdate

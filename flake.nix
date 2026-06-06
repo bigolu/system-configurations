@@ -21,7 +21,7 @@
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=v0.6.0";
 
-    nix-gl-host = {
+    nix-gl-host-rs = {
       url = "github:arilotter/nix-gl-host-rs";
       # TODO: It doesn't build with my version of nixpkgs
       # inputs.nixpkgs.follows = "nixpkgs";
@@ -104,24 +104,24 @@
         devshell-modules.follows = "";
       };
     };
+
+    blueprint = {
+      url = "github:numtide/blueprint";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
     inputs:
-    inputs.flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        outputs = import ./. {
-          inherit system;
-          nixpkgs = inputs.nixpkgs.legacyPackages.${system};
-          overrides = inputs;
+    inputs.blueprint {
+      inherit inputs;
+      prefix = "nix/outputs";
+      nixpkgs = {
+        overlays = [ (import ./nix/nixpkgs-overlay.nix) ];
+        config = {
+          # TODO: I should open an issue with the project for adding a license
+          allowUnfreePredicate = pkg: pkg.pname == "camelcasemotion";
         };
-      in
-      {
-        apps.default = {
-          type = "app";
-          program = "${inputs.nixpkgs.lib.getExe outputs.packages.init-config}";
-        };
-      }
-    );
+      };
+    };
 }

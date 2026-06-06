@@ -33,7 +33,7 @@ function make_shell_bundle {
 	gc_root_directory="$(mktemp --directory)"
 
 	local derivation
-	derivation="$(nix eval --raw --file . packages.shell-bundle.drvPath)"
+	derivation="$(nix eval --raw --file nix/flake-compat.nix outputsForCurrentSystem.packages.shell-bundle.drvPath)"
 
 	# The derivation relies on all the store paths in the bundle while the bundle
 	# itself doesn't depend on anything. Therefore, even if we already have the bundle,

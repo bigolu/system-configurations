@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 defaults:
   run:
-    shell: nix run --file . devShells.ci-essentials -- bash {0}
+    shell: nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.ci-essentials -- bash {0}
 permissions:
   # `cache-nix-gc-roots-action` needs this permission to purge old caches
   actions: "write"

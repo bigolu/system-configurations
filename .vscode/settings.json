@@ -24,13 +24,13 @@
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
     "nixd": {
-      "nixpkgs": { "expr": "import ./nix/packages" },
+      "nixpkgs": { "expr": "import ./nix/packages.nix" },
       "options": {
         "comp_2": {
-          "expr": "(import ./. {}).darwinConfigurations.comp_2.options"
+          "expr": "(import ./nix/flake-compat.nix).outputs.darwinConfigurations.comp_2.options"
         },
         "comp_1": {
-          "expr": "(import ./. {}).homeConfigurations.comp_1.options"
+          "expr": "(import ./nix/flake-compat.nix).outputs.homeConfigurations.comp_1.options"
         }
       }
     }

@@ -45,7 +45,7 @@ git_branchless_exec_command=(
 	# new values for these variables relative to the directory of the
 	# worktree.
 	env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
-	nix run --file . devShells.development --
+	nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.dev --
 
 	# We enable lefthook since it gets disabled below.
 	env LEFTHOOK=true

@@ -26,7 +26,7 @@ templates:
   run_in_dev_shell: |-
     run_in_dev_shell() {
       if [ -n "${GIT_AUTO_SYNC_LAST_COMMIT:-}" ]; then
-        nix run --file . devShells.development -- "$@"
+        nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.dev -- "$@"
       else
         "$@"
       fi
@@ -139,14 +139,14 @@ sync:
         # Everything below affects the nix dev shell, which direnv loads
         - "**/*.nix"
         - flake.lock
-        - "{nix,npins,mise/tasks}/**/*"
+        - "{nix,mise/tasks}/**/*"
       run: |
         direnv reload
         direnv exec . true
     - name: system
       glob:
         - lefthook.yaml
-        - "{nix,npins,smart_plug,dotfiles}/**/*"
+        - "{nix,smart_plug,dotfiles}/**/*"
         - "**/*.nix"
         - flake.lock
       # - So I can input my password for `sudo`
@@ -216,7 +216,7 @@ check:
           - name: readme-config-names
             glob: "**/*.nix"
             exclude:
-              - npins/**/*
+              - nix/pins/npins/**/*
             run: mise run lefthook:add-config-names-to-readme
           - name: task-docs
             glob: mise/**/*
@@ -248,17 +248,17 @@ check:
           - name: deadnix
             glob: "**/*.nix"
             exclude:
-              - npins/**/*
+              - nix/pins/npins/**/*
             run: deadnix --quiet --edit {files}
           - name: statix-fix
             glob: "**/*.nix"
             exclude:
-              - npins/**/*
+              - nix/pins/npins/**/*
               # I want to ignore a fix in this file, but statix doesn't support
               # ignoring fixes with comments[1] so I'll skip the whole file.
               #
               # [1]: https://github.com/oppiliappan/statix/issues/61
-              - nix/packages/default.nix
+              - nix/nixpkgs-overlay.nix
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix fix -- {files}
@@ -268,7 +268,7 @@ check:
           - name: npins
             glob:
               - flake.lock
-              - npins/**/*
+              - nix/pins/npins/**/*
             run: npins upgrade
           - name: shellcheck-fix
             glob: "**/*.{sh,bash}"
@@ -301,7 +301,7 @@ check:
           - name: prettier
             glob: "**/*.{md,json,jsonc,yaml}"
             exclude:
-              - npins/**/*
+              - nix/pins/npins/**/*
             run: |
               prettier \
                 --cache \
@@ -319,7 +319,7 @@ check:
           - name: nixfmt
             glob: "**/*.nix"
             exclude:
-              - npins/**/*
+              - nix/pins/npins/**/*
             run: nixfmt --verify {files}
           - name: stylua
             glob: "**/*.lua"
@@ -342,19 +342,19 @@ check:
           - name: statix-lint
             glob: "**/*.nix"
             exclude:
-              - npins/**/*
+              - nix/pins/npins/**/*
               # I want to ignore a fix in this file, but statix doesn't support
               # ignoring fixes with comments[1] so I'll skip the whole file.
               #
               # [1]: https://github.com/oppiliappan/statix/issues/61
-              - nix/packages/default.nix
+              - nix/nixpkgs-overlay.nix
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix check -- {files}
           - name: nixpkgs-lint
             glob: "**/*.nix"
             exclude:
-              - npins/**/*
+              - nix/pins/npins/**/*
             run: nixpkgs-lint --include-unfinished-lints -- {files}
           - name: typos
             run: typos {files}
@@ -392,12 +392,15 @@ check:
       glob:
         - "**/*.nix"
         - flake.lock
-        - npins/**/*
         - nix/**/*
         - dotfiles/**/*
       run: |
         bash -eu -o pipefail -c '
           dest="$PRJ_DATA_DIR/gc-roots/checks"
           rm -rf "$dest"
-          nix-fast-build --out-link "$dest/root" --file nix/current-platform-checks.nix
+          nix-fast-build \
+            --out-link "$dest/root" \
+            --file nix/flake-compat.nix \
+            -A outputsForCurrentSystem.checks \
+            --select "checks: builtins.removeAttrs checks [\"pkgs-shell-bundle\"]"
         '

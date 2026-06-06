@@ -66,5 +66,5 @@ exclude_path = [
   '^docs/',
   '^lychee.toml$',
   '^flake.lock$',
-  '^npins/',
+  '^nix/pins/npins/',
 ]

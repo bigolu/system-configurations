@@ -12,19 +12,23 @@ shopt -s inherit_errexit
 configs="$(
 	# shellcheck disable=2016
 	nix eval \
-		--file . context.outputs \
-		--apply '
-      outputs:
-        with builtins;
-        concatStringsSep
-          " "
-          (
-            map
-            (name: "`${name}`")
-            (attrNames (outputs.homeConfigurations // outputs.darwinConfigurations))
-          )
-    ' \
-		--raw
+		--impure \
+		--raw \
+		--expr '
+      let
+        inherit (builtins) attrNames concatMap attrValues;
+        flake = import ./nix/flake-compat.nix;
+        inherit (flake.inputs.nixpkgs.lib) concatMapStringsSep uniqueStrings;
+        homeConfigs = uniqueStrings (
+          concatMap
+            (lp: attrNames lp.homeConfigurations or {})
+            (attrValues flake.outputs.legacyPackages)
+        );
+        darwinConfigs = attrNames flake.outputs.darwinConfigurations;
+        configs = homeConfigs ++ darwinConfigs;
+      in
+      concatMapStringsSep " " (c: "`${c}`") configs
+    '
 )"
 
 perl -wsi -pe '

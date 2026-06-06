@@ -19,11 +19,11 @@ fi
 config="${usage_config:-$(<"${XDG_STATE_HOME:-$HOME/.local/state}/bigolu/system-config-name")}"
 if [[ $OSTYPE == linux* ]]; then
 	manager='home'
-	attr_path="homeConfigurations.$config"
+	attr_path="outputsForCurrentSystem.legacyPackages.homeConfigurations.$config"
 	flags+=(--backup-extension 'backup')
 else
 	manager='darwin'
-	attr_path="darwinConfigurations.$config"
+	attr_path="outputs.darwinConfigurations.$config"
 fi
 
 run_as_admin="$(type -P run-as-admin)"
@@ -33,4 +33,4 @@ shopt -s lastpipe
 env --null | readarray -d '' env_vars
 sudo -- "$run_as_admin" \
 	env "${env_vars[@]}" \
-	nh "$manager" switch "${flags[@]}" --file . "$attr_path"
+	nh "$manager" switch "${flags[@]}" --file nix/flake-compat.nix "$attr_path"

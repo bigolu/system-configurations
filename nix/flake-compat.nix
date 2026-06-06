@@ -3,13 +3,12 @@
 # since it allows me to access the flake without copying it to the store. This has
 # two advantages:
 #   - Performance
-#   - Avoids execessively invalidating cached-nix-shell's (CNS) cache. CNS works by
-#     tracing all files accessed while evaluating the nix shell. While
-#     evaluating the package set used by CNS, nix/packages/default.nix, this
-#     file gets imported to get the flake inputs. If we copied the source tree
-#     to the store, then all the files in the git repository, and many files
-#     in .git, would be included in the trace which would lead to more cache
-#     invalidations. This is due to flake's builtin gitignore support.
+#   - Avoids execessively invalidating cached-nix-shell's (CNS) cache. CNS works
+#     by tracing all files accessed while evaluating the nix shell. The flake
+#     API copies the source tree to the store so all the files in the git
+#     repository, and many files in .git, would be included in the trace which
+#     would lead to more cache invalidations. This is due to flake's builtin
+#     gitignore support.
 #
 # There's an open issue[2] in CppNix for copying flakes to the store lazily, but Lix
 # has no plans to implement it anytime soon[3] so I'll stick with flake-compat.
@@ -28,8 +27,27 @@ let
 
   flake = import flake-compat {
     src = ../.;
-    # See the comment at the top of the file for why this is done.
     copySourceTreeToStore = false;
   };
 in
-flake.defaultNix
+flake
+// {
+  # This is not part of flake-compat. I added it to make it easier to get
+  # an output for the current system.
+  outputsForCurrentSystem =
+    let
+      inherit (builtins)
+        mapAttrs
+        isAttrs
+        hasAttr
+        currentSystem
+        ;
+      # TODO: (On lix 2.95.1) If you call `mapAttrs` with an attrset that has a `__functor` attribute, it tries to call it.
+      # It doesn't happen in the REPL, but it does happen if you run `nix build --file flake.compat outputsForCurrentSystem.devShells.dev`.
+      flakeOutputsWithoutFunctor = builtins.removeAttrs flake.outputs [ "__functor" ];
+    in
+    mapAttrs (
+      _name: value:
+      if (isAttrs value && hasAttr currentSystem value) then value.${currentSystem} else value
+    ) flakeOutputsWithoutFunctor;
+}
