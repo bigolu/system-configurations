@@ -32,6 +32,7 @@ let
     hasAttr
     concatMap
     id
+    optional
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (lib.strings) unsafeDiscardStringContext;
@@ -313,12 +314,10 @@ in
 
           allFileSourcesExist = missingFileSourcesJoined == "";
         in
-        [
-          {
-            assertion = allFileSourcesExist;
-            message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
-          }
-        ];
+        optional config.repository.fileSettings.editableInstall {
+          assertion = allFileSourcesExist;
+          message = "The following config.repository file sources do not exist: ${missingFileSourcesJoined}";
+        };
     in
     {
       inherit assertions;
