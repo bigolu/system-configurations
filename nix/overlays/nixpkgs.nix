@@ -1,8 +1,8 @@
 let
   inherit (import ../flake-compat.nix) inputs;
 
-  # Unlike the one in nixpkgs, this one merges sets returned by each overlay
-  # recursively.
+  # Unlike the one in `nixpkgs.lib`, this one merges the sets returned by each
+  # overlay recursively.
   composeManyExtensions =
     let
       foldr =
