@@ -25,16 +25,17 @@
           name = "NPINS_DIRECTORY";
           eval = "$PRJ_ROOT/nix/pins/npins";
         }
+        {
+          name = "NIX_CONFIG";
+          eval = ''
+            "
+              ''${NIX_CONFIG:-}
+              extra-repl-overlays = $PRJ_ROOT/nix/repl-overlay.nix
+            "
+          '';
+        }
       ];
 
-      devshell = {
-        packages = with pkgs; [ npins ];
-        startup.repl-overlay.text = ''
-          export NIX_CONFIG="
-            ''${NIX_CONFIG:-}
-            extra-repl-overlays = $PRJ_ROOT/nix/repl-overlay.nix
-          "
-        '';
-      };
+      devshell.packages = with pkgs; [ npins ];
     };
 }).shell
