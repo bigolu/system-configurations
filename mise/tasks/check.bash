@@ -6,7 +6,7 @@
 #USAGE
 #USAGE arg "<start>" default="HEAD" long_help="The commit to start checking from. Commits from `start` to the current commit (`HEAD`) will be checked. By default only `HEAD` is checked."
 #USAGE
-#USAGE flag "--all-files" env="ALL_FILES" help="Check all files" long_help="For faster development, we decide whether a job runs, and which files it runs on, based on the files changed by the commit being checked. This way, you can skip checks that aren't related to the files you changed. However, sometimes a job is skipped when it shouldn't be so you can use this flag to consider all files changed instead of only the files changed in the commit being checked. Instead of using this flag, you can also set the environment variable `ALL_FILES` to `true`."
+#USAGE flag "--all-files" help="Check all files" long_help="For faster development, we decide whether a job runs, and which files it runs on, based on the files changed by the commit being checked. This way, you can skip checks that aren't related to the files you changed. However, sometimes a job is skipped when it shouldn't be so you can use this flag to consider all files changed instead of only the files changed in the commit being checked."
 #USAGE
 #USAGE flag "--job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
 #USAGE complete "job" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
@@ -23,9 +23,6 @@ for arg in "$@"; do
 		lefthook_command+=("$arg")
 	fi
 done
-if [[ ${ALL_FILES:-} == 'true' ]]; then
-	lefthook_command+=(--all-files)
-fi
 
 if [[ $usage_start == 'HEAD' ]]; then
 	# Normally, we use git-branchless to run the checks since it can check multiple
