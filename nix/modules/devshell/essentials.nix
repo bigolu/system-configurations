@@ -10,16 +10,16 @@
 let
   inherit (lib)
     optional
-    hasPrefix
     optionals
     elem
     filterAttrs
     attrValues
+    optionalAttrs
     ;
   inherit (pkgs.stdenv) isLinux;
 
   inherit (config.devshell) name;
-  isCiDevShell = hasPrefix "ci-" name;
+  isCiDevshell = name == "ci";
 in
 {
   _module.args = {
@@ -38,16 +38,35 @@ in
     gcRoot
   ]);
 
+  extra.locale = optionalAttrs isCiDevshell {
+    package = pkgs.glibcLocales.override {
+      allLocales = false;
+      locales = [ "en_US.UTF-8/UTF-8" ];
+    };
+  };
+
   # For the `run` steps in CI workflows
-  devshell.packages = optional isCiDevShell pkgs.bash;
+  devshell.packages = optional isCiDevshell pkgs.bash;
 
   gcRoot.roots = {
     flake = {
       inherit inputs;
-      exclude = if isLinux then [ "nix-darwin" ] else [ "nix-gl-host-rs" ];
+      exclude =
+        (
+          if isLinux then
+            [
+              "nix-darwin"
+            ]
+          else
+            [ "nix-gl-host-rs" ]
+        )
+        ++ (optionals isCiDevshell [
+          "llm-agents"
+          "nix-gl-host-rs"
+        ]);
     };
 
-    paths = optionals (!isCiDevShell) (
+    paths = optionals (!isCiDevshell) (
       attrValues (
         filterAttrs (
           name: pin:

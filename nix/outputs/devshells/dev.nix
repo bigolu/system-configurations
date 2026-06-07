@@ -8,7 +8,7 @@ let
   moduleRoot = ../../modules/devshell;
 in
 # SYNC: devshell-base
-# All devshells should set extraSpecialArgs and import `essentials.nix`.
+# All devshells should set `extraSpecialArgs`, `name`, and import `essentials.nix`.
 (perSystem.devshell.eval {
   extraSpecialArgs = { inherit inputs pkgs; };
   configuration =
@@ -16,6 +16,7 @@ in
     {
       imports = [
         (moduleRoot + "/essentials.nix")
+        { name = "dev"; }
 
         (moduleRoot + "/mise/tasks.nix")
         (moduleRoot + "/mise/task-autocomplete.nix")

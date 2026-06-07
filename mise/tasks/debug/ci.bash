@@ -2,8 +2,6 @@
 #! nix-shell -i bash
 #! nix-shell --packages bash coreutils
 #MISE description="Start a Bash shell in an environment that resembles CI"
-#USAGE arg "<nix_dev_shell>" help="The dev shell to load"
-#USAGE complete "nix_dev_shell" run=#" nix eval --raw --file nix/flake-compat.nix outputsForCurrentSystem.devShells --apply 'with builtins; shells: concatStringsSep "\n" (filter (name: substring 0 (stringLength "ci-") name == "ci-") (attrNames shells))' "#
 
 set -o errexit
 set -o nounset
@@ -38,4 +36,4 @@ PATH="$nix_dir" nix shell \
 	"$env" \
 	HOME="$temp_home" \
 	PRJ_DATA_DIR="$temp_prj_data_dir" \
-	nix run --file nix/flake-compat.nix "outputsForCurrentSystem.devShells.${usage_nix_dev_shell:?}" -- bash --noprofile --norc
+	nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash --noprofile --norc
