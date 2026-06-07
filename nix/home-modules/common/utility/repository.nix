@@ -5,11 +5,6 @@
 #
 # Related: https://github.com/nix-community/home-manager/issues/3032
 {
-  # It takes a string/path and returns a string/path. For example, you can
-  # filter out files that aren't tracked by git.
-  directoryFilter ? (x: x),
-}:
-{
   lib,
   config,
   utils,
@@ -36,6 +31,7 @@ let
     listToAttrs
     hasAttr
     concatMap
+    id
     ;
   inherit (lib.filesystem) listFilesRecursive;
   inherit (lib.strings) unsafeDiscardStringContext;
@@ -125,6 +121,17 @@ in
           type = types.bool;
           default = false;
           description = "Use symlinks instead of copies.";
+        };
+
+        directoryFilter = mkOption {
+          type = types.functionTo (
+            types.oneOf [
+              types.str
+              types.path
+            ]
+          );
+          default = id;
+          description = "This function will be used to filter any directory used as a `source`. It takes a string/path and returns a string/path. For example, you can filter out files that aren't tracked by git.";
         };
 
         relativePathRoot = {
@@ -251,7 +258,7 @@ in
         directory:
         pipe directory.source [
           toAbsolutePathAccess
-          directoryFilter
+          config.repository.fileSettings.directoryFilter
 
           # Use relative paths to account for the case where the source directory
           # doesn't match the directory we list the files from. This can happen

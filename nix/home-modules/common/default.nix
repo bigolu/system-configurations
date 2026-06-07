@@ -46,27 +46,7 @@ in
   };
 
   imports = [
-    (import ./utility/repository.nix {
-      # Flakes have built-in gitignore support
-      directoryFilter = callIf (!inPureEvalMode) (
-        let
-          # For performance, this shouldn't be called often[1] so we'll save a reference.
-          #
-          # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
-          filter = inputs.gitignore.lib.gitignoreFilterWith { basePath = projectRoot; };
-        in
-        stringOrPath:
-        cleanSourceWith {
-          inherit filter;
-          # Clean source won't accept a string
-          src =
-            if (isPath stringOrPath || hasPrefix storeDir stringOrPath) then
-              stringOrPath
-            else
-              /. + stringOrPath;
-        }
-      );
-    })
+    ./utility/repository.nix
     ./utility/system.nix
     "${inputs.nix-flatpak}/modules/home-manager.nix"
     ./home-manager.nix
@@ -129,12 +109,33 @@ in
   repository = {
     fileSettings = {
       editableInstall = true;
+
       relativePathRoot = {
         access = (if inPureEvalMode then inputs.self.outPath else projectRoot) + "/dotfiles";
       }
       // optionalAttrs inPureEvalMode {
         symlink = "${repositoryDirectory}/dotfiles";
       };
+
+      # Flakes have built-in gitignore support
+      directoryFilter = callIf (!inPureEvalMode) (
+        let
+          # For performance, this shouldn't be called often[1] so we'll save a reference.
+          #
+          # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
+          filter = inputs.gitignore.lib.gitignoreFilterWith { basePath = projectRoot; };
+        in
+        stringOrPath:
+        cleanSourceWith {
+          inherit filter;
+          # Clean source won't accept a string
+          src =
+            if (isPath stringOrPath || hasPrefix storeDir stringOrPath) then
+              stringOrPath
+            else
+              /. + stringOrPath;
+        }
+      );
     };
 
     xdg.executable = {
