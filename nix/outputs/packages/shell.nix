@@ -1,7 +1,6 @@
 { pkgs, inputs, ... }:
 let
-  moduleRoot = ../../../home-modules;
-  inherit (pkgs.lib) mkForce recursiveUpdate;
+  moduleRoot = ../../home-modules;
 in
 (pkgs.makePortableHome.override {
   # The full set of locales is pretty big (~220MB) so I'll only include the one that
@@ -13,20 +12,22 @@ in
       inherit pkgs;
       extraSpecialArgs = { inherit inputs; };
       modules = [
+        # This should be added to every Home Manager configuration.
+        # SYNC: hm-base
         {
+          imports = [ (moduleRoot + "/common") ];
           _module.args = {
             hasGui = false;
             hostName = "portable";
-            pkgs = mkForce (recursiveUpdate pkgs (import ./package-overrides.nix pkgs));
           };
-          home.username = "bigolu";
-          home.homeDirectory = "/not-applicable";
         }
-        (moduleRoot + "/common")
-        (moduleRoot + "/portable.nix")
+
+        (import (moduleRoot + "/portable") pkgs)
       ];
     };
+
     shell = "fish";
+
     activation = [
       "fzfSetup"
       "batSetup"
