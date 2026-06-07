@@ -37,8 +37,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    flake-utils.url = "github:numtide/flake-utils";
-
     devshell-modules.url = "github:bigolu/devshell-modules";
 
     llm-agents.url = "github:numtide/llm-agents.nix";
@@ -83,7 +81,6 @@
       url = "github:bigolu/nix-rootless-bundler";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
         flake-compat.follows = "flake-compat";
 
         # Remove development dependencies
@@ -96,7 +93,6 @@
       url = "github:bigolu/cached-nix-shell";
       inputs = {
         nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
         flake-compat.follows = "flake-compat";
 
         # Remove development dependencies
