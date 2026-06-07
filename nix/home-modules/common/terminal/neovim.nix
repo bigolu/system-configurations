@@ -47,5 +47,5 @@ in
     })
   ];
 
-  repository.xdg.configFile."nvim".source = "neovim";
+  fileWrapper.xdg.configFile."nvim".source = "neovim";
 }

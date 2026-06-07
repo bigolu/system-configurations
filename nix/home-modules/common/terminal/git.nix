@@ -10,7 +10,7 @@
     mergiraf
   ];
 
-  repository = {
+  fileWrapper = {
     xdg = {
       configFile = {
         "git/config".source = "git/config";

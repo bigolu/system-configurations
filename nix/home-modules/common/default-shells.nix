@@ -1,5 +1,5 @@
 _: {
-  repository.home.file = {
+  fileWrapper.home.file = {
     ".bashrc".source = "default-shells/bashrc.bash";
     ".bash_profile".source = "default-shells/bash_profile.bash";
     ".zshrc".source = "default-shells/zshrc.zsh";

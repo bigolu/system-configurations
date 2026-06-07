@@ -22,7 +22,7 @@ in
 {
   # I want a self contained executable so I can't have symlinks that point
   # outside the Nix store.
-  repository.fileSettings.editableInstall = mkForce false;
+  fileWrapper.settings.editableInstall = mkForce false;
 
   programs = {
     home-manager.enable = mkForce false;

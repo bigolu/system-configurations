@@ -11,7 +11,7 @@ in
     ripgrep-all
   ];
 
-  repository.home.file = {
+  fileWrapper.home.file = {
     "${if isLinux then ".config" else "Library/Application Support"}/ripgrep-all/config.jsonc".source =
       "ripgrep/config.jsonc";
   };

@@ -22,7 +22,7 @@ in
   # Don't make a command_not_found handler
   programs.nix-index.enableFishIntegration = false;
 
-  repository.xdg.configFile = {
+  fileWrapper.xdg.configFile = {
     "nix/repl-overlay.nix".source = "nix/repl-overlay.nix";
     "nix/nix.conf".source = "nix/nix.conf";
   };

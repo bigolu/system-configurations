@@ -46,9 +46,9 @@ in
   };
 
   imports = [
-    ./utility/repository.nix
-    ./utility/system.nix
+    inputs.home-manager-file-wrapper.homeModules.file-wrapper
     "${inputs.nix-flatpak}/modules/home-manager.nix"
+    ./utility/system.nix
     ./home-manager.nix
     ./nix.nix
     ./terminal
@@ -62,7 +62,7 @@ in
   home = {
     packages =
       with pkgs;
-      optionals config.repository.fileSettings.editableInstall [
+      optionals config.fileWrapper.settings.editableInstall [
         # For my shebang scripts
         bash
       ]
@@ -106,8 +106,8 @@ in
     user.startServices = "sd-switch";
   };
 
-  repository = {
-    fileSettings = {
+  fileWrapper = {
+    settings = {
       editableInstall = true;
 
       relativePathRoot = {

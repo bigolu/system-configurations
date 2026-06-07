@@ -25,7 +25,7 @@ let
   };
 
   mac = mkIf (hasGui && isDarwin) {
-    repository = {
+    fileWrapper = {
       xdg = {
         configFile = {
           "yabai/yabairc".source = "yabai/yabairc.bash";
@@ -57,7 +57,7 @@ let
   };
 
   linux = mkIf (hasGui && isLinux) {
-    repository.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
+    fileWrapper.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
 
     home.packages = [ pkgs.keyd ];
 

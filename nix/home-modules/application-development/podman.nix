@@ -14,7 +14,7 @@ let
   inherit (pkgs.stdenv) isLinux isDarwin;
 in
 {
-  repository.xdg.configFile = {
+  fileWrapper.xdg.configFile = {
     "containers" = {
       source = "containers";
       # I'm linking recursively because podman makes files in this directory

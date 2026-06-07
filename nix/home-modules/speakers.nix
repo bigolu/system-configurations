@@ -14,7 +14,7 @@ let
   smartPlugRoot = "${repositoryDirectory}/smart_plug";
 in
 {
-  repository.home.file = optionalAttrs isDarwin {
+  fileWrapper.home.file = optionalAttrs isDarwin {
     ".hammerspoon/Spoons/Speakers.spoon".source = "${smartPlugRoot}/mac_os/Speakers.spoon";
   };
 

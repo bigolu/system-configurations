@@ -71,7 +71,7 @@ in
       pstree
     ];
 
-  repository = {
+  fileWrapper = {
     xdg.configFile = {
       "lsd".source = "lsd";
       "lesskey".source = "less/lesskey";

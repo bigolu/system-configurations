@@ -21,7 +21,7 @@ in
     fzfWithoutShellConfig
   ];
 
-  repository.xdg = {
+  fileWrapper.xdg = {
     executable."fzf" = {
       source = "fzf/bin";
       recursive = true;

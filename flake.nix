@@ -105,6 +105,18 @@
       url = "github:numtide/blueprint";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    home-manager-file-wrapper = {
+      url = "github:bigolu/home-manager-file-wrapper";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
+
+        # Remove development dependencies
+        devshell.follows = "";
+        devshell-modules.follows = "";
+      };
+    };
   };
 
   outputs =

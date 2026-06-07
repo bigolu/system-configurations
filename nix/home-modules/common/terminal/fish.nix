@@ -9,7 +9,7 @@
     direnv-shell-hooks
   ];
 
-  repository.xdg.configFile."fish/conf.d" = {
+  fileWrapper.xdg.configFile."fish/conf.d" = {
     source = "fish/conf.d";
     recursive = true;
   };
