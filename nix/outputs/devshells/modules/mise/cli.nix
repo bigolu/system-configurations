@@ -13,7 +13,7 @@
       echo >"$trust_marker"
     fi
 
-    export CNS_NIXPKGS="$PWD/nix/packages.nix"
+    export CNS_NIXPKGS="$PRJ_ROOT/nix/packages.nix"
 
     # We include the dependencies for all nix shebang scripts in the development
     # devshell. Since we already make a GC root for the devshell, we don't need
