@@ -4,6 +4,9 @@
   inputs,
   ...
 }:
+let
+  moduleRoot = ../../devshell-modules;
+in
 # SYNC: devshell-base
 # All devshells should set extraSpecialArgs and import `essentials.nix`.
 (perSystem.devshell.eval {
@@ -12,12 +15,12 @@
     { pkgs, ... }:
     {
       imports = [
-        ./modules/essentials.nix
+        (moduleRoot + "/essentials.nix")
 
-        ./modules/mise/tasks.nix
-        ./modules/mise/task-autocomplete.nix
-        ./modules/vscode.nix
-        ./modules/lefthook.nix
+        (moduleRoot + "/mise/tasks.nix")
+        (moduleRoot + "/mise/task-autocomplete.nix")
+        (moduleRoot + "/vscode.nix")
+        (moduleRoot + "/lefthook.nix")
       ];
 
       env = [

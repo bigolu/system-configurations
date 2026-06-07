@@ -15,7 +15,7 @@ in
         # This should be added to every Home Manager configuration.
         # SYNC: hm-base
         {
-          imports = [ (moduleRoot + "/common") ];
+          imports = [ (moduleRoot + "/essentials") ];
           _module.args = {
             hasGui = false;
             hostName = "portable";

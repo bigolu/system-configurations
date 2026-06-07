@@ -23,8 +23,8 @@ let
 in
 {
   _module.args = {
-    pins = import ../../../pins pkgs;
-    utils = import ../../../utils.nix;
+    pins = import ../pins pkgs;
+    utils = import ../utils.nix;
   };
 
   imports = [
