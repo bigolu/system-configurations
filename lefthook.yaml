@@ -258,7 +258,7 @@ check:
               # ignoring fixes with comments[1] so I'll skip the whole file.
               #
               # [1]: https://github.com/oppiliappan/statix/issues/61
-              - nix/nixpkgs-overlay.nix
+              - nix/overlays/nixpkgs.nix
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix fix -- {files}
@@ -347,7 +347,7 @@ check:
               # ignoring fixes with comments[1] so I'll skip the whole file.
               #
               # [1]: https://github.com/oppiliappan/statix/issues/61
-              - nix/nixpkgs-overlay.nix
+              - nix/overlays/nixpkgs.nix
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix check -- {files}

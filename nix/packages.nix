@@ -1,4 +1,4 @@
 import (import ./flake-compat.nix).inputs.nixpkgs {
   config = { };
-  overlays = [ (import ./nixpkgs-overlay.nix) ];
+  overlays = [ (import ./overlays/nixpkgs.nix) ];
 }

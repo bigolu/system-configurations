@@ -125,7 +125,7 @@
       inherit inputs;
       prefix = "nix/outputs";
       nixpkgs = {
-        overlays = [ (import ./nix/nixpkgs-overlay.nix) ];
+        overlays = [ (import ./nix/overlays/nixpkgs.nix) ];
         config = {
           # TODO: I should open an issue with the project for adding a license
           allowUnfreePredicate = pkg: pkg.pname == "camelcasemotion";

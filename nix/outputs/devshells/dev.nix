@@ -33,7 +33,7 @@ in
           eval = ''
             "
               ''${NIX_CONFIG:-}
-              extra-repl-overlays = $PRJ_ROOT/nix/repl-overlay.nix
+              extra-repl-overlays = $PRJ_ROOT/nix/overlays/repl.nix
             "
           '';
         }

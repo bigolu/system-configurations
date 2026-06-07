@@ -1,5 +1,5 @@
 let
-  inherit (import ./flake-compat.nix) inputs;
+  inherit (import ../flake-compat.nix) inputs;
 
   # Unlike the one in nixpkgs, this one merges sets returned by each overlay
   # recursively.
@@ -27,7 +27,7 @@ let
   myOverlay =
     final: prev:
     let
-      pins = import ./pins final;
+      pins = import ../pins final;
       inherit (final.stdenv.hostPlatform) system;
       inherit (final.lib)
         recursiveUpdate
@@ -146,7 +146,7 @@ let
           postBuild = ''
             wrapProgram $out/bin/rga \
               --prefix PATH : ${dependencies}/bin \
-              --prefix PATH : ${../dotfiles/ripgrep/bin}
+              --prefix PATH : ${../../dotfiles/ripgrep/bin}
           '';
         };
 
