@@ -17,8 +17,7 @@
         ./modules/mise/tasks.nix
         ./modules/mise/task-autocomplete.nix
         ./modules/vscode.nix
-        ./modules/lefthook/hooks/check.nix
-        ./modules/lefthook/hooks/sync.nix
+        ./modules/lefthook.nix
       ];
 
       env = [
