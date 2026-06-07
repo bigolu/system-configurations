@@ -6,14 +6,14 @@
 let
   inherit (pkgs)
     linkFarm
-    neovim
+    neovim-unwrapped
     vimUtils
     vimPlugins
     ;
 in
 {
   home.packages = [
-    neovim
+    neovim-unwrapped
     (linkFarm "my-vim-pack" {
       # Put the pack under share/ so neovim can automatically find it
       "share/nvim/site" = vimUtils.packDir {

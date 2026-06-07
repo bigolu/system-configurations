@@ -103,35 +103,6 @@ let
         '';
       });
 
-      neovim =
-        let
-          oldNeovim = prev.neovim-unwrapped;
-
-          dependencies = final.symlinkJoin {
-            pname = "neovim-dependencies";
-            version = "0.1.0";
-            # to format comments
-            paths = [ final.par ];
-          };
-
-          wrappedNeovim = final.symlinkJoin {
-            pname = "my-${oldNeovim.pname}";
-            inherit (oldNeovim) version;
-            paths = [ oldNeovim ];
-            nativeBuildInputs = [ final.makeWrapper ];
-            postBuild = ''
-              # PARINIT: The par manpage recommends using this value if you want
-              # to start using par, but aren't familiar with how par works so
-              # until I learn more, I'll use this value.
-              wrapProgram $out/bin/nvim \
-                --set PARINIT 'rTbgqR B=.\,?'"'"'_A_a_@ Q=_s>|' \
-                --prefix PATH : ${dependencies}/bin
-            '';
-          };
-        in
-        # Merge with the original package to retain attributes like meta
-        recursiveUpdate oldNeovim wrappedNeovim;
-
       partialPackages = recurseIntoAttrs (
         {
           xargs = filterPrograms final.findutils [ "xargs" ];
