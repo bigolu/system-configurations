@@ -7,9 +7,6 @@
     # For extension "ndonfris.fish-lsp"
     fish-lsp
 
-    # For extension "golang.go"
-    gopls
-
     # For extension "rogalmic.bash-debug".
     # It needs bash, cat, mkfifo, rm, and pkill
     bash
