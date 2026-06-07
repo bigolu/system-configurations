@@ -34,19 +34,20 @@ if [[ $usage_start == 'HEAD' ]]; then
 	exit
 fi
 
+start="$usage_start"
+# mise sets variables starting with `usage_` or `MISE_` when a task is run.
+# Tasks run within the checks shouldn't inherit the variables from this task.
+#
+# Unset the variables starting with  `PRJ_` so the nix environment can set new
+# values for them relative to the directory of the worktree.
+unset "${!usage_@}" "${!MISE_@}" "${!PRJ_@}"
+
 git_branchless_exec_command=(
 	# Load the nix environment since we'll be in a new worktree and may need to do
 	# some setup.
-	#
-	# Unset these environment variables so the nix environment can set
-	# new values for these variables relative to the directory of the
-	# worktree.
-	env --unset=PRJ_ROOT --unset=PRJ_DATA_DIR
 	nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.dev --
-
 	# We enable lefthook since it gets disabled below.
-	env LEFTHOOK=true
-	"${lefthook_command[@]}"
+	env LEFTHOOK=true "${lefthook_command[@]}"
 )
 # Disable lefthook so git hooks don't run when `git-branchless` runs git commands.
 #
@@ -58,4 +59,4 @@ LEFTHOOK=false git-branchless test run \
 	--no-cache \
 	--jobs 0 \
 	--exec "${git_branchless_exec_command[*]@Q}" \
-	"${usage_start}:HEAD"
+	"${start}:HEAD"

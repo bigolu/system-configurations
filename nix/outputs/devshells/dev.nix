@@ -24,22 +24,16 @@ in
         (moduleRoot + "/lefthook.nix")
       ];
 
-      env = [
-        {
-          name = "NPINS_DIRECTORY";
-          eval = "\"$PRJ_ROOT/nix/pins/npins\"";
-        }
-        {
-          name = "NIX_CONFIG";
-          eval = ''
-            "
-              ''${NIX_CONFIG:-}
-              extra-repl-overlays = $PRJ_ROOT/nix/overlays/repl.nix
-            "
-          '';
-        }
-      ];
+      devshell = {
+        packages = with pkgs; [ npins ];
 
-      devshell.packages = with pkgs; [ npins ];
+        startup.dev.text = ''
+          export NPINS_DIRECTORY="$PRJ_ROOT/nix/pins/npins"
+          export NIX_CONFIG="
+            ''${NIX_CONFIG:-}
+            extra-repl-overlays = $PRJ_ROOT/nix/overlays/repl.nix
+          "
+        '';
+      };
     };
 }).shell

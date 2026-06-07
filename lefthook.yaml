@@ -398,9 +398,8 @@ check:
         bash -eu -o pipefail -c '
           dest="$PRJ_DATA_DIR/gc-roots/checks"
           rm -rf "$dest"
-          nix-fast-build \
+          nix build \
             --out-link "$dest/root" \
-            --file nix/flake-compat.nix \
-            -A outputsForCurrentSystem.checks \
-            --select "checks: builtins.removeAttrs checks [\"pkgs-shell-bundle\"]"
+            --impure \
+            --expr "builtins.removeAttrs (import nix/flake-compat.nix).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
         '
