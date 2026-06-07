@@ -1,29 +1,6 @@
 let
   inherit (import ../flake-compat.nix) inputs;
 
-  # Unlike the one in `nixpkgs.lib`, this one merges the sets returned by each
-  # overlay recursively.
-  composeManyExtensions =
-    let
-      foldr =
-        op: nul: list:
-        let
-          len = builtins.length list;
-          fold' = n: if n == len then nul else op (builtins.elemAt list n) (fold' (n + 1));
-        in
-        fold' 0;
-
-      composeExtensions =
-        f: g: final: prev:
-        let
-          inherit (prev.lib) recursiveUpdate;
-          fApplied = f final prev;
-          prev' = recursiveUpdate prev fApplied;
-        in
-        recursiveUpdate fApplied (g final prev');
-    in
-    foldr (x: y: composeExtensions x y) (_final: _prev: { });
-
   myOverlay =
     final: prev:
     let
@@ -235,7 +212,7 @@ let
         recursiveUpdate oldZoxide newZoxide;
     };
 in
-composeManyExtensions [
+[
   inputs.direnv-shell-hooks.overlays.default
   inputs.git-auto-sync.overlays.default
   inputs.cached-nix-shell.overlays.default
