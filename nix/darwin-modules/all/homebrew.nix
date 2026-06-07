@@ -13,7 +13,6 @@
       "hammerspoon"
       "visual-studio-code"
       "google-chrome"
-      "nightfall"
       "podman-desktop"
       "devpod"
     ];

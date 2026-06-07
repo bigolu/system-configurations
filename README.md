@@ -40,7 +40,7 @@ my machines.
             `cmd+]` respectively, "Mission Control" to `cmd+d`, "Mission Control
             → Switch to Desktop 1-9" `cmd+[1-9]`
 
-     2. Open Hammerspoon and Nightfall to configure them.
+     2. Configure Hammerspoon
 
 ## Running the Portable Configuration
 
