@@ -23,7 +23,7 @@
       env = [
         {
           name = "NPINS_DIRECTORY";
-          eval = "$PRJ_ROOT/nix/pins/npins";
+          eval = "\"$PRJ_ROOT/nix/pins/npins\"";
         }
         {
           name = "NIX_CONFIG";
