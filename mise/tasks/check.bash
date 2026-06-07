@@ -24,7 +24,15 @@ for arg in "$@"; do
 	fi
 done
 
-if [[ $usage_start == 'HEAD' ]]; then
+start="$usage_start"
+# mise sets variables starting with `usage_` or `MISE_` when a task is run.
+# Tasks run within the checks shouldn't inherit the variables from this task.
+#
+# Unset the variables starting with  `PRJ_` so the nix environment can set new
+# values for them relative to the directory of the worktree.
+unset "${!usage_@}" "${!MISE_@}" "${!PRJ_@}"
+
+if [[ $start == 'HEAD' ]]; then
 	# Normally, we use git-branchless to run the checks since it can check multiple
 	# commits in parallel. However, git-branchless discards any changes that get
 	# made while running checks, which would discard any fixes that are made. To
@@ -33,14 +41,6 @@ if [[ $usage_start == 'HEAD' ]]; then
 	"${lefthook_command[@]}"
 	exit
 fi
-
-start="$usage_start"
-# mise sets variables starting with `usage_` or `MISE_` when a task is run.
-# Tasks run within the checks shouldn't inherit the variables from this task.
-#
-# Unset the variables starting with  `PRJ_` so the nix environment can set new
-# values for them relative to the directory of the worktree.
-unset "${!usage_@}" "${!MISE_@}" "${!PRJ_@}"
 
 git_branchless_exec_command=(
 	# Load the nix environment since we'll be in a new worktree and may need to do
