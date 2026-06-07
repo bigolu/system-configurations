@@ -1,6 +1,6 @@
 _:
 let
-  moduleRoot = ../../../../home-modules;
+  moduleRoot = ../../../../modules/home;
 in
 {
   imports = [

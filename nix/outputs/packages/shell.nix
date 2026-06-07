@@ -1,6 +1,6 @@
 { pkgs, inputs, ... }:
 let
-  moduleRoot = ../../home-modules;
+  moduleRoot = ../../modules/home;
 in
 (pkgs.makePortableHome.override {
   # The full set of locales is pretty big (~220MB) so I'll only include the one that

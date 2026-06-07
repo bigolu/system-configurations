@@ -5,7 +5,7 @@
   ...
 }:
 let
-  moduleRoot = ../../devshell-modules;
+  moduleRoot = ../../modules/devshell;
 in
 # SYNC: devshell-base
 # All devshells should set extraSpecialArgs and import `essentials.nix`.
