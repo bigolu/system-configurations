@@ -260,9 +260,9 @@ in
           toAbsolutePathAccess
           config.repository.fileSettings.directoryFilter
 
-          # Use relative paths to account for the case where the source directory
-          # doesn't match the directory we list the files from. This can happen
-          # if the directory we list files from is a path in the nix store.
+          # Use relative paths to account for the case where
+          # `repository.fileSettings.relativePathRoot.access` doesn't match
+          # `repository.fileSettings.relativePathRoot.symlink`.
           listRelativeFilesRecursive
 
           (map (
