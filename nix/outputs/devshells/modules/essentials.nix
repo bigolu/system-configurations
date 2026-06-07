@@ -24,7 +24,7 @@ in
 {
   _module.args = {
     pins = import ../../../pins pkgs;
-    utils = import ../../../utils.nix { inherit inputs pkgs; };
+    utils = import ../../../utils.nix;
   };
 
   imports = [

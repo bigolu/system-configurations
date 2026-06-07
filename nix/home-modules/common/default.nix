@@ -42,7 +42,7 @@ in
   _module.args = {
     repositoryDirectory = "${config.home.homeDirectory}/code/system-configurations";
     pins = import ../../pins pkgs;
-    utils = import ../../utils.nix { inherit inputs pkgs; };
+    utils = import ../../utils.nix;
   };
 
   imports = [
