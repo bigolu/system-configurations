@@ -6,7 +6,7 @@ defaults:
     shell: nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.ci -- bash {0}
 permissions:
   # `cache-nix-gc-roots-action` needs this permission to purge old caches
-  actions: "write"
+  actions: write
 jobs:
   make-assets:
     strategy:
@@ -27,6 +27,9 @@ jobs:
       - if: always()
         uses: bigolu/cache-nix-gc-roots-action/save@main
   release:
+    permissions:
+      # We need to this to create/delete releases
+      contents: write
     needs: make-assets
     runs-on: ubuntu-24.04
     steps:
