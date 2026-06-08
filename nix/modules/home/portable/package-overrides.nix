@@ -43,6 +43,7 @@ in
     [ "lesspipe" ]
     [ "ripgrep-all" ]
     [ "timg" ]
+    [ "home-manager" ]
   ]
   ++ optionals isDarwin [
     [ "moreutils" ]
