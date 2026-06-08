@@ -52,8 +52,9 @@ def history_widget(event: Any, history_files: list[str] | None = None) -> None:
                 f"--history={fzf_history_file}",
                 "--exact",
                 f"--query={event.current_buffer.text}",
-                "--preview-window=follow",
+                "--preview-window=follow,wrap,bottom,40%,border-top",
                 "--preview=echo {} | bat --language python",
+                "--height=100%"
             ],
             input="\0".join(get_history_entries(history_files)).encode(),
         )

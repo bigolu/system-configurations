@@ -25,6 +25,7 @@ in
       direnv
       llm-agents.claude-code
       zerobox
+      pixi
     ];
 
     activation.zeroboxWorkaround = hm.dag.entryAfter [ "writeBoundary" ] ''

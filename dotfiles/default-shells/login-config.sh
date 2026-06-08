@@ -4,6 +4,3 @@ export PYTHONPYCACHEPREFIX="$xdg_cache_home/python"
 export MYPY_CACHE_DIR="$xdg_cache_home/mypy"
 export RUFF_CACHE_DIR="$xdg_cache_home/ruff"
 export GOPATH="$xdg_cache_home/go"
-
-# pixi
-export PATH="$HOME/.pixi/bin:$PATH"

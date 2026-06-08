@@ -272,8 +272,3 @@ end
 function nix-store-clean
     nix-sweep tidyup-gc-roots
 end
-
-# pixi
-if type --force-path pixi >/dev/null 2>&1
-    pixi completion --shell fish | source
-end
