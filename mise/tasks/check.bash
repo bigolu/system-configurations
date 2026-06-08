@@ -6,7 +6,7 @@
 #USAGE
 #USAGE arg "<start>" default="HEAD" long_help="The commit to start checking from. Commits from `start` to the current commit (`HEAD`) will be checked. By default only `HEAD` is checked."
 #USAGE
-#USAGE flag "--all-files" help="Check all files" long_help="For faster development, we decide whether a job runs, and which files it runs on, based on the files changed by the commit being checked. This way, you can skip checks that aren't related to the files you changed. However, sometimes a job is skipped when it shouldn't be so you can use this flag to consider all files changed instead of only the files changed in the commit being checked."
+#USAGE flag "--all" help="Run all checks" long_help="For faster development, we decide whether a job runs, and which files it runs on, based on the files changed by the commit being checked. This way, you can skip checks that aren't related to the files you changed. However, sometimes a job is incorrectly skipped so you can use this flag to run all checks."
 #USAGE
 #USAGE flag "--job <job>" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook."
 #USAGE complete "job" run=#" fish -c 'complete --do-complete "lefthook run check --job "' "#
@@ -19,9 +19,16 @@ shopt -s inherit_errexit
 
 lefthook_command=(lefthook run check)
 for arg in "$@"; do
-	if [[ $arg != "${usage_start:?}" ]]; then
-		lefthook_command+=("$arg")
-	fi
+	case "$arg" in
+		"${usage_start:?}")
+			;;
+		'--all')
+			lefthook_command+=(--all-files)
+			;;
+		*)
+			lefthook_command+=("$arg")
+			;;
+	esac
 done
 
 if [[ $usage_start == 'HEAD' ]]; then
