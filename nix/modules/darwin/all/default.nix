@@ -13,5 +13,4 @@ _: {
   programs.zsh.enable = false;
 
   system.primaryUser = "biggs";
-  nixpkgs.hostPlatform = "x86_64-darwin";
 }
