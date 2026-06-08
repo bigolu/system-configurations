@@ -6,6 +6,7 @@ let
     optionalAttrs
     hm
     recursiveUpdate
+    optional
     ;
   inherit (pkgs.stdenv) isLinux;
 
@@ -68,6 +69,7 @@ in
   home = {
     username = "bigolu";
     homeDirectory = "/not-applicable";
+    packages = optional (pkgs.stdenv.hostPlatform.system == "x86_64-darwin") pkgs.direnv;
   };
 
   # I want a self contained executable so I can't have symlinks that point
