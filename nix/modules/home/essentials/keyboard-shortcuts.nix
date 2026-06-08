@@ -9,7 +9,7 @@
 }:
 let
   inherit (pkgs) stdenv;
-  inherit (stdenv) isDarwin isLinux;
+  inherit (stdenv.hostPlatform) isDarwin isLinux;
   inherit (lib) mkIf hm mkMerge;
 
   stacklineWithoutConfig = stdenv.mkDerivation {

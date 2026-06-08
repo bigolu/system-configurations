@@ -11,7 +11,7 @@ let
     hm
     makeBinPath
     ;
-  inherit (pkgs.stdenv) isLinux isDarwin;
+  inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
 in
 {
   fileWrapper.xdg.configFile = {

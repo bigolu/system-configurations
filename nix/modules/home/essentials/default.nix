@@ -23,7 +23,7 @@ let
 
   inherit (utils) projectRoot callIf;
   inherit (pkgs) writeText;
-  inherit (pkgs.stdenv) isDarwin isLinux;
+  inherit (pkgs.stdenv.hostPlatform) isDarwin isLinux;
 
   isLinuxAndHasGui = isLinux && hasGui;
 

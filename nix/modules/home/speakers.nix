@@ -6,7 +6,7 @@
 }:
 let
   inherit (pkgs) speakerctl;
-  inherit (pkgs.stdenv) isDarwin;
+  inherit (pkgs.stdenv.hostPlatform) isDarwin;
   inherit (lib)
     optionalAttrs
     ;

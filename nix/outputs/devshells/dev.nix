@@ -22,7 +22,7 @@
         filterAttrs
         attrValues
         ;
-      inherit (pkgs.stdenv) isLinux;
+      inherit (pkgs.stdenv.hostPlatform) isLinux;
       moduleRoot = ../../modules/devshell;
     in
     {

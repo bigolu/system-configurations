@@ -6,7 +6,7 @@
 }:
 let
   inherit (lib) optionalAttrs;
-  inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
   fileWrapper.xdg.configFile = optionalAttrs hasGui (

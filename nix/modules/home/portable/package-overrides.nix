@@ -8,7 +8,7 @@ let
     setAttrByPath
     ;
   inherit (pkgs) runCommand;
-  inherit (pkgs.stdenv) isDarwin;
+  inherit (pkgs.stdenv.hostPlatform) isDarwin;
 
   emptyPackage =
     # `lib.getExe` will be called with these packages so `meta.mainProgram` must be

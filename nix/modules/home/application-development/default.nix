@@ -5,7 +5,7 @@
 }:
 let
   inherit (lib) optionalAttrs hm;
-  inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
   imports = [

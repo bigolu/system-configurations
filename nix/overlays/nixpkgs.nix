@@ -5,7 +5,7 @@ let
     final: prev:
     let
       pins = import ../pins final;
-      inherit (final.stdenv.hostPlatform) system;
+      inherit (final.stdenv.hostPlatform) system isLinux;
       inherit (final.lib)
         recursiveUpdate
         recurseIntoAttrs
@@ -13,7 +13,6 @@ let
         getExe
         escapeShellArgs
         ;
-      inherit (final.stdenv) isLinux;
 
       filterPrograms =
         package: programsToKeep:

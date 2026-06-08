@@ -6,8 +6,7 @@
   ...
 }:
 let
-  inherit (pkgs) stdenv;
-  inherit (stdenv) isLinux isDarwin;
+  inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
   inherit (lib)
     optionals
     optionalAttrs

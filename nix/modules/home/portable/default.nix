@@ -7,7 +7,7 @@ let
     hm
     recursiveUpdate
     ;
-  inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
 
   reduceClosureSize =
     let

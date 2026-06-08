@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
   inherit (lib) mkMerge mkIf;
   inherit (pkgs) symlinkJoin;
 

@@ -23,7 +23,7 @@ let
     attrValues
     escapeShellArg
     ;
-  inherit (pkgs.stdenv) isLinux;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
   options.system = {
