@@ -28,10 +28,8 @@
     {
       imports = [
         (moduleRoot + "/essentials.nix")
-        { name = "dev"; }
+        { devshell.name = "dev"; }
 
-        (moduleRoot + "/mise/tasks.nix")
-        (moduleRoot + "/mise/task-autocomplete.nix")
         (moduleRoot + "/vscode.nix")
         (moduleRoot + "/lefthook.nix")
       ];

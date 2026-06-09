@@ -17,7 +17,7 @@
     {
       imports = [
         (moduleRoot + "/essentials.nix")
-        { name = "ci"; }
+        { devshell.name = "ci"; }
       ];
 
       extra.locale = {
