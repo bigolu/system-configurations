@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) optionals;
+  inherit (lib) optionals optionalAttrs;
   inherit (utils) projectRoot;
   isCi = config.devshell.name == "ci";
 in
@@ -29,13 +29,18 @@ in
         fish
       ];
 
-    startup.mise.text = ''
-      export MISE_TRUSTED_CONFIG_PATHS="$PRJ_ROOT/mise/config.toml"
-      # We include all our nix-script environments in the development devshell
-      # using `config.nix-script.paths`. Since we already make a GC root for the
-      # devshell, we don't need GC roots for individual nix-script environments
-      # in a development devshell, only CI.
-      export NIX_SCRIPT_GC_ROOT="''${CI:-}"
-    '';
+    startup = optionalAttrs isCi {
+      mise.text = ''
+        export MISE_TRUSTED_CONFIG_PATHS="$PRJ_ROOT/mise/config.toml"
+        # We include all our nix-script environments in the development devshell
+        # using `config.nix-script.paths`. Since we already make a GC root for the
+        # devshell, we don't need GC roots for individual nix-script environments
+        # in a development devshell, only CI.
+        #
+        # Use the `CI` environment variable so users can load the CI devshell
+        # locally without GC roots being made.
+        export NIX_SCRIPT_GC_ROOT="''${CI:-}"
+      '';
+    };
   };
 }
