@@ -3,6 +3,7 @@
   utils,
   lib,
   config,
+  inputs,
   ...
 }:
 let
@@ -11,6 +12,8 @@ let
   isCi = config.devshell.name == "ci";
 in
 {
+  imports = [ inputs.nix-script.devshellModules.nix-script ];
+
   nix-script = {
     config = projectRoot + /nix/nix-script.nix;
     paths = optionals (!isCi) [ (projectRoot + /mise/tasks) ];

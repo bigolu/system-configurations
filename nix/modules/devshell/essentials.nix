@@ -16,7 +16,6 @@ in
   imports = [
     "${extraModulesPath}/locale.nix"
     ./mise.nix
-    inputs.nix-script.devshellModules.nix-script
   ]
   ++ (with inputs.devshell-modules.devshellModules; [
     minimal
