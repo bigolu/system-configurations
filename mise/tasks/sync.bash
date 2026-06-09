@@ -1,6 +1,5 @@
-# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
-#! nix-shell -i bash
-#! nix-shell --packages bash
+#nix --interpreter bash
+#nix --packages bash
 #MISE description="Sync your environment with the code"
 #USAGE long_about "Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes."
 #USAGE

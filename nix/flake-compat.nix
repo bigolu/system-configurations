@@ -1,14 +1,6 @@
 # This file is part of flake-compat[1], a project that provides access to a flake
 # without using the experimental flake API. I use this instead of `builtins.getFlake`
-# since it allows me to access the flake without copying it to the store. This has
-# two advantages:
-#   - Performance
-#   - Avoids execessively invalidating cached-nix-shell's (CNS) cache. CNS works
-#     by tracing all files accessed while evaluating the nix shell. The flake
-#     API copies the source tree to the store so all the files in the git
-#     repository, and many files in .git, would be included in the trace which
-#     would lead to more cache invalidations. This is due to flake's builtin
-#     gitignore support.
+# since it allows me to access the flake without copying it to the store.
 #
 # There's an open issue[2] in CppNix for copying flakes to the store lazily, but Lix
 # has no plans to implement it anytime soon[3] so I'll stick with flake-compat.

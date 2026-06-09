@@ -51,23 +51,6 @@ let
           comma = prev.comma.override { nix = lixPackageSet.lix; };
         };
 
-      __functor =
-        self:
-        # This file will be put on the NIX_PATH as 'nixpkgs' when we run cached-nix-shell
-        # for mise tasks. This way all the packages we reference in the script will come
-        # from here. Since nixpkgs is a function that returns a package set, this needs
-        # to be a function as well.
-        #
-        # In order to have the nix CLI automatically call this function, the argument
-        # must be a set with either no attributes or default values for all attributes.
-        { }:
-        self;
-      # nix-shell uses `pkgs.runCommandCC` from nixpkgs to create the environment. We
-      # set it to `runCommand` to make the closure smaller.
-      pkgs = prev.pkgs // {
-        runCommandCC = final.runCommand;
-      };
-
       keyd = prev.keyd.overrideAttrs (old: {
         postInstall = old.postInstall + ''
           # TODO: keyd only links the service if /run/systemd/system exists[1]. I
@@ -214,8 +197,8 @@ in
 [
   inputs.direnv-shell-hooks.overlays.default
   inputs.git-auto-sync.overlays.default
-  inputs.cached-nix-shell.overlays.default
   inputs.llm-agents.overlays.default
   inputs.nix-gl-host-rs.overlays.default
+  inputs.nix-script.overlays.default
   myOverlay
 ]

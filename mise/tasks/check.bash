@@ -1,6 +1,5 @@
-# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
-#! nix-shell -i bash
-#! nix-shell --packages bash git-branchless
+#nix --interpreter bash
+#nix --packages bash git-branchless
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the commits specified."
 #USAGE

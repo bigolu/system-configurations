@@ -1,0 +1,1 @@
+{ nixpkgs = import ./packages.nix; }

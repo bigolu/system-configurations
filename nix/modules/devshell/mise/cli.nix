@@ -1,20 +1,21 @@
-{ pkgs, ... }:
+{ pkgs, utils, ... }:
 {
+  nix-script.config = utils.projectRoot + /nix/nix-script.nix;
+
   devshell = {
     packages = with pkgs; [
       mise
       # For running tasks
-      cached-nix-shell
+      nix-script
     ];
 
     startup.mise.text = ''
       export MISE_TRUSTED_CONFIG_PATHS="$PRJ_ROOT/mise/config.toml"
-      export CNS_NIXPKGS="$PRJ_ROOT/nix/packages.nix"
-      # We include the dependencies for all nix shebang scripts in the development
-      # devshell. Since we already make a GC root for the devshell, we don't need
-      # GC roots for individual nix shebang scripts in a development devshell,
-      # only CI.
-      export CNS_GC_ROOT="''${CI:-}"
+      # We include all our nix-script environments in the development devshell
+      # using `config.nix-script.paths`. Since we already make a GC root for the
+      # devshell, we don't need GC roots for individual nix-script environments
+      # in a development devshell, only CI.
+      export NIX_SCRIPT_GC_ROOT="''${CI:-}"
     '';
   };
 }

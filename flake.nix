@@ -89,8 +89,8 @@
       };
     };
 
-    cached-nix-shell = {
-      url = "github:bigolu/cached-nix-shell";
+    nix-script = {
+      url = "github:bigolu/nix-script";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-compat.follows = "flake-compat";

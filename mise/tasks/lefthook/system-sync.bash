@@ -1,6 +1,5 @@
-# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
-#! nix-shell -i bash
-#! nix-shell --packages bash coreutils run-as-admin nh
+#nix --interpreter bash
+#nix --packages bash coreutils run-as-admin nh
 #MISE hide=true
 #USAGE arg "[config]" help="The name of the configuration to apply"
 

@@ -1,6 +1,5 @@
-# The first line in the file can't be a `nix-shell` directive because mise would misinterpret it as a shebang.
-#! nix-shell -i bash
-#! nix-shell --packages bash coreutils gh
+#nix --interpreter bash
+#nix --packages bash coreutils gh
 #MISE hide=true
 
 set -o errexit
