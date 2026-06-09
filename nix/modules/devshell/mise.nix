@@ -7,7 +7,7 @@
   ...
 }:
 let
-  inherit (lib) optionals optionalAttrs;
+  inherit (lib) optional optionalAttrs;
   inherit (utils) projectRoot;
   isCi = config.devshell.name == "ci";
 in
@@ -16,21 +16,12 @@ in
 
   nix-script = {
     config = projectRoot + /nix/nix-script.nix;
-    paths = optionals (!isCi) [ (projectRoot + /mise/tasks) ];
+    paths = optional (!isCi) (projectRoot + /mise/tasks);
   };
 
   devshell = {
-    packages =
-      with pkgs;
-      [
-        mise
-        # For running tasks
-        nix-script
-      ]
-      ++ optionals (!isCi) [
-        # For autocomplete
-        fish
-      ];
+    # fish is for autocompleting task arguments
+    packages = [ pkgs.mise ] ++ optional (!isCi) pkgs.fish;
 
     startup = optionalAttrs isCi {
       mise.text = ''
