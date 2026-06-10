@@ -631,11 +631,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781048087,
-        "narHash": "sha256-Ri73rRBQrq2bLdphbfH1HmkasKonQxvVC03G2BFl8Ow=",
+        "lastModified": 1781050034,
+        "narHash": "sha256-gbdQHZVR2ditzvzko0NxccmPMdF7G2yMtH7nkHVQlLo=",
         "owner": "bigolu",
         "repo": "nix-script",
-        "rev": "59448961640708129734943446aa499f1e9c27c3",
+        "rev": "bde43918ed185c9198fc0e9c17bb0ed90d7ce8e7",
         "type": "github"
       },
       "original": {
