@@ -264,7 +264,7 @@ function nix-py
         "(import <nixpkgs> {}).python3.withPackages (p: [$(string replace --regex -- '(.*)' 'p.$1' $argv | string join ' ')])"
 end
 function nix-is-cached
-    nix build --dry-run $argv
+    nix build --impure --dry-run $argv
 end
 function nix-store-size
     nix-sweep analyze --all
