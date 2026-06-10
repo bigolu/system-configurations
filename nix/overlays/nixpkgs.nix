@@ -34,7 +34,6 @@ let
         };
     in
     {
-      parseNixShebang = prev.parseNixShebang.override { pkgs = final; };
       zerobox = final.linkFarm "zerobox" { "bin/zerobox" = "${pins.zerobox}/zerobox"; };
       inherit (inputs.nix-portable-home.legacyPackages.${system}) makePortableHome;
       bundlerRootless = inputs.nix-rootless-bundler.bundlers.${system}.default;
