@@ -8,17 +8,20 @@
     fish-lsp
 
     # For extension "rogalmic.bash-debug".
-    # It needs bash, cat, mkfifo, rm, and pkill
     bash
-    coreutils
+    (filterPrograms coreutils [
+      "cat"
+      "mkfifo"
+      "rm"
+    ])
     (filterPrograms procps [ "pkill" ])
 
     # For extension "maximsmol.vscode-lsp-generic"
     efm-langserver
+    # efm-langserver launches commands with`sh`
+    dash
     # These are used in the efm-langserver config
     coreutils
     jq
-    # efm-langserver launches commands with`sh`
-    dash
   ];
 }
