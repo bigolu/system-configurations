@@ -3,7 +3,6 @@
   pkgs,
   hasGui,
   repositoryDirectory,
-  pins,
   config,
   ...
 }:
@@ -11,18 +10,6 @@ let
   inherit (pkgs) stdenv;
   inherit (stdenv.hostPlatform) isDarwin isLinux;
   inherit (lib) mkIf hm mkMerge;
-
-  stacklineWithoutConfig = stdenv.mkDerivation {
-    pname = "mystackline";
-    version = "0.1";
-    src = pins.stackline;
-    installPhase = ''
-      mkdir -p $out
-      cp -r $src/* $out/
-      # remove the config that stackline comes with so I can link mine later
-      rm $out/conf.lua
-    '';
-  };
 
   mac = mkIf (hasGui && isDarwin) {
     fileWrapper = {
@@ -35,18 +22,8 @@ let
 
       home.file = {
         ".hammerspoon/init.lua".source = "hammerspoon/init.lua";
-        ".hammerspoon/stackline/conf.lua".source = "hammerspoon/stackline/conf.lua";
         "Library/Keyboard Layouts/NoAccentKeys.bundle".source =
           "keyboard/US keyboard - no accent keys.bundle";
-      };
-    };
-
-    home.file = {
-      ".hammerspoon/stackline" = {
-        source = stacklineWithoutConfig;
-        # I'm recursively linking because I link into this directory in other
-        # places.
-        recursive = true;
       };
     };
 

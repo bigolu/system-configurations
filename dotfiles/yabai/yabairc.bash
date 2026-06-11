@@ -40,18 +40,3 @@ yabai -m rule --add label=installer app="^Installer$" title=".*" manage=off
 # progress bar for copying a file
 yabai -m rule --add label=finder app="^Finder$" title="^Copy$" manage=off
 yabai -m rule --add label=firefox app="^Firefox$" title="^Log in to your PayPal account$" manage=off
-
-# Hide the stack indicators if the current window is maximized and not in a stack.
-function hide_stackline {
-	if
-		yabai -m query --windows --window |
-			jq --exit-status '."has-fullscreen-zoom" and ."stack-index" == 0' 1>/dev/null 2>&1
-	then
-		alpha=0
-	else
-		alpha=1
-	fi
-	hs -c "if stackline.config:get([[appearance.alpha]]) ~= $alpha then stackline.config:set([[appearance.alpha]], $alpha) end"
-}
-call_hide_stackline="$(declare -f hide_stackline)"$'\n''hide_stackline'
-yabai -m signal --add label=hidestackline event=window_resized action="$call_hide_stackline"

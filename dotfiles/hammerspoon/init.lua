@@ -8,8 +8,6 @@ hs.loadSpoon("EmmyLua", false)
 
 hs.loadSpoon("Speakers")
 
-require("stackline"):init()
-
 local icons = {
 	bsp = [[ASCII:
 1 · · · · · · 4 · 6 · · · · · · 9

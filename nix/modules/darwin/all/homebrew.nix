@@ -1,4 +1,3 @@
-{ config, ... }:
 {
   homebrew = {
     enable = true;
@@ -23,17 +22,4 @@
       no_quarantine = true;
     };
   };
-
-  # TODO: https://github.com/nix-darwin/nix-darwin/issues/663
-  system.activationScripts.postActivation.text = ''
-    # Hammerspoon won't have any of my nix profile /bin directories on its path so
-    # below I'm copying the programs it needs into a directory that is on its $PATH.
-    #
-    # The stackline plugin needs yabai.
-    source=${config.services.yabai.package}/bin/yabai
-    destination=/usr/local/bin/yabai
-    if ! [[ $destination -ef $source ]]; then
-      cp --force "$source" "$destination"
-    fi
-  '';
 }

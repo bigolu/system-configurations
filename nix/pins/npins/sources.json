@@ -19,19 +19,6 @@
       "url": "https://github.com/Hammerspoon/Spoons/archive/5c20bcecc380acff5f0f5df7a718c5679aaaf62a.tar.gz",
       "hash": "sha256-LeMsmm/au7GbnETVAUNNABanjU1byXpYbzWG/5nT4sM="
     },
-    "stackline": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "AdamWagner",
-        "repo": "stackline"
-      },
-      "branch": "main",
-      "submodules": false,
-      "revision": "2aa0bd9a27f93bad24b0fd4da38f3c0356414098",
-      "url": "https://github.com/AdamWagner/stackline/archive/2aa0bd9a27f93bad24b0fd4da38f3c0356414098.tar.gz",
-      "hash": "sha256-x7SIgKR6rwkoVVbaAvjFr1N7wTF3atni/d6xGLBBRN4="
-    },
     "vim-caser": {
       "type": "Git",
       "repository": {

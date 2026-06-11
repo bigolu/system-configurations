@@ -5,61 +5,38 @@
   ...
 }:
 # SYNC: devshell-base
-# All devshells should set `extraSpecialArgs`, `name`, and import `essentials.nix`.
+# All devshells should set `extraSpecialArgs`/`name` and import `essentials`.
 (perSystem.devshell.eval {
   extraSpecialArgs = { inherit inputs pkgs; };
   configuration =
-    {
-      pkgs,
-      lib,
-      pins,
-      ...
-    }:
+    { pkgs, ... }:
     let
-      inherit (lib)
-        optionals
-        elem
-        filterAttrs
-        attrValues
-        ;
-      inherit (pkgs.stdenv.hostPlatform) isLinux;
       moduleRoot = ../../modules/devshell;
     in
     {
       imports = [
-        (moduleRoot + "/essentials.nix")
+        (moduleRoot + "/essentials")
         { devshell.name = "dev"; }
 
         (moduleRoot + "/vscode.nix")
         (moduleRoot + "/lefthook.nix")
+
+        # npins
+        {
+          devshell = {
+            packages = [ pkgs.npins ];
+            startup.npins.text = ''
+              export NPINS_DIRECTORY="$PRJ_ROOT/nix/pins/npins"
+            '';
+          };
+        }
       ];
 
-      devshell = {
-        packages = with pkgs; [ npins ];
-
-        startup.dev.text = ''
-          export NPINS_DIRECTORY="$PRJ_ROOT/nix/pins/npins"
-          export NIX_CONFIG="
-            ''${NIX_CONFIG:-}
-            extra-repl-overlays = $PRJ_ROOT/nix/overlays/repl.nix
-          "
-        '';
-      };
-
-      gcRoot.roots.paths = attrValues (
-        filterAttrs (
-          name: pin:
-          (name != "__functor")
-          && (
-            !(elem pin (
-              with pins;
-              optionals isLinux [
-                spoons
-                stackline
-              ]
-            ))
-          )
-        ) pins
-      );
+      devshell.startup.dev.text = ''
+        export NIX_CONFIG="
+          ''${NIX_CONFIG:-}
+          extra-repl-overlays = $PRJ_ROOT/nix/overlays/repl.nix
+        "
+      '';
     };
 }).shell

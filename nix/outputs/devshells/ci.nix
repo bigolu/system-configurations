@@ -5,7 +5,7 @@
   ...
 }:
 # SYNC: devshell-base
-# All devshells should set `extraSpecialArgs`, `name`, and import `essentials.nix`.
+# All devshells should set `extraSpecialArgs`/`name` and import `essentials`.
 (perSystem.devshell.eval {
   extraSpecialArgs = { inherit inputs pkgs; };
 
@@ -16,23 +16,11 @@
     in
     {
       imports = [
-        (moduleRoot + "/essentials.nix")
+        (moduleRoot + "/essentials")
         { devshell.name = "ci"; }
       ];
 
-      extra.locale = {
-        package = pkgs.glibcLocales.override {
-          allLocales = false;
-          locales = [ "en_US.UTF-8/UTF-8" ];
-        };
-      };
-
       # For the `run` steps in CI workflows
       devshell.packages = [ pkgs.bash ];
-
-      gcRoot.roots.flake.exclude = [
-        "llm-agents"
-        "nix-gl-host-rs"
-      ];
     };
 }).shell
