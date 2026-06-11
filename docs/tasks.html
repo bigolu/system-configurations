@@ -1143,17 +1143,16 @@
         database migrations whenever the schema changes.
       </p>
       <ul>
-        <li>
-          <strong>Usage</strong>: <code>sync [--job… &lt;job&gt;] [--ask]</code>
-        </li>
+        <li><strong>Usage</strong>: <code>sync [--ask] [job]…</code></li>
       </ul>
       <p>Sync your environment with the code</p>
-      <h3>Flags</h3>
-      <h4><code>--job… &lt;job&gt;</code></h4>
+      <h3>Arguments</h3>
+      <h4><code>[job]…</code></h4>
       <p>
         Job to run. If none are passed then all of them will be run. The list of
         jobs is in <code>lefthook.yaml</code> under the <code>sync</code> hook.
       </p>
+      <h3>Flags</h3>
       <h4><code>--ask</code></h4>
       <p>
         Show a diff of the current state and the new state, and ask for
