@@ -1080,7 +1080,7 @@
       <ul>
         <li>
           <strong>Usage</strong>:
-          <code>check [--all] [--job… &lt;job&gt;] [start]</code>
+          <code>check [--all-files] [--job… &lt;job&gt;] [start]</code>
         </li>
       </ul>
       <p>Run jobs to find/fix issues</p>
@@ -1093,13 +1093,12 @@
       </p>
       <p><strong>Default:</strong> <code>HEAD</code></p>
       <h3>Flags</h3>
-      <h4><code>--all</code></h4>
+      <h4><code>--all-files</code></h4>
       <p>
-        For faster development, we decide whether a job runs, and which files it
-        runs on, based on the files changed by the commit being checked. This
-        way, you can skip checks that aren't related to the files you changed.
-        However, sometimes a job is incorrectly skipped so you can use this flag
-        to run all checks.
+        For faster development, we decide whether to run a job, and which files
+        it runs on, based on the files changed by the commit being checked.
+        However, this logic isn't perfect so you can use this flag to consider
+        all files changed.
       </p>
       <h4><code>--job… &lt;job&gt;</code></h4>
       <p>
