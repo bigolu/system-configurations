@@ -10,6 +10,9 @@
     # For extension "rogalmic.bash-debug".
     bash
     (filterPrograms coreutils [
+      # It's a multi-call binary so all programs besides this one are symlinks
+      # to it.
+      "coreutils"
       "cat"
       "mkfifo"
       "rm"
