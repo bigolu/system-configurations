@@ -43,9 +43,11 @@ in
       gzip
       wget
       which
-      partialPackages.toybox
-      partialPackages.xargs
-      partialPackages.ps
+      # toybox is a multi-call binary so we are going to delete everything besides the
+      # toybox executable and the programs I need which are just symlinks to it.
+      (filterPrograms toybox [ "toybox" "hostname" "strings" ])
+      (filterPrograms findutils [ "xargs" ])
+      (filterPrograms procps [ "ps" ])
       ast-grep
       lesspipe
       diffoscopeMinimal
@@ -61,7 +63,9 @@ in
     ++ optionals isLinux [
       trashy
       pipr
-      partialPackages.pstree
+      # The pstree from psmisc is preferred on linux for some reason:
+      # https://github.com/NixOS/nixpkgs/blob/3dc440faeee9e889fe2d1b4d25ad0f430d449356/pkgs/applications/misc/pstree/default.nix#L36C8-L36C8
+      (filterPrograms psmisc [ "pstree" ])
       cntr
       strace
       inotify-info

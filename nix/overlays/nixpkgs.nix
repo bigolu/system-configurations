@@ -13,6 +13,11 @@ let
         getExe
         escapeShellArgs
         ;
+    in
+    {
+      zerobox = final.linkFarm "zerobox" { "bin/zerobox" = "${pins.zerobox}/zerobox"; };
+      inherit (inputs.nix-portable-home.legacyPackages.${system}) makePortableHome;
+      bundlerRootless = inputs.nix-rootless-bundler.bundlers.${system}.default;
 
       filterPrograms =
         package: programsToKeep:
@@ -32,11 +37,6 @@ let
             find . ${escapeShellArgs findFilters} -type f,l -exec rm -f {} +
           '';
         };
-    in
-    {
-      zerobox = final.linkFarm "zerobox" { "bin/zerobox" = "${pins.zerobox}/zerobox"; };
-      inherit (inputs.nix-portable-home.legacyPackages.${system}) makePortableHome;
-      bundlerRootless = inputs.nix-rootless-bundler.bundlers.${system}.default;
 
       lixPackageSet =
         let
@@ -60,27 +60,6 @@ let
           cp keyd.service.in $out/lib/systemd/system/keyd.service
         '';
       });
-
-      partialPackages = recurseIntoAttrs (
-        {
-          xargs = filterPrograms final.findutils [ "xargs" ];
-          ps = filterPrograms final.procps [ "ps" ];
-          pkill = filterPrograms final.procps [ "pkill" ];
-          look = filterPrograms final.util-linux [ "look" ];
-          # toybox is a multi-call binary so we are going to delete everything besides the
-          # toybox executable and the programs I need which are just symlinks to it.
-          toybox = filterPrograms final.toybox [
-            "toybox"
-            "hostname"
-            "strings"
-          ];
-        }
-        // optionalAttrs isLinux {
-          # The pstree from psmisc is preferred on linux for some reason:
-          # https://github.com/NixOS/nixpkgs/blob/3dc440faeee9e889fe2d1b4d25ad0f430d449356/pkgs/applications/misc/pstree/default.nix#L36C8-L36C8
-          pstree = filterPrograms final.psmisc [ "pstree" ];
-        }
-      );
 
       ripgrep-all =
         let

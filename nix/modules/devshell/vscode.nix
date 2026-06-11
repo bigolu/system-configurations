@@ -11,7 +11,7 @@
     # It needs bash, cat, mkfifo, rm, and pkill
     bash
     coreutils
-    partialPackages.pkill
+    (filterPrograms procps [ "pkill" ])
 
     # For extension "maximsmol.vscode-lsp-generic"
     efm-langserver
