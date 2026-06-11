@@ -52,9 +52,9 @@ in
       inherit inputs;
 
       exclude =
-        (optionals isLinux [
+        optionals isLinux [
           "nix-darwin"
-        ])
+        ]
         ++ optionals isDarwin [
           "nix-gl-host-rs"
         ]
