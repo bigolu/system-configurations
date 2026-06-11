@@ -45,7 +45,11 @@ in
       which
       # toybox is a multi-call binary so we are going to delete everything besides the
       # toybox executable and the programs I need which are just symlinks to it.
-      (filterPrograms toybox [ "toybox" "hostname" "strings" ])
+      (filterPrograms toybox [
+        "toybox"
+        "hostname"
+        "strings"
+      ])
       (filterPrograms findutils [ "xargs" ])
       (filterPrograms procps [ "ps" ])
       ast-grep

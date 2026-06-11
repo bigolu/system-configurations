@@ -5,11 +5,9 @@ let
     final: prev:
     let
       pins = import ../pins final;
-      inherit (final.stdenv.hostPlatform) system isLinux;
+      inherit (final.stdenv.hostPlatform) system;
       inherit (final.lib)
         recursiveUpdate
-        recurseIntoAttrs
-        optionalAttrs
         getExe
         escapeShellArgs
         ;
