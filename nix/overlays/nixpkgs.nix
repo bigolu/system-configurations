@@ -27,7 +27,7 @@ let
           ]) programsToKeep;
         in
         final.symlinkJoin {
-          name = "${package.name}-partial";
+          name = "${package.pname}-partial-${package.version}";
           paths = [ package ];
           nativeBuildInputs = [ final.makeWrapper ];
           postBuild = ''
