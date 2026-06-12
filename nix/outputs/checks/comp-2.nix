@@ -1,7 +1,6 @@
 {
   inputs,
   pkgs,
-  pname,
   ...
 }:
 let
@@ -9,4 +8,4 @@ let
 in
 pkgs.lib.recursiveUpdate {
   meta.platforms = [ system ];
-} inputs.self.legacyPackages.${system}.homeConfigurations.${pname}.activationPackage
+} inputs.self.legacyPackages.${system}.homeConfigurations."biggs@comp_2".activationPackage
