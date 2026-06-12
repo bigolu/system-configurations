@@ -22,6 +22,11 @@ let
       };
     in
     {
+      _module.args = {
+        # We don't use the `pkgs` module argument to avoid infinite recursion.
+        pkgs = mkForce (recursiveUpdate pkgs' (import ./package-overrides.nix pkgs'));
+      };
+
       programs = {
         home-manager.enable = mkForce false;
         nix-index = {
@@ -57,11 +62,6 @@ let
     };
 in
 {
-  _module.args = {
-    # We don't use the `pkgs` module argument to avoid infinite recursion.
-    pkgs = mkForce (recursiveUpdate pkgs' (import ./package-overrides.nix pkgs'));
-  };
-
   imports = [ reduceClosureSize ];
 
   # Home Manager requires that these be set
