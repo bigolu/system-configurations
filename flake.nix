@@ -89,8 +89,8 @@
       };
     };
 
-    nix-script = {
-      url = "github:bigolu/nix-script";
+    nix-scene = {
+      url = "github:bigolu/nix-scene";
       inputs = {
         nixpkgs.follows = "nixpkgs";
         flake-compat.follows = "flake-compat";

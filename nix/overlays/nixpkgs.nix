@@ -175,6 +175,6 @@ in
   inputs.git-auto-sync.overlays.default
   inputs.llm-agents.overlays.default
   inputs.nix-gl-host-rs.overlays.default
-  inputs.nix-script.overlays.default
+  inputs.nix-scene.overlays.default
   myOverlay
 ]

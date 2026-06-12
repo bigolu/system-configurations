@@ -13,10 +13,10 @@ let
   isDev = config.devshell.name == "dev";
 in
 {
-  imports = [ inputs.nix-script.devshellModules.nix-script ];
+  imports = [ inputs.nix-scene.devshellModules.nix-scene ];
 
-  nix-script = {
-    config = projectRoot + /nix/nix-script.nix;
+  nix-scene = {
+    config = projectRoot + /nix/nix-scene.nix;
     preload = optional isDev (projectRoot + /mise/tasks);
   };
 
@@ -28,12 +28,12 @@ in
       export MISE_TRUSTED_CONFIG_PATHS="$PRJ_ROOT/mise/config.toml"
     ''
     + optionalString isCi ''
-      # We preload all our nix-script environments into the development
+      # We preload all our nix-scene environments into the development
       # devshell so we only need to enable GC root creation in Ci.
       #
       # Use the `CI` environment variable so users can load the CI devshell
       # locally without GC roots being made.
-      export NIX_SCRIPT_GC_ROOT="''${CI:-}"
+      export NIX_SCENE_GC_ROOT="''${CI:-}"
     '';
   };
 }

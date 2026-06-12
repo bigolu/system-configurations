@@ -618,7 +618,7 @@
         "type": "github"
       }
     },
-    "nix-script": {
+    "nix-scene": {
       "inputs": {
         "devshell": [],
         "devshell-modules": [],
@@ -631,16 +631,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1781201769,
-        "narHash": "sha256-n2O+yhtZ03zpG5m+ADeCPP2DW8g6T+cZ18+Ko7iBRG8=",
+        "lastModified": 1781285827,
+        "narHash": "sha256-SIcWjXbd3guszAfOPGYwH0rcQrpo5A33dy89LtqQm1o=",
         "owner": "bigolu",
-        "repo": "nix-script",
-        "rev": "62748b8d828ef9a01f79c798d414e92949979738",
+        "repo": "nix-scene",
+        "rev": "301994bdd197f2625431bc6716470dcade4f2ee7",
         "type": "github"
       },
       "original": {
         "owner": "bigolu",
-        "repo": "nix-script",
+        "repo": "nix-scene",
         "type": "github"
       }
     },
@@ -722,7 +722,7 @@
         "nix-index-database": "nix-index-database",
         "nix-portable-home": "nix-portable-home",
         "nix-rootless-bundler": "nix-rootless-bundler",
-        "nix-script": "nix-script",
+        "nix-scene": "nix-scene",
         "nixpkgs": "nixpkgs_3"
       }
     },
