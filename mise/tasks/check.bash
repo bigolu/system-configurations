@@ -1,9 +1,7 @@
 #nix --interpreter bash
-#nix --packages bash git-branchless
+#nix --packages bash
 #MISE description="Run jobs to find/fix issues"
-#USAGE long_about "Run jobs to find/fix issues in the commits specified."
-#USAGE
-#USAGE arg "<start>" default="HEAD" long_help="The commit to start checking from. Commits from `start` to the current commit (`HEAD`) will be checked. By default only `HEAD` is checked."
+#USAGE long_about "Run jobs to find/fix issues in the current commit (HEAD)."
 #USAGE
 #USAGE flag "--all-files" help="Check all files" long_help="For faster development, we decide whether to run a job, and which files it runs on, based on the files changed by the commit being checked. However, this logic isn't perfect so you can use this flag to consider all files changed."
 #USAGE
@@ -16,50 +14,4 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-lefthook_command=(lefthook run check)
-for arg in "$@"; do
-	case "$arg" in
-		"${usage_start:?}")
-			;;
-		*)
-			lefthook_command+=("$arg")
-			;;
-	esac
-done
-
-if [[ $usage_start == 'HEAD' ]]; then
-	# Normally, we use git-branchless to run the checks since it can check multiple
-	# commits in parallel. However, git-branchless discards any changes that get
-	# made while running checks, which would discard any fixes that are made. To
-	# work around this, we don't use git-branchless when we're only running on the
-	# HEAD commit.
-	"${lefthook_command[@]}"
-	exit
-fi
-
-start="$usage_start"
-# mise sets variables starting with `usage_` or `MISE_` when a task is run.
-# Tasks run within the checks shouldn't inherit the variables from this task.
-#
-# Unset the variables starting with  `PRJ_` so the nix environment can set new
-# values for them relative to the directory of the worktree.
-unset "${!usage_@}" "${!MISE_@}" "${!PRJ_@}"
-
-git_branchless_exec_command=(
-	# Load the nix environment since we'll be in a new worktree and may need to do
-	# some setup.
-	nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.dev --
-	# We enable lefthook since it gets disabled below.
-	env LEFTHOOK=true "${lefthook_command[@]}"
-)
-# Disable lefthook so git hooks don't run when `git-branchless` runs git commands.
-#
-# We can't use the cache since it isn't invalidated when the commit message
-# changes, only when the files in the commit change. This is a problem since
-# we lint commit messages.
-LEFTHOOK=false git-branchless test run \
-	--verbose --verbose \
-	--no-cache \
-	--jobs 0 \
-	--exec "${git_branchless_exec_command[*]@Q}" \
-	"${start}:HEAD"
+lefthook run check "$@"
