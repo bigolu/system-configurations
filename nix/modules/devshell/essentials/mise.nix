@@ -16,7 +16,7 @@ in
   imports = [ inputs.nix-scene.devshellModules.nix-scene ];
 
   nix-scene = {
-    config = projectRoot + /nix/nix-scene.nix;
+    config = projectRoot + /nix/scene.nix;
     preload = optional isDev (projectRoot + /mise/tasks);
   };
 
