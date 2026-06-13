@@ -10,7 +10,7 @@ in
       imports = [ (moduleRoot + "/essentials") ];
       _module.args = {
         hasGui = true;
-        hostName = "comp_3";
+        hostName = "comp_2";
       };
     }
 
