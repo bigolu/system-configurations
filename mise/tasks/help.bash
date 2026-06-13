@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash
+#nix --interpreter bash --packages bash
 #MISE description="Open task documentation"
 
 set -o errexit

@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash coreutils
+#nix --interpreter bash --packages bash coreutils
 #MISE description="Start a Bash shell in an environment that resembles CI"
 
 set -o errexit

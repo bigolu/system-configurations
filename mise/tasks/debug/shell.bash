@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash coreutils
+#nix --interpreter bash --packages bash coreutils
 #MISE description="Start `.#shell` in an empty environment"
 #USAGE flag "-b --bundle" help="Use `nix bundle` (slower)"
 

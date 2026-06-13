@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash perl
+#nix --interpreter bash --packages bash perl
 #MISE hide=true
 
 set -o errexit

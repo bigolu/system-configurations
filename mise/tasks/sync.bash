@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash
+#nix --interpreter bash --packages bash
 #MISE description="Sync your environment with the code"
 #USAGE long_about "Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes."
 #USAGE

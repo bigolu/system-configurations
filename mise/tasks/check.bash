@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash
+#nix --interpreter bash --packages bash
 #MISE description="Run jobs to find/fix issues"
 #USAGE long_about "Run jobs to find/fix issues in the current commit (HEAD)."
 #USAGE

@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash coreutils
+#nix --interpreter bash --packages bash coreutils
 #MISE hide=true
 
 set -o errexit

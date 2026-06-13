@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash coreutils run-as-admin nh
+#nix --interpreter bash --packages bash coreutils run-as-admin nh
 #MISE hide=true
 #USAGE arg "[config]" help="The name of the configuration to apply"
 

@@ -1,5 +1,4 @@
-#nix --interpreter bash
-#nix --packages bash rsync
+#nix --interpreter bash --packages bash rsync
 #USAGE arg "<destination>" { choices "to-repo" "to-system" }
 
 # TODO: Regarding the choices above: I prefixed them to 'to-' so it's clear from the
