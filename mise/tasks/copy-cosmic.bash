@@ -15,7 +15,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-repo='dotfiles/cosmic/config/'
+repo='dotfiles/cosmic/'
 system="$HOME/.config/cosmic/"
 
 case "${usage_destination:?}" in
