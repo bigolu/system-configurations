@@ -8,7 +8,6 @@
 let
   inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
   inherit (lib)
-    optionals
     optionalAttrs
     optionalString
     ;
@@ -48,24 +47,16 @@ in
   };
 
   home = {
-    packages =
-      with pkgs;
-      [
-        nix-tree
-        nix-melt
-        lixPackageSet.comma
-        nix-diff
-        nix-search-cli
-        nix-sweep
-        nixpkgs-track
-        dix
-      ]
-      ++ optionals isLinux [
-        # for breakpointHook:
-        # https://nixos.org/manual/nixpkgs/stable/#breakpointhook
-        cntr
-        nix-gl-host
-      ];
+    packages = with pkgs; [
+      nix-tree
+      nix-melt
+      lixPackageSet.comma
+      nix-diff
+      nix-search-cli
+      nix-sweep
+      nixpkgs-track
+      dix
+    ];
 
     activation = {
       removeOldUserProfileGenerations = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

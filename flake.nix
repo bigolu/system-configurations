@@ -21,12 +21,6 @@
 
     nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=v0.6.0";
 
-    nix-gl-host-rs = {
-      url = "github:arilotter/nix-gl-host-rs";
-      # TODO: It doesn't build with my version of nixpkgs
-      # inputs.nixpkgs.follows = "nixpkgs";
-    };
-
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";

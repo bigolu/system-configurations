@@ -16,7 +16,7 @@ let
     filterAttrs
     elem
     ;
-  inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
   isCi = config.devshell.name == "ci";
 in
 {
@@ -55,12 +55,8 @@ in
         optionals isLinux [
           "nix-darwin"
         ]
-        ++ optionals isDarwin [
-          "nix-gl-host-rs"
-        ]
         ++ optionals isCi [
           "llm-agents"
-          "nix-gl-host-rs"
         ];
     };
 

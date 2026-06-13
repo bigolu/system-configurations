@@ -70,7 +70,6 @@ in
       # The pstree from psmisc is preferred on linux for some reason:
       # https://github.com/NixOS/nixpkgs/blob/3dc440faeee9e889fe2d1b4d25ad0f430d449356/pkgs/applications/misc/pstree/default.nix#L36C8-L36C8
       (filterPrograms psmisc [ "pstree" ])
-      cntr
       strace
       inotify-info
       isd
