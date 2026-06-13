@@ -372,7 +372,7 @@ check:
               lua-language-server \
                 --logpath "$(mktemp --directory)/lua-ls-logs" \
                 --check ./dotfiles/neovim \
-                --configpath "$PRJ_ROOT/.luarc.json"
+                --configpath "$PWD/.luarc.json"
           - name: keyd
             only:
               - run: command -v keyd
