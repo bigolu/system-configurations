@@ -15,17 +15,17 @@ jobs:
           - ubuntu-24.04 # renovate: github-runner
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - uses: ./.github/actions/setup
       - name: Make Assets
         id: make-assets
         run: mise run ci:make-assets
-      - uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: assets-${{ matrix.os }}
           path: ${{ steps.make-assets.outputs.asset-directory }}
       - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@main
+        uses: bigolu/cache-nix-gc-roots-action/save@105282c8850c86c5303e3ec8dd2f1859e561cc0c # main
   release:
     permissions:
       # We need to this to create/delete releases
@@ -33,7 +33,7 @@ jobs:
     needs: make-assets
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
       - uses: ./.github/actions/setup
       - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
         with:
@@ -46,4 +46,4 @@ jobs:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: mise run ci:release
       - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@main
+        uses: bigolu/cache-nix-gc-roots-action/save@105282c8850c86c5303e3ec8dd2f1859e561cc0c # main
