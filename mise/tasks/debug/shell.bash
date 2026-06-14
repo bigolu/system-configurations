@@ -17,4 +17,4 @@ else
 fi
 
 temp_home="$(mktemp --directory)"
-env --ignore-environment TERM="${TERM:-}" HOME="$temp_home" "$shell"
+exec env --ignore-environment TERM="${TERM:-}" HOME="$temp_home" "$shell"
