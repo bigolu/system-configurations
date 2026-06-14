@@ -25,10 +25,11 @@ else
 fi
 
 run_as_admin="$(type -P run-as-admin)"
+run_as_admin_canon="$(readlink --canonicalize "$run_as_admin")"
 # The sudo policy on Pop!_OS won't inherit environment variables or let me use
 # `--preserve-env`
 shopt -s lastpipe
 env --null | readarray -d '' env_vars
-sudo -- "$run_as_admin" \
+sudo -- "$run_as_admin_canon" \
 	env "${env_vars[@]}" \
 	nh "$manager" switch "${flags[@]}" --file nix/flake-compat.nix "$attr_path"
