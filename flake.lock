@@ -420,11 +420,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1780804072,
-        "narHash": "sha256-qFF/6+rPfoXwOGPaIy8hZPKSLCLt0Brl/VQO0ADmzCQ=",
+        "lastModified": 1781396398,
+        "narHash": "sha256-mDOULhI94l3pKWrSv12nnDjNtMu0aRVWiFf6dI226D0=",
         "owner": "bigolu",
         "repo": "home-manager-file-wrapper",
-        "rev": "a69e0e60bca814be5dcbafd8c8962b14bdc41ac1",
+        "rev": "a240d327c5f600a00a8fd301af4bcce941c549bf",
         "type": "github"
       },
       "original": {
