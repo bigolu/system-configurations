@@ -17,4 +17,9 @@ else
 fi
 
 temp_home="$(mktemp --directory)"
-exec env --ignore-environment TERM="${TERM:-}" HOME="$temp_home" "$shell"
+function remove_temp_home {
+	rm --recursive --force "$temp_home"
+}
+trap remove_temp_home EXIT
+
+env --ignore-environment TERM="${TERM:-}" HOME="$temp_home" "$shell"
