@@ -1,12 +1,6 @@
 #nix --interpreter bash --packages bash rsync
-#USAGE arg "<destination>" { choices "to-repo" "to-system" }
-
-# TODO: Regarding the choices above: I prefixed them to 'to-' so it's clear from the
-# autocomplete menu that you're choosing the destination. You can specify a
-# description for each autocomplete entry[1], but I get an error whenever I try. I
-# should report an issue.
-#
-# [1]: https://usage.jdx.dev/spec/reference/complete#descriptions
+#USAGE arg "<destination>"
+#USAGE complete "destination" descriptions=#true run=#"printf '%s\n' 'repo:Copy from system to repo' 'system:Copy from repo to system'"#
 
 set -o errexit
 set -o nounset
@@ -18,11 +12,11 @@ repo='dotfiles/cosmic/'
 system="$HOME/.config/cosmic/"
 
 case "${usage_destination:?}" in
-	'to-repo')
+	'repo')
 		source="$system"
 		destination="$repo"
 		;;
-	'to-system')
+	'system')
 		source="$repo"
 		destination="$system"
 		;;
