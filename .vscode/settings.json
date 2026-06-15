@@ -6,7 +6,8 @@
   "evenBetterToml.taplo.bundled": false,
   "files.associations": {
     ".envrc": "shellscript",
-    "renovate.json": "jsonc"
+    "renovate.json": "jsonc",
+    "shellcheckrc": "plaintext"
   },
   "fish-lsp.useGlobalExecutable": true,
   "lsp_generic_client.servers": {
