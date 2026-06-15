@@ -578,11 +578,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781456410,
-        "narHash": "sha256-DxJ271HePOPdD6yAroR0v86PT7x+NMAi8vmjHr595qM=",
+        "lastModified": 1781531204,
+        "narHash": "sha256-u2QZtkgy6w7G1XX1KdqfsSq/BMHKbgNEZbXxtrjzY7Q=",
         "owner": "bigolu",
         "repo": "nix-scene",
-        "rev": "eaf0ff189c8208e313e0f2bc377274f0b0b1d988",
+        "rev": "727b0a83bf1dcbd304cd01f8a673e5054a931541",
         "type": "github"
       },
       "original": {
