@@ -6,7 +6,7 @@
     # a dependency.
     git
 
-    # For the sync hook
+    # For the post-* hooks
     git-auto-sync
 
     # For the check hook
