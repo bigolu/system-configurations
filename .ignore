@@ -1,5 +1,4 @@
 .git
 **/.gitkeep
 dotfiles/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
-dotfiles/cosmic/
-docs/tasks.{html,md}
+docs/tasks.html

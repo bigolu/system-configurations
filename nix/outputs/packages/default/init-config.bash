@@ -22,8 +22,6 @@ eval "$direnv_export"
 
 if [[ $OSTYPE == linux* ]]; then
 	mise run lefthook:system-sync "$configuration"
-	# shellcheck disable=2016
-	echo 'Consider copying COSMIC settings to the system by running `mise run copy-cosmic to-system`'
 else
 	if ! [[ -x /usr/local/bin/brew ]]; then
 		# Install homebrew. Source: https://brew.sh/

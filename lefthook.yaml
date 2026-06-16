@@ -177,7 +177,6 @@ check:
   exclude:
     - ".vscode/ltex*"
     - dotfiles/keyboard/US keyboard - no accent keys.bundle/**/*
-    - dotfiles/cosmic/**/*
     - docs/**/*
   # Enabling `piped` is useful during local development when there are issues
   # found by fast checks, but not slow ones. Without `piped`, you would run all
