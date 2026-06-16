@@ -269,5 +269,6 @@ function nix-store-size
     nix-sweep analyze --all
 end
 function nix-store-clean
-    nix-sweep tidyup-gc-roots
+    nix-sweep tidyup-gc-roots --older '2 weeks' --force
+    nix-collect-garbage --delete-old
 end
