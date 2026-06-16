@@ -1,5 +1,5 @@
 #nix --interpreter bash --packages bash coreutils
-#MISE description="Start `.#shell` in an empty environment"
+#MISE description="Start portable home in an empty environment"
 #USAGE flag "-b --bundle" help="Use `nix bundle` (slower)"
 
 set -o errexit

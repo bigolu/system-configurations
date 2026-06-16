@@ -1097,24 +1097,11 @@
         Job to run. If none are passed then all of them will be run. The list of
         jobs is in <code>lefthook.yaml</code> under the <code>check</code> hook.
       </p>
-      <h2><code>copy-cosmic</code></h2>
+      <h2><code>debug-shell</code></h2>
       <ul>
-        <li>
-          <strong>Usage</strong>: <code>copy-cosmic &lt;destination&gt;</code>
-        </li>
+        <li><strong>Usage</strong>: <code>debug-shell [-b --bundle]</code></li>
       </ul>
-      <h3>Arguments</h3>
-      <h4><code>&lt;destination&gt;</code></h4>
-      <h2><code>debug:ci</code></h2>
-      <ul>
-        <li><strong>Usage</strong>: <code>debug:ci</code></li>
-      </ul>
-      <p>Start a Bash shell in an environment that resembles CI</p>
-      <h2><code>debug:shell</code></h2>
-      <ul>
-        <li><strong>Usage</strong>: <code>debug:shell [-b --bundle]</code></li>
-      </ul>
-      <p>Start <code>.#shell</code> in an empty environment</p>
+      <p>Start portable home in an empty environment</p>
       <h3>Flags</h3>
       <h4><code>-b --bundle</code></h4>
       <p>Use <code>nix bundle</code> (slower)</p>
