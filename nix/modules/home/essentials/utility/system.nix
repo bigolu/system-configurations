@@ -1,9 +1,6 @@
-# Utilities for managing the system
+# Utilities for managing the system.
 #
-# TODO: I should use system-manager instead of this module, but I don't think it can
-# use Home Manager as a submodule[1].
-#
-# [1]: https://github.com/numtide/system-manager/issues/109
+# I should use system-manager instead, but nh doesn't support it.
 {
   lib,
   pkgs,
