@@ -148,15 +148,11 @@ let
         let
           oldZoxide = prev.zoxide;
 
-          fishConfig =
-            (final.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
-              config_directory="$out/share/fish/vendor_conf.d"
-              mkdir -p "$config_directory"
-              ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
-            '')
-            // {
-              inherit (oldZoxide) version;
-            };
+          fishConfig = final.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
+            config_directory="$out/share/fish/vendor_conf.d"
+            mkdir -p "$config_directory"
+            ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
+          '';
 
           newZoxide = final.symlinkJoin {
             inherit (oldZoxide) pname version;
