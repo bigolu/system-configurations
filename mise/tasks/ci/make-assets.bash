@@ -55,7 +55,7 @@ function copy_bundle_into_assets {
 	cp "$bundle_store_path" "${asset_directory}/${bundle_name_with_platform}"
 }
 
-# Example: /nix/store/<hash>-foo-0.1.0 -> foo-x86_64-linux
+# Example: /nix/store/<hash>-foo-0.1.0 -> foo-linux-x86_64
 function get_name_with_platform {
 	local -r store_path="$1"
 
@@ -64,7 +64,7 @@ function get_name_with_platform {
 	# Remove everything before the beginning of the package name
 	name="${name#*-}"
 
-	# e.g. x86_64-linux
+	# e.g. linux-x86_64
 	local platform
 	platform="$(uname -ms)"
 	platform="${platform,,}"
