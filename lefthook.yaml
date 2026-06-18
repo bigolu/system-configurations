@@ -14,7 +14,8 @@ colors:
   yellow: 3
 
 output:
-  - execution
+  - execution_info
+  - failure
 
 templates:
   # When `git-auto-sync` runs, some of the sync jobs may depend on something from the new
