@@ -47,33 +47,37 @@ in
     gcRoot
   ]);
 
-  gcRoot.roots = {
-    flake = {
-      inherit inputs;
+  gcRoot = {
+    diff.enable = !isCi;
 
-      exclude =
-        optionals isLinux [
-          "nix-darwin"
-        ]
-        ++ optionals isCi [
-          "llm-agents"
-        ];
+    roots = {
+      flake = {
+        inherit inputs;
+
+        exclude =
+          optionals isLinux [
+            "nix-darwin"
+          ]
+          ++ optionals isCi [
+            "llm-agents"
+          ];
+      };
+
+      paths = pipe pins [
+        (filterAttrs (
+          _name: pin:
+          !elem pin (
+            with pins;
+            [
+              __functor
+            ]
+            ++ optionals isLinux [
+              spoons
+            ]
+          )
+        ))
+        attrValues
+      ];
     };
-
-    paths = pipe pins [
-      (filterAttrs (
-        _name: pin:
-        !elem pin (
-          with pins;
-          [
-            __functor
-          ]
-          ++ optionals isLinux [
-            spoons
-          ]
-        )
-      ))
-      attrValues
-    ];
   };
 }
