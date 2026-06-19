@@ -100,12 +100,6 @@ in
     };
   };
 
-  # When switching generations, stop obsolete services and start ones that are wanted
-  # by active units.
-  systemd = optionalAttrs isLinux {
-    user.startServices = "sd-switch";
-  };
-
   fileWrapper = {
     settings = {
       editableInstall = true;

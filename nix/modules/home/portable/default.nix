@@ -49,7 +49,7 @@ let
 
       systemd.user = {
         # This removes the dependency on `sd-switch`.
-        startServices = mkForce "suggest";
+        startServices = mkForce false;
         sessionVariables = optionalAttrs isLinux emptySessionVariables;
         services = mkForce { };
         timers = mkForce { };
