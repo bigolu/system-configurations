@@ -120,7 +120,7 @@ in
       # Flakes have built-in gitignore support
       directoryFilter = callIf (!inPureEvalMode) (
         let
-          # For performance, this shouldn't be called often[1] so we'll save a reference.
+          # PERF: As per the documentation[1], we memoize this.
           #
           # [1]: https://github.com/hercules-ci/gitignore.nix/blob/637db329424fd7e46cf4185293b9cc8c88c95394/docs/gitignoreFilter.md
           filter = inputs.gitignore.lib.gitignoreFilterWith { basePath = projectRoot; };
