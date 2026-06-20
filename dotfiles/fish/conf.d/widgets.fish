@@ -254,17 +254,11 @@ function file-widget --description 'Search files'
     set prompt (__widgets_format_directory_for_prompt $dir)
 
     set preview_command '
-        # TODO: timg cannot detect the line and column count of the screen in fzf
         if file --brief --mime-type {} | grep -q -i image
-            if test "$TERM_PROGRAM" = ghostty
-                # TODO: timg can detect ghostty outside of fzf, but not in it
-                timg -p kitty --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-            else if set --export --names | string match --quiet --regex \'^VSCODE_.*\'
-                # TODO: timg should use iterm2 image mode for vscode
-                timg -p iterm2 --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-            else
-                timg --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
-            end
+            # TODO: timg can detect ghostty outside of fzf, but not in it
+            #
+            # TODO: timg cannot detect the line and column count of the screen in fzf
+            timg -p kitty --center -g "$FZF_PREVIEW_COLUMNS"x"$FZF_PREVIEW_LINES" {}
         else
             bat --style=\'header-filename\' --color always --paging=never --terminal-width (math $FZF_PREVIEW_COLUMNS - 2) {}
         end
