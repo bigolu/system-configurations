@@ -17,13 +17,12 @@ output:
   - execution_info
 
 templates:
-  # When `git-auto-sync` runs, some of the sync jobs may depend on something from the new
-  # nix dev shell.
-  #
   # Use `|-` so words put next to this template are put on same line as the last line
   # in this template, making them arguments to the function call.
   run_in_dev_shell: |-
     run_in_dev_shell() {
+      # When `git-auto-sync` runs, some of the sync jobs may depend on something
+      # from the new nix dev shell.
       if [ -n "${GIT_AUTO_SYNC_LAST_COMMIT:-}" ]; then
         nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.dev -- "$@"
       else
