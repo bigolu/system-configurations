@@ -48,29 +48,13 @@ templates:
 
 pre-push:
   jobs:
-    - name: check
+    - name: check-unpushed-commits
       interactive: true
-      run: |
-        set -eu
-        before="$(git rev-parse HEAD)"
-        # Run an interactive rebase to check the commits that haven't been
-        # pushed yet.
-        #
-        # Stop the sequence editor from launching by setting it to a no-op.
-        #
-        # TODO: Despite me enabling `interactive`, this script doesn't get
-        # connected to /dev/tty so I have to do it with manual redirections.
-        git \
-          -c sequence.editor=: \
-          rebase \
-          --interactive \
-          --exec 'mise run check' \
-          "$(git merge-base '@{push}' HEAD)" </dev/tty >/dev/tty 2>&1
-        after="$(git rev-parse HEAD)"
-        # A commit was changed so abort the push by exiting with a non-zero code.
-        if [ "$before" != "$after" ]; then
-          exit 1
-        fi
+      # Stop the sequence editor from launching by setting it to a no-op.
+      #
+      # TODO: Despite me enabling `interactive`, this script doesn't get
+      # connected to the terminal so I have to do it with manual redirections.
+      run: 'git -c sequence.editor=: rebase --interactive --exec "mise run check" "$(git merge-base "@{push}" HEAD)" </dev/tty >/dev/tty 2>&1'
 
 post-rewrite:
   jobs:
@@ -251,11 +235,6 @@ check:
             glob: "**/*.nix"
             exclude:
               - nix/pins/npins/**/*
-              # I want to ignore a fix in this file, but statix doesn't support
-              # ignoring fixes with comments[1] so I'll skip the whole file.
-              #
-              # [1]: https://github.com/oppiliappan/statix/issues/61
-              - nix/overlays/nixpkgs.nix
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix fix -- {files}
@@ -340,11 +319,6 @@ check:
             glob: "**/*.nix"
             exclude:
               - nix/pins/npins/**/*
-              # I want to ignore a fix in this file, but statix doesn't support
-              # ignoring fixes with comments[1] so I'll skip the whole file.
-              #
-              # [1]: https://github.com/oppiliappan/statix/issues/61
-              - nix/overlays/nixpkgs.nix
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix check -- {files}
