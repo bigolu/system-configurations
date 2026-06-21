@@ -61,24 +61,24 @@ pre-push:
 post-rewrite:
   jobs:
     - name: sync
-      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
-      # to be enabled here as well.
+      # Some jobs in the `sync` hook have `interactive` enabled so it needs to
+      # be enabled here as well.
       interactive: true
       run: GIT_AUTO_SYNC_HOOK_NAME='post-rewrite' git-auto-sync {0} -- lefthook run sync
 
 post-merge:
   jobs:
     - name: sync
-      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
-      # to be enabled here as well.
+      # Some jobs in the `sync` hook have `interactive` enabled so it needs to
+      # be enabled here as well.
       interactive: true
       run: GIT_AUTO_SYNC_HOOK_NAME='post-merge' git-auto-sync {0} -- lefthook run sync
 
 post-checkout:
   jobs:
     - name: sync
-      # Some of the jobs in the `sync` group have `interactive` enabled so it needs
-      # to be enabled here as well.
+      # Some jobs in the `sync` hook have `interactive` enabled so it needs to
+      # be enabled here as well.
       interactive: true
       run: GIT_AUTO_SYNC_HOOK_NAME='post-checkout' git-auto-sync {0} -- lefthook run sync
 
@@ -110,11 +110,19 @@ sync:
     fi
   jobs:
     - name: direnv
-      # - This job can take a while so being able to see the output in real time
-      #   could reveal bottlenecks.
-      # - If I can see the output in real time, I can spot accidental nix cache
-      #   misses and cancel the job instead of waiting for nix to rebuild the
-      #   package.
+      # I want to see the output of this command in real time for these reasons:
+      #   - This job can take a while so being able to see the output in real
+      #     time could reveal bottlenecks.
+      #   - I can spot accidental nix cache misses and cancel the job instead of
+      #     waiting for nix to rebuild the package.
+      #
+      # I can't use the `follow` option for these reasons:
+      #   - It can only be set for an entire hook, not individual jobs.
+      #   - Even if it could be set on a job, it doesn't work if you also set
+      #     `output` to a list only containing `execution_info`, as we do in
+      #     this config.
+      #
+      # For the reasons above, I use `interactive` instead.
       interactive: true
       glob:
         - lefthook.yaml
@@ -133,14 +141,25 @@ sync:
         - "{nix,smart_plug,dotfiles}/**/*"
         - "**/*.nix"
         - flake.lock
-      # - So I can input my password for `sudo`
-      # - This job can take a while so being able to see the output in real time
-      #   could reveal bottlenecks.
-      # - If I can see the output in real time, I can spot accidental nix cache
-      #   misses and cancel the job instead of waiting for nix to rebuild the
-      #   package.
-      # - If the `--ask` flag is passed to the mise `sync` task, then
-      #   `lefthook:system-sync` will prompt the user for confirmation.
+      # I want to take input from the user for these reasons:
+      #   - So I can input my password for `sudo`, used in the
+      #     `lefthook:system-sync` mise task.
+      #   - If the `--ask` flag is passed to the `sync` mise task, then
+      #     `lefthook:system-sync` will prompt the user for confirmation.
+      #
+      # I want to see the output of this command in real time for these reasons:
+      #   - This job can take a while so being able to see the output in real
+      #     time could reveal bottlenecks.
+      #   - I can spot accidental nix cache misses and cancel the job instead of
+      #     waiting for nix to rebuild the package.
+      #
+      # I can't use the `follow` option for these reasons:
+      #   - It can only be set for an entire hook, not individual jobs.
+      #   - Even if it could be set on a job, it doesn't work if you also set
+      #     `output` to a list only containing `execution_info`, as we do in
+      #     this config.
+      #
+      # For the reasons above, I use `interactive`.
       interactive: true
       run: "{run_in_dev_shell} mise run lefthook:system-sync"
     - name: fish
@@ -343,12 +362,19 @@ check:
             glob: "**/*.toml"
             run: taplo lint {files}
     - name: nix
-      # Why `interactive` is enabled:
+      # I want to see the output of this command in real time for these reasons:
       #   - This job can take a while so being able to see the output in real
       #     time could reveal bottlenecks.
-      #   - If I can see the output in real time, I can spot accidental nix
-      #     cache misses and cancel the job instead of waiting for nix to
-      #     rebuild the package.
+      #   - I can spot accidental nix cache misses and cancel the job instead of
+      #     waiting for nix to rebuild the package.
+      #
+      # I can't use the `follow` option for these reasons:
+      #   - It can only be set for an entire hook, not individual jobs.
+      #   - Even if it could be set on a job, it doesn't work if you also set
+      #     `output` to a list only containing `execution_info`, as we do in
+      #     this config.
+      #
+      # For the reasons above, I use `interactive` instead.
       interactive: true
       glob:
         - "**/*.nix"
