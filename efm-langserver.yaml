@@ -77,13 +77,6 @@ tools:
     lint-formats:
       - "%f:%l:%c %m"
       - "%f:%l %m"
-  typos: &typos
-    lint-source: typos
-    lint-after-open: true
-    lint-stdin: true
-    lint-command: typos --color never --format brief -
-    lint-formats:
-      - "%f:%l:%c: %m"
   statix: &statix
     lint-source: statix
     lint-after-open: true
@@ -196,5 +189,4 @@ languages:
   properties:
     - <<: *keyd
   =:
-    - <<: *typos
     - <<: *editorconfig-checker

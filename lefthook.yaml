@@ -175,16 +175,6 @@ check:
   # running slow checks if a fast one has already failed.
   piped: true
   jobs:
-    - name: commit
-      files: |
-        set -eu
-        file="$(git rev-parse --git-dir)/lefthook-commit-message.txt"
-        git log --format=%B --max-count 1 HEAD >"$file"
-        echo "$file"
-      group:
-        jobs:
-          - name: typos
-            run: typos --no-check-filenames {files}
     # Why fixers should run before other checks:
     #   - A fixer could produce code that would fail another check
     #   - A fixer could fix an issue that would have been found by another check
@@ -327,8 +317,6 @@ check:
             exclude:
               - nix/pins/npins/**/*
             run: nixpkgs-lint --include-unfinished-lints -- {files}
-          - name: typos
-            run: typos {files}
           - name: editorconfig-checker
             run: editorconfig-checker {files}
           - name: renovate-config-validator

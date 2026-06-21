@@ -18,7 +18,7 @@
   c = commit
   ca = "!git add -A && git commit"
   cn = commit --no-verify
-  pn = push --no-verify # typos:ignore
+  pn = push --no-verify
   a = add
   d = diff
   dt = -c diff.external='difft --syntax-highlight off' diff

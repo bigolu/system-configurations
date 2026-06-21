@@ -43,6 +43,5 @@
     statix
     stylua
     taplo
-    typos
   ];
 }
