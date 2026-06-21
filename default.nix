@@ -10,7 +10,7 @@
 # [3]: https://git.lix.systems/lix-project/flake-compat#copying-to-the-store
 
 let
-  lockFile = builtins.fromJSON (builtins.readFile ../flake.lock);
+  lockFile = builtins.fromJSON (builtins.readFile ./flake.lock);
   flake-compat-node = lockFile.nodes.${lockFile.nodes.root.inputs.flake-compat};
   flake-compat = builtins.fetchTarball {
     inherit (flake-compat-node.locked) url;
@@ -18,7 +18,7 @@ let
   };
 
   flake = import flake-compat {
-    src = ../.;
+    src = ./.;
     copySourceTreeToStore = false;
   };
 in

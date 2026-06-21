@@ -24,7 +24,7 @@ templates:
       # When `git-auto-sync` runs, some of the sync jobs may depend on something
       # from the new nix dev shell.
       if [ -n "${GIT_AUTO_SYNC_LAST_COMMIT:-}" ]; then
-        nix run --file nix/flake-compat.nix outputsForCurrentSystem.devShells.dev -- "$@"
+        nix run --file . outputsForCurrentSystem.devShells.dev -- "$@"
       else
         "$@"
       fi
@@ -388,5 +388,5 @@ check:
           nix build \
             --out-link "$dest/root" \
             --impure \
-            --expr "builtins.removeAttrs (import nix/flake-compat.nix).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
+            --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
         '

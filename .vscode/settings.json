@@ -28,7 +28,7 @@
       "nixpkgs": { "expr": "import ./nix/packages.nix" },
       "options": {
         "comp_1": {
-          "expr": "(import ./nix/flake-compat.nix).outputsForCurrentSystem.legacyPackages.homeConfigurations.\"biggs@comp_1\".options"
+          "expr": "(import ./.).outputsForCurrentSystem.legacyPackages.homeConfigurations.\"biggs@comp_1\".options"
         }
       }
     }

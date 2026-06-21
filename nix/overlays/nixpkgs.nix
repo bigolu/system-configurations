@@ -1,5 +1,5 @@
 let
-  inherit (import ../flake-compat.nix) inputs;
+  inherit (import ../..) inputs;
 
   myOverlay =
     final: prev:

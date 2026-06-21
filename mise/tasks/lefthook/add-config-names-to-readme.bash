@@ -15,7 +15,7 @@ configs="$(
 		--expr '
       let
         inherit (builtins) attrNames concatMap attrValues;
-        flake = import ./nix/flake-compat.nix;
+        flake = import ./.;
         inherit (flake.inputs.nixpkgs.lib) concatMapStringsSep uniqueStrings;
         homeConfigs = uniqueStrings (
           concatMap

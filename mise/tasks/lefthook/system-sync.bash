@@ -32,4 +32,4 @@ shopt -s lastpipe
 env --null | readarray -d '' env_vars
 sudo -- "$run_as_admin_canon" \
 	env "${env_vars[@]}" \
-	nh "$manager" switch "${flags[@]}" --file nix/flake-compat.nix "$attr_path"
+	nh "$manager" switch "${flags[@]}" --file . "$attr_path"
