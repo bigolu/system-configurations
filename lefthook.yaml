@@ -49,6 +49,8 @@ templates:
 pre-push:
   jobs:
     - name: check-unpushed-commits
+      # Some jobs in the `check` hook have `interactive` enabled so it needs to
+      # be enabled here as well.
       interactive: true
       # Stop the sequence editor from launching by setting it to a no-op.
       #
