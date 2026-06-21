@@ -115,7 +115,10 @@
 
   outputs =
     inputs:
-    inputs.blueprint {
+    # Ensure the flake isn't considered a function[1].
+    #
+    # https://github.com/numtide/blueprint/issues/110
+    removeAttrs (inputs.blueprint {
       inherit inputs;
       prefix = "nix/outputs";
       nixpkgs = {
@@ -123,5 +126,5 @@
         # TODO: I should open an issue with the project for adding a license
         config.allowUnfreePredicate = pkg: pkg.pname == "camelcasemotion";
       };
-    };
+    }) [ "__functor" ];
 }
