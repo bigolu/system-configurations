@@ -3,9 +3,8 @@
 no_auto_install: true
 glob_matcher: doublestar
 
-# TODO: The default colors have bad contrast. There's an issue for changing them[1].
-#
-# [1]: https://github.com/evilmartians/lefthook/issues/1404
+# TODO: The default colors have bad contrast. I should open an issue to change
+# them.
 colors:
   cyan: 6
   gray: 8
