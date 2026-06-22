@@ -8,12 +8,11 @@
   ...
 }:
 let
+  inherit (builtins) filter;
   inherit (lib)
     optionalAttrs
     optionals
-    pipe
     attrValues
-    filterAttrs
     elem
     ;
   inherit (pkgs.stdenv.hostPlatform) isLinux;
@@ -63,9 +62,9 @@ in
           ];
       };
 
-      paths = pipe pins [
-        (filterAttrs (
-          _name: pin:
+      paths = optionals (!isCi) (
+        filter (
+          pin:
           !elem pin (
             with pins;
             [
@@ -75,9 +74,8 @@ in
               spoons
             ]
           )
-        ))
-        attrValues
-      ];
+        ) (attrValues pins)
+      );
     };
   };
 }
