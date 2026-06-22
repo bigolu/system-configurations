@@ -25,19 +25,8 @@ in
   };
 
   imports = [
+    "${extraModulesPath}/locale.nix"
     ./mise.nix
-
-    # locale
-    {
-      imports = [ "${extraModulesPath}/locale.nix" ];
-
-      extra.locale = optionalAttrs isCi {
-        package = pkgs.glibcLocales.override {
-          allLocales = false;
-          locales = [ "en_US.UTF-8/UTF-8" ];
-        };
-      };
-    }
   ]
   ++ (with inputs.devshell-modules.devshellModules; [
     minimal
@@ -45,6 +34,13 @@ in
     state
     gcRoot
   ]);
+
+  extra.locale = optionalAttrs isCi {
+    package = pkgs.glibcLocales.override {
+      allLocales = false;
+      locales = [ "en_US.UTF-8/UTF-8" ];
+    };
+  };
 
   gcRoot = {
     diff.enable = !isCi;
