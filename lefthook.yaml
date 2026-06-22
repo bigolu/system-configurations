@@ -176,6 +176,7 @@ check:
     - ".vscode/ltex*"
     - dotfiles/keyboard/US keyboard - no accent keys.bundle/**/*
     - docs/**/*
+    - nix/pins/npins/**/*
   # Enabling `piped` is useful during local development when there are issues
   # found by fast checks, but not slow ones. Without `piped`, you would run all
   # the checks only to find an issue with a fast check and then have to run all
@@ -201,8 +202,6 @@ check:
             run: nix flake lock
           - name: readme-config-names
             glob: "**/*.nix"
-            exclude:
-              - nix/pins/npins/**/*
             run: mise run lefthook:add-config-names-to-readme
           - name: task-docs
             glob: mise/**/*
@@ -233,13 +232,9 @@ check:
               prettier --list-different --write "$html"
           - name: deadnix
             glob: "**/*.nix"
-            exclude:
-              - nix/pins/npins/**/*
             run: deadnix --quiet --edit {files}
           - name: statix-fix
             glob: "**/*.nix"
-            exclude:
-              - nix/pins/npins/**/*
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix fix -- {files}
@@ -247,9 +242,7 @@ check:
             glob: "**/*.md"
             run: markdownlint-cli2 --fix {files}
           - name: npins
-            glob:
-              - flake.lock
-              - nix/pins/npins/**/*
+            glob: flake.lock
             run: npins upgrade
           - name: shellcheck-fix
             glob: "**/*.{sh,bash}"
@@ -281,8 +274,6 @@ check:
           # will fail if the files aren't syntactically correct.
           - name: prettier
             glob: "**/*.{md,json,jsonc,yaml}"
-            exclude:
-              - nix/pins/npins/**/*
             run: |
               prettier \
                 --cache \
@@ -299,8 +290,6 @@ check:
             run: fish_indent --write {files}
           - name: nixfmt
             glob: "**/*.nix"
-            exclude:
-              - nix/pins/npins/**/*
             run: nixfmt --verify {files}
           - name: stylua
             glob: "**/*.lua"
@@ -322,21 +311,16 @@ check:
             run: actionlint {files}
           - name: statix-lint
             glob: "**/*.nix"
-            exclude:
-              - nix/pins/npins/**/*
             # statix doesn't support passing multiple files yet:
             # https://github.com/oppiliappan/statix/issues/69
             run: parallel statix check -- {files}
           - name: nixpkgs-lint
             glob: "**/*.nix"
-            exclude:
-              - nix/pins/npins/**/*
             run: nixpkgs-lint --include-unfinished-lints -- {files}
           - name: editorconfig-checker
             run: editorconfig-checker {files}
           - name: renovate-config-validator
-            glob:
-              - renovate.json
+            glob: renovate.json
             run: renovate-config-validator --no-global --strict {files}
           - name: lua-ls
             glob: dotfiles/neovim/**/*.lua
