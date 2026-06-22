@@ -110,11 +110,8 @@ sync:
     fi
   jobs:
     - name: direnv
-      # I want to see the output of this command in real time for these reasons:
-      #   - This job can take a while so being able to see the output in real
-      #     time could reveal bottlenecks.
-      #   - I can spot accidental nix cache misses and cancel the job instead of
-      #     waiting for nix to rebuild the package.
+      # I want to see the output of this command in real time so I can see which
+      # nix builds are the slowest and why.
       #
       # I can't use the `follow` option for these reasons:
       #   - It can only be set for an entire hook, not individual jobs.
@@ -122,7 +119,7 @@ sync:
       #     `output` to a list only containing `execution_info`, as we do in
       #     this config.
       #
-      # For the reasons above, I use `interactive` instead.
+      # For the reasons above, I use `interactive`.
       interactive: true
       glob:
         - lefthook.yaml
@@ -147,11 +144,8 @@ sync:
       #   - If the `--ask` flag is passed to the `sync` mise task, then
       #     `lefthook:system-sync` will prompt the user for confirmation.
       #
-      # I want to see the output of this command in real time for these reasons:
-      #   - This job can take a while so being able to see the output in real
-      #     time could reveal bottlenecks.
-      #   - I can spot accidental nix cache misses and cancel the job instead of
-      #     waiting for nix to rebuild the package.
+      # I want to see the output of this command in real time so I can see which
+      # nix builds are the slowest and why.
       #
       # I can't use the `follow` option for these reasons:
       #   - It can only be set for an entire hook, not individual jobs.
@@ -362,11 +356,8 @@ check:
             glob: "**/*.toml"
             run: taplo lint {files}
     - name: nix
-      # I want to see the output of this command in real time for these reasons:
-      #   - This job can take a while so being able to see the output in real
-      #     time could reveal bottlenecks.
-      #   - I can spot accidental nix cache misses and cancel the job instead of
-      #     waiting for nix to rebuild the package.
+      # I want to see the output of this command in real time so I can see which
+      # nix builds are the slowest and why.
       #
       # I can't use the `follow` option for these reasons:
       #   - It can only be set for an entire hook, not individual jobs.
@@ -374,7 +365,7 @@ check:
       #     `output` to a list only containing `execution_info`, as we do in
       #     this config.
       #
-      # For the reasons above, I use `interactive` instead.
+      # For the reasons above, I use `interactive`.
       interactive: true
       glob:
         - "**/*.nix"
