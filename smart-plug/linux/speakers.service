@@ -26,10 +26,7 @@ RemainAfterExit=yes
 # Increase the connection timeout to account for network unavailability. For
 # example, when the machine first starts up, or wakes from sleep, the network
 # may not be online yet. I could have this service start after
-# network-online.target, but systemd does not recommend relying on it[1]. Also,
-# that target is not useful for sleep/wake: Despite the network being turned off
-# before sleep and restarted on wake, network-online.target remains active the
-# entire time.
+# network-online.target, but systemd does not recommend relying on it[1].
 #
 # [1]: https://systemd.io/NETWORK_ONLINE/
 ExecStart=@speakerctl@ on 180
