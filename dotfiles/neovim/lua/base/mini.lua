@@ -41,12 +41,6 @@ ai.setup({
 		["{"] = spec_pair("{", "}", { type = "greedy" }),
 	},
 
-	mappings = {
-		-- Avoid collision with default "in" and "an" mappings
-		around_next = "aN",
-		inside_next = "iN",
-	},
-
 	silent = true,
 
 	-- If I still want to select next/last I can use around_{next,last} textobjects
