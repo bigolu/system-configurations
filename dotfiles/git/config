@@ -45,12 +45,8 @@
     set -e && \
     git fetch --prune && \
     git rebase origin/\"$(git symbolic-ref refs/remotes/origin/HEAD | cut -f4 -d/)\""
-  # To set the check command run: git config bigolu.check-command 'the command'
-  #
-  # If a config option isn't set, git exits with a non-zero code so the `echo` both
-  # stops the statement from failing and provides a default value.
-  check-commit = "!eval \"$(git config get bigolu.check-command)\""
   rc = rebase --continue
+  ra = rebase --abort
   ignored = -c status.showUntrackedFiles=normal status --ignored
 [init]
   defaultBranch = master
