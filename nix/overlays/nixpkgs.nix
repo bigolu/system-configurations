@@ -50,10 +50,11 @@ let
 
       keyd = prev.keyd.overrideAttrs (old: {
         postInstall = old.postInstall + ''
-          # TODO: keyd only links the service if /run/systemd/system exists[1]. I
-          # should see if this can be changed.
+          # TODO: keyd only links the service if /run/systemd/system exists or
+          # the environment variable `FORCE_SYSTEMD` is set[1]. I should have
+          # nixpkgs set this variable.
           #
-          # [1]: https://github.com/rvaiya/keyd/blob/9c758c0e152426cab3972256282bc7ee7e2f808e/Makefile#L51
+          # [1]: https://github.com/rvaiya/keyd/blob/f564288ac2b19d2305a5b39023c474805ff8fce5/Makefile#L52
           mkdir -p $out/lib/systemd/system
           cp keyd.service.in $out/lib/systemd/system/keyd.service
         '';
