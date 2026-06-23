@@ -15,7 +15,6 @@ in
     }
 
     (moduleRoot + "/application-development")
-    (moduleRoot + "/speakers.nix")
     (moduleRoot + "/comp-1.nix")
   ];
 }

@@ -15,6 +15,5 @@ in
     }
 
     (moduleRoot + "/application-development")
-    (moduleRoot + "/speakers.nix")
   ];
 }

@@ -21,7 +21,6 @@ let
       };
 
       home.file = {
-        ".hammerspoon/init.lua".source = "hammerspoon/init.lua";
         "Library/Keyboard Layouts/NoAccentKeys.bundle".source =
           "keyboard/US keyboard - no accent keys.bundle";
       };

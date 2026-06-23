@@ -14,19 +14,19 @@ let
     ;
   inherit (utils) projectRoot;
 
-  smartPlugRoot = "${repositoryDirectory}/smart_plug";
+  smartPlugRoot = "${repositoryDirectory}/smart-plug";
 
   speakerService =
     let
       speakerServiceName = "speakers.service";
-      speakerServiceTemplate = projectRoot + /smart_plug/linux/speakers.service;
+      speakerServiceTemplate = projectRoot + /smart-plug/linux/speakers.service;
 
       processedTemplate = replaceVars speakerServiceTemplate {
         speakerctl = getExe speakerctl;
       };
     in
     # This way the basename of the file will be `speakerServiceName` which is
-    # necessary for config.systemd.units.
+    # necessary for `config.system.systemd.units`.
     "${writeTextDir speakerServiceName (readFile processedTemplate)}/${speakerServiceName}";
 in
 {

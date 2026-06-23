@@ -1,6 +1,3 @@
-# WARNING: This file should not be used directly, it contains variables in the
-# form @<variable_name>@ that will be replaced by Nix.
-
 [Unit]
 Description=Speakers
 # By default, systemd also adds a conflict on shutdown.target so the service is

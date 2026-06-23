@@ -134,7 +134,7 @@ sync:
     - name: system
       glob:
         - lefthook.yaml
-        - "{nix,smart_plug,dotfiles}/**/*"
+        - "{nix,smart-plug,dotfiles}/**/*"
         - "**/*.nix"
         - flake.lock
       # I want to take input from the user for these reasons:

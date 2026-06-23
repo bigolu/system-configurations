@@ -1,24 +1,29 @@
 {
   lib,
   pkgs,
-  repositoryDirectory,
+  utils,
+  pins,
   ...
 }:
 let
-  inherit (pkgs) speakerctl;
+  inherit (pkgs) speakerctl replaceVars;
   inherit (pkgs.stdenv.hostPlatform) isDarwin;
-  inherit (lib)
-    optionalAttrs
-    ;
-
-  smartPlugRoot = "${repositoryDirectory}/smart_plug";
+  inherit (lib) optionalAttrs getExe;
+  inherit (utils) projectRoot;
 in
 {
-  fileWrapper.home.file = optionalAttrs isDarwin {
-    ".hammerspoon/Spoons/Speakers.spoon".source = "${smartPlugRoot}/mac_os/Speakers.spoon";
-  };
+  home.file = optionalAttrs isDarwin {
+    ".hammerspoon/init.lua".source = replaceVars (projectRoot + /smart-plug/mac-os/init.lua) {
+      speakerctl = getExe speakerctl;
+    };
 
-  home = {
-    packages = [ speakerctl ];
+    ".hammerspoon/Spoons/EmmyLua.spoon" = {
+      # TODO: I should do a sparse checkout to get the single Hammerspoon Spoon I
+      # need. issue: https://github.com/NixOS/nix/issues/5811
+      source = "${pins.spoons}/Source/EmmyLua.spoon";
+      # I'm not symlinking the whole directory because EmmyLua is going to generate
+      # lua-language-server annotations in there.
+      recursive = true;
+    };
   };
 }
