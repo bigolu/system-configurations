@@ -138,10 +138,9 @@ function , --wraps ,
 end
 
 # touch
-function touchx
-    set filename "$argv"
-    touch "$filename"
-    chmod +x "$filename"
+function touchx --argument-names filename
+    touchp $filename
+    chmod +x $filename
 end
 function touchp --description 'Create file and make parent directories' --argument-names filepath
     set -l parent_folder (path dirname $filepath)

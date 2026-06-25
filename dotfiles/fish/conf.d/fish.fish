@@ -352,42 +352,6 @@ bind ctrl-k __fish_man_page
 bind ctrl-\[ up-or-search
 bind ctrl-\] down-or-search
 
-# While the builtin edit_command_buffer retains the cursor position when going from
-# the command line to the editor, this one also retains the cursor position when
-# going from the editor back to the command line.
-function __edit_commandline
-    set buffer "$(commandline)"
-    set index (commandline --cursor)
-    set line 1
-    set col 1
-    set cursor 0
-
-    for char in (string split '' "$buffer")
-        if test $cursor -ge $index
-            break
-        end
-
-        if test "$char" = \n
-            set col 1
-            set line (math $line + 1)
-        else
-            set col (math $col + 1)
-        end
-
-        set cursor (math $cursor + 1)
-    end
-
-    set cursor_file (mktemp)
-    set write_index 'lua vim.api.nvim_create_autocmd([[VimLeavePre]], {callback = function() vim.cmd([[redi! > '$cursor_file']]); print(#table.concat(vim.fn.getline(1, [[.]]), " ") - (#vim.fn.getline([[.]]) - vim.fn.col([[.]])) - 1); vim.cmd([[redi END]]); end})'
-
-    set temp (mktemp --suffix '.fish')
-    echo -n "$buffer" >$temp
-    nvim -c "call cursor($line,$col)" -c "$write_index" $temp
-    commandline "$(cat $temp)"
-    commandline --cursor "$(cat $cursor_file)"
-end
-bind alt-e __edit_commandline
-
 # fish loads builtin configs after user configs so I have to wait
 # for the builtin binds to be defined. This may change though:
 # https://github.com/fish-shell/fish-shell/issues/8553
