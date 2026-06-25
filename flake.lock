@@ -167,11 +167,11 @@
     },
     "devshell-modules": {
       "locked": {
-        "lastModified": 1782330324,
-        "narHash": "sha256-hQHISs36UnQSB4GOZNdO+6NNCd1gS8vtJYT4Pfjfp40=",
+        "lastModified": 1782422804,
+        "narHash": "sha256-uMd2cLCyjpHiKNv3HgVtQJSwJZM1veZPqJ2i+a2rjpc=",
         "owner": "bigolu",
         "repo": "devshell-modules",
-        "rev": "ae58d1766cbf3e79f086703cd9cd208701ab02cb",
+        "rev": "ed2b2b03fbd04c51e81dadb16abab39f6d2e9117",
         "type": "github"
       },
       "original": {
