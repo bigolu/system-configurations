@@ -420,11 +420,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781396398,
-        "narHash": "sha256-mDOULhI94l3pKWrSv12nnDjNtMu0aRVWiFf6dI226D0=",
+        "lastModified": 1782402905,
+        "narHash": "sha256-0jvdmK8qWIYyz+caEv2AFaPFAPqs1TBH96NZT20WwSU=",
         "owner": "bigolu",
         "repo": "home-manager-file-wrapper",
-        "rev": "a240d327c5f600a00a8fd301af4bcce941c549bf",
+        "rev": "0dc64b711bb0d08cb8f4c02c347cd7a7a805cdaa",
         "type": "github"
       },
       "original": {
@@ -578,11 +578,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1781715560,
-        "narHash": "sha256-P3PeIFZRFTZ2fvYkPlJPvk2vV8WIutF8GBMZc/lNsAI=",
+        "lastModified": 1782402438,
+        "narHash": "sha256-7OPd+ThRCQSe5YD3lYVY1Em29rc4lcoVe7ummSEDUV0=",
         "owner": "bigolu",
         "repo": "nix-scene",
-        "rev": "1bed65acd2677f21ff5964facd4947b95dee7116",
+        "rev": "b1264f65ed01ca462b60bff93b0cd41b381e6505",
         "type": "github"
       },
       "original": {

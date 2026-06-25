@@ -25,7 +25,7 @@
   "nix.serverPath": "nixd",
   "nix.serverSettings": {
     "nixd": {
-      "nixpkgs": { "expr": "import ./nix/packages.nix" },
+      "nixpkgs": { "expr": "import ./nix/packages.nix {}" },
       "options": {
         "comp_1": {
           "expr": "(import ./.).outputsForCurrentSystem.legacyPackages.homeConfigurations.\"biggs@comp_1\".options"
