@@ -1,65 +1,48 @@
 pkgs':
 { lib, pkgs, ... }:
 let
-  inherit (lib)
-    mkForce
-    optionalAttrs
-    hm
-    recursiveUpdate
-    ;
-  inherit (pkgs.stdenv.hostPlatform) isLinux;
+  inherit (lib) mkForce hm recursiveUpdate;
 
-  reduceClosureSize =
-    let
-      # These variables contain the path to the locale archive in
-      # pkgs.glibcLocales. There is no option to prevent Home Manager from
-      # making these environment variables and overriding glibcLocales in an
-      # overlay would cause too many rebuild so instead I overwrite the
-      # environment variables. Now glibcLocales won't be a dependency.
-      emptySessionVariables = mkForce {
-        LOCALE_ARCHIVE_2_27 = "";
-        LOCALE_ARCHIVE_2_11 = "";
-      };
-    in
-    {
-      _module.args = {
-        # We don't use the `pkgs` module argument to avoid infinite recursion.
-        pkgs = mkForce (recursiveUpdate pkgs' (import ./package-overrides.nix pkgs'));
-      };
+  reduceClosureSize = {
+    # We don't use the `pkgs` module argument to avoid infinite recursion.
+    _module.args.pkgs = mkForce (recursiveUpdate pkgs' (import ./package-overrides.nix pkgs'));
 
-      programs = {
-        home-manager.enable = mkForce false;
-        nix-index = {
-          enable = false;
-          symlinkToCacheHome = false;
-        };
-        # fishMinimal doesn't include Python which means the features listed here won't
-        # work: https://github.com/NixOS/nixpkgs/pull/387070#issuecomment-2700435274
-        fish.package = pkgs.fishMinimal;
-      };
-
-      home = {
-        sessionVariables = optionalAttrs isLinux emptySessionVariables;
-        activation.reloadSystemd = mkForce (hm.dag.entryAnywhere "");
-        file.".hammerspoon/Spoons/EmmyLua.spoon" = mkForce {
-          source = pkgs.emptyFile;
-          recursive = false;
-        };
-      };
-
-      systemd.user = {
-        # This removes the dependency on `sd-switch`.
-        startServices = mkForce false;
-        sessionVariables = optionalAttrs isLinux emptySessionVariables;
-        services = mkForce { };
-        timers = mkForce { };
-      };
-
-      launchd.agents = mkForce { };
-      xdg.mime.enable = mkForce false;
-      # to remove the flake registry
-      nix.enable = false;
+    i18n.glibcLocales = pkgs.glibcLocales.override {
+      allLocales = false;
+      locales = [ "en_US.UTF-8/UTF-8" ];
     };
+
+    programs = {
+      home-manager.enable = mkForce false;
+      nix-index = {
+        enable = false;
+        symlinkToCacheHome = false;
+      };
+      # fishMinimal doesn't include Python which means the features listed here won't
+      # work: https://github.com/NixOS/nixpkgs/pull/387070#issuecomment-2700435274
+      fish.package = pkgs.fishMinimal;
+    };
+
+    home = {
+      activation.reloadSystemd = mkForce (hm.dag.entryAnywhere "");
+      file.".hammerspoon/Spoons/EmmyLua.spoon" = mkForce {
+        source = pkgs.emptyFile;
+        recursive = false;
+      };
+    };
+
+    systemd.user = {
+      # This removes the dependency on `sd-switch`.
+      startServices = mkForce false;
+      services = mkForce { };
+      timers = mkForce { };
+    };
+
+    launchd.agents = mkForce { };
+    xdg.mime.enable = mkForce false;
+    # to remove the flake registry
+    nix.enable = false;
+  };
 in
 {
   imports = [ reduceClosureSize ];
