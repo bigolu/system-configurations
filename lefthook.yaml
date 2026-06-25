@@ -260,6 +260,9 @@ check:
                 } |
                   git apply --allow-empty
               ' -- {files}
+          # Only use the quotation marks recognized by programming languages.
+          - name: quotes
+            run: sd --across '[\uFF07\u2018\u2019\u201B]' "'" {files} && sd --across '[\uFF02\u201C\u201D\u201F]' '"' {files}
 
           # Formatters
           # -------------------------------------------------------------------

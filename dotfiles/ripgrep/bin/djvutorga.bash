@@ -12,7 +12,7 @@ shopt -s inherit_errexit
 #
 # `djvused -e 'ls'` gives the list of included files, page files and others.
 # We can thus get the page number associated to a file number. The latter
-# is what we get by counting page breaks in `djvused -e 'print-pure-txt'`’s
+# is what we get by counting page breaks in `djvused -e 'print-pure-txt'`'s
 # output.
 
 input_file="$1"

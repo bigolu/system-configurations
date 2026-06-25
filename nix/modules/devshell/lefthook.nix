@@ -38,6 +38,7 @@
     prettier
     # for renovate-config-validator
     renovate
+    sd
     shellcheck
     shfmt
     statix
