@@ -48,28 +48,36 @@ function Paste(paste_char)
 			end
 		end
 
-		-- In visual mode, "p" should behave like "P". The exceptions to this are
-		-- single line pastes at the end of a line and multi-line pastes at the last
-		-- line of the buffer.
-		local selection_start_pos = vim.fn.getpos(".")
-		local selection_end_pos = vim.fn.getpos("v")
-		local selection_rightmost_col = math.max(selection_start_pos[3], selection_end_pos[3])
-		local selection_bottommost_line = math.max(selection_start_pos[2], selection_end_pos[2])
-		if
-			paste_char == "p"
-			and in_visual_mode
-			and not (
-				(not is_multi_line_paste and selection_rightmost_col == (vim.fn.col("$") - 1))
-				or (is_multi_line_paste and selection_bottommost_line == vim.fn.line("$"))
-			)
-		then
-			paste_char = "P"
+		-- When pasting in visual mode, don't overwrite the clipboard.
+		--
+		-- We achieve this by deleting the selected text into the blackhole register
+		-- before pasting.
+		local delete_into_blackhole = ""
+		if in_visual_mode then
+			-- When "p" is used, this causes an issue in some cases:
+			--   - In single-line pastes that aren't at the end of the line, we need
+			--     to move one column backwards.
+			--   - In multi-line pastes that aren't at the last line of the buffer, we
+			--     need to move up one line.
+			local adjust = ""
+			if paste_char == "p" then
+				local selection_start_pos = vim.fn.getpos(".")
+				local selection_end_pos = vim.fn.getpos("v")
+				local selection_rightmost_col = math.max(selection_start_pos[3], selection_end_pos[3])
+				local selection_bottommost_line = math.max(selection_start_pos[2], selection_end_pos[2])
+				if not is_multi_line_paste and selection_rightmost_col < (vim.fn.col("$") - 1) then
+					adjust = "h"
+				elseif is_multi_line_paste and selection_bottommost_line < vim.fn.line("$") then
+					adjust = "k"
+				end
+			end
+
+			delete_into_blackhole = '"_d' .. adjust
 		end
 
-		-- Don't overwrite the clipboard.
-		local delete_into_blackhole = in_visual_mode and '"_d' or ""
 		local paste = vim.v.count1 .. [["]] .. vim.v.register .. paste_char
 		local go_to_end_of_paste = is_multi_line_paste and "`]" or ""
+
 		vim.api.nvim_feedkeys(delete_into_blackhole .. paste .. go_to_end_of_paste, "n", false)
 	end
 end
