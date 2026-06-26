@@ -54,11 +54,11 @@ function Paste(paste_char)
 		-- before pasting.
 		local delete_into_blackhole = ""
 		if in_visual_mode then
-			-- When "p" is used, this causes an issue in some cases:
-			--   - In single-line pastes that aren't at the end of the line, we need
-			--     to move one column backwards.
-			--   - In multi-line pastes that aren't at the last line of the buffer, we
-			--     need to move up one line.
+			-- When "p" is used, we need to handle some edge cases:
+			--   - In single-line pastes, where the selection doesn't include the last
+			--     column on the line, we need to move one column backwards.
+			--   - In multi-line pastes, where the selection doesn't include the last
+			--     line in the buffer, we need to move up one line.
 			local adjust = ""
 			if paste_char == "p" then
 				local selection_start_pos = vim.fn.getpos(".")
