@@ -51,7 +51,7 @@ function Paste(was_in_visual_mode, is_capital_p, last_register, last_count)
 
 	-- In visual mode, single line pastes at the end of the line or multi-line
 	-- pastes at the last line must use 'p'.
-	local is_paste_at_end = (
+	local is_visual_paste_at_end = (
 		was_in_visual_mode
 		and not is_multi_line_paste
 		and (vim.fn.col("'>") == (vim.fn.col("$") - 1))
@@ -60,7 +60,7 @@ function Paste(was_in_visual_mode, is_capital_p, last_register, last_count)
 	local go_back_to_visual = was_in_visual_mode and "gv" or ""
 	-- Don't overwrite the clipboard.
 	local delete_into_blackhole = was_in_visual_mode and '"_d' or ""
-	local paste = count .. [["]] .. register .. ((is_capital_p and not is_paste_at_end) and "P" or "p")
+	local paste = count .. [["]] .. register .. ((is_capital_p and not is_visual_paste_at_end) and "P" or "p")
 	local go_to_end_of_paste = is_multi_line_paste and "`]" or ""
 	vim.api.nvim_feedkeys(go_back_to_visual .. delete_into_blackhole .. paste .. go_to_end_of_paste, "n", false)
 end
