@@ -28,30 +28,16 @@ vim.keymap.set({ "n" }, "<S-Enter>", "O<ESC>", {
 -- leave cursor at the end of yanked text
 vim.keymap.set({ "x" }, "y", "ygv<Esc>", { silent = true })
 
--- This will get neovim to stop treating <Esc> as ctrl-[
+-- Stop treating <Esc> as ctrl-[
 vim.keymap.set({ "n", "i", "v", "x" }, "<Esc>", "<Esc>", { noremap = true })
 
 -- paste {{{
--- * re-indent the pasted text which will also move me to the end of the text.
--- * set markers for the start and end of the pasted text so I can reselect it.
--- * when pasting from visual mode, it won't overwrite the clipboard.
--- * if the register has multiple lines it, make sure it ends in a newline so we
---   get vim's visual-line yank behavior even with text copied outside of vim.
-function MyPaste(was_in_visual_mode, is_capital_p)
-	---@diagnostic disable-next-line: undefined-global
-	local register = was_in_visual_mode and LastReg or vim.v.register
+function Paste(was_in_visual_mode, is_capital_p, last_register, last_count)
+	local register = was_in_visual_mode and last_register or vim.v.register
 	local register_contents = vim.fn.getreg(register) or ""
-	---@diagnostic disable-next-line: undefined-global
-	local count = was_in_visual_mode and LastCount or vim.v.count1
 	local is_multi_line_paste = register_contents:find("\n")
+	local count = was_in_visual_mode and last_count or vim.v.count1
 
-	-- set globals with the region of the pasted text so I can select it with 'gp'
-	-- (above). People usually use `[ and `] for this, but that gives you the
-	-- region of the last changed text and since I use autosave, it will always be
-	-- the entire buffer.
-	--
-	-- TODO: I should post this somewhere since I know I've seen this question
-	-- asked.
 	if is_multi_line_paste then
 		-- When you yank multiple lines in vim it always appends a newline to the
 		-- end so the lines don't interleave with the text where you paste. I'm
@@ -59,92 +45,39 @@ function MyPaste(was_in_visual_mode, is_capital_p)
 		-- vim.
 		if register_contents:sub(-1) ~= "\n" then
 			register_contents = register_contents .. "\n"
-			---@diagnostic disable-next-line: param-type-mismatch
 			vim.fn.setreg(register, "\n", "a")
 		end
-		local _, newline_count = register_contents:gsub("\n", "")
-
-		-- set start
-		LastPasteStartLine = nil
-		-- won't matter since the paste textobject will use visual line
-		LastPasteStartCol = 0
-		if was_in_visual_mode then
-			LastPasteStartLine = vim.fn.line("'<") or 0
-		else
-			if is_capital_p then
-				LastPasteStartLine = vim.fn.line(".")
-			else
-				LastPasteStartLine = vim.fn.line(".") + 1
-			end
-		end
-
-		-- set end
-		LastPasteEndLine = (LastPasteStartLine + (newline_count * count)) - 1
-		-- won't matter since the paste textobject will use visual line
-		LastPasteEndCol = 0
-	else
-		-- set start
-		LastPasteStartLine = vim.fn.line(".") or 0
-		LastPasteStartCol = 0
-		if was_in_visual_mode then
-			LastPasteStartCol = vim.fn.col("'<") - 1
-		else
-			if is_capital_p then
-				LastPasteStartCol = vim.fn.col(".") - 1 or 0
-			else
-				-- whether the line is is empty or has one char, col() return 1 so we
-				-- need to use 0 if the line is empty.
-				LastPasteStartCol = (#vim.fn.getline(".") == 0) and 0 or vim.fn.col(".")
-			end
-		end
-
-		-- set end
-		local register_contents_length = #register_contents * count
-		LastPasteEndLine = LastPasteStartLine
-		LastPasteEndCol = (LastPasteStartCol + register_contents_length) - 1
 	end
 
-	local enter_key = vim.keycode("<CR>")
+	-- In visual mode, single line pastes at the end of the line or multi-line
+	-- pastes at the last line must use 'p'.
+	local is_paste_at_end = (
+		was_in_visual_mode
+		and not is_multi_line_paste
+		and (vim.fn.col("'>") == (vim.fn.col("$") - 1))
+	) or (was_in_visual_mode and is_multi_line_paste and (vim.fn.line("'>") == (vim.fn.line("$"))))
 
-	local indent = is_multi_line_paste
-			and string.format([[:%d,%dnormal! ==]] .. enter_key, LastPasteStartLine, LastPasteEndLine)
-		or ""
 	local go_back_to_visual = was_in_visual_mode and "gv" or ""
+	-- Don't overwrite the clipboard.
 	local delete_into_blackhole = was_in_visual_mode and '"_d' or ""
-	local paste = count
-		.. [["]]
-		.. register
-		.. (
-			(
-										-- Special case for single line pastes in visual mode at the end of the line or multi-line
-					-- pastes in visual mode at the end of the document. They must use 'p'
-(
-						was_in_visual_mode
-						and not is_multi_line_paste
-						and (vim.fn.col("'>") == (vim.fn.col({ LastPasteEndLine, "$" }) - 1))
-					)
-					or (was_in_visual_mode and is_multi_line_paste and (vim.fn.line("'>") == (vim.fn.line("$"))))
-				)
-				and "p"
-			or (is_capital_p and "P" or "p")
-		)
-	vim.api.nvim_feedkeys(go_back_to_visual .. delete_into_blackhole .. paste .. indent, "n", false)
+	local paste = count .. [["]] .. register .. ((is_capital_p and not is_paste_at_end) and "P" or "p")
+	local go_to_end_of_paste = is_multi_line_paste and "`]" or ""
+	vim.api.nvim_feedkeys(go_back_to_visual .. delete_into_blackhole .. paste .. go_to_end_of_paste, "n", false)
 end
 vim.keymap.set({ "n" }, "p", function()
-	MyPaste(false, false)
+	Paste(false, false)
 end, { silent = true })
--- In visual mode p should behave like P, unless the paste is at the end of the
--- document/line, but that gets handled in the paste function.
+-- In visual mode p should behave like P.
 vim.keymap.set({ "x" }, "p", "P", { silent = true, remap = true })
 vim.keymap.set({ "n" }, "P", function()
-	MyPaste(false, true)
+	Paste(false, true)
 end, { silent = true })
 -- Leave visual mode so '< and '> get set, but save the current register
 -- beforehand
 vim.keymap.set(
 	{ "x" },
 	"P",
-	"<Cmd>lua LastReg = vim.v.register; LastCount = vim.v.count1<CR><Esc>:lua MyPaste(true, true)<CR>",
+	"<Cmd>lua LastReg = vim.v.register; LastCount = vim.v.count1<CR><Esc>:lua local last_reg, last_count = LastReg, LastCount; LastReg, LastCount = nil, nil; Paste(true, true, last_reg, last_count)<CR>",
 	{ silent = true }
 )
 -- }}}

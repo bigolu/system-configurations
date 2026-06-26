@@ -121,10 +121,6 @@
     removeAttrs (inputs.blueprint {
       inherit inputs;
       prefix = "nix/outputs";
-      nixpkgs = {
-        overlays = import ./nix/overlays/nixpkgs.nix;
-        # TODO: I should open an issue with the project for adding a license
-        config.allowUnfreePredicate = pkg: pkg.pname == "camelcasemotion";
-      };
+      nixpkgs.overlays = import ./nix/overlays/nixpkgs.nix;
     }) [ "__functor" ];
 }

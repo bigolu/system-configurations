@@ -15,8 +15,6 @@ ai.setup({
 			a = "@conditional.outer",
 			i = "@conditional.inner",
 		}),
-		-- TODO: would be great if this worked on key/value pairs as well
-		s = spec_treesitter({ a = "@assignment.lhs", i = "@assignment.rhs" }),
 
 		-- Whole buffer
 		g = function()
@@ -49,30 +47,6 @@ ai.setup({
 	-- Number of lines within which textobject is searched
 	n_lines = 100,
 })
-
-local function move_like_curly_brace(id, direction)
-	local old_position = vim.api.nvim_win_get_cursor(0)
-	---@diagnostic disable-next-line: undefined-global
-	MiniAi.move_cursor(direction, "a", id, {
-		search_method = (direction == "left") and "cover_or_prev" or "cover_or_next",
-	})
-	local new_position = vim.api.nvim_win_get_cursor(0)
-	local has_cursor_moved = old_position[0] ~= new_position[0] or old_position[1] ~= new_position[1]
-	if has_cursor_moved then
-		vim.cmd(string.format([[normal! %s]], direction == "left" and "k" or "j"))
-	end
-end
-
-vim.keymap.set({ "n", "x" }, "]d", function()
-	move_like_curly_brace("d", "right")
-end, {
-	desc = "Next function declaration",
-})
-vim.keymap.set({ "n", "x" }, "[d", function()
-	move_like_curly_brace("d", "left")
-end, {
-	desc = "Last function declaration",
-})
 --}}}
 
 -- operators {{{
@@ -103,8 +77,6 @@ indentscope.setup({
 		animation = indentscope.gen_animation.linear({ unit = "total", duration = 100 }),
 	},
 	mappings = {
-		object_scope = "iI",
-		object_scope_with_border = "aI",
 		goto_top = "[I",
 		goto_bottom = "]I",
 	},

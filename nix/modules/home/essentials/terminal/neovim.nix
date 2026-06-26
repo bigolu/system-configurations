@@ -18,7 +18,6 @@ in
       # Put the pack under share/ so neovim can automatically find it
       "share/nvim/site" = vimUtils.packDir {
         bigolu.start = with vimPlugins; [
-          camelcasemotion
           dial-nvim
           lazy-lsp-nvim
           mini-nvim
