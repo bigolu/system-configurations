@@ -34,7 +34,7 @@ in
 
   system = {
     file = {
-      "/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/dotfiles/sysctl/local.conf";
+      "/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/program-configs/sysctl/local.conf";
       "/usr/lib/udev/60-openrgb.rules".source = pins.openrgb-udev-rules;
     };
 

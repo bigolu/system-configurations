@@ -43,9 +43,9 @@ let
       ];
 
       file = {
-        "/etc/keyd/default.conf".source = "${repositoryDirectory}/dotfiles/keyd/default.conf";
+        "/etc/keyd/default.conf".source = "${repositoryDirectory}/program-configs/keyd/default.conf";
         "/etc/udev/rules.d/99-keychron-launcher.rules".source =
-          "${repositoryDirectory}/dotfiles/keychron-launcher/99-keychron-launcher.rules";
+          "${repositoryDirectory}/program-configs/keychron-launcher/99-keychron-launcher.rules";
       };
 
       activation = {

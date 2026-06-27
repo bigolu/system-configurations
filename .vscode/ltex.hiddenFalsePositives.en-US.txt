@@ -4,7 +4,6 @@
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qmulti-user Nix installation: Run \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q and look for your \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q in the \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q key.\\E$"}
 {"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qapfs.util isn't working: Make sure that the \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q has the permission \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
 {"rule":"MORFOLOGIK_RULE_EN_US","sentence":"^\\Qapfs.util isn't working: Make sure that the \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q has the permission \\E(?:Dummy|Ina|Jimmy-)[0-9]+\\Q.\\E$"}
-{"rule":"UPPERCASE_SENTENCE_START","sentence":"^\\Qdotfiles\\E$"}
 {"rule":"COMMA_PARENTHESIS_WHITESPACE","sentence":"^\\QMiscellaneous {{{\\E$"}
 {"rule":"PCT_SINGULAR_NOUN_PLURAL_VERB_AGREEMENT","sentence":"^\\QGet help buffers to open in the current window by first opening it in a new tab (this is done elsewhere in my config),\nclosing the tab and jumping to the previous buffer, the help buffer.\\E$"}
 {"rule":"UNLIKELY_OPENING_PUNCTUATION","sentence":"^\\Q}}}\\E$"}

@@ -3,7 +3,6 @@ yabai
 Hammerspoon
 UnnaturalScrollWheels
 MonitorControl
-dotfiles
 fontconfig
 zsh
 fzf

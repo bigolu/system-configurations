@@ -82,7 +82,7 @@ let
           postBuild = ''
             wrapProgram $out/bin/rga \
               --prefix PATH : ${dependencies}/bin \
-              --prefix PATH : ${../../dotfiles/ripgrep/bin}
+              --prefix PATH : ${../../program-configs/ripgrep/bin}
           '';
         };
 

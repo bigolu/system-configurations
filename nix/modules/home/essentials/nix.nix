@@ -27,7 +27,7 @@ in
   system = {
     file = {
       "/usr${optionalString isDarwin "/local"}/share/fish/vendor_conf.d/zz-nix-fix.fish".source =
-        "${repositoryDirectory}/dotfiles/nix/zz-nix-fix.fish";
+        "${repositoryDirectory}/program-configs/nix/zz-nix-fix.fish";
     };
   };
 

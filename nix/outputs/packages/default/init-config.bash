@@ -16,7 +16,7 @@ fi
 direnv allow
 direnv_export="$(direnv export bash)"
 # So we can use the caches set in the config
-NIX_CONFIG="$(<~/code/system-configurations/dotfiles/nix/nix.conf)"
+NIX_CONFIG="$(<~/code/system-configurations/program-configs/nix/nix.conf)"
 export NIX_CONFIG
 eval "$direnv_export"
 

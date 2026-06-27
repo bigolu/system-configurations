@@ -25,7 +25,7 @@ let
     postBuild = ''
       wrapProgram $out/bin/skhd \
         --prefix PATH : ${dependencies}/bin \
-        --prefix PATH : ${projectRoot + /dotfiles/skhd/bin}
+        --prefix PATH : ${projectRoot + /program-configs/skhd/bin}
     '';
   };
 in

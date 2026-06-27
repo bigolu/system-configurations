@@ -134,7 +134,7 @@ sync:
     - name: system
       glob:
         - lefthook.yaml
-        - "{nix,smart-plug,dotfiles}/**/*"
+        - "{nix,smart-plug,program-configs}/**/*"
         - "**/*.nix"
         - flake.lock
       # I want to take input from the user for these reasons:
@@ -158,7 +158,7 @@ sync:
     - name: fish
       glob:
         - lefthook.yaml
-        - dotfiles/fish/conf.d/*.fish
+        - program-configs/fish/conf.d/*.fish
       run: "{run_in_dev_shell} fish -c fish-reload"
     - name: lefthook
       skip:
@@ -173,7 +173,7 @@ check:
   files: git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
   exclude:
     - ".vscode/ltex*"
-    - dotfiles/keyboard/US keyboard - no accent keys.bundle/**/*
+    - program-configs/keyboard/US keyboard - no accent keys.bundle/**/*
     - docs/**/*
     - nix/pins/npins/**/*
   # Enabling `piped` is useful during local development when there are issues
@@ -325,13 +325,13 @@ check:
             glob: renovate.json
             run: renovate-config-validator --no-global --strict {files}
           - name: lua-ls
-            glob: dotfiles/neovim/**/*.lua
+            glob: program-configs/neovim/**/*.lua
             run: |
               # --configpath is relative to the directory being checked so I'm
               # using an absolute path instead.
               lua-language-server \
                 --logpath "$(mktemp --directory)/lua-ls-logs" \
-                --check ./dotfiles/neovim \
+                --check ./program-configs/neovim \
                 --configpath "$PWD/.luarc.json"
           - name: keyd
             only:
@@ -357,7 +357,7 @@ check:
         - "**/*.nix"
         - flake.lock
         - nix/**/*
-        - dotfiles/**/*
+        - program-configs/**/*
       run: |
         bash -eu -o pipefail -c '
           dest="$PRJ_DATA_DIR/gc-roots/checks"
