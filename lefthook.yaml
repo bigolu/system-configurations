@@ -54,7 +54,7 @@ pre-push:
       # Stop the sequence editor from launching by setting it to a no-op.
       #
       # TODO: Despite me enabling `interactive`, this script doesn't get
-      # connected to the terminal so I have to do it with manual redirections.
+      # connected to the terminal so I have to do it with redirections.
       run: 'git -c sequence.editor=: rebase --interactive --exec "mise run check" "$(git merge-base "@{push}" HEAD)" </dev/tty >/dev/tty 2>&1'
 
 post-rewrite:
@@ -63,7 +63,9 @@ post-rewrite:
       # Some jobs in the `sync` hook have `interactive` enabled so it needs to
       # be enabled here as well.
       interactive: true
-      run: GIT_AUTO_SYNC_HOOK_NAME='post-rewrite' git-auto-sync {0} -- lefthook run sync
+      # TODO: Despite me enabling `interactive`, this script doesn't get
+      # connected to the terminal so I have to do it with redirections.
+      run: GIT_AUTO_SYNC_HOOK_NAME='post-rewrite' git-auto-sync {0} -- lefthook run sync </dev/tty >/dev/tty 2>&1
 
 post-merge:
   jobs:
@@ -71,7 +73,9 @@ post-merge:
       # Some jobs in the `sync` hook have `interactive` enabled so it needs to
       # be enabled here as well.
       interactive: true
-      run: GIT_AUTO_SYNC_HOOK_NAME='post-merge' git-auto-sync {0} -- lefthook run sync
+      # TODO: Despite me enabling `interactive`, this script doesn't get
+      # connected to the terminal so I have to do it with redirections.
+      run: GIT_AUTO_SYNC_HOOK_NAME='post-merge' git-auto-sync {0} -- lefthook run sync </dev/tty >/dev/tty 2>&1
 
 post-checkout:
   jobs:
@@ -79,7 +83,9 @@ post-checkout:
       # Some jobs in the `sync` hook have `interactive` enabled so it needs to
       # be enabled here as well.
       interactive: true
-      run: GIT_AUTO_SYNC_HOOK_NAME='post-checkout' git-auto-sync {0} -- lefthook run sync
+      # TODO: Despite me enabling `interactive`, this script doesn't get
+      # connected to the terminal so I have to do it with redirections.
+      run: GIT_AUTO_SYNC_HOOK_NAME='post-checkout' git-auto-sync {0} -- lefthook run sync </dev/tty >/dev/tty 2>&1
 
 post-commit:
   jobs:
@@ -128,9 +134,11 @@ sync:
         - "**/*.nix"
         - flake.lock
         - "{nix,mise/tasks}/**/*"
+      # TODO: Despite me enabling `interactive`, this script doesn't get
+      # connected to the terminal so I have to do it with redirections.
       run: |
         direnv reload
-        direnv exec . true
+        direnv exec . true </dev/tty >/dev/tty 2>&1
     - name: system
       glob:
         - lefthook.yaml
@@ -154,7 +162,9 @@ sync:
       #
       # For the reasons above, I use `interactive`.
       interactive: true
-      run: "{run_in_dev_shell} mise run lefthook:system-sync"
+      # TODO: Despite me enabling `interactive`, this script doesn't get
+      # connected to the terminal so I have to do it with redirections.
+      run: "{run_in_dev_shell} mise run lefthook:system-sync </dev/tty >/dev/tty 2>&1"
     - name: fish
       glob:
         - lefthook.yaml
@@ -358,6 +368,8 @@ check:
         - flake.lock
         - nix/**/*
         - program-configs/**/*
+      # TODO: Despite me enabling `interactive`, this script doesn't get
+      # connected to the terminal so I have to do it with redirections.
       run: |
         bash -eu -o pipefail -c '
           dest="$PRJ_DATA_DIR/gc-roots/checks"
@@ -366,4 +378,4 @@ check:
             --out-link "$dest/root" \
             --impure \
             --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
-        '
+        ' </dev/tty >/dev/tty 2>&1
