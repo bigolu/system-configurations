@@ -29,7 +29,6 @@
     editorconfig-checker
     fish
     lua-language-server
-    markdown2html-converter
     markdownlint-cli2
     # I use `parallel` to run any check that doesn't support multiple file arguments.
     moreutils

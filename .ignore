@@ -1,5 +1,5 @@
 .git
 **/.gitkeep
 program-configs/keyboard/US\ keyboard\ -\ no\ accent\ keys.bundle
-docs/tasks.html
+docs
 nix/pins/npins

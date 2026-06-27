@@ -1,0 +1,48 @@
+## `check`
+
+Run jobs to find/fix issues in the current commit (HEAD).
+
+
+- **Usage**: `check [--all-files] [--job… <job>]`
+
+### Flags
+
+#### `--all-files`
+
+For faster development, we decide whether to run a job, and which files it runs on, based on the files changed by the commit being checked. However, this logic isn't perfect so you can use this flag to consider all files changed.
+
+#### `--job… <job>`
+
+Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook.
+
+## `debug-shell`
+
+Start portable home in an empty environment
+
+
+- **Usage**: `debug-shell [-b --bundle]`
+
+### Flags
+
+#### `-b --bundle`
+
+Use `nix bundle` (slower)
+
+## `sync`
+
+Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes.
+
+
+- **Usage**: `sync [--ask] [job]…`
+
+### Arguments
+
+#### `[job]…`
+
+Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `sync` hook.
+
+### Flags
+
+#### `--ask`
+
+Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job.
