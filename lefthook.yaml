@@ -53,7 +53,7 @@ templates:
 pre-push:
   jobs:
     - name: check-unpushed-commits
-      # Some jobs in the `sync` hook use `interactive` and `{connect_to_terminal}` so they need to be used here too.
+      # Some jobs in the `check` hook use `interactive` and `{connect_to_terminal}` so they need to be used here too.
       interactive: true
       # Stop the sequence editor from launching by setting it to a no-op.
       run: '{connect_to_terminal} git -c sequence.editor=: rebase --interactive --exec "mise run check" "$(git merge-base "@{push}" HEAD)"'
