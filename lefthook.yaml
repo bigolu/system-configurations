@@ -53,10 +53,45 @@ templates:
 pre-push:
   jobs:
     - name: check-unpushed-commits
-      # Some jobs in the `check` hook use `interactive` and `{connect_to_terminal}` so they need to be used here too.
-      interactive: true
-      # Stop the sequence editor from launching by setting it to a no-op.
-      run: '{connect_to_terminal} git -c sequence.editor=: rebase --interactive --exec "mise run check" "$(git merge-base "@{push}" HEAD)"'
+      # Some jobs in the `check` hook use `{connect_to_terminal}` so it needs to be used here too.
+      use_stdin: true
+      run: |
+        {connect_to_terminal}
+
+        bash -eu -o pipefail -c '
+          newline="
+          "
+
+          ref_updates="$1"
+          # If multiple refs are being updated, this should not run. Each ref
+          # update is put on a separate line so we can just check for the
+          # existence of a newline.
+          [[ $ref_updates == *"$newline"* ]] && exit
+
+          read -r local_ref local_sha remote_ref remote_sha <<<"$ref_updates"
+          # The length of the hash will differ based on whether SHA1 or SHA256
+          # hashes are used so we cannot hard-code the number of zeros.
+          #
+          # All zeros means we are deleting a ref
+          [[ "$local_sha" =~ ^0+$ ]] && exit
+
+          # The length of the hash will differ based on whether SHA1 or SHA256
+          # hashes are used so we cannot hard-code the number of zeros.
+          #
+          # All zeros means we are creating a new branch.
+          if [[ "$remote_sha" =~ ^0+$ ]]; then
+            merge_base="$(git merge-base "$local_sha" $(git rev-parse --remotes))"
+            # Get the last line since there can be multiple merge bases.
+            merge_base="${merge_base##*$newline}"
+            [[ -z $merge_base ]] && exit
+          else
+            merge_base="$remote_sha"
+          fi
+          [[ $merge_base == $local_sha ]] && exit
+
+          # Stop the sequence editor from launching by setting it to a no-op.
+          git -c sequence.editor=: rebase --interactive --exec "mise run check" "$merge_base"
+        ' -- "$(cat)"
 
 post-rewrite:
   jobs:
