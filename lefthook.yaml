@@ -48,14 +48,12 @@ templates:
 pre-push:
   jobs:
     - name: check-unpushed-commits
-      # Some jobs in the `check` hook have `interactive` enabled so it needs to
-      # be enabled here as well.
-      interactive: true
       # Stop the sequence editor from launching by setting it to a no-op.
       #
       # TODO: Despite me enabling `interactive`, this script doesn't get
       # connected to the terminal so I have to do it with redirections.
-      run: 'git -c sequence.editor=: rebase --interactive --exec "mise run check" "$(git merge-base "@{push}" HEAD)" </dev/tty >/dev/tty 2>&1'
+      run: |
+        git -c sequence.editor=: rebase --interactive --exec "mise run check" "$(git merge-base "@{push}" HEAD)" </dev/tty >/dev/tty 2>&1
 
 post-rewrite:
   jobs:
@@ -164,7 +162,7 @@ sync:
       interactive: true
       # TODO: Despite me enabling `interactive`, this script doesn't get
       # connected to the terminal so I have to do it with redirections.
-      run: "{run_in_dev_shell} mise run lefthook:system-sync </dev/tty >/dev/tty 2>&1"
+      run: "{run_in_dev_shell} mise run lefthook:system-sync"
     - name: fish
       glob:
         - lefthook.yaml
@@ -352,25 +350,20 @@ check:
             glob: "**/*.toml"
             run: taplo lint {files}
     - name: nix
-      # I want to see the output of this command in real time so I can see which
-      # nix builds are the slowest and why.
-      #
-      # I can't use the `follow` option for these reasons:
-      #   - It can only be set for an entire hook, not individual jobs.
-      #   - Even if it could be set on a job, it doesn't work if you also set
-      #     `output` to a list only containing `execution_info`, as we do in
-      #     this config.
-      #
-      # For the reasons above, I use `interactive`.
-      interactive: true
       glob:
         - "**/*.nix"
         - flake.lock
         - nix/**/*
         - program-configs/**/*
-      # TODO: Despite me enabling `interactive`, this script doesn't get
-      # connected to the terminal so I have to do it with redirections.
       run: |
+        # I want to see the output of this job in real time so I can see which
+        # nix builds are the slowest and why.
+        #
+        # Ensure /dev/tty is writable.
+        if : >/dev/tty; then
+          exec >/dev/tty 2>&1
+        fi
+
         bash -eu -o pipefail -c '
           dest="$PRJ_DATA_DIR/gc-roots/checks"
           rm -rf "$dest"
@@ -378,4 +371,4 @@ check:
             --out-link "$dest/root" \
             --impure \
             --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
-        ' </dev/tty >/dev/tty 2>&1
+        '
