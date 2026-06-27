@@ -37,48 +37,53 @@ function Paste(paste_char)
 		local is_multi_line_paste = register_contents:find("\n")
 		local in_visual_mode = vim.api.nvim_get_mode().mode:match("^[vV\22]") ~= nil
 
-		-- When you yank multiple lines in vim it always appends a newline to the
-		-- end so the lines don't interleave with the text where you paste. I'm
-		-- doing that here as well to account for text that is copied outside of
-		-- vim.
 		if is_multi_line_paste then
+			-- When you yank multiple lines in vim it always appends a newline to the
+			-- end so the lines don't interleave with the line under the cursor. I'm
+			-- doing that here as well to account for text that is copied outside of
+			-- vim.
 			if register_contents:sub(-1) ~= "\n" then
 				register_contents = register_contents .. "\n"
 				vim.fn.setreg(vim.v.register, "\n", "a")
 			end
 		end
 
-		-- When pasting in visual mode, don't overwrite the clipboard.
-		--
-		-- We achieve this by deleting the selected text into the blackhole register
-		-- before pasting.
-		local delete_into_blackhole = ""
+		local delete_selection = ""
 		if in_visual_mode then
+			-- When pasting, we don't want to overwrite the clipboard.
+			--
+			-- We achieve this by deleting the selected text into the blackhole register
+			-- before pasting.
+			delete_selection = '"_d'
+
 			-- When "p" is used, we need to handle some edge cases:
 			--   - In single-line pastes, where the selection doesn't include the last
 			--     column on the line, we need to move one column backwards.
 			--   - In multi-line pastes, where the selection doesn't include the last
 			--     line in the buffer, we need to move up one line.
-			local adjust = ""
 			if paste_char == "p" then
-				local selection_start_pos = vim.fn.getpos(".")
-				local selection_end_pos = vim.fn.getpos("v")
-				local selection_rightmost_col = math.max(selection_start_pos[3], selection_end_pos[3])
-				local selection_bottommost_line = math.max(selection_start_pos[2], selection_end_pos[2])
-				if not is_multi_line_paste and selection_rightmost_col < (vim.fn.col("$") - 1) then
-					adjust = "h"
-				elseif is_multi_line_paste and selection_bottommost_line < vim.fn.line("$") then
-					adjust = "k"
-				end
-			end
+				local move = ""
+				local selection_cursor_pos = vim.fn.getpos(".")
+				local selection_opposite_cursor_pos = vim.fn.getpos("v")
 
-			delete_into_blackhole = '"_d' .. adjust
+				-- This is needed since we don't know which end of the selection that
+				-- the cursor is on.
+				local selection_rightmost_col = math.max(selection_cursor_pos[3], selection_opposite_cursor_pos[3])
+				local selection_bottommost_line = math.max(selection_cursor_pos[2], selection_opposite_cursor_pos[2])
+
+				if not is_multi_line_paste and selection_rightmost_col < (vim.fn.col("$") - 1) then
+					move = "h"
+				elseif is_multi_line_paste and selection_bottommost_line < vim.fn.line("$") then
+					move = "k"
+				end
+				delete_selection = delete_selection .. move
+			end
 		end
 
 		local paste = vim.v.count1 .. [["]] .. vim.v.register .. paste_char
 		local go_to_end_of_paste = is_multi_line_paste and "`]" or ""
 
-		vim.api.nvim_feedkeys(delete_into_blackhole .. paste .. go_to_end_of_paste, "n", false)
+		vim.api.nvim_feedkeys(delete_selection .. paste .. go_to_end_of_paste, "n", false)
 	end
 end
 vim.keymap.set({ "n", "x" }, "p", Paste("p"), { silent = true })
