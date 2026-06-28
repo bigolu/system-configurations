@@ -162,7 +162,7 @@ function StatusLine()
 			)
 		end
 		local icon = RecordingInfo.show_icon and "●" or " "
-		reg_recording = "[%#StatusLineRecordingIndicator#" .. icon .. "%#StatusLineNormal#REC@" .. recording_register .. "]"
+		reg_recording = "%#StatusLineNormal#[%#StatusLineRecordingIndicator#" .. icon .. "%#StatusLineNormal#REC@" .. recording_register .. "]"
 	else
 		if RecordingInfo ~= nil then
 			RecordingInfo.timer:stop()
