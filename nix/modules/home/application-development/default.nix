@@ -26,6 +26,7 @@ in
       llm-agents.claude-code
       zerobox
       pixi
+      mise
     ];
 
     activation.zeroboxWorkaround = hm.dag.entryAfter [ "writeBoundary" ] ''
