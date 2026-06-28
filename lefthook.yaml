@@ -165,7 +165,6 @@ sync:
       glob:
         - lefthook.yaml
         - .envrc-recommended.bash
-        - "direnv/**/*"
         # Everything below affects the nix dev shell, which direnv loads
         - "**/*.nix"
         - flake.lock
