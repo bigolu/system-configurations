@@ -29,6 +29,19 @@ templates:
       fi
     }
     run_in_dev_shell
+  # Sometimes, I want to see the output of a job in real time.
+  #
+  # I can't use the `follow` option for these reasons:
+  #   - It can only be set for an entire hook, not individual jobs.
+  #   - Even if it could be set on a job, it only works if you have
+  #     `execution_out` enabled in the `output` option, which I don't.
+  #
+  # Instead, I use this template to redirect stdout/stderr to the terminal.
+  #
+  # For this to work, either the `interactive` or `use_stdin` option must be
+  # enabled. This is needed since enabling either of those options will make
+  # lefthook connect the job to the terminal, instead of the PTY that it uses by
+  # default.
   connect_to_terminal: |
     # Ensure it's writable.
     #
@@ -58,8 +71,10 @@ templates:
 pre-push:
   jobs:
     - name: check-unpushed-commits
-      # Some jobs in the `check` hook use `{connect_to_terminal}` so it needs to be used here too.
+      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       use_stdin: true
+      # Some jobs in the `check` hook use `{connect_to_terminal}` so it needs to
+      # be used here too.
       run: |
         {connect_to_terminal}
 
@@ -95,22 +110,28 @@ pre-push:
 post-rewrite:
   jobs:
     - name: sync
-      # Some jobs in the `sync` hook use `interactive` and `{connect_to_terminal}` so they need to be used here too.
+      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
+      # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
+      # be used here too.
       run: "{connect_to_terminal} GIT_AUTO_SYNC_HOOK_NAME='post-rewrite' git-auto-sync {0} -- lefthook run sync"
 
 post-merge:
   jobs:
     - name: sync
-      # Some jobs in the `sync` hook use `interactive` and `{connect_to_terminal}` so they need to be used here too.
+      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
+      # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
+      # be used here too.
       run: "{connect_to_terminal} GIT_AUTO_SYNC_HOOK_NAME='post-merge' git-auto-sync {0} -- lefthook run sync"
 
 post-checkout:
   jobs:
     - name: sync
-      # Some jobs in the `sync` hook use `interactive` and `{connect_to_terminal}` so they need to be used here too.
+      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
+      # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
+      # be used here too.
       run: "{connect_to_terminal} GIT_AUTO_SYNC_HOOK_NAME='post-checkout' git-auto-sync {0} -- lefthook run sync"
 
 post-commit:
@@ -149,17 +170,10 @@ sync:
         - "**/*.nix"
         - flake.lock
         - "{nix,mise/tasks}/**/*"
-      # I want to see the output of this command in real time so I can see which
-      # nix builds are the slowest and why.
-      #
-      # I can't use the `follow` option for these reasons:
-      #   - It can only be set for an entire hook, not individual jobs.
-      #   - Even if it could be set on a job, it only works if you have
-      #     `execution_out` enabled in the `output` option, but we don't.
-      #
-      # As a workaround, we enable `interactive` and redirect stdout/stderr to
-      # the terminal.
+      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
+      # I use `{connect_to_terminal}` to see the output of this job in real time
+      # so I can see which nix builds are the slowest and why.
       run: |
         {connect_to_terminal}
         direnv reload
@@ -170,16 +184,7 @@ sync:
         - "{nix,smart-plug,program-configs}/**/*"
         - "**/*.nix"
         - flake.lock
-      # I want to see the output of this command in real time so I can see which
-      # nix builds are the slowest and why.
-      #
-      # I can't use the `follow` option for these reasons:
-      #   - It can only be set for an entire hook, not individual jobs.
-      #   - Even if it could be set on a job, it only works if you have
-      #     `execution_out` enabled in the `output` option, but we don't.
-      #
-      # As a workaround, we enable `interactive` and redirect stdout/stderr to
-      # the terminal.
+      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       #
       # I also want to take input from the user for these reasons:
       #   - So I can input my password for `sudo`, used in the
@@ -187,6 +192,8 @@ sync:
       #   - If the `--ask` flag is passed to the `sync` mise task, then
       #     `lefthook:system-sync` will prompt the user for confirmation.
       interactive: true
+      # I use `{connect_to_terminal}` to see the output of this job in real time
+      # so I can see which nix builds are the slowest and why.
       run: "{connect_to_terminal} {run_in_dev_shell} mise run lefthook:system-sync"
     - name: fish
       glob:
@@ -356,17 +363,10 @@ check:
         - flake.lock
         - nix/**/*
         - program-configs/**/*
-      # I want to see the output of this command in real time so I can see which
-      # nix builds are the slowest and why.
-      #
-      # I can't use the `follow` option for these reasons:
-      #   - It can only be set for an entire hook, not individual jobs.
-      #   - Even if it could be set on a job, it only works if you have
-      #     `execution_out` enabled in the `output` option, but we don't.
-      #
-      # As a workaround, we enable `interactive` and redirect stdout/stderr to
-      # the terminal.
+      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
+      # I use `{connect_to_terminal}` to see the output of this job in real time
+      # so I can see which nix builds are the slowest and why.
       run: |
         {connect_to_terminal}
         bash -eu -o pipefail -c '
