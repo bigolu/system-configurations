@@ -62,28 +62,22 @@ pre-push:
           newline="
           "
 
-          ref_updates="$1"
+          ref_updates="$(</dev/stdin)"
           # If multiple refs are being updated, this should not run. Each ref
           # update is put on a separate line so we can just check for the
           # existence of a newline.
           [[ $ref_updates == *"$newline"* ]] && exit
 
           read -r local_ref local_sha remote_ref remote_sha <<<"$ref_updates"
-          # The length of the hash will differ based on whether SHA1 or SHA256
-          # hashes are used so we cannot hard-code the number of zeros.
-          #
-          # All zeros means we are deleting a ref
+          # All zeros means we are deleting a ref.
           [[ "$local_sha" =~ ^0+$ ]] && exit
 
-          # The length of the hash will differ based on whether SHA1 or SHA256
-          # hashes are used so we cannot hard-code the number of zeros.
-          #
-          # All zeros means we are creating a new branch.
+          # All zeros means we are creating a new ref.
           if [[ "$remote_sha" =~ ^0+$ ]]; then
             merge_base="$(git merge-base "$local_sha" $(git rev-parse --remotes))"
+            [[ -z $merge_base ]] && exit
             # Get the last line since there can be multiple merge bases.
             merge_base="${merge_base##*$newline}"
-            [[ -z $merge_base ]] && exit
           else
             merge_base="$remote_sha"
           fi
@@ -91,7 +85,7 @@ pre-push:
 
           # Stop the sequence editor from launching by setting it to a no-op.
           git -c sequence.editor=: rebase --interactive --exec "mise run check" "$merge_base"
-        ' -- "$(cat)"
+        '
 
 post-rewrite:
   jobs:
