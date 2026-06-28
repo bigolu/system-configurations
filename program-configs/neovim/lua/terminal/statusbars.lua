@@ -150,7 +150,7 @@ function StatusLine()
 		if RecordingInfo == nil then
 			RecordingInfo = {
 				show_icon = true,
-				timer = vim.uv.new_timer()
+				timer = vim.uv.new_timer(),
 			}
 			RecordingInfo.timer:start(
 				500,
@@ -162,7 +162,11 @@ function StatusLine()
 			)
 		end
 		local icon_highlight_suffix = RecordingInfo.show_icon and "On" or "Off"
-		reg_recording = "%#StatusLineNormal#[%#StatusLineRecordingIndicator" .. icon_highlight_suffix .. "#●%#StatusLineNormal#REC@" .. recording_register .. "]"
+		reg_recording = "%#StatusLineNormal#[%#StatusLineRecordingIndicator"
+			.. icon_highlight_suffix
+			.. "#●%#StatusLineNormal#REC@"
+			.. recording_register
+			.. "]"
 	else
 		if RecordingInfo ~= nil then
 			RecordingInfo.timer:stop()
