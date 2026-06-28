@@ -147,7 +147,28 @@ function StatusLine()
 	local reg_recording = nil
 	local recording_register = vim.fn.reg_recording()
 	if recording_register ~= "" then
-		reg_recording = "%#StatusLineRecordingIndicator# %#StatusLineNormal#REC@" .. recording_register
+		if RecordingInfo == nil then
+			RecordingInfo = {
+				show_icon = true,
+				timer = vim.uv.new_timer()
+			}
+			RecordingInfo.timer:start(
+				500,
+				500,
+				vim.schedule_wrap(function()
+					RecordingInfo.show_icon = not RecordingInfo.show_icon
+					vim.cmd.redrawstatus()
+				end)
+			)
+		end
+		local icon = RecordingInfo.show_icon and "●" or " "
+		reg_recording = "[%#StatusLineRecordingIndicator#" .. icon .. "%#StatusLineNormal#REC@" .. recording_register .. "]"
+	else
+		if RecordingInfo ~= nil then
+			RecordingInfo.timer:stop()
+			RecordingInfo.timer:close()
+			RecordingInfo = nil
+		end
 	end
 
 	local showcmd = "%S"
