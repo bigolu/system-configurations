@@ -1,13 +1,10 @@
-# This file is part of flake-compat[1], a project that provides access to a flake
-# without using the experimental flake API. I use this instead of `builtins.getFlake`
-# since it allows me to access the flake without copying it to the store.
-#
-# There's an open issue[2] in CppNix for copying flakes to the store lazily, but Lix
-# has no plans to implement it anytime soon[3] so I'll stick with flake-compat.
+# This file is part of flake-compat[1]. I use it for these reasons:
+#   - Until Lix implements lazy trees, this is the only way to access a flake
+#     without copying it to the store[2].
+#   - It allows my project to be used by projects that don't use flakes.
 #
 # [1]: https://git.lix.systems/lix-project/flake-compat
-# [2]: https://github.com/NixOS/nix/issues/3121
-# [3]: https://git.lix.systems/lix-project/flake-compat#copying-to-the-store
+# [2]: https://git.lix.systems/lix-project/flake-compat#copying-to-the-store
 
 let
   lockFile = builtins.fromJSON (builtins.readFile ./flake.lock);

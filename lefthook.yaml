@@ -31,7 +31,12 @@ templates:
     run_in_dev_shell
   connect_to_terminal: |
     # Ensure it's writable.
-    if : >/dev/tty; then
+    #
+    # We use `printf` instead of `:` because `:` is a "special" builtin and when
+    # a special builtin fails, the script exits[1].
+    #
+    # [1]: https://pubs.opengroup.org/onlinepubs/009604499/utilities/xcu_chap02.html#tag_02_08_01
+    if printf "" >/dev/tty; then
       exec >/dev/tty 2>&1
     fi
 
