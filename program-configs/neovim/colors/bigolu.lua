@@ -157,7 +157,8 @@ local groups = {
   -- statusline/tabline {{{
   StatusLine = { ctermfg = 15, reverse = not vim.o.termguicolors, bg = colors.bg2 },
   StatusLineMode = { bold = true, },
-  StatusLineRecordingIndicator = { ctermfg = 1, fg = colors[1], },
+  StatusLineRecordingIndicatorOn = { ctermfg = 1, fg = colors[1], },
+  StatusLineRecordingIndicatorOff = { ctermfg = 15, fg = colors[15], },
   StatusLineStandoutText = { ctermfg = 3, fg = colors[3], },
   TabLine = "StatusLine",
   TabLineFill = "TabLine",
