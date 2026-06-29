@@ -79,9 +79,6 @@ pre-push:
         {connect_to_terminal}
 
         bash -eu -o pipefail -c '
-          newline="
-          "
-
           readarray -t ref_updates
           (( ${#ref_updates[@]} != 1 )) && exit
 
@@ -93,8 +90,6 @@ pre-push:
           if [[ $remote_sha =~ ^0+$ ]]; then
             merge_base="$(git merge-base "$local_sha" $(git rev-parse --remotes))"
             [[ -z $merge_base ]] && exit
-            # Get the last line since there can be multiple merge bases.
-            merge_base="${merge_base##*$newline}"
           else
             merge_base="$remote_sha"
           fi
