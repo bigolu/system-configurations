@@ -82,14 +82,10 @@ pre-push:
           newline="
           "
 
-          ref_updates="$(</dev/stdin)"
-          # This should only run if a single ref is being updated. 
-          #
-          # Each ref update is put on a separate line so the existence of a
-          # newline means there are multiple refs.
-          [[ -z $ref_updates || $ref_updates == *"$newline"* ]] && exit
+          readarray -t ref_updates
+          (( ${#ref_updates[@]} != 1 )) && exit
 
-          read -r local_ref local_sha remote_ref remote_sha <<<"$ref_updates"
+          read -r local_ref local_sha remote_ref remote_sha <<<"${ref_updates[0]}"
           # All zeros means we are deleting a ref.
           [[ "$local_sha" =~ ^0+$ ]] && exit
 
