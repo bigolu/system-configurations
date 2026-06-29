@@ -163,8 +163,8 @@ sync:
         - "{nix,mise/tasks}/**/*"
       # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
-      # I use `{connect_to_terminal}` to see the output of this job in real time
-      # so I can see which nix builds are the slowest and why.
+      # I use `{connect_to_terminal}` so I can see which nix builds are the
+      # slowest and why.
       run: |
         {connect_to_terminal}
         direnv reload
@@ -183,8 +183,8 @@ sync:
       #   - If the `--ask` flag is passed to the `sync` mise task, then
       #     `lefthook:system-sync` will prompt the user for confirmation.
       interactive: true
-      # I use `{connect_to_terminal}` to see the output of this job in real time
-      # so I can see which nix builds are the slowest and why.
+      # I use `{connect_to_terminal}` so I can see which nix builds are the
+      # slowest and why.
       run: "{connect_to_terminal} {run_in_dev_shell} mise run lefthook:system-sync"
     - name: fish
       glob:
@@ -356,8 +356,8 @@ check:
         - program-configs/**/*
       # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
-      # I use `{connect_to_terminal}` to see the output of this job in real time
-      # so I can see which nix builds are the slowest and why.
+      # I use `{connect_to_terminal}` so I can see which nix builds are the
+      # slowest and why.
       run: |
         {connect_to_terminal}
         bash -eu -o pipefail -c '
