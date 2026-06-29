@@ -83,10 +83,11 @@ pre-push:
           "
 
           ref_updates="$(</dev/stdin)"
-          # If multiple refs are being updated, this should not run. Each ref
-          # update is put on a separate line so we can just check for the
-          # existence of a newline.
-          [[ $ref_updates == *"$newline"* ]] && exit
+          # This should only run if a single ref is being updated. 
+          #
+          # Each ref update is put on a separate line so the existence of a
+          # newline means there are multiple refs.
+          [[ -z $ref_updates || $ref_updates == *"$newline"* ]] && exit
 
           read -r local_ref local_sha remote_ref remote_sha <<<"$ref_updates"
           # All zeros means we are deleting a ref.
