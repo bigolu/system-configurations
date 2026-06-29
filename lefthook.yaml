@@ -77,7 +77,6 @@ pre-push:
       # be used here too.
       run: |
         {connect_to_terminal}
-
         bash -eu -o pipefail -c '
           readarray -t ref_updates
           (( ${#ref_updates[@]} != 1 )) && exit
