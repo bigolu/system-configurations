@@ -59,6 +59,18 @@
   tool = vscode
 [interactive]
   diffFilter = delta --color-only
+[color "diff"]
+  oldMoved = normal 21
+  newMoved = normal 22
+[mergetool "vscode"]
+  cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
+[difftool "vscode"]
+  cmd = code --wait --diff $LOCAL $REMOTE
+[status]
+  showUntrackedFiles = all
+[merge "mergiraf"]
+  name = mergiraf
+  driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
 [delta]
   navigate = true
   hyperlinks = true
@@ -81,15 +93,5 @@
   commit-style = "blue"
   # Don't quit if output is less than one screen
   pager = "less -+F"
-[color "diff"]
-  oldMoved = normal 21
-  newMoved = normal 22
-[mergetool "vscode"]
-  cmd = code --wait --merge $REMOTE $LOCAL $BASE $MERGED
-[difftool "vscode"]
-  cmd = code --wait --diff $LOCAL $REMOTE
-[status]
-  showUntrackedFiles = all
-[merge "mergiraf"]
-  name = mergiraf
-  driver = mergiraf merge --git %O %A %B -s %S -x %X -y %Y -p %P -l %L
+[absorb]
+  autoStageIfNothingStaged = true

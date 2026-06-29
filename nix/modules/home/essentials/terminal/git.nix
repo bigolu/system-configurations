@@ -8,6 +8,7 @@
     delta
     difftastic
     mergiraf
+    git-absorb
   ];
 
   fileWrapper = {
