@@ -87,10 +87,10 @@ pre-push:
 
           read -r local_ref local_sha remote_ref remote_sha <<<"${ref_updates[0]}"
           # All zeros means we are deleting a ref.
-          [[ "$local_sha" =~ ^0+$ ]] && exit
+          [[ $local_sha =~ ^0+$ ]] && exit
 
           # All zeros means we are creating a new ref.
-          if [[ "$remote_sha" =~ ^0+$ ]]; then
+          if [[ $remote_sha =~ ^0+$ ]]; then
             merge_base="$(git merge-base "$local_sha" $(git rev-parse --remotes))"
             [[ -z $merge_base ]] && exit
             # Get the last line since there can be multiple merge bases.
