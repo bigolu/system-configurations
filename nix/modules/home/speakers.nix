@@ -13,7 +13,7 @@ let
 in
 {
   home.file = optionalAttrs isDarwin {
-    ".hammerspoon/init.lua".source = replaceVars (projectRoot + /smart-plug/mac-os/init.lua) {
+    ".hammerspoon/init.lua".source = replaceVars (projectRoot + /program-configs/smart-plug/mac-os/init.lua) {
       speakerctl = getExe speakerctl;
     };
 

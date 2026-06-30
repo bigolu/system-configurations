@@ -14,12 +14,12 @@ let
     ;
   inherit (utils) projectRoot;
 
-  smartPlugRoot = "${repositoryDirectory}/smart-plug";
+  smartPlugRoot = "${repositoryDirectory}/program-configs/smart-plug";
 
   speakerService =
     let
       speakerServiceName = "speakers.service";
-      speakerServiceTemplate = projectRoot + /smart-plug/linux/speakers.service;
+      speakerServiceTemplate = projectRoot + /program-configs/smart-plug/linux/speakers.service;
 
       processedTemplate = replaceVars speakerServiceTemplate {
         speakerctl = getExe speakerctl;
