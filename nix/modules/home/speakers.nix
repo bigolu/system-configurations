@@ -18,11 +18,9 @@ in
     ) { speakerctl = getExe speakerctl; };
 
     ".hammerspoon/Spoons/EmmyLua.spoon" = {
-      # TODO: I should do a sparse checkout to get the single Hammerspoon Spoon I
-      # need. issue: https://github.com/NixOS/nix/issues/5811
       source = "${pins.spoons}/Source/EmmyLua.spoon";
-      # I'm not symlinking the whole directory because EmmyLua is going to generate
-      # lua-language-server annotations in there.
+      # I'm not symlinking the whole directory because EmmyLua is going to
+      # generate lua-language-server annotations in there.
       recursive = true;
     };
   };
