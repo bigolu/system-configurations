@@ -13,9 +13,9 @@ let
 in
 {
   home.file = optionalAttrs isDarwin {
-    ".hammerspoon/init.lua".source = replaceVars (projectRoot + /program-configs/smart-plug/mac-os/init.lua) {
-      speakerctl = getExe speakerctl;
-    };
+    ".hammerspoon/init.lua".source = replaceVars (
+      projectRoot + /program-configs/smart-plug/mac-os/init.lua
+    ) { speakerctl = getExe speakerctl; };
 
     ".hammerspoon/Spoons/EmmyLua.spoon" = {
       # TODO: I should do a sparse checkout to get the single Hammerspoon Spoon I
