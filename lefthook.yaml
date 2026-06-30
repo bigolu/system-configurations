@@ -3,8 +3,7 @@
 no_auto_install: true
 glob_matcher: doublestar
 
-# TODO: The default colors have bad contrast. I should open an issue to change
-# them.
+# TODO: The default colors have bad contrast.
 colors:
   cyan: 6
   gray: 8
@@ -52,21 +51,6 @@ templates:
     if printf "" >/dev/tty; then
       exec >/dev/tty 2>&1
     fi
-
-# Git Hooks
-# -----------------------------------------------------------------------------------
-# Do not specify globs for any jobs that belong to a git hook because they won't be
-# applied unless their run command uses `{files}`. You could get around this by
-# adding something like `: {files};` to the beginning of every run command, but that
-# would lead to a subtle bug if you ever forgot to add it. For custom hooks, I get
-# around this by always specifying a `files` command at the hook level since the
-# documentation[1] states that globs will always be applied if a `files` command is
-# used. This does not seem to apply to git hooks though and I think that's a bug so I
-# should report it. There was a pull request for always applying globs, but it was
-# closed[2].
-#
-# [1]: https://lefthook.dev/configuration/glob/
-# [2]: https://github.com/evilmartians/lefthook/pull/595
 
 pre-push:
   jobs:
@@ -130,20 +114,10 @@ post-commit:
     - name: sync
       run: GIT_AUTO_SYNC_HOOK_NAME='post-commit' git-auto-sync
 
-# Custom Hooks
-# -----------------------------------------------------------------------------------
-# Lefthook only applies a job's glob if it, or the hook it belongs to, has a 'files'
-# command or you use the {files} placeholder in the run command[1]. Some of the run
-# commands below don't use {files} so to ensure that globs are always applied, I add
-# a 'files' command to the hook. There was a pull request for always applying globs,
-# but it was closed[2].
-#
-# [1]: https://lefthook.dev/configuration/glob/
-# [2]: https://github.com/evilmartians/lefthook/pull/595
-
 sync:
-  # Custom hooks should always have a files command. See the comment below the
-  # "Custom Hooks" heading for why that is.
+  # Set `files` to ensure that `glob`s are used[1].
+  #
+  # [1]: https://lefthook.dev/configuration/glob/
   files: |
     set -eu
     if [ -n "${GIT_AUTO_SYNC_LAST_COMMIT:-}" ]; then
@@ -196,10 +170,11 @@ sync:
       run: "{run_in_dev_shell} lefthook install --force"
 
 check:
-  # Custom hooks should always have a files command. See the comment below the
-  # "Custom Hooks" heading for why that is.
+  # Set `files` to ensure that `glob`s are used[1].
   #
-  # Files in the HEAD commit
+  # This lists the files in the HEAD commit.
+  #
+  # [1]: https://lefthook.dev/configuration/glob/
   files: git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
   exclude:
     - ".vscode/ltex*"
