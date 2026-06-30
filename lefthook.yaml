@@ -86,6 +86,9 @@ post-rewrite:
   jobs:
     - name: sync
       # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
+      #
+      # Some jobs in the `sync` hook use `interactive` so it needs to be used
+      # here too.
       interactive: true
       # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
       # be used here too.
@@ -95,6 +98,9 @@ post-merge:
   jobs:
     - name: sync
       # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
+      #
+      # Some jobs in the `sync` hook use `interactive` so it needs to be used
+      # here too.
       interactive: true
       # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
       # be used here too.
@@ -104,6 +110,9 @@ post-checkout:
   jobs:
     - name: sync
       # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
+      #
+      # Some jobs in the `sync` hook use `interactive` so it needs to be used
+      # here too.
       interactive: true
       # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
       # be used here too.
