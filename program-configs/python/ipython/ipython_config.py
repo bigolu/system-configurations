@@ -1,4 +1,3 @@
-# mypy: disable-error-code="name-defined"
 c = get_config()  # noqa: F821
 
 c.InteractiveShellApp.extensions = ["autoreload", "storemagic"]

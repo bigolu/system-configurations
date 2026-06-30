@@ -1,20 +1,12 @@
-# I only want this file to be loaded when Bash is in interactive
-# mode. There are two problems that I encountered when trying to do this. Below,
-# I'll list the problems and my workarounds.
-#   1. .bashrc does not get loaded when the shell is in interactive login
-#     mode: To work around this, I added code to .bash_profile to source this file if
-#     the shell is in interactive mode. This covers the interactive login mode case
-#     since .bash_profile is always loaded when shell is started in login mode.
-#   2. There are cases where .bashrc gets sourced even if the shell isn't in
-#     interactive mode: To work around this, the conditional below will
-#     exit this script early if the shell wasn't launched with the `-i` flag. The
-#     cases are:
-#       - Bash will source .bashrc whenever Bash is run by a remote shell daemon like
-#         ssh[1].
-#       - The default .profile on Pop!_OS sources .bashrc even if the shell isn't
-#         interactive. I'm assuming this is done because Bash won't source .bashrc if
-#         the shell is both interactive and login[2]. Even if that's the case, I
-#         think a check for interactive mode should be added.
+# There are cases where .bashrc gets sourced even if the shell isn't in
+# interactive mode: To work around this, the conditional below will exit this
+# script early if the shell wasn't launched with the `-i` flag. The cases are:
+#   - Bash will source .bashrc whenever Bash is run by a remote shell daemon
+#     like ssh[1].
+#   - The default .profile on Pop!_OS sources .bashrc even if the shell isn't
+#     interactive. I'm assuming this is done because Bash won't source .bashrc
+#     if the shell is both interactive and login[2]. Even if that's
+#     the case, I think a check for interactive mode should be added.
 #
 # The rules for how Bash decides what file to load can be found here:
 # https://www.gnu.org/software/bash/manual/html_node/Bash-Startup-Files.html
@@ -25,7 +17,7 @@ if [[ $- != *i* ]]; then
 	return
 fi
 
-# There are a few cases where Bash get launched interactively even though it won't be
+# There are cases where Bash gets launched interactively even though it won't be
 # used interactively. This is a problem because I call `exec` in this script which
 # usually breaks the program launching Bash. To work around this, I exit this script
 # early if I detect any of these cases. The cases are:

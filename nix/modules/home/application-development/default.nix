@@ -31,7 +31,7 @@ in
 
     activation.zeroboxWorkaround = hm.dag.entryAfter [ "writeBoundary" ] ''
       cd ~
-      for file in .bashrc .bash_profile .zshrc .zlogin; do
+      for file in .bashrc .zshrc; do
         temp="$file-zerobox-bak"
         mv -f "$file" "$temp"
         cp -f "$temp" "$file"
