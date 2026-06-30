@@ -8,8 +8,16 @@ shopt -s inherit_errexit
 
 start_commit=''
 if (($# == 0)) || [[ $1 == --* ]]; then
-	# Rebase all the commits I haven't pushed yet
-	start_commit="$(git merge-base '@{push}' HEAD)"
+	# Rebase all the commits I haven't pushed yet.
+	#
+	# @{push} only exists if the branch has been pushed before.
+	if git rev-parse '@{push}' >/dev/null 2>&1; then
+		refs=('@{push}')
+	else
+		refs_string="$(git rev-parse --remotes)"
+		readarray -t refs <<<"$refs_string"
+	fi
+	start_commit="$(git merge-base HEAD "${refs[@]}")"
 elif ((${#1} <= 2)); then
 	# The argument is probably a number specifying how many commits from HEAD I want to
 	# rebase.
