@@ -8,10 +8,8 @@
 # network interface.
 #
 # [1]: https://unix.stackexchange.com/a/687849
-if
-	# shellcheck disable=2312
-	[[ $(systemctl is-system-running) == 'stopping' ]] ||
-		[[ "$(journalctl --since '5 seconds ago')" == *'suspend'* ]]
-then
+
+# shellcheck disable=2312
+if [[ $(systemctl is-system-running) == 'stopping' || "$(journalctl --since '5 seconds ago')" == *'suspend'* ]]; then
 	sudo systemctl stop speakers.service
 fi
