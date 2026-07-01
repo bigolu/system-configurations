@@ -19,10 +19,9 @@ let
       mkdir --parents $out/bin
     '';
 
-  recursiveUpdateList = foldl' recursiveUpdate { };
-
-  makeEmptyPackageSet =
-    packagePaths: recursiveUpdateList (map (path: setAttrByPath path emptyPackage) packagePaths);
+  makeEmptyPackageSet = foldl' (
+    acc: packagePath: recursiveUpdate acc (setAttrByPath packagePath emptyPackage)
+  ) { };
 in
 {
   fish = pkgs.fishMinimal;
