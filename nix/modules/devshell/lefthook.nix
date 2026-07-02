@@ -18,7 +18,7 @@
     # a dependency.
     git
 
-    # For the post-* hooks
+    # For the sync hook and the git hooks this program creates.
     git-auto-sync
 
     # For the check hook

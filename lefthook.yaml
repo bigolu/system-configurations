@@ -84,47 +84,6 @@ pre-push:
           git -c sequence.editor=: rebase --interactive --exec "mise run check" "$merge_base"
         '
 
-post-rewrite:
-  jobs:
-    - name: sync
-      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
-      #
-      # Some jobs in the `sync` hook use `interactive` so it needs to be used
-      # here too.
-      interactive: true
-      # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
-      # be used here too.
-      run: "{connect_to_terminal} GIT_AUTO_SYNC_HOOK_NAME='post-rewrite' git-auto-sync {0} -- lefthook run sync"
-
-post-merge:
-  jobs:
-    - name: sync
-      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
-      #
-      # Some jobs in the `sync` hook use `interactive` so it needs to be used
-      # here too.
-      interactive: true
-      # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
-      # be used here too.
-      run: "{connect_to_terminal} GIT_AUTO_SYNC_HOOK_NAME='post-merge' git-auto-sync {0} -- lefthook run sync"
-
-post-checkout:
-  jobs:
-    - name: sync
-      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
-      #
-      # Some jobs in the `sync` hook use `interactive` so it needs to be used
-      # here too.
-      interactive: true
-      # Some jobs in the `sync` hook use `{connect_to_terminal}` so it needs to
-      # be used here too.
-      run: "{connect_to_terminal} GIT_AUTO_SYNC_HOOK_NAME='post-checkout' git-auto-sync {0} -- lefthook run sync"
-
-post-commit:
-  jobs:
-    - name: sync
-      run: GIT_AUTO_SYNC_HOOK_NAME='post-commit' git-auto-sync
-
 sync:
   # Set `files` to ensure that `glob`s are used[1].
   #
@@ -179,6 +138,8 @@ sync:
       skip:
         - run: lefthook check-install
       run: "{run_in_dev_shell} lefthook install --force"
+    - name: git-auto-sync
+      run: git-auto-sync install lefthook run sync
 
 check:
   # Set `files` to ensure that `glob`s are used[1].
