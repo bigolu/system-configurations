@@ -226,9 +226,7 @@ check:
             run: deadnix --quiet --edit {files}
           - name: statix-fix
             glob: "**/*.nix"
-            # statix doesn't support passing multiple files yet:
-            # https://github.com/oppiliappan/statix/issues/69
-            run: parallel statix fix -- {files}
+            run: for file in {files}; do statix fix "$file"; done
           - name: markdownlint-cli2
             glob: "**/*.md"
             run: markdownlint-cli2 --fix {files}
@@ -294,9 +292,7 @@ check:
         jobs:
           - name: fish
             glob: "**/*.fish"
-            # TODO: Fish doesn't support passing multiple files, I should open an
-            # issue.
-            run: parallel fish --no-execute -- {files}
+            run: for file in {files}; do fish --no-execute "$file"; done
           - name: shellcheck-lint
             glob: "**/*.{sh,bash}"
             run: shellcheck {files}
@@ -305,9 +301,7 @@ check:
             run: actionlint {files}
           - name: statix-lint
             glob: "**/*.nix"
-            # statix doesn't support passing multiple files yet:
-            # https://github.com/oppiliappan/statix/issues/69
-            run: parallel statix check -- {files}
+            run: for file in {files}; do statix check "$file"; done
           - name: nixpkgs-lint
             glob: "**/*.nix"
             run: nixpkgs-lint --include-unfinished-lints -- {files}
