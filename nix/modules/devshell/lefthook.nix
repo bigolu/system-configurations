@@ -18,8 +18,9 @@
     # a dependency.
     git
 
-    # For the sync hook and the git hooks this program creates.
+    # For the lefthook sync hook and the git hooks that these programs create.
     git-auto-sync
+    git-auto-check
 
     # For the check hook
     actionlint

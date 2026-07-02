@@ -170,6 +170,7 @@ in
 [
   inputs.direnv-shell-hooks.overlays.default
   inputs.git-auto-sync.overlays.default
+  inputs.git-auto-check.overlays.default
   inputs.llm-agents.overlays.default
   inputs.nix-scene.overlays.default
   myOverlay

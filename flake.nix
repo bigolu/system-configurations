@@ -59,6 +59,18 @@
       };
     };
 
+    git-auto-check = {
+      url = "github:bigolu/git-auto-check";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
+
+        # Remove development dependencies
+        devshell.follows = "";
+        devshell-modules.follows = "";
+      };
+    };
+
     nix-portable-home = {
       url = "github:bigolu/nix-portable-home";
       inputs = {

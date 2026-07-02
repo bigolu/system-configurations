@@ -52,38 +52,6 @@ templates:
       exec >/dev/tty 2>&1
     fi
 
-pre-push:
-  jobs:
-    - name: check-unpushed-commits
-      # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
-      #
-      # This job needs to read the ref updates that git provides through stdin.
-      use_stdin: true
-      # Some jobs in the `check` hook use `{connect_to_terminal}` so it needs to
-      # be used here too.
-      run: |
-        {connect_to_terminal}
-        bash -eu -o pipefail -c '
-          readarray -t ref_updates
-          (( ${#ref_updates[@]} != 1 )) && exit
-
-          read -r local_ref local_sha remote_ref remote_sha <<<"${ref_updates[0]}"
-          # All zeros means we are deleting a ref.
-          [[ $local_sha =~ ^0+$ ]] && exit
-
-          # All zeros means we are creating a new ref.
-          if [[ $remote_sha =~ ^0+$ ]]; then
-            merge_base="$(git merge-base "$local_sha" $(git rev-parse --remotes))"
-            [[ -z $merge_base ]] && exit
-          else
-            merge_base="$remote_sha"
-          fi
-          [[ $merge_base == $local_sha ]] && exit
-
-          # Stop the sequence editor from launching by setting it to a no-op.
-          git -c sequence.editor=: rebase --interactive --exec "mise run check" "$merge_base"
-        '
-
 sync:
   # Set `files` to ensure that `glob`s are used[1].
   #
@@ -134,12 +102,18 @@ sync:
         - lefthook.yaml
         - program-configs/fish/conf.d/*.fish
       run: "{run_in_dev_shell} fish -c fish-reload"
-    - name: lefthook
-      skip:
-        - run: lefthook check-install
-      run: "{run_in_dev_shell} lefthook install --force"
     - name: git-auto-sync
-      run: git-auto-sync install lefthook run sync
+      glob:
+        - lefthook.yaml
+        - "**/*.nix"
+        - flake.lock
+      run: "{run_in_dev_shell} git-auto-sync install lefthook run sync"
+    - name: git-auto-check
+      glob:
+        - lefthook.yaml
+        - "**/*.nix"
+        - flake.lock
+      run: "{run_in_dev_shell} git-auto-check install lefthook run check"
 
 check:
   # Set `files` to ensure that `glob`s are used[1].
