@@ -113,15 +113,13 @@ sync:
         - lefthook.yaml
         - "**/*.nix"
         - flake.lock
-      run: "{run_in_dev_shell} git-auto-check install lefthook run check --all-files"
+      run: "{run_in_dev_shell} git-auto-check install lefthook run check"
 
 check:
   # Set `files` to ensure that `glob`s are used[1].
   #
-  # This lists the files in the HEAD commit.
-  #
   # [1]: https://lefthook.dev/configuration/glob/
-  files: git log --format='' --name-only --diff-filter=ACMR 'HEAD^!'
+  files: git ls-files
   exclude:
     - ".vscode/ltex*"
     - program-configs/keyboard/US keyboard - no accent keys.bundle/**/*

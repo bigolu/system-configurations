@@ -11,7 +11,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-command=(lefthook run check --all-files)
+command=(lefthook run check)
 for arg in "$@"; do
 	command+=(--job "$arg")
 done
