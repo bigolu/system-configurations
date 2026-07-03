@@ -258,11 +258,6 @@ check:
             glob: "**/*.toml"
             run: taplo lint {files}
     - name: nix
-      glob:
-        - "**/*.nix"
-        - flake.lock
-        - nix/**/*
-        - program-configs/**/*
       # `{connect_to_terminal}` requires `interactive` or `use_stdin`.
       interactive: true
       # I use `{connect_to_terminal}` so I can see which nix builds are the
