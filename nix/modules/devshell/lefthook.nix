@@ -24,7 +24,6 @@
 
     # For the check hook
     actionlint
-    bash
     coreutils
     deadnix
     editorconfig-checker

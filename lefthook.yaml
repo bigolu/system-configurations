@@ -171,20 +171,17 @@ check:
           - name: shellcheck-fix
             glob: "**/*.{sh,bash}"
             run: |
-              bash -eu -o pipefail -c '
-                {
-                  set +o errexit
-                  shellcheck --format diff "$@"
-                  exit_code=$?
-                  set -o errexit
-                  # shellcheck exits with 0 if it does not find any issues and 1 if it
-                  # does. Any other exit code should be considered a failure.
-                  if (( exit_code > 1 )); then
-                    exit 1
-                  fi
-                } |
-                  git apply --allow-empty
-              ' -- {files}
+              set -eu
+              set +e
+              patch="$(shellcheck --format diff {files})"
+              exit_code=$?
+              set -e
+              # shellcheck exits with 0 if it does not find any issues and 1 if it
+              # does. Any other exit code should be considered a failure.
+              if (( exit_code > 1 )); then
+                exit 1
+              fi
+              echo "$patch" | git apply --allow-empty
           # Only use the quotation marks recognized by programming languages.
           - name: quotes
             run: sd '[\uFF07\u2018\u2019\u201B]' "'" {files} && sd '[\uFF02\u201C\u201D\u201F]' '"' {files}
@@ -274,11 +271,10 @@ check:
       # slowest and why.
       run: |
         {connect_to_terminal}
-        bash -eu -o pipefail -c '
-          dest="$PRJ_DATA_DIR/gc-roots/checks"
-          rm -rf "$dest"
-          nix build \
-            --out-link "$dest/root" \
-            --impure \
-            --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
-        '
+        set -eu
+        dest="$PRJ_DATA_DIR/gc-roots/checks"
+        rm -rf "$dest"
+        nix build \
+          --out-link "$dest/root" \
+          --impure \
+          --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
