@@ -178,7 +178,7 @@ check:
               set -e
               # shellcheck exits with 0 if it does not find any issues and 1 if it
               # does. Any other exit code should be considered a failure.
-              if (( exit_code > 1 )); then
+              if [ "$exit_code" -gt 1 ]; then
                 exit 1
               fi
               echo "$patch" | git apply --allow-empty
