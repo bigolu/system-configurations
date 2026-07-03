@@ -113,7 +113,7 @@ sync:
         - lefthook.yaml
         - "**/*.nix"
         - flake.lock
-      run: "{run_in_dev_shell} git-auto-check install lefthook run check"
+      run: "{run_in_dev_shell} git-auto-check install lefthook run check --all-files"
 
 check:
   # Set `files` to ensure that `glob`s are used[1].

@@ -3,15 +3,11 @@
 Run jobs to find/fix issues in the current commit (HEAD).
 
 
-- **Usage**: `check [--all-files] [--job… <job>]`
+- **Usage**: `check [job]…`
 
-### Flags
+### Arguments
 
-#### `--all-files`
-
-For faster development, we decide whether to run a job, and which files it runs on, based on the files changed by the commit being checked. However, this logic isn't perfect so you can use this flag to consider all files changed.
-
-#### `--job… <job>`
+#### `[job]…`
 
 Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook.
 
