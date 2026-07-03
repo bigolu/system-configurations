@@ -241,7 +241,6 @@ check:
             glob: renovate.json
             run: renovate-config-validator --no-global --strict {files}
           - name: lua-ls
-            glob: program-configs/neovim/**/*.lua
             run: |
               # --configpath is relative to the directory being checked so I'm
               # using an absolute path instead.
