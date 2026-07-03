@@ -4,7 +4,6 @@ let
   myOverlay =
     final: prev:
     let
-      pins = import ../pins final;
       inherit (final.stdenv.hostPlatform) system;
       inherit (final.lib)
         recursiveUpdate
@@ -13,7 +12,6 @@ let
         ;
     in
     {
-      zerobox = final.linkFarm "zerobox" { "bin/zerobox" = "${pins.zerobox}/zerobox"; };
       inherit (inputs.nix-portable-home.legacyPackages.${system}) makePortableHome;
       bundlerRootless = inputs.nix-rootless-bundler.bundlers.${system}.default;
 

@@ -31,12 +31,6 @@
       "revision": "6bc9f41d170711c58e0157d882a5fe8c30f34bf6",
       "url": "https://github.com/arthurxavierx/vim-caser/archive/6bc9f41d170711c58e0157d882a5fe8c30f34bf6.tar.gz",
       "hash": "sha256-PXAY01O/cHvAdWx3V/pyWFeiV5qJGvLcAKhl5DQc0Ps="
-    },
-    "zerobox": {
-      "type": "Url",
-      "url": "https://github.com/afshinm/zerobox/releases/download/v0.3.3/zerobox-x86_64-unknown-linux-gnu.tar.gz",
-      "unpack": true,
-      "hash": "sha256-AsngbVcYUAdJv/Hle1W5uUlzItakoMMXIXCHhvyh5jY="
     }
   },
   "version": 8

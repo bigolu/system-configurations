@@ -4,7 +4,7 @@
   ...
 }:
 let
-  inherit (lib) optionalAttrs hm;
+  inherit (lib) optionalAttrs;
   inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
@@ -24,19 +24,9 @@ in
       doppler
       direnv
       llm-agents.claude-code
-      zerobox
       pixi
       mise
     ];
-
-    activation.zeroboxWorkaround = hm.dag.entryAfter [ "writeBoundary" ] ''
-      cd ~
-      for file in .bashrc .zshrc; do
-        temp="$file-zerobox-bak"
-        mv -f "$file" "$temp"
-        cp -f "$temp" "$file"
-      done
-    '';
   };
 
   fileWrapper = {
