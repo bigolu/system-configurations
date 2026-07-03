@@ -51,24 +51,6 @@ tools:
   stylua: &stylua
     format-stdin: true
     format-command: stylua --verify --stdin-filepath ${INPUT} -
-  actionlint: &actionlint
-    lint-source: actionlint
-    lint-after-open: true
-    lint-stdin: true
-    lint-command: |
-      # The outer and inner case statements represent include and exclude globs
-      # respectively.
-      case ${INPUT} in
-        */.github/workflows/*)
-          case ${INPUT} in
-            *)
-              actionlint -no-color -
-              ;;
-          esac
-          ;;
-      esac
-    lint-formats:
-      - "%f:%l:%c: %m"
   markdownlint-cli2: &markdownlint-cli2
     lint-source: markdownlint-cli2
     lint-after-open: true
@@ -175,7 +157,6 @@ languages:
     - <<: *prettier
   yaml:
     - <<: *prettier
-    - <<: *actionlint
   shellscript:
     - <<: *shfmt
   fish:
