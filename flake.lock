@@ -356,11 +356,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783134383,
-        "narHash": "sha256-8YCnx65d26brT0W0xwX61jg+XtUjJUj2tGX9hRmPkXg=",
+        "lastModified": 1783187221,
+        "narHash": "sha256-s4ObTdudUwTjJeJSTo17jNBJQwakUbX5t+T1KQ3gFrk=",
         "owner": "bigolu",
         "repo": "git-auto-sync",
-        "rev": "5c81f2304d015f61bcb450834b62d07b4f1fc7b9",
+        "rev": "d1c647b5c0cc61a2186058e56639db285387dd95",
         "type": "github"
       },
       "original": {
