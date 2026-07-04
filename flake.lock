@@ -330,11 +330,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783018830,
-        "narHash": "sha256-VZcZ7y5WTvikN6/9UWHx7yQoecr5vKt02eBtJqyNIi4=",
+        "lastModified": 1783133248,
+        "narHash": "sha256-doRKSQs9Y5KvceZlEaTBgIMv8jrdKcz4Om283anH9hI=",
         "owner": "bigolu",
         "repo": "git-auto-check",
-        "rev": "e623d3dccbf87df956b824ed3efef7b88979a0d4",
+        "rev": "66a581904e0e7f170f50441c3bb27bde8d358f8a",
         "type": "github"
       },
       "original": {
@@ -356,11 +356,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783019540,
-        "narHash": "sha256-bTrMU/rnzHpSyuy7l0PbfjaK+5JrbVfQnHktwZnTky8=",
+        "lastModified": 1783133983,
+        "narHash": "sha256-OwtcahAo8/NhJb3Y2Rl8NAM/WwGX/DIgn8eLdyYngeg=",
         "owner": "bigolu",
         "repo": "git-auto-sync",
-        "rev": "a661dd636c75c1a27dc370d17dd9a2ec89b5969a",
+        "rev": "56568f13658642b6aaaca933e4056ab04be85323",
         "type": "github"
       },
       "original": {
