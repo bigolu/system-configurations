@@ -330,43 +330,6 @@ if IsRunningInTerminal then
 		},
 	})
 
-	-- misc {{{
-	local misc = require("mini.misc")
-	vim.keymap.set("n", "<C-m>", function()
-		if not IsMaximized then
-			vim.api.nvim_create_autocmd("WinEnter", {
-				once = true,
-				callback = function()
-					vim.o.winhighlight = "NormalFloat:Normal"
-				end,
-			})
-			misc.zoom(0, {
-				anchor = "SW",
-				row = 1,
-				col = 1,
-				height = vim.o.lines - 1,
-			})
-			IsMaximized = true
-		else
-			IsMaximized = false
-
-			-- Set cursor in original window to that of the maximized window.
-			-- TODO: I should upstream this
-			local maximized_window_cursor_position = vim.api.nvim_win_get_cursor(0)
-			vim.api.nvim_create_autocmd("WinEnter", {
-				once = true,
-				callback = function()
-					vim.api.nvim_win_set_cursor(0, maximized_window_cursor_position)
-				end,
-			})
-
-			misc.zoom()
-		end
-	end, {
-		desc = "Toggle maximize window [zoom]",
-	})
-	-- }}}
-
 	-- completion {{{
 	local window_info = {
 		height = math.floor(vim.o.lines * 0.35),
