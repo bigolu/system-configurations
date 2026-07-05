@@ -20,7 +20,6 @@ in
           nvim-lightbulb
           nvim-lspconfig
           nvim-treesitter.withAllGrammars
-          nvim-treesitter-context
           nvim-treesitter-endwise
           nvim-treesitter-textobjects
           nvim-ts-autotag

@@ -20,14 +20,3 @@ vim.api.nvim_create_autocmd("FileType", {
 		end
 	end,
 })
-
-require("treesitter-context").setup({
-	line_numbers = false,
-	multiline_threshold = 1,
-})
-vim.keymap.set({ "n", "x" }, "[s", function()
-	require("treesitter-context").go_to_context(vim.v.count1)
-end, { silent = true })
-vim.keymap.set("n", [[\s]], function()
-	vim.cmd.TSContext("toggle")
-end)

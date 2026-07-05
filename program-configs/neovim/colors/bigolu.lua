@@ -254,11 +254,6 @@ local groups = {
   tutorX = "DiagnosticError",
   -- }}}
 
-  -- nvim-treesitter-context {{{
-  TreesitterContext = "Normal",
-  TreesitterContextBottom = { underline = true, sp = colors.guide },
-  -- }}}
-
   -- vim-matchup {{{
   MatchParen = { ctermfg = 14, bold = true, fg = colors.accent }, -- Character under the cursor or just before it, if it is a paired bracket, and its match. |pi_paren.txt|
   MatchParenCur = "MatchParen",
