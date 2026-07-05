@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{ pkgs, ... }: {
   devshell.packages = with pkgs; [
     # For extension "jnoortheen.nix-ide"
     nixd

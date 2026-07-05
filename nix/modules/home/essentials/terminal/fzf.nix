@@ -1,8 +1,4 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{ pkgs, lib, ... }:
 let
   inherit (pkgs) buildEnv fzf;
   inherit (lib) hm;
@@ -17,9 +13,7 @@ let
   };
 in
 {
-  home.packages = [
-    fzfWithoutShellConfig
-  ];
+  home.packages = [ fzfWithoutShellConfig ];
 
   fileWrapper.xdg = {
     executable."fzf" = {

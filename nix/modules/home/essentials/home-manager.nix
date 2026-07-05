@@ -6,11 +6,7 @@
   ...
 }:
 let
-  inherit (lib)
-    mkMerge
-    mkIf
-    getExe
-    ;
+  inherit (lib) mkMerge mkIf getExe;
 in
 mkMerge [
   {

@@ -1,8 +1,4 @@
-{
-  pkgs,
-  ...
-}:
-{
+{ pkgs, ... }: {
   home.packages = with pkgs.fishPlugins; [
     pkgs.fish
     async-prompt

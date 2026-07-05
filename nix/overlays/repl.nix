@@ -1,3 +1,1 @@
-_info: _final: _prev: {
-  flake = import ../..;
-}
+_info: _final: _prev: { flake = import ../..; }

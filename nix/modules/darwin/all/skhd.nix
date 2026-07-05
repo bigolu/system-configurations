@@ -1,8 +1,4 @@
-{
-  pkgs,
-  utils,
-  ...
-}:
+{ pkgs, utils, ... }:
 let
   inherit (utils) projectRoot;
   inherit (pkgs) symlinkJoin makeWrapper skhd;

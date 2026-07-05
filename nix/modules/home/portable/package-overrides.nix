@@ -44,7 +44,5 @@ in
     [ "timg" ]
     [ "home-manager" ]
   ]
-  ++ optionals isDarwin [
-    [ "moreutils" ]
-  ]
+  ++ optionals isDarwin [ [ "moreutils" ] ]
 ))

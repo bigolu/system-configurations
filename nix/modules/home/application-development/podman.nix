@@ -30,9 +30,7 @@ in
     ];
 
   services.flatpak = optionalAttrs isLinux {
-    packages = [
-      "io.podman_desktop.PodmanDesktop"
-    ];
+    packages = [ "io.podman_desktop.PodmanDesktop" ];
     # The Podman Desktop flatpak is configured to use X11, but I force all electron
     # apps to use Wayland by setting the environment variable
     # `ELECTRON_OZONE_PLATFORM_HINT=auto`. These additional permissions are required

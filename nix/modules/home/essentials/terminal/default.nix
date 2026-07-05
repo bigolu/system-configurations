@@ -1,8 +1,4 @@
-{
-  lib,
-  pkgs,
-  ...
-}:
+{ lib, pkgs, ... }:
 let
   inherit (lib)
     optionals
@@ -74,9 +70,7 @@ in
       inotify-info
       isd
     ]
-    ++ optionals isDarwin [
-      pstree
-    ];
+    ++ optionals isDarwin [ pstree ];
 
   fileWrapper = {
     xdg.configFile = {

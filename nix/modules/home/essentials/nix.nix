@@ -7,14 +7,10 @@
 }:
 let
   inherit (pkgs.stdenv.hostPlatform) isDarwin;
-  inherit (lib)
-    optionalString
-    ;
+  inherit (lib) optionalString;
 in
 {
-  imports = [
-    (import "${inputs.nix-index-database}/home-manager-module.nix")
-  ];
+  imports = [ (import "${inputs.nix-index-database}/home-manager-module.nix") ];
 
   # Don't make a command_not_found handler
   programs.nix-index.enableFishIntegration = false;

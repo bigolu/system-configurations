@@ -1,22 +1,12 @@
-{
-  pkgs,
-  lib,
-  ...
-}:
+{ pkgs, lib, ... }:
 let
   inherit (lib) optionalAttrs;
   inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
-  imports = [
-    ./podman.nix
-  ];
+  imports = [ ./podman.nix ];
 
-  services.flatpak = optionalAttrs isLinux {
-    packages = [
-      "sh.loft.devpod"
-    ];
-  };
+  services.flatpak = optionalAttrs isLinux { packages = [ "sh.loft.devpod" ]; };
 
   home = {
     packages = with pkgs; [

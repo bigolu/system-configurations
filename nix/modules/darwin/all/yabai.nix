@@ -1,7 +1,4 @@
-{
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 let
   inherit (pkgs) symlinkJoin makeWrapper yabai;
 

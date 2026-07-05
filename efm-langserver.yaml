@@ -43,7 +43,7 @@ tools:
               cat
               ;;
             *)
-              nixfmt --verify --filename ${INPUT}
+              nixfmt --strict --verify --filename ${INPUT}
               ;;
           esac
           ;;

@@ -28,12 +28,8 @@ in
       type = types.attrsOf (
         types.submodule (context: {
           options = {
-            source = mkOption {
-              type = types.path;
-            };
-            target = mkOption {
-              type = types.str;
-            };
+            source = mkOption { type = types.path; };
+            target = mkOption { type = types.str; };
           };
           config = {
             target = mkDefault context.config._module.args.name;

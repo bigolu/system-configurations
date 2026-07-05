@@ -1,8 +1,4 @@
-{
-  pkgs,
-  pins,
-  ...
-}:
+{ pkgs, pins, ... }:
 let
   inherit (pkgs)
     linkFarm

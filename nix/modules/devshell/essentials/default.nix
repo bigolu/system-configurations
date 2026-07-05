@@ -49,28 +49,11 @@ in
       flake = {
         inherit inputs;
 
-        exclude =
-          optionals isLinux [
-            "nix-darwin"
-          ]
-          ++ optionals isCi [
-            "llm-agents"
-          ];
+        exclude = optionals isLinux [ "nix-darwin" ] ++ optionals isCi [ "llm-agents" ];
       };
 
       paths = optionals (!isCi) (
-        filter (
-          pin:
-          !elem pin (
-            with pins;
-            [
-              __functor
-            ]
-            ++ optionals isLinux [
-              spoons
-            ]
-          )
-        ) (attrValues pins)
+        filter (pin: !elem pin (with pins; [ __functor ] ++ optionals isLinux [ spoons ])) (attrValues pins)
       );
     };
   };

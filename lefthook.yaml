@@ -212,7 +212,7 @@ check:
             run: fish_indent --write {files}
           - name: nixfmt
             glob: "**/*.nix"
-            run: nixfmt --verify {files}
+            run: nixfmt --strict --verify {files}
           - name: stylua
             glob: "**/*.lua"
             run: stylua --verify {files}

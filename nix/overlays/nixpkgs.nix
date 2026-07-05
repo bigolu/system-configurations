@@ -5,11 +5,7 @@ let
     final: prev:
     let
       inherit (final.stdenv.hostPlatform) system;
-      inherit (final.lib)
-        recursiveUpdate
-        getExe
-        escapeShellArgs
-        ;
+      inherit (final.lib) recursiveUpdate getExe escapeShellArgs;
     in
     {
       inherit (inputs.nix-portable-home.legacyPackages.${system}) makePortableHome;

@@ -38,9 +38,7 @@ let
     home.packages = [ pkgs.keyd ];
 
     system = {
-      systemd.units = [
-        "${pkgs.keyd}/lib/systemd/system/keyd.service"
-      ];
+      systemd.units = [ "${pkgs.keyd}/lib/systemd/system/keyd.service" ];
 
       file = {
         "/etc/keyd/default.conf".source = "${repositoryDirectory}/program-configs/keyd/default.conf";

@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{ pkgs, ... }: {
   devshell.packages = with pkgs; [
     # TODO: Remove when this version reaches nixpkgs-unstable[1].
     #

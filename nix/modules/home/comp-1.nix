@@ -8,10 +8,7 @@
 }:
 let
   inherit (pkgs) speakerctl replaceVars writeTextDir;
-  inherit (lib)
-    getExe
-    readFile
-    ;
+  inherit (lib) getExe readFile;
   inherit (utils) projectRoot;
 
   smartPlugRoot = "${repositoryDirectory}/program-configs/smart-plug";
@@ -21,9 +18,7 @@ let
       speakerServiceName = "speakers.service";
       speakerServiceTemplate = projectRoot + /program-configs/smart-plug/linux/speakers.service;
 
-      processedTemplate = replaceVars speakerServiceTemplate {
-        speakerctl = getExe speakerctl;
-      };
+      processedTemplate = replaceVars speakerServiceTemplate { speakerctl = getExe speakerctl; };
     in
     # This way the basename of the file will be `speakerServiceName` which is
     # necessary for `config.system.systemd.units`.

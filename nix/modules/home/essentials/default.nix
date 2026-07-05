@@ -95,9 +95,7 @@ in
       relativePathRoot = {
         access = (if inPureEvalMode then inputs.self.outPath else projectRoot) + "/program-configs";
       }
-      // optionalAttrs inPureEvalMode {
-        symlink = "${repositoryDirectory}/program-configs";
-      };
+      // optionalAttrs inPureEvalMode { symlink = "${repositoryDirectory}/program-configs"; };
 
       # Flakes have built-in gitignore support
       directoryFilter = callIf (!inPureEvalMode) (
