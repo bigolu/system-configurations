@@ -59,7 +59,6 @@ vim.keymap.set({ "n", "x" }, "p", Paste("p"), { silent = true })
 vim.keymap.set({ "n", "x" }, "P", Paste("P"), { silent = true })
 
 -- Disable features {{{
--- Disable unused builtin plugins.
 local plugins_to_disable = {
 	"getscript",
 	"getscriptPlugin",
@@ -75,10 +74,6 @@ for _, plugin in pairs(plugins_to_disable) do
 	vim.g["loaded_" .. plugin] = 1
 end
 
--- Disable language providers. Feels like a lot of trouble to install neovim
--- bindings for all these languages so I'll just avoid plugins that require
--- them. By disabling the providers, I won't get a warning about missing
--- bindings when I run `:checkhealth`.
 vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_node_provider = 0
