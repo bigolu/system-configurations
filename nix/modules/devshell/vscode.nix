@@ -9,7 +9,7 @@
     # For extension "maximsmol.vscode-lsp-generic"
     efm-langserver
     # efm-langserver launches commands with`sh`
-    dash
+    bash
     # These are used in the efm-langserver config
     coreutils
     jq

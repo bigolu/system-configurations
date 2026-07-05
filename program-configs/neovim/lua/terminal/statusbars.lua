@@ -179,11 +179,6 @@ function StatusLine()
 	local aligner = "%="
 	local statusline_separator = "%#StatusLine#" .. aligner .. showcmd .. aligner
 
-	local maximized = nil
-	if IsMaximized then
-		maximized = "%#StatusLine# "
-	end
-
 	local search_count = nil
 	-- searchcount can fail e.g. if unbalanced braces in search pattern
 	local ok, search_count_info = pcall(vim.fn.searchcount)
@@ -230,7 +225,6 @@ function StatusLine()
 		mixed_line_endings,
 		reg_recording,
 		statusline_separator,
-		maximized,
 		search_count,
 		lsp,
 		position,
