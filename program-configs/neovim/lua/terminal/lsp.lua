@@ -59,16 +59,6 @@ vim.api.nvim_create_autocmd("LspAttach", {
 
 vim.lsp.codelens.enable(true)
 
-require("nvim-lightbulb").setup({
-	autocmd = { enabled = true },
-	sign = { enabled = false },
-	virtual_text = {
-		enabled = true,
-		text = "",
-		hl = "CodeActionSign",
-	},
-})
-
 -- An error is printed if nix isn't available
 if vim.fn.executable("nix") == 1 then
 	local excluded_servers = {

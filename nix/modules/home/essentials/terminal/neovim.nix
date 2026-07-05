@@ -17,7 +17,6 @@ in
           dial-nvim
           lazy-lsp-nvim
           mini-nvim
-          nvim-lightbulb
           nvim-lspconfig
           nvim-treesitter.withAllGrammars
           nvim-treesitter-endwise
