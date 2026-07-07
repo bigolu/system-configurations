@@ -1,6 +1,6 @@
 [settings]
 # I prefer this to shebangs for these reasons:
-#   - Avoids an untracked dependency on `/usr/bin/env`, which would have beeen
+#   - Avoids an untracked dependency on `/usr/bin/env`, which would have been
 #     used in the shebang.
 #   - I only have to specify the file interpreter once instead of once per
 #     shebang.
