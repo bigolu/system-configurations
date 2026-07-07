@@ -35,7 +35,6 @@ function Paste(paste_char)
 	return function()
 		local register_contents = vim.fn.getreg()
 		local is_multi_line_paste = register_contents:find("\n")
-		local in_visual_mode = vim.api.nvim_get_mode().mode:match("^[vV\22]") ~= nil
 
 		if is_multi_line_paste then
 			-- When you yank multiple lines in vim it always appends a newline to the
@@ -49,14 +48,16 @@ function Paste(paste_char)
 		end
 
 		-- In visual mode, always use "P" since it won't overwrite the clipboard.
-		local paste = vim.v.count1 .. [["]] .. vim.v.register .. (in_visual_mode and "P" or paste_char)
+		local in_visual_mode = vim.api.nvim_get_mode().mode:match("^[vV\22]") ~= nil
+		local paste = in_visual_mode and "P" or paste_char
+
 		local go_to_end_of_paste = is_multi_line_paste and "`]" or ""
 
-		vim.api.nvim_feedkeys(paste .. go_to_end_of_paste, "n", false)
+		return paste .. go_to_end_of_paste
 	end
 end
-vim.keymap.set({ "n", "x" }, "p", Paste("p"), { silent = true })
-vim.keymap.set({ "n", "x" }, "P", Paste("P"), { silent = true })
+vim.keymap.set({ "n", "x" }, "p", Paste("p"), { silent = true, expr = true })
+vim.keymap.set({ "n", "x" }, "P", Paste("P"), { silent = true, expr = true })
 
 -- Disable features {{{
 local plugins_to_disable = {
