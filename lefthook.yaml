@@ -138,6 +138,8 @@ check:
   # This is also useful for CI since you wouldn't want to waste time and money
   # running slow checks if a fast one has already failed.
   piped: true
+  # Ensure our pre-push hook fails, and the push gets aborted, if any files get fixed.
+  fail_on_changes: always
   jobs:
     # Why fixers should run before other checks:
     #   - A fixer could produce code that would fail another check
