@@ -198,26 +198,14 @@ local checks = new Mapping<String, Step> {
     check = "type -P keyd >/dev/null && keyd check {{files}}"
   }
   ["lua-ls"] {
-    check =
-      #"""
-      # --configpath is relative to the directory being checked so I'm
-      # using an absolute path instead.
-      lua-language-server \
-        --logpath "$(mktemp --directory)/lua-ls-logs" \
-        --check ./program-configs/neovim \
-        --configpath "$PWD/.luarc.json"
-      """#
+    // TODO: Real-Time output only shows if the command is on a single line.
+    // This seems like a bug.
+    check = #"lua-language-server --logpath "$(mktemp --directory)/lua-ls-logs" --check ./program-configs/neovim --configpath "$PWD/.luarc.json""#
   }
   ["nix"] {
-    check =
-      #"""
-      dest="$PRJ_DATA_DIR/gc-roots/checks"
-      rm -rf "$dest"
-      nix build \
-        --out-link "$dest/root" \
-        --impure \
-        --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
-      """#
+    // TODO: Real-Time output only shows if the command is on a single line.
+    // This seems like a bug.
+    check = #"dest="$PRJ_DATA_DIR/gc-roots/checks"; rm -rf "$dest"; nix build --out-link "$dest/root" --impure --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]""#
   }
 }
 
