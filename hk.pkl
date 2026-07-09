@@ -159,6 +159,8 @@ local formatterFixes = new Mapping<String, Step> {
   }
 }
 
+// For `fail_fast` to be effective, steps should be ordered from fastest to
+// slowest.
 local checks = new Mapping<String, Step> {
   ["statix-check"] {
     glob = "**/*.nix"
@@ -268,6 +270,11 @@ hooks =
         hook.steps
           .toMap()
           .mapValues((_, step) -> (step) {
+            // To ensure that templates like `{{files}}` are escaped properly
+            // for the Bash shell, the last path segment in the first word in
+            // `shell` must end in "bash"[1].
+            //
+            // [1]: https://github.com/jdx/hk/blob/a4f3938616fa64c9d1916fa9681faf5919d77f7f/src/step/runner.rs#L415
             shell = "bash -euo pipefail -c"
           })
           .toMapping()
