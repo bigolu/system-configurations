@@ -264,10 +264,6 @@ hooks =
         fail_on_fix = true
         steps = checkAndFixSteps
       }
-
-      ["check"] {
-        steps = checkAndFixSteps
-      }
     }
   )
     .toMap()
