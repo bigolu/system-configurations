@@ -164,46 +164,50 @@ local formatterFixes = new Mapping<String, Step> {
 }
 
 // For `fail_fast` to be effective, steps should be ordered from fastest to
-// slowest.
+// slowest. Run this command to print the steps sorted by duration:
+//
+// ```
+// env HK_TIMING_JSON=/dev/stdout hk run fix --all | jq '.steps | to_entries | sort_by(.value.wall_time_ms) | from_entries'
+// ```
 local checks = new Mapping<String, Step> {
-  ["statix-check"] = new Step {
-    glob = "**/*.nix"
-    check = #"for file in {{files}}; do statix check "$file"; done"#
-  }
-  ["markdownlint-cli2-check"] = new Step {
-    glob = "**/*.md"
-    check = "markdownlint-cli2 {{files}}"
-  }
-  ["shellcheck-check"] = new Step {
-    glob = "**/*.{sh,bash}"
-    check = "shellcheck {{files}}"
-  }
-  ["taplo-lint"] = new Step {
-    glob = "**/*.toml"
-    check = "taplo lint {{files}}"
-  }
-  ["fish"] = new Step {
-    glob = "**/*.fish"
-    check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
+  ["keyd"] = new Step {
+    glob = "**/keyd/default.conf"
+    check = "type -P keyd >/dev/null && keyd check {{files}}"
   }
   ["actionlint"] = new Step {
     glob = ".github/workflows/*.yaml"
     check = "actionlint {{files}}"
   }
+  ["editorconfig-checker"] = new Step {
+    check = "editorconfig-checker {{files}}"
+  }
+  ["fish"] = new Step {
+    glob = "**/*.fish"
+    check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
+  }
   ["nixpkgs-lint"] = new Step {
     glob = "**/*.nix"
     check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
   }
-  ["editorconfig-checker"] = new Step {
-    check = "editorconfig-checker {{files}}"
+  ["statix-check"] = new Step {
+    glob = "**/*.nix"
+    check = #"for file in {{files}}; do statix check "$file"; done"#
+  }
+  ["shellcheck-check"] = new Step {
+    glob = "**/*.{sh,bash}"
+    check = "shellcheck {{files}}"
+  }
+  ["markdownlint-cli2-check"] = new Step {
+    glob = "**/*.md"
+    check = "markdownlint-cli2 {{files}}"
+  }
+  ["taplo-lint"] = new Step {
+    glob = "**/*.toml"
+    check = "taplo lint {{files}}"
   }
   ["renovate-config-validator"] = new Step {
     glob = "renovate.json"
     check = "renovate-config-validator --no-global --strict {{files}}"
-  }
-  ["keyd"] = new Step {
-    glob = "**/keyd/default.conf"
-    check = "type -P keyd >/dev/null && keyd check {{files}}"
   }
   ["lua-ls"] = new Step {
     glob = "lock-files/lua-ls"
