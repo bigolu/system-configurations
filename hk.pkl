@@ -172,6 +172,75 @@ local checks = new Mapping<String, Step> {
   }
 }
 
+local syncSteps = new Mapping<String, Step | Group> {
+  ["direnv"] {
+    glob =
+      List(
+        "hk.pkl",
+        ".envrc-recommended.bash",
+        // Everything below affects the nix dev shell, which direnv loads
+        "**/*.nix",
+        "flake.lock",
+        "{nix,mise/tasks}/**/*",
+      )
+    fix = "direnv reload && direnv exec . true"
+  }
+  // Use a group so "direnv" is guaranteed to run first and the devshell
+  // logs/diff get printed in that step.
+  ["sync-2"] = new Group {
+    // Concatenate with a single-line string so it doesn't end in a newline.
+    prefix =
+      """
+      run_in_dev_shell() {
+        # when `git-auto-sync` runs, some of the sync jobs may depend on something
+        # from the new nix dev shell.
+        if [ -n "${git_auto_sync_last_commit:-}" ]; then
+          nix run --file . outputsforcurrentsystem.devshells.dev -- "$@"
+        else
+          "$@"
+        fi
+      }
+      """
+        + "run_in_dev_shell"
+    steps {
+      ["system"] {
+        // I want to take input from the user for these reasons:
+        //   - So I can input my password for `sudo`, used in the
+        //     `hk:system-sync` mise task.
+        //   - If the `--ask` flag is passed to the `sync` mise task, then
+        //     `hk:system-sync` will prompt the user for confirmation.
+        interactive = true
+        glob =
+          List(
+            "hk.pkl",
+            "{nix,program-configs}/**/*",
+            "**/*.nix",
+            "flake.lock",
+          )
+        fix = "mise run hk:system-sync"
+      }
+      ["git-auto-sync"] {
+        glob =
+          List(
+            "hk.pkl",
+            "**/*.nix",
+            "flake.lock",
+          )
+        fix = "git-auto-sync install mise run sync"
+      }
+      ["git-auto-check"] {
+        glob =
+          List(
+            "hk.pkl",
+            "**/*.nix",
+            "flake.lock",
+          )
+        fix = "git-auto-check install mise run check"
+      }
+    }
+  }
+}
+
 exclude =
   List(
     ".vscode/ltex*",
@@ -185,74 +254,7 @@ hooks =
     new Mapping<String, Hook> {
       ["sync"] {
         fix = true
-        steps = new Mapping<String, Step | Group> {
-          ["direnv"] {
-            glob =
-              List(
-                "hk.pkl",
-                ".envrc-recommended.bash",
-                // Everything below affects the nix dev shell, which direnv loads
-                "**/*.nix",
-                "flake.lock",
-                "{nix,mise/tasks}/**/*",
-              )
-            fix = "direnv reload && direnv exec . true"
-          }
-          // Use a group so "direnv" is guaranteed to run first and the devshell
-          // logs/diff get printed in that step.
-          ["sync-2"] = new Group {
-            // Concatenate with a single-line string so it doesn't end in a newline.
-            prefix =
-              """
-              run_in_dev_shell() {
-                # when `git-auto-sync` runs, some of the sync jobs may depend on something
-                # from the new nix dev shell.
-                if [ -n "${git_auto_sync_last_commit:-}" ]; then
-                  nix run --file . outputsforcurrentsystem.devshells.dev -- "$@"
-                else
-                  "$@"
-                fi
-              }
-              """
-                + "run_in_dev_shell"
-            steps {
-              ["system"] {
-                // I want to take input from the user for these reasons:
-                //   - So I can input my password for `sudo`, used in the
-                //     `hk:system-sync` mise task.
-                //   - If the `--ask` flag is passed to the `sync` mise task, then
-                //     `hk:system-sync` will prompt the user for confirmation.
-                interactive = true
-                glob =
-                  List(
-                    "hk.pkl",
-                    "{nix,program-configs}/**/*",
-                    "**/*.nix",
-                    "flake.lock",
-                  )
-                fix = "mise run hk:system-sync"
-              }
-              ["git-auto-sync"] {
-                glob =
-                  List(
-                    "hk.pkl",
-                    "**/*.nix",
-                    "flake.lock",
-                  )
-                fix = "git-auto-sync install mise run sync"
-              }
-              ["git-auto-check"] {
-                glob =
-                  List(
-                    "hk.pkl",
-                    "**/*.nix",
-                    "flake.lock",
-                  )
-                fix = "git-auto-check install mise run check"
-              }
-            }
-          }
-        }
+        steps = syncSteps
       }
 
       ["fix"] {
