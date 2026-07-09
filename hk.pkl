@@ -86,21 +86,19 @@ local nonFormatterFixes = new Mapping<String, Step> {
     glob = "**/*.nix"
     fix = "deadnix --quiet --edit {{files}}"
   }
-  ["statix"] {
+  ["statix-fix"] {
     glob = "**/*.nix"
     fix = #"for file in {{files}}; do statix fix "$file"; done"#
-    check = #"for file in {{files}}; do statix check "$file"; done"#
   }
-  ["markdownlint-cli2"] {
+  ["markdownlint-cli2-fix"] {
     glob = "**/*.md"
     fix = "markdownlint-cli2 --fix {{files}}"
-    check = "markdownlint-cli2 {{files}}"
   }
   ["npins"] {
     glob = "flake.lock"
     fix = "npins upgrade"
   }
-  ["shellcheck"] {
+  ["shellcheck-fix"] {
     glob = "**/*.{sh,bash}"
     fix =
       """
@@ -117,7 +115,6 @@ local nonFormatterFixes = new Mapping<String, Step> {
       } |
         git apply --allow-empty
       """
-    check = "shellcheck {{files}}"
   }
   ["quotes"] {
     fix = "hk util fix-smart-quotes {{files}}"
@@ -163,6 +160,18 @@ local formatterFixes = new Mapping<String, Step> {
 }
 
 local checks = new Mapping<String, Step> {
+  ["statix-check"] {
+    glob = "**/*.nix"
+    check = #"for file in {{files}}; do statix check "$file"; done"#
+  }
+  ["markdownlint-cli2-check"] {
+    glob = "**/*.md"
+    check = "markdownlint-cli2 {{files}}"
+  }
+  ["shellcheck-check"] {
+    glob = "**/*.{sh,bash}"
+    check = "shellcheck {{files}}"
+  }
   ["taplo-lint"] {
     glob = "**/*.toml"
     check = "taplo lint {{files}}"
