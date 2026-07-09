@@ -16,7 +16,6 @@ local syncs = new Mapping<String, Step | Group> {
   // Use a group so "direnv" is guaranteed to run first and the devshell
   // logs/diff get printed in that step.
   ["sync-2"] = new Group {
-    // Concatenate with a single-line string so it doesn't end in a newline.
     prefix =
       """
       run_in_dev_shell() {
@@ -29,6 +28,7 @@ local syncs = new Mapping<String, Step | Group> {
         fi
       }
       """
+        // Concatenate with a single-line string so it doesn't end in a newline.
         + "run_in_dev_shell"
     steps {
       ["system"] {
@@ -71,15 +71,12 @@ local syncs = new Mapping<String, Step | Group> {
 
 local nonFormatterFixes = new Mapping<String, Step> {
   ["flake-lock"] {
-    glob = "flake.nix"
     fix = "nix flake lock"
   }
   ["readme-config-names"] {
-    glob = "**/*.nix"
     fix = "mise run hk:add-config-names-to-readme"
   }
   ["task-docs"] {
-    glob = "mise/**/*"
     fix = "mise generate task-docs --style detailed --output docs/tasks.md"
   }
   ["deadnix"] {
@@ -95,7 +92,6 @@ local nonFormatterFixes = new Mapping<String, Step> {
     fix = "markdownlint-cli2 --fix {{files}}"
   }
   ["npins"] {
-    glob = "flake.lock"
     fix = "npins upgrade"
   }
   ["shellcheck-fix"] {
@@ -191,12 +187,7 @@ local checks = new Mapping<String, Step> {
     check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
   }
   ["editorconfig-checker"] {
-    glob = "**/*.nix"
     check = "editorconfig-checker {{files}}"
-  }
-  ["renovate-config-validator"] {
-    glob = "renovate.json"
-    check = "renovate-config-validator --no-global --strict {{files}}"
   }
   ["renovate-config-validator"] {
     glob = "renovate.json"
