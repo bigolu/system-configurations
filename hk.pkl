@@ -249,6 +249,9 @@ hooks =
         // Ensure our pre-push hook fails, and the push gets aborted, if any
         // files get fixed.
         fail_on_fix = true
+        // Fixes and checks should be added here so that `fail_on_fix` fails
+        // after the fixes _and_ checks run, not just the fixes.
+        //
         // Why fixes must come before checks:
         //   - A fix could produce code that would fail a check
         //   - A fix could fix an issue that would have been found by a check
