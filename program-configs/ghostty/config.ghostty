@@ -1,4 +1,5 @@
 config-file = ?linux-config.ghostty
+config-file = ?local.ghostty
 
 adjust-cell-height = 15%
 adjust-cursor-height = 15%
