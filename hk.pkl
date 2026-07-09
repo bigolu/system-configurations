@@ -1,186 +1,176 @@
 amends "package://github.com/jdx/hk/releases/download/v1.48.0/hk@1.48.0#/Config.pkl"
 
-local bash = "bash -euo pipefail -c"
-
 // For `fail_fast` to be effective, checks should be ordered from fastest to
 // slowest.
-local checks =
-  (
-    new Mapping<String, Step> {
-      // Start: Fixes
-      // -----------------------------------------------------------------------
-      // Why fixes should come first:
-      //   - A fix could produce code that would fail a check
-      //   - A fix could fix an issue that would have been found by a check
+local checks = new Mapping<String, Step> {
+  // Start: Fixes
+  // ---------------------------------------------------------------------------
+  // Why fixes should come first:
+  //   - A fix could produce code that would fail a check
+  //   - A fix could fix an issue that would have been found by a check
 
-      // Start: Non-Formatter Fixes
-      // -----------------------------------------------------------------------
-      // These must run before formatters since they may produce code that
-      // doesn't comply with the formatting.
+  // Start: Non-Formatter Fixes
+  // ---------------------------------------------------------------------------
+  // These must run before formatters since they may produce code that doesn't
+  // comply with the formatting.
 
-      ["flake-lock"] {
-        glob = "flake.nix"
-        fix = "nix flake lock"
-      }
-      ["readme-config-names"] {
-        glob = "**/*.nix"
-        fix = "mise run hk:add-config-names-to-readme"
-      }
-      ["task-docs"] {
-        glob = "mise/**/*"
-        fix = "mise generate task-docs --style detailed --output docs/tasks.md"
-      }
-      ["deadnix"] {
-        glob = "**/*.nix"
-        fix = "deadnix --quiet --edit {{files}}"
-      }
-      ["statix"] {
-        glob = "**/*.nix"
-        fix = #"for file in {{files}}; do statix fix "$file"; done"#
-        check = #"for file in {{files}}; do statix check "$file"; done"#
-      }
-      ["markdownlint-cli2"] {
-        glob = "**/*.md"
-        fix = "markdownlint-cli2 --fix {{files}}"
-        check = "markdownlint-cli2 {{files}}"
-      }
-      ["npins"] {
-        glob = "flake.lock"
-        fix = "npins upgrade"
-      }
-      ["shellcheck"] {
-        glob = "**/*.{sh,bash}"
-        fix =
-          """
-          {
-            set +o errexit
-            shellcheck --format diff {{files}}
-            exit_code=$?
-            set -o errexit
-            # shellcheck exits with 0 if it does not find any issues and 1 if it
-            # does. Any other exit code should be considered a failure.
-            if (( exit_code > 1 )); then
-              exit 1
-            fi
-          } |
-            git apply --allow-empty
-          """
-        check = "shellcheck {{files}}"
-      }
-      ["quotes"] {
-        fix = "hk util fix-smart-quotes {{files}}"
-      }
+  ["flake-lock"] {
+    glob = "flake.nix"
+    fix = "nix flake lock"
+  }
+  ["readme-config-names"] {
+    glob = "**/*.nix"
+    fix = "mise run hk:add-config-names-to-readme"
+  }
+  ["task-docs"] {
+    glob = "mise/**/*"
+    fix = "mise generate task-docs --style detailed --output docs/tasks.md"
+  }
+  ["deadnix"] {
+    glob = "**/*.nix"
+    fix = "deadnix --quiet --edit {{files}}"
+  }
+  ["statix"] {
+    glob = "**/*.nix"
+    fix = #"for file in {{files}}; do statix fix "$file"; done"#
+    check = #"for file in {{files}}; do statix check "$file"; done"#
+  }
+  ["markdownlint-cli2"] {
+    glob = "**/*.md"
+    fix = "markdownlint-cli2 --fix {{files}}"
+    check = "markdownlint-cli2 {{files}}"
+  }
+  ["npins"] {
+    glob = "flake.lock"
+    fix = "npins upgrade"
+  }
+  ["shellcheck"] {
+    glob = "**/*.{sh,bash}"
+    fix =
+      """
+      {
+        set +o errexit
+        shellcheck --format diff {{files}}
+        exit_code=$?
+        set -o errexit
+        # shellcheck exits with 0 if it does not find any issues and 1 if it
+        # does. Any other exit code should be considered a failure.
+        if (( exit_code > 1 )); then
+          exit 1
+        fi
+      } |
+        git apply --allow-empty
+      """
+    check = "shellcheck {{files}}"
+  }
+  ["quotes"] {
+    fix = "hk util fix-smart-quotes {{files}}"
+  }
 
-      // End: Non-Formatter Fixes
-      // -----------------------------------------------------------------------
+  // End: Non-Formatter Fixes
+  // ---------------------------------------------------------------------------
 
-      // Start: Formatters
-      // -----------------------------------------------------------------------
+  // Start: Formatters
+  // ---------------------------------------------------------------------------
 
-      ["taplo-format"] {
-        glob = "**/*.toml"
-        fix = "taplo format {{files}}"
-      }
-      // This also acts a syntax checker for these file types since prettier
-      // will fail if the files aren't syntactically correct.
-      ["prettier"] {
-        glob = "**/*.{md,json,jsonc,yaml}"
-        fix =
-          #"""
-          prettier \
-            --cache \
-            --cache-location "$PRJ_DATA_DIR/prettier-cache" \
-            --cache-strategy metadata \
-            --list-different \
-            --write \
-            {{files}}
-          """#
-      }
-      ["shfmt"] {
-        glob = "**/*.{sh,bash}"
-        fix = "shfmt --write {{files}}"
-      }
-      ["fish_indent"] {
-        glob = "**/*.fish"
-        fix = "fish_indent --write {{files}}"
-      }
-      ["nixfmt"] {
-        glob = "**/*.nix"
-        fix = "nixfmt --strict --verify {{files}}"
-      }
-      ["stylua"] {
-        glob = "**/*.lua"
-        fix = "stylua --verify {{files}}"
-      }
+  ["taplo-format"] {
+    glob = "**/*.toml"
+    fix = "taplo format {{files}}"
+  }
+  // This also acts a syntax checker for these file types since prettier will
+  // fail if the files aren't syntactically correct.
+  ["prettier"] {
+    glob = "**/*.{md,json,jsonc,yaml}"
+    fix =
+      #"""
+      prettier \
+        --cache \
+        --cache-location "$PRJ_DATA_DIR/prettier-cache" \
+        --cache-strategy metadata \
+        --list-different \
+        --write \
+        {{files}}
+      """#
+  }
+  ["shfmt"] {
+    glob = "**/*.{sh,bash}"
+    fix = "shfmt --write {{files}}"
+  }
+  ["fish_indent"] {
+    glob = "**/*.fish"
+    fix = "fish_indent --write {{files}}"
+  }
+  ["nixfmt"] {
+    glob = "**/*.nix"
+    fix = "nixfmt --strict --verify {{files}}"
+  }
+  ["stylua"] {
+    glob = "**/*.lua"
+    fix = "stylua --verify {{files}}"
+  }
 
-      // End: Formatters
-      // -----------------------------------------------------------------------
+  // End: Formatters
+  // ---------------------------------------------------------------------------
 
-      // End: Fixes
-      // -----------------------------------------------------------------------
+  // End: Fixes
+  // ---------------------------------------------------------------------------
 
-      ["taplo-lint"] {
-        glob = "**/*.toml"
-        check = "taplo lint {{files}}"
-      }
-      ["fish"] {
-        glob = "**/*.fish"
-        check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
-      }
-      ["actionlint"] {
-        glob = ".github/workflows/*.yaml"
-        check = "actionlint {{files}}"
-      }
-      ["nixpkgs-lint"] {
-        glob = "**/*.nix"
-        check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
-      }
-      ["editorconfig-checker"] {
-        glob = "**/*.nix"
-        check = "editorconfig-checker {{files}}"
-      }
-      ["renovate-config-validator"] {
-        glob = "renovate.json"
-        check = "renovate-config-validator --no-global --strict {{files}}"
-      }
-      ["renovate-config-validator"] {
-        glob = "renovate.json"
-        check = "renovate-config-validator --no-global --strict {{files}}"
-      }
-      ["keyd"] {
-        glob = "**/keyd/default.conf"
-        step_condition = "exec('type -P keyd')"
-        check = "keyd check {{files}}"
-      }
-      ["lua-ls"] {
-        check =
-          #"""
-          # --configpath is relative to the directory being checked so I'm
-          # using an absolute path instead.
-          lua-language-server \
-            --logpath "$(mktemp --directory)/lua-ls-logs" \
-            --check ./program-configs/neovim \
-            --configpath "$PWD/.luarc.json"
-          """#
-      }
-      ["nix"] {
-        check =
-          #"""
-          dest="$PRJ_DATA_DIR/gc-roots/checks"
-          rm -rf "$dest"
-          nix build \
-            --out-link "$dest/root" \
-            --impure \
-            --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
-          """#
-      }
-    }
-  )
-    .toMap()
-    .mapValues((_, step) -> (step) {
-      shell = bash
-    })
-    .toMapping()
+  ["taplo-lint"] {
+    glob = "**/*.toml"
+    check = "taplo lint {{files}}"
+  }
+  ["fish"] {
+    glob = "**/*.fish"
+    check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
+  }
+  ["actionlint"] {
+    glob = ".github/workflows/*.yaml"
+    check = "actionlint {{files}}"
+  }
+  ["nixpkgs-lint"] {
+    glob = "**/*.nix"
+    check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
+  }
+  ["editorconfig-checker"] {
+    glob = "**/*.nix"
+    check = "editorconfig-checker {{files}}"
+  }
+  ["renovate-config-validator"] {
+    glob = "renovate.json"
+    check = "renovate-config-validator --no-global --strict {{files}}"
+  }
+  ["renovate-config-validator"] {
+    glob = "renovate.json"
+    check = "renovate-config-validator --no-global --strict {{files}}"
+  }
+  ["keyd"] {
+    glob = "**/keyd/default.conf"
+    step_condition = "exec('type -P keyd')"
+    check = "keyd check {{files}}"
+  }
+  ["lua-ls"] {
+    check =
+      #"""
+      # --configpath is relative to the directory being checked so I'm
+      # using an absolute path instead.
+      lua-language-server \
+        --logpath "$(mktemp --directory)/lua-ls-logs" \
+        --check ./program-configs/neovim \
+        --configpath "$PWD/.luarc.json"
+      """#
+  }
+  ["nix"] {
+    check =
+      #"""
+      dest="$PRJ_DATA_DIR/gc-roots/checks"
+      rm -rf "$dest"
+      nix build \
+        --out-link "$dest/root" \
+        --impure \
+        --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
+      """#
+  }
+}
 
 exclude =
   List(
@@ -190,90 +180,102 @@ exclude =
     "nix/pins/npins",
   )
 
-hooks {
-  ["sync"] {
-    fix = true
-    steps = new Mapping<String, Step | Group> {
-      ["direnv"] {
-        shell = bash
-        glob =
-          List(
-            "hk.pkl",
-            ".envrc-recommended.bash",
-            // Everything below affects the nix dev shell, which direnv loads
-            "**/*.nix",
-            "flake.lock",
-            "{nix,mise/tasks}/**/*",
-          )
-        fix = "direnv reload && direnv exec . true"
-      }
-      // Use a group so "direnv" is guaranteed to run first and the devshell
-      // logs/diff get printed in that step.
-      ["sync-2"] = new Group {
-        shell = bash
-        // Concatenate with a single-line string so it doesn't end in a newline.
-        prefix =
-          """
-          run_in_dev_shell() {
-            # when `git-auto-sync` runs, some of the sync jobs may depend on something
-            # from the new nix dev shell.
-            if [ -n "${git_auto_sync_last_commit:-}" ]; then
-              nix run --file . outputsforcurrentsystem.devshells.dev -- "$@"
-            else
-              "$@"
-            fi
-          }
-          """
-            + "run_in_dev_shell"
-        steps {
-          ["system"] {
-            // I want to take input from the user for these reasons:
-            //   - So I can input my password for `sudo`, used in the
-            //     `hk:system-sync` mise task.
-            //   - If the `--ask` flag is passed to the `sync` mise task, then
-            //     `hk:system-sync` will prompt the user for confirmation.
-            interactive = true
+hooks =
+  (
+    new Mapping<String, Hook> {
+      ["sync"] {
+        fix = true
+        steps = new Mapping<String, Step | Group> {
+          ["direnv"] {
             glob =
               List(
                 "hk.pkl",
-                "{nix,program-configs}/**/*",
+                ".envrc-recommended.bash",
+                // Everything below affects the nix dev shell, which direnv loads
                 "**/*.nix",
                 "flake.lock",
+                "{nix,mise/tasks}/**/*",
               )
-            fix = "mise run hk:system-sync"
+            fix = "direnv reload && direnv exec . true"
           }
-          ["git-auto-sync"] {
-            glob =
-              List(
-                "hk.pkl",
-                "**/*.nix",
-                "flake.lock",
-              )
-            fix = "git-auto-sync install mise run sync"
-          }
-          ["git-auto-check"] {
-            glob =
-              List(
-                "hk.pkl",
-                "**/*.nix",
-                "flake.lock",
-              )
-            fix = "git-auto-check install mise run check"
+          // Use a group so "direnv" is guaranteed to run first and the devshell
+          // logs/diff get printed in that step.
+          ["sync-2"] = new Group {
+            // Concatenate with a single-line string so it doesn't end in a newline.
+            prefix =
+              """
+              run_in_dev_shell() {
+                # when `git-auto-sync` runs, some of the sync jobs may depend on something
+                # from the new nix dev shell.
+                if [ -n "${git_auto_sync_last_commit:-}" ]; then
+                  nix run --file . outputsforcurrentsystem.devshells.dev -- "$@"
+                else
+                  "$@"
+                fi
+              }
+              """
+                + "run_in_dev_shell"
+            steps {
+              ["system"] {
+                // I want to take input from the user for these reasons:
+                //   - So I can input my password for `sudo`, used in the
+                //     `hk:system-sync` mise task.
+                //   - If the `--ask` flag is passed to the `sync` mise task, then
+                //     `hk:system-sync` will prompt the user for confirmation.
+                interactive = true
+                glob =
+                  List(
+                    "hk.pkl",
+                    "{nix,program-configs}/**/*",
+                    "**/*.nix",
+                    "flake.lock",
+                  )
+                fix = "mise run hk:system-sync"
+              }
+              ["git-auto-sync"] {
+                glob =
+                  List(
+                    "hk.pkl",
+                    "**/*.nix",
+                    "flake.lock",
+                  )
+                fix = "git-auto-sync install mise run sync"
+              }
+              ["git-auto-check"] {
+                glob =
+                  List(
+                    "hk.pkl",
+                    "**/*.nix",
+                    "flake.lock",
+                  )
+                fix = "git-auto-check install mise run check"
+              }
+            }
           }
         }
       }
+
+      ["fix"] {
+        fix = true
+        // Ensure our pre-push hook fails, and the push gets aborted, if any files
+        // get fixed.
+        fail_on_fix = true
+        steps = checks
+      }
+
+      ["check"] {
+        steps = checks
+      }
     }
-  }
-
-  ["fix"] {
-    fix = true
-    // Ensure our pre-push hook fails, and the push gets aborted, if any files
-    // get fixed.
-    fail_on_fix = true
-    steps = checks
-  }
-
-  ["check"] {
-    steps = checks
-  }
-}
+  )
+    .toMap()
+    .mapValues((_, hook) -> (hook) {
+      steps =
+        hook.steps
+          .toMap()
+          .mapValues((_, step) -> (step) {
+            shell = "bash -euo pipefail -c"
+          })
+          .toMapping()
+    })
+    .toMapping()
