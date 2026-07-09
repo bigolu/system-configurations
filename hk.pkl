@@ -211,6 +211,7 @@ hooks {
       // logs/diff get printed in that step.
       ["sync-2"] = new Group {
         shell = bash
+        // Concatenate with a single-line string so it doesn't end in a newline.
         prefix =
           """
           run_in_dev_shell() {
@@ -222,8 +223,8 @@ hooks {
               "$@"
             fi
           }
-          run_in_dev_shell
           """
+            + "run_in_dev_shell"
         steps {
           ["system"] {
             // I want to take input from the user for these reasons:

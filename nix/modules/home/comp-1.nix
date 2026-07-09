@@ -27,6 +27,10 @@ in
 {
   services.flatpak.packages = [ "org.qbittorrent.qBittorrent" ];
 
+  fileWrapper.xdg.configFile = {
+    "ghostty/comp-1.ghostty".source = "ghostty/comp-1.ghostty";
+  };
+
   system = {
     file = {
       "/etc/sysctl.d/local.conf".source = "${repositoryDirectory}/program-configs/sysctl/local.conf";

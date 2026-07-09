@@ -1,5 +1,5 @@
-config-file = ?linux-config.ghostty
 config-file = ?local.ghostty
+config-file = ?comp-1.ghostty
 
 adjust-cell-height = 15%
 adjust-cursor-height = 15%
@@ -12,6 +12,7 @@ copy-on-select = clipboard
 cursor-style = bar
 focus-follows-mouse = true
 font-family = "Iosevka Custom"
+keybind = alt+t=new_tab
 keybind = alt+-=new_split:down
 keybind = alt+1=goto_tab:1
 keybind = alt+2=goto_tab:2
