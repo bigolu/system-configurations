@@ -1,9 +1,7 @@
 #nix --interpreter bash --packages bash
 #MISE description="Sync your environment with the code"
 #USAGE long_about "Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes."
-#USAGE
 #USAGE arg "[job]" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `hk.pkl` under the `sync` hook."
-#USAGE
 #USAGE flag "--ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job."
 
 set -o errexit
