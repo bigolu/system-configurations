@@ -124,7 +124,7 @@ local nonFormatterFixes = new Mapping<String, Step> {
   }
 }
 
-local formatters = new Mapping<String, Step> {
+local formatterFixes = new Mapping<String, Step> {
   ["taplo-format"] {
     glob = "**/*.toml"
     fix = "taplo format {{files}}"
@@ -247,7 +247,7 @@ hooks =
         //
         // Non-Formatter fixes must run before formatters since they may produce
         // code that doesn't comply with the formatting.
-        steps = (nonFormatterFixes.toMap() + formatters.toMap() + checks.toMap()).toMapping()
+        steps = (nonFormatterFixes.toMap() + formatterFixes.toMap() + checks.toMap()).toMapping()
       }
     }
   )
