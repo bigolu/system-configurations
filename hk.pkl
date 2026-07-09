@@ -1,7 +1,7 @@
 amends "package://github.com/jdx/hk/releases/download/v1.48.0/hk@1.48.0#/Config.pkl"
 
 local syncs = new Mapping<String, Step | Group> {
-  ["direnv"] {
+  ["direnv"] = new Step {
     glob =
       List(
         "hk.pkl",
@@ -31,7 +31,7 @@ local syncs = new Mapping<String, Step | Group> {
         // Concatenate with a single-line string so it doesn't end in a newline.
         + "run_in_dev_shell"
     steps {
-      ["system"] {
+      ["system"] = new Step {
         // I want to take input from the user for these reasons:
         //   - So I can input my password for `sudo`, used in the
         //     `hk:system-sync` mise task.
@@ -47,7 +47,7 @@ local syncs = new Mapping<String, Step | Group> {
           )
         fix = "mise run hk:system-sync"
       }
-      ["git-auto-sync"] {
+      ["git-auto-sync"] = new Step {
         glob =
           List(
             "hk.pkl",
@@ -56,7 +56,7 @@ local syncs = new Mapping<String, Step | Group> {
           )
         fix = "git-auto-sync install mise run sync"
       }
-      ["git-auto-check"] {
+      ["git-auto-check"] = new Step {
         glob =
           List(
             "hk.pkl",
@@ -70,39 +70,39 @@ local syncs = new Mapping<String, Step | Group> {
 }
 
 local nonFormatterFixes = new Mapping<String, Step> {
-  ["flake-lock"] {
+  ["flake-lock"] = new Step {
     // Ensure a lock is acquired for this file
     glob = "flake.lock"
     fix = "nix flake lock"
   }
-  ["readme-config-names"] {
+  ["readme-config-names"] = new Step {
     // Ensure a lock is acquired for this file
     glob = "README.md"
     fix = "mise run hk:add-config-names-to-readme"
   }
-  ["task-docs"] {
+  ["task-docs"] = new Step {
     // Ensure a lock is acquired for this file
     glob = "docs/tasks.md"
     fix = "mise generate task-docs --style detailed --output docs/tasks.md"
   }
-  ["deadnix"] {
+  ["deadnix"] = new Step {
     glob = "**/*.nix"
     fix = "deadnix --quiet --edit {{files}}"
   }
-  ["statix-fix"] {
+  ["statix-fix"] = new Step {
     glob = "**/*.nix"
     fix = #"for file in {{files}}; do statix fix "$file"; done"#
   }
-  ["markdownlint-cli2-fix"] {
+  ["markdownlint-cli2-fix"] = new Step {
     glob = "**/*.md"
     fix = "markdownlint-cli2 --fix {{files}}"
   }
-  ["npins"] {
+  ["npins"] = new Step {
     // Ensure a lock is acquired for these files
     glob = "nix/pins/npins/**/*"
     fix = "npins upgrade"
   }
-  ["shellcheck-fix"] {
+  ["shellcheck-fix"] = new Step {
     glob = "**/*.{sh,bash}"
     fix =
       """
@@ -120,19 +120,19 @@ local nonFormatterFixes = new Mapping<String, Step> {
         git apply --allow-empty
       """
   }
-  ["quotes"] {
+  ["quotes"] = new Step {
     fix = "hk util fix-smart-quotes {{files}}"
   }
 }
 
 local formatterFixes = new Mapping<String, Step> {
-  ["taplo-format"] {
+  ["taplo-format"] = new Step {
     glob = "**/*.toml"
     fix = "taplo format {{files}}"
   }
   // This also acts a syntax checker for these file types since prettier will
   // fail if the files aren't syntactically correct.
-  ["prettier"] {
+  ["prettier"] = new Step {
     glob = "**/*.{md,json,jsonc,yaml}"
     fix =
       #"""
@@ -145,19 +145,19 @@ local formatterFixes = new Mapping<String, Step> {
         {{files}}
       """#
   }
-  ["shfmt"] {
+  ["shfmt"] = new Step {
     glob = "**/*.{sh,bash}"
     fix = "shfmt --write {{files}}"
   }
-  ["fish_indent"] {
+  ["fish_indent"] = new Step {
     glob = "**/*.fish"
     fix = "fish_indent --write {{files}}"
   }
-  ["nixfmt"] {
+  ["nixfmt"] = new Step {
     glob = "**/*.nix"
     fix = "nixfmt --strict --verify {{files}}"
   }
-  ["stylua"] {
+  ["stylua"] = new Step {
     glob = "**/*.lua"
     fix = "stylua --verify {{files}}"
   }
@@ -166,52 +166,52 @@ local formatterFixes = new Mapping<String, Step> {
 // For `fail_fast` to be effective, steps should be ordered from fastest to
 // slowest.
 local checks = new Mapping<String, Step> {
-  ["statix-check"] {
+  ["statix-check"] = new Step {
     glob = "**/*.nix"
     check = #"for file in {{files}}; do statix check "$file"; done"#
   }
-  ["markdownlint-cli2-check"] {
+  ["markdownlint-cli2-check"] = new Step {
     glob = "**/*.md"
     check = "markdownlint-cli2 {{files}}"
   }
-  ["shellcheck-check"] {
+  ["shellcheck-check"] = new Step {
     glob = "**/*.{sh,bash}"
     check = "shellcheck {{files}}"
   }
-  ["taplo-lint"] {
+  ["taplo-lint"] = new Step {
     glob = "**/*.toml"
     check = "taplo lint {{files}}"
   }
-  ["fish"] {
+  ["fish"] = new Step {
     glob = "**/*.fish"
     check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
   }
-  ["actionlint"] {
+  ["actionlint"] = new Step {
     glob = ".github/workflows/*.yaml"
     check = "actionlint {{files}}"
   }
-  ["nixpkgs-lint"] {
+  ["nixpkgs-lint"] = new Step {
     glob = "**/*.nix"
     check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
   }
-  ["editorconfig-checker"] {
+  ["editorconfig-checker"] = new Step {
     check = "editorconfig-checker {{files}}"
   }
-  ["renovate-config-validator"] {
+  ["renovate-config-validator"] = new Step {
     glob = "renovate.json"
     check = "renovate-config-validator --no-global --strict {{files}}"
   }
-  ["keyd"] {
+  ["keyd"] = new Step {
     glob = "**/keyd/default.conf"
     check = "type -P keyd >/dev/null && keyd check {{files}}"
   }
-  ["lua-ls"] {
+  ["lua-ls"] = new Step {
     glob = "lock-files/lua-ls"
     // TODO: Real-Time output only shows if the command is on a single line.
     // This seems like a bug.
     check = #"lua-language-server --logpath "$(mktemp --directory)/lua-ls-logs" --check ./program-configs/neovim --configpath "$PWD/.luarc.json""#
   }
-  ["nix"] {
+  ["nix"] = new Step {
     glob = "lock-files/nix"
     // TODO: Real-Time output only shows if the command is on a single line.
     // This seems like a bug.
@@ -257,15 +257,20 @@ hooks =
       steps =
         hook.steps
           .toMap()
-          .mapValues((_, step) -> (step) {
+          .mapValues((_, stepOrGroup) -> (stepOrGroup) {
             // To ensure that templates like `{{files}}` are escaped properly
             // for the Bash shell, the last path segment in the first word in
             // `shell` must end in "bash"[1].
             //
             // [1]: https://github.com/jdx/hk/blob/a4f3938616fa64c9d1916fa9681faf5919d77f7f/src/step/runner.rs#L415
             shell = "bash -euo pipefail -c"
-            output_summary = "combined"
           })
+          .mapValues((_, stepOrGroup) ->
+            if (stepOrGroup is Step)
+              (stepOrGroup) { output_summary = "combined" }
+            else
+              stepOrGroup
+          )
           .toMapping()
     })
     .toMapping()
