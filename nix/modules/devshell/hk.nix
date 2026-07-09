@@ -22,6 +22,7 @@
     markdownlint-cli2
     nixfmt
     nixpkgs-lint-community
+    pkl
     prettier
     # for renovate-config-validator
     renovate

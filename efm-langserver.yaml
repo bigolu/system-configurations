@@ -51,6 +51,10 @@ tools:
   stylua: &stylua
     format-stdin: true
     format-command: stylua --verify --stdin-filepath ${INPUT} -
+  pkl: &pkl
+    format-stdin: true
+    format-ignore-exit-code: true
+    format-command: pkl format -
   markdownlint-cli2: &markdownlint-cli2
     lint-source: markdownlint-cli2
     lint-after-open: true
@@ -169,5 +173,7 @@ languages:
     - <<: *stylua
   properties:
     - <<: *keyd
+  pkl:
+    - <<: *pkl
   =:
     - <<: *editorconfig-checker

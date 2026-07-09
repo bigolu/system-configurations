@@ -161,14 +161,15 @@ local formatterFixes = new Mapping<String, Step> {
     glob = "**/*.lua"
     fix = "stylua --verify {{files}}"
   }
+  ["pkl-format"] = new Step {
+    glob = "hk.pkl"
+    fix = "pkl format --write {{files}}"
+  }
 }
 
 // For `fail_fast` to be effective, steps should be ordered from fastest to
 // slowest. Run this command to print the steps sorted by duration:
-//
-// ```
-// env HK_TIMING_JSON=/dev/stdout hk run fix --all | jq '.steps | to_entries | sort_by(.value.wall_time_ms) | from_entries'
-// ```
+// `env HK_TIMING_JSON=/dev/stdout hk run fix --all | jq '.steps | to_entries | sort_by(.value.wall_time_ms) | from_entries'`
 local checks = new Mapping<String, Step> {
   ["keyd"] = new Step {
     glob = "**/keyd/default.conf"
@@ -205,6 +206,10 @@ local checks = new Mapping<String, Step> {
     glob = "**/*.toml"
     check = "taplo lint {{files}}"
   }
+  ["pkl-lint"] = new Step {
+    glob = "hk.pkl"
+    check = "pkl eval {{files}} >/dev/null"
+  }
   ["renovate-config-validator"] = new Step {
     glob = "renovate.json"
     check = "renovate-config-validator --no-global --strict {{files}}"
@@ -213,13 +218,15 @@ local checks = new Mapping<String, Step> {
     glob = "lock-files/lua-ls"
     // TODO: Real-Time output only shows if the command is on a single line.
     // This seems like a bug.
-    check = #"lua-language-server --logpath "$(mktemp --directory)/lua-ls-logs" --check ./program-configs/neovim --configpath "$PWD/.luarc.json""#
+    check =
+      #"lua-language-server --logpath "$(mktemp --directory)/lua-ls-logs" --check ./program-configs/neovim --configpath "$PWD/.luarc.json""#
   }
   ["nix"] = new Step {
     glob = "lock-files/nix"
     // TODO: Real-Time output only shows if the command is on a single line.
     // This seems like a bug.
-    check = #"dest="$PRJ_DATA_DIR/gc-roots/checks"; rm -rf "$dest"; nix build --out-link "$dest/root" --impure --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]""#
+    check =
+      #"dest="$PRJ_DATA_DIR/gc-roots/checks"; rm -rf "$dest"; nix build --out-link "$dest/root" --impure --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]""#
   }
 }
 
@@ -238,7 +245,7 @@ hooks =
         fix = true
         steps = syncs
       }
-      ["fix"] {
+      ["check"] {
         fix = true
         // Ensure our pre-push hook fails, and the push gets aborted, if any
         // files get fixed.

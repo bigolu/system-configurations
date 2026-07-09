@@ -9,7 +9,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-command=(hk run fix --all)
+command=(hk run check --all)
 
 for arg in "$@"; do
 	command+=(--step "$arg")
