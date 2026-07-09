@@ -275,6 +275,7 @@ hooks =
             //
             // [1]: https://github.com/jdx/hk/blob/a4f3938616fa64c9d1916fa9681faf5919d77f7f/src/step/runner.rs#L415
             shell = "bash -euo pipefail -c"
+            output_summary = "combined"
           })
           .toMapping()
     })
