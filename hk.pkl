@@ -204,8 +204,7 @@ local checks = new Mapping<String, Step> {
   }
   ["keyd"] {
     glob = "**/keyd/default.conf"
-    step_condition = "exec('type -P keyd')"
-    check = "keyd check {{files}}"
+    check = "type -P keyd >/dev/null && keyd check {{files}}"
   }
   ["lua-ls"] {
     check =
