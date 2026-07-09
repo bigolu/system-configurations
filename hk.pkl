@@ -1,8 +1,8 @@
 amends "package://github.com/jdx/hk/releases/download/v1.48.0/hk@1.48.0#/Config.pkl"
 
-// For `fail_fast` to be effective, checks should be ordered from fastest to
+// For `fail_fast` to be effective, steps should be ordered from fastest to
 // slowest.
-local checks = new Mapping<String, Step> {
+local checkAndFixSteps = new Mapping<String, Step> {
   // Start: Fixes
   // ---------------------------------------------------------------------------
   // Why fixes should come first:
@@ -262,11 +262,11 @@ hooks =
         // Ensure our pre-push hook fails, and the push gets aborted, if any files
         // get fixed.
         fail_on_fix = true
-        steps = checks
+        steps = checkAndFixSteps
       }
 
       ["check"] {
-        steps = checks
+        steps = checkAndFixSteps
       }
     }
   )
