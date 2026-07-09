@@ -9,7 +9,7 @@ Run jobs to find/fix issues in the current commit (HEAD).
 
 #### `[job]…`
 
-Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `check` hook.
+Job to run. If none are passed then all of them will be run. The list of jobs is in `hk.pkl` under the `check` hook.
 
 ## `debug-shell`
 
@@ -35,7 +35,7 @@ Run jobs to sync your environment with the code. For example, running database m
 
 #### `[job]…`
 
-Job to run. If none are passed then all of them will be run. The list of jobs is in `lefthook.yaml` under the `sync` hook.
+Job to run. If none are passed then all of them will be run. The list of jobs is in `hk.pkl` under the `sync` hook.
 
 ### Flags
 

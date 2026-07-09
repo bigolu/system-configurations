@@ -13,5 +13,8 @@
     # These are used in the efm-langserver config
     coreutils
     jq
+
+    # For extension "pkl.pkl-vscode"
+    graalvmPackages.graalvm-ce
   ];
 }

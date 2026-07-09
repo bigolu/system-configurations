@@ -19,7 +19,7 @@
         { devshell.name = "dev"; }
 
         (moduleRoot + "/vscode.nix")
-        (moduleRoot + "/lefthook.nix")
+        (moduleRoot + "/hk.nix")
 
         # npins
         {

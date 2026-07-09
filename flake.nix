@@ -1,6 +1,8 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    # Go back to "nixpkgs-unstable" when this PR reaches it:
+    # https://github.com/NixOS/nixpkgs/pull/503171
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable-small";
 
     flake-compat.url = "https://git.lix.systems/lix-project/flake-compat/archive/main.tar.gz";
 

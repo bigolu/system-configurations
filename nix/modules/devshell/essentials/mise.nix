@@ -22,8 +22,7 @@ in
   };
 
   devshell = {
-    # fish is for autocompleting task arguments
-    packages = [ pkgs.mise ] ++ optional isDev pkgs.fish;
+    packages = [ pkgs.mise ];
 
     startup.mise.text = ''
       export MISE_TRUSTED_CONFIG_PATHS="$PRJ_ROOT/mise/config.toml"

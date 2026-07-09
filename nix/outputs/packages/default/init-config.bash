@@ -21,7 +21,7 @@ export NIX_CONFIG
 eval "$direnv_export"
 
 if [[ $OSTYPE == linux* ]]; then
-	mise run lefthook:system-sync "$configuration"
+	mise run hk:system-sync "$configuration"
 else
 	if ! [[ -x /usr/local/bin/brew ]]; then
 		# Install homebrew. Source: https://brew.sh/
@@ -43,8 +43,8 @@ else
 	# Apply the config with the bootstrap builders.
 	for builder in bootstrap1 bootstrap2; do
 		echo "$builder" >"$builder_file"
-		mise run lefthook:system-sync "$configuration"
+		mise run hk:system-sync "$configuration"
 	done
 fi
 
-LEFTHOOK_EXCLUDE='system' mise run sync
+HK_SKIP_STEPS='system' mise run sync
