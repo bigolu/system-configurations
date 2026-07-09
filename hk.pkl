@@ -1,178 +1,6 @@
 amends "package://github.com/jdx/hk/releases/download/v1.48.0/hk@1.48.0#/Config.pkl"
 
-// For `fail_fast` to be effective, steps should be ordered from fastest to
-// slowest.
-local checkAndFixSteps = new Mapping<String, Step> {
-  // Start: Fixes
-  // ---------------------------------------------------------------------------
-  // Why fixes should come first:
-  //   - A fix could produce code that would fail a check
-  //   - A fix could fix an issue that would have been found by a check
-
-  // Start: Non-Formatter Fixes
-  // ---------------------------------------------------------------------------
-  // These must run before formatters since they may produce code that doesn't
-  // comply with the formatting.
-
-  ["flake-lock"] {
-    glob = "flake.nix"
-    fix = "nix flake lock"
-  }
-  ["readme-config-names"] {
-    glob = "**/*.nix"
-    fix = "mise run hk:add-config-names-to-readme"
-  }
-  ["task-docs"] {
-    glob = "mise/**/*"
-    fix = "mise generate task-docs --style detailed --output docs/tasks.md"
-  }
-  ["deadnix"] {
-    glob = "**/*.nix"
-    fix = "deadnix --quiet --edit {{files}}"
-  }
-  ["statix"] {
-    glob = "**/*.nix"
-    fix = #"for file in {{files}}; do statix fix "$file"; done"#
-    check = #"for file in {{files}}; do statix check "$file"; done"#
-  }
-  ["markdownlint-cli2"] {
-    glob = "**/*.md"
-    fix = "markdownlint-cli2 --fix {{files}}"
-    check = "markdownlint-cli2 {{files}}"
-  }
-  ["npins"] {
-    glob = "flake.lock"
-    fix = "npins upgrade"
-  }
-  ["shellcheck"] {
-    glob = "**/*.{sh,bash}"
-    fix =
-      """
-      {
-        set +o errexit
-        shellcheck --format diff {{files}}
-        exit_code=$?
-        set -o errexit
-        # shellcheck exits with 0 if it does not find any issues and 1 if it
-        # does. Any other exit code should be considered a failure.
-        if (( exit_code > 1 )); then
-          exit 1
-        fi
-      } |
-        git apply --allow-empty
-      """
-    check = "shellcheck {{files}}"
-  }
-  ["quotes"] {
-    fix = "hk util fix-smart-quotes {{files}}"
-  }
-
-  // End: Non-Formatter Fixes
-  // ---------------------------------------------------------------------------
-
-  // Start: Formatters
-  // ---------------------------------------------------------------------------
-
-  ["taplo-format"] {
-    glob = "**/*.toml"
-    fix = "taplo format {{files}}"
-  }
-  // This also acts a syntax checker for these file types since prettier will
-  // fail if the files aren't syntactically correct.
-  ["prettier"] {
-    glob = "**/*.{md,json,jsonc,yaml}"
-    fix =
-      #"""
-      prettier \
-        --cache \
-        --cache-location "$PRJ_DATA_DIR/prettier-cache" \
-        --cache-strategy metadata \
-        --list-different \
-        --write \
-        {{files}}
-      """#
-  }
-  ["shfmt"] {
-    glob = "**/*.{sh,bash}"
-    fix = "shfmt --write {{files}}"
-  }
-  ["fish_indent"] {
-    glob = "**/*.fish"
-    fix = "fish_indent --write {{files}}"
-  }
-  ["nixfmt"] {
-    glob = "**/*.nix"
-    fix = "nixfmt --strict --verify {{files}}"
-  }
-  ["stylua"] {
-    glob = "**/*.lua"
-    fix = "stylua --verify {{files}}"
-  }
-
-  // End: Formatters
-  // ---------------------------------------------------------------------------
-
-  // End: Fixes
-  // ---------------------------------------------------------------------------
-
-  ["taplo-lint"] {
-    glob = "**/*.toml"
-    check = "taplo lint {{files}}"
-  }
-  ["fish"] {
-    glob = "**/*.fish"
-    check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
-  }
-  ["actionlint"] {
-    glob = ".github/workflows/*.yaml"
-    check = "actionlint {{files}}"
-  }
-  ["nixpkgs-lint"] {
-    glob = "**/*.nix"
-    check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
-  }
-  ["editorconfig-checker"] {
-    glob = "**/*.nix"
-    check = "editorconfig-checker {{files}}"
-  }
-  ["renovate-config-validator"] {
-    glob = "renovate.json"
-    check = "renovate-config-validator --no-global --strict {{files}}"
-  }
-  ["renovate-config-validator"] {
-    glob = "renovate.json"
-    check = "renovate-config-validator --no-global --strict {{files}}"
-  }
-  ["keyd"] {
-    glob = "**/keyd/default.conf"
-    step_condition = "exec('type -P keyd')"
-    check = "keyd check {{files}}"
-  }
-  ["lua-ls"] {
-    check =
-      #"""
-      # --configpath is relative to the directory being checked so I'm
-      # using an absolute path instead.
-      lua-language-server \
-        --logpath "$(mktemp --directory)/lua-ls-logs" \
-        --check ./program-configs/neovim \
-        --configpath "$PWD/.luarc.json"
-      """#
-  }
-  ["nix"] {
-    check =
-      #"""
-      dest="$PRJ_DATA_DIR/gc-roots/checks"
-      rm -rf "$dest"
-      nix build \
-        --out-link "$dest/root" \
-        --impure \
-        --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
-      """#
-  }
-}
-
-local syncSteps = new Mapping<String, Step | Group> {
+local syncs = new Mapping<String, Step | Group> {
   ["direnv"] {
     glob =
       List(
@@ -241,6 +69,157 @@ local syncSteps = new Mapping<String, Step | Group> {
   }
 }
 
+local nonFormatterFixes = new Mapping<String, Step> {
+  ["flake-lock"] {
+    glob = "flake.nix"
+    fix = "nix flake lock"
+  }
+  ["readme-config-names"] {
+    glob = "**/*.nix"
+    fix = "mise run hk:add-config-names-to-readme"
+  }
+  ["task-docs"] {
+    glob = "mise/**/*"
+    fix = "mise generate task-docs --style detailed --output docs/tasks.md"
+  }
+  ["deadnix"] {
+    glob = "**/*.nix"
+    fix = "deadnix --quiet --edit {{files}}"
+  }
+  ["statix"] {
+    glob = "**/*.nix"
+    fix = #"for file in {{files}}; do statix fix "$file"; done"#
+    check = #"for file in {{files}}; do statix check "$file"; done"#
+  }
+  ["markdownlint-cli2"] {
+    glob = "**/*.md"
+    fix = "markdownlint-cli2 --fix {{files}}"
+    check = "markdownlint-cli2 {{files}}"
+  }
+  ["npins"] {
+    glob = "flake.lock"
+    fix = "npins upgrade"
+  }
+  ["shellcheck"] {
+    glob = "**/*.{sh,bash}"
+    fix =
+      """
+      {
+        set +o errexit
+        shellcheck --format diff {{files}}
+        exit_code=$?
+        set -o errexit
+        # shellcheck exits with 0 if it does not find any issues and 1 if it
+        # does. Any other exit code should be considered a failure.
+        if (( exit_code > 1 )); then
+          exit 1
+        fi
+      } |
+        git apply --allow-empty
+      """
+    check = "shellcheck {{files}}"
+  }
+  ["quotes"] {
+    fix = "hk util fix-smart-quotes {{files}}"
+  }
+}
+
+local formatters = new Mapping<String, Step> {
+  ["taplo-format"] {
+    glob = "**/*.toml"
+    fix = "taplo format {{files}}"
+  }
+  // This also acts a syntax checker for these file types since prettier will
+  // fail if the files aren't syntactically correct.
+  ["prettier"] {
+    glob = "**/*.{md,json,jsonc,yaml}"
+    fix =
+      #"""
+      prettier \
+        --cache \
+        --cache-location "$PRJ_DATA_DIR/prettier-cache" \
+        --cache-strategy metadata \
+        --list-different \
+        --write \
+        {{files}}
+      """#
+  }
+  ["shfmt"] {
+    glob = "**/*.{sh,bash}"
+    fix = "shfmt --write {{files}}"
+  }
+  ["fish_indent"] {
+    glob = "**/*.fish"
+    fix = "fish_indent --write {{files}}"
+  }
+  ["nixfmt"] {
+    glob = "**/*.nix"
+    fix = "nixfmt --strict --verify {{files}}"
+  }
+  ["stylua"] {
+    glob = "**/*.lua"
+    fix = "stylua --verify {{files}}"
+  }
+}
+
+local checks = new Mapping<String, Step> {
+  ["taplo-lint"] {
+    glob = "**/*.toml"
+    check = "taplo lint {{files}}"
+  }
+  ["fish"] {
+    glob = "**/*.fish"
+    check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
+  }
+  ["actionlint"] {
+    glob = ".github/workflows/*.yaml"
+    check = "actionlint {{files}}"
+  }
+  ["nixpkgs-lint"] {
+    glob = "**/*.nix"
+    check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
+  }
+  ["editorconfig-checker"] {
+    glob = "**/*.nix"
+    check = "editorconfig-checker {{files}}"
+  }
+  ["renovate-config-validator"] {
+    glob = "renovate.json"
+    check = "renovate-config-validator --no-global --strict {{files}}"
+  }
+  ["renovate-config-validator"] {
+    glob = "renovate.json"
+    check = "renovate-config-validator --no-global --strict {{files}}"
+  }
+  ["keyd"] {
+    glob = "**/keyd/default.conf"
+    step_condition = "exec('type -P keyd')"
+    check = "keyd check {{files}}"
+  }
+  ["lua-ls"] {
+    check =
+      #"""
+      # --configpath is relative to the directory being checked so I'm
+      # using an absolute path instead.
+      lua-language-server \
+        --logpath "$(mktemp --directory)/lua-ls-logs" \
+        --check ./program-configs/neovim \
+        --configpath "$PWD/.luarc.json"
+      """#
+  }
+  ["nix"] {
+    check =
+      #"""
+      dest="$PRJ_DATA_DIR/gc-roots/checks"
+      rm -rf "$dest"
+      nix build \
+        --out-link "$dest/root" \
+        --impure \
+        --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]"
+      """#
+  }
+}
+
 exclude =
   List(
     ".vscode/ltex*",
@@ -254,15 +233,21 @@ hooks =
     new Mapping<String, Hook> {
       ["sync"] {
         fix = true
-        steps = syncSteps
+        steps = syncs
       }
 
       ["fix"] {
         fix = true
-        // Ensure our pre-push hook fails, and the push gets aborted, if any files
-        // get fixed.
+        // Ensure our pre-push hook fails, and the push gets aborted, if any
+        // files get fixed.
         fail_on_fix = true
-        steps = checkAndFixSteps
+        // Why fixes must come before checks:
+        //   - A fix could produce code that would fail a check
+        //   - A fix could fix an issue that would have been found by a check
+        //
+        // Non-Formatter fixes must run before formatters since they may produce
+        // code that doesn't comply with the formatting.
+        steps = (nonFormatterFixes.toMap() + formatters.toMap() + checks.toMap()).toMapping()
       }
     }
   )
