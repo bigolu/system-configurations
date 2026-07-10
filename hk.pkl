@@ -264,7 +264,6 @@ hooks =
         steps = syncs
       }
       ["fix"] {
-        fix = true
         // Ensure our pre-push hook fails, and the push gets aborted, if any
         // files get fixed.
         fail_on_fix = true
