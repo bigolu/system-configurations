@@ -71,4 +71,11 @@ vim.api.nvim_create_autocmd("FileType", {
 		vim.opt_local.iskeyword:append("$")
 	end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+	pattern = "pkl",
+	callback = function()
+		vim.opt_local.iskeyword:append("-,_")
+	end,
+})
 -- }}}

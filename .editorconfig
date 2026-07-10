@@ -2,13 +2,13 @@
 # file. Otherwise, it would continue to search more parent directories.
 root = true
 
-# We use editorconfig-checker to ensure that all files adhere to the settings in
-# this config. We only configure the options below since failure to adhere to them
-# could cause bugs. The other options that editorconfig supports can be handled by formatters.
+# We don't set any other editorconfig options since IDEs can automatically
+# determine them based on how existing files in the project are formatted.
 [*]
-charset = utf-8
-end_of_line = lf
 insert_final_newline = true
+# Another reason we set this is so `editorconfig-checker` can verify that all
+# files use this charset.
+charset = utf-8
 
 # These are read by `shfmt`
 [*.{sh,bash}]

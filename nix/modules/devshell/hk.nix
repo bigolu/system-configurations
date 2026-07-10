@@ -7,6 +7,8 @@
     # TODO: This is required for hk's shell completion so nixpkgs should make it
     # a dependency.
     usage
+    # I use this for the `shell` option.
+    bash
 
     # For the sync hook and the git hooks that these programs create.
     git-auto-sync
@@ -14,6 +16,7 @@
 
     # For the check hook
     actionlint
+    betterleaks
     coreutils
     deadnix
     editorconfig-checker
