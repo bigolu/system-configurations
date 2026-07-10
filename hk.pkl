@@ -232,7 +232,7 @@ local checks = new Mapping<String, Step> {
     check = "renovate-config-validator --no-global --strict {{files}}"
   }
   ["betterleaks"] = new Step {
-    check = "betterleaks dir --no-banner --verbose {{files}}"
+    check = "betterleaks dir --no-banner --verbose --log-level warn {{files}}"
   }
   ["lua-ls"] = new Step {
     // TODO: Real-Time output only shows if the command is on a single line.
