@@ -13,8 +13,9 @@ local syncs = new Mapping<String, Step | Group> {
       )
     fix = "direnv reload && direnv exec . true"
   }
-  // Use a group so "direnv" is guaranteed to run first and the devshell
-  // logs/diff get printed in that step.
+  // Why we use a group:
+  //   - Ensure that "direnv" step finishes before other steps start so the devshell logs/diff get printed in that step.
+  //   - To set a `prefix` for the steps in the group.
   ["sync-2"] = new Group {
     prefix =
       """
