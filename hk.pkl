@@ -45,7 +45,9 @@ local syncs = new Mapping<String, Step | Group> {
             "**/*.nix",
             "flake.lock",
           )
-        fix = "mise run hk:system-sync"
+        // TODO: Despite `interactive` being enabled, I still have to use
+        // redirections to connect to the terminal.
+        fix = "mise run hk:system-sync </dev/tty >/dev/tty 2>&1"
       }
       ["git-auto-sync"] = new Step {
         glob =
