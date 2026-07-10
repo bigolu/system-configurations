@@ -29,9 +29,8 @@ local syncs = new Mapping<String, Step | Group> {
           "$@"
         fi
       }
+      run_in_dev_shell
       """
-        // Concatenate with a single-line string so it doesn't end in a newline.
-        + "run_in_dev_shell"
     steps {
       ["system"] = new Step {
         // I want to take input from the user for these reasons:
