@@ -235,14 +235,12 @@ local checks = new Mapping<String, Step> {
     check = "betterleaks dir --no-banner --verbose {{files}}"
   }
   ["lua-ls"] = new Step {
-    glob = "lock-files/lua-ls"
     // TODO: Real-Time output only shows if the command is on a single line.
     // This seems like a bug.
     check =
       #"lua-language-server --logpath "$(mktemp --directory)/lua-ls-logs" --check ./program-configs/neovim --configpath "$PWD/.luarc.json""#
   }
   ["nix"] = new Step {
-    glob = "lock-files/nix"
     // TODO: Real-Time output only shows if the command is on a single line.
     // This seems like a bug.
     check =
@@ -265,21 +263,20 @@ hooks =
         fix = true
         steps = syncs
       }
-      ["check"] {
+      ["fix"] {
         fix = true
         // Ensure our pre-push hook fails, and the push gets aborted, if any
         // files get fixed.
         fail_on_fix = true
-        // Fixes and checks should be added here so that `fail_on_fix` fails
-        // after the fixes _and_ checks run, not just the fixes.
-        //
-        // Why fixes must come before checks:
-        //   - A fix could produce code that would fail a check
-        //   - A fix could fix an issue that would have been found by a check
-        //
         // Non-Formatter fixes must run before formatters since they may produce
         // code that doesn't comply with the formatting.
-        steps = (nonFormatterFixes.toMap() + formatterFixes.toMap() + checks.toMap()).toMapping()
+        steps = (nonFormatterFixes.toMap() + formatterFixes.toMap()).toMapping()
+      }
+      // We put the checks in a separate hook from the fixes because `hk`
+      // doesn't parallelize steps with conflicting globs when `fix = true`,
+      // even if those steps only contain `check` commands.
+      ["check"] {
+        steps = checks
       }
     }
   )

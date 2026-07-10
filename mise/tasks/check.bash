@@ -9,10 +9,23 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
-command=(hk run check --all)
+fix_command=(hk run fix --all)
+check_command=(hk run check --all)
 
 for arg in "$@"; do
-	command+=(--step "$arg")
+	fix_command+=(--step "$arg")
+	check_command+=(--step "$arg")
 done
 
-"${command[@]}"
+set +o errexit
+# Why fixes should run before checks:
+#   - A fix could produce code that would fail a check
+#   - A fix could fix an issue that would have been found by a check
+"${fix_command[@]}"
+fix_exit_code=$?
+set -o errexit
+
+# If the fix command fails due to the `fail_on_fix` option, we still want to run
+# checks. To do so, we exit with the fix command's exit code _after_ running the
+# checks.
+"${check_command[@]}" && exit "$fix_exit_code"
