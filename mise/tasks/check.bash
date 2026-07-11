@@ -28,4 +28,5 @@ set -o errexit
 # If the fix command fails due to the `fail_on_fix` option, we still want to run
 # checks. To do so, we exit with the fix command's exit code _after_ running the
 # checks.
-"${check_command[@]}" && exit "$fix_exit_code"
+"${check_command[@]}"
+exit "$fix_exit_code"
