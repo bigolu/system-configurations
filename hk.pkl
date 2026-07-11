@@ -25,7 +25,7 @@ local syncs = new Mapping<String, Step | Group> {
       run_in_dev_shell() {
         # Some of the sync jobs may depend on something from the new devshell.
         if [[ ${IN_GIT_AUTO_SYNC:-} == 'true' ]]; then
-          nix run --file . outputsForCurrentSystem.devshells.dev -- "$@"
+          nix run --file . outputsForCurrentSystem.devShells.dev -- "$@"
         else
           "$@"
         fi
