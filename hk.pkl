@@ -11,7 +11,9 @@ local syncs = new Mapping<String, Step | Group> {
         "flake.lock",
         "{nix,mise/tasks}/**/*",
       )
-    fix = "direnv reload && direnv exec . true"
+    // TODO: Real-Time output only shows if the command is on a single line.
+    // This seems like a bug.
+    fix = "direnv reload; direnv exec . true"
   }
   // Why we use a group:
   //   - Ensure that "direnv" step finishes before other steps start so the

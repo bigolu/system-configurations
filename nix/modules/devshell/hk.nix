@@ -11,8 +11,7 @@
 
     packages = with pkgs; [
       hk
-      # - So I can run `pkl eval hk.pkl` which will fetch any imports so pkl-lsp
-      #   can reference them.
+      # - I run `pkl eval hk.pkl` to fetch any imports so pkl-lsp can reference them.
       # - Since I set the environment variable `HK_PKL_BACKEND`, `hk` will use
       #   this to parse `hk.pkl`, instead of using the pklr rust library.
       pkl
