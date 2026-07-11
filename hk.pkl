@@ -128,12 +128,15 @@ local nonFormatterFixes = new Mapping<String, Step> {
       """
   }
   ["quotes"] = new Step {
+    glob = "**/*"
     fix = "hk util fix-smart-quotes {{files}}"
   }
   ["end-of-file"] = new Step {
+    glob = "**/*"
     fix = "hk util end-of-file-fixer --fix {{files}}"
   }
   ["mixed-line-ending"] = new Step {
+    glob = "**/*"
     fix = "hk util mixed-line-ending --fix {{files}}"
   }
 }
@@ -193,6 +196,7 @@ local checks = new Mapping<String, Step> {
     check = "actionlint {{files}}"
   }
   ["editorconfig-checker"] = new Step {
+    glob = "**/*"
     check = "editorconfig-checker {{files}}"
   }
   ["fish"] = new Step {
@@ -200,9 +204,11 @@ local checks = new Mapping<String, Step> {
     check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
   }
   ["large-files"] = new Step {
+    glob = "**/*"
     check = "hk util check-added-large-files {{files}}"
   }
   ["case-conflict"] = new Step {
+    glob = "**/*"
     check = "hk util check-case-conflict {{files}}"
   }
   ["nixpkgs-lint"] = new Step {
@@ -234,6 +240,7 @@ local checks = new Mapping<String, Step> {
     check = "renovate-config-validator --no-global --strict {{files}}"
   }
   ["betterleaks"] = new Step {
+    glob = "**/*"
     check = "betterleaks dir --no-banner --verbose --log-level warn {{files}}"
   }
   ["lua-ls"] = new Step {
