@@ -13,7 +13,7 @@ local syncs = new Mapping<String, Step | Group> {
       )
     // TODO: Real-Time output only shows if the command is on a single line.
     // This seems like a bug.
-    fix = "direnv reload; direnv exec . true"
+    check = "direnv reload; direnv exec . true"
   }
   // Why we use a group:
   //   - Ensure that "direnv" step finishes before other steps start so the
@@ -49,7 +49,7 @@ local syncs = new Mapping<String, Step | Group> {
           )
         // TODO: Despite `interactive` being enabled, I still have to use
         // redirections to connect to the terminal.
-        fix = "mise run hk:system-sync </dev/tty >/dev/tty 2>&1"
+        check = "mise run hk:system-sync </dev/tty >/dev/tty 2>&1"
       }
       ["git-auto-sync"] = new Step {
         glob =
@@ -59,7 +59,7 @@ local syncs = new Mapping<String, Step | Group> {
             "**/*.nix",
             "flake.lock",
           )
-        fix = "git-auto-sync install mise run sync"
+        check = "git-auto-sync install mise run sync"
       }
       ["git-auto-check"] = new Step {
         glob =
@@ -72,7 +72,7 @@ local syncs = new Mapping<String, Step | Group> {
         // These steps can't run in parallel because they both fail if they
         // can't acquire a lock for `.git/config`.
         depends = List("git-auto-sync")
-        fix = "git-auto-check install mise run check"
+        check = "git-auto-check install mise run check"
       }
     }
   }
