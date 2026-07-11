@@ -259,38 +259,8 @@ local checks = new Mapping<String, Step> {
   }
 }
 
-exclude =
-  List(
-    ".vscode/ltex*",
-    "program-configs/keyboard/US keyboard - no accent keys.bundle",
-    "docs",
-    "nix/pins/npins",
-  )
-
-hooks =
-  (
-    new Mapping<String, Hook> {
-      ["sync"] {
-        fix = true
-        steps = syncs
-      }
-      ["fix"] {
-        // Ensure our pre-push hook fails, and the push gets aborted, if any
-        // files get fixed.
-        fail_on_fix = true
-        // Non-Formatter fixes must run before formatters since they may produce
-        // code that doesn't comply with the formatting.
-        steps = (nonFormatterFixes.toMap() + formatterFixes.toMap()).toMapping()
-      }
-      // We put the checks in a separate hook from the fixes because `hk`
-      // doesn't parallelize steps with conflicting globs when `fix = true`,
-      // even if those steps only contain `check` commands.
-      ["check"] {
-        steps = checks
-      }
-    }
-  )
-    // Set `shell` on every step.
+local function setShellForSteps(hooks: Mapping<String, Hook>): Mapping<String, Hook> =
+  hooks
     .toMap()
     .mapValues((_, hook) -> (hook) {
       steps =
@@ -307,3 +277,33 @@ hooks =
           .toMapping()
     })
     .toMapping()
+
+exclude =
+  List(
+    ".vscode/ltex*",
+    "program-configs/keyboard/US keyboard - no accent keys.bundle",
+    "docs",
+    "nix/pins/npins",
+  )
+
+hooks =
+  setShellForSteps(new Mapping<String, Hook> {
+    ["sync"] {
+      fix = true
+      steps = syncs
+    }
+    ["fix"] {
+      // Ensure our pre-push hook fails, and the push gets aborted, if any
+      // files get fixed.
+      fail_on_fix = true
+      // Non-Formatter fixes must run before formatters since they may produce
+      // code that doesn't comply with the formatting.
+      steps = (nonFormatterFixes.toMap() + formatterFixes.toMap()).toMapping()
+    }
+    // We put the checks in a separate hook from the fixes because `hk`
+    // doesn't parallelize steps with conflicting globs when `fix = true`,
+    // even if those steps only contain `check` commands.
+    ["check"] {
+      steps = checks
+    }
+  })
