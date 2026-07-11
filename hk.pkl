@@ -182,7 +182,7 @@ local formatterFixes = new Mapping<String, Step> {
 
 // For `fail_fast` to be effective, steps should be ordered from fastest to
 // slowest. Run this command to print the steps sorted by duration:
-// `env HK_TIMING_JSON=/dev/stdout hk run fix --all | jq '.steps | to_entries | sort_by(.value.wall_time_ms) | from_entries'`
+// `env HK_TIMING_JSON=/dev/stdout hk run check --all | jq '.steps | to_entries | sort_by(.value.wall_time_ms) | from_entries'`
 local checks = new Mapping<String, Step> {
   ["keyd"] = new Step {
     glob = "**/keyd/default.conf"
