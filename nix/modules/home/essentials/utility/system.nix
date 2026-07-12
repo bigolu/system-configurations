@@ -104,9 +104,9 @@ in
 
           # - If I don't this then `systemctl status <name>` shows that any timer
           #   set up here failed because it 'vanished'
-          # - socket units need to be started
+          # - socket and path units need to be started
           extension="''${unit_base_name##*.}"
-          if [[ $extension == 'timer' || $extension == 'socket' ]]; then
+          if [[ $extension == 'timer' || $extension == 'socket' || $extension == 'path' ]]; then
             chronic sudo systemctl start "$unit_base_name"
           fi
         }

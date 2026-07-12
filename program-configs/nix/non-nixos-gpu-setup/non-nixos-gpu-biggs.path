@@ -1,0 +1,8 @@
+[Unit]
+Description=Trigger non-nixos GPU setup whenever dpkg does something
+
+[Path]
+PathChanged=/var/log/dpkg.log
+
+[Install]
+WantedBy=multi-user.target

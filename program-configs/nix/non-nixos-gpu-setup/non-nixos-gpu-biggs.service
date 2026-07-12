@@ -1,0 +1,6 @@
+[Unit]
+Description=Set up GPU libs
+
+[Service]
+Type=oneshot
+ExecStart=@setupbash@
