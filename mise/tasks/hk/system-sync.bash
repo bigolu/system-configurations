@@ -13,6 +13,10 @@ flags=()
 if [[ ${usage_ask:-} == 'true' ]]; then
 	flags+=(--ask)
 fi
+# `usage_verbose` is an argument for the `sync` task
+if [[ ${usage_verbose:-} == 'true' ]]; then
+	flags+=(--show-activation-logs)
+fi
 
 config="${usage_config:-$(<"${XDG_STATE_HOME:-$HOME/.local/state}/bigolu/system-config-name")}"
 if [[ $OSTYPE == linux* ]]; then
