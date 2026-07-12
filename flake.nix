@@ -19,8 +19,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=v0.6.0";
-
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -133,6 +131,14 @@
     removeAttrs (inputs.blueprint {
       inherit inputs;
       prefix = "nix/outputs";
-      nixpkgs.overlays = import ./nix/overlays/nixpkgs.nix;
+      nixpkgs = {
+        overlays = import ./nix/overlays/nixpkgs.nix;
+        config.allowUnfreePredicate =
+          pkg:
+          builtins.elem pkg.pname [
+            "vscode"
+            "google-chrome"
+          ];
+      };
     }) [ "__functor" ];
 }

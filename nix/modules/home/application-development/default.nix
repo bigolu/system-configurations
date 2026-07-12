@@ -1,12 +1,5 @@
-{ pkgs, lib, ... }:
-let
-  inherit (lib) optionalAttrs;
-  inherit (pkgs.stdenv.hostPlatform) isLinux;
-in
-{
+{ pkgs, ... }: {
   imports = [ ./podman.nix ];
-
-  services.flatpak = optionalAttrs isLinux { packages = [ "sh.loft.devpod" ]; };
 
   home = {
     packages = with pkgs; [
@@ -16,6 +9,7 @@ in
       llm-agents.claude-code
       pixi
       mise
+      vscode
     ];
   };
 

@@ -25,7 +25,10 @@ let
     "${writeTextDir speakerServiceName (readFile processedTemplate)}/${speakerServiceName}";
 in
 {
-  services.flatpak.packages = [ "org.qbittorrent.qBittorrent" ];
+  home.packages = with pkgs; [
+    qbittorrent
+    openrgb
+  ];
 
   fileWrapper.xdg.configFile = {
     "ghostty/comp-1.ghostty".source = "ghostty/comp-1.ghostty";

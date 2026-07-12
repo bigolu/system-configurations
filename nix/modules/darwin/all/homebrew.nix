@@ -12,8 +12,6 @@
       "hammerspoon"
       "visual-studio-code"
       "google-chrome"
-      "podman-desktop"
-      "devpod"
     ];
 
     caskArgs = {

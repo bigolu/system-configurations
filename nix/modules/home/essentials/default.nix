@@ -46,7 +46,6 @@ in
 
   imports = [
     inputs.home-manager-file-wrapper.homeModules.file-wrapper
-    "${inputs.nix-flatpak}/modules/home-manager.nix"
     ./utility/system.nix
     ./home-manager.nix
     ./nix.nix
@@ -74,18 +73,6 @@ in
         # [1]: https://github.com/pop-os/cosmic-comp/issues/700
         wl-clipboard
       ];
-  };
-
-  services.flatpak = {
-    enable = isLinuxAndHasGui;
-    overrides.global = {
-      Context.filesystems = [
-        "xdg-config/gtk-4.0:ro"
-        # Since some of my configs are symlinks to the nix store, flatpaks need
-        # access
-        "/nix"
-      ];
-    };
   };
 
   fileWrapper = {

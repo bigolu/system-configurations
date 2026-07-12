@@ -29,18 +29,6 @@ in
       podman-compose
     ];
 
-  services.flatpak = optionalAttrs isLinux {
-    packages = [ "io.podman_desktop.PodmanDesktop" ];
-    # The Podman Desktop flatpak is configured to use X11, but I force all electron
-    # apps to use Wayland by setting the environment variable
-    # `ELECTRON_OZONE_PLATFORM_HINT=auto`. These additional permissions are required
-    # for Wayland support.
-    overrides."io.podman_desktop.PodmanDesktop".Context.sockets = [
-      "system-bus"
-      "wayland"
-    ];
-  };
-
   home.activation =
     optionalAttrs isDarwin {
       createPodmanMachine =

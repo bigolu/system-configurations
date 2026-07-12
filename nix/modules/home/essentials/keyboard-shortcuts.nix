@@ -35,7 +35,11 @@ let
   linux = mkIf (hasGui && isLinux) {
     fileWrapper.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
 
-    home.packages = [ pkgs.keyd ];
+    home.packages = with pkgs; [
+      keyd
+      # The keychron configuration tool requires a web API that's only in Chrome.
+      google-chrome
+    ];
 
     system = {
       systemd.units = [ "${pkgs.keyd}/lib/systemd/system/keyd.service" ];
