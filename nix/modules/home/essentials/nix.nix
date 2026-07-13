@@ -26,7 +26,7 @@ let
         inherit pname;
         version = "0.1.0";
         src = replaceVars (nonNixosGpuRoot + /setup.bash) {
-          setupnix = nonNixosGpuRoot + /setup.nix;
+          setupnix = "${nonNixosGpuRoot + /setup.nix}";
           homemanager = inputs.home-manager;
         };
         meta.mainProgram = pname;
