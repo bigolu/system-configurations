@@ -36,10 +36,8 @@ in
   ]);
 
   extra.locale = optionalAttrs isCi {
-    package = pkgs.glibcLocales.override {
-      allLocales = false;
-      locales = [ "en_US.UTF-8/UTF-8" ];
-    };
+    # This contains only the "en_US.UTF-8/UTF-8" locale.
+    package = pkgs.glibcLocalesUtf8;
   };
 
   gcRoot = {

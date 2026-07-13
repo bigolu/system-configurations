@@ -2,7 +2,8 @@
 let
   moduleRoot = ../../modules/home;
 in
-(pkgs.makePortableHome.override { locales = [ "en_US.UTF-8/UTF-8" ]; }) {
+# This contains only the "en_US.UTF-8/UTF-8" locale.
+(pkgs.makePortableHome.override { glibcLocales = pkgs.glibcLocalesUtf8; }) {
   homeConfig = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     extraSpecialArgs = { inherit inputs; };

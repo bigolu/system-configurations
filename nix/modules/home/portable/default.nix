@@ -7,10 +7,8 @@ let
     # We don't use the `pkgs` module argument to avoid infinite recursion.
     _module.args.pkgs = mkForce (recursiveUpdate pkgs' (import ./package-overrides.nix pkgs'));
 
-    i18n.glibcLocales = pkgs.glibcLocales.override {
-      allLocales = false;
-      locales = [ "en_US.UTF-8/UTF-8" ];
-    };
+    # This contains only the "en_US.UTF-8/UTF-8" locale.
+    i18n.glibcLocales = pkgs.glibcLocalesUtf8;
 
     programs = {
       home-manager.enable = mkForce false;

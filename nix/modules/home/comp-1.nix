@@ -43,7 +43,7 @@ in
     activation = {
       nvidiaSuspensionFix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
         # When I try to suspend, the screen just flashes black and the system
-        # doesn't suspend. This fixes it [1].
+        # doesn't suspend. This fixes it[1].
         #
         # [1]: https://discussion.fedoraproject.org/t/fedora-34-kde-unable-to-suspend-after-nvidia-driver-update/70286/4
         sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
