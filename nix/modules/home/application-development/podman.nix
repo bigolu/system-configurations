@@ -27,6 +27,7 @@ in
     optionals isLinux [
       podman
       podman-compose
+      podman-desktop
     ];
 
   home.activation =
