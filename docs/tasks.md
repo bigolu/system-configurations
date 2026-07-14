@@ -11,12 +11,12 @@ Run jobs to find/fix issues in the current commit (HEAD).
 
 Job to run. If none are passed then all of them will be run. The list of jobs is in `hk.pkl` under the `check` hook.
 
-## `debug-shell`
+## `debug`
 
 Start portable home in an empty environment
 
 
-- **Usage**: `debug-shell [-b --bundle]`
+- **Usage**: `debug [-b --bundle]`
 
 ### Flags
 
@@ -29,7 +29,7 @@ Use `nix bundle` (slower)
 Run jobs to sync your environment with the code. For example, running database migrations whenever the schema changes.
 
 
-- **Usage**: `sync [--ask] [job]…`
+- **Usage**: `sync [--ask] [-v --verbose] [job]…`
 
 ### Arguments
 
@@ -42,3 +42,7 @@ Job to run. If none are passed then all of them will be run. The list of jobs is
 #### `--ask`
 
 Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job.
+
+#### `-v --verbose`
+
+Show the logs for the sync job. This is only supported by the `system` job.
