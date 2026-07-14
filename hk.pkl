@@ -80,8 +80,6 @@ local syncs = new Mapping<String, Step | Group> {
 
 local nonFormatterFixes = new Mapping<String, Step> {
   ["flake-lock"] = new Step {
-    // Ensure a lock is acquired for this file
-    glob = "flake.lock"
     fix = "nix flake lock"
   }
   ["readme-config-names"] = new Step {
@@ -95,8 +93,6 @@ local nonFormatterFixes = new Mapping<String, Step> {
     fix = "mise run hk:update-hk-import"
   }
   ["task-docs"] = new Step {
-    // Ensure a lock is acquired for this file
-    glob = "docs/tasks.md"
     fix = "mise generate task-docs --style detailed --output docs/tasks.md"
   }
   ["deadnix"] = new Step {
@@ -112,8 +108,6 @@ local nonFormatterFixes = new Mapping<String, Step> {
     fix = "markdownlint-cli2 --fix {{files}}"
   }
   ["npins"] = new Step {
-    // Ensure a lock is acquired for these files
-    glob = "nix/pins/npins/**/*"
     fix = "npins upgrade"
   }
   ["shellcheck-fix"] = new Step {
