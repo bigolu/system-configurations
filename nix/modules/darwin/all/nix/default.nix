@@ -45,11 +45,6 @@ in
   nix = {
     package = pkgs.lixPackageSet.lix;
 
-    gc = {
-      automatic = true;
-      options = "--delete-old";
-    };
-
     settings = {
       trusted-users = [ username ];
       experimental-features = [
