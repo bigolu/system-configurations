@@ -269,5 +269,19 @@ function nix-store-size
 end
 function nix-store-clean
     nix-sweep tidyup-gc-roots --older '2 weeks' --force
+
+    set profiles /nix/var/nix/profiles/{default,per-user/root/profile} ~/.local/state/nix/profiles/{profile,home-manager}
+    if test (uname) = Linux
+        set --append profiles /nix/var/nix/profiles/system-manager-profiles/system-manager
+    end
+    if test (uname) = Darwin
+        set --append profiles /nix/var/nix/profiles/system
+    end
+    for profile in $profiles
+        sudo -- (readlink --canonicalize (type --force-path run-as-admin)) \
+            env (env --null | string split0) \
+            sudo (type --force-path nix) profile wipe-history --profile $profile
+    end
+
     nix-collect-garbage --delete-old
 end

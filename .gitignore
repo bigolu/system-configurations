@@ -5,6 +5,7 @@
 
 # nix
 result
+result-*
 
 # TODO: This is only here for lua-language-server since it doesn't support
 # `.gitignore`s inside of directories.

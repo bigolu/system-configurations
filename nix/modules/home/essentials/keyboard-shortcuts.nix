@@ -2,7 +2,6 @@
   lib,
   pkgs,
   hasGui,
-  repositoryDirectory,
   config,
   ...
 }:
@@ -41,31 +40,24 @@ let
       google-chrome
     ];
 
-    system = {
-      systemd.units = [ "${pkgs.keyd}/lib/systemd/system/keyd.service" ];
+    system.activation = {
+      # Needs to be before systemd services are started since the
+      # keyd-application-mapper service requires my user be in the keyd group and I
+      # add myself to that group here.
+      addToKeydGroup = hm.dag.entryBefore [ "reloadSystemd" ] ''
+        # Add myself to the keyd group so I can use application-specific mappings
+        if ! getent group keyd &>/dev/null; then
+          sudo groupadd keyd
+        fi
+        sudo usermod -aG keyd ${config.home.username}
+      '';
 
-      file = {
-        "/etc/keyd/default.conf".source = "${repositoryDirectory}/program-configs/keyd/default.conf";
-        "/etc/udev/rules.d/99-keychron-launcher.rules".source =
-          "${repositoryDirectory}/program-configs/keychron-launcher/99-keychron-launcher.rules";
-      };
-
-      activation = {
-        # Needs to be before systemd services are started since the
-        # keyd-application-mapper service requires my user be in the keyd group and I
-        # add myself to that group here.
-        addToKeydGroup = hm.dag.entryBefore [ "reloadSystemd" ] ''
-          # Add myself to the keyd group so I can use application-specific mappings
-          if ! getent group keyd &>/dev/null; then
-            sudo groupadd keyd
-          fi
-          sudo usermod -aG keyd ${config.home.username}
-        '';
-
-        restartKeyd = hm.dag.entryAfter [ "installSystemFiles" ] ''
-          sudo systemctl restart keyd.service &>/dev/null
-        '';
-      };
+      # Needs to happen after its config file is installed and I think
+      # system-manager does that before calling home-manager so
+      # `entryAnywhere` should be fine.
+      restartKeyd = hm.dag.entryAnywhere ''
+        sudo systemctl restart keyd.service &>/dev/null
+      '';
     };
 
     systemd.user.services.keyd-application-mapper = {

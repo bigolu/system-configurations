@@ -121,6 +121,14 @@
         devshell-modules.follows = "";
       };
     };
+
+    system-manager = {
+      url = "github:numtide/system-manager";
+      inputs = {
+        nixpkgs.follows = "nixpkgs";
+        flake-compat.follows = "flake-compat";
+      };
+    };
   };
 
   outputs =
@@ -131,14 +139,6 @@
     removeAttrs (inputs.blueprint {
       inherit inputs;
       prefix = "nix/outputs";
-      nixpkgs = {
-        overlays = import ./nix/overlays/nixpkgs.nix;
-        config.allowUnfreePredicate =
-          pkg:
-          builtins.elem pkg.pname [
-            "vscode"
-            "google-chrome"
-          ];
-      };
+      nixpkgs = import ./nix/nixpkgs-config.nix;
     }) [ "__functor" ];
 }

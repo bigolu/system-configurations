@@ -14,4 +14,5 @@ RemainAfterExit=yes
 ExecStop=/usr/bin/env systemctl start wake.target
 
 [Install]
+# SYNC: start-wake-target-wanted-by
 WantedBy=sleep.target

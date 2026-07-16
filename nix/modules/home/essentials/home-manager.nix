@@ -6,7 +6,7 @@
   ...
 }:
 let
-  inherit (lib) mkMerge mkIf getExe;
+  inherit (lib) mkMerge mkIf;
 in
 mkMerge [
   {
@@ -40,24 +40,9 @@ mkMerge [
   # a submodule inside of another system manager, like nix-darwin. They don't need to
   # be done because the outer system manager will do them.
   (mkIf (!config.submoduleSupport.enable) {
-    home = {
-      activation = {
-        removeOldHomeManagerGenerations = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-          ${getExe pkgs.home-manager} expire-generations '1 second'
-        '';
-      };
-    };
-
     nix.package = pkgs.nix;
-
+    news.display = "silent";
     # Let Home Manager install and manage itself.
     programs.home-manager.enable = true;
-
-    # Don't notify me of news updates when I switch generation. Ideally, I'd disable
-    # news altogether since I don't read it. There's an issue open for making this an
-    # option[1].
-    #
-    # [1]: https://github.com/nix-community/home-manager/issues/2033#issuecomment-1698406098
-    news.display = "silent";
   })
 ]

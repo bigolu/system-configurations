@@ -1,5 +1,5 @@
 let
-  inherit (import ../..) inputs;
+  inherit (import ../.) inputs;
 
   myOverlay =
     final: prev:
@@ -76,7 +76,7 @@ let
           postBuild = ''
             wrapProgram $out/bin/rga \
               --prefix PATH : ${dependencies}/bin \
-              --prefix PATH : ${../../program-configs/ripgrep/bin}
+              --prefix PATH : ${../program-configs/ripgrep/bin}
           '';
         };
 
@@ -161,11 +161,20 @@ let
         recursiveUpdate oldZoxide newZoxide;
     };
 in
-[
-  inputs.direnv-shell-hooks.overlays.default
-  inputs.git-auto-sync.overlays.default
-  inputs.git-auto-check.overlays.default
-  inputs.llm-agents.overlays.default
-  inputs.nix-scene.overlays.default
-  myOverlay
-]
+{
+  config.allowUnfreePredicate =
+    pkg:
+    builtins.elem pkg.pname [
+      "vscode"
+      "google-chrome"
+    ];
+
+  overlays = [
+    inputs.direnv-shell-hooks.overlays.default
+    inputs.git-auto-sync.overlays.default
+    inputs.git-auto-check.overlays.default
+    inputs.llm-agents.overlays.default
+    inputs.nix-scene.overlays.default
+    myOverlay
+  ];
+}

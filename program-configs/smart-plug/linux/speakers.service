@@ -35,4 +35,6 @@ ExecStop=@speakerctl@ off
 [Install]
 # Start the service when the system either wakes or first reaches the graphical
 # interface i.e. login screen.
+#
+# SYNC: speakers-wanted-by
 WantedBy=graphical.target wake.target

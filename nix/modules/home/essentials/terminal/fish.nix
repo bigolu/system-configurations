@@ -1,7 +1,5 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
-  inherit (lib) getExe hm;
-
   # Remove this override when this commit is included in a release:
   # https://github.com/fish-shell/fish-shell/commit/2c17c96e5535584f26ea2bcd5a2bebaf1feffdee
   fish = pkgs.fish.overrideAttrs {
@@ -17,17 +15,11 @@ let
   };
 in
 {
-  home = {
-    packages = with pkgs.fishPlugins; [
-      fish
-      async-prompt
-      direnv-shell-hooks
-    ];
-
-    activation.reloadFish = hm.dag.entryAfter [ "linkGeneration" ] ''
-      ${getExe fish} -c fish-reload
-    '';
-  };
+  home.packages = with pkgs.fishPlugins; [
+    fish
+    async-prompt
+    direnv-shell-hooks
+  ];
 
   fileWrapper.xdg.configFile."fish/conf.d" = {
     source = "fish/conf.d";

@@ -1,7 +1,7 @@
+{ hasGui, hostName }:
 {
   pkgs,
   lib,
-  hasGui,
   inputs,
   config,
   utils,
@@ -13,7 +13,6 @@ let
   inherit (lib)
     optionalAttrs
     optionals
-    getExe
     inPureEvalMode
     isPath
     cleanSourceWith
@@ -21,24 +20,13 @@ let
     ;
 
   inherit (utils) projectRoot callIf;
-  inherit (pkgs) writeText;
   inherit (pkgs.stdenv.hostPlatform) isLinux;
 
   isLinuxAndHasGui = isLinux && hasGui;
-
-  sudoersFile =
-    let
-      group = if isLinux then "sudo" else "admin";
-    in
-    writeText "10-bigolu" ''
-      %${group} ALL=(ALL:ALL) NOPASSWD: ${getExe pkgs.run-as-admin}
-      Defaults  env_keep += "TERMINFO"
-      Defaults  env_keep += "PATH"
-      Defaults  timestamp_timeout=30
-    '';
 in
 {
   _module.args = {
+    inherit hasGui hostName;
     repositoryDirectory = "${config.home.homeDirectory}/code/system-configurations";
     pins = import ../../../pins pkgs;
     utils = import ../../../utils.nix;
@@ -54,8 +42,6 @@ in
     ./fonts.nix
     ./default-shells.nix
   ];
-
-  system.file."/etc/sudoers.d/10-bigolu".source = sudoersFile;
 
   home = {
     packages =

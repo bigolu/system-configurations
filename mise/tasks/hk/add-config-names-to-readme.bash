@@ -15,15 +15,11 @@ configs="$(
 		--expr '
       let
         inherit (builtins) attrNames concatMap attrValues;
+        inherit (flake.inputs.nixpkgs.lib) concatMapStringsSep;
         flake = import ./.;
-        inherit (flake.inputs.nixpkgs.lib) concatMapStringsSep uniqueStrings;
-        homeConfigs = uniqueStrings (
-          concatMap
-            (lp: attrNames lp.homeConfigurations or {})
-            (attrValues flake.outputs.legacyPackages)
-        );
+        systemConfigs = attrNames flake.outputs.systemConfigs;
         darwinConfigs = attrNames flake.outputs.darwinConfigurations;
-        configs = homeConfigs ++ darwinConfigs;
+        configs = systemConfigs ++ darwinConfigs;
       in
       concatMapStringsSep " " (c: "`${c}`") configs
     '

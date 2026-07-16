@@ -8,16 +8,10 @@ in
     inherit pkgs;
     extraSpecialArgs = { inherit inputs; };
     modules = [
-      # This should be added to every Home Manager configuration.
-      # SYNC: hm-base
-      {
-        imports = [ (moduleRoot + "/essentials") ];
-        _module.args = {
-          hasGui = false;
-          hostName = "portable";
-        };
-      }
-
+      (import (moduleRoot + /essentials) {
+        hasGui = false;
+        hostName = "portable";
+      })
       (import (moduleRoot + "/portable") pkgs)
     ];
   };

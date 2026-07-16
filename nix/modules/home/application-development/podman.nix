@@ -5,13 +5,8 @@
   ...
 }:
 let
-  inherit (lib)
-    optionalAttrs
-    optionals
-    hm
-    makeBinPath
-    ;
-  inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
+  inherit (lib) optionalAttrs optionals hm;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
   fileWrapper.xdg.configFile = {
@@ -30,72 +25,22 @@ in
       podman-desktop
     ];
 
-  home.activation =
-    optionalAttrs isDarwin {
-      createPodmanMachine =
-        let
-          dependencies = makeBinPath (
-            with pkgs;
-            [
-              podman
-              jq
-            ]
-          );
-        in
-        lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-          OLD_PATH="$PATH"
-          # /usr/bin is required since podman needs `ssh-keygen`
-          PATH="${dependencies}:$PATH:/usr/bin"
-
-          machine_count=$(podman machine list --format json | jq length)
-          if (($machine_count == 0)); then
-            podman machine init --cpus 6 --memory 7629 --disk-size 55 --rootful
-          fi
-
-          PATH="$OLD_PATH"
-        '';
-    }
-    // optionalAttrs isLinux {
-      # The Docker cli relies on a daemon to make containers, but Podman doesn't use
-      # one. For compatibility, Podman provides a daemon as a socket-activated
-      # systemd service.
-      #
-      # TODO: Home Manager should allow you to pass systemd files to install instead
-      # of only taking nix attribute sets. This way I could just pass these files in.
-      installPodmanDockerCompat = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        OLD_PATH="$PATH"
-        PATH="$PATH:${pkgs.moreutils}/bin"
-
-        # For `systemctl --user`
-        export XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-
-        function set_up_unit {
-          unit_name="$1"
-          unit_base_name="''${unit_name##*/}"
-
-          if systemctl --user list-unit-files "$unit_base_name" 1>/dev/null 2>&1; then
-            # This will unlink it
-            chronic systemctl --user disable "$unit_base_name"
-          fi
-          chronic systemctl --user link "$unit_name"
-          chronic systemctl --user enable "$unit_base_name"
-
-          # - If I don't this then `systemctl status <name>` shows that any timer
-          #   set up here failed because it 'vanished'
-          # - socket units need to be started
-          extension="''${unit_base_name##*.}"
-          if [[ $extension == 'timer' || $extension == 'socket' ]]; then
-            chronic systemctl --user start "$unit_base_name"
-          fi
-        }
-
-        for unit in ${pkgs.podman}/lib/systemd/user/podman.{service,socket}; do
-          set_up_unit "$unit"
-        done
-
-        PATH="$OLD_PATH"
-      '';
+  # The Docker cli relies on a daemon to make containers, but Podman doesn't use
+  # one. For compatibility, Podman provides a daemon as a socket-activated
+  # systemd service.
+  systemd.user = {
+    packages = [ pkgs.podman ];
+    # Unlike system-manager, units defined directly in home-manager seem to
+    # replace the ones from packages, rather than merge with them. This means we
+    # need to copy the whole socket defintion, not just `WantedBy`.
+    sockets.podman = {
+      Socket = {
+        ListenStream = "%t/podman/podman.sock";
+        SocketMode = "0660";
+      };
+      Install.WantedBy = [ "sockets.target" ];
     };
+  };
 
   system.activation = optionalAttrs isLinux {
     # For rootless containers, my user needs to be able to create {u,g}id maps in
