@@ -20,7 +20,7 @@ in
     "udev/rules.d/60-openrgb.rules".source = pins.openrgb-udev-rules;
   };
 
-  home-manager.users.biggs = { lib, pkgs, ... }: {
+  home-manager.users.biggs = { pkgs, ... }: {
     imports = [ (homeModuleRoot + /application-development) ];
 
     home.packages = with pkgs; [
@@ -30,15 +30,6 @@ in
 
     fileWrapper.xdg.configFile = {
       "ghostty/comp-1.ghostty".source = "ghostty/comp-1.ghostty";
-    };
-
-    home.activation = {
-      # Needs to happen after its config file is installed and I think
-      # system-manager installs files in /etc before calling home-manager so
-      # `entryAnywhere` should be fine.
-      sysctl = lib.hm.dag.entryAnywhere ''
-        ${pkgs.moreutils}/bin/chronic /usr/bin/sudo sysctl -p --system
-      '';
     };
   };
 }

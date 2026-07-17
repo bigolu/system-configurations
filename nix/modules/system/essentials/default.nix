@@ -74,6 +74,18 @@ in
           /usr/bin/sudo udevadm control --reload-rules
           /usr/bin/sudo udevadm trigger
         '';
+
+        # Needs to happen after its config file is installed and I think
+        # system-manager installs files in /etc before calling home-manager so
+        # `entryAnywhere` should be fine.
+        #
+        # TODO: I'd rather set `restartTriggers` on the `systemd-sysctl`
+        # service, but my distro makes that service and if I set
+        # `restartTriggers`, system-manager replaces the entire service
+        # definition.
+        sysctl = lib.hm.dag.entryAnywhere ''
+          ${pkgs.moreutils}/bin/chronic /usr/bin/sudo sysctl -p --system
+        '';
       };
     };
 }
