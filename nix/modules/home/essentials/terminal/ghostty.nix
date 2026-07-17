@@ -5,11 +5,12 @@
   ...
 }:
 let
-  inherit (lib) optionalAttrs optionals;
+  inherit (lib) mkIf;
 in
-{
-  home.packages = with pkgs; optionals hasGui [ ghostty ];
-  fileWrapper.xdg.configFile = optionalAttrs hasGui {
+mkIf hasGui {
+  home.packages = [ pkgs.ghostty ];
+
+  fileWrapper.xdg.configFile = {
     "ghostty/config.ghostty".source = "ghostty/config.ghostty";
     "ghostty/themes".source = "ghostty/themes";
   };

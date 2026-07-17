@@ -92,9 +92,6 @@ local nonFormatterFixes = new Mapping<String, Step> {
     glob = "hk.pkl"
     fix = "mise run hk:update-hk-import"
   }
-  ["task-docs"] = new Step {
-    fix = "mise generate task-docs --style detailed --output docs/tasks.md"
-  }
   ["deadnix"] = new Step {
     glob = "**/*.nix"
     fix = "deadnix --quiet --edit {{files}}"
@@ -281,7 +278,6 @@ exclude =
   List(
     ".vscode/ltex*",
     "program-configs/keyboard/US keyboard - no accent keys.bundle",
-    "docs",
     "nix/pins/npins",
   )
 

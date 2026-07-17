@@ -1,10 +1,10 @@
-# Default shells
+# Login shells
 
-Configuration files for the default shells on my machines.
+Configuration files for the login shells on my machines.
 
 ## Why?
 
-I use fish as my interactive shell, but I'm hesitant to change the default shell
+I use fish as my interactive shell, but I'm hesitant to change the login shell
 on any operating system because it seems like they rely on a certain shell being
 set. For example:
 
@@ -17,19 +17,16 @@ set. For example:
   file that emulates `path_helper`][fish-path-helper], but there is always the
   possibility that it falls out of sync with the original `path_helper`.
 
-- There's a [warning on the `fish` site against using it as the default
-  shell][fish-default-warning] since it may cause issues with Linux
-  distributions that depend on the default shell being Bourne-compatible.
+- There's a [warning on the `fish` site against using it as the login
+  shell][fish-login-warning] since it may cause issues with Linux distributions
+  that depend on the login shell being Bourne-compatible.
 
-Instead of changing the default shell, I made a configuration file for each of
-the default shells on the operating systems that I use. If the shell is launched
-interactively, it `exec`s into `fish`. If it's launched in login mode, it
-sources configuration code written in POSIX `sh`. I chose `sh` since all the
-default shells that I use understand it. You can find the config files in this
-directory.
+Instead of changing the login shell, I made a configuration file for each of the
+login shells on the operating systems that I use. If the shell is launched
+interactively, it `exec`s into `fish`.
 
 [mac-path]: https://gist.github.com/Linerre/f11ad4a6a934dcf01ee8415c9457e7b2
 [fish-path-helper]:
   https://github.com/fish-shell/fish-shell/blob/b77d1d0e2bebf4b2f6b28acf701d4c74c112e98e/share/config.fish#L164
-[fish-default-warning]:
+[fish-login-warning]:
   https://fishshell.com/docs/current/index.html#default-shell

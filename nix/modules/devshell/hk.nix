@@ -7,6 +7,11 @@
       #
       # [1]: https://pkl-lang.org/main/current/language-reference/index.html#multiline-strings
       export HK_PKL_BACKEND='pkl'
+
+      # lua-language-server doesn't support environment variables in the middle
+      # of a string so we have to do it here.
+      export LUA_LS_NVIM_RUNTIME="/etc/profiles/per-user/$USER/share/nvim/runtime"
+      export LUA_LS_NVIM_PACK="/etc/profiles/per-user/$USER/share/nvim/site/pack/bigolu/start"
     '';
 
     packages = with pkgs; [

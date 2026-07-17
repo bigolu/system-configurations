@@ -6,8 +6,8 @@
   },
   "workspace": {
     "library": [
-      "/etc/profiles/per-user/biggs/share/nvim/runtime",
-      "/etc/profiles/per-user/biggs/share/nvim/site/pack/bigolu/start",
+      "$LUA_LS_NVIM_RUNTIME",
+      "$LUA_LS_NVIM_PACK",
       "$HOME/.hammerspoon/Spoons/EmmyLua.spoon/annotations"
     ],
     "checkThirdParty": "Disable"

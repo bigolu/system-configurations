@@ -1,7 +1,7 @@
 { pkgs, inputs, ... }: {
   imports = [ (import "${inputs.nix-index-database}/home-manager-module.nix") ];
 
-  # Don't make a command_not_found handler
+  # Don't make a `command_not_found` handler
   programs.nix-index.enableFishIntegration = false;
 
   fileWrapper.xdg.configFile = {

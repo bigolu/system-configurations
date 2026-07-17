@@ -8,6 +8,8 @@ let
     ;
 in
 {
+  fileWrapper.xdg.configFile."nvim".source = "neovim";
+
   home.packages = [
     neovim-unwrapped
     (linkFarm "my-vim-pack" {
@@ -39,6 +41,4 @@ in
       };
     })
   ];
-
-  fileWrapper.xdg.configFile."nvim".source = "neovim";
 }

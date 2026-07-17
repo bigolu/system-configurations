@@ -9,7 +9,7 @@ in
       hasGui = true;
       hostName = "comp_2";
     })
-    (systemModuleRoot + /application-development.nix)
+    (systemModuleRoot + /podman.nix)
   ];
 
   home-manager.users.biggs = {

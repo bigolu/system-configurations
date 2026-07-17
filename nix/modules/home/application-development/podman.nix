@@ -4,12 +4,10 @@ let
   inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
-  fileWrapper.xdg.configFile = {
-    "containers" = {
-      source = "containers";
-      # I'm linking recursively because podman makes files in this directory
-      recursive = true;
-    };
+  fileWrapper.xdg.configFile."containers" = {
+    source = "containers";
+    # I'm linking recursively because podman makes files in this directory
+    recursive = true;
   };
 
   home.packages =

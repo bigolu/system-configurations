@@ -8,7 +8,7 @@
 }:
 let
   inherit (pkgs) linkFarm resholve replaceVars;
-  inherit (lib) getExe optionals optionalAttrs;
+  inherit (lib) getExe optionalAttrs;
   inherit (myUtils) projectRoot;
 
   nonNixosGpuRoot = projectRoot + /program-configs/nix/non-nixos-gpu-setup;
@@ -48,13 +48,13 @@ let
     replaceVars (nonNixosGpuRoot + /non-nixos-gpu-biggs.service) { setupbash = getExe setupBash; };
 in
 {
-  systemd = {
-    packages = optionals hasGui [
+  systemd = optionalAttrs hasGui {
+    packages = [
       (linkFarm "non-nixos-gpu-setup-units" {
         "lib/systemd/system/non-nixos-gpu-biggs.service" = nonNixosGpuService;
         "lib/systemd/system/non-nixos-gpu-biggs.path" = nonNixosGpuRoot + /non-nixos-gpu-biggs.path;
       })
     ];
-    paths = optionalAttrs hasGui { non-nixos-gpu-biggs.wantedBy = [ "multi-user.target" ]; };
+    paths.non-nixos-gpu-biggs.wantedBy = [ "multi-user.target" ];
   };
 }

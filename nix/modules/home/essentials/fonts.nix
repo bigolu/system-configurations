@@ -9,6 +9,8 @@ let
   inherit (lib) optional;
 in
 {
+  fonts.fontconfig.enable = isLinux && hasGui;
+
   home.packages = optional hasGui (
     pkgs.iosevka.override {
       set = "Custom";
@@ -44,6 +46,4 @@ in
       '';
     }
   );
-
-  fonts.fontconfig.enable = isLinux && hasGui;
 }

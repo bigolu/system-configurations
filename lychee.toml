@@ -53,7 +53,6 @@ exclude = [
 exclude_path = [
   '^.vscode/ltex',
   '^program-configs/keyboard/US keyboard - no accent keys.bundle/',
-  '^docs/',
   '^lychee.toml$',
   '^flake.lock$',
   '^nix/pins/npins/',

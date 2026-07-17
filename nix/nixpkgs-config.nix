@@ -106,15 +106,6 @@ let
         name = "run-as-admin";
         runtimeInputs = [ final.coreutils ];
         text = ''
-          # I want to run `darwin-rebuild/home-manager switch` and only input my
-          # password once, but homebrew, rightly, invalidates the sudo cache before it
-          # runs[1] so I have to input my password again for subsequent steps in the
-          # rebuild. This script allows ANY command to be run without a password, for
-          # the duration of the specified command. It also runs the specified command
-          # as the user that launched this script, i.e. SUDO_USER, and not root.
-          #
-          # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
-
           temp="$(mktemp)"
           if [[ $OSTYPE == linux* ]]; then
             group='sudo'

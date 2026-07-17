@@ -12,12 +12,14 @@ in
       hostName = "comp_1";
     })
     (systemModuleRoot + /speakers.nix)
-    (systemModuleRoot + /application-development.nix)
+    (systemModuleRoot + /podman.nix)
   ];
 
   environment.etc = {
     "sysctl.d/local.conf".source = projectRoot + /program-configs/sysctl/local.conf;
     "udev/rules.d/60-openrgb.rules".source = pins.openrgb-udev-rules;
+    "udev/rules.d/99-keychron-launcher.rules".source =
+      projectRoot + /program-configs/keychron-launcher/99-keychron-launcher.rules;
   };
 
   home-manager.users.biggs = { pkgs, ... }: {
@@ -26,6 +28,8 @@ in
     home.packages = with pkgs; [
       qbittorrent
       openrgb
+      # The keychron configuration tool requires a web API that's only in Chrome.
+      google-chrome
     ];
 
     fileWrapper.xdg.configFile = {
