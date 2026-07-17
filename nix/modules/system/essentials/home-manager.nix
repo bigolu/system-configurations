@@ -21,7 +21,7 @@
   home-manager = {
     useGlobalPkgs = true;
     useUserPackages = true;
-    backupFileExtension = "backup";
+    backupFileExtension = "home-manager-backup";
     extraSpecialArgs = { inherit inputs; };
     users.biggs.imports = [ (import ../../home/essentials { inherit hasGui hostName; }) ];
   };

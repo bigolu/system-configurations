@@ -1,11 +1,13 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  utils,
+  ...
+}:
 let
-  inherit (lib)
-    optionals
-    optionalAttrs
-    hm
-    getExe
-    ;
+  inherit (pkgs) runCommand;
+  inherit (lib) optionals optionalAttrs getExe;
+  inherit (utils) projectRoot;
   inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
 in
 {
@@ -72,6 +74,15 @@ in
     ]
     ++ optionals isDarwin [ pstree ];
 
+  xdg.cacheFile.bat = {
+    recursive = true;
+    source = runCommand "bat-cache" { } ''
+      BAT_CACHE_PATH=$out BAT_CONFIG_DIR=${
+        projectRoot + /program-configs/bat
+      } ${getExe pkgs.bat} cache --build
+    '';
+  };
+
   fileWrapper = {
     xdg.configFile = {
       "lsd".source = "lsd";
@@ -97,8 +108,4 @@ in
         "viddy/viddy.toml";
     };
   };
-
-  home.activation.batSetup = hm.dag.entryAfter [ "linkGeneration" ] ''
-    ${getExe pkgs.bat} cache --build 1>/dev/null 2>&1
-  '';
 }

@@ -34,7 +34,6 @@ in
 
   imports = [
     inputs.home-manager-file-wrapper.homeModules.file-wrapper
-    ./utility/system.nix
     ./home-manager.nix
     ./nix.nix
     ./terminal

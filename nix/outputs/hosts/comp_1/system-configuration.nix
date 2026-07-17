@@ -12,6 +12,7 @@ in
       hostName = "comp_1";
     })
     (systemModuleRoot + /speakers.nix)
+    (systemModuleRoot + /application-development.nix)
   ];
 
   environment.etc = {
@@ -31,23 +32,12 @@ in
       "ghostty/comp-1.ghostty".source = "ghostty/comp-1.ghostty";
     };
 
-    system.activation = {
-      nvidiaSuspensionFix = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-        # When I try to suspend, the screen just flashes black and the system
-        # doesn't suspend. This fixes it[1].
-        #
-        # [1]: https://discussion.fedoraproject.org/t/fedora-34-kde-unable-to-suspend-after-nvidia-driver-update/70286/4
-        sudo systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service
-      '';
-
+    home.activation = {
       # Needs to happen after its config file is installed and I think
       # system-manager installs files in /etc before calling home-manager so
       # `entryAnywhere` should be fine.
-      increaseFileWatchLimit = lib.hm.dag.entryAnywhere ''
-        OLD_PATH="$PATH"
-        PATH="$PATH:${pkgs.moreutils}/bin"
-        chronic sudo sysctl -p --system
-        PATH="$OLD_PATH"
+      sysctl = lib.hm.dag.entryAnywhere ''
+        ${pkgs.moreutils}/bin/chronic /usr/bin/sudo sysctl -p --system
       '';
     };
   };

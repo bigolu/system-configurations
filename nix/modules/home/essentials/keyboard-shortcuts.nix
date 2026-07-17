@@ -2,13 +2,12 @@
   lib,
   pkgs,
   hasGui,
-  config,
   ...
 }:
 let
   inherit (pkgs) stdenv;
   inherit (stdenv.hostPlatform) isDarwin isLinux;
-  inherit (lib) mkIf hm mkMerge;
+  inherit (lib) mkIf mkMerge;
 
   mac = mkIf (hasGui && isDarwin) {
     fileWrapper = {
@@ -39,26 +38,6 @@ let
       # The keychron configuration tool requires a web API that's only in Chrome.
       google-chrome
     ];
-
-    system.activation = {
-      # Needs to be before systemd services are started since the
-      # keyd-application-mapper service requires my user be in the keyd group and I
-      # add myself to that group here.
-      addToKeydGroup = hm.dag.entryBefore [ "reloadSystemd" ] ''
-        # Add myself to the keyd group so I can use application-specific mappings
-        if ! getent group keyd &>/dev/null; then
-          sudo groupadd keyd
-        fi
-        sudo usermod -aG keyd ${config.home.username}
-      '';
-
-      # Needs to happen after its config file is installed and I think
-      # system-manager does that before calling home-manager so
-      # `entryAnywhere` should be fine.
-      restartKeyd = hm.dag.entryAnywhere ''
-        sudo systemctl restart keyd.service &>/dev/null
-      '';
-    };
 
     systemd.user.services.keyd-application-mapper = {
       Unit = {

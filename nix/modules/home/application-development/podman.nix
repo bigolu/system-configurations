@@ -1,11 +1,6 @@
-{
-  pkgs,
-  lib,
-  config,
-  ...
-}:
+{ pkgs, lib, ... }:
 let
-  inherit (lib) optionalAttrs optionals hm;
+  inherit (lib) optionals;
   inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
@@ -40,30 +35,5 @@ in
       };
       Install.WantedBy = [ "sockets.target" ];
     };
-  };
-
-  system.activation = optionalAttrs isLinux {
-    # For rootless containers, my user needs to be able to create {u,g}id maps in
-    # its child processes[1].
-    #
-    # [1]: https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
-    configureSubIds = hm.dag.entryAfter [ "writeBoundary" ] ''
-      sudo "${pkgs.shadow}/bin/usermod" \
-        --add-subuids 100000-165535 \
-        --add-subgids 100000-165535 \
-        ${config.home.username}
-
-      # The programs below need setuid
-      for file in ${pkgs.shadow}/bin/new[ug]idmap; do
-        basename="''${file##*/}"
-        destination=/usr/local/bin/"$basename"
-        sudo cp "$file" "$destination"
-
-        # This is the user, group, and mode that was set on the newuidmap installed
-        # by APT.
-        sudo chown root:root "$destination"
-        sudo chmod 'u+s,g-s,u+rwx,g+rx,o+rx' "$destination"
-      done
-    '';
   };
 }
