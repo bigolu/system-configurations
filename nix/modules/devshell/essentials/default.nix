@@ -1,3 +1,4 @@
+{ name }:
 {
   pkgs,
   inputs,
@@ -34,6 +35,8 @@ in
     state
     gcRoot
   ]);
+
+  devshell.name = name;
 
   extra.locale = optionalAttrs isCi {
     # This contains only the "en_US.UTF-8/UTF-8" locale.

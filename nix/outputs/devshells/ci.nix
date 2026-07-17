@@ -5,7 +5,7 @@
   ...
 }:
 # SYNC: devshell-base
-# All devshells should set `extraSpecialArgs`/`name` and import `essentials`.
+# All devshells should set `extraSpecialArgs` and import `essentials`.
 (perSystem.devshell.eval {
   extraSpecialArgs = { inherit inputs pkgs; };
 
@@ -15,11 +15,7 @@
       moduleRoot = ../../modules/devshell;
     in
     {
-      imports = [
-        (moduleRoot + "/essentials")
-        { devshell.name = "ci"; }
-      ];
-
+      imports = [ (import (moduleRoot + /essentials) { name = "ci"; }) ];
       # For the `run` steps in CI workflows
       devshell.packages = [ pkgs.bash ];
     };

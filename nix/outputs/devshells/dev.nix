@@ -5,7 +5,7 @@
   ...
 }:
 # SYNC: devshell-base
-# All devshells should set `extraSpecialArgs`/`name` and import `essentials`.
+# All devshells should set `extraSpecialArgs` and import `essentials`.
 (perSystem.devshell.eval {
   extraSpecialArgs = { inherit inputs pkgs; };
   configuration =
@@ -15,11 +15,9 @@
     in
     {
       imports = [
-        (moduleRoot + "/essentials")
-        { devshell.name = "dev"; }
-
-        (moduleRoot + "/vscode.nix")
-        (moduleRoot + "/hk.nix")
+        (import (moduleRoot + /essentials) { name = "dev"; })
+        (moduleRoot + /vscode.nix)
+        (moduleRoot + /hk.nix)
 
         # npins
         {
