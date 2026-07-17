@@ -44,7 +44,7 @@ let
             jq
           ];
           keep = {
-            "$package" = true;
+            "$current_package" = true;
           };
           fake.external = [
             "nix"

@@ -33,8 +33,6 @@ fi
 last_version_file="$workspace/last-version.txt"
 current_version="$(nvidia-smi --query-gpu=driver_version --format=csv,noheader)"
 
-gc_root="$workspace/gc-root"
-
 if [[ ! -e $last_version_file || $(<"$last_version_file") != "$current_version" ]]; then
 	sha256="$(
 		nix store \
@@ -44,24 +42,27 @@ if [[ ! -e $last_version_file || $(<"$last_version_file") != "$current_version" 
 			"https://download.nvidia.com/XFree86/Linux-x86_64/$current_version/NVIDIA-Linux-x86_64-$current_version.run" |
 			jq -r .hash
 	)"
-	package="$(
+	current_package="$(
 		nix \
 			build \
-			--out-link "$gc_root" \
+			--no-link \
 			--print-out-paths \
 			--file "$setup_nix" \
 			--argstr homeManagerPath "$home_manager" \
 			--argstr nvidiaVersion "$current_version" \
 			--argstr nvidiaSha256 "$sha256"
 	)"
-	"$package/bin/start"
+	"$current_package/bin/start"
+	if [[ -n ${PRJ_ROOT:-} ]]; then
+		default_profile="$workspace/profile"
+	else
+		default_profile=/nix/var/nix/profiles/default
+	fi
+	last_package_file="$workspace/last-package.txt"
+	if [[ -e $last_package_file ]]; then
+		nix profile remove "$(<"$last_package_file")" --profile "$default_profile"
+	fi
+	nix profile install "$current_package" --profile "$default_profile"
+	echo "$current_package" >"$last_package_file"
 	echo "$current_version" >"$last_version_file"
-else
-	# `nh`[1] and `nix-sweep`[2] can delete GC roots that haven't been
-	# modified in a certain amount of time. To avoid having this
-	# GC root get deleted, we'll update the modification time.
-	#
-	# [1]: https://github.com/nix-community/nh
-	# [2]: https://github.com/jzbor/nix-sweep
-	touch --no-dereference "$gc_root"
 fi
