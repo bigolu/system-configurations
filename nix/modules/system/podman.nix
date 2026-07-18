@@ -35,9 +35,8 @@ in
         mode = "0644";
         user = "root";
         group = "root";
-        argument = ''
-          ${primaryUser}:100000:65536
-        '';
+        # For these files to be valid, all lines must end in a newline.
+        argument = "${primaryUser}:100000:65536\\n";
       };
     }
   );
