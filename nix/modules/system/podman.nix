@@ -9,7 +9,7 @@
   ...
 }:
 let
-  inherit (lib) genAttrs;
+  inherit (lib) genAttrs genAttrs' nameValuePair;
 in
 {
   environment.systemPackages = with pkgs; [
@@ -24,20 +24,21 @@ in
     source = "${pkgs.shadow}/bin/${name}";
   });
 
-  # TODO: I want to use system-manager, but:
-  #   - users.users.<name>.autoSubUidGidRange didn't work
-  #   - I can't use environment.etc since /etc/sub{u,g}id can't be symlinks
-  home-manager.users.${primaryUser} =
-    { lib, config, ... }:
-    let
-      inherit (lib) hm;
-    in
-    {
-      home.activation.podman = hm.dag.entryAnywhere ''
-        /usr/bin/sudo "${pkgs.shadow}/bin/usermod" \
-          --add-subuids 100000-165535 \
-          --add-subgids 100000-165535 \
-          ${config.home.username}
-      '';
-    };
+  # Switch to using `users.users.<username>.autoSubUidGidRange` when
+  # system-manager updates its copy of userborn to a version that contains this
+  # commit:
+  # https://github.com/nikstur/userborn/commit/cd5ea4954f3e24ba33a69e3c5e3c26d128301bbd
+  systemd.tmpfiles.settings."10-podman-subids" = genAttrs' [ "subuid" "subgid" ] (
+    name:
+    nameValuePair "/etc/${name}" {
+      "f+" = {
+        mode = "0644";
+        user = "root";
+        group = "root";
+        argument = ''
+          ${primaryUser}:100000:65536
+        '';
+      };
+    }
+  );
 }
