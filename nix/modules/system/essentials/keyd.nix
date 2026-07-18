@@ -2,6 +2,7 @@
   pkgs,
   myUtils,
   config,
+  primaryUser,
   ...
 }:
 let
@@ -12,7 +13,7 @@ in
 
   users = {
     groups.keyd = { };
-    users.biggs.extraGroups = [ "keyd" ];
+    users.${primaryUser}.extraGroups = [ "keyd" ];
   };
 
   systemd = {

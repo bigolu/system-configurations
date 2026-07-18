@@ -1,4 +1,9 @@
-{ myUtils, pins, ... }:
+{
+  myUtils,
+  pins,
+  primaryUser,
+  ...
+}:
 let
   inherit (myUtils) projectRoot;
   homeModuleRoot = ../../../modules/home;
@@ -22,7 +27,7 @@ in
       projectRoot + /program-configs/keychron-launcher/99-keychron-launcher.rules;
   };
 
-  home-manager.users.biggs = { pkgs, ... }: {
+  home-manager.users.${primaryUser} = { pkgs, ... }: {
     imports = [ (homeModuleRoot + /application-development) ];
 
     home.packages = with pkgs; [

@@ -38,7 +38,7 @@ if [[ $OSTYPE == linux* ]]; then
 	# `usage_verbose` is an argument for the `sync` task
 	if [[ ${usage_verbose:-} == 'true' ]]; then
 		function print_logs {
-			id="$(systemctl show -p InvocationID --value home-manager-biggs.service)"
+			id="$(systemctl show -p InvocationID --value "home-manager-$USER.service")"
 			journalctl --no-pager --output cat _SYSTEMD_INVOCATION_ID="$id" |
 				rg --invert-match pam_unix |
 				rg --invert-match COMMAND=

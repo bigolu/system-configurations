@@ -3,7 +3,13 @@
   hostName,
   hasGui,
 }:
-{ pkgs, lib, ... }: {
+{
+  pkgs,
+  lib,
+  primaryUser,
+  ...
+}:
+{
   imports = [
     ./home-manager.nix
     ./keyd.nix
@@ -18,13 +24,14 @@
     pins = import ../../../pins pkgs;
     inherit hasGui;
     inherit hostName;
+    primaryUser = "biggs";
   };
 
   system-manager.allowAnyDistro = true;
   nixpkgs.hostPlatform = system;
-  users.users.biggs.isNormalUser = true;
+  users.users.${primaryUser}.isNormalUser = true;
 
-  home-manager.users.biggs =
+  home-manager.users.${primaryUser} =
     { lib, ... }:
     let
       inherit (lib) hm;

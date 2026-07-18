@@ -2,7 +2,12 @@
 #
 # [1]: https://github.com/containers/podman/blob/main/docs/tutorials/rootless_tutorial.md
 
-{ pkgs, lib, ... }:
+{
+  pkgs,
+  lib,
+  primaryUser,
+  ...
+}:
 let
   inherit (lib) genAttrs;
 in
@@ -22,7 +27,7 @@ in
   # TODO: I want to use system-manager, but:
   #   - users.users.<name>.autoSubUidGidRange didn't work
   #   - I can't use environment.etc since /etc/sub{u,g}id can't be symlinks
-  home-manager.users.biggs =
+  home-manager.users.${primaryUser} =
     { lib, config, ... }:
     let
       inherit (lib) hm;

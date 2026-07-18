@@ -2,6 +2,7 @@
   inputs,
   hasGui,
   hostName,
+  primaryUser,
   ...
 }:
 {
@@ -12,6 +13,6 @@
     useUserPackages = true;
     backupFileExtension = "home-manager-backup";
     extraSpecialArgs = { inherit inputs; };
-    users.biggs.imports = [ (import ../../home/essentials { inherit hasGui hostName; }) ];
+    users.${primaryUser}.imports = [ (import ../../home/essentials { inherit hasGui hostName; }) ];
   };
 }
