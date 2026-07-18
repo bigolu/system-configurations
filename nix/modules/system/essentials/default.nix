@@ -51,7 +51,7 @@
           /usr/bin/sudo udevadm trigger
         '';
         sysctl = lib.hm.dag.entryAnywhere ''
-          /usr/bin/sudo sysctl -p --system
+          ${pkgs.moreutils}/bin/chronic /usr/bin/sudo sysctl -p --system
         '';
       };
     };
