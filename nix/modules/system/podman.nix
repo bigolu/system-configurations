@@ -7,6 +7,11 @@ let
   inherit (lib) genAttrs;
 in
 {
+  environment.systemPackages = with pkgs; [
+    podman
+    podman-compose
+  ];
+
   security.wrappers = genAttrs [ "newuidmap" "newgidmap" ] (name: {
     setuid = true;
     owner = "root";

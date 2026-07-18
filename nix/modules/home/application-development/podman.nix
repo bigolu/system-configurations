@@ -10,13 +10,7 @@ in
     recursive = true;
   };
 
-  home.packages =
-    with pkgs;
-    optionals isLinux [
-      podman
-      podman-compose
-      podman-desktop
-    ];
+  home.packages = with pkgs; optionals isLinux [ podman-desktop ];
 
   # The Docker cli relies on a daemon to make containers, but Podman doesn't use
   # one. For compatibility, Podman provides a daemon as a socket-activated
