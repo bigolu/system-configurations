@@ -1,6 +1,6 @@
 { pkgs, lib, ... }:
 let
-  inherit (lib) optionals;
+  inherit (lib) optional;
   inherit (pkgs.stdenv.hostPlatform) isLinux;
 in
 {
@@ -10,7 +10,7 @@ in
     recursive = true;
   };
 
-  home.packages = with pkgs; optionals isLinux [ podman-desktop ];
+  home.packages = optional isLinux pkgs.podman-desktop;
 
   # The Docker cli relies on a daemon to make containers, but Podman doesn't use
   # one. For compatibility, Podman provides a daemon as a socket-activated
