@@ -1,1 +1,1 @@
-{ nixpkgs = { system }: import ./packages.nix { inherit system; }; }
+{ nixpkgs = import ./packages.nix; }

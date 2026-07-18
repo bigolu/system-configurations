@@ -131,9 +131,14 @@ vim.o.smarttab = true
 -- Round indent to multiple of shiftwidth (applies to < and >)
 vim.o.shiftround = true
 local tab_width = 2
-vim.o.tabstop = tab_width
 vim.o.shiftwidth = tab_width
 vim.o.softtabstop = tab_width
+-- Must be done in an autocommand to override vim-sleuth
+vim.api.nvim_create_autocmd({ "BufEnter" }, {
+	callback = function(_)
+		vim.o.tabstop = tab_width
+	end,
+})
 -- }}}
 
 -- Command line {{{

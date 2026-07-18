@@ -8,7 +8,7 @@ end
 local filetypes_with_regex_highlights = vim.fn.getcompletion("", "syntax") or {}
 
 vim.cmd.syntax("manual")
-vim.api.nvim_create_autocmd("FileType", {
+vim.api.nvim_create_autocmd("BufEnter", {
 	callback = function()
 		if not is_current_buffer_too_big_to_highlight() then
 			local parser, _error = vim.treesitter.get_parser()
