@@ -24,10 +24,11 @@ in
     source = "${pkgs.shadow}/bin/${name}";
   });
 
-  # Switch to using `users.users.<username>.autoSubUidGidRange` when
-  # system-manager updates its copy of userborn to a version that contains this
-  # commit:
-  # https://github.com/nikstur/userborn/commit/cd5ea4954f3e24ba33a69e3c5e3c26d128301bbd
+  # TODO: `users.users.<username>.autoSubUidGidRange` doesn't work. Probably
+  # because system-manager's copy of userborn doesn't have the commit that added
+  # subid support[1].
+  #
+  # [1]: https://github.com/nikstur/userborn/commit/cd5ea4954f3e24ba33a69e3c5e3c26d128301bbd
   systemd.tmpfiles.settings."10-podman-subids" = genAttrs' [ "subuid" "subgid" ] (
     name:
     nameValuePair "/etc/${name}" {
