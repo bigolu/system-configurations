@@ -45,16 +45,16 @@ let
         };
       };
     in
-    replaceVars (nonNixosGpuRoot + /non-nixos-gpu-biggs.service) { setupbash = getExe setupBash; };
+    replaceVars (nonNixosGpuRoot + /non-nixos-gpu-x.service) { setupbash = getExe setupBash; };
 in
 {
   systemd = optionalAttrs hasGui {
     packages = [
       (linkFarm "non-nixos-gpu-setup-units" {
-        "lib/systemd/system/non-nixos-gpu-biggs.service" = nonNixosGpuService;
-        "lib/systemd/system/non-nixos-gpu-biggs.path" = nonNixosGpuRoot + /non-nixos-gpu-biggs.path;
+        "lib/systemd/system/non-nixos-gpu-x.service" = nonNixosGpuService;
+        "lib/systemd/system/non-nixos-gpu-x.path" = nonNixosGpuRoot + /non-nixos-gpu-x.path;
       })
     ];
-    paths.non-nixos-gpu-biggs.wantedBy = [ "multi-user.target" ];
+    paths.non-nixos-gpu-x.wantedBy = [ "multi-user.target" ];
   };
 }

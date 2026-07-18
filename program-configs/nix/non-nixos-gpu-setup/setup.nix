@@ -31,8 +31,8 @@ let
         # Required
         home = {
           stateVersion = "23.11";
-          username = "biggs";
-          homeDirectory = "/opt/non-nixos-gpu";
+          username = "not-applicable";
+          homeDirectory = "/not-applicable";
         };
       }
     ];

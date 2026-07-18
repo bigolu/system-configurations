@@ -14,7 +14,7 @@ shopt -s inherit_errexit
 command=(hk run sync)
 
 for arg in "$@"; do
-	if [[ $arg =~ (--ask|--verbose|-v) ]]; then
+	if [[ ! $arg =~ (--ask|--verbose|-v) ]]; then
 		command+=(--step "$arg")
 	fi
 done
