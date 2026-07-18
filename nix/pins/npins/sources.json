@@ -18,19 +18,6 @@
       "revision": "5c20bcecc380acff5f0f5df7a718c5679aaaf62a",
       "url": "https://github.com/Hammerspoon/Spoons/archive/5c20bcecc380acff5f0f5df7a718c5679aaaf62a.tar.gz",
       "hash": "sha256-LeMsmm/au7GbnETVAUNNABanjU1byXpYbzWG/5nT4sM="
-    },
-    "vim-caser": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "arthurxavierx",
-        "repo": "vim-caser"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "6bc9f41d170711c58e0157d882a5fe8c30f34bf6",
-      "url": "https://github.com/arthurxavierx/vim-caser/archive/6bc9f41d170711c58e0157d882a5fe8c30f34bf6.tar.gz",
-      "hash": "sha256-PXAY01O/cHvAdWx3V/pyWFeiV5qJGvLcAKhl5DQc0Ps="
     }
   },
   "version": 8

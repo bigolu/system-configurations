@@ -1,4 +1,4 @@
-{ pkgs, pins, ... }:
+{ pkgs, ... }:
 let
   inherit (pkgs)
     linkFarm
@@ -30,13 +30,6 @@ in
           # For indentexpr
           vim-nix
           vim-sleuth
-
-          # TODO: should be upstreamed to nixpkgs
-          (vimUtils.buildVimPlugin {
-            pname = "vim-caser";
-            version = pins.vim-caser.revision;
-            src = pins.vim-caser;
-          })
         ];
       };
     })
