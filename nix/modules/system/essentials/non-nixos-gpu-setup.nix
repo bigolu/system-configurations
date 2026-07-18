@@ -9,9 +9,9 @@
 let
   inherit (pkgs) linkFarm resholve replaceVars;
   inherit (lib) getExe optionalAttrs;
-  inherit (myUtils) projectRoot;
+  inherit (myUtils) programConfigRoot;
 
-  nonNixosGpuRoot = projectRoot + /program-configs/nix/non-nixos-gpu-setup;
+  nonNixosGpuRoot = programConfigRoot + /nix/non-nixos-gpu-setup;
 
   nonNixosGpuService =
     let

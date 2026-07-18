@@ -9,13 +9,13 @@ let
   inherit (pkgs) speakerctl replaceVars;
   inherit (pkgs.stdenv.hostPlatform) isDarwin;
   inherit (lib) optionalAttrs getExe;
-  inherit (utils) projectRoot;
+  inherit (utils) programConfigRoot;
 in
 {
   home.file = optionalAttrs isDarwin {
-    ".hammerspoon/init.lua".source = replaceVars (
-      projectRoot + /program-configs/smart-plug/mac-os/init.lua
-    ) { speakerctl = getExe speakerctl; };
+    ".hammerspoon/init.lua".source = replaceVars (programConfigRoot + /smart-plug/mac-os/init.lua) {
+      speakerctl = getExe speakerctl;
+    };
 
     ".hammerspoon/Spoons/EmmyLua.spoon" = {
       source = "${pins.spoons}/Source/EmmyLua.spoon";

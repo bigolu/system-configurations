@@ -1,6 +1,6 @@
 { pkgs, utils, ... }:
 let
-  inherit (utils) projectRoot;
+  inherit (utils) programConfigRoot;
   inherit (pkgs) symlinkJoin makeWrapper skhd;
 
   dependencies = symlinkJoin {
@@ -21,7 +21,7 @@ let
     postBuild = ''
       wrapProgram $out/bin/skhd \
         --prefix PATH : ${dependencies}/bin \
-        --prefix PATH : ${projectRoot + /program-configs/skhd/bin}
+        --prefix PATH : ${programConfigRoot + /skhd/bin}
     '';
   };
 in

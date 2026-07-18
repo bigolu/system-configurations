@@ -5,7 +5,7 @@
   ...
 }:
 let
-  inherit (myUtils) projectRoot;
+  inherit (myUtils) programConfigRoot;
   homeModuleRoot = ../../../modules/home;
   systemModuleRoot = ../../../modules/system;
 in
@@ -21,10 +21,10 @@ in
   ];
 
   environment.etc = {
-    "sysctl.d/local.conf".source = projectRoot + /program-configs/sysctl/local.conf;
+    "sysctl.d/local.conf".source = programConfigRoot + /sysctl/local.conf;
     "udev/rules.d/60-openrgb.rules".source = pins.openrgb-udev-rules;
     "udev/rules.d/99-keychron-launcher.rules".source =
-      projectRoot + /program-configs/keychron-launcher/99-keychron-launcher.rules;
+      programConfigRoot + /keychron-launcher/99-keychron-launcher.rules;
   };
 
   home-manager.users.${primaryUser} = { pkgs, ... }: {

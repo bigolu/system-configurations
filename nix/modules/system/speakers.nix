@@ -6,7 +6,7 @@
 }:
 let
   inherit (pkgs) linkFarm replaceVars;
-  smartPlugLinuxRoot = myUtils.projectRoot + /program-configs/smart-plug/linux;
+  smartPlugLinuxRoot = myUtils.programConfigRoot + /smart-plug/linux;
   inherit (lib) getExe;
 in
 {

@@ -6,10 +6,10 @@
   ...
 }:
 let
-  inherit (myUtils) projectRoot;
+  inherit (myUtils) programConfigRoot;
 in
 {
-  environment.etc."keyd/default.conf".source = projectRoot + /program-configs/keyd/default.conf;
+  environment.etc."keyd/default.conf".source = programConfigRoot + /keyd/default.conf;
 
   users = {
     groups.keyd = { };

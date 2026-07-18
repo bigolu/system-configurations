@@ -7,7 +7,7 @@
 let
   inherit (pkgs) runCommand;
   inherit (lib) getExe;
-  inherit (utils) projectRoot;
+  inherit (utils) programConfigRoot;
 in
 {
   home.packages = [ pkgs.bat ];
@@ -17,7 +17,7 @@ in
     recursive = true;
     source = runCommand "bat-cache" { } ''
       BAT_CACHE_PATH=$out \
-        BAT_CONFIG_DIR=${projectRoot + /program-configs/bat} \
+        BAT_CONFIG_DIR=${programConfigRoot + /bat} \
         ${getExe pkgs.bat} cache --build
     '';
   };
