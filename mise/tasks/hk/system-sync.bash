@@ -35,28 +35,21 @@ if [[ $OSTYPE == linux* ]]; then
 
 	command+=(system-manager switch --sudo --flake ".#systemConfigs.$config")
 
-	# `usage_verbose` is an argument for the `sync` task
-	if [[ ${usage_verbose:-} == 'true' ]]; then
-		function print_logs {
-			id="$(systemctl show -p InvocationID --value "home-manager-$USER.service")"
-			journalctl --no-pager --output cat _SYSTEMD_INVOCATION_ID="$id" |
-				rg --invert-match pam_unix |
-				rg --invert-match COMMAND=
-		}
-		trap print_logs EXIT
-	fi
+	function print_logs {
+		id="$(systemctl show -p InvocationID --value "home-manager-$USER.service")"
+		journalctl --no-pager --output cat _SYSTEMD_INVOCATION_ID="$id" |
+			rg --invert-match pam_unix |
+			rg --invert-match COMMAND=
+	}
+	trap print_logs EXIT
 else
 	flags=()
 	# `usage_ask` is an argument for the `sync` task
 	if [[ ${usage_ask:-} == 'true' ]]; then
 		flags+=(--ask)
 	fi
-	# `usage_verbose` is an argument for the `sync` task
-	if [[ ${usage_verbose:-} == 'true' ]]; then
-		flags+=(--show-activation-logs)
-	fi
 
-	command+=(nh darwin switch "${flags[@]}" --file . "outputs.darwinConfigurations.$config")
+	command+=(nh darwin switch --show-activation-logs "${flags[@]}" --file . "outputs.darwinConfigurations.$config")
 fi
 
 run_as_admin="$(type -P run-as-admin)"

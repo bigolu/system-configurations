@@ -37,6 +37,7 @@ let
     version = "0.1.0";
     src = replaceVars (seedboxRoot + /main.bash) {
       qbittorrent_config = "${seedboxRoot + /qBittorrent.conf}";
+      watched_folders = "${seedboxRoot + /watched_folders.json}";
       autobrr_config = "${seedboxRoot + /config.toml}";
       autobrr_filter_bin = "${autobrr-filter}/bin";
     };

@@ -16,26 +16,39 @@ workspace=~/.local/state/seedbox
 mkdir --parents "$workspace"
 cd "$workspace"
 
-workspace_config="$workspace/config"
-export XDG_CONFIG_HOME="$workspace_config"
-
-workspace_data="$workspace/data"
-export XDG_DATA_HOME="$workspace_data"
-
-download_dir="$workspace/torrent-files"
-mkdir --parents "$download_dir"
-
-default_save_path="$workspace/torrent-content"
-mkdir --parents "$default_save_path"
+export XDG_CONFIG_HOME="$workspace/config"
+export XDG_DATA_HOME="$workspace/data"
 
 if [[ $dev == true ]]; then
 	qbittorrent_config="$PRJ_ROOT/program-configs/seedbox/qBittorrent.conf"
 else
 	qbittorrent_config=@qbittorrent_config@
 fi
-if [[ ! -e "$workspace_config/qBittorrent/qBittorrent.conf" ]]; then
-	install -D "$qbittorrent_config" "$workspace_config/qBittorrent/qBittorrent.conf"
-	sd 'default_save_path' "$default_save_path" "$workspace_config/qBittorrent/qBittorrent.conf"
+# qbittorrent may modify this file so once we've copied it, we shouldn't copy it
+# again.
+workspace_qbittorrent_config="$XDG_CONFIG_HOME/qBittorrent/qBittorrent.conf"
+if [[ ! -e $workspace_qbittorrent_config ]]; then
+	install -D "$qbittorrent_config" "$workspace_qbittorrent_config"
+
+	default_save_path="$workspace/torrent-content"
+	mkdir --parents "$default_save_path"
+	sd 'default_save_path' "$default_save_path" "$workspace_qbittorrent_config"
+fi
+
+if [[ $dev == true ]]; then
+	watched_folders="$PRJ_ROOT/program-configs/seedbox/watched_folders.json"
+else
+	watched_folders=@watched_folders@
+fi
+# qbittorrent may modify this file so once we've copied it, we shouldn't copy it
+# again.
+workspace_watched_folders="$XDG_CONFIG_HOME/qBittorrent/watched_folders.json"
+if [[ ! -e $workspace_watched_folders ]]; then
+	install -D "$watched_folders" "$workspace_watched_folders"
+
+	download_dir="$workspace/torrent-files"
+	mkdir --parents "$download_dir"
+	sd 'download_dir' "$download_dir" "$workspace_watched_folders"
 fi
 
 if [[ $dev == true ]]; then
@@ -43,11 +56,11 @@ if [[ $dev == true ]]; then
 else
 	autobrr_config=@autobrr_config@
 fi
-install -D "$autobrr_config" "$workspace_config/autobrr/config.toml"
+install -D "$autobrr_config" "$XDG_CONFIG_HOME/autobrr/config.toml"
 
 # Setup:
-#   1. Make `download_dir` a watched folder. For some reason, it doesn't work
-#      when I set it in the config.
+#   1. If the watched folder isn't being respected, unset it and set it again in
+#      the web UI.
 qbittorrent-nox &
 
 # Setup:
@@ -55,7 +68,7 @@ qbittorrent-nox &
 #   2. Make a filter: Add an action to put file in the watch directory and an
 #      external exec filter that runs autobrr-filter
 export PATH="@autobrr_filter_bin@${PATH:+:$PATH}"
-autobrr --config "$workspace_config/autobrr" &
+autobrr --config "$XDG_CONFIG_HOME/autobrr" &
 
 # Fail if any background job exits
 wait -n
