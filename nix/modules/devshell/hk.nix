@@ -23,6 +23,7 @@
       # TODO: This is required for hk's shell completion so nixpkgs should make it
       # a dependency.
       usage
+
       # I use this for the `shell` option.
       bash
 
@@ -43,7 +44,6 @@
       nixpkgs-lint-community
       pkl
       prettier
-      # for renovate-config-validator
       renovate
       shellcheck
       shfmt

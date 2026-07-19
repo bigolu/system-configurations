@@ -2,10 +2,12 @@
   myUtils,
   pins,
   primaryUser,
+  pkgs,
   ...
 }:
 let
   inherit (myUtils) programConfigRoot;
+
   homeModuleRoot = ../../../modules/home;
   systemModuleRoot = ../../../modules/system;
 in
@@ -27,8 +29,11 @@ in
       programConfigRoot + /keychron-launcher/99-keychron-launcher.rules;
   };
 
-  home-manager.users.${primaryUser} = { pkgs, ... }: {
-    imports = [ (homeModuleRoot + /application-development) ];
+  home-manager.users.${primaryUser} = {
+    imports = [
+      (homeModuleRoot + /application-development)
+      (homeModuleRoot + /seedbox.nix)
+    ];
 
     home.packages = with pkgs; [
       qbittorrent
