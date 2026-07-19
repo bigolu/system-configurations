@@ -229,12 +229,11 @@ set xdg_config (test -n "$XDG_CONFIG_HOME" && echo $XDG_CONFIG_HOME || echo "$HO
 set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
 
 # sudo
-if test (uname) = Darwin
-    abbr --add --global -- sudoedit 'sudo --edit'
-end
 function elevate
-    # sudo policy on Pop!_OS won't let me use `--preserve-env`
-    sudo -- (type --force-path run-as-admin) sudo env (env --null | string split0) "$SHELL"
+    sudo s sudo "$SHELL"
+end
+function s
+    sudo s sudo $argv
 end
 
 # Task runner
@@ -273,9 +272,7 @@ function nix-store-clean
         set --append profiles /nix/var/nix/profiles/system
     end
     for profile in $profiles
-        sudo -- (readlink --canonicalize (type --force-path run-as-admin)) \
-            env (env --null | string split0) \
-            sudo (type --force-path nix) profile wipe-history --profile $profile
+        sudo s sudo nix profile wipe-history --profile $profile
     end
 
     nix-collect-garbage --delete-old

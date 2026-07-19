@@ -1,4 +1,4 @@
-#nix --interpreter bash --packages bash coreutils run-as-admin nh system-manager dix ripgrep
+#nix --interpreter bash --packages bash coreutils s nh system-manager dix ripgrep
 #MISE hide=true
 #USAGE arg "[config]" help="The name of the configuration to apply"
 
@@ -52,12 +52,9 @@ else
 	command+=(nh darwin switch --show-activation-logs "${flags[@]}" --file . "outputs.darwinConfigurations.$config")
 fi
 
-run_as_admin="$(type -P run-as-admin)"
-run_as_admin_canon="$(readlink --canonicalize "$run_as_admin")"
 # The sudo policy on Pop!_OS won't inherit environment variables or let me use
 # `--preserve-env`
 shopt -s lastpipe
 env --null | readarray -d '' env_vars
-sudo -- "$run_as_admin_canon" \
-	env "${env_vars[@]}" \
-	"${command[@]}"
+run_as_admin="$(type -P s)"
+sudo "$run_as_admin" env "${env_vars[@]}" "${command[@]}"
