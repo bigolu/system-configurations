@@ -36,8 +36,6 @@ in
     ];
 
     home.packages = with pkgs; [
-      qbittorrent
-      openrgb
       # The keychron configuration tool requires a web API that's only in Chrome.
       google-chrome
     ];
