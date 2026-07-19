@@ -23,7 +23,12 @@ let
     solutions.default = {
       scripts = [ "bin/${pname}" ];
       interpreter = "${pkgs.bash}/bin/bash";
-      inputs = with pkgs; [ coreutils ];
+      inputs = with pkgs; [
+        coreutils
+        intermodal
+        jq
+      ];
+      execer = [ "cannot:${getExe pkgs.intermodal}" ];
     };
   };
 
