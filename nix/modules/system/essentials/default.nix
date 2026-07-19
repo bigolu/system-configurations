@@ -15,7 +15,7 @@
     ./keyd.nix
     ./login-shell.nix
     ./non-nixos-gpu-setup.nix
-    ./run-as-admin.nix
+    ./sudo.nix
   ];
 
   _module.args = {
