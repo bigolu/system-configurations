@@ -234,12 +234,7 @@ if test (uname) = Darwin
 end
 function elevate
     # sudo policy on Pop!_OS won't let me use `--preserve-env`
-    set env_vars
-    for var_name in (set --names --export)
-        set --append env_vars "$var_name=$$var_name"
-    end
-
-    sudo -- (type --force-path run-as-admin) sudo env $env_vars "$SHELL"
+    sudo -- (type --force-path run-as-admin) sudo env (env --null | string split0) "$SHELL"
 end
 
 # Task runner
