@@ -24,8 +24,8 @@ if [[ $dev == true ]]; then
 else
 	qbittorrent_config=@qbittorrent_config@
 fi
-# qbittorrent may modify this file so once we've copied it, we shouldn't copy it
-# again.
+# Since the watched folder doesn't seem to be respected unless I set it through
+# the web UI, I don't want to overwrite any qbittorrent configs.
 workspace_qbittorrent_config="$XDG_CONFIG_HOME/qBittorrent/qBittorrent.conf"
 if [[ ! -e $workspace_qbittorrent_config ]]; then
 	install -D "$qbittorrent_config" "$workspace_qbittorrent_config"
@@ -40,8 +40,8 @@ if [[ $dev == true ]]; then
 else
 	watched_folders=@watched_folders@
 fi
-# qbittorrent may modify this file so once we've copied it, we shouldn't copy it
-# again.
+# Since the watched folder doesn't seem to be respected unless I set it through
+# the web UI, I don't want to overwrite any qbittorrent configs.
 workspace_watched_folders="$XDG_CONFIG_HOME/qBittorrent/watched_folders.json"
 if [[ ! -e $workspace_watched_folders ]]; then
 	install -D "$watched_folders" "$workspace_watched_folders"
