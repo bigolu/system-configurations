@@ -37,6 +37,8 @@
       inherit (lib) hm;
     in
     {
+      imports = [ (import ../../home/essentials { inherit hasGui hostName; }) ];
+
       home.activation = {
         # These tools need to be reloaded after their config files are installed
         # and I think system-manager links files in /etc before calling
