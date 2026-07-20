@@ -7,7 +7,6 @@ in
     systemPackages = [ pkgs.s ];
 
     etc."sudoers.d/10-bigolu".source = runCommand "sudoers" {
-      # On macOS, "admin" should be used instead of sudo.
       src = writeText "10-bigolu" ''
         %sudo ALL=(ALL:ALL) NOPASSWD: ^.*/s$
         Defaults timestamp_timeout=30
