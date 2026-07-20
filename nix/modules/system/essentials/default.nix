@@ -49,11 +49,11 @@
         # <service>.`restartTriggers`, system-manager replaces the entire
         # service definition.
         udev = hm.dag.entryAnywhere ''
-          /usr/bin/sudo udevadm control --reload-rules
-          /usr/bin/sudo udevadm trigger
+          /usr/bin/sudo /usr/bin/udevadm control --reload-rules
+          /usr/bin/sudo /usr/bin/udevadm trigger
         '';
         sysctl = lib.hm.dag.entryAnywhere ''
-          ${pkgs.moreutils}/bin/chronic /usr/bin/sudo sysctl -p --system
+          ${pkgs.moreutils}/bin/chronic /usr/bin/sudo /usr/sbin/sysctl -p --system
         '';
       };
     };
