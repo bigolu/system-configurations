@@ -111,28 +111,31 @@ let
       # i.e. SUDO_USER, and not root.
       #
       # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
-      s = final.writeShellApplication {
-        name = "s";
-        runtimeInputs = [ final.coreutils ];
-        text = ''
-          temp="$(mktemp)"
-          if [[ $OSTYPE == linux* ]]; then
-            group='sudo'
-          else
-            group='admin'
-          fi
-          echo "%$group		ALL = (ALL) NOPASSWD:SETENV: ALL" >"$temp"
+      s =
+        let
+          sudoConfig = final.runCommand "sudo-config" {
+            src = final.writeText "sudo-config" ''
+              %${if final.stdenv.hostPlatform.isLinux then "sudo" else "admin"}		ALL = (ALL) NOPASSWD:SETENV: ALL
+            '';
+          } "${final.sudo}/sbin/visudo -cf $src && cp $src $out";
+        in
+        final.writeShellApplication {
+          name = "s";
+          runtimeInputs = [ final.coreutils ];
+          text = ''
+            temp="$(mktemp)"
+            cp ${sudoConfig} "$temp"
+            sudo chown --reference /etc/sudoers "$temp"
+            sudo mv "$temp" /etc/sudoers.d/temp-config
+            function remove_config {
+              # Add -f to account for this being run concurrently
+              sudo rm -f /etc/sudoers.d/temp-config
+            }
+            trap remove_config EXIT
 
-          sudo chown --reference /etc/sudoers "$temp"
-          sudo mv "$temp" /etc/sudoers.d/temp-config
-          function remove_config {
-            sudo rm /etc/sudoers.d/temp-config
-          }
-          trap remove_config EXIT
-
-          sudo -u "$SUDO_USER" "$@"
-        '';
-      };
+            sudo -u "$SUDO_USER" "$@"
+          '';
+        };
 
       # TODO: I shouldn't have to do this. Either nixpkgs should add the shell config
       # files or the tool itself should generate the files as part of its build script,
