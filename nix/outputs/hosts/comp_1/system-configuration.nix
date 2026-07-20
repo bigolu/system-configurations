@@ -20,6 +20,7 @@ in
     })
     (systemModuleRoot + /speakers.nix)
     (systemModuleRoot + /podman.nix)
+    (systemModuleRoot + /nvidia-suspension-fix.nix)
   ];
 
   environment.etc = {
@@ -27,20 +28,6 @@ in
     "udev/rules.d/60-openrgb.rules".source = pins.openrgb-udev-rules;
     "udev/rules.d/99-keychron-launcher.rules".source =
       programConfigRoot + /keychron-launcher/99-keychron-launcher.rules;
-  };
-
-  systemd = {
-    services.nvidia-suspension-fix.serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "/usr/bin/env systemctl enable nvidia-suspend.service nvidia-hibernate.service nvidia-resume.service";
-      wantedBy = [ "multi-user.target" ];
-    };
-    # Sometimes after a system update, the nvidia services get disabled so we
-    # have to reenable them.
-    paths.nvidia-suspension-fix = {
-      pathConfig.PathChanged = "/var/log/dpkg.log";
-      wantedBy = [ "multi-user.target" ];
-    };
   };
 
   home-manager.users.${primaryUser} = {
