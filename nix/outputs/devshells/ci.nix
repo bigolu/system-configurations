@@ -9,19 +9,15 @@
 (perSystem.devshell.eval {
   extraSpecialArgs = { inherit inputs; };
 
-  configuration =
-    let
-      moduleRoot = ../../modules/devshell;
-    in
-    {
-      imports = [
-        (import (moduleRoot + /essentials) {
-          name = "ci";
-          inherit pkgs;
-        })
-      ];
+  configuration = {
+    imports = [
+      (import ../../modules/devshell/essentials {
+        name = "ci";
+        inherit pkgs;
+      })
+    ];
 
-      # For the `run` steps in CI workflows
-      devshell.packages = [ pkgs.bash ];
-    };
+    # For the `run` steps in CI workflows
+    devshell.packages = [ pkgs.bash ];
+  };
 }).shell
