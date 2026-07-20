@@ -13,7 +13,6 @@
   imports = [
     ./home-manager.nix
     ./keyd.nix
-    ./login-shell.nix
     ./non-nixos-gpu-setup.nix
     ./sudo.nix
     ./podman.nix
