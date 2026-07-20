@@ -18,11 +18,7 @@ let
     cleanSourceWith
     hasPrefix
     ;
-
   inherit (utils) projectRoot callIf;
-  inherit (pkgs.stdenv.hostPlatform) isLinux;
-
-  isLinuxAndHasGui = isLinux && hasGui;
 
   directoryFilter =
     let
@@ -48,7 +44,6 @@ in
     ./login-shell.nix
     ./fonts.nix
     ./home-manager.nix
-    ./keyboard.nix
     ./nix.nix
     ./terminal
   ];
@@ -60,19 +55,8 @@ in
     utils = import ../../../utils.nix;
   };
 
-  home = {
-    packages =
-      with pkgs;
-      optionals config.fileWrapper.settings.editableInstall [
-        # For my shebang scripts
-        bash
-      ]
-      ++ optionals isLinuxAndHasGui [
-        # TODO: Only doing this because Pop!_OS doesn't come with it by default,
-        # but I think it should
-        wl-clipboard
-      ];
-  };
+  # For my shebang scripts
+  home.packages = optionals config.fileWrapper.settings.editableInstall [ pkgs.bash ];
 
   fileWrapper.settings = {
     editableInstall = true;

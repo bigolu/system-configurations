@@ -1,6 +1,4 @@
 { pkgs, ... }: {
-  imports = [ ./podman.nix ];
-
   home = {
     packages = with pkgs; [
       cloudflared

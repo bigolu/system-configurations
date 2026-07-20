@@ -1,13 +1,14 @@
 {
-  utils,
+  myUtils,
   lib,
   pkgs,
+  primaryUser,
   ...
 }:
 let
   inherit (pkgs) resholve replaceVars;
   inherit (lib) getExe;
-  inherit (utils) programConfigRoot;
+  inherit (myUtils) programConfigRoot;
 
   seedboxRoot = programConfigRoot + /seedbox;
 
@@ -64,7 +65,7 @@ let
   };
 in
 {
-  systemd.user.services.seedbox = {
+  home-manager.users.${primaryUser}.systemd.user.services.seedbox = {
     Service.ExecStart = getExe seedbox;
     Install.WantedBy = [ "default.target" ];
     Unit.X-Restart-Triggers = [ "${seedboxRoot}" ];

@@ -2,13 +2,11 @@
   myUtils,
   pins,
   primaryUser,
-  pkgs,
   ...
 }:
 let
   inherit (myUtils) programConfigRoot;
 
-  homeModuleRoot = ../../../modules/home;
   systemModuleRoot = ../../../modules/system;
 in
 {
@@ -19,28 +17,17 @@ in
       hostName = "comp_1";
     })
     (systemModuleRoot + /speakers.nix)
-    (systemModuleRoot + /podman.nix)
     (systemModuleRoot + /nvidia-suspension-fix.nix)
+    (systemModuleRoot + /keychron-launcher.nix)
+    (systemModuleRoot + /seedbox.nix)
   ];
 
   environment.etc = {
     "sysctl.d/local.conf".source = programConfigRoot + /sysctl/local.conf;
     "udev/rules.d/60-openrgb.rules".source = pins.openrgb-udev-rules;
-    "udev/rules.d/99-keychron-launcher.rules".source =
-      programConfigRoot + /keychron-launcher/99-keychron-launcher.rules;
   };
 
   home-manager.users.${primaryUser} = {
-    imports = [
-      (homeModuleRoot + /application-development)
-      (homeModuleRoot + /seedbox.nix)
-    ];
-
-    home.packages = with pkgs; [
-      # The keychron configuration tool requires a web API that's only in Chrome.
-      google-chrome
-    ];
-
     fileWrapper.xdg.configFile = {
       "ghostty/comp-1.ghostty".source = "ghostty/comp-1.ghostty";
     };

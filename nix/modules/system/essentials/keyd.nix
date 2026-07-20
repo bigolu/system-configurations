@@ -23,4 +23,23 @@ in
       restartTriggers = [ config.environment.etc."keyd/default.conf".source ];
     };
   };
+
+  home-manager.users.${primaryUser} = {
+    fileWrapper.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
+    home.packages = with pkgs; [ keyd ];
+
+    systemd.user.services.keyd-application-mapper = {
+      Unit = {
+        Description = "Application-Specific mappings for keyd";
+        After = "multi-user.target";
+      };
+      Service = {
+        Type = "simple";
+        ExecStart = "${pkgs.keyd}/bin/keyd-application-mapper -d";
+      };
+      Install = {
+        WantedBy = [ "default.target" ];
+      };
+    };
+  };
 }

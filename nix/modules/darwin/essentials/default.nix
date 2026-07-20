@@ -1,4 +1,4 @@
-_: {
+{ config, ... }: {
   imports = [
     ./homebrew.nix
     ./nix
@@ -7,10 +7,16 @@ _: {
     ./system-settings.nix
     ./utilities.nix
     ./yabai.nix
+    ./speakers.nix
+    ./keyboard.nix
   ];
 
-  programs.bash.enable = false;
-  programs.zsh.enable = false;
+  _module.args = { inherit (config.system) primaryUser; };
+
+  programs = {
+    bash.enable = false;
+    zsh.enable = false;
+  };
 
   system.primaryUser = "biggs";
 }

@@ -3,16 +3,16 @@
   pkgs,
   utils,
   pins,
+  primaryUser,
   ...
 }:
 let
   inherit (pkgs) speakerctl replaceVars;
-  inherit (pkgs.stdenv.hostPlatform) isDarwin;
-  inherit (lib) optionalAttrs getExe;
+  inherit (lib) getExe;
   inherit (utils) programConfigRoot;
 in
 {
-  home.file = optionalAttrs isDarwin {
+  home-manager.users.${primaryUser}.home.file = {
     ".hammerspoon/init.lua".source = replaceVars (programConfigRoot + /smart-plug/mac-os/init.lua) {
       speakerctl = getExe speakerctl;
     };
