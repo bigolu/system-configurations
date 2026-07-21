@@ -82,29 +82,20 @@ vim.keymap.set("n", [[\n]], function()
 end, { silent = true, desc = "Toggle line numbers" })
 
 vim.keymap.set("n", "<C-q>", function()
-	vim.cmd([[
-    silent! wall
-  ]])
-
-	local tab_count = vim.fn.tabpagenr("$")
+	vim.cmd([[silent! write]])
 
 	local function is_not_float(window)
 		return vim.api.nvim_win_get_config(window).relative == ""
 	end
-	local window_count = #vim.tbl_filter(is_not_float, vim.api.nvim_list_wins())
-
-	-- If this is the last tab and window, exit vim
-	local is_last_window = window_count == 1
-	if tab_count == 1 and is_last_window then
+	local is_last_window = #vim.tbl_filter(is_not_float, vim.api.nvim_list_wins()) == 1
+	local is_last_tab = vim.fn.tabpagenr("$") == 1
+	if is_last_tab and is_last_window then
 		local is_linked_to_file = #vim.api.nvim_buf_get_name(vim.api.nvim_get_current_buf()) > 0
-		-- Only `confirm` if the buffer is linked to a file
 		if is_linked_to_file then
-			vim.cmd([[confirm qall]])
+			vim.cmd([[confirm quitall]])
 		else
-			-- add '!' to ignore unsaved changes
-			vim.cmd([[qall!]])
+			vim.cmd([[quitall!]])
 		end
-		return
 	end
 
 	vim.cmd.close()
@@ -114,12 +105,10 @@ vim.keymap.set("i", "<C-v>", "<C-r>+")
 -- }}}
 
 -- Autosave {{{
--- Emulates the behavior of VS Code's autosave "onFocusChange"
+-- Save whenver focus leaves the current buffer
 vim.api.nvim_create_autocmd({ "FocusLost", "VimSuspend", "BufLeave" }, {
 	callback = function(_)
-		vim.cmd([[
-      silent! wall
-    ]])
+		vim.cmd([[silent! write]])
 	end,
 })
 -- }}}
@@ -189,11 +178,6 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 -- }}}
 
--- Breakopt {{{
-vim.o.breakindent = true
-vim.o.showbreak = "↳"
--- }}}
-
 -- Autocomplete {{{
 vim.o.complete = ".,w,b,u"
 vim.o.pumheight = 6
@@ -222,4 +206,6 @@ vim.cmd.colorscheme("bigolu")
 -- Block cursor in normal mode, thin line in insert mode, and underline in replace mode
 local blink = "blinkwait0-blinkon150-blinkoff150"
 vim.o.guicursor = string.format("n-v:block-%s,i-c-ci-ve:%s-%s,r-cr-o:hor20-%s", blink, "ver25", blink, blink)
+vim.o.breakindent = true
+vim.o.showbreak = "↳"
 -- }}}
