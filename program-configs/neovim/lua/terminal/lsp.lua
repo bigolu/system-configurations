@@ -28,8 +28,7 @@ function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
 	opts = opts or {}
 	opts.border = opts.border or "rounded"
 	opts.focusable = opts.focusable or true
-	-- TODO: This isn't being respected, I should open an issue
-	opts.max_height = opts.max_height or math.floor(vim.o.lines * 0.35)
+	opts.max_height = math.floor(vim.o.lines * 0.35)
 	opts.max_width = math.min(80, math.floor(vim.o.columns * 0.65))
 
 	return original_open_floating_preview(contents, syntax, opts, ...)
