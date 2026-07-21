@@ -1,9 +1,4 @@
-{
-  myUtils,
-  pins,
-  primaryUser,
-  ...
-}:
+{ myUtils, primaryUser, ... }:
 let
   inherit (myUtils) programConfigRoot;
 
@@ -24,7 +19,6 @@ in
 
   environment.etc = {
     "sysctl.d/local.conf".source = programConfigRoot + /sysctl/local.conf;
-    "udev/rules.d/60-openrgb.rules".source = pins.openrgb-udev-rules;
   };
 
   home-manager.users.${primaryUser} = {

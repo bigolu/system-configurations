@@ -1,11 +1,5 @@
 {
   "pins": {
-    "openrgb-udev-rules": {
-      "type": "Url",
-      "url": "https://openrgb.org/releases/release_0.9/60-openrgb.rules",
-      "unpack": false,
-      "hash": "sha256-txvs6bHped0IVUoktwA7bXu2136lVOJhNUI/hMGvqzg="
-    },
     "spoons": {
       "type": "Git",
       "repository": {
