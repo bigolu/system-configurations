@@ -1,5 +1,5 @@
-{ inputs, system, ... }:
-inputs.nixpkgs.legacyPackages.${system}.callPackage (
+{ pkgs, ... }:
+pkgs.callPackage (
   {
     lib,
     resholve,
