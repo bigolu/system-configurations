@@ -26,6 +26,11 @@ in
 {
   fish = pkgs.fishMinimal;
   git = pkgs.gitMinimal;
+  vimPlugins.nvim-treesitter = emptyPackage // {
+    withAllGrammars = emptyPackage // {
+      dependencies = [ ];
+    };
+  };
 }
 // (makeEmptyPackageSet (
   [
