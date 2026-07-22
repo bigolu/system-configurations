@@ -61,10 +61,10 @@ install -D "$autobrr_config" "$XDG_CONFIG_HOME/autobrr/config.toml"
 # Setup:
 #   1. If the watched folder isn't being respected, unset it and set it again in
 #      the web UI.
-qbittorrent-nox &
+qbittorrent-nox --confirm-legal-notice &
 
 # Setup:
-#   1. Configure the RSS feed: Max 10Gb per torrent, freeleech
+#   1. Configure the RSS feed: Max 25Gb per torrent, freeleech
 #   2. Make a filter: Add an action to put file in the watch directory and an
 #      external exec filter that runs autobrr-filter
 export PATH="@autobrr_filter_bin@${PATH:+:$PATH}"

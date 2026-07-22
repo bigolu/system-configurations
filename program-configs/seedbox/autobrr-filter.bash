@@ -15,7 +15,7 @@ workspace=~/.local/state/seedbox
 max_size=$((400 * 1024 * 1024 * 1024))
 
 torrents_total_size=0
-for torrent in "$workspace/data/qBittorrent/BT_backup"/*.torrent; do
+for torrent in "$@" "$workspace/data/qBittorrent/BT_backup"/*.torrent; do
 	torrent_size="$(imdl torrent show --json "$torrent" | jq .content_size)"
 	torrents_total_size=$((torrents_total_size + torrent_size))
 done
