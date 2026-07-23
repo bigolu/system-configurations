@@ -6,6 +6,7 @@ set -o pipefail
 shopt -s nullglob
 shopt -s inherit_errexit
 
+# For nix and nvidia-smi
 export PATH="/nix/var/nix/profiles/default/bin:/usr/bin:${PATH:+:$PATH}"
 
 if [[ -n ${PRJ_ROOT:-} ]]; then
