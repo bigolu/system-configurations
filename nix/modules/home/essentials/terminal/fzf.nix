@@ -1,7 +1,6 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 let
   inherit (pkgs) buildEnv;
-  inherit (lib) hm;
 
   fzfWithoutShellConfig = buildEnv {
     name = "fzf-without-shell-config";
@@ -13,15 +12,9 @@ let
   };
 in
 {
-  home = {
-    packages = [ fzfWithoutShellConfig ];
-
-    activation.fzfSetup = hm.dag.entryAfter [ "writeBoundary" ] ''
-      history_file="''${XDG_DATA_HOME:-$HOME/.local/share}/fzf/fzf-history.txt"
-      mkdir -p "''${history_file%/*}"
-      touch "$history_file"
-    '';
-  };
+  home.packages = [ fzfWithoutShellConfig ];
+  # I could use systemd-tmpfile, but that wouldn't work in the portable shell.
+  xdg.dataFile."fzf/keep".source = pkgs.emptyFile;
 
   fileWrapper.xdg = {
     configFile."fzf/fzfrc.txt".source = "fzf/fzfrc.txt";
