@@ -232,7 +232,7 @@ set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
 function elevate
     sudo s sudo "$SHELL"
 end
-function s
+function s --wraps sudo
     sudo s sudo $argv
 end
 
