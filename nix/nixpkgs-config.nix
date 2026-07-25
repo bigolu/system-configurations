@@ -106,9 +106,7 @@ let
       # only input my password once, but homebrew, rightly, invalidates the sudo
       # cache before it runs[1] so I have to input my password again for
       # subsequent steps in the rebuild. This script allows ANY command to be
-      # run without a password, for the duration of the specified command. It
-      # also runs the specified command as the user that launched this script,
-      # i.e. SUDO_USER, and not root.
+      # run without a password, for the duration of the specified command.
       #
       # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
       s =
@@ -128,12 +126,12 @@ let
             sudo chown --reference /etc/sudoers "$temp"
             sudo mv "$temp" /etc/sudoers.d/temp-config
             function remove_config {
-              # Add -f to account for this being run concurrently
+              # -f accounts for this being run concurrently
               sudo rm -f /etc/sudoers.d/temp-config
             }
             trap remove_config EXIT
 
-            sudo -u "$SUDO_USER" "$@"
+            sudo "$@"
           '';
         };
 
