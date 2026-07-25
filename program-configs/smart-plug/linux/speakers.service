@@ -29,7 +29,7 @@ RemainAfterExit=yes
 # network-online.target, but systemd does not recommend relying on it[1].
 #
 # [1]: https://systemd.io/NETWORK_ONLINE/
-ExecStart=@speakerctl@ on 180
+ExecStart=@speakerctl@ on 300
 ExecStop=@speakerctl@ off
 
 [Install]
