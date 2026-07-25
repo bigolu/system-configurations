@@ -11,7 +11,6 @@
       "ghostty"
       "hammerspoon"
       "visual-studio-code"
-      "google-chrome"
     ];
 
     caskArgs = {

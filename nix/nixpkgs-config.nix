@@ -165,12 +165,7 @@ let
     };
 in
 {
-  config.allowUnfreePredicate =
-    pkg:
-    builtins.elem pkg.pname [
-      "vscode"
-      "google-chrome"
-    ];
+  config.allowUnfreePredicate = pkg: builtins.elem pkg.pname [ "vscode" ];
 
   overlays = [
     inputs.direnv-shell-hooks.overlays.default
