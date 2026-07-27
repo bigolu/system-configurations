@@ -230,10 +230,10 @@ set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
 
 # sudo
 function elevate
-    sudo s sudo "$SHELL"
+    sudo s "$SHELL"
 end
 function s --wraps sudo
-    sudo s sudo $argv
+    sudo s $argv
 end
 
 # Task runner
@@ -272,7 +272,7 @@ function nix-store-clean
         set --append profiles /nix/var/nix/profiles/system
     end
     for profile in $profiles
-        sudo s sudo nix profile wipe-history --profile $profile
+        sudo s nix profile wipe-history --profile $profile
     end
 
     nix-collect-garbage --delete-old

@@ -30,6 +30,13 @@ let
           '';
         };
 
+      s = final.writeShellApplication {
+        name = "s";
+        text = ''
+          sudo "$@"
+        '';
+      };
+
       lixPackageSet =
         let
           lixPackageSet = final.lixPackageSets.latest;
@@ -99,39 +106,6 @@ let
                 true
               done
             ' -- "$1"
-          '';
-        };
-
-      # I want to run `darwin-rebuild` and only input my password once, but
-      # homebrew, rightly, invalidates the sudo cache before it runs[1] so I
-      # have to input my password again for subsequent steps in the rebuild.
-      # This script allows ANY command to be run without a password, for the
-      # duration of the specified command.
-      #
-      # [1]: https://github.com/Homebrew/brew/pull/17694/commits/2adf25dcaf8d8c66124c5b76b8a41ae228a7bb02
-      s =
-        let
-          sudoConfig = final.runCommand "sudo-config" {
-            src = final.writeText "sudo-config" ''
-              %${if final.stdenv.hostPlatform.isLinux then "sudo" else "admin"}		ALL = (ALL) NOPASSWD:SETENV: ALL
-            '';
-          } "${final.sudo}/sbin/visudo -cf $src && cp $src $out";
-        in
-        final.writeShellApplication {
-          name = "s";
-          runtimeInputs = [ final.coreutils ];
-          text = ''
-            temp="$(mktemp)"
-            cp ${sudoConfig} "$temp"
-            sudo chown --reference /etc/sudoers "$temp"
-            sudo mv "$temp" /etc/sudoers.d/temp-config
-            function remove_config {
-              # -f accounts for this being run concurrently
-              sudo rm -f /etc/sudoers.d/temp-config
-            }
-            trap remove_config EXIT
-
-            sudo "$@"
           '';
         };
 

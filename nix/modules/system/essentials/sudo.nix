@@ -12,7 +12,6 @@ in
         Defaults timestamp_timeout=30
         Defaults !secure_path
         Defaults !env_reset
-        # On Pop!_OS, TERMINFO is removed by default
         Defaults !env_delete
       '';
     } "${pkgs.sudo}/sbin/visudo -cf $src && cp $src $out";
