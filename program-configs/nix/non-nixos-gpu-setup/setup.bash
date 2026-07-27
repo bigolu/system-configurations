@@ -54,8 +54,9 @@ if [[ ! -e $last_version_file || $(<"$last_version_file") != "$current_version" 
 			--argstr nvidiaSha256 "$sha256"
 	)"
 	"$current_package/bin/start"
-	# We don't want a GC root since tools like nix-sweep delete old GC roots.
-	# Instead, we install it into the default profile below.
+	# We don't want a GC root since tools like nix-sweep delete old GC roots,
+	# which means it will delete `/etc/tmpfiles.d/non-nixos-gpu.conf`. Instead, we
+	# install it into the default profile.
 	rm --force /nix/var/nix/gcroots/non-nixos-gpu.conf
 	if [[ -n ${PRJ_ROOT:-} ]]; then
 		default_profile="$workspace/profile"
