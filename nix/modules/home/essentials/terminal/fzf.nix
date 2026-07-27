@@ -13,6 +13,8 @@ let
 in
 {
   home.packages = [ fzfWithoutShellConfig ];
+  # fzf will fail if the history file's directory doesn't exit.
+  #
   # I could use systemd-tmpfile, but that wouldn't work in the portable shell.
   xdg.dataFile."fzf/keep".source = pkgs.emptyFile;
 
