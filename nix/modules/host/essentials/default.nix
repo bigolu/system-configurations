@@ -2,28 +2,6 @@ let
   nixRoot = ../../..;
   utils = import (nixRoot + /utils.nix);
   pinsFunction = import (nixRoot + /pins);
-
-  primaryUserModule = {
-    _module.args.primaryUser = "biggs";
-  };
-
-  # For my shebang scripts
-  bashModule =
-    {
-      pkgs,
-      lib,
-      config,
-      primaryUser,
-      ...
-    }:
-    let
-      inherit (lib) optionals;
-    in
-    {
-      home-manager.users.${primaryUser}.home.packages =
-        optionals config.home-manager.users.${primaryUser}.fileWrapper.settings.editableInstall
-          [ pkgs.bash ];
-    };
 in
 {
   home =
@@ -109,13 +87,12 @@ in
         ./application-development/darwin-system.nix
         ./application-development/system.nix
         ./fonts-darwin-system.nix
+        ./general-darwin-system.nix
         ./keyboard/system.nix
         ./login-shell/darwin-system.nix
         ./nix/darwin-system.nix
         ./non-nixos-gpu-setup-system.nix
         ./sudo-system.nix
-        bashModule
-        primaryUserModule
       ];
 
       _module.args = {
@@ -160,6 +137,7 @@ in
       (import ./home-manager/darwin-system.nix "darwin")
       ./application-development/darwin-system.nix
       ./fonts-darwin-system.nix
+      ./general-darwin-system.nix
       ./homebrew-darwin.nix
       ./keyboard/darwin.nix
       ./login-shell/darwin-system.nix
@@ -169,8 +147,6 @@ in
       ./nix/darwin-system.nix
       ./skhd-darwin.nix
       ./yabai-darwin.nix
-      bashModule
-      primaryUserModule
       speakers
     ];
 
