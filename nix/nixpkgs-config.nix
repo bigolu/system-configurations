@@ -30,12 +30,37 @@ let
           '';
         };
 
-      s = final.writeShellApplication {
-        name = "s";
-        text = ''
-          sudo "$@"
-        '';
-      };
+      # Allows all commands launched through it to use `sudo` without a
+      # password. This tool intentionally doesn't invoke the given command with
+      # `sudo` to account for commands like `system-manager --sudo` where
+      # `system-manager` will run `sudo` itself.
+      s =
+        let
+          sudoConfig = final.runCommand "sudo-config" {
+            src = final.writeText "sudo-config" ''
+              %${if final.stdenv.hostPlatform.isLinux then "sudo" else "admin"}		ALL = (ALL) NOPASSWD:SETENV: ALL
+            '';
+          } "${final.sudo}/sbin/visudo -cf $src && cp $src $out";
+        in
+        final.writeShellApplication {
+          name = "s";
+          runtimeInputs = [ final.coreutils ];
+          text = ''
+            temp="$(mktemp)"
+            cp ${sudoConfig} "$temp"
+            sudo chown --reference /etc/sudoers "$temp"
+            sudo mv "$temp" /etc/sudoers.d/temp-config
+            function remove_config {
+              # -f accounts for this being run concurrently
+              sudo rm -f /etc/sudoers.d/temp-config
+            }
+            trap remove_config EXIT
+
+            # Retain the current user since this command shouldn't change to the
+            # root user, the commands launched through it with sudo should.
+            sudo -u "$SUDO_USER" "$@"
+          '';
+        };
 
       lixPackageSet =
         let

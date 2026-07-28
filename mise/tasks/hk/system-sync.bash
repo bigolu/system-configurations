@@ -53,7 +53,7 @@ else
 fi
 
 # The sudo policy on Pop!_OS won't inherit environment variables or let me use
-# `--preserve-env`
+# `--preserve-env`.
 shopt -s lastpipe
 env --null | readarray -d '' env_vars
 sudo s env "${env_vars[@]}" "${command[@]}"
