@@ -52,8 +52,8 @@ else
 	command+=(nh darwin switch --show-activation-logs "${flags[@]}" --file . "outputs.darwinConfigurations.$config")
 fi
 
-# The sudo policy on Pop!_OS won't inherit environment variables or let me use
-# `--preserve-env`.
+# The default sudoers config on Pop!_OS doesn't allow most environment variables
+# to be inherited.
 shopt -s lastpipe
 env --null | readarray -d '' env_vars
 sudo s env "${env_vars[@]}" "${command[@]}"
