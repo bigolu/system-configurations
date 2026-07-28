@@ -16,13 +16,8 @@ in
     seedbox
   ];
 
-  environment.etc = {
-    "sysctl.d/local.conf".source = programConfigRoot + /sysctl/local.conf;
-  };
+  environment.etc."sysctl.d/local.conf".source = programConfigRoot + /sysctl/local.conf;
 
-  home-manager.users.${primaryUser} = {
-    fileWrapper.xdg.configFile = {
-      "ghostty/comp-1.ghostty".source = "ghostty/comp-1.ghostty";
-    };
-  };
+  home-manager.users.${primaryUser}.fileWrapper.xdg.configFile."ghostty/comp-1.ghostty".source =
+    "ghostty/comp-1.ghostty";
 }
