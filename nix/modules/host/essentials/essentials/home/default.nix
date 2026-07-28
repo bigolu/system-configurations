@@ -12,7 +12,6 @@ let
   inherit (builtins) storeDir;
   inherit (lib)
     optionalAttrs
-    optionals
     inPureEvalMode
     isPath
     cleanSourceWith
@@ -41,22 +40,15 @@ in
 {
   imports = [
     inputs.home-manager-file-wrapper.homeModules.file-wrapper
-    ./login-shell.nix
-    ./fonts.nix
-    ./home-manager.nix
-    ./nix.nix
     ./terminal
   ];
 
   _module.args = {
     inherit hasGui hostName;
     repositoryDirectory = "${config.home.homeDirectory}/code/system-configurations";
-    pins = import ../../../pins pkgs;
-    utils = import ../../../utils.nix;
+    pins = import ../../../../../pins pkgs;
+    utils = import ../../../../../utils.nix;
   };
-
-  # For my shebang scripts
-  home.packages = optionals config.fileWrapper.settings.editableInstall [ pkgs.bash ];
 
   fileWrapper.settings = {
     editableInstall = true;

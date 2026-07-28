@@ -1,6 +1,6 @@
 { pkgs, inputs, ... }:
 let
-  moduleRoot = ../../modules/home;
+  utils = import ../../utils.nix;
 in
 # This contains only the "en_US.UTF-8/UTF-8" locale.
 (pkgs.makePortableHome.override { glibcLocales = pkgs.glibcLocalesUtf8; }) {
@@ -9,12 +9,12 @@ in
   homeConfig = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     extraSpecialArgs = { inherit inputs; };
-    modules = [
-      (import (moduleRoot + /essentials) {
+    modules = with utils.modules.home; [
+      (essentials {
         hasGui = false;
         hostName = "portable";
       })
-      (import (moduleRoot + "/portable") pkgs)
+      (portable pkgs)
     ];
   };
 }

@@ -36,10 +36,6 @@ in
   [
     [
       "lixPackageSet"
-      "comma"
-    ]
-    [
-      "lixPackageSet"
       "lix"
     ]
     [ "diffoscopeMinimal" ]

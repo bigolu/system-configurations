@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  hostName,
   ...
 }:
 let
@@ -10,9 +9,6 @@ let
 in
 mkMerge [
   {
-    xdg.stateFile."bigolu/system-config-name".text =
-      if config.submoduleSupport.enable then hostName else "${config.home.username}@${hostName}";
-
     # The `man` in nixpkgs is only intended to be used for NixOS[1] so I'm
     # disabling it.
     #
@@ -34,7 +30,5 @@ mkMerge [
     news.display = "silent";
     # TODO: I'd like to use lix, but it didn't work.
     nix.package = pkgs.nix;
-    # Let Home Manager install and manage itself.
-    programs.home-manager.enable = true;
   })
 ]

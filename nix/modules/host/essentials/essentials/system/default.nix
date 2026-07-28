@@ -9,22 +9,21 @@
   primaryUser,
   ...
 }:
+let
+  nixRoot = ../../../../..;
+in
 {
   imports = [
-    ./home-manager.nix
-    ./keyd.nix
     ./non-nixos-gpu-setup.nix
     ./sudo.nix
-    ./podman.nix
   ];
 
   _module.args = {
-    pkgs = lib.mkForce (import ../../../packages.nix { inherit system; });
-    myUtils = import ../../../utils.nix;
-    pins = import ../../../pins pkgs;
+    pkgs = lib.mkForce (import (nixRoot + /packages.nix) { inherit system; });
+    myUtils = import (nixRoot + /utils.nix);
+    pins = import (nixRoot + /pins) pkgs;
     inherit hasGui;
     inherit hostName;
-    primaryUser = "biggs";
   };
 
   system-manager.allowAnyDistro = true;
@@ -35,12 +34,10 @@
     { lib, ... }:
     let
       inherit (lib) hm;
+      utils = import (nixRoot + /utils.nix);
     in
     {
-      imports = [
-        (import ../../home/essentials { inherit hasGui hostName; })
-        ../../home/application-development.nix
-      ];
+      imports = [ (utils.modules.home.essentials { inherit hasGui hostName; }) ];
 
       home = {
         # TODO: I'm only doing this because Pop!_OS doesn't come with it by

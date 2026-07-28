@@ -26,7 +26,7 @@ in
 
   home-manager.users.${primaryUser} = {
     fileWrapper.xdg.configFile."keyd/app.conf".source = "keyd/app.conf";
-    home.packages = with pkgs; [ keyd ];
+    home.packages = [ pkgs.keyd ];
 
     systemd.user.services.keyd-application-mapper = {
       Unit = {

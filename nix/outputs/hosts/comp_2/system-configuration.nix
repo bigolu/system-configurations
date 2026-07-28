@@ -1,6 +1,9 @@
+let
+  myUtils = import ../../../utils.nix;
+in
 {
-  imports = [
-    (import ../../../modules/system/essentials {
+  imports = with myUtils.modules.system; [
+    (essentials {
       system = "x86_64-linux";
       hasGui = true;
       hostName = "comp_2";

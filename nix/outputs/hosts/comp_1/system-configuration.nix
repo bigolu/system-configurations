@@ -1,20 +1,19 @@
-{ myUtils, primaryUser, ... }:
+{ primaryUser, ... }:
 let
+  myUtils = import ../../../utils.nix;
   inherit (myUtils) programConfigRoot;
-
-  systemModuleRoot = ../../../modules/system;
 in
 {
-  imports = [
-    (import (systemModuleRoot + /essentials) {
+  imports = with myUtils.modules.system; [
+    (essentials {
       system = "x86_64-linux";
       hasGui = true;
       hostName = "comp_1";
     })
-    (systemModuleRoot + /speakers.nix)
-    (systemModuleRoot + /nvidia-suspension-fix.nix)
-    (systemModuleRoot + /keychron-launcher.nix)
-    (systemModuleRoot + /seedbox.nix)
+    speakers
+    nvidia-suspension-fix
+    keychron-launcher
+    seedbox
   ];
 
   environment.etc = {
