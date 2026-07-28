@@ -56,5 +56,4 @@ fi
 # `--preserve-env`
 shopt -s lastpipe
 env --null | readarray -d '' env_vars
-run_as_admin="$(type -P s)"
-sudo "$run_as_admin" env "${env_vars[@]}" "${command[@]}"
+sudo s env "${env_vars[@]}" "${command[@]}"
