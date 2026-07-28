@@ -1,6 +1,4 @@
-_: {
-  security.pam.services.sudo_local.touchIdAuth = true;
-
+{
   system = {
     # TODO: This option is marked internal
     nvram.variables."AutoBoot" = "%00";
