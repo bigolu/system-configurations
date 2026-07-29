@@ -60,7 +60,7 @@ in
         editableInstall = true;
 
         relativePathRoot = {
-          access = (if inPureEvalMode then inputs.self.outPath else projectRoot) + "/program-configs";
+          access = projectRoot + /program-configs;
         }
         // optionalAttrs inPureEvalMode { symlink = "${repositoryDirectory}/program-configs"; };
 
