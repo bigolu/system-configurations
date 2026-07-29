@@ -2,7 +2,7 @@
   lib,
   inputs,
   config,
-  utils,
+  myUtils,
   ...
 }:
 let
@@ -14,7 +14,7 @@ let
     cleanSourceWith
     hasPrefix
     ;
-  inherit (utils) projectRoot programConfigRoot callIf;
+  inherit (myUtils) projectRoot programConfigRoot callIf;
 
   directoryFilter =
     let

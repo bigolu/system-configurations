@@ -1,6 +1,6 @@
 {
   pkgs,
-  utils,
+  myUtils,
   lib,
   config,
   inputs,
@@ -8,7 +8,7 @@
 }:
 let
   inherit (lib) optional;
-  inherit (utils) projectRoot;
+  inherit (myUtils) projectRoot;
   isCi = config.devshell.name == "ci";
   isDev = config.devshell.name == "dev";
 in

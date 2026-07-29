@@ -1,6 +1,6 @@
-{ pkgs, utils, ... }:
+{ pkgs, myUtils, ... }:
 let
-  inherit (utils) programConfigRoot;
+  inherit (myUtils) programConfigRoot;
   inherit (pkgs) symlinkJoin makeWrapper skhd;
 
   dependencies = symlinkJoin {

@@ -42,7 +42,7 @@
     {
       lib,
       pkgs,
-      utils,
+      myUtils,
       pins,
       primaryUser,
       ...
@@ -50,7 +50,7 @@
     let
       inherit (pkgs) speakerctl replaceVars;
       inherit (lib) getExe;
-      inherit (utils) programConfigRoot;
+      inherit (myUtils) programConfigRoot;
     in
     {
       home-manager.users.${primaryUser}.home.file = {

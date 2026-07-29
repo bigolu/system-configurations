@@ -29,7 +29,7 @@
   };
 
   darwin = { hostName }: {
-    imports = with (import ../../../utils.nix).modules.darwin; [
+    imports = with (import ../../../my-utils.nix).modules.darwin; [
       (import ./home-manager-darwin-system.nix "darwin")
       (import ./module-args.nix {
         type = "darwin";

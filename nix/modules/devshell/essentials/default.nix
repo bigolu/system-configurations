@@ -12,7 +12,7 @@
 
   _module.args = {
     pins = import ../../../pins pkgs;
-    utils = import ../../../utils.nix;
+    myUtils = import ../../../my-utils.nix;
     inherit pkgs;
   };
 

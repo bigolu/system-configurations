@@ -1,7 +1,7 @@
 { primaryUser, ... }:
 let
-  utils = import ../../../utils.nix;
-  inherit (utils) programConfigRoot modules;
+  myUtils = import ../../../my-utils.nix;
+  inherit (myUtils) programConfigRoot modules;
 in
 {
   imports = with modules.system; [

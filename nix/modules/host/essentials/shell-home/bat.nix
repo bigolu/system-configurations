@@ -1,13 +1,13 @@
 {
   lib,
   pkgs,
-  utils,
+  myUtils,
   ...
 }:
 let
   inherit (pkgs) runCommand;
   inherit (lib) getExe;
-  inherit (utils) programConfigRoot;
+  inherit (myUtils) programConfigRoot;
 in
 {
   home.packages = [ pkgs.bat ];

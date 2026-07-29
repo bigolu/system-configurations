@@ -1,8 +1,8 @@
 let
-  utils = import ../../../utils.nix;
+  myUtils = import ../../../my-utils.nix;
 in
 {
-  imports = with utils.modules.system; [
+  imports = with myUtils.modules.system; [
     (essentials {
       system = "x86_64-linux";
       hostName = "comp_2";
