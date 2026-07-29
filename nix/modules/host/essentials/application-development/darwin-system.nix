@@ -8,6 +8,7 @@
         llm-agents.claude-code
         pixi
         mise
+        quickemu
       ];
     };
 

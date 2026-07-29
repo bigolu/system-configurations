@@ -56,4 +56,5 @@ fi
 # to be inherited.
 shopt -s lastpipe
 env --null | readarray -d '' env_vars
-sudo s env "${env_vars[@]}" "${command[@]}"
+s="$(type -P s)"
+sudo "$s" env "${env_vars[@]}" "${command[@]}"
