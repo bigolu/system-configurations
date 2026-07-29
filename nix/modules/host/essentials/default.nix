@@ -23,7 +23,7 @@ in
         cleanSourceWith
         hasPrefix
         ;
-      inherit (utils) projectRoot callIf;
+      inherit (utils) projectRoot programConfigRoot callIf;
 
       directoryFilter =
         let
@@ -60,7 +60,7 @@ in
         editableInstall = true;
 
         relativePathRoot = {
-          access = projectRoot + /program-configs;
+          access = programConfigRoot;
         }
         // optionalAttrs inPureEvalMode { symlink = "${repositoryDirectory}/program-configs"; };
 
