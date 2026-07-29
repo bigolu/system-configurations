@@ -11,7 +11,6 @@ in
       lib,
       inputs,
       config,
-      repositoryDirectory,
       ...
     }:
     let
@@ -52,7 +51,6 @@ in
 
       _module.args = {
         inherit hasGui hostName utils;
-        repositoryDirectory = "${config.home.homeDirectory}/code/system-configurations";
         pins = pinsFunction pkgs;
       };
 
@@ -62,7 +60,9 @@ in
         relativePathRoot = {
           access = programConfigRoot;
         }
-        // optionalAttrs inPureEvalMode { symlink = "${repositoryDirectory}/program-configs"; };
+        // optionalAttrs inPureEvalMode {
+          symlink = "${config.home.homeDirectory}/code/system-configurations/program-configs";
+        };
 
         # Flakes have built-in gitignore support
         directoryFilter = callIf (!inPureEvalMode) directoryFilter;
