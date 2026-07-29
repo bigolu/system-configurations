@@ -45,6 +45,8 @@ in
     pins = import (nixRoot + /pins) pkgs;
   };
 
+  home.stateVersion = "23.11";
+
   fileWrapper.settings = {
     editableInstall = true;
 
@@ -58,4 +60,13 @@ in
     # Flakes have built-in gitignore support
     directoryFilter = callIf (!inPureEvalMode) directoryFilter;
   };
+
+  # The `man` in nixpkgs is only intended to be used for NixOS[1] so I'm
+  # disabling it.
+  #
+  # [1]: https://github.com/nix-community/home-manager/issues/432
+  programs.man.enable = false;
+  # Since I'm not using the `man` from nixpkgs, I install my packages' `man`
+  # outputs so my system's `man` can find them.
+  home.extraOutputsToInstall = [ "man" ];
 }

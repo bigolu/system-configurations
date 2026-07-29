@@ -1,8 +1,8 @@
 {
   pkgs,
   lib,
-  config,
   primaryUser,
+  hostName,
   ...
 }:
 let
@@ -11,8 +11,9 @@ in
 {
   _module.args.primaryUser = "biggs";
 
-  # For my shebang scripts
-  home-manager.users.${primaryUser}.home.packages =
-    optionals config.home-manager.users.${primaryUser}.fileWrapper.settings.editableInstall
-      [ pkgs.bash ];
+  home-manager.users.${primaryUser} = { config, ... }: {
+    xdg.stateFile."bigolu/system-config-name".text = hostName;
+    # For my shebang scripts
+    home.packages = optionals config.fileWrapper.settings.editableInstall [ pkgs.bash ];
+  };
 }
