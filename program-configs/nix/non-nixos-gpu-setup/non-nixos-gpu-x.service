@@ -4,3 +4,9 @@ Description=Set up GPU libs
 [Service]
 Type=oneshot
 ExecStart=@setupbash@
+
+[Install]
+# This is needed to launch the service for the first time.
+#
+# SYNC: non-nixos-gpu-service-wanted-by
+WantedBy=multi-user.target

@@ -28,7 +28,7 @@
           start-wake-target.wantedBy = [ "sleep.target" ];
           # SYNC: speakers-wanted-by
           speakers.wantedBy = [
-            "graphical.target"
+            "multi-user.target"
             "wake.target"
           ];
         };

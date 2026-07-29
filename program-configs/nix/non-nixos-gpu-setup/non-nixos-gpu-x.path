@@ -5,4 +5,5 @@ Description=Trigger non-nixos GPU setup whenever dpkg does something
 PathChanged=/var/log/dpkg.log
 
 [Install]
+# SYNC: non-nixos-gpu-path-wanted-by
 WantedBy=multi-user.target

@@ -54,6 +54,9 @@ in
         "lib/systemd/system/non-nixos-gpu-x.path" = nonNixosGpuRoot + /non-nixos-gpu-x.path;
       })
     ];
+    # SYNC: non-nixos-gpu-path-wanted-by
     paths.non-nixos-gpu-x.wantedBy = [ "multi-user.target" ];
+    # SYNC: non-nixos-gpu-service-wanted-by
+    services.non-nixos-gpu-x.wantedBy = [ "multi-user.target" ];
   };
 }
