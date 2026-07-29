@@ -15,4 +15,4 @@ in
   home-manager.users.${primaryUser}.home.packages =
     optionals config.home-manager.users.${primaryUser}.fileWrapper.settings.editableInstall
       [ pkgs.bash ];
-};
+}
