@@ -22,12 +22,13 @@ let
     '';
   };
 in
-{
-  services = {
-    yabai = {
-      enable = true;
-      enableScriptingAddition = true;
-      package = yabaiWithDependencies;
-    };
+{ primaryUser, ... }: {
+  home-manager.users.${primaryUser}.fileWrapper.xdg.configFile."yabai/yabairc".source =
+    "yabai/yabairc.bash";
+
+  services.yabai = {
+    enable = true;
+    enableScriptingAddition = true;
+    package = yabaiWithDependencies;
   };
 }

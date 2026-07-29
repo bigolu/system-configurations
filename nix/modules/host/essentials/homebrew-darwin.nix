@@ -7,12 +7,6 @@
       extraFlags = [ "--quiet" ];
     };
 
-    casks = [
-      "ghostty"
-      "hammerspoon"
-      "visual-studio-code"
-    ];
-
     caskArgs = {
       # Don't quarantine the casks so macOS doesn't warn me before opening any
       # of them.

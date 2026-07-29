@@ -1,28 +1,14 @@
-{
-  lib,
-  pkgs,
-  primaryUser,
-  ...
-}:
-let
-  inherit (lib) optionals;
-  inherit (pkgs.stdenv.hostPlatform) isLinux;
-in
-{
+{ pkgs, primaryUser, ... }: {
   home-manager.users.${primaryUser} = {
     home = {
-      packages =
-        with pkgs;
-        [
-          cloudflared
-          doppler
-          direnv
-          llm-agents.claude-code
-          pixi
-          mise
-          vscode
-        ]
-        ++ optionals isLinux [ ghostty ];
+      packages = with pkgs; [
+        cloudflared
+        doppler
+        direnv
+        llm-agents.claude-code
+        pixi
+        mise
+      ];
     };
 
     fileWrapper = {

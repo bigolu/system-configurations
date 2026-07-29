@@ -17,7 +17,7 @@
         inherit hostName;
       })
       ./application-development/darwin-system.nix
-      ./application-development/system.nix
+      ./application-development/system
       ./fonts-darwin-system.nix
       ./misc/darwin-system.nix
       ./keyboard/system.nix
@@ -35,6 +35,7 @@
         type = "darwin";
         inherit hostName;
       })
+      ./application-development/darwin.nix
       ./application-development/darwin-system.nix
       ./fonts-darwin-system.nix
       ./misc/darwin-system.nix
@@ -46,7 +47,6 @@
       ./mac-os-system-settings-darwin.nix
       ./nix/darwin
       ./nix/darwin-system.nix
-      ./skhd-darwin.nix
       ./yabai-darwin.nix
       speakers
     ];

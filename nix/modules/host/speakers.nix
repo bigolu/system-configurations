@@ -53,6 +53,8 @@
       inherit (myUtils) programConfigRoot;
     in
     {
+      homebrew.casks = [ "hammerspoon" ];
+
       home-manager.users.${primaryUser}.home.file = {
         ".hammerspoon/init.lua".source = replaceVars (programConfigRoot + /smart-plug/mac-os/init.lua) {
           speakerctl = getExe speakerctl;
