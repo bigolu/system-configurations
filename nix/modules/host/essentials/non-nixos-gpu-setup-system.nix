@@ -3,12 +3,11 @@
   lib,
   myUtils,
   inputs,
-  hasGui,
   ...
 }:
 let
   inherit (pkgs) linkFarm resholve replaceVars;
-  inherit (lib) getExe optionalAttrs;
+  inherit (lib) getExe;
   inherit (myUtils) programConfigRoot;
 
   nonNixosGpuRoot = programConfigRoot + /nix/non-nixos-gpu-setup;
@@ -48,7 +47,7 @@ let
     replaceVars (nonNixosGpuRoot + /non-nixos-gpu-x.service) { setupbash = getExe setupBash; };
 in
 {
-  systemd = optionalAttrs hasGui {
+  systemd = {
     packages = [
       (linkFarm "non-nixos-gpu-setup-units" {
         "lib/systemd/system/non-nixos-gpu-x.service" = nonNixosGpuService;
