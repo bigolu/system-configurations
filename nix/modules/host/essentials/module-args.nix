@@ -1,6 +1,5 @@
 {
   type,
-  hasGui ? abort "missing argument",
   hostName ? abort "missing argument",
 }:
 {
@@ -17,7 +16,6 @@ in
 {
   _module.args =
     { }
-    // optionalAttrs (type == "home") { inherit hasGui; }
     // optionalAttrs (type == "system") {
       myUtils = utils;
       pkgs = mkForce (import ../../../packages.nix { system = config.nixpkgs.hostPlatform; });

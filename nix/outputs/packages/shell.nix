@@ -10,7 +10,7 @@ in
     inherit pkgs;
     extraSpecialArgs = { inherit inputs; };
     modules = with utils.modules.home; [
-      (essentials { hasGui = false; })
+      essentials
       (portable pkgs)
     ];
   };

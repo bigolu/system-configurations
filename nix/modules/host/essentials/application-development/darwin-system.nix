@@ -1,15 +1,28 @@
-{ pkgs, primaryUser, ... }: {
+{
+  lib,
+  pkgs,
+  primaryUser,
+  ...
+}:
+let
+  inherit (lib) optionals;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
+in
+{
   home-manager.users.${primaryUser} = {
     home = {
-      packages = with pkgs; [
-        cloudflared
-        doppler
-        direnv
-        llm-agents.claude-code
-        pixi
-        mise
-        vscode
-      ];
+      packages =
+        with pkgs;
+        [
+          cloudflared
+          doppler
+          direnv
+          llm-agents.claude-code
+          pixi
+          mise
+          vscode
+        ]
+        ++ optionals isLinux [ ghostty ];
     };
 
     fileWrapper = {
@@ -23,6 +36,8 @@
         "direnv/direnv.toml".source = "direnv/direnv.toml";
         # Zed only recognizes the ".json" extension, but it's actually jsonc
         "zed/settings.json".source = "zed/settings.jsonc";
+        "ghostty/config.ghostty".source = "ghostty/config.ghostty";
+        "ghostty/themes".source = "ghostty/themes";
       };
     };
   };

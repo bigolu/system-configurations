@@ -1,4 +1,4 @@
-{ system, hasGui }:
+{ system }:
 {
   pkgs,
   primaryUser,
@@ -11,7 +11,7 @@
   users.users.${primaryUser}.isNormalUser = true;
 
   home-manager.users.${primaryUser} = { lib, ... }: {
-    imports = [ (myUtils.modules.home.essentials { inherit hasGui; }) ];
+    imports = [ myUtils.modules.home.essentials ];
 
     home = {
       # TODO: I'm only doing this because Pop!_OS doesn't come with it by
