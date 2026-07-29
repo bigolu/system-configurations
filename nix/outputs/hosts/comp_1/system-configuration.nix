@@ -1,10 +1,10 @@
 { primaryUser, ... }:
 let
-  myUtils = import ../../../utils.nix;
-  inherit (myUtils) programConfigRoot;
+  utils = import ../../../utils.nix;
+  inherit (utils) programConfigRoot;
 in
 {
-  imports = with myUtils.modules.system; [
+  imports = with utils.modules.system; [
     (essentials {
       system = "x86_64-linux";
       hasGui = true;
