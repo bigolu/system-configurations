@@ -2,7 +2,7 @@
   home = { inputs, ... }: {
     imports = [
       (import ./module-args.nix { type = "home"; })
-      ./general/home.nix
+      ./misc/home.nix
       ./shell-home
       inputs.home-manager-file-wrapper.homeModules.file-wrapper
     ];
@@ -10,7 +10,7 @@
 
   system = { hostName, system }: {
     imports = [
-      (import ./general/system.nix { inherit system; })
+      (import ./misc/system.nix { inherit system; })
       (import ./home-manager-darwin-system.nix "nixos")
       (import ./module-args.nix {
         type = "system";
@@ -19,7 +19,7 @@
       ./application-development/darwin-system.nix
       ./application-development/system.nix
       ./fonts-darwin-system.nix
-      ./general/darwin-system.nix
+      ./misc/darwin-system.nix
       ./keyboard/system.nix
       ./login-shell/darwin-system.nix
       ./nix/darwin-system.nix
@@ -37,8 +37,8 @@
       })
       ./application-development/darwin-system.nix
       ./fonts-darwin-system.nix
-      ./general/darwin-system.nix
-      ./general/darwin.nix
+      ./misc/darwin-system.nix
+      ./misc/darwin.nix
       ./homebrew-darwin.nix
       ./keyboard/darwin.nix
       ./login-shell/darwin-system.nix
