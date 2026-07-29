@@ -1,32 +1,17 @@
-{
-  system,
-  hostName,
-  hasGui,
-}:
+{ system, hasGui }:
 {
   pkgs,
-  lib,
   primaryUser,
   myUtils,
   ...
 }:
-let
-  nixRoot = ../../../..;
-in
 {
-  _module.args = {
-    pkgs = lib.mkForce (import (nixRoot + /packages.nix) { inherit system; });
-    myUtils = import (nixRoot + /utils.nix);
-    pins = import (nixRoot + /pins) pkgs;
-    inherit hasGui hostName;
-  };
-
   system-manager.allowAnyDistro = true;
   nixpkgs.hostPlatform = system;
   users.users.${primaryUser}.isNormalUser = true;
 
   home-manager.users.${primaryUser} = { lib, ... }: {
-    imports = [ (myUtils.modules.home.essentials { inherit hasGui hostName; }) ];
+    imports = [ (myUtils.modules.home.essentials { inherit hasGui; }) ];
 
     home = {
       # TODO: I'm only doing this because Pop!_OS doesn't come with it by

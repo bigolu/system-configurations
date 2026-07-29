@@ -1,6 +1,4 @@
-{ hasGui, hostName }:
 {
-  pkgs,
   lib,
   inputs,
   config,
@@ -8,8 +6,6 @@
   ...
 }:
 let
-  nixRoot = ../../../..;
-
   inherit (builtins) storeDir;
   inherit (lib)
     optionalAttrs
@@ -39,12 +35,6 @@ let
     };
 in
 {
-  _module.args = {
-    inherit hasGui hostName;
-    utils = import (nixRoot + /utils.nix);
-    pins = import (nixRoot + /pins) pkgs;
-  };
-
   home.stateVersion = "23.11";
 
   fileWrapper.settings = {
