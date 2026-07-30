@@ -13,10 +13,6 @@ local function toggle_all_folds()
 end
 vim.keymap.set("n", "<S-Tab>", toggle_all_folds, { silent = true, expr = true })
 
--- Jump to the top and bottom of the current fold
-vim.keymap.set({ "n", "x" }, "[<Tab>", "[z")
-vim.keymap.set({ "n", "x" }, "]<Tab>", "]z")
-
 -- Every time we enter a buffer, reset the fold options. This avoids the issue
 -- where you set a foldmethod because the attached LSP server supports
 -- it, but then switch to another buffer and the foldmethod is still set to
