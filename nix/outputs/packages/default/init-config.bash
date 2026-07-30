@@ -16,10 +16,10 @@ if [[ ! -e .envrc ]]; then
 	echo "source .envrc-recommended.bash" >.envrc
 fi
 direnv allow
-direnv_export="$(direnv export bash)"
 # So we can use the caches set in the config
 NIX_CONFIG="$(<program-configs/nix/nix.conf)"
 export NIX_CONFIG
+direnv_export="$(direnv export bash)"
 eval "$direnv_export"
 
 if [[ $OSTYPE == linux* ]]; then
