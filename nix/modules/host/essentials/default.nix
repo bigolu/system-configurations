@@ -45,7 +45,7 @@
       ./login-shell/darwin-system.nix
       ./login-shell/darwin.nix
       ./mac-os-system-settings-darwin.nix
-      ./nix/darwin
+      ./nix/darwin.nix
       ./nix/darwin-system.nix
       ./yabai-darwin.nix
       speakers
