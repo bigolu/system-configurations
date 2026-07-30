@@ -29,22 +29,7 @@ else
 		/bin/bash -c "$homebrew_install_script"
 	fi
 
-	hash_file='nix/outputs/darwinConfigurations/comp_2/modules/comp-2/nix/nix-conf-hash.txt'
-	builder_file='nix/outputs/darwinConfigurations/comp_2/modules/comp-2/nix/linux-builder-config-name.txt'
-	function undo_file_changes {
-		git checkout -- "$hash_file" "$builder_file"
-	}
-	trap undo_file_changes EXIT
-
-	# Tell nix-darwin the hash of my nix.conf so it can overwrite it. You can find more
-	# information in the comment where this file is read.
-	shasum -a 256 /etc/nix/nix.conf | cut -d ' ' -f 1 >"$hash_file"
-
-	# Apply the config with the bootstrap builders.
-	for builder in bootstrap1 bootstrap2; do
-		echo "$builder" >"$builder_file"
-		mise run hk:system-sync "$configuration"
-	done
+	mise run hk:system-sync "$configuration"
 fi
 
 HK_SKIP_STEPS='system' mise run sync
