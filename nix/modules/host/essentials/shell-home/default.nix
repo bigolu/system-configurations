@@ -1,18 +1,31 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  myUtils,
+  ...
+}:
 let
-  inherit (lib) optionals optionalAttrs;
+  inherit (lib) optionals optionalAttrs getExe;
+  inherit (pkgs) runCommand buildEnv;
+  inherit (myUtils) programConfigRoot;
   inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
 
   configDir = if isLinux then ".config" else "Library/Application Support";
+
+  fzfWithoutShellConfig = buildEnv {
+    name = "fzf-without-shell-config";
+    paths = [ pkgs.fzf ];
+    pathsToLink = [
+      "/bin"
+      "/share/man"
+    ];
+  };
 in
 {
   imports = [
-    ./bat.nix
     ./fish.nix
-    ./fzf.nix
     ./git.nix
     ./neovim.nix
-    ./ripgrep-all.nix
   ];
 
   # The `man` in nixpkgs is only intended to be used for NixOS[1] so I'm
@@ -63,6 +76,9 @@ in
       rsync
       gawkInteractive
       gnutar
+      ripgrep-all
+      bat
+      fzfWithoutShellConfig
     ]
     ++ optionals isLinux [
       trashy
@@ -74,21 +90,44 @@ in
     ]
     ++ optionals isDarwin [ pstree ];
 
+  xdg.cacheFile.bat = {
+    recursive = true;
+    source = runCommand "bat-cache" { } ''
+      BAT_CACHE_PATH=$out BAT_CONFIG_DIR=${programConfigRoot + /bat} \
+        ${getExe pkgs.bat} cache --build
+    '';
+  };
+
   fileWrapper = {
-    xdg.configFile = {
-      "lsd".source = "lsd";
-      "lesskey".source = "less/lesskey";
-      "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
-      "broot".source = "broot";
-    }
-    // optionalAttrs isLinux {
-      "pipr/pipr.toml".source = "pipr/pipr.toml";
-      "isd/config.yaml".source = "isd/config.yaml";
+    xdg = {
+      configFile = {
+        "lsd".source = "lsd";
+        "lesskey".source = "less/lesskey";
+        "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
+        "broot".source = "broot";
+        "bat".source = "bat";
+        "fzf/fzfrc.txt".source = "fzf/fzfrc.txt";
+      }
+      // optionalAttrs isLinux {
+        "pipr/pipr.toml".source = "pipr/pipr.toml";
+        "isd/config.yaml".source = "isd/config.yaml";
+      };
+
+      # fzf will fail if the history file's directory doesn't exit.
+      #
+      # I could use systemd-tmpfile, but that wouldn't work in the portable shell.
+      dataFile."fzf/keep".source = pkgs.emptyFile;
+
+      executable."fzf" = {
+        source = "fzf/bin";
+        recursive = true;
+      };
     };
 
     home.file = {
       "${configDir}/tealdeer/config.toml".source = "tealdeer/config.toml";
       "${configDir}/viddy.toml".source = "viddy/viddy.toml";
+      "${configDir}/ripgrep-all/config.jsonc".source = "ripgrep/config.jsonc";
     };
   };
 }

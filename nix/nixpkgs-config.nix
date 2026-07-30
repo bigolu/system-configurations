@@ -86,6 +86,10 @@ let
         '';
       });
 
+      # TODO: Consider upstreaming an option to include all the community
+      # adapters[1].
+      #
+      # [1]: https://github.com/phiresky/ripgrep-all/discussions/199
       ripgrep-all =
         let
           old-ripgrep-all = prev.ripgrep-all;
