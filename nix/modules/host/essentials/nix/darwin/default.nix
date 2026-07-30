@@ -43,8 +43,10 @@ in
   ids.gids.nixbld = 350;
 
   nix = {
+    # I only have to set these because `nix.enable` is `true`. I want to disable
+    # it so nix-darwin can stop managing the nix installation and system config.
+    # However, I can't since it's required to use `nix.linux-builder`.
     package = pkgs.lixPackageSet.lix;
-
     settings = {
       trusted-users = [ username ];
       experimental-features = [
