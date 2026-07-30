@@ -1,6 +1,6 @@
 # System Configurations
 
-The [Home Manager][home-manager] and [nix-darwin][nix-darwin] configurations for
+The [Home Manager][home-manager], [System Manager][system-manager], and [nix-darwin][nix-darwin] configurations for
 my machines.
 
 ## Initializing a Configuration
@@ -44,7 +44,7 @@ my machines.
 
 ## Running the Portable Configuration
 
-You can also run a shell with a Home Manager configuration loaded into it. This
+You can also run a shell with a [Home Manager][home-manager] configuration loaded into it. This
 is helpful when you only need to use the configuration temporarily and not apply
 it, like when you're on a remote host or in a container. You can download it
 from the [releases page][releases].
@@ -53,3 +53,4 @@ from the [releases page][releases].
 [home-manager]: https://github.com/nix-community/home-manager
 [nix-darwin]: https://github.com/nix-darwin/nix-darwin
 [releases]: https://github.com/bigolu/system-configurations/releases/latest
+[system-manager]: https://github.com/numtide/system-manager
