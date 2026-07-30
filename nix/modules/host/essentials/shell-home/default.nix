@@ -28,14 +28,10 @@ in
     ./neovim.nix
   ];
 
-  # The `man` in nixpkgs is only intended to be used for NixOS[1] so I'm
-  # disabling it.
+  # The `man` in nixpkgs is only intended to be used on NixOS[1].
   #
-  # [1]: https://github.com/nix-community/home-manager/issues/432
-  programs.man.enable = false;
-  # Since I'm not using the `man` from nixpkgs, I install my packages' `man`
-  # outputs so my system's `man` can find them.
-  home.extraOutputsToInstall = [ "man" ];
+  # [1]: https://github.com/nix-community/home-manager/issues/432#issuecomment-434498787
+  programs.man.package = null;
 
   home.packages =
     with pkgs;
