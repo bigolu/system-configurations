@@ -6,10 +6,11 @@ shopt -s inherit_errexit
 
 configuration="${1:?}"
 
-if [[ ! -d ~/code/system-configurations ]]; then
-	git clone https://github.com/bigolu/system-configurations.git ~/code/system-configurations
+project_dir=~/code/system-configurations
+if [[ ! -d $project_dir ]]; then
+	git clone https://github.com/bigolu/system-configurations.git "$project_dir"
 fi
-cd ~/code/system-configurations
+cd "$project_dir"
 
 if [[ ! -e .envrc ]]; then
 	echo "source .envrc-recommended.bash" >.envrc
