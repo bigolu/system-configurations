@@ -1,7 +1,7 @@
 { primaryUser, ... }: {
   system = {
     inherit primaryUser;
-    stateVersion = 4;
+    stateVersion = 7;
   };
 
   programs = {
