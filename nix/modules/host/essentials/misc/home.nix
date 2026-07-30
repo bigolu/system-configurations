@@ -16,7 +16,7 @@ let
     ;
   inherit (myUtils) projectRoot programConfigRoot callIf;
 
-  directoryFilter =
+  gitignoreFilter =
     let
       # PERF: As per the documentation[1], we memoize this.
       #
@@ -48,6 +48,6 @@ in
     };
 
     # Flakes have built-in gitignore support
-    directoryFilter = callIf (!inPureEvalMode) directoryFilter;
+    directoryFilter = callIf (!inPureEvalMode) gitignoreFilter;
   };
 }
