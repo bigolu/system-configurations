@@ -10,8 +10,8 @@
 
   system = { hostName, system }: {
     imports = [
-      (import ./misc/system.nix { inherit system; })
       (import ./home-manager-darwin-system.nix "nixos")
+      (import ./misc/system.nix { inherit system; })
       (import ./module-args.nix {
         type = "system";
         inherit hostName;
