@@ -21,17 +21,15 @@ vim.keymap.set("n", [[\l]], function()
 	vim.lsp.codelens.enable(not vim.lsp.codelens.is_enabled())
 end, { desc = "Toggle code lenses" })
 
--- Source: https://github.com/neovim/nvim-lspconfig/wiki/UI-Customization#borders
 local original_open_floating_preview = vim.lsp.util.open_floating_preview
 ---@diagnostic disable-next-line: duplicate-set-field
 function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
-	opts = opts or {}
-	opts.border = opts.border or "rounded"
-	opts.focusable = opts.focusable or true
-	opts.max_height = math.floor(vim.o.lines * 0.35)
-	opts.max_width = math.min(80, math.floor(vim.o.columns * 0.65))
-
-	return original_open_floating_preview(contents, syntax, opts, ...)
+	return original_open_floating_preview(contents, syntax, {
+		border = "rounded",
+		max_height = math.floor(vim.o.lines * 0.35),
+		max_width = math.min(80, math.floor(vim.o.columns * 0.65)),
+		focusable = opts.focusable or true,
+	}, ...)
 end
 
 vim.diagnostic.config({
