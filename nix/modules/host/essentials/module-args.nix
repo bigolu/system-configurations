@@ -1,7 +1,4 @@
-{
-  type,
-  hostName ? abort "missing argument",
-}:
+{ type }:
 {
   lib,
   pkgs,
@@ -19,8 +16,5 @@ in
     pkgs = mkForce (import ../../../packages.nix { system = config.nixpkgs.hostPlatform; });
   }
   // optionalAttrs (type == "darwin") { pins = import ../../../pins pkgs; }
-  // optionalAttrs (type == "darwin" || type == "system") {
-    inherit hostName;
-    primaryUser = "biggs";
-  };
+  // optionalAttrs (type == "darwin" || type == "system") { primaryUser = "biggs"; };
 }

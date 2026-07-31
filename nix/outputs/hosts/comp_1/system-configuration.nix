@@ -5,10 +5,7 @@ let
 in
 {
   imports = with modules.system; [
-    (essentials {
-      system = "x86_64-linux";
-      hostName = "comp_1";
-    })
+    (essentials { system = "x86_64-linux"; })
     speakers
     keychron-launcher
     seedbox

@@ -8,14 +8,11 @@
     ];
   };
 
-  system = { hostName, system }: {
+  system = { system }: {
     imports = [
       (import ./home-manager-darwin-system.nix "nixos")
       (import ./misc/system.nix { inherit system; })
-      (import ./module-args.nix {
-        type = "system";
-        inherit hostName;
-      })
+      (import ./module-args.nix { type = "system"; })
       ./application-development/darwin-system.nix
       ./application-development/system
       ./fonts-darwin-system.nix
@@ -28,13 +25,10 @@
     ];
   };
 
-  darwin = { hostName }: {
+  darwin = {
     imports = with (import ../../../my-utils.nix).modules.darwin; [
       (import ./home-manager-darwin-system.nix "darwin")
-      (import ./module-args.nix {
-        type = "darwin";
-        inherit hostName;
-      })
+      (import ./module-args.nix { type = "darwin"; })
       ./application-development/darwin.nix
       ./application-development/darwin-system.nix
       ./fonts-darwin-system.nix
