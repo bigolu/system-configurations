@@ -36,6 +36,25 @@ in
     package = skhdWithDependencies;
   };
 
+  system = {
+    keyboard = {
+      enableKeyMapping = true;
+      remapCapsLockToControl = true;
+    };
+
+    defaults = {
+      NSGlobalDomain = {
+        ApplePressAndHoldEnabled = false;
+        NSAutomaticQuoteSubstitutionEnabled = false;
+      };
+
+      trackpad = {
+        Clicking = true;
+        Dragging = true;
+      };
+    };
+  };
+
   home-manager.users.${primaryUser} = {
     fileWrapper = {
       xdg.configFile."skhd/skhdrc".source = "skhd/skhdrc";
