@@ -1,7 +1,7 @@
 {
   home = { inputs, ... }: {
     imports = [
-      (import ./module-args.nix { type = "home"; })
+      (import ./module-args.nix "home")
       ./misc/home.nix
       ./shell-home
       inputs.home-manager-file-wrapper.homeModules.file-wrapper
@@ -10,9 +10,9 @@
 
   system = { system }: {
     imports = [
-      (import ./home-manager-darwin-system.nix "nixos")
+      (import ./home-manager-darwin-system.nix "system")
       (import ./misc/system.nix { inherit system; })
-      (import ./module-args.nix { type = "system"; })
+      (import ./module-args.nix "system")
       ./application-development/darwin-system.nix
       ./application-development/system
       ./fonts-darwin-system.nix
@@ -28,7 +28,7 @@
   darwin = {
     imports = with (import ../../../my-utils.nix).modules.darwin; [
       (import ./home-manager-darwin-system.nix "darwin")
-      (import ./module-args.nix { type = "darwin"; })
+      (import ./module-args.nix "darwin")
       ./application-development/darwin.nix
       ./application-development/darwin-system.nix
       ./fonts-darwin-system.nix
