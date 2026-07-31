@@ -164,6 +164,10 @@ let
         # Merge with the original package to retain attributes like meta
         recursiveUpdate oldZoxide newZoxide;
     };
+
+  llmAgentsOverlay = final: _: {
+    llm-agents = inputs.llm-agents.packages.${final.stdenv.hostPlatform.system};
+  };
 in
 {
   config.allowUnfreePredicate = pkg: builtins.elem pkg.pname [ "vscode" ];
@@ -172,8 +176,8 @@ in
     inputs.direnv-shell-hooks.overlays.default
     inputs.git-auto-sync.overlays.default
     inputs.git-auto-check.overlays.default
-    inputs.llm-agents.overlays.default
     inputs.nix-scene.overlays.default
+    llmAgentsOverlay
     myOverlay
   ];
 }

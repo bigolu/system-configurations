@@ -1,7 +1,7 @@
 # System Configurations
 
-The [Home Manager][home-manager], [System Manager][system-manager], and [nix-darwin][nix-darwin] configurations for
-my machines.
+The [Home Manager][home-manager], [System Manager][system-manager], and
+[nix-darwin][nix-darwin] configurations for my machines.
 
 ## Initializing a Configuration
 
@@ -44,10 +44,10 @@ my machines.
 
 ## Running the Portable Configuration
 
-You can also run a shell with a [Home Manager][home-manager] configuration loaded into it. This
-is helpful when you only need to use the configuration temporarily and not apply
-it, like when you're on a remote host or in a container. You can download it
-from the [releases page][releases].
+You can also run a shell with a [Home Manager][home-manager] configuration
+loaded into it. This is helpful when you only need to use the configuration
+temporarily and not apply it, like when you're on a remote host or in a
+container. You can download it from the [releases page][releases].
 
 [lix-installer]: https://lix.systems/install/
 [home-manager]: https://github.com/nix-community/home-manager
