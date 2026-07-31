@@ -10,7 +10,6 @@ in
       hostName = "comp_1";
     })
     speakers
-    nvidia-suspension-fix
     keychron-launcher
     seedbox
   ];
