@@ -122,7 +122,7 @@ end
 # Clear SHELL because my config for the OS default shell only launches fish if the current
 # shell isn't fish.
 function code --wraps code
-    SHELL= command code $argv
+    SHELL='' command code $argv
 end
 
 # ulimit
