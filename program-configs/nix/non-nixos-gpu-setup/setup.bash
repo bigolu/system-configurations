@@ -53,6 +53,7 @@ if [[ ! -e $last_version_file || $(<"$last_version_file") != "$current_version" 
 			--argstr nvidiaVersion "$current_version" \
 			--argstr nvidiaSha256 "$sha256"
 	)"
+
 	"$current_package/bin/start"
 	# We don't want a GC root since tools like nix-sweep delete old GC roots,
 	# which means it will delete `/etc/tmpfiles.d/non-nixos-gpu.conf`. Instead, we
@@ -68,6 +69,7 @@ if [[ ! -e $last_version_file || $(<"$last_version_file") != "$current_version" 
 		nix profile remove "$(<"$last_package_file")" --profile "$default_profile"
 	fi
 	nix profile install "$current_package" --profile "$default_profile"
+
 	echo "$current_package" >"$last_package_file"
 	echo "$current_version" >"$last_version_file"
 fi
