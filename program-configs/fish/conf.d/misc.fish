@@ -274,8 +274,8 @@ function nix-store-clean
         set --append profiles /nix/var/nix/profiles/system
     end
     for profile in $profiles
-        sudo s sudo nix profile wipe-history --profile $profile
+        sudo s sudo -H nix profile wipe-history --profile $profile
     end
 
-    nix-collect-garbage --delete-old
+    nix-collect-garbage
 end
