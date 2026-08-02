@@ -1,10 +1,10 @@
 { _class, inputs, ... }:
 {
   homeManager.imports = [
-    inputs.home-manager-file-wrapper.homeModules.file-wrapper
     ./misc.nix
     ./module-args.nix
     ./shell
+    inputs.home-manager-file-wrapper.homeModules.file-wrapper
   ];
 
   "".imports = [
@@ -22,7 +22,6 @@
 
   darwin = { modules, ... }: {
     imports = [
-      modules.darwin.speakers
       ./application-development
       ./fonts.nix
       ./home-manager.nix
@@ -33,6 +32,7 @@
       ./module-args.nix
       ./nix.nix
       ./yabai.nix
+      modules.darwin.speakers
     ];
   };
 }
