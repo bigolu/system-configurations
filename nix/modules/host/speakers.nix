@@ -7,12 +7,14 @@
   pins,
   ...
 }:
+let
+  inherit (pkgs) replaceVars linkFarm speakerctl;
+  inherit (lib) getExe;
+  inherit (myUtils) programConfigRoot;
+in
 {
   "" =
     let
-      inherit (pkgs) replaceVars linkFarm;
-      inherit (lib) getExe;
-
       smartPlugLinuxRoot = myUtils.programConfigRoot + /smart-plug/linux;
     in
     {
@@ -42,27 +44,21 @@
         smartPlugLinuxRoot + /turn-off-speakers.bash;
     };
 
-  darwin =
-    let
-      inherit (myUtils) programConfigRoot;
-      inherit (pkgs) speakerctl replaceVars;
-      inherit (lib) getExe;
-    in
-    {
-      homebrew.casks = [ "hammerspoon" ];
+  darwin = {
+    homebrew.casks = [ "hammerspoon" ];
 
-      home-manager.users.${primaryUser}.home.file = {
-        ".hammerspoon/init.lua".source = replaceVars (programConfigRoot + /smart-plug/mac-os/init.lua) {
-          speakerctl = getExe speakerctl;
-        };
+    home-manager.users.${primaryUser}.home.file = {
+      ".hammerspoon/init.lua".source = replaceVars (programConfigRoot + /smart-plug/mac-os/init.lua) {
+        speakerctl = getExe speakerctl;
+      };
 
-        ".hammerspoon/Spoons/EmmyLua.spoon" = {
-          source = "${pins.spoons}/Source/EmmyLua.spoon";
-          # I'm not symlinking the whole directory because EmmyLua is going to
-          # generate lua-language-server annotations in there.
-          recursive = true;
-        };
+      ".hammerspoon/Spoons/EmmyLua.spoon" = {
+        source = "${pins.spoons}/Source/EmmyLua.spoon";
+        # I'm not symlinking the whole directory because EmmyLua is going to
+        # generate lua-language-server annotations in there.
+        recursive = true;
       };
     };
+  };
 }
 .${toString _class}
