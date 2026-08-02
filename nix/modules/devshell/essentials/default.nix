@@ -1,4 +1,14 @@
-{ name, pkgs }: { inputs, ... }: {
+{
+  inputs,
+  lib,
+  pkgs,
+  config,
+  ...
+}:
+let
+  inherit (lib) mkOption types;
+in
+{
   imports = [
     ./gc-root.nix
     ./locale.nix
@@ -10,11 +20,18 @@
     state
   ]);
 
-  _module.args = {
-    pins = import ../../../pins pkgs;
-    myUtils = import ../../../my-utils.nix;
-    inherit pkgs;
+  options.essentials = {
+    name = mkOption { type = types.str; };
+    pkgs = mkOption { type = types.attrs; };
   };
 
-  devshell.name = name;
+  config = {
+    _module.args = {
+      pins = import ../../../pins pkgs;
+      myUtils = import ../../../utils.nix;
+      inherit (config.essentials) pkgs;
+    };
+
+    devshell.name = config.essentials.name;
+  };
 }

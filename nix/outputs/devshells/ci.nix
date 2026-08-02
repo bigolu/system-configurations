@@ -10,12 +10,12 @@
   extraSpecialArgs = { inherit inputs; };
 
   configuration = {
-    imports = [
-      (import ../../modules/devshell/essentials {
-        name = "ci";
-        inherit pkgs;
-      })
-    ];
+    imports = [ ../../modules/devshell/essentials ];
+
+    essentials = {
+      name = "ci";
+      inherit pkgs;
+    };
 
     # For the `run` steps in CI workflows
     devshell.packages = [ pkgs.bash ];

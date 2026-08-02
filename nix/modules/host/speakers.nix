@@ -1,15 +1,19 @@
 {
-  system =
-    {
-      pkgs,
-      myUtils,
-      lib,
-      ...
-    }:
+  _class,
+  myUtils,
+  lib,
+  pkgs,
+  primaryUser,
+  pins,
+  ...
+}:
+{
+  "" =
     let
-      inherit (pkgs) linkFarm replaceVars;
-      smartPlugLinuxRoot = myUtils.programConfigRoot + /smart-plug/linux;
+      inherit (pkgs) replaceVars linkFarm;
       inherit (lib) getExe;
+
+      smartPlugLinuxRoot = myUtils.programConfigRoot + /smart-plug/linux;
     in
     {
       systemd = {
@@ -39,18 +43,10 @@
     };
 
   darwin =
-    {
-      lib,
-      pkgs,
-      myUtils,
-      pins,
-      primaryUser,
-      ...
-    }:
     let
+      inherit (myUtils) programConfigRoot;
       inherit (pkgs) speakerctl replaceVars;
       inherit (lib) getExe;
-      inherit (myUtils) programConfigRoot;
     in
     {
       homebrew.casks = [ "hammerspoon" ];
@@ -69,3 +65,4 @@
       };
     };
 }
+.${toString _class}

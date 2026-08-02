@@ -1,6 +1,7 @@
 let
-  myUtils = import ../../../my-utils.nix;
+  modulesPath = ../../../modules/host;
 in
 {
-  imports = with myUtils.modules.system; [ (essentials { system = "x86_64-linux"; }) ];
+  imports = [ (modulesPath + /essentials) ];
+  nixpkgs.hostPlatform = "x86_64-linux";
 }

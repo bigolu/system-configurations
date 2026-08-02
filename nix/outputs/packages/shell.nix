@@ -1,6 +1,6 @@
 { pkgs, inputs, ... }:
 let
-  myUtils = import ../../my-utils.nix;
+  modulesPath = ../../modules/host;
 in
 # This contains only the "en_US.UTF-8/UTF-8" locale.
 (pkgs.makePortableHome.override { glibcLocales = pkgs.glibcLocalesUtf8; }) {
@@ -9,9 +9,15 @@ in
   homeConfig = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;
     extraSpecialArgs = { inherit inputs; };
-    modules = with myUtils.modules.home; [
-      essentials
-      (portable pkgs)
+    modules = [
+      {
+        imports = [
+          (modulesPath + /essentials)
+          (modulesPath + /portable)
+        ];
+
+        bigolu.outerPkgs = pkgs;
+      }
     ];
   };
 }

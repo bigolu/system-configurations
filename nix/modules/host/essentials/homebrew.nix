@@ -1,5 +1,6 @@
+{ _class, ... }:
 {
-  homebrew = {
+  darwin.homebrew = {
     enable = true;
 
     onActivation = {
@@ -14,3 +15,4 @@
     };
   };
 }
+.${toString _class}

@@ -1,12 +1,13 @@
 {
-  system =
-    {
-      myUtils,
-      lib,
-      pkgs,
-      primaryUser,
-      ...
-    }:
+  _class,
+  myUtils,
+  primaryUser,
+  lib,
+  pkgs,
+  ...
+}:
+{
+  "" =
     let
       inherit (pkgs) resholve replaceVars;
       inherit (lib) getExe;
@@ -74,3 +75,4 @@
       };
     };
 }
+.${toString _class}

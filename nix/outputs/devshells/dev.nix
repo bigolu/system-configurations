@@ -15,14 +15,16 @@
     in
     {
       imports = [
-        (import (moduleRoot + /essentials) {
-          name = "dev";
-          inherit pkgs;
-        })
+        (moduleRoot + /essentials)
         (moduleRoot + /vscode.nix)
         (moduleRoot + /hk.nix)
         (moduleRoot + /npins.nix)
       ];
+
+      essentials = {
+        name = "dev";
+        inherit pkgs;
+      };
 
       devshell.startup.dev.text = ''
         export NIX_CONFIG="

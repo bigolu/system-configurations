@@ -1,12 +1,13 @@
 {
-  system =
-    {
-      myUtils,
-      pkgs,
-      primaryUser,
-      lib,
-      ...
-    }:
+  _class,
+  myUtils,
+  primaryUser,
+  lib,
+  pkgs,
+  ...
+}:
+{
+  "" =
     let
       inherit (myUtils) programConfigRoot;
       inherit (lib) getExe;
@@ -27,3 +28,4 @@
       };
     };
 }
+.${toString _class}

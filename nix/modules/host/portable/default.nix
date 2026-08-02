@@ -1,12 +1,11 @@
+{ _class, lib, ... }:
 {
-  home =
-    pkgs':
-    { lib, ... }:
+  homeManager =
     let
       inherit (lib) mkForce;
     in
     {
-      imports = [ (import ./reduce-closure-size pkgs') ];
+      imports = [ ./reduce-closure-size ];
 
       # Home Manager requires that these be set
       home = {
@@ -19,3 +18,4 @@
       fileWrapper.settings.editableInstall = mkForce false;
     };
 }
+.${toString _class}

@@ -1,0 +1,16 @@
+{ _class, pkgs, ... }:
+{
+  homeManager = {
+    home.packages = with pkgs.fishPlugins; [
+      pkgs.fish
+      async-prompt
+      direnv-shell-hooks
+    ];
+
+    fileWrapper.xdg.configFile."fish/conf.d" = {
+      source = "fish/conf.d";
+      recursive = true;
+    };
+  };
+}
+.${toString _class}

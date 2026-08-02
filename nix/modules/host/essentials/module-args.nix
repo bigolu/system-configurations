@@ -1,20 +1,23 @@
-type:
 {
+  _class,
   lib,
-  pkgs,
   config,
+  pkgs,
   ...
 }:
 let
-  inherit (lib) optionalAttrs mkForce;
+  inherit (lib) mkForce optionalAttrs;
+  class = toString _class;
 in
 {
   _module.args = {
-    myUtils = import ../../../my-utils.nix;
+    # I'd prefer the name `utils`, but system-manager creates a module argument
+    # with that name.
+    myUtils = import ../../../utils.nix;
   }
-  // optionalAttrs (type == "system") {
+  // optionalAttrs (class == "darwin" || class == "") { primaryUser = "biggs"; }
+  // optionalAttrs (class == "") {
     pkgs = mkForce (import ../../../packages.nix { system = config.nixpkgs.hostPlatform; });
   }
-  // optionalAttrs (type == "darwin") { pins = import ../../../pins pkgs; }
-  // optionalAttrs (type == "darwin" || type == "system") { primaryUser = "biggs"; };
+  // optionalAttrs (class == "darwin") { pins = import ../../../pins pkgs; };
 }
