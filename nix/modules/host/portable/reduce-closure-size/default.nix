@@ -15,10 +15,10 @@
         types
         mkOption
         ;
-      inherit (config.bigolu) outerPkgs;
+      inherit (config.portable) outerPkgs;
     in
     {
-      options.bigolu.outerPkgs = mkOption {
+      options.portable.outerPkgs = mkOption {
         type = types.attrs;
         description = "A package set from outside of the module args, this way we can replace the `pkgs` module arg with it without causing infinite recursion.";
       };

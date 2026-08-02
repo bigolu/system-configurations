@@ -16,7 +16,7 @@ in
           (modulesPath + /portable)
         ];
 
-        bigolu.outerPkgs = pkgs;
+        portable.outerPkgs = pkgs;
       }
     ];
   };
