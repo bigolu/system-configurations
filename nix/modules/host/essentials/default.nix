@@ -20,7 +20,7 @@
     ./sudo.nix
   ];
 
-  darwin = { modules, ... }: {
+  darwin = {
     imports = [
       ./application-development
       ./fonts.nix
@@ -32,7 +32,7 @@
       ./module-args.nix
       ./nix.nix
       ./yabai.nix
-      modules.darwin.speakers
+      ../speakers.nix
     ];
   };
 }
