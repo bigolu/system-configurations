@@ -1,13 +1,14 @@
 { primaryUser, myUtils, ... }:
 let
   inherit (myUtils) programConfigRoot;
+  modulesPath = ../../../modules/host;
 in
 {
-  imports = map (path: ../../../modules/host + path) [
-    /essentials
-    /speakers.nix
-    /keychron-launcher.nix
-    /seedbox.nix
+  imports = [
+    (modulesPath + /essentials)
+    (modulesPath + /speakers.nix)
+    (modulesPath + /keychron-launcher.nix)
+    (modulesPath + /seedbox.nix)
   ];
 
   nixpkgs.hostPlatform = "x86_64-linux";
