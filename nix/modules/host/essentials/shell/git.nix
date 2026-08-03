@@ -9,17 +9,12 @@
       git-absorb
     ];
 
-    fileWrapper = {
-      xdg = {
-        configFile = {
-          "git/config".source = "git/config";
-          "git/attributes".source = "git/attributes";
-        };
+    fileWrapper.xdg = {
+      configFile."git".source = "git";
 
-        executable."git" = {
-          source = "git/bin";
-          recursive = true;
-        };
+      executable."git" = {
+        source = "git/bin";
+        recursive = true;
       };
     };
   };
