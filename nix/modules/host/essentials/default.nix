@@ -78,7 +78,7 @@ in
     imports = [
       ./application-development
       ./fonts.nix
-      ./home-manager.nix
+      ./home-manager-submodule.nix
       ./keyboard
       ./login-shell.nix
       ./module-args.nix
@@ -92,8 +92,6 @@ in
     users.users.${primaryUser}.isNormalUser = true;
 
     home-manager.users.${primaryUser} = { lib, ... }: {
-      imports = [ ../essentials ];
-
       home = {
         # TODO: I'm only doing this because Pop!_OS doesn't come with it by
         # default, but I think it should.
@@ -122,7 +120,7 @@ in
       ../speakers.nix
       ./application-development
       ./fonts.nix
-      ./home-manager.nix
+      ./home-manager-submodule.nix
       ./homebrew.nix
       ./keyboard
       ./login-shell.nix
