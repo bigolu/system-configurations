@@ -6,6 +6,8 @@
 }:
 let
   darwinAndSystem = {
+    imports = [ ./podman.nix ];
+
     home-manager.users.${primaryUser} = {
       home = {
         packages = with pkgs; [
@@ -39,10 +41,7 @@ let
 in
 {
   "" = {
-    imports = [
-      darwinAndSystem
-      ./podman.nix
-    ];
+    imports = [ darwinAndSystem ];
 
     home-manager.users.${primaryUser}.home.packages = with pkgs; [
       ghostty
@@ -56,7 +55,6 @@ in
     homebrew.casks = [
       "ghostty"
       "visual-studio-code"
-      "podman-desktop"
     ];
   };
 }
