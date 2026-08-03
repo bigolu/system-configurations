@@ -1,7 +1,4 @@
 { pkgs, inputs, ... }:
-let
-  modulesPath = ../../modules/host;
-in
 # This contains only the "en_US.UTF-8/UTF-8" locale.
 (pkgs.makePortableHome.override { glibcLocales = pkgs.glibcLocalesUtf8; }) {
   shell = "fish";
@@ -11,9 +8,9 @@ in
     extraSpecialArgs = { inherit inputs; };
     modules = [
       {
-        imports = [
-          (modulesPath + /essentials)
-          (modulesPath + /portable)
+        imports = map (path: ../../modules/host + path) [
+          /essentials
+          /portable
         ];
 
         portable.outerPkgs = pkgs;

@@ -1,7 +1,4 @@
-let
-  modulesPath = ../../../modules/host;
-in
 {
-  imports = [ (modulesPath + /essentials) ];
+  imports = map (path: ../../../modules/host + path) [ /essentials ];
   nixpkgs.hostPlatform = "x86_64-linux";
 }
