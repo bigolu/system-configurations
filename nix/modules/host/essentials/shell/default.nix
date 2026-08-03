@@ -112,7 +112,7 @@
             "isd/config.yaml".source = "isd/config.yaml";
           };
 
-          # fzf will fail if the history file's directory doesn't exit.
+          # fzf will fail if the history file's directory doesn't exist.
           #
           # I could use systemd-tmpfile, but that wouldn't work in the portable shell.
           dataFile."fzf/keep".source = pkgs.emptyFile;
