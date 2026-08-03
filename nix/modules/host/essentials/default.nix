@@ -157,7 +157,10 @@ in
         };
       };
 
-      activationScripts.applySystemSettingsImmediately.text = ''
+      activationScripts.postActivation.text = ''
+        # Printing this since activation scripts can't be named.
+        printf '\e[1m[bigolu] Applying system settings\e(B\e[m\n' >&2
+
         # Apply settings immediately so I don't have to logout/reboot.
         # source: https://medium.com/@zmre/nix-darwin-quick-tip-activate-your-preferences-f69942a93236
         sudo -u ${primaryUser} /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u

@@ -56,7 +56,11 @@ in
       # TODO: Consider upstreaming. This way nix-darwin configures the PATH for
       # the login shell the same way system-manager does. In fact, it should
       # probably set XDG_DATA_DIRS too, see what system-manager does.
-      system.activationScripts.configureLoginShell.text = script;
+      system.activationScripts.postActivation.text = ''
+        # Printing this since activation scripts can't be named.
+        printf '\e[1m[bigolu] Configuring login shell for nix-darwin\e(B\e[m\n' >&2
+        ${script}
+      '';
 
       # Reapply the changes if they get removed, which can happen during a macOS
       # update due to its immutable base system. Adapted from nix-darwin[1].
