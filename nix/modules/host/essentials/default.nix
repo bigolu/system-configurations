@@ -160,7 +160,7 @@ in
       activationScripts.applySystemSettingsImmediately.text = ''
         # Apply settings immediately so I don't have to logout/reboot.
         # source: https://medium.com/@zmre/nix-darwin-quick-tip-activate-your-preferences-f69942a93236
-        /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+        sudo -u ${primaryUser} /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
 
         # TODO: Some settings may not apply without doing this:
         # https://github.com/nix-darwin/nix-darwin/issues/658#issuecomment-1557604877
