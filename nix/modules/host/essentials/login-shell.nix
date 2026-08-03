@@ -6,6 +6,8 @@
   ...
 }:
 let
+  inherit (lib) escapeShellArg makeBinPath;
+
   interactive = {
     home-manager.users.${primaryUser}.fileWrapper.home.file = {
       ".bashrc".source = "login-shell/bashrc.bash";
@@ -22,8 +24,6 @@ in
     let
       script =
         let
-          inherit (lib) escapeShellArg makeBinPath;
-
           file = "/etc/zprofile";
           marker = "configureLoginShell";
           line = ''export PATH="/run/current-system/sw/bin:$PATH"'';
