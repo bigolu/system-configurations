@@ -17,7 +17,8 @@ if [[ ! -e .envrc ]]; then
 fi
 direnv allow
 # Use the caches set in the nix config
-direnv_export="$(NIX_USER_CONF_FILES="$PWD/program-configs/nix/nix.conf" direnv export bash)"
+nix_config="$(<program-configs/nix/nix.conf)"
+direnv_export="$(NIX_CONFIG="$nix_config" direnv export bash)"
 eval "$direnv_export"
 
 # Besides passing positional arguments, this is done separately from other syncs
