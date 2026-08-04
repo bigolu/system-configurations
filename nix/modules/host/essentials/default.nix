@@ -147,9 +147,7 @@ in
           mru-spaces = false;
         };
 
-        LaunchServices = {
-          LSQuarantine = false;
-        };
+        LaunchServices.LSQuarantine = false;
       };
 
       activationScripts.postActivation.text = ''
