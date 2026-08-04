@@ -1,6 +1,14 @@
-{ _class, ... }:
+{ _class, lib, ... }:
 {
-  darwin.homebrew = {
+  darwin = {
+  # Install homebrew before nix-darwin's homebrew activation runs.
+  system.activationScripts.homebrew.text = lib.mkBefore ''
+    if [[ ! -d /opt/homebrew ]]; then
+      NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+  '';
+
+  homebrew = {
     enable = true;
 
     onActivation = {
@@ -13,6 +21,7 @@
       # of them.
       no_quarantine = true;
     };
+  };
   };
 }
 .${toString _class}
