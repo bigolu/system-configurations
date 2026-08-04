@@ -6,38 +6,32 @@ pkgs.callPackage (
     bash,
     git,
     direnv,
-    perl,
     coreutils,
     symlinkJoin,
     makeWrapper,
   }:
   let
-    inherit (lib) getExe getExe';
+    inherit (lib) getExe;
 
-    name = "init-config";
-
-    script = resholve.mkDerivation {
-      pname = name;
+    script = resholve.mkDerivation rec {
+      pname = "init-config";
       version = "0.1.0";
       src = ./init-config.bash;
-      meta.mainProgram = name;
+      meta.mainProgram = pname;
       dontUnpack = true;
       installPhase = ''
-        install -D $src $out/bin/${name}
+        install -D $src $out/bin/${pname}
       '';
       solutions.default = {
-        scripts = [ "bin/${name}" ];
+        scripts = [ "bin/${pname}" ];
         interpreter = "${bash}/bin/bash";
         inputs = [
           git
           direnv
-          perl
-          coreutils
         ];
         execer = [
           "cannot:${getExe git}"
           "cannot:${getExe direnv}"
-          "cannot:${getExe' perl "shasum"}"
         ];
         keep = {
           "/bin/bash" = true;

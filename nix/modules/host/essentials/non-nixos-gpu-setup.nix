@@ -15,11 +15,10 @@
 
       nonNixosGpuRoot = programConfigRoot + /nix/non-nixos-gpu-setup;
 
-      nonNixosGpuService =
-        let
-          pname = "setup";
-          setupBash = resholve.mkDerivation {
-            inherit pname;
+      nonNixosGpuService = replaceVars (nonNixosGpuRoot + /non-nixos-gpu-x.service) {
+        setupbash = getExe (
+          resholve.mkDerivation rec {
+            pname = "setup";
             version = "0.1.0";
             src = replaceVars (nonNixosGpuRoot + /setup.bash) {
               setupnix = "${nonNixosGpuRoot + /setup.nix}";
@@ -45,9 +44,9 @@
                 "nvidia-smi"
               ];
             };
-          };
-        in
-        replaceVars (nonNixosGpuRoot + /non-nixos-gpu-x.service) { setupbash = getExe setupBash; };
+          }
+        );
+      };
     in
     {
       systemd = {

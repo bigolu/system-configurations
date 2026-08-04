@@ -116,27 +116,23 @@ let
           '';
         };
 
-      speakerctl =
-        let
-          programName = "speakerctl";
-        in
-        final.writeShellApplication {
-          name = programName;
-          runtimeInputs = with final; [
-            bash
-            python3Packages.python-kasa
-            coreutils
-          ];
-          meta.mainProgram = programName;
-          text = ''
-            # shellcheck disable=2016
-            timeout "''${2:-10}s" bash -c '
-              until kasa --alias plug "$1"; do
-                true
-              done
-            ' -- "$1"
-          '';
-        };
+      speakerctl = final.writeShellApplication rec {
+        name = "speakerctl";
+        runtimeInputs = with final; [
+          bash
+          python3Packages.python-kasa
+          coreutils
+        ];
+        meta.mainProgram = name;
+        text = ''
+          # shellcheck disable=2016
+          timeout "''${2:-10}s" bash -c '
+            until kasa --alias plug "$1"; do
+              true
+            done
+          ' -- "$1"
+        '';
+      };
 
       # TODO: I shouldn't have to do this. Either nixpkgs should add the shell config
       # files or the tool itself should generate the files as part of its build script,
