@@ -24,4 +24,4 @@ else
 	command+=(--all)
 fi
 
-"${command[@]}"
+ASK="${usage_ask:-}" "${command[@]}"

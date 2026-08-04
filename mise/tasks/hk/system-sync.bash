@@ -12,8 +12,7 @@ command=()
 
 config="${usage_config:-$(<"${XDG_STATE_HOME:-$HOME/.local/state}/bigolu/system-config-name")}"
 if [[ $OSTYPE == linux* ]]; then
-	# `usage_ask` is an argument for the `sync` task
-	if [[ ${usage_ask:-} == 'true' ]]; then
+	if [[ ${ASK:-} == 'true' ]]; then
 		old_config=/nix/var/nix/profiles/system-manager-profiles/system-manager
 		new_config="$(nix build --no-link --print-out-paths --file . "outputs.systemConfigs.$config")"
 		dix "$old_config" "$new_config"
@@ -44,8 +43,7 @@ if [[ $OSTYPE == linux* ]]; then
 	trap print_logs EXIT
 else
 	flags=()
-	# `usage_ask` is an argument for the `sync` task
-	if [[ ${usage_ask:-} == 'true' ]]; then
+	if [[ ${ASK:-} == 'true' ]]; then
 		flags+=(--ask)
 	fi
 
