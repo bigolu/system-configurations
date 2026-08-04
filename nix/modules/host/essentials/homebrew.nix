@@ -11,7 +11,7 @@
     system.activationScripts.homebrew.text = lib.mkBefore ''
       prefix=/opt/homebrew
       if [[ ! -d $prefix ]]; then
-        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        sudo -u ${primaryUser} /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
         echo 'eval "$("$prefix/bin/brew" shellenv)"' >> ${
           config.home-manager.users.${primaryUser}.home.homeDirectory
         }/.zprofile
