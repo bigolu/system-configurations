@@ -20,5 +20,10 @@ direnv allow
 direnv_export="$(NIX_USER_CONF_FILES="$PWD/program-configs/nix/nix.conf" direnv export bash)"
 eval "$direnv_export"
 
+# Besides passing positional arguments, this is done separately from other syncs
+# since it may prompt the user and `hk`, which is called by `mise run sync`,
+# seems to have a bug where it can't take user input despite me enabling the
+# `interactive` setting.
 mise run hk:system-sync "$configuration"
+
 HK_SKIP_STEPS='system' mise run sync
