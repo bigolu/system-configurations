@@ -12,9 +12,10 @@
       prefix=/opt/homebrew
       if [[ ! -d $prefix ]]; then
         sudo -u ${primaryUser} /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        echo $'\n''eval "$('"$prefix"'/bin/brew shellenv zsh)"' >> ${
-          config.home-manager.users.${primaryUser}.home.homeDirectory
-        }/.zprofile
+        {
+          echo
+          echo 'eval "$('"$prefix"'/bin/brew shellenv zsh)"'
+        } >> ${config.home-manager.users.${primaryUser}.home.homeDirectory}/.zprofile
       fi
     '';
 
