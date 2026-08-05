@@ -26,8 +26,7 @@
         extraFlags = [ "--quiet" ];
       };
 
-      # Don't quarantine the casks so macOS doesn't warn me before opening any
-      # of them.
+      # Ensure macOS doesn't warn me when I first open a cask.
       caskArgs.no_quarantine = true;
     };
   };
