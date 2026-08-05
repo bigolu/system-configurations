@@ -18,7 +18,7 @@ in
   gcRoot.roots = {
     flake = {
       inherit inputs;
-      exclude = optionals isLinux [ "nix-darwin" ] ++ optionals isCi [ "llm-agents" ];
+      exclude = optionals isCi [ "llm-agents" ];
     };
 
     paths = optionals (!isCi) (

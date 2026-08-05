@@ -29,6 +29,12 @@
       "options": {
         "comp_1": {
           "expr": "(import ./.).outputs.systemConfigs.comp_1.options"
+        },
+        "home-manager": {
+          "expr": "with (import ./.); (inputs.home-manager.lib.homeManagerConfiguration { pkgs = inputs.nixpkgs.legacyPackages.${builtins.currentSystem}; modules = [./nix/modules/host/essentials {home.homeDirectory = \"/not-applicable\";}]; extraSpecialArgs = {inherit inputs;};}).options"
+        },
+        "nix-darwin": {
+          "expr": "with (import ./.); (inputs.nix-darwin.lib.darwinSystem { pkgs = inputs.nixpkgs.legacyPackages.${builtins.currentSystem}; modules = [./nix/modules/host/essentials {}]; specialArgs = {inherit inputs;};}).options"
         }
       }
     }
