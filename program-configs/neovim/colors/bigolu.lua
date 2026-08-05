@@ -130,6 +130,7 @@ local groups = {
   Comment = { ctermfg = 8, fg = colors[8] }, -- Any comment
   String = { ctermfg = 14, fg = colors.string }, --   A string constant: "this is a string"
   yamlBlockString = "String",
+  nixStringDelimiter = "String",
   -- }}}
 
   -- diffs {{{
