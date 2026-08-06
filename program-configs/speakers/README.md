@@ -1,4 +1,4 @@
-# Smart Plug Controller
+# Speakers
 
 This project contains a daemon to automatically turn a Kasa smart plug on after
 the computer starts up or is woken up and turn it off before the computer

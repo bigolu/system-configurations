@@ -10,20 +10,20 @@
 let
   inherit (pkgs) replaceVars linkFarm speakerctl;
   inherit (lib) getExe;
-  inherit (myUtils) programConfigRoot;
+  speakersRoot = myUtils.programConfigRoot + /speakers;
 in
 {
   "" =
     let
-      smartPlugLinuxRoot = myUtils.programConfigRoot + /smart-plug/linux;
+      speakersLinuxRoot = speakersRoot + /linux;
     in
     {
       systemd = {
         packages = [
           (linkFarm "speaker-units" {
-            "lib/systemd/system/start-wake-target.service" = smartPlugLinuxRoot + /start-wake-target.service;
-            "lib/systemd/system/wake.target" = smartPlugLinuxRoot + /wake.target;
-            "lib/systemd/system/speakers.service" = replaceVars (smartPlugLinuxRoot + /speakers.service) {
+            "lib/systemd/system/start-wake-target.service" = speakersLinuxRoot + /start-wake-target.service;
+            "lib/systemd/system/wake.target" = speakersLinuxRoot + /wake.target;
+            "lib/systemd/system/speakers.service" = replaceVars (speakersLinuxRoot + /speakers.service) {
               speakerctl = getExe pkgs.speakerctl;
             };
           })
@@ -41,14 +41,14 @@ in
       };
 
       environment.etc."NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers".source =
-        smartPlugLinuxRoot + /turn-off-speakers.bash;
+        speakersLinuxRoot + /turn-off-speakers.bash;
     };
 
   darwin = {
     homebrew.casks = [ "hammerspoon" ];
 
     home-manager.users.${primaryUser}.home.file = {
-      ".hammerspoon/init.lua".source = replaceVars (programConfigRoot + /smart-plug/mac-os/init.lua) {
+      ".hammerspoon/init.lua".source = replaceVars (speakersRoot + /mac-os/init.lua) {
         speakerctl = getExe speakerctl;
       };
 
