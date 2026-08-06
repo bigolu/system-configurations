@@ -23,24 +23,25 @@ in
     };
 
     config = {
-      # We don't use the `pkgs` module argument to avoid infinite recursion.
       _module.args.pkgs = mkForce (recursiveUpdate outerPkgs (import ./package-overrides.nix outerPkgs));
 
-      # This contains only the "en_US.UTF-8/UTF-8" locale.
+      # Only include the "en_US.UTF-8/UTF-8" locale.
       i18n.glibcLocales = pkgs.glibcLocalesUtf8;
 
       # fishMinimal doesn't include Python which means the features listed here won't
       # work: https://github.com/NixOS/nixpkgs/pull/387070#issuecomment-2700435274
       programs.fish.package = pkgs.fishMinimal;
 
+      # Remove the dependency on systemd.
       home.activation.reloadSystemd = mkForce (hm.dag.entryAnywhere "");
 
-      # This removes the dependency on `sd-switch`.
+      # Remove the dependency on `sd-switch`.
       systemd.user.startServices = mkForce false;
 
+      # Remove shared-mime-info.
       xdg.mime.enable = mkForce false;
 
-      # to remove the flake registry
+      # Remove the flake registry.
       nix.enable = false;
     };
   };
