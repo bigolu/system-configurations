@@ -1,0 +1,5 @@
+#:schema https://raw.githubusercontent.com/rvben/rumdl/main/rumdl.schema.json
+
+[MD013]
+reflow = true
+reflow-mode = "normalize"

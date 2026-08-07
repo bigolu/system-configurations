@@ -18,5 +18,4 @@ smart plug, I can have this project do it for me.
 
 [systemd]: https://systemd.io/
 [hammerspoon]: https://www.hammerspoon.org/
-[avoid-speaker-damage]:
-  https://www.behindthemixer.com/pow-pop-powering-equipment-on-and-off-in-the-right-order/
+[avoid-speaker-damage]: https://www.behindthemixer.com/pow-pop-powering-equipment-on-and-off-in-the-right-order/

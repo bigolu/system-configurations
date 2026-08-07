@@ -39,12 +39,12 @@
       editorconfig-checker
       fish
       lua-language-server
-      markdownlint-cli2
       nixfmt
       nixpkgs-lint-community
       pkl
       prettier
       renovate
+      rumdl
       shellcheck
       shfmt
       statix

@@ -20,8 +20,3 @@ parser = "jsonc"
 # [1]: https://jsonc.org/#:~:text=Trailing%20commas
 # [2]: https://github.com/prettier/prettier/issues/15956
 trailingComma = "none"
-
-[[overrides]]
-files = ["*.md"]
-[overrides.options]
-proseWrap = "always"

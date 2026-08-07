@@ -100,10 +100,6 @@ local nonFormatterFixes = new Mapping<String, Step> {
     glob = "**/*.nix"
     fix = #"for file in {{files}}; do statix fix "$file"; done"#
   }
-  ["markdownlint-cli2-fix"] = new Step {
-    glob = "**/*.md"
-    fix = "markdownlint-cli2 --fix {{files}}"
-  }
   ["npins"] = new Step {
     fix = "npins upgrade"
   }
@@ -147,7 +143,7 @@ local formatterFixes = new Mapping<String, Step> {
   // This also acts a syntax checker for these file types since prettier will
   // fail if the files aren't syntactically correct.
   ["prettier"] = new Step {
-    glob = "**/*.{md,json,jsonc,yaml}"
+    glob = "**/*.{json,jsonc,yaml}"
     fix =
       #"""
       prettier \
@@ -179,6 +175,10 @@ local formatterFixes = new Mapping<String, Step> {
     glob = "hk.pkl"
     fix = "pkl format --write {{files}}"
   }
+  ["rumdl-format-and-fix"] = new Step {
+    glob = "**/*.md"
+    fix = "rumdl fmt --silent {{files}}"
+  }
 }
 
 // For `fail_fast` to be effective, steps should be ordered from fastest to
@@ -192,6 +192,10 @@ local checks = new Mapping<String, Step> {
   ["actionlint"] = new Step {
     glob = ".github/workflows/*.yaml"
     check = "actionlint {{files}}"
+  }
+  ["rumdl-check"] = new Step {
+    glob = "**/*.md"
+    check = "rumdl check {{files}}"
   }
   ["editorconfig-checker"] = new Step {
     glob = "**/*"
@@ -220,10 +224,6 @@ local checks = new Mapping<String, Step> {
   ["shellcheck-check"] = new Step {
     glob = "**/*.{sh,bash}"
     check = "shellcheck {{files}}"
-  }
-  ["markdownlint-cli2-check"] = new Step {
-    glob = "**/*.md"
-    check = "markdownlint-cli2 {{files}}"
   }
   ["taplo-lint"] = new Step {
     glob = "**/*.toml"

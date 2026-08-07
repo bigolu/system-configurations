@@ -12,6 +12,7 @@
     "sumneko.lua",
     "tamasfe.even-better-toml",
     "maximsmol.vscode-lsp-generic",
-    "github.vscode-github-actions"
+    "github.vscode-github-actions",
+    "rvben.rumdl"
   ]
 }
