@@ -1,6 +1,7 @@
 # System Configurations
 
-The [Home Manager][home-manager], [System Manager][system-manager], and [nix-darwin][nix-darwin] configurations for my machines.
+The [Home Manager][home-manager], [System Manager][system-manager],
+and [nix-darwin][nix-darwin] configurations for my machines.
 
 ## Initializing a Configuration
 
@@ -8,7 +9,8 @@ The [Home Manager][home-manager], [System Manager][system-manager], and [nix-dar
    Valid config names are: `comp_1` `comp_2`.
    Then run the commands which will install Nix and initialize the config.
 
-   > NOTE: The [Lix installer][lix-installer] may have changed since this was written so make sure the installation command below is still valid.
+   > NOTE: The [Lix installer][lix-installer] may have changed since this was written
+   > so make sure the installation command below is still valid.
 
    ```bash
      sh -c "$(curl -sSf -L https://install.lix.systems/lix)" -- \
@@ -43,7 +45,8 @@ The [Home Manager][home-manager], [System Manager][system-manager], and [nix-dar
 ## Running the Portable Configuration
 
 You can also run a shell with a [Home Manager][home-manager] configuration loaded into it.
-This is helpful when you only need to use the configuration temporarily and not apply it, like when you're on a remote host or in a container.
+This is helpful when you only need to use the configuration temporarily and not apply it,
+like when you're on a remote host or in a container.
 You can download it from the [releases page][releases].
 
 [lix-installer]: https://lix.systems/install/
