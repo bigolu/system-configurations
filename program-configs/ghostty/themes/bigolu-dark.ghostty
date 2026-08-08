@@ -11,13 +11,13 @@ palette = 9=#BF616A
 palette = 10=#A3BE8C
 palette = 11=#d08770
 palette = 12=#81A1C1
-palette = 13=#B48EAD
+palette = 13=#A07A99
 palette = 14=#9BC8C7
 palette = 15=#A5ABBC
 background = #1d2129
 foreground = #E6ECF7
 cursor-color = #E6ECF7
 selection-background = #3d424d
-selection-foreground = cell-foreground
+selection-foreground = #E6ECF7
 window-titlebar-background = #292d38
 window-titlebar-foreground = #E6ECF7

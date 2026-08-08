@@ -19,7 +19,7 @@ if vim.o.background == "dark" then
     [10] = "#A3BE8C",
     [11] = "#d08770",
     [12] = "#81A1C1",
-    [13] = "#B48EAD",
+    [13] = "#A07A99",
     [14] = "#9BC8C7",
     [15] = "#A5ABBC",
     accent = "#88C0D0",
