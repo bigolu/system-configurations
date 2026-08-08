@@ -89,7 +89,7 @@
   plus-non-emph-style = "0 2"
   plus-emph-style = "0 15"
   zero-style = "syntax normal"
-  map-styles = normal 21 => 0 5, normal 22 => 0 6
+  map-styles = normal 21 => 0 5, bold blue => 0 13, normal 22 => 0 6, bold yellow => 0 14
   commit-style = "blue"
   # Don't quit if output is less than one screen
   pager = "less -+F"
