@@ -2,16 +2,15 @@ vim.o.foldlevelstart = 99
 vim.opt.fillchars:append("fold: ")
 vim.o.foldtext = ""
 
-vim.keymap.set("n", "<Tab>", [[<Cmd>silent! normal! za<CR>]])
+vim.keymap.set("n", "<Tab>", "za", { silent = true })
 
-local function toggle_all_folds()
+vim.keymap.set("n", "<S-Tab>", function()
 	if vim.o.foldlevel > 0 then
 		return "zM"
 	else
 		return "zR"
 	end
-end
-vim.keymap.set("n", "<S-Tab>", toggle_all_folds, { silent = true, expr = true })
+end, { silent = true, expr = true })
 
 -- Every time we enter a buffer, reset the fold options. This avoids the issue
 -- where you set a foldmethod because the attached LSP server supports
@@ -22,7 +21,7 @@ vim.keymap.set("n", "<S-Tab>", toggle_all_folds, { silent = true, expr = true })
 -- have to set fold options every time the buffer is entered. I expected this
 -- to be a problem with modelines, but it seems to work. I put the autocmd here
 -- because it needs to fire before the autocmds of any fold providers.
-vim.api.nvim_create_autocmd({ "BufRead" }, {
+vim.api.nvim_create_autocmd({ "BufEnter" }, {
 	callback = function()
 		vim.cmd([[
       setlocal foldmethod&
