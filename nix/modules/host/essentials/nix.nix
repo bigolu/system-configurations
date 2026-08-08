@@ -36,6 +36,15 @@ in
 {
   "" = {
     imports = [ darwinAndSystem ];
+
+    home-manager.users.${primaryUser} = { lib, ... }: {
+      # qemu can only access /dev/kvm from the build sandbox if it's world
+      # readable/writable. qemu is run in the sandbox for NixOS tests, for
+      # example. Without KVM acceleration, qemu would be much slower.
+      home.activation.allowKvmAccess = lib.hm.dag.entryAnywhere ''
+        /usr/bin/sudo /usr/bin/chmod o+rw /dev/kvm
+      '';
+    };
   };
 
   darwin = {
