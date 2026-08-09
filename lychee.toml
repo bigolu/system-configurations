@@ -1,61 +1,61 @@
 no_progress = true
-verbose = 'debug'
+verbose = "debug"
 
 cache = true
 cache_exclude_status = [
   # The cache is valid for 1 day and a rate limit may be lifted sooner than that so
   # we should have the ability to try again.
-  '429',
+  "429",
 ]
 
 suggest = true
-archive = 'wayback'
+archive = "wayback"
 
 require_https = true
 accept = [
   # These are lychee's default values
-  '100..=103',
-  '200..=299',
+  "100..=103",
+  "200..=299",
 
   # TODO: Some sites that use CloudFlare for protection reject lychee's request with
   # 403. If this happens, we'll just assume the link still works. There's an open
   # issue for bypassing CloudFlare protection[1].
   #
   # [1]: https://github.com/lycheeverse/lychee/issues/1439
-  '403',
+  "403",
 
   # TODO: I get rate-limited by GitHub so lychee uses my GitHub token to access the
   # web API instead, which returns 200. Despite getting a 200 from the API, lychee
   # still reports the 429 from the original endpoint that was accessed without the
   # token. I should look into this and possibly file an issue.
-  '429',
+  "429",
 ]
 
 include_verbatim = true
 
 exclude_all_private = true
 exclude = [
-  '^mailto:',
+  "^mailto:",
   '^https://web\.archive\.org/web/',
 
   # These aren't actually URLs
-  'https://raw/',
+  "https://raw/",
   'https://github\.com/\$owner/\$repo/tree/\%s',
   'file://\$\(pwd/',
   'https://releases\.nixos\.org/nix/nix-.*-\$\(uname',
   'https://releases\.lix\.systems/lix/lix-.*/lix-.*-\$\(uname',
   'https://cache\.nixos\.org/\$hash\.narinfo',
-  'https://download.nvidia.com/XFree86/Linux-x86_64/$current_version/NVIDIA-Linux-x86_64-$current_version.run',
+  "https://download.nvidia.com/XFree86/Linux-x86_64/$current_version/NVIDIA-Linux-x86_64-$current_version.run",
 
   # These are nix flake inputs
   'https://git\.lix\.systems/lix-project/flake-compat/archive/main\.tar\.gz',
 ]
 exclude_path = [
-  '^.vscode/ltex',
-  '^program-configs/keyboard/US keyboard - no accent keys.bundle/',
-  '^lychee.toml$',
-  '^flake.lock$',
-  '^nix/pins/npins/',
+  "^.vscode/ltex",
+  "^program-configs/keyboard/US keyboard - no accent keys.bundle/",
+  "^lychee.toml$",
+  "^flake.lock$",
+  "^nix/pins/npins/",
 ]
 
 [hosts."gnu.org"]

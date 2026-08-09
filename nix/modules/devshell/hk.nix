@@ -49,7 +49,7 @@
       shfmt
       statix
       stylua
-      taplo
+      tombi
     ];
   };
 }

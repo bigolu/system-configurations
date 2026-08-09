@@ -136,9 +136,9 @@ local nonFormatterFixes = new Mapping<String, Step> {
 }
 
 local formatterFixes = new Mapping<String, Step> {
-  ["taplo-format"] = new Step {
+  ["tombi-format"] = new Step {
     glob = "**/*.toml"
-    fix = "taplo format {{files}}"
+    fix = "tombi format --quiet {{files}}"
   }
   // This also acts a syntax checker for these file types since prettier will
   // fail if the files aren't syntactically correct.
@@ -205,6 +205,10 @@ local checks = new Mapping<String, Step> {
     glob = "**/*.fish"
     check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
   }
+  ["tombi-lint"] = new Step {
+    glob = "**/*.toml"
+    check = "tombi lint {{files}}"
+  }
   ["large-files"] = new Step {
     glob = "**/*"
     check = "hk util check-added-large-files {{files}}"
@@ -224,10 +228,6 @@ local checks = new Mapping<String, Step> {
   ["shellcheck-check"] = new Step {
     glob = "**/*.{sh,bash}"
     check = "shellcheck {{files}}"
-  }
-  ["taplo-lint"] = new Step {
-    glob = "**/*.toml"
-    check = "taplo lint {{files}}"
   }
   ["pkl-lint"] = new Step {
     glob = "hk.pkl"

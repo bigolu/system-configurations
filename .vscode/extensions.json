@@ -10,9 +10,9 @@
     "ndonfris.fish-lsp",
     "redhat.vscode-yaml",
     "sumneko.lua",
-    "tamasfe.even-better-toml",
     "maximsmol.vscode-lsp-generic",
     "github.vscode-github-actions",
-    "rvben.rumdl"
+    "rvben.rumdl",
+    "tombi-toml.tombi"
   ]
 }

@@ -3,7 +3,9 @@
   // environment. This way the other extensions will have the environment as well.
   "direnv.restart.automatic": true,
   "editor.defaultFormatter": "maximsmol.vscode-lsp-generic",
-  "evenBetterToml.taplo.bundled": false,
+  "[toml]": {
+    "editor.defaultFormatter": "tombi-toml.tombi"
+  },
   "files.associations": {
     ".envrc": "shellscript",
     "renovate.json": "jsonc",

@@ -5,9 +5,6 @@ version: 2
 lint-debounce: 200ms
 
 tools:
-  taplo: &taplo
-    format-stdin: true
-    format-command: taplo format --stdin-filepath ${INPUT} -
   prettier: &prettier
     format-stdin: true
     format-command: |
@@ -142,8 +139,6 @@ tools:
       - "%.%#: %m"
 
 languages:
-  toml:
-    - <<: *taplo
   json:
     - <<: *prettier
   jsonc:

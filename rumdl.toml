@@ -1,5 +1,3 @@
-#:schema https://raw.githubusercontent.com/rvben/rumdl/main/rumdl.schema.json
-
 [MD013]
 line-length = 120
 reflow = true

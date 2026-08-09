@@ -7,6 +7,7 @@ files = [
   ".vscode/*.json",
   "renovate.json",
 ]
+
 [overrides.options]
 # Technically, we don't need to set this for files that match the `*.jsonc`
 # pattern since they will already use the `jsonc` parser. We do it anyway so we
