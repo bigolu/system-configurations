@@ -127,7 +127,8 @@
     # nixpkgs from system-manager's flake. This is because they set the
     # system-manager module argument to the system-manager CLI that they build
     # using the `pkgs` module argument[1]. Then they use that system-manager
-    # module argument here[2]. There's a TODO for using the system-manager CLI from nixpkgs by default, instead of rebuilding it[3].
+    # module argument here[2]. There's a TODO for using the system-manager CLI
+    # from nixpkgs by default, instead of rebuilding it[3].
     #
     # [1]: https://github.com/numtide/system-manager/blob/48d47346e0c6ad05b6c869ea92649c47723d1cfc/nix/lib.nix#L81
     # [2]: https://github.com/numtide/system-manager/blob/48d47346e0c6ad05b6c869ea92649c47723d1cfc/nix/modules/default.nix#L256
