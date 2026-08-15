@@ -16,9 +16,10 @@ if [[ ! -e .envrc ]]; then
 	echo "source .envrc-recommended.bash" >.envrc
 fi
 direnv allow
+conf="$PWD/program-configs/nix/nix.conf"
+[[ -e $conf ]]
 # Use the caches set in the nix config
-nix_config="$(<program-configs/nix/nix.conf)"
-direnv_export="$(NIX_CONFIG="$nix_config" direnv export bash)"
+direnv_export="$(NIX_USER_CONF_FILES="$conf" direnv export bash)"
 eval "$direnv_export"
 
 # Besides passing positional arguments, this is done separately from other syncs
