@@ -19,6 +19,8 @@ direnv allow
 conf="$PWD/program-configs/nix/nix.conf"
 [[ -e $conf ]]
 # Use the caches set in the nix config
+#
+# We can't use `NIX_CONFIG` since the config file uses relative paths and lix forbids their use in `NIX_CONFIG`.
 direnv_export="$(NIX_USER_CONF_FILES="$conf" direnv export bash)"
 eval "$direnv_export"
 
