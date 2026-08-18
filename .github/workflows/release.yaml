@@ -5,8 +5,9 @@ defaults:
   run:
     shell: nix run --file . outputsForCurrentSystem.devShells.ci -- bash {0}
 permissions:
-  # hestia needs this
+  # hestia needs these
   contents: read
+  actions: read
 jobs:
   make-assets:
     strategy:
