@@ -9,7 +9,6 @@
 let
   inherit (lib) optional;
   inherit (myUtils) projectRoot;
-  isCi = config.devshell.name == "ci";
   isDev = config.devshell.name == "dev";
 in
 {
@@ -18,7 +17,6 @@ in
   nix-scene = {
     config = projectRoot + /nix/scene.nix;
     preload = optional isDev (projectRoot + /mise/tasks);
-    makeGcRoots = isCi;
   };
 
   devshell = {

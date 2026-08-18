@@ -5,8 +5,8 @@ defaults:
   run:
     shell: nix run --file . outputsForCurrentSystem.devShells.ci -- bash {0}
 permissions:
-  # `cache-nix-gc-roots-action` needs this permission to purge old caches
-  actions: write
+  # hestia needs this
+  contents: read
 jobs:
   make-assets:
     strategy:
@@ -24,8 +24,6 @@ jobs:
         with:
           name: assets-${{ matrix.os }}
           path: ${{ steps.make-assets.outputs.asset-directory }}
-      - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@main
   release:
     permissions:
       # We need to this to create/delete releases
@@ -45,5 +43,3 @@ jobs:
         env:
           GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         run: mise run ci:release
-      - if: always()
-        uses: bigolu/cache-nix-gc-roots-action/save@main

@@ -5,17 +5,5 @@ runs:
   steps:
     - uses: canidae-solutions/lix-quick-install-action@cdb5d0931be2223edbb9bad884341fcacdac298f # v4
       with:
-        lix_conf: |
-          show-trace = true
-          # This way, if we fail to build something, we can make its derivation a GC
-          # root and the derivation's dependencies won't get garbage collected. Since
-          # they won't get garbage collected, they'll be cached and we won't lose our
-          # build progress.
-          #
-          # There's an issue[1] for automating the creation of the derivation GC root.
-          #
-          # [1]: https://github.com/NixOS/nix/issues/7561
-          keep-outputs = true
-          # This will save a lot of space since we also enabled `keep-outputs`.
-          keep-derivations = false
-    - uses: bigolu/cache-nix-gc-roots-action/restore@main
+        lix_conf: show-trace = true
+    - uses: Mic92/hestia@v3
