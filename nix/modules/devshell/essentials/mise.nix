@@ -20,7 +20,9 @@ in
   };
 
   devshell = {
-    packages = [ pkgs.mise ];
+    # TODO: As of v2026.8.3, `unix_default_file_shell_args` stopped being
+    # respected so keep this pinned until it's fixed.
+    packages = [ pkgs.multiverse.mise."2026.7.5" ];
 
     startup.mise.text = ''
       export MISE_TRUSTED_CONFIG_PATHS="$PRJ_ROOT/mise/config.toml"

@@ -658,6 +658,21 @@
         "type": "github"
       }
     },
+    "nixpkgs-multiverse": {
+      "locked": {
+        "lastModified": 1787566659,
+        "narHash": "sha256-M2u/9ML/WnnnpKSYkJ5sPjmka2Rgp4W5mU3yvaRMlOM=",
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "rev": "fabbfb640cc6cbc322ad5ef80831f7b94fac9548",
+        "type": "github"
+      },
+      "original": {
+        "owner": "fzakaria",
+        "repo": "nixpkgs-multiverse",
+        "type": "github"
+      }
+    },
     "nixpkgs_2": {
       "locked": {
         "lastModified": 1786963906,
@@ -721,6 +736,7 @@
         "nix-rootless-bundler": "nix-rootless-bundler",
         "nix-scene": "nix-scene",
         "nixpkgs": "nixpkgs_2",
+        "nixpkgs-multiverse": "nixpkgs-multiverse",
         "system-manager": "system-manager"
       }
     },

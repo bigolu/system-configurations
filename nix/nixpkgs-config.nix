@@ -1,4 +1,6 @@
 let
+  inherit (builtins) elem concatMap;
+
   inherit (import ../.) inputs;
 
   myOverlay =
@@ -14,7 +16,7 @@ let
       filterPrograms =
         package: programsToKeep:
         let
-          findFilters = builtins.concatMap (program: [
+          findFilters = concatMap (program: [
             "!"
             "-name"
             program
@@ -164,9 +166,14 @@ let
   llmAgentsOverlay = final: _: {
     llm-agents = inputs.llm-agents.packages.${final.stdenv.hostPlatform.system};
   };
+
+  nixpkgsMultiverseOverlay = final: _: {
+    multiverse =
+      inputs.nixpkgs-multiverse.legacyPackages.${final.stdenv.hostPlatform.system}.fast.versions;
+  };
 in
 {
-  config.allowUnfreePredicate = pkg: builtins.elem pkg.pname [ "vscode" ];
+  config.allowUnfreePredicate = pkg: elem pkg.pname [ "vscode" ];
 
   overlays = [
     inputs.direnv-shell-hooks.overlays.default
@@ -174,6 +181,7 @@ in
     inputs.git-auto-check.overlays.default
     inputs.nix-scene.overlays.default
     llmAgentsOverlay
+    nixpkgsMultiverseOverlay
     myOverlay
   ];
 }

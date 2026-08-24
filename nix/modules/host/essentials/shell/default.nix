@@ -78,10 +78,10 @@
           ripgrep-all
           bat
           fzfWithoutShellConfig
+          nushell
         ]
         ++ optionals isLinux [
           trashy
-          pipr
           (filterPrograms psmisc [ "pstree" ])
           strace
           inotify-info
@@ -106,11 +106,9 @@
             "broot".source = "broot";
             "bat".source = "bat";
             "fzf/fzfrc.txt".source = "fzf/fzfrc.txt";
+            "tealdeer/config.toml".source = "tealdeer/config.toml";
           }
-          // optionalAttrs isLinux {
-            "pipr/pipr.toml".source = "pipr/pipr.toml";
-            "isd/config.yaml".source = "isd/config.yaml";
-          };
+          // optionalAttrs isLinux { "isd/config.yaml".source = "isd/config.yaml"; };
 
           # fzf will fail if the history file's directory doesn't exist.
           #
@@ -124,7 +122,6 @@
         };
 
         home.file = {
-          "${configDir}/tealdeer/config.toml".source = "tealdeer/config.toml";
           "${configDir}/viddy.toml".source = "viddy/viddy.toml";
           "${configDir}/ripgrep-all/config.jsonc".source = "ripgrep/config.jsonc";
         };
