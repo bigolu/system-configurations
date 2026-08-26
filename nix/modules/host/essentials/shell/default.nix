@@ -42,7 +42,6 @@
           fd
           jq
           ijq
-          lsd
           moreutils
           ripgrep
           tealdeer
@@ -100,7 +99,6 @@
       fileWrapper = {
         xdg = {
           configFile = {
-            "lsd".source = "lsd";
             "lesskey".source = "less/lesskey";
             "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
             "broot".source = "broot";

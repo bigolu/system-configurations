@@ -23,7 +23,6 @@ let
 
       fileWrapper = {
         home.file = {
-          ".yashrc".source = "yash/yashrc";
           ".cloudflared/config.yaml".source = "cloudflared/config.yaml";
         };
 

@@ -291,7 +291,7 @@ function directory-widget --description 'Search directories'
         FZF_DEFAULT_COMMAND="test '$dir' = '.' && set _args '--strip-cwd-prefix' || set _args '.' $dir; fd \$_args --follow --hidden --type directory --type symlink" \
         fzf \
             --prompt "$prompt" \
-            --preview 'echo -s (set_color brblack) "Directory: " {}; lsd --color always --hyperlink always {}' \
+            --preview 'echo -s (set_color brblack) "Directory: " {}; ls {}' \
             --preview-window '75%,~1' \
             --keep-right \
     )

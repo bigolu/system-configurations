@@ -46,36 +46,6 @@ begin
 end
 abbr --add --global -- vim nvim
 
-# ls
-# use the long format
-abbr --add --position anywhere --global ll 'ls -l'
-# Add colors for files types that aren't already given an icon by `ls
-# --classify` e.g. broken symlinks.
-#
-# File types:
-# [bd]="block device"
-# [ca]="file with capability"
-# [cd]="character device"
-# [di]="directory"
-# [do]="door"
-# [ex]="executable file"
-# [fi]="regular file"
-# [ln]="symbolic link"
-# [mh]="multi-hardlink"
-# [mi]="missing file"
-# [no]="normal non-filename text"
-# [or]="orphan symlink"
-# [ow]="other-writable directory"
-# [pi]="named pipe, AKA FIFO"
-# [rs]="reset to no color"
-# [sg]="set-group-ID"
-# [so]="socket"
-# [st]="sticky directory"
-# [su]="set-user-ID"
-# [tw]="sticky and other-writable directory"
-# From: https://askubuntu.com/a/884513/1497983
-set --global --export LS_COLORS 'di=0:ln=37:so=37:pi=37:ex=37:bd=37:cd=37:su=37:sg=37:tw=37:ow=37:or=31:mi=31:no=37:st=37:*=37'
-
 # cd
 abbr --add --global -- - 'cd -'
 
@@ -106,7 +76,7 @@ function python --wraps python
 end
 
 # zoxide
-set --global --export _ZO_FZF_OPTS "$FZF_DEFAULT_OPTS --preview 'lsd --color always --hyperlink always {2}' --keep-right --tiebreak index"
+set --global --export _ZO_FZF_OPTS "$FZF_DEFAULT_OPTS --preview 'ls {2}' --keep-right --tiebreak index"
 # This needs to run after the zoxide.fish config file or I get an infinite loop
 # so I run it when the fish_prompt event fires.
 function __create_cd_function --on-event fish_prompt
@@ -179,8 +149,12 @@ function tunnel --description 'Connect my cloudflare tunnel to the specified por
         cloudflared tunnel run --url "http://localhost:$port"
 end
 
-function ls --wraps lsd
-    lsd $argv
+function ls
+    nu --commands "ls -a $(string escape --style script -- $argv | string join ' ')"
+end
+
+function ll
+    ls -l $argv
 end
 
 # Wrapping watch since viddy doesn't have autocomplete:
@@ -193,14 +167,6 @@ function watch --wraps watch
 end
 # watch
 abbr --add --global watch 'watch --differences --interval 1s --exec'
-
-function sh --wraps yash
-    if type --query yash
-        yash $argv
-    else
-        command sh $argv
-    end
-end
 
 # broot
 function dui --wraps broot --description 'Check disk usage interactively'
