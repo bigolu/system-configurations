@@ -26,12 +26,13 @@
     in
     {
       imports = [
-        ./fish.nix
         ./git.nix
         ./neovim.nix
       ];
 
       # The `man` in nixpkgs is only intended to be used on NixOS[1].
+      #
+      # TODO: I should upstream this.
       #
       # [1]: https://github.com/nix-community/home-manager/issues/432#issuecomment-434498787
       programs.man.package = null;
@@ -39,52 +40,45 @@
       home.packages =
         with pkgs;
         [
-          fd
-          jq
-          ijq
-          moreutils
-          ripgrep
-          tealdeer
-          viddy
-          zoxide
-          file
-          chase
-          gnugrep
-          broot
-          hyperfine
-          timg
-          gzip
-          wget
-          which
           # toybox is a multi-call binary so we are going to delete everything besides the
           # toybox executable and the programs I need which are just symlinks to it.
           (filterPrograms toybox [
             "toybox"
-            "hostname"
             "strings"
           ])
-          (filterPrograms findutils [ "xargs" ])
+          (filterPrograms git-extras [
+            "git-wip"
+            "git-info"
+            "git-delete-merged-branches"
+          ])
           (filterPrograms procps [ "ps" ])
+          (nushell.withPlugins (with nushellPlugins; [ formats ]))
           ast-grep
-          lesspipe
-          diffoscopeMinimal
-          coreutils
-          gnused
-          less
-          rsync
-          gawkInteractive
-          gnutar
-          ripgrep-all
           bat
+          broot
+          chase
+          coreutils
+          diffoscopeMinimal
+          file
+          fish
           fzfWithoutShellConfig
-          nushell
+          gnutar
+          gzip
+          less
+          lesspipe
+          ripgrep
+          ripgrep-all
+          rsync
+          tealdeer
+          timg
+          viddy
+          zoxide
         ]
         ++ optionals isLinux [
-          trashy
           (filterPrograms psmisc [ "pstree" ])
-          strace
           inotify-info
           isd
+          strace
         ]
         ++ optionals isDarwin [ pstree ];
 
@@ -105,6 +99,7 @@
             "bat".source = "bat";
             "fzf/fzfrc.txt".source = "fzf/fzfrc.txt";
             "tealdeer/config.toml".source = "tealdeer/config.toml";
+            "nushell/autoload".source = "nushell/autoload";
           }
           // optionalAttrs isLinux { "isd/config.yaml".source = "isd/config.yaml"; };
 

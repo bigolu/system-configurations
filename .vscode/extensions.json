@@ -2,17 +2,18 @@
   "recommendations": [
     "bmalehorn.vscode-fish",
     "editorconfig.editorconfig",
+    "github.vscode-github-actions",
     "hangxingliu.vscode-systemd-support",
     "jnoortheen.nix-ide",
     "ltex-plus.vscode-ltex-plus",
     "mads-hartmann.bash-ide-vscode",
+    "maximsmol.vscode-lsp-generic",
     "mkhl.direnv",
     "ndonfris.fish-lsp",
     "redhat.vscode-yaml",
-    "sumneko.lua",
-    "maximsmol.vscode-lsp-generic",
-    "github.vscode-github-actions",
     "rvben.rumdl",
+    "sumneko.lua",
+    "thenuprojectcontributors.vscode-nushell-lang",
     "tombi-toml.tombi"
   ]
 }

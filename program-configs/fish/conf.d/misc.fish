@@ -1,21 +1,6 @@
-if not status is-interactive
-    exit
-end
-
 abbr --add --global chase 'chase --verbose'
-abbr --add --global g git
-abbr --add --global x 'chmod +x'
-abbr --add --global du 'du --dereference --human-readable --summarize --apparent-size'
 function timg --wraps timg
     command timg --center $argv
-end
-if test (uname) = Linux
-    abbr --add --global initramfs-reload 'sudo update-initramfs -u -k all'
-    abbr --add --global logout-all 'sudo killall -u $USER'
-    abbr --add --global clear-syslog 'sudo truncate -s 0 /var/log/syslog'
-    abbr --add --position anywhere --global pbpaste fish_clipboard_paste
-    abbr --add --position anywhere --global pbcopy fish_clipboard_copy
-    abbr --add --global trash 'trash put'
 end
 
 # less
@@ -33,18 +18,6 @@ abbr --add --position anywhere --global page less
 
 # man
 set --global --export MANOPT --no-hyphenation
-
-# Set preferred editor. Programs check either of these variables for the
-# preferred editor so I'll set both. For more information on the meaning of
-# these variables, see:
-# https://unix.stackexchange.com/a/302391
-begin
-    set --local editor_arguments nvim
-    set --local joined_editor_arguments (string join ' ' -- (type --force-path $editor_arguments[1]) $editor_arguments[2..])
-    set --global --export VISUAL "$joined_editor_arguments"
-    set --global --export EDITOR $VISUAL
-end
-abbr --add --global -- vim nvim
 
 # cd
 abbr --add --global -- - 'cd -'
@@ -149,14 +122,6 @@ function tunnel --description 'Connect my cloudflare tunnel to the specified por
         cloudflared tunnel run --url "http://localhost:$port"
 end
 
-function ls
-    nu --commands "ls -a $(string escape --style script -- $argv | string join ' ')"
-end
-
-function ll
-    ls -l $argv
-end
-
 # Wrapping watch since viddy doesn't have autocomplete:
 # https://github.com/sachaos/viddy/issues/73
 #
@@ -200,16 +165,14 @@ set --export RIPGREP_CONFIG_PATH "$xdg_config/ripgrep/ripgreprc"
 function elevate
     sudo s sudo "$SHELL"
 end
-function s --wraps sudo
-    sudo s sudo $argv
-end
 
 # Task runner
 function _task_runner
-    if type --query mise
-        echo 'mise run'
-    else if type --query just
+    if type --query just
         echo just
+    else if type --query mise
+        # mise goes last since I install it globally
+        echo 'mise run'
     else
         return 1
     end
