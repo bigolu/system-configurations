@@ -16,7 +16,6 @@
         paths = with pkgs; [
           skhd
           yabai
-          fish
           jq
           bash
         ];

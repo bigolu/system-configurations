@@ -37,7 +37,6 @@
       coreutils
       deadnix
       editorconfig-checker
-      fish
       lua-language-server
       nixfmt
       nixpkgs-lint-community

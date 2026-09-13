@@ -59,6 +59,7 @@
           chase
           coreutils
           diffoscopeMinimal
+          fd
           file
           fish
           fzfWithoutShellConfig

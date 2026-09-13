@@ -32,7 +32,7 @@ vim.g.netrw_silent = 1
 -- persist undo history to disk
 vim.o.undofile = true
 
--- Plugins expect this to be POSIX compliant and my $SHELL is fish.
+-- Plugins expect this to be POSIX compliant and my shell may not be
 vim.o.shell = "sh"
 
 vim.o.ttimeout = true

@@ -3,9 +3,6 @@
     # For extension "jnoortheen.nix-ide"
     nixd
 
-    # For extension "ndonfris.fish-lsp"
-    fish-lsp
-
     # For extension "maximsmol.vscode-lsp-generic"
     efm-langserver
     # efm-langserver launches commands with`sh`

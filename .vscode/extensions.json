@@ -1,6 +1,5 @@
 {
   "recommendations": [
-    "bmalehorn.vscode-fish",
     "editorconfig.editorconfig",
     "github.vscode-github-actions",
     "hangxingliu.vscode-systemd-support",
@@ -9,7 +8,6 @@
     "mads-hartmann.bash-ide-vscode",
     "maximsmol.vscode-lsp-generic",
     "mkhl.direnv",
-    "ndonfris.fish-lsp",
     "redhat.vscode-yaml",
     "rvben.rumdl",
     "sumneko.lua",

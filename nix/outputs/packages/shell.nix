@@ -4,7 +4,7 @@ let
 in
 # This contains only the "en_US.UTF-8/UTF-8" locale.
 (pkgs.makePortableHome.override { glibcLocales = pkgs.glibcLocalesUtf8; }) {
-  shell = "fish";
+  shell = "nu";
 
   homeConfig = inputs.home-manager.lib.homeManagerConfiguration {
     inherit pkgs;

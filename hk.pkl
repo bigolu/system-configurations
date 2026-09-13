@@ -159,10 +159,6 @@ local formatterFixes = new Mapping<String, Step> {
     glob = "**/*.{sh,bash}"
     fix = "shfmt --write {{files}}"
   }
-  ["fish_indent"] = new Step {
-    glob = "**/*.fish"
-    fix = "fish_indent --write {{files}}"
-  }
   ["nixfmt"] = new Step {
     glob = "**/*.nix"
     fix = "nixfmt --strict --verify {{files}}"
@@ -200,10 +196,6 @@ local checks = new Mapping<String, Step> {
   ["editorconfig-checker"] = new Step {
     glob = "**/*"
     check = "editorconfig-checker {{files}}"
-  }
-  ["fish"] = new Step {
-    glob = "**/*.fish"
-    check = #"for file in {{files}}; do fish --no-execute "$file"; done"#
   }
   ["tombi-lint"] = new Step {
     glob = "**/*.toml"

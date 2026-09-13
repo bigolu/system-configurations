@@ -3,7 +3,7 @@ $env.TRANSIENT_PROMPT_INDICATOR = ''
 
 $env.TRANSIENT_PROMPT_COMMAND = {
   [
-    ($env.PWD | use-tilde)
+    (format-path $env.PWD)
     (date now | format date '%r')
   ]
     | str join '  '
@@ -50,11 +50,8 @@ $env.PROMPT_COMMAND = {
 
     if $async_prompt_var not-in $env {
       job spawn --description $job_ignore_label {
-        commandline set-prompt (
-          with-env { $async_prompt_var: true } {
-            do $env.PROMPT_COMMAND
-          }
-        )
+        with-env { $async_prompt_var: true } { do $env.PROMPT_COMMAND }
+          | commandline set-prompt
       }
     }
 
@@ -86,7 +83,7 @@ $env.PROMPT_COMMAND = {
       return
     }
 
-    $'venv: ($env.VIRTUAL_ENV | use-tilde)'
+    $'venv: (format-path $env.VIRTUAL_ENV)'
   }
 
   def level-context [] {
@@ -105,13 +102,13 @@ $env.PROMPT_COMMAND = {
     $env.DIRENV_DIR
       # DIRENV_DIR starts with '-' so we remove it
       | str substring 1..
-      | use-tilde
+      | format-path
       # TODO: A better way to check this is in the works: https://github.com/direnv/direnv/pull/1010
       #
       # The number I'm matching is the value of an enum that's defined here:
       # https://github.com/direnv/direnv/blob/f5deb57e5944978c6a0017bbcb2a808e3e59fb21/internal/cmd/rc.go#L145-L149
       | if (direnv status) like 'Loaded RC allowed [1,2]' {
-          $"($in) \(($colors.error)blocked($colors.reset))"
+          $"($in) \(($colors.warning)blocked($colors.reset))"
         } else {
           $in
         }
@@ -137,16 +134,7 @@ $env.PROMPT_COMMAND = {
   }
 
   def path-context [] {
-    $env.PWD
-      | use-tilde
-      # If we're on a local machine, add a hyperlink
-      | if SSH_TTY not-in $env {
-          let path = $in
-          $'file://($env.PWD)' | ansi link --text $path
-        } else {
-          $in
-        }
-      | $'path: ($in)'
+    $'path: (format-path $env.PWD)'
   }
 
   def job-context [] {
@@ -291,7 +279,8 @@ $env.PROMPT_COMMAND = {
     }
 
     if $async_prompt_var in $env {
-      let fish_script = r#'
+      # TODO: Implement in nushell to avoid overhead of going through fish
+      fish -c r#'
         set --global __fish_git_prompt_showupstream informative
         set --global __fish_git_prompt_showdirtystate 1
         set --global __fish_git_prompt_showuntrackedfiles 1
@@ -316,9 +305,6 @@ $env.PROMPT_COMMAND = {
 
         echo "$formatted_status"
       '#
-
-      # TODO: Implement in nushell to avoid overhead of going through fish
-      fish -c $fish_script
     } else {
       $'(ansi light_gray_italic)loading($colors.reset)'
     }
@@ -328,6 +314,16 @@ $env.PROMPT_COMMAND = {
   main
 }
 
-def use-tilde []: string -> string {
-  str replace --regex $"^($nu.home-dir)" "~"
+def format-path [path?: string]: oneof<string,nothing> -> string {
+  let path_in = $in
+  let path = $path | default $path_in
+  $path
+    | str replace --regex $"^($nu.home-dir)" "~"
+    # If we're on a local machine, add a hyperlink
+    | if SSH_TTY not-in $env {
+        let original_in = $in;
+        $'file://($path)' | ansi link --text $original_in
+      } else {
+        $in
+      }
 }

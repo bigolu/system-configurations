@@ -138,29 +138,58 @@ let
 
       # TODO: I shouldn't have to do this. Either nixpkgs should add the shell config
       # files or the tool itself should generate the files as part of its build script,
-      # as direnv does[2].
+      # as direnv does[2]. zoxide includes autocompete in its build script, but not config.
       #
       # [2]: https://github.com/direnv/direnv/blob/29df55713c253e3da14b733da283f03485285cea/GNUmakefile
       zoxide =
         let
           oldZoxide = prev.zoxide;
 
-          fishConfig = final.runCommand "zoxide-fish-config-${oldZoxide.version}" { } ''
-            config_directory="$out/share/fish/vendor_conf.d"
+          nushellConfig = final.runCommand "zoxide-nushell-config-${oldZoxide.version}" { } ''
+            config_directory="$out/share/nushell/vendor/autoload"
             mkdir -p "$config_directory"
-            ${getExe oldZoxide} init --no-cmd fish > "$config_directory/zoxide.fish"
+            ${getExe oldZoxide} init --no-cmd nushell > "$config_directory/zoxide-config.nu"
           '';
 
           newZoxide = final.symlinkJoin {
             inherit (oldZoxide) pname version;
             paths = [
               oldZoxide
-              fishConfig
+              nushellConfig
             ];
           };
         in
         # Merge with the original package to retain attributes like meta
         recursiveUpdate oldZoxide newZoxide;
+
+      # TODO: nixpkgs should do this
+      broot =
+        let
+          oldBroot = prev.broot;
+
+          nushellConfig = final.runCommand "broot-nushell-config-${oldBroot.version}" { } ''
+            config_directory="$out/share/nushell/vendor/autoload"
+            mkdir -p "$config_directory"
+            {
+              # TODO: broot should be making a module
+              echo 'module br {'
+              ${getExe oldBroot} --print-shell-function nushell
+              echo
+              echo '}'
+              echo 'export use br *'
+            } > "$config_directory/br.nu"
+          '';
+
+          newBroot = final.symlinkJoin {
+            inherit (oldBroot) pname version;
+            paths = [
+              oldBroot
+              nushellConfig
+            ];
+          };
+        in
+        # Merge with the original package to retain attributes like meta
+        recursiveUpdate oldBroot newBroot;
     };
 
   llmAgentsOverlay = final: _: {

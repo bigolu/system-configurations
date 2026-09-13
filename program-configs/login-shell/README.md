@@ -4,7 +4,8 @@ Configuration files for the login shells on my machines.
 
 ## Why?
 
-I use fish as my interactive shell, but I'm hesitant to change the login shell on any operating system
+I use nushell as my interactive shell,
+but I'm hesitant to change the login shell on any operating system
 because it seems like they rely on a certain shell being set.
 For example:
 
@@ -24,7 +25,7 @@ For example:
 
 Instead of changing the login shell,
 I made a configuration file for each of the login shells on the operating systems that I use.
-If the shell is launched interactively, it `exec`s into `fish`.
+If the shell is launched interactively, it `exec`s into my shell.
 
 [mac-path]: https://gist.github.com/Linerre/f11ad4a6a934dcf01ee8415c9457e7b2
 [fish-path-helper]: https://github.com/fish-shell/fish-shell/blob/b77d1d0e2bebf4b2f6b28acf701d4c74c112e98e/share/config.fish#L164

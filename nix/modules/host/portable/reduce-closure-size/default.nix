@@ -28,10 +28,6 @@ in
       # Only include the "en_US.UTF-8/UTF-8" locale.
       i18n.glibcLocales = pkgs.glibcLocalesUtf8;
 
-      # fishMinimal doesn't include Python which means the features listed here won't
-      # work: https://github.com/NixOS/nixpkgs/pull/387070#issuecomment-2700435274
-      programs.fish.package = pkgs.fishMinimal;
-
       # Remove the dependency on systemd.
       home.activation.reloadSystemd = mkForce (hm.dag.entryAnywhere "");
 

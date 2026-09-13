@@ -42,4 +42,4 @@
   scrollbar:8:dim
   preview-scrollbar:8:dim
 '
---bind='tab:down,shift-tab:up,ctrl-j:preview-down,ctrl-k:preview-up,change:first,enter:accept,ctrl-w:toggle-preview-wrap,alt-w:toggle-wrap,alt-enter:toggle,ctrl-p:toggle-preview+transform(_bigolu_fix_label),alt-a:toggle-all,ctrl-t:transform(_bigolu_track_toggle),ctrl-h:transform(_bigolu_help_toggle),ctrl-s:transform(_bigolu_selected_toggle),ctrl-r:refresh-preview+transform(_bigolu_fix_label),resize:refresh-preview+transform(_bigolu_fix_label),ctrl-o:change-preview-window(right,60%,border-left|bottom,75%,border-top)+refresh-preview+transform(_bigolu_fix_label)'
+--bind='tab:down,shift-tab:up,ctrl-j:preview-down,ctrl-k:preview-up,change:first,enter:accept,ctrl-w:toggle-preview-wrap,alt-w:toggle-wrap,alt-enter:toggle,ctrl-p:toggle-preview,alt-a:toggle-all,ctrl-t:toggle-track,ctrl-h:preview(fzf-help-preview),ctrl-s:preview(printf %s\n {+}),ctrl-r:refresh-preview,resize:refresh-preview,ctrl-o:change-preview-window(right,60%,border-left|bottom,75%,border-top)+refresh-preview'

@@ -25,9 +25,6 @@ tools:
   shfmt: &shfmt
     format-stdin: true
     format-command: shfmt --filename ${INPUT} -
-  fish_indent: &fish_indent
-    format-stdin: true
-    format-command: fish_indent
   nixfmt: &nixfmt
     format-stdin: true
     format-command: |
@@ -147,8 +144,6 @@ languages:
     - <<: *prettier
   shellscript:
     - <<: *shfmt
-  fish:
-    - <<: *fish_indent
   nix:
     - <<: *nixfmt
     - <<: *statix
