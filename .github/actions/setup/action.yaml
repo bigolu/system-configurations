@@ -3,7 +3,7 @@ description: Set up Nix
 runs:
   using: "composite"
   steps:
-    - uses: canidae-solutions/lix-quick-install-action@cdb5d0931be2223edbb9bad884341fcacdac298f # v4
+    - uses: canidae-solutions/lix-quick-install-action@8ccd1622179c3881955a55d538670c43e4e22c06 # v5
       with:
         lix_conf: show-trace = true
-    - uses: Mic92/hestia@v3
+    - uses: Mic92/hestia@f1f4df2801140a36398ed423533c8460618539df # v3
