@@ -48,6 +48,8 @@ $env.PROMPT_COMMAND = {
       | append (make_line last)
       | str join "\n"
 
+    # Spawn the job after creating the prompt above to reduce the chance of the
+    # job setting the prompt before it gets set to the prompt above.
     if $async_prompt_var not-in $env {
       job spawn --description $job_ignore_label {
         with-env { $async_prompt_var: true } { do $env.PROMPT_COMMAND }
