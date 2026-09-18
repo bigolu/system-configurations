@@ -2,12 +2,26 @@ use std/bench
 use std/clip
 use std/util "path add"
 
-$env.config.show_banner = false
+path add ~/.local/bin
+
+$env.config.abbreviations.chase = 'chase --verbose'
+$env.config.abbreviations.g = 'git'
+$env.config.abbreviations.trash = 'rm --recursive --trash'
+$env.config.abbreviations.x = 'chmod +x'
 $env.config.completions.algorithm = "fuzzy"
-$env.config.max_last_result_size = 1mb
 $env.config.filesize = { unit: "binary" }
+$env.config.max_last_result_size = 1mb
+$env.config.show_banner = false
+$env.config.table.header_on_separator = true
+$env.config.table.padding = { left: 0, right: 0, }
 $env.config.use_kitty_protocol = true
-$env.config.buffer_editor = 'nvim'
+$env.config.table.missing_value_symbol = "󰂭 "
+
+alias timg = timg --center
+alias r = exec nu
+alias pbpaste = clip paste52
+alias pbcopy = clip copy52
+
 $env.config.keybindings ++= [
   {
     name: smart_explore
@@ -93,14 +107,6 @@ $env.EDITOR = (which nvim).0.path
 $env.VISUAL = $env.EDITOR
 $env.config.abbreviations.vim = 'nvim'
 
-$env.config.abbreviations.g = 'git'
-$env.config.abbreviations.trash = 'rm --recursive --trash'
-alias r = exec nu
-alias pbpaste = clip paste52
-alias pbcopy = clip copy52
-$env.config.abbreviations.x = 'chmod +x'
-$env.config.abbreviations.chase = 'chase --verbose'
-
 # Choose job to unfreeze interactively if multiple exist
 def "job my-unfreeze" [] {
   job list
@@ -124,9 +130,11 @@ $env.config.keybindings ++= [
   }
 ]
 
-path add ~/.local/bin
-
 # sudo
+def "nu-complete s" [spans] {
+  do $env.config.completions.external.completer ($spans | skip 1)
+}
+@complete 'nu-complete s'
 def --wrapped s [...args] {
   sudo s sudo ...$args
 }
@@ -143,10 +151,9 @@ def ls [...pattern: oneof<glob, string>] {
     | reject num_links inode accessed created
 }
 
+# fzf
 $env.FZF_DEFAULT_OPTS_FILE = $env.XDG_CONFIG_HOME? | default $"($env.HOME)/.config" | $"($in)/fzf/fzfrc.txt"
 $env.FZF_DEFAULT_OPTS = $env.XDG_DATA_HOME? | default $"($env.HOME)/.local/share" | $"--history=($in)/fzf/fzfrc.txt"
-
-alias timg = timg --center
 
 # man
 $env.MANOPT = --no-hyphenation
@@ -277,12 +284,28 @@ def --wrapped diff [...args] {
 #
 # Lets me start a nix shell with python and the specified python packages.
 # Example: `nix-py requests marshmallow`
-def nix-py [...packages: string] {
-    $packages
-      | str join " "
-      | nix shell --impure --expr $"\(import <nixpkgs> {}).python3.withPackages \(p: with p; [($in)])"
+def "nu-complete nix-py" [spans] {
+  let last_token = $spans | last
+  nix eval --raw --impure --expr 'with builtins; concatStringsSep "\n" (attrNames (import <nixpkgs> {}).python3Packages)'
+    | lines
+    | where $it starts-with $last_token
 }
-def nix-is-cached [...packages: string] {
+@complete 'nu-complete nix-py'
+def nix-py [...packages: string] {
+    let package_string = $packages | str join " "
+    nix shell --impure --expr $"\(import <nixpkgs> {}).python3.withPackages \(p: with p; [($package_string)])"
+}
+def "nu-complete nix-is-cached" [spans] {
+  [nix build]
+    | if ($spans | is-not-empty) {
+        $in | append ($spans | last)
+      } else {
+        $in
+      }
+    | do $env.config.completions.external.completer $in
+}
+@complete 'nu-complete nix-is-cached'
+def --wrapped nix-is-cached [...packages: string] {
     nix build --impure --dry-run ...$packages
 }
 def nix-store-size [] {

@@ -1,5 +1,6 @@
 $env.config.ls.use_ls_colors = false
 $env.config.completions.use_ls_colors = false
+$env.config.highlight_resolved_externals = true
 
 $env.config.menus ++= [
   (
@@ -35,6 +36,17 @@ $env.config.menus ++= [
   )
 ]
 
+$env.config.explore = {
+  selected_cell: { bg: white, fg: black, }
+  highlight: { fg: black, bg: yellow }
+  status: {
+    info: { bg: black, fg: blue }
+    success: { bg: black, fg: green }
+    warn: { bg: black, fg: yellow }
+    error: { bg: black, fg: red }
+  }
+}
+
 $env.config.color_config = {
   binary: default,
   binary_ascii_other: default,
@@ -48,11 +60,11 @@ $env.config.color_config = {
   closure: default,
   datetime: default,
   duration: default,
-  empty: default,
+  empty: light_gray,
   filesize: default,
   float: default,
   glob: default,
-  header: default_bold,
+  header: light_gray_bold,
   hints: light_gray_italic,
   int: default,
   leading_trailing_space_bg: default,
@@ -60,13 +72,13 @@ $env.config.color_config = {
   nothing: default,
   range: default,
   record: default,
-  row_index: default,
+  row_index: light_gray,
   search_result: default,
   selection: default,
   selection_cursor: default,
   semver: default,
   semver-range: default,
-  separator: default,
+  separator: light_gray,
   shape_binary: default,
   shape_block: default,
   shape_bool: default,
@@ -74,7 +86,7 @@ $env.config.color_config = {
   shape_custom: default,
   shape_datetime: default,
   shape_directory: default,
-  shape_external: default,
+  shape_external: red_underline,
   shape_external_resolved: default,
   shape_externalarg: light_cyan,
   shape_filepath: default,
