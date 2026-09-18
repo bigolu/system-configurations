@@ -86,7 +86,7 @@ $env.config.color_config = {
   shape_custom: default,
   shape_datetime: default,
   shape_directory: default,
-  shape_external: red_underline,
+  shape_external: default,
   shape_external_resolved: default,
   shape_externalarg: light_cyan,
   shape_filepath: default,
