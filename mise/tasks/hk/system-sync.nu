@@ -3,16 +3,22 @@
 #USAGE arg "[config]" help="The name of the configuration to apply"
 
 let sudo = [ sudo (which s).0.path ]
-
-# The default sudoers config on Pop!_OS doesn't allow most environment variables
-# to be inherited.
-let env = env --null
-	| str trim --right --char (char nul)
-	| split row (char nul)
-	| prepend (which env).0.path
+  # The default sudoers config on Pop!_OS doesn't allow most environment variables
+  # to be inherited.
+	| append (
+		env --null
+			| str trim --right --char (char nul)
+			| split row (char nul)
+			| prepend (which env).0.path
+	)
 
 let config = $env.usage_config?
-	| default ($env.XDG_STATE_HOME? | default $"($env.HOME)/.local/state" | open --raw $"($in)/bigolu/system-config-name" | str trim)
+	| default (
+			$env.XDG_STATE_HOME?
+				| default $"($env.HOME)/.local/state"
+				| open --raw $"($in)/bigolu/system-config-name"
+				| str trim
+		)
 let command = if $nu.os-info.name == linux {
 	if $env.ASK? == 'true' {
 		(
@@ -23,7 +29,7 @@ let command = if $nu.os-info.name == linux {
 
 		input --numchar 1 'Apply the configuration? (y/n): '
 			| str trim
-			| str downcase
+			| str lowercase
 			| if $in != y { exit }
 	}
 
@@ -34,7 +40,7 @@ let command = if $nu.os-info.name == linux {
 }
 
 try {
-	run-external ...$sudo ...$env ...$command
+	run-external ...$sudo ...$command
 } finally {
 	if $nu.os-info.name == linux {
 		systemctl show -p InvocationID --value $"home-manager-($env.USER).service"

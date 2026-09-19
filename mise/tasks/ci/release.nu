@@ -16,8 +16,7 @@ def make_new_release [] {
 	let checksum_file = mktemp --directory | path join checksums.txt
 	glob assets/*
 		# Match the format of `sha256sum` from coreutils since we tell users to use it to verify the checksums.
-		| each {|file| $"($file | path basename)  ($file | hash sha256sum)"}
-		| str join "\n"
+		| each {|file| $"($file | path basename)  ($file | hash sha256)"}
 		| save --force $checksum_file
 
 	(

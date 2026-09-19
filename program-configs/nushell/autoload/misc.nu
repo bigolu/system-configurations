@@ -227,7 +227,7 @@ def tunnel [port: int] {
   (
     doppler run
       --mount ~/.cloudflared/2c881c12-5fd8-4f5e-a2f4-f692af8abffa.json
-      --mount-template (let temp = (mktemp); '{{.CLOUDFLARED_TUNNEL}}' | save --force $temp; rm $temp)
+      --mount-template (let temp = (mktemp); '{{.CLOUDFLARED_TUNNEL}}' | save --force $temp; $temp)
       --mount-max-reads 1
       --
       cloudflared tunnel run --url $"http://localhost:($port)"

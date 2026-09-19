@@ -7,7 +7,13 @@ def main [] {
 
 def register_asset_directory []: nothing -> string {
   let dir = mktemp --directory
-  $dir | save --append ($env.GITHUB_OUTPUT? | default '/dev/stderr')
+
+  if GITHUB_OUTPUT in $env {
+    $dir | save --append $env.GITHUB_OUTPUT
+  } else {
+    $"($dir)\n" | save --append '/dev/stderr'
+  }
+
   $dir
 }
 
@@ -28,15 +34,14 @@ def make_shell_bundle []: nothing -> string {
 }
 
 def copy_bundle_into_assets [asset_dir: string, bundle_store_path: string] {
-  cp $bundle_store_path ($asset_dir | path join (get_name_with_platform $bundle_store_path))
-}
-
-# Example: /nix/store/<hash>-foo-0.1.0 -> foo-linux-x86_64
-def get_name_with_platform [store_path: string]: nothing -> string {
-  $store_path
+  # Example: /nix/store/<hash>-foo-0.1.0 -> $asset_dir/foo-linux-x86_64
+  let destination = $bundle_store_path
     # Remove everything up to, and including, the first `-`. Then the name will
     # be everything from the beginning up until the first dash that is followed by a digit.
     | parse --regex '.*?-(?<name>.*?)-[0-9]*.*'
     | get name.0
     | $"($in)-($nu.os-info.name)-($nu.os-info.arch)"
+    | [ $asset_dir $in ] | path join
+
+  cp $bundle_store_path $destination
 }

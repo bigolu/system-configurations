@@ -1,7 +1,7 @@
 #nix --interpreter nu --packages nushell perl
 #MISE hide=true
 
-(
+let configs = (
   nix eval
     --impure
     --raw
@@ -15,14 +15,15 @@
       concatMapStringsSep " " (c: "`${c}`") configs
     '
 )
-  | (
-      perl
-        -wsi
-        -pe '
-          $count += s{(Valid config names are: ).*?(\.)}{$1$configs$2};
-          END { die "failed to substitute" if $count != 1 }
-        '
-        --
-        $"-configs=($in)"
-        README.md
-    )
+
+(
+  perl
+    -wsi
+    -pe '
+      $count += s{(Valid config names are: ).*?(\.)}{$1$configs$2};
+      END { die "failed to substitute" if $count != 1 }
+    '
+    --
+    $"-configs=($configs)"
+    README.md
+)
