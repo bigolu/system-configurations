@@ -351,12 +351,13 @@ def "nu-complete task" [spans] {
 }
 @complete 'nu-complete task'
 def --wrapped task [...args] {
-  if (which just | is-not-empty) {
+  let exec_args = if (which just | is-not-empty) {
     [ just ]
   } else if (which mise | is-not-empty) {
     # mise goes last since I install it globally
     [ mise run ]
   }
     | append $args
-    | run-external ...$in
+
+  run-external ...$exec_args
 }
