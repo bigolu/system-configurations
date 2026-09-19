@@ -28,7 +28,6 @@ let command = if $nu.os-info.name == linux {
 		)
 
 		input --numchar 1 'Apply the configuration? (y/n): '
-			| str trim
 			| str lowercase
 			| if $in != y { exit }
 	}
