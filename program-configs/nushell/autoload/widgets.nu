@@ -137,7 +137,7 @@ module widgets {
             }
           '#
           --preview-window '75%,~1'
-          --bind "alt-e:execute:nvim {1} </dev/tty >/dev/tty 2>&1"
+          --bind "alt-e:execute:nvim {1}"
       )
     }
       | lines
