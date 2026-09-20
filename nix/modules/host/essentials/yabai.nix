@@ -13,9 +13,8 @@
       dependencies = symlinkJoin {
         name = "yabai-dependencies";
         paths = with pkgs; [
-          jq
+          nushell
           yabai
-          bash
         ];
       };
 
@@ -25,7 +24,7 @@
         nativeBuildInputs = [ makeWrapper ];
         postBuild = ''
           wrapProgram $out/bin/yabai \
-          --prefix PATH : ${dependencies}/bin
+            --prefix PATH : ${dependencies}/bin
         '';
       };
     in
