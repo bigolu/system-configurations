@@ -16,8 +16,7 @@
         paths = with pkgs; [
           skhd
           yabai
-          jq
-          bash
+          nushell
         ];
       };
 

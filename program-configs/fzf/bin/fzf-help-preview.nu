@@ -1,0 +1,71 @@
+#!/usr/bin/env nu
+
+# Prints a cheatsheet for fzf keybinds.
+#
+# Additional keybinds can be set in the FZF_HINTS environment variable, separated by
+# '\n', in the format '<keybind>: <description>'. This way you can add keybinds
+# specific to an fzf invocation.
+#
+# Usage:
+# FZF_HINTS='ctrl+a: additional binding' fzf --preview fzf-help-preview
+
+def main [] {
+	[]
+		| if ($env.FZF_HINTS? | is-not-empty) {
+				append (
+					$env.FZF_HINTS
+						| split row '\n'
+						| make_section widget_specific_hints ...$in
+				)
+			} else {
+				$in
+			}
+		| append [
+				(
+					make_section
+						'Navigation'
+						'shift+tab/tab: move up/down'
+						'alt+enter: select multiple items'
+						'ctrl-t: toggle tracking'
+						'alt-w: toggle wrap'
+				)
+				(
+					make_section
+						'History'
+						'ctrl+[/]: go to previous/next entry in history'
+				)
+				(
+					make_section
+						'Preview Window'
+						'ctrl+s: show selected entries'
+						'ctrl+p: toggle preview visibility'
+						'ctrl+r: refresh preview'
+						'ctrl+k/j: scroll preview window up/down one line'
+						'ctrl+w: toggle line wrap'
+						'ctrl+o: toggle preview window orientation'
+				)
+				(
+					make_section
+						'Search Syntax'
+						"'<query>: exact match"
+						'^<query>: prefix match'
+						'<query>$: suffix match'
+						'!<query>: inverse exact match'
+						'!^<query>: inverse prefix exact match'
+						'!<query>$: inverse suffix exact match'
+						'<query1> <query2>: match all queries'
+						'<query1> | <query2>: match any query'
+				)
+			]
+		| str join "\n\n"
+}
+
+def make_section [name, ...hints] {
+	let styled_name = $"(ansi attr_bold)($name)(ansi reset)"
+
+	let styled_hints = $hints
+		| each { str replace --regex '([^:]+)(.*)' $"(ansi cyan)${1}(ansi reset)${2}" }
+		| str join "\n"
+
+	$"($styled_name)\n($styled_hints)"
+}
