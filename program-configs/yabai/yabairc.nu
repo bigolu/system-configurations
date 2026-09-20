@@ -7,7 +7,7 @@ if (yabai -m config layout) != bsp {
 }
 
 # Remove existing signal handlers. The remove command will fail if there's
-# nothhing to remove so keep running it until it fails.
+# nothing to remove so keep running it until it fails.
 while (yabai -m signal --remove 0 | complete).exit_code == 0 {
 	ignore
 }

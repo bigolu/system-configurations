@@ -52,12 +52,7 @@ in
         speakerctl = getExe speakerctl;
       };
 
-      ".hammerspoon/Spoons/EmmyLua.spoon" = {
-        source = "${pins.spoons}/Source/EmmyLua.spoon";
-        # I'm not symlinking the whole directory because EmmyLua is going to
-        # generate lua-language-server annotations in there.
-        recursive = true;
-      };
+      ".hammerspoon/Spoons/EmmyLua.spoon/init.lua" = pins.emmylua;
     };
   };
 }

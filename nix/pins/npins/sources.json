@@ -1,17 +1,10 @@
 {
   "pins": {
-    "spoons": {
-      "type": "Git",
-      "repository": {
-        "type": "GitHub",
-        "owner": "Hammerspoon",
-        "repo": "Spoons"
-      },
-      "branch": "master",
-      "submodules": false,
-      "revision": "5c20bcecc380acff5f0f5df7a718c5679aaaf62a",
-      "url": "https://github.com/Hammerspoon/Spoons/archive/5c20bcecc380acff5f0f5df7a718c5679aaaf62a.tar.gz",
-      "hash": "sha256-LeMsmm/au7GbnETVAUNNABanjU1byXpYbzWG/5nT4sM="
+    "emmylua": {
+      "type": "Url",
+      "url": "https://raw.githubusercontent.com/Hammerspoon/Spoons/refs/heads/master/Source/EmmyLua.spoon/init.lua",
+      "unpack": false,
+      "hash": "sha256-54Ibd1iIAWFu5x8nj2tCofkS+L7ovVTl4kmATRrWEyc="
     }
   },
   "version": 8
