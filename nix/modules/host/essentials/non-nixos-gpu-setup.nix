@@ -9,44 +9,53 @@
 {
   "" =
     let
-      inherit (pkgs) linkFarm resholve replaceVars;
-      inherit (lib) getExe;
+      inherit (pkgs) linkFarm runCommand replaceVars;
+      inherit (lib)
+        getExe
+        pipe
+        escapeShellArg
+        makeBinPath
+        ;
       inherit (myUtils) programConfigRoot;
+      inherit (builtins) toJSON;
 
       nonNixosGpuRoot = programConfigRoot + /nix/non-nixos-gpu-setup;
 
-      nonNixosGpuService = replaceVars (nonNixosGpuRoot + /non-nixos-gpu-x.service) {
-        setupbash = getExe (
-          resholve.mkDerivation rec {
-            pname = "setup";
-            version = "0.1.0";
-            src = replaceVars (nonNixosGpuRoot + /setup.bash) {
-              setupnix = "${nonNixosGpuRoot + /setup.nix}";
-              homemanager = inputs.home-manager;
-            };
-            meta.mainProgram = pname;
-            dontUnpack = true;
-            installPhase = ''
-              install -D $src $out/bin/${pname}
-            '';
-            solutions.default = {
-              scripts = [ "bin/${pname}" ];
-              interpreter = "${pkgs.bash}/bin/bash";
-              inputs = with pkgs; [
-                coreutils
-                jq
-              ];
-              keep = {
-                "$current_package" = true;
-              };
-              fake.external = [
-                "nix"
-                "nvidia-smi"
-              ];
-            };
-          }
-        );
-      };
+      nonNixosGpuService = pipe (nonNixosGpuRoot + /setup.nu) [
+        (
+          setupScript:
+          let
+            name = "setup";
+          in
+          runCommand name
+            {
+              nativeBuildInputs = [ pkgs.makeWrapper ];
+              buildInputs = [ pkgs.nushell ];
+              meta.mainProgram = name;
+            }
+            ''
+              mkdir --parents $out/bin
+              cp ${setupScript} $out/bin/${name}
+              chmod +x $out/bin/${name}
+              patchShebangs $out/bin/${name}
+              wrapProgram $out/bin/${name} \
+                --prefix PATH : ${makeBinPath [ pkgs.nushell ]} \
+                --set CONTEXT ${
+                  pipe
+                    {
+                      setupNix = "${nonNixosGpuRoot + /setup.nix}";
+                      homeManager = inputs.home-manager;
+                    }
+                    [
+                      toJSON
+                      escapeShellArg
+                    ]
+                }
+            ''
+        )
+        getExe
+        (setupScript: replaceVars (nonNixosGpuRoot + /non-nixos-gpu-x.service) { inherit setupScript; })
+      ];
     in
     {
       systemd = {

@@ -3,7 +3,7 @@ Description=Set up GPU libs
 
 [Service]
 Type=oneshot
-ExecStart=@setupbash@
+ExecStart=@setupScript@
 
 [Install]
 # This is needed to launch the service for the first time.
