@@ -12,7 +12,7 @@ input --numchar 1 $"Does this new url look fine? \(y/n): ($new_url)"
 	| str lowercase
 	| if $in == y {
 			git remote set-url origin $new_url
-			'Git remote updated.'
+			print 'Git remote updated.'
 		} else {
-			'Git remote unchanged.'
+			print 'Git remote unchanged.'
 		}

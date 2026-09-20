@@ -10,7 +10,7 @@ path add /nix/var/nix/profiles/default/bin /usr/bin
 let workspace = if PRJ_ROOT in $env {
 	$"($env.PRJ_ROOT)/non-nixos-gpu"
 } else {
-	/opt/non-nixos-gpu
+	'/opt/non-nixos-gpu'
 }
 mkdir $workspace
 '*' | save --force $"($workspace)/.gitignore"
@@ -24,14 +24,19 @@ if DID_SET_UP_LOGGING not-in $env {
 let last_version_file = $"($workspace)/last-version.txt"
 let current_version = (nvidia-smi --query-gpu=driver_version --format=csv,noheader)
 
-if ($last_version_file | path exists) and (open $last_version_file) == $current_version {
+if ($last_version_file | path exists) and (open $last_version_file | str trim) == $current_version {
 	exit
 }
 
 let current_package = do {
 	let context = if CONTEXT in $env { $env.CONTEXT | from json } else { {} }
 	let setup_nix = $context.setupNix? | default ($self | path dirname | path join setup.nix)
-	let home_manager = $context.homeManager? | default (nix eval --raw --file $env.PRJ_ROOT inputs.home-manager.outPath)
+	let home_manager = if homeManager in $context {
+		$context.homeManager
+	} else {
+		# Use a conditional to avoid evaluating this unnecessarily
+		nix eval --raw --file $env.PRJ_ROOT inputs.home-manager.outPath
+	}
 	let hash = (
 		nix store prefetch-file
 			--json
@@ -57,10 +62,10 @@ let current_package = do {
 # which means it will delete `/etc/tmpfiles.d/non-nixos-gpu.conf`. Instead, we
 # install it into the default profile.
 rm --force /nix/var/nix/gcroots/non-nixos-gpu.conf
-let default_profile = if PRJ_ROOT in $env { $"($workspace)/profile" } else { /nix/var/nix/profiles/default }
+let default_profile = if PRJ_ROOT in $env { $"($workspace)/profile" } else { '/nix/var/nix/profiles/default' }
 let last_package_file = $"($workspace)/last-package.txt"
 if ($last_package_file | path exists) {
-	nix profile remove (open --raw $last_package_file) --profile $default_profile
+	nix profile remove (open --raw $last_package_file | str trim) --profile $default_profile
 }
 nix profile install $current_package --profile $default_profile
 

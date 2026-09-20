@@ -46,5 +46,6 @@ try {
 			| journalctl --no-pager --output cat $"_SYSTEMD_INVOCATION_ID=($in)"
 			| find --invert pam_unix COMMAND=
 			| str join "\n"
+			| print
 	}
 }
