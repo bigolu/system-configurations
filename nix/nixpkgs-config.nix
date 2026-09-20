@@ -102,7 +102,6 @@ let
               xlsx2csv
               fastgron
               tesseract
-              djvulibre
             ];
           };
         in
@@ -113,8 +112,7 @@ let
           nativeBuildInputs = [ final.makeWrapper ];
           postBuild = ''
             wrapProgram $out/bin/rga \
-              --prefix PATH : ${dependencies}/bin \
-              --prefix PATH : ${../program-configs/ripgrep/bin}
+              --prefix PATH : ${dependencies}/bin
           '';
         };
 

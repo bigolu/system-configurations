@@ -72,20 +72,6 @@
       "disabled_by_default": false,
       "match_only_by_mime": false
     },
-    {
-      "name": "djvutorga",
-      "version": 2,
-      "description": "Uses djvused to extract plain text from DJVU files",
-
-      "extensions": ["djvu"],
-      "mimetypes": ["image/vnd.djvu"],
-
-      "binary": "djvutorga.bash",
-      "args": ["$input_virtual_path"],
-      "output_path_hint": "${input_virtual_path}.txt.asciipagebreaks",
-      "disabled_by_default": false,
-      "match_only_by_mime": false
-    },
     // TODO: Add to the community wiki
     {
       "name": "binary-strings",
