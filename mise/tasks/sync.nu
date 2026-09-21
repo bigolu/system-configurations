@@ -4,9 +4,11 @@
 #USAGE arg "[job]" var=#true help="Job to run" long_help="Job to run. If none are passed then all of them will be run. The list of jobs is in `hk.pkl` under the `sync` hook."
 #USAGE flag "--ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job."
 
-let job_args = $env.usage_job?
-	| default ""
-	| if ($in | is-not-empty) { split row ' ' } else { [] }
+let job_args = if usage_job in $env {
+	$env.usage_job | split row ' '
+} else {
+	[]
+}
 	| each {|job| [ --step $job ]}
 	| flatten
 
