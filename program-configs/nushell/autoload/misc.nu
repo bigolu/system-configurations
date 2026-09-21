@@ -188,10 +188,7 @@ alias cdh = __zoxide_zi
 ulimit -Sn 10000
 
 # vscode
-def "nu-complete my-code" [spans] {
-  do $env.config.completions.external.completer $spans
-}
-@complete 'nu-complete my-code'
+@complete external
 def --wrapped code [ ...rest: string ] {
   # Clear SHELL because my config for the login shell only launches my shell if the current SHELL isn't mine.
   with-env {SHELL: ''} { ^code ...$rest }
@@ -234,10 +231,7 @@ def tunnel [port: int] {
   )
 }
 
-def "nu-complete my-viddy" [spans] {
-  do $env.config.completions.external.completer $spans
-}
-@complete 'nu-complete my-viddy'
+@complete external
 def --wrapped watch [ ...rest: string ] {
   viddy --disable_auto_save ...$rest
 }
