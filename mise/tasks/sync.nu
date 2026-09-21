@@ -18,6 +18,10 @@ let file_args = if ($env.GIT_AUTO_SYNC_LAST_COMMIT? | is-not-empty) {
 	[ --all ]
 }
 
-with-env (if usage_ask in $env { { ASK: $env.usage_ask } } else { {} }) {
-	hk run sync ...$job_args ...$file_args
+let env_vars = if usage_ask in $env {
+	{ ASK: $env.usage_ask }
+} else {
+	{}
 }
+
+with-env $env_vars { hk run sync ...$job_args ...$file_args }
