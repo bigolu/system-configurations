@@ -15,12 +15,10 @@ def --wrapped main [...args] {
 				}
 				git merge-base HEAD ...$refs
 			} else if ($start_commit_abbreviation | str length) <= 2 {
-				# The argument is probably a number specifying how many commits from HEAD I want to
-				# rebase.
+				# It's a number specifying how many commits from HEAD I want to rebase.
 				$"HEAD~($start_commit_abbreviation)"
 			} else {
-				# The argument is a commit-ish specifying the first commit to be included in the
-				# rebase.
+				# It's a commit-ish specifying the first commit to be included in the rebase.
 				$"($start_commit_abbreviation)^"
 			}
 		}
