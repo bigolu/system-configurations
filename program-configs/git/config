@@ -30,7 +30,7 @@
   co = checkout
   sl = log --first-parent --oneline --graph
   sla = log --oneline --graph --all
-  l = log --first-parent --graph
+  l = log --first-parent
   la = log --graph --all
   lp = log --first-parent --patch
   lpa = log --first-parent --patch --all
