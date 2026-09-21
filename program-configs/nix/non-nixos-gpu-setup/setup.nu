@@ -29,13 +29,13 @@ if ($last_version_file | path exists) and (open $last_version_file | str trim) =
 }
 
 let current_package = do {
-	let context = if CONTEXT in $env { $env.CONTEXT | from json } else { {} }
-	let setup_nix = $context.setupNix? | default ($self | path dirname | path join setup.nix)
-	let home_manager = if homeManager in $context {
-		$context.homeManager
+	let context = if CONTEXT in $env {
+		$env.CONTEXT | from json
 	} else {
-		# Use a conditional to avoid evaluating this unnecessarily
-		nix eval --raw --file $env.PRJ_ROOT inputs.home-manager.outPath
+		{
+			setupNix: ($self | path dirname | path join setup.nix)
+			homeManager: (nix eval --raw --file $env.PRJ_ROOT inputs.home-manager.outPath)
+		}
 	}
 	let hash = (
 		nix store prefetch-file
@@ -50,8 +50,8 @@ let current_package = do {
 			build
 			--no-link
 			--print-out-paths
-			--file $setup_nix
-			--argstr homeManagerPath $home_manager
+			--file $context.setupNix
+			--argstr homeManagerPath $context.homeManager
 			--argstr nvidiaVersion $current_version
 			--argstr nvidiaSha256 $hash
 	)

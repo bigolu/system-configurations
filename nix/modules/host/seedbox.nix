@@ -9,14 +9,15 @@
 {
   "" =
     let
-      inherit (pkgs)
-        resholve
-        replaceVars
-        runCommand
-        makeWrapper
+      inherit (pkgs) runCommand makeWrapper;
+      inherit (lib)
+        getExe
+        makeBinPath
+        pipe
+        escapeShellArg
         ;
-      inherit (lib) getExe makeBinPath;
       inherit (myUtils) programConfigRoot;
+      inherit (builtins) toJSON;
 
       seedboxRoot = programConfigRoot + /seedbox;
 
@@ -39,36 +40,45 @@
               --prefix PATH : ${makeBinPath [ pkgs.intermodal ]}
           '';
 
-      seedbox = resholve.mkDerivation rec {
-        pname = "seedbox";
-        version = "0.1.0";
-        src = replaceVars (seedboxRoot + /main.bash) {
-          qbittorrent_config = "${seedboxRoot + /qBittorrent.conf}";
-          watched_folders = "${seedboxRoot + /watched_folders.json}";
-          autobrr_config = "${seedboxRoot + /config.toml}";
-          autobrr_filter_bin = "${autobrr-filter}/bin";
-        };
-        meta.mainProgram = pname;
-        dontUnpack = true;
-        installPhase = ''
-          install -D $src $out/bin/${pname}
-        '';
-        solutions.default = {
-          scripts = [ "bin/${pname}" ];
-          interpreter = "${pkgs.bash}/bin/bash";
-          inputs = with pkgs; [
-            coreutils
-            qbittorrent-nox
-            autobrr
-            sd
-          ];
-          execer = [
-            "cannot:${getExe pkgs.qbittorrent-nox}"
-            "cannot:${getExe pkgs.sd}"
-            "cannot:${getExe pkgs.autobrr}"
-          ];
-        };
-      };
+      seedbox =
+        let
+          name = "seedbox";
+        in
+        runCommand name
+          {
+            nativeBuildInputs = [ makeWrapper ];
+            buildInputs = [ pkgs.nushell ];
+            meta.mainProgram = name;
+          }
+          ''
+            mkdir --parents $out/bin
+            cp ${seedboxRoot + /main.nu} $out/bin/${name}
+            chmod +x $out/bin/${name}
+            patchShebangs $out/bin/${name}
+            wrapProgram $out/bin/${name} \
+              --prefix PATH : ${
+                makeBinPath (
+                  with pkgs;
+                  [
+                    qbittorrent-nox
+                    autobrr
+                    autobrr-filter
+                  ]
+                )
+              } \
+              --set CONTEXT ${
+                pipe
+                  {
+                    qbittorrentConfig = "${seedboxRoot + /qBittorrent.conf}";
+                    watchedFolders = "${seedboxRoot + /watched_folders.json}";
+                    autobrrConfig = "${seedboxRoot + /config.toml}";
+                  }
+                  [
+                    toJSON
+                    escapeShellArg
+                  ]
+              }
+          '';
     in
     {
       home-manager.users.${primaryUser}.systemd.user.services.seedbox = {
