@@ -2,7 +2,9 @@
 
 def --wrapped main [...args] {
 	let start_commit = if ($args | is-not-empty) and not (is-flag $args.0) { $args.0 } else { null }
-		| if $in == null {
+		| do {
+			let start_commit_abbreviation = $in
+		  if $start_commit_abbreviation == null {
 				# Rebase all the commits I haven't pushed yet.
 				#
 				# @{push} only exists if the branch has been pushed before.
@@ -12,17 +14,18 @@ def --wrapped main [...args] {
 					git rev-parse --remotes | lines
 				}
 				git merge-base HEAD ...$refs
-			} else if ($in | str length) <= 2 {
+			} else if ($start_commit_abbreviation | str length) <= 2 {
 				# The argument is probably a number specifying how many commits from HEAD I want to
 				# rebase.
-				$"HEAD~($in)"
+				$"HEAD~($start_commit_abbreviation)"
 			} else {
 				# The argument is a commit-ish specifying the first commit to be included in the
 				# rebase.
-				$"($in)^"
+				$"($start_commit_abbreviation)^"
 			}
+		}
 
-	let flags = $args | skip until {|arg| is-flag $arg}
+	let flags = $args | skip until { is-flag }
 
 	# Save a reference to the commit we were on before the rebase started, in case we
 	# want to go back. To restore from this point use: git reset --hard refs/bigolu/ir-backup
@@ -31,6 +34,8 @@ def --wrapped main [...args] {
 	git rebase --interactive ...$flags $start_commit
 }
 
-def is-flag [arg: string] {
-	$arg starts-with '-'
+def is-flag [arg?: string]: oneof<string, nothing> -> bool {
+	$in 
+		| default $arg
+		| str starts-with '-'
 }
