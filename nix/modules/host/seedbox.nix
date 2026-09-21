@@ -9,32 +9,35 @@
 {
   "" =
     let
-      inherit (pkgs) resholve replaceVars;
-      inherit (lib) getExe;
+      inherit (pkgs)
+        resholve
+        replaceVars
+        runCommand
+        makeWrapper
+        ;
+      inherit (lib) getExe makeBinPath;
       inherit (myUtils) programConfigRoot;
 
       seedboxRoot = programConfigRoot + /seedbox;
 
-      autobrr-filter = resholve.mkDerivation rec {
-        pname = "autobrr-filter";
-        version = "0.1.0";
-        src = seedboxRoot + /autobrr-filter.bash;
-        meta.mainProgram = pname;
-        dontUnpack = true;
-        installPhase = ''
-          install -D $src $out/bin/${pname}
-        '';
-        solutions.default = {
-          scripts = [ "bin/${pname}" ];
-          interpreter = "${pkgs.bash}/bin/bash";
-          inputs = with pkgs; [
-            coreutils
-            intermodal
-            jq
-          ];
-          execer = [ "cannot:${getExe pkgs.intermodal}" ];
-        };
-      };
+      autobrr-filter =
+        let
+          name = "autobrr-filter";
+        in
+        runCommand name
+          {
+            nativeBuildInputs = [ makeWrapper ];
+            buildInputs = [ pkgs.nushell ];
+            meta.mainProgram = name;
+          }
+          ''
+            mkdir --parents $out/bin
+            cp ${seedboxRoot + /autobrr-filter.nu} $out/bin/${name}
+            chmod +x $out/bin/${name}
+            patchShebangs $out/bin/${name}
+            wrapProgram $out/bin/${name} \
+              --prefix PATH : ${makeBinPath [ pkgs.intermodal ]}
+          '';
 
       seedbox = resholve.mkDerivation rec {
         pname = "seedbox";
