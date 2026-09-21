@@ -7,13 +7,7 @@ def main [] {
 
 def register_asset_directory []: nothing -> string {
   let dir = mktemp --directory
-
-  if GITHUB_OUTPUT in $env {
-    $dir | save --append $env.GITHUB_OUTPUT
-  } else {
-    $"($dir)\n" | save --append '/dev/stderr'
-  }
-
+  $"asset-directory=($dir)\n" | save --append ($env.GITHUB_OUTPUT? | default '/dev/stderr')
   $dir
 }
 
