@@ -35,18 +35,6 @@
 
     llm-agents.url = "github:numtide/llm-agents.nix";
 
-    direnv-shell-hooks = {
-      url = "github:bigolu/direnv-shell-hooks";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-compat.follows = "flake-compat";
-
-        # Remove development dependencies
-        devshell.follows = "";
-        devshell-modules.follows = "";
-      };
-    };
-
     git-auto-sync = {
       url = "github:bigolu/git-auto-sync";
       inputs = {

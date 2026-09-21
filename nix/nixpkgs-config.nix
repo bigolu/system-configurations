@@ -203,7 +203,6 @@ in
   config.allowUnfreePredicate = pkg: elem pkg.pname [ "vscode" ];
 
   overlays = [
-    inputs.direnv-shell-hooks.overlays.default
     inputs.git-auto-sync.overlays.default
     inputs.git-auto-check.overlays.default
     inputs.nix-scene.overlays.default
