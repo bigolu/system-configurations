@@ -7,10 +7,8 @@ let max_size = 400GiB
 let max_torrents = 20
 
 def main [torrent] {
-	[
-		$torrent
-		...(glob $"($workspace)/data/qBittorrent/BT_backup/*.torrent")
-	]
+	$torrent
+		| append (glob $"($workspace)/data/qBittorrent/BT_backup/*.torrent")
 		| par-each {
 				imdl torrent show --json $in
 					| from json
