@@ -12,7 +12,6 @@ $env.config.completions.algorithm = "fuzzy"
 $env.config.filesize = { unit: "binary" }
 $env.config.max_last_result_size = 1mb
 $env.config.show_banner = false
-$env.config.table.header_on_separator = true
 $env.config.use_kitty_protocol = true
 $env.config.table.missing_value_symbol = "󰂭 "
 
