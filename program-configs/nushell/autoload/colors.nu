@@ -60,7 +60,7 @@ $env.config.color_config = {
   closure: default,
   datetime: default,
   duration: default,
-  empty: light_gray_dimmed,
+  empty: { fg: light_gray, attr: 'bold dimmed', },
   filesize: default,
   float: default,
   glob: default,
