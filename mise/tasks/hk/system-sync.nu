@@ -5,41 +5,39 @@
 let sudo = [ sudo (which s).0.path ]
   # The default sudoers config on Pop!_OS doesn't allow most environment variables
   # to be inherited.
-	| append (
-		env --null
-			| str trim --right --char (char nul)
-			| split row (char nul)
-			| prepend (which env).0.path
-	)
+	| append [ (which env).0.path ...(debug env | items {|name, value| $"($name)=($value)" }) ]
 
-let config = $env.usage_config?
-	| default (
-			$env.XDG_STATE_HOME?
-				| default $"($env.HOME)/.local/state"
-				| open --raw $"($in)/bigolu/system-config-name"
-				| str trim
-		)
-let command = if $nu.os-info.name == linux {
-	if $env.ASK? == 'true' {
-		(
-			dix
-				/nix/var/nix/profiles/system-manager-profiles/system-manager
-				(nix build --no-link --print-out-paths --file . $"outputs.systemConfigs.($config)")
-		)
+let sync_command = do {
+	let config = $env.usage_config?
+		| default (
+				$env.XDG_STATE_HOME?
+					| default $"($env.HOME)/.local/state"
+					| open --raw $"($in)/bigolu/system-config-name"
+					| str trim
+			)
 
-		input --numchar 1 'Apply the configuration? (y/n): '
-			| str lowercase
-			| if $in != y { exit }
+	if $nu.os-info.name == linux {
+		if $env.ASK? == 'true' {
+			(
+				dix
+					/nix/var/nix/profiles/system-manager-profiles/system-manager
+					(nix build --no-link --print-out-paths --file . $"outputs.systemConfigs.($config)")
+			)
+
+			input --numchar 1 'Apply the configuration? (y/n): '
+				| str lowercase
+				| if $in != y { exit }
+		}
+
+		[system-manager switch --sudo --flake $".#systemConfigs.($config)"]
+	} else {
+		let ask = if $env.ASK? == 'true' { [ --ask ] } else { [] }
+		[ nh darwin switch --show-activation-logs ...$ask --file . $"outputs.darwinConfigurations.($config)" ]
 	}
-
-	[system-manager switch --sudo --flake $".#systemConfigs.($config)"]
-} else {
-	let ask = if $env.ASK? == 'true' { [ --ask ] } else { [] }
-	[ nh darwin switch --show-activation-logs ...$ask --file . $"outputs.darwinConfigurations.($config)" ]
 }
 
 try {
-	run-external ...$sudo ...$command
+	run-external ...$sudo ...$sync_command
 } finally {
 	if $nu.os-info.name == linux {
 		systemctl show -p InvocationID --value $"home-manager-($env.USER).service"
