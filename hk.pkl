@@ -281,18 +281,16 @@ hooks =
     ["sync"] {
       steps = syncs
     }
-    ["fix"] {
+    ["check"] {
       // Ensure our pre-push hook fails, and the push gets aborted, if any
       // files get fixed.
       fail_on_fix = true
+      // Fixes must run before checks for these reasons:
+      //   - A fix could produce code that would fail a check
+      //   - A fix could fix an issue that would have been found by a check
+      //
       // Non-Formatter fixes must run before formatters since they may produce
       // code that doesn't comply with the formatting.
-      steps = (nonFormatterFixes.toMap() + formatterFixes.toMap()).toMapping()
-    }
-    // We put the checks in a separate hook from the fixes because `hk`
-    // doesn't parallelize steps with conflicting globs when `fix = true`,
-    // even if those steps only contain `check` commands.
-    ["check"] {
-      steps = checks
+      steps = (nonFormatterFixes.toMap() + formatterFixes.toMap() + checks.toMap()).toMapping()
     }
   })

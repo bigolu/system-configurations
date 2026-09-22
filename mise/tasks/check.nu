@@ -11,18 +11,4 @@ let job_args = if usage_job in $env {
 	| each {|job| [ --step $job ]}
 	| flatten
 
-# Why fixes should run before checks:
-#   - A fix could produce code that would fail a check
-#   - A fix could fix an issue that would have been found by a check
-let fix_exit_code = try {
-	hk run fix --all ...$job_args
-	$env.LAST_EXIT_CODE
-} catch {
-	$env.LAST_EXIT_CODE
-}
-
-# If the fix command fails due to the `fail_on_fix` option, we still want to run
-# checks. To do so, we exit with the fix command's exit code _after_ running the
-# checks.
-hk run check --all ...$job_args
-exit $fix_exit_code
+hk run check --fix --all ...$job_args
