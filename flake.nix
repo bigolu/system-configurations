@@ -130,6 +130,11 @@
         flake-compat.follows = "flake-compat";
       };
     };
+
+    nushell = {
+      url = "github:nushell/nushell?dir=scripts/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

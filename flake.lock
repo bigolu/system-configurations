@@ -619,6 +619,29 @@
         "type": "github"
       }
     },
+    "nushell": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "rust-overlay": "rust-overlay"
+      },
+      "locked": {
+        "dir": "scripts/nix",
+        "lastModified": 1790097702,
+        "narHash": "sha256-HiHN9eUknCSTTuODnA5j/0KJ1satPMA6M8N95DfykZs=",
+        "owner": "nushell",
+        "repo": "nushell",
+        "rev": "9c9f93c7274fffcd3c6ff63736aeeda6ea5bf470",
+        "type": "github"
+      },
+      "original": {
+        "dir": "scripts/nix",
+        "owner": "nushell",
+        "repo": "nushell",
+        "type": "github"
+      }
+    },
     "pre-commit-hooks-nix": {
       "inputs": {
         "flake-compat": [
@@ -666,7 +689,29 @@
         "nix-scene": "nix-scene",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-multiverse": "nixpkgs-multiverse",
+        "nushell": "nushell",
         "system-manager": "system-manager"
+      }
+    },
+    "rust-overlay": {
+      "inputs": {
+        "nixpkgs": [
+          "nushell",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1789543870,
+        "narHash": "sha256-45ikFmtfgBZgMePIm4GevJ9VjDSWO3PGQgOuuwHDpes=",
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "rev": "35ca0490d13a3d38c4602d0eb9600a30fa63a367",
+        "type": "github"
+      },
+      "original": {
+        "owner": "oxalica",
+        "repo": "rust-overlay",
+        "type": "github"
       }
     },
     "system-manager": {

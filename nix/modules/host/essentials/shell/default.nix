@@ -37,6 +37,12 @@
       # [1]: https://github.com/nix-community/home-manager/issues/432#issuecomment-434498787
       programs.man.package = null;
 
+      programs.nushell = {
+        enable = true;
+        # TODO: It's broken
+        # plugins = with pkgs.nushellPlugins; [ formats ];
+      };
+
       home.packages =
         with pkgs;
         [
@@ -52,7 +58,6 @@
             "git-delete-merged-branches"
           ])
           (filterPrograms procps [ "ps" ])
-          (nushell.withPlugins (with nushellPlugins; [ formats ]))
           ast-grep
           bat
           broot

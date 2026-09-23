@@ -198,6 +198,13 @@ let
     multiverse =
       inputs.nixpkgs-multiverse.legacyPackages.${final.stdenv.hostPlatform.system}.fast.versions;
   };
+
+  nushellOverlay = final: _: {
+    nushell = inputs.nushell.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (_old: {
+      doCheck = false;
+    });
+    nushellPlugins = inputs.nushell.legacyPackages.${final.stdenv.hostPlatform.system}.nushellPlugins;
+  };
 in
 {
   config.allowUnfreePredicate = pkg: elem pkg.pname [ "vscode" ];
@@ -208,6 +215,7 @@ in
     inputs.nix-scene.overlays.default
     llmAgentsOverlay
     nixpkgsMultiverseOverlay
+    nushellOverlay
     myOverlay
   ];
 }
