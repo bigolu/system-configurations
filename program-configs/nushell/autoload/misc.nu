@@ -81,8 +81,8 @@ $env.config.keybindings ++= [
   }
 ]
 
-$env.config.completions.external.completer = {|spans|
-  fish --command 'complete --do-complete "$(string join -- " " $argv)"' ...$spans
+$env.config.completions.external.completer = {|buffer|
+  fish --command 'complete --do-complete $argv' $buffer
     | from tsv --flexible --noheaders --no-infer
     | rename value description
     | update value {|row|
