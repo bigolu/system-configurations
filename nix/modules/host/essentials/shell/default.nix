@@ -98,7 +98,7 @@
             "ripgrep/ripgreprc".source = "ripgrep/ripgreprc";
             "broot".source = "broot";
             "bat".source = "bat";
-            "fzf/fzfrc.txt".source = "fzf/fzfrc.txt";
+            "fzf/default-opts.txt".source = "fzf/default-opts.txt";
             "tealdeer/config.toml".source = "tealdeer/config.toml";
             "nushell/autoload".source = "nushell/autoload";
           }

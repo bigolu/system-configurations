@@ -150,8 +150,8 @@ def ls [...pattern: oneof<glob, string>] {
 }
 
 # fzf
-$env.FZF_DEFAULT_OPTS_FILE = $env.XDG_CONFIG_HOME? | default $"($env.HOME)/.config" | $"($in)/fzf/fzfrc.txt"
-$env.FZF_DEFAULT_OPTS = $env.XDG_DATA_HOME? | default $"($env.HOME)/.local/share" | $"--history=($in)/fzf/fzfrc.txt"
+$env.FZF_DEFAULT_OPTS_FILE = $env.XDG_CONFIG_HOME? | default $"($env.HOME)/.config" | $"($in)/fzf/default-opts.txt"
+$env.FZF_DEFAULT_OPTS = $env.XDG_DATA_HOME? | default $"($env.HOME)/.local/share" | $"--history=($in)/fzf/history.txt"
 
 # man
 $env.MANOPT = --no-hyphenation
