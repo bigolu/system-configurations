@@ -1,6 +1,6 @@
 use std/bench
 use std/clip
-use std/util "path add"
+use std/util ["path add" structure]
 
 path add ~/.local/bin
 
@@ -129,8 +129,10 @@ $env.config.keybindings ++= [
 ]
 
 # sudo
-def "nu-complete s" [spans] {
-  do $env.config.completions.external.completer ($spans | skip 1)
+def "nu-complete s" [buffer] {
+  $buffer
+    | str replace --regex '^s' 'sudo'
+    | commandline complete
 }
 @complete 'nu-complete s'
 def --wrapped s [...args] {
@@ -194,9 +196,11 @@ def --wrapped code [ ...rest: string ] {
 }
 
 # comma
-def "nu-complete my-comma" [spans] {
-  # Use comma instead of `,` since autocomplete is only defined for comma
-  do $env.config.completions.external.completer ($spans | each { str replace --regex '^,$' 'comma' })
+def "nu-complete my-comma" [buffer] {
+  $buffer
+    # Autocomplete is only defined for comma
+    | str replace --regex '^,' 'comma'
+    | commandline complete
 }
 @complete 'nu-complete my-comma'
 def --wrapped , [ ...rest: string ] {
@@ -245,8 +249,10 @@ $env.config.abbreviations.tl = r#'broot --sizes --dates --permissions'#
 $env.RIPGREP_CONFIG_PATH = $env.XDG_CONFIG_HOME? | default $"($env.HOME)/.config" | $"($in)/ripgrep/ripgreprc"
 
 # diffoscope
-def "nu-complete diff-html" [spans] {
-  do $env.config.completions.external.completer ($spans | each { str replace --regex '^diff-html$' 'diffoscope' })
+def "nu-complete diff-html" [buffer] {
+  $buffer
+    | str replace --regex '^diff-html' 'diffoscope'
+    | commandline complete
 }
 @complete 'nu-complete diff-html'
 def --wrapped diff-html [...args] {
@@ -259,8 +265,10 @@ def --wrapped diff-html [...args] {
   )
   ^open $temp
 }
-def "nu-complete my-diff" [spans] {
-  do $env.config.completions.external.completer ($spans | each { str replace --regex '^diff$' 'diffoscope' })
+def "nu-complete my-diff" [buffer] {
+  $buffer
+    | str replace --regex '^diff' 'diffoscope'
+    | commandline complete
 }
 @complete 'nu-complete my-diff'
 def --wrapped diff [...args] {
@@ -287,14 +295,10 @@ def nix-py [...packages: string] {
     let package_string = $packages | str join " "
     nix shell --impure --expr $"\(import <nixpkgs> {}).python3.withPackages \(p: with p; [($package_string)])"
 }
-def "nu-complete nix-is-cached" [spans] {
-  [nix build]
-    | if ($spans | is-not-empty) {
-        $in | append ($spans | last)
-      } else {
-        $in
-      }
-    | do $env.config.completions.external.completer $in
+def "nu-complete nix-is-cached" [buffer] {
+  $buffer
+    | str replace --regex '^nix-is-cached' 'nix build'
+    | commandline complete
 }
 @complete 'nu-complete nix-is-cached'
 def --wrapped nix-is-cached [...packages: string] {
@@ -325,22 +329,17 @@ def nix-store-clean [] {
   nix-collect-garbage
 }
 
-def "nu-complete task" [spans] {
-  $spans
-    | each {|span|
-        if $span == task {
-          if (which just | is-not-empty) {
-            'just'
-          } else if (which mise | is-not-empty) {
-            # mise goes last since I install it globally
-            [ mise run ]
-          }
-        } else {
-          $span
+def "nu-complete task" [buffer] {
+  $buffer
+    | str replace --regex '^task' (
+        if (which just | is-not-empty) {
+          'just'
+        } else if (which mise | is-not-empty) {
+          # mise goes last since I install it globally
+          'mise run'
         }
-      }
-    | flatten
-    | do $env.config.completions.external.completer $in
+      )
+    | commandline complete
 }
 @complete 'nu-complete task'
 def --wrapped task [...args] {
