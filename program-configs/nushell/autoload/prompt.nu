@@ -6,8 +6,8 @@ $env.TRANSIENT_PROMPT_COMMAND = {
     (format-path $env.PWD)
     (date now | format date '%r')
   ]
-    | str join '  '
-    | $"\n(ansi light_gray_reverse) ($in) (ansi reset) "
+  | str join '  '
+  | $"\n(ansi light_gray_reverse) ($in) (ansi reset) "
 }
 
 $env.PROMPT_COMMAND = {
@@ -16,7 +16,10 @@ $env.PROMPT_COMMAND = {
   # The max number of screen columns a context can use and still fit on one
   # line. The 4 accounts for the 4 characters that make up the border.
   # `max` ensures the value is never negative
-  let max_context_length = [ ((term size).columns - 4) 1 ] | math max
+  let max_context_length = [
+    ((term size).columns - 4)
+    1
+  ] | math max
 
   let colors = {
     reset: (ansi reset)
@@ -42,11 +45,11 @@ $env.PROMPT_COMMAND = {
       (level-context)
       (status-context)
     ]
-      | compact
-      | make_lines
-      | prepend ''
-      | append (make_line last)
-      | str join "\n"
+    | compact
+    | make_lines
+    | prepend ''
+    | append (make_line last)
+    | str join "\n"
 
     # Spawn the job after creating the prompt above to reduce the chance of the
     # job setting the prompt before it gets set to the prompt above.
@@ -62,12 +65,12 @@ $env.PROMPT_COMMAND = {
 
   def make_lines []: list<string> -> list<string> {
     $in
-      | enumerate
-      | each {|elt|
+    | enumerate
+    | each {|elt|
           make_line (if $elt.index == 0 { 'first' } else { 'middle' }) $elt.item
         }
   }
-  
+
   def make_line [position: string, context?: string] {
     match $position {
       'first' => $'($colors.border)┌($colors.reset)(add_context_border $context)'
@@ -75,7 +78,7 @@ $env.PROMPT_COMMAND = {
       'last' => $'($colors.border)└($colors.reset)'
     }
   }
-  
+
   def add_context_border [context: string] {
     $'($colors.border)╼[($colors.reset)($context)($colors.border)]($colors.reset)'
   }
@@ -102,19 +105,19 @@ $env.PROMPT_COMMAND = {
     }
 
     $env.DIRENV_DIR
-      # DIRENV_DIR starts with '-' so we remove it
-      | str substring 1..
-      | format-path
-      # TODO: A better way to check this is in the works: https://github.com/direnv/direnv/pull/1010
-      #
-      # The number I'm matching is the value of an enum that's defined here:
-      # https://github.com/direnv/direnv/blob/f5deb57e5944978c6a0017bbcb2a808e3e59fb21/internal/cmd/rc.go#L145-L149
-      | if (direnv status) like 'Loaded RC allowed [1,2]' {
-          $"($in) \(($colors.warning)blocked($colors.reset))"
-        } else {
-          $in
-        }
-      | $'direnv: ($in)'
+    # DIRENV_DIR starts with '-' so we remove it
+    | str substring 1..
+    | format-path
+    # TODO: A better way to check this is in the works: https://github.com/direnv/direnv/pull/1010
+    #
+    # The number I'm matching is the value of an enum that's defined here:
+    # https://github.com/direnv/direnv/blob/f5deb57e5944978c6a0017bbcb2a808e3e59fb21/internal/cmd/rc.go#L145-L149
+    | if (direnv status) like 'Loaded RC allowed [1,2]' {
+      $"($in) \(($colors.warning)blocked($colors.reset))"
+    } else {
+      $in
+    }
+    | $'direnv: ($in)'
   }
 
   def nix-context [] {
@@ -123,8 +126,8 @@ $env.PROMPT_COMMAND = {
     }
 
     $env.name?
-      | default $'(ansi attr_italic)no name($colors.reset)'
-      | $'nix: ($in)'
+    | default $'(ansi attr_italic)no name($colors.reset)'
+    | $'nix: ($in)'
   }
 
   def broot-context [] {
@@ -146,24 +149,24 @@ $env.PROMPT_COMMAND = {
     }
 
     $jobs
-      | each {|job| $job.description? | default $job.id}
-      | str join ', '
-      | $'jobs: ($in)'
+    | each {|job| $job.description? | default $job.id}
+    | str join ', '
+    | $'jobs: ($in)'
   }
 
   def login-context [] {
     let container_name = get-container-name
     let host_attributes = []
-      | if $container_name != null {
-          $in | append $'($colors.warning)container:($container_name)($colors.reset)'
-        } else {
-          $in
-        }
-      | if SSH_TTY in $env {
-          $in | append $'($colors.warning)ssh($colors.reset)'
-        } else {
-          $in
-        }
+    | if $container_name != null {
+      $in | append $'($colors.warning)container:($container_name)($colors.reset)'
+    } else {
+      $in
+    }
+    | if SSH_TTY in $env {
+      $in | append $'($colors.warning)ssh($colors.reset)'
+    } else {
+      $in
+    }
 
     let privilege = if (is-admin) { $'($colors.warning)superuser($colors.reset)' }
 
@@ -172,23 +175,23 @@ $env.PROMPT_COMMAND = {
     }
 
     let user = whoami
-      | if $privilege != null {
-          $"($in) \(($privilege))"
-        } else {
-          $in
-        }
+    | if $privilege != null {
+      $"($in) \(($privilege))"
+    } else {
+      $in
+    }
 
     let host = sys host
-      | get hostname
-      | if ($host_attributes | is-not-empty) {
-          $"($in) \(($host_attributes | str join ', '))"
-        } else {
-          $in
-        }
+    | get hostname
+    | if ($host_attributes | is-not-empty) {
+      $"($in) \(($host_attributes | str join ', '))"
+    } else {
+      $in
+    }
 
     $'login: ($user) on ($host)'
   }
-  
+
   # Adapted from Starship Prompt: https://github.com/starship/starship/blob/master/src/modules/container.rs
   def get-container-name []: nothing -> oneof<string, nothing> {
     let systemd_container_path = '/run/systemd/container'
@@ -213,8 +216,8 @@ $env.PROMPT_COMMAND = {
     }
 
     $last_exit_code
-      | format-exit-code
-      | $'status: ($in)'
+    | format-exit-code
+    | $'status: ($in)'
   }
 
   def format-exit-code []: int -> string {
@@ -222,14 +225,14 @@ $env.PROMPT_COMMAND = {
     let signal = get-exit-code-signal $code
 
     $code
-      | if $signal != null {
-          $'($in)/($signal)'
-        } else {
-          $in
-        }
-      | $'(get-exit-code-color $code)($in)($colors.reset)'
+    | if $signal != null {
+      $'($in)/($signal)'
+    } else {
+      $in
+    }
+    | $'(get-exit-code-color $code)($in)($colors.reset)'
   }
-  
+
   def get-exit-code-color [code: int] {
     match $code {
       -2 | 130 => $colors.warning
@@ -247,7 +250,6 @@ $env.PROMPT_COMMAND = {
       -9 => 'SIGKILL'
       -11 => 'SIGSEGV'
       -15 => 'SIGTERM'
-
       129 => 'SIGHUP'
       130 => 'SIGINT'
       131 => 'SIGQUIT'
@@ -274,6 +276,7 @@ $env.PROMPT_COMMAND = {
   }
 
   def git-context [] {
+
     # This way we don't print the git section and possibly remove it later
     # because the directory wasn't in a git repo.
     if (git rev-parse --is-inside-work-tree | complete).exit_code != 0 {
@@ -281,6 +284,7 @@ $env.PROMPT_COMMAND = {
     }
 
     if $async_prompt_var in $env {
+
       # TODO: Implement in nushell to avoid overhead of going through fish
       fish -c r#'
         set --global __fish_git_prompt_showupstream informative
@@ -310,22 +314,22 @@ $env.PROMPT_COMMAND = {
     } else {
       $'(ansi light_gray_italic)loading($colors.reset)'
     }
-      | $'git: ($in)'
+    | $'git: ($in)'
   }
 
   main
 }
 
-def format-path [path?: string]: oneof<string,nothing> -> string {
+def format-path [path?: string]: oneof<string, nothing> -> string {
   let path_in = $in
   let path = $path | default $path_in
   $path
-    | str replace --regex $"^($nu.home-dir)" "~"
-    # If we're on a local machine, add a hyperlink
-    | if SSH_TTY not-in $env {
-        let original_in = $in;
-        $'file://($path)' | ansi link --text $original_in
-      } else {
-        $in
-      }
+  | str replace --regex $"^($nu.home-dir)" "~"
+  # If we're on a local machine, add a hyperlink
+  | if SSH_TTY not-in $env {
+    let original_in = $in
+    $'file://($path)' | ansi link --text $original_in
+  } else {
+    $in
+  }
 }

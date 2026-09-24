@@ -135,6 +135,11 @@
       url = "github:nushell/nushell?dir=scripts/nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nufmt = {
+      url = "github:nushell/nufmt";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =

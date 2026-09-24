@@ -49,6 +49,9 @@ tools:
     format-stdin: true
     format-ignore-exit-code: true
     format-command: pkl format -
+  nufmt: &nufmt
+    format-stdin: true
+    format-command: nufmt --stdin
   statix: &statix
     lint-source: statix
     lint-after-open: true
@@ -148,6 +151,8 @@ languages:
     - <<: *nixfmt
     - <<: *statix
     - <<: *nixpkgs-lint
+  nushell:
+    - <<: *nufmt
   lua:
     - <<: *stylua
   properties:

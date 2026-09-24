@@ -10,18 +10,18 @@
 # FZF_HINTS='ctrl+a: additional binding' fzf --preview fzf-help-preview
 
 def main [] {
-	[]
-		| if ($env.FZF_HINTS? | is-not-empty) {
-				append (
+  []
+  | if ($env.FZF_HINTS? | is-not-empty) {
+    append (
 					$env.FZF_HINTS
 						| split row '\n'
 						| make_section widget_specific_hints ...$in
 				)
-			} else {
-				$in
-			}
-		| append [
-				(
+  } else {
+    $in
+  }
+  | append [
+    (
 					make_section
 						'Navigation'
 						'shift+tab/tab: move up/down'
@@ -29,12 +29,12 @@ def main [] {
 						'ctrl-t: toggle tracking'
 						'alt-w: toggle wrap'
 				)
-				(
+    (
 					make_section
 						'History'
 						'ctrl+[/]: go to previous/next entry in history'
 				)
-				(
+    (
 					make_section
 						'Preview Window'
 						'ctrl+s: show selected entries'
@@ -44,7 +44,7 @@ def main [] {
 						'ctrl+w: toggle line wrap'
 						'ctrl+o: toggle preview window orientation'
 				)
-				(
+    (
 					make_section
 						'Search Syntax'
 						"'<query>: exact match"
@@ -56,16 +56,16 @@ def main [] {
 						'<query1> <query2>: match all queries'
 						'<query1> | <query2>: match any query'
 				)
-			]
-		| str join "\n\n"
+  ]
+  | str join "\n\n"
 }
 
 def make_section [name, ...hints] {
-	let styled_name = $"(ansi attr_bold)($name)(ansi reset)"
+  let styled_name = $"(ansi attr_bold)($name)(ansi reset)"
 
-	let styled_hints = $hints
-		| each { str replace --regex '([^:]+)(.*)' $"(ansi cyan)${1}(ansi reset)${2}" }
-		| str join "\n"
+  let styled_hints = $hints
+  | each { str replace --regex '([^:]+)(.*)' $"(ansi cyan)${1}(ansi reset)${2}" }
+  | str join "\n"
 
-	$"($styled_name)\n($styled_hints)"
+  $"($styled_name)\n($styled_hints)"
 }

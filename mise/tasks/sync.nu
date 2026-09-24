@@ -5,23 +5,23 @@
 #USAGE flag "--ask" help="Show diff and confirm before syncing" long_help="Show a diff of the current state and the new state, and ask for confirmation, before syncing. This is only supported by the `system` job."
 
 let job_args = if usage_job in $env {
-	$env.usage_job | split row ' '
+  $env.usage_job | split row ' '
 } else {
-	[]
+  []
 }
-	| each {|job| [ --step $job ]}
-	| flatten
+| each {|job| [ --step $job ]}
+| flatten
 
 let file_args = if ($env.GIT_AUTO_SYNC_LAST_COMMIT? | is-not-empty) {
-	[ --from-ref $env.GIT_AUTO_SYNC_LAST_COMMIT --to-ref HEAD ]
+  [--from-ref $env.GIT_AUTO_SYNC_LAST_COMMIT --to-ref HEAD]
 } else {
-	[ --all ]
+  [--all]
 }
 
 let env_vars = if usage_ask in $env {
-	{ ASK: $env.usage_ask }
+  {ASK: $env.usage_ask}
 } else {
-	{}
+  {}
 }
 
 with-env $env_vars { hk run sync ...$job_args ...$file_args }

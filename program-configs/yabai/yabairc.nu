@@ -3,13 +3,13 @@
 # Calling this when I'm already in tiling mode might change the order of my
 # windows, which I don't want, so I only set tiling mode if it isn't already set
 if (yabai -m config layout) != bsp {
-	yabai -m config layout bsp
+  yabai -m config layout bsp
 }
 
 # Remove existing signal handlers. The remove command will fail if there's
 # nothing to remove so keep running it until it fails.
 while (yabai -m signal --remove 0 | complete).exit_code == 0 {
-	ignore
+  ignore
 }
 
 yabai -m config auto_balance off

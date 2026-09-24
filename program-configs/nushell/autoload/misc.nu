@@ -9,7 +9,7 @@ $env.config.abbreviations.g = 'git'
 $env.config.abbreviations.trash = 'rm --recursive --trash'
 $env.config.abbreviations.x = 'chmod +x'
 $env.config.completions.algorithm = "fuzzy"
-$env.config.filesize = { unit: "binary" }
+$env.config.filesize = {unit: "binary"}
 $env.config.max_last_result_size = 1mb
 $env.config.show_banner = false
 $env.config.use_kitty_protocol = true
@@ -27,8 +27,7 @@ $env.config.keybindings ++= [
     keycode: char_x
     mode: [emacs vi_insert vi_normal]
     event: [
-      {
-        cmd: "
+      {cmd: "
           if (commandline | is-empty) {
             if __ans not-in $env or $ans.last != null {
               $env.__ans = $ans.last
@@ -36,9 +35,7 @@ $env.config.keybindings ++= [
             commandline edit '$env.__ans'
           }
           commandline edit --accept --append ' | explore'
-        "
-        send: ExecuteHostCommand
-      }
+        ", send: ExecuteHostCommand}
     ]
   }
   {
@@ -46,46 +43,43 @@ $env.config.keybindings ++= [
     modifier: control
     keycode: char_v
     mode: [emacs vi_insert vi_normal]
-    event: {
-      cmd: "commandline edit --insert (pbpaste)"
-      send: ExecuteHostCommand
-    }
+    event: {cmd: "commandline edit --insert (pbpaste)", send: ExecuteHostCommand}
   }
   {
     name: open_editor
     modifier: alt
     keycode: char_e
     mode: [emacs, vi_normal, vi_insert]
-    event: { send: OpenEditor }
+    event: {send: OpenEditor}
   }
   {
     name: previous_history
     modifier: control
     keycode: 'char_['
     mode: [emacs, vi_normal, vi_insert]
-    event: { send: PreviousHistory }
+    event: {send: PreviousHistory}
   }
   {
     name: next_history
     modifier: control
     keycode: 'char_]'
     mode: [emacs, vi_normal, vi_insert]
-    event: { send: NextHistory }
+    event: {send: NextHistory}
   }
   {
     name: help_menu_2
     modifier: control_shift
     keycode: char_h
     mode: [emacs, vi_insert, vi_normal]
-    event: { send: menu, name: help_menu }
+    event: {send: menu, name: help_menu}
   }
 ]
 
 $env.config.completions.external.completer = {|buffer|
   fish --command 'complete --do-complete $argv' $buffer
-    | from tsv --flexible --noheaders --no-infer
-    | rename value description
-    | update value {|row|
+  | from tsv --flexible --noheaders --no-infer
+  | rename value description
+  | update value {|row|
         let value = $row.value
         let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
         if ($need_quote and ($value | path exists)) {
@@ -108,15 +102,15 @@ $env.config.abbreviations.vim = 'nvim'
 # Choose job to unfreeze interactively if multiple exist
 def "job my-unfreeze" [] {
   job list
-    | where type == frozen
-    | match ($in | length) {
-        0 => null
-        1 => { first }
-        _ => { input list --display {|job| $job.description? | default $job.id} }
-      }
-    | if $in != null {
-        job unfreeze $in.id
-      }
+  | where type == frozen
+  | match ($in | length) {
+    0 => null
+    1 => { first }
+    _ => { input list --display {|job| $job.description? | default $job.id} }
+  }
+  | if $in != null {
+    job unfreeze $in.id
+  }
 }
 $env.config.keybindings ++= [
   {
@@ -124,15 +118,15 @@ $env.config.keybindings ++= [
     modifier: control
     keycode: char_z
     mode: [emacs vi_insert vi_normal]
-    event: { cmd: "job my-unfreeze", send: ExecuteHostCommand }
+    event: {cmd: "job my-unfreeze", send: ExecuteHostCommand}
   }
 ]
 
 # sudo
 def "nu-complete s" [buffer] {
   $buffer
-    | str replace --regex '^s' 'sudo'
-    | commandline complete
+  | str replace --regex '^s' 'sudo'
+  | commandline complete
 }
 @complete 'nu-complete s'
 def --wrapped s [...args] {
@@ -148,7 +142,7 @@ def ls [...pattern: oneof<glob, string>] {
   } else {
     %ls --all --long
   }
-    | reject num_links inode accessed created
+  | reject num_links inode accessed created
 }
 
 # fzf
@@ -190,7 +184,7 @@ ulimit -Sn 10000
 
 # vscode
 @complete external
-def --wrapped code [ ...rest: string ] {
+def --wrapped code [...rest: string] {
   # Clear SHELL because my config for the login shell only launches my shell if the current SHELL isn't mine.
   with-env {SHELL: ''} { ^code ...$rest }
 }
@@ -198,12 +192,12 @@ def --wrapped code [ ...rest: string ] {
 # comma
 def "nu-complete my-comma" [buffer] {
   $buffer
-    # Autocomplete is only defined for comma
-    | str replace --regex '^,' 'comma'
-    | commandline complete
+  # Autocomplete is only defined for comma
+  | str replace --regex '^,' 'comma'
+  | commandline complete
 }
 @complete 'nu-complete my-comma'
-def --wrapped , [ ...rest: string ] {
+def --wrapped , [...rest: string] {
   with-env {
     # `--with-nth` removes the '.out' extension from the entries.
     FZF_DEFAULT_OPTS: $"($env.FZF_DEFAULT_OPTS) --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name \(string sub --end -4 {})' --delimiter '.out' --with-nth '{1}'"
@@ -235,7 +229,7 @@ def tunnel [port: int] {
 }
 
 @complete external
-def --wrapped watch [ ...rest: string ] {
+def --wrapped watch [...rest: string] {
   viddy --disable_auto_save ...$rest
 }
 $env.config.abbreviations.watch = 'watch --differences --interval 1s --exec'
@@ -251,8 +245,8 @@ $env.RIPGREP_CONFIG_PATH = $env.XDG_CONFIG_HOME? | default $"($env.HOME)/.config
 # diffoscope
 def "nu-complete diff-html" [buffer] {
   $buffer
-    | str replace --regex '^diff-html' 'diffoscope'
-    | commandline complete
+  | str replace --regex '^diff-html' 'diffoscope'
+  | commandline complete
 }
 @complete 'nu-complete diff-html'
 def --wrapped diff-html [...args] {
@@ -267,17 +261,17 @@ def --wrapped diff-html [...args] {
 }
 def "nu-complete my-diff" [buffer] {
   $buffer
-    | str replace --regex '^diff' 'diffoscope'
-    | commandline complete
+  | str replace --regex '^diff' 'diffoscope'
+  | commandline complete
 }
 @complete 'nu-complete my-diff'
 def --wrapped diff [...args] {
   diffoscope --text-color always ...$args
-    | if (is-terminal --stdout) and not (is-redirected) {
-        ^$env.PAGER
-      } else {
-        $in
-      }
+  | if (is-terminal --stdout) and not (is-redirected) {
+    ^$env.PAGER
+  } else {
+    $in
+  }
 }
 
 # nix
@@ -287,22 +281,22 @@ def --wrapped diff [...args] {
 def "nu-complete nix-py" [spans] {
   let last_token = $spans | last
   nix eval --raw --impure --expr 'with builtins; concatStringsSep "\n" (attrNames (import <nixpkgs> {}).python3Packages)'
-    | lines
-    | where $it starts-with $last_token
+  | lines
+  | where $it starts-with $last_token
 }
 @complete 'nu-complete nix-py'
 def nix-py [...packages: string] {
-    let package_string = $packages | str join " "
-    nix shell --impure --expr $"\(import <nixpkgs> {}).python3.withPackages \(p: with p; [($package_string)])"
+  let package_string = $packages | str join " "
+  nix shell --impure --expr $"\(import <nixpkgs> {}).python3.withPackages \(p: with p; [($package_string)])"
 }
 def "nu-complete nix-is-cached" [buffer] {
   $buffer
-    | str replace --regex '^nix-is-cached' 'nix build'
-    | commandline complete
+  | str replace --regex '^nix-is-cached' 'nix build'
+  | commandline complete
 }
 @complete 'nu-complete nix-is-cached'
 def --wrapped nix-is-cached [...packages: string] {
-    nix build --impure --dry-run ...$packages
+  nix build --impure --dry-run ...$packages
 }
 def nix-store-size [] {
   nix-sweep analyze --all
@@ -314,24 +308,24 @@ def nix-store-clean [] {
     ...(glob /nix/var/nix/profiles/{default,per-user/root/profile})
     ...(glob ~/.local/state/nix/profiles/{profile,home-manager})
   ]
-    | if $nu.os-info.name == linux {
-        append /nix/var/nix/profiles/system-manager-profiles/system-manager
-      } else {
-        $in
-      }
-    | if $nu.os-info.name == macos {
-        append /nix/var/nix/profiles/system
-      } else {
-        $in
-      }
-    | each { sudo s sudo -H nix profile wipe-history --profile $in }
+  | if $nu.os-info.name == linux {
+    append /nix/var/nix/profiles/system-manager-profiles/system-manager
+  } else {
+    $in
+  }
+  | if $nu.os-info.name == macos {
+    append /nix/var/nix/profiles/system
+  } else {
+    $in
+  }
+  | each { sudo s sudo -H nix profile wipe-history --profile $in }
 
   nix-collect-garbage
 }
 
 def "nu-complete task" [buffer] {
   $buffer
-    | str replace --regex '^task' (
+  | str replace --regex '^task' (
         if (which just | is-not-empty) {
           'just'
         } else if (which mise | is-not-empty) {
@@ -339,17 +333,17 @@ def "nu-complete task" [buffer] {
           'mise run'
         }
       )
-    | commandline complete
+  | commandline complete
 }
 @complete 'nu-complete task'
 def --wrapped task [...args] {
   let exec_args = if (which just | is-not-empty) {
-    [ just ]
+    [just]
   } else if (which mise | is-not-empty) {
     # mise goes last since I install it globally
-    [ mise run ]
+    [mise run]
   }
-    | append $args
+  | append $args
 
   run-external ...$exec_args
 }

@@ -11,13 +11,13 @@ def --wrapped main [...$args] {
     } else {
       # Use a glob to avoid hard coding the program name
       glob $"(nix build --print-out-paths --no-link --file . outputsForCurrentSystem.packages.shell)/bin/*"
-        | get 0
+      | get 0
     }
 
     $env
-      | columns
-      | where $it not-in [ PWD TERM ]
-      | hide-env ...$in
+    | columns
+    | where $it not-in [ PWD TERM ]
+    | hide-env ...$in
 
     with-env { HOME: $temp_home } { ^$shell }
   } finally {

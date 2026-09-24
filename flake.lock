@@ -619,6 +619,26 @@
         "type": "github"
       }
     },
+    "nufmt": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1790211032,
+        "narHash": "sha256-zBMWmUEzubRdgozlHmMO9FvHHDsc81WuVMMXyVP0LyM=",
+        "owner": "nushell",
+        "repo": "nufmt",
+        "rev": "e4ce2f9c7f94fd7adb7f3303ee5a0f53183036ac",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nushell",
+        "repo": "nufmt",
+        "type": "github"
+      }
+    },
     "nushell": {
       "inputs": {
         "nixpkgs": [
@@ -689,6 +709,7 @@
         "nix-scene": "nix-scene",
         "nixpkgs": "nixpkgs_2",
         "nixpkgs-multiverse": "nixpkgs-multiverse",
+        "nufmt": "nufmt",
         "nushell": "nushell",
         "system-manager": "system-manager"
       }

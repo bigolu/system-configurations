@@ -205,6 +205,12 @@ let
     });
     nushellPlugins = inputs.nushell.legacyPackages.${final.stdenv.hostPlatform.system}.nushellPlugins;
   };
+
+  nufmtOverlay = final: _: {
+    nufmt = inputs.nufmt.packages.${final.stdenv.hostPlatform.system}.default.overrideAttrs (_old: {
+      doCheck = false;
+    });
+  };
 in
 {
   config.allowUnfreePredicate = pkg: elem pkg.pname [ "vscode" ];
@@ -216,6 +222,7 @@ in
     llmAgentsOverlay
     nixpkgsMultiverseOverlay
     nushellOverlay
+    nufmtOverlay
     myOverlay
   ];
 }

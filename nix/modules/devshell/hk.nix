@@ -40,6 +40,7 @@
       lua-language-server
       nixfmt
       nixpkgs-lint-community
+      nufmt
       pkl
       prettier
       renovate

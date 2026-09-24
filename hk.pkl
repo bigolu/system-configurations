@@ -175,6 +175,10 @@ local formatterFixes = new Mapping<String, Step> {
     glob = "**/*.md"
     fix = "rumdl fmt --silent {{files}}"
   }
+  ["nufmt"] = new Step {
+    glob = "**/*.nu"
+    fix = "nufmt {{files}}"
+  }
 }
 
 // For `fail_fast` to be effective, steps should be ordered from fastest to
