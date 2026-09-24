@@ -80,15 +80,15 @@ $env.config.completions.external.completer = {|buffer|
   | from tsv --flexible --noheaders --no-infer
   | rename value description
   | update value {|row|
-        let value = $row.value
-        let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
-        if ($need_quote and ($value | path exists)) {
-          let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
-          $'"($expanded_path | str replace --all "\"" "\\\"")"'
-        } else {
-          $value
-        }
-      }
+    let value = $row.value
+    let need_quote = ['\' ',' '[' ']' '(' ')' ' ' '\t' "'" '"' "`"] | any {$in in $value}
+    if ($need_quote and ($value | path exists)) {
+      let expanded_path = if ($value starts-with ~) {$value | path expand --no-symlink} else {$value}
+      $'"($expanded_path | str replace --all "\"" "\\\"")"'
+    } else {
+      $value
+    }
+  }
 }
 
 # Set preferred editor. Programs check either of these variables for the
