@@ -10,6 +10,8 @@ let
     home-manager.users.${primaryUser} = {
       imports = [ (import "${inputs.nix-index-database}/home-manager-module.nix") ];
 
+      programs.nix-index.enableNushellIntegration = false;
+
       fileWrapper.xdg.configFile = {
         "nix/repl-overlay.nix".source = "nix/repl-overlay.nix";
         "nix/nix.conf".source = "nix/nix.conf";
