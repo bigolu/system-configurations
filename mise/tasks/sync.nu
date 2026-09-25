@@ -10,7 +10,7 @@ let job_args = if usage_job in $env {
 } else {
   []
 }
-| each {|job| [ --step $job ]}
+| each { prepend '--step' }
 | flatten
 
 let file_args = if ($env.GIT_AUTO_SYNC_LAST_COMMIT? | is-not-empty) {
