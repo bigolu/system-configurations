@@ -1,7 +1,0 @@
-external-sources=true
-enable=all
-# This rule is not needed since 2154[1] already catches references to variables
-# that don't exist.
-#
-# [1]: https://www.shellcheck.net/wiki/SC2154
-disable=2250

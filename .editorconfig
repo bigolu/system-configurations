@@ -9,8 +9,3 @@ insert_final_newline = true
 # Another reason we set this is so `editorconfig-checker` can verify that all
 # files use this charset.
 charset = utf-8
-
-# These are read by `shfmt`
-[*.{sh,bash}]
-simplify = true
-switch_case_indent = true

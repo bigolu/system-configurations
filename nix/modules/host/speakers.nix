@@ -8,8 +8,13 @@
   ...
 }:
 let
-  inherit (pkgs) replaceVars linkFarm speakerctl;
-  inherit (lib) getExe;
+  inherit (pkgs)
+    replaceVars
+    linkFarm
+    speakerctl
+    runCommand
+    ;
+  inherit (lib) getExe pipe;
   speakersRoot = myUtils.programConfigRoot + /speakers;
 in
 {
@@ -41,7 +46,27 @@ in
       };
 
       environment.etc."NetworkManager/dispatcher.d/pre-down.d/turn-off-speakers".source =
-        speakersLinuxRoot + /turn-off-speakers.bash;
+        pipe (speakersLinuxRoot + /turn-off-speakers.nu)
+          [
+            (
+              script:
+              let
+                name = "turn-off-speakers";
+              in
+              runCommand name
+                {
+                  buildInputs = [ pkgs.nushell ];
+                  meta.mainProgram = name;
+                }
+                ''
+                  mkdir --parents $out/bin
+                  cp ${script} $out/bin/${name}
+                  chmod +x $out/bin/${name}
+                  patchShebangs $out/bin/${name}
+                ''
+            )
+            getExe
+          ];
     };
 
   darwin = {

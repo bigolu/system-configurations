@@ -22,9 +22,6 @@ tools:
           esac
           ;;
       esac
-  shfmt: &shfmt
-    format-stdin: true
-    format-command: shfmt --filename ${INPUT} -
   nixfmt: &nixfmt
     format-stdin: true
     format-command: |
@@ -145,8 +142,6 @@ languages:
     - <<: *prettier
   yaml:
     - <<: *prettier
-  shellscript:
-    - <<: *shfmt
   nix:
     - <<: *nixfmt
     - <<: *statix

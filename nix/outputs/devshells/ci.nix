@@ -18,6 +18,6 @@
     };
 
     # For the `run` steps in CI workflows
-    devshell.packages = [ pkgs.bash ];
+    devshell.packages = [ pkgs.nushell ];
   };
 }).shell

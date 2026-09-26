@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
 defaults:
   run:
-    shell: nix run --file . outputsForCurrentSystem.devShells.ci -- bash {0}
+    shell: nix run --file . outputsForCurrentSystem.devShells.ci -- nu {0}
 permissions:
   # hestia needs these
   contents: read

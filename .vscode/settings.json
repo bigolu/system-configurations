@@ -8,8 +8,7 @@
   },
   "files.associations": {
     ".envrc": "shellscript",
-    "renovate.json": "jsonc",
-    "shellcheckrc": "plaintext"
+    "renovate.json": "jsonc"
   },
   "lsp_generic_client.servers": {
     "efm-langserver": {

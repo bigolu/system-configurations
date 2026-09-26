@@ -45,8 +45,6 @@
       prettier
       renovate
       rumdl
-      shellcheck
-      shfmt
       statix
       stylua
       tombi

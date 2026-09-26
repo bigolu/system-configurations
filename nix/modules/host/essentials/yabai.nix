@@ -30,7 +30,7 @@
     in
     {
       home-manager.users.${primaryUser}.fileWrapper.xdg.configFile."yabai/yabairc".source =
-        "yabai/yabairc.bash";
+        "yabai/yabairc.nu";
 
       services.yabai = {
         enable = true;

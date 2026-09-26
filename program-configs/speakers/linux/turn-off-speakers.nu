@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nu
 
 # Stop the speakers if the system is about to shut down or suspend.
 #
@@ -9,7 +9,6 @@
 #
 # [1]: https://unix.stackexchange.com/a/687849
 
-# shellcheck disable=2312
-if [[ $(systemctl is-system-running) == 'stopping' || "$(journalctl --since '5 seconds ago')" == *'suspend'* ]]; then
-	sudo systemctl stop speakers.service
-fi
+if (systemctl is-system-running) == 'stopping' or (journalctl --since '5 seconds ago' | str contains 'suspend') {
+  sudo systemctl stop speakers.service
+}

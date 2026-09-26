@@ -142,24 +142,6 @@ hooks =
             ["npins"] = new Step {
               fix = "npins upgrade"
             }
-            ["shellcheck-fix"] = new Step {
-              glob = "**/*.{sh,bash}"
-              fix =
-                """
-                {
-                  set +o errexit
-                  shellcheck --format diff {{files}}
-                  exit_code=$?
-                  set -o errexit
-                  # shellcheck exits with 0 if it does not find any issues and 1 if it
-                  # does. Any other exit code should be considered a failure.
-                  if (( exit_code > 1 )); then
-                    exit 1
-                  fi
-                } |
-                  git apply --allow-empty
-                """
-            }
             ["quotes"] = new Step {
               glob = "**/*"
               fix = "hk util fix-smart-quotes {{files}}"
@@ -195,10 +177,6 @@ hooks =
                   {{files}}
                 """#
             }
-            ["shfmt"] = new Step {
-              glob = "**/*.{sh,bash}"
-              fix = "shfmt --write {{files}}"
-            }
             ["nixfmt"] = new Step {
               glob = "**/*.nix"
               fix = "nixfmt --strict --verify {{files}}"
@@ -222,8 +200,8 @@ hooks =
           }
         )
         // For `fail_fast` to be effective, steps should be ordered from fastest to
-        // slowest. Run this command to print the steps sorted by duration:
-        // `env HK_TIMING_JSON=/dev/stdout hk run check --all | jq '.steps | to_entries | sort_by(.value.wall_time_ms) | from_entries'`
+        // slowest. Run this command in nushell to print the steps sorted by duration:
+        // with-env { HK_TIMING_JSON: '/dev/stdout' } { hk run check --all } | from json | get steps | transpose step duration | upsert duration {|row| $row.duration.wall_time_ms | into duration --unit ms } | sort-by duration
         let (
           checks = new Mapping<String, Step> {
             ["keyd"] = new Step {
@@ -261,10 +239,6 @@ hooks =
             ["statix-check"] = new Step {
               glob = "**/*.nix"
               check = #"for file in {{files}}; do statix check "$file"; done"#
-            }
-            ["shellcheck-check"] = new Step {
-              glob = "**/*.{sh,bash}"
-              check = "shellcheck {{files}}"
             }
             ["pkl-lint"] = new Step {
               glob = "hk.pkl"
