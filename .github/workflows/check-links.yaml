@@ -18,4 +18,4 @@ jobs:
   check-links:
     runs-on: ubuntu-24.04
     steps:
-      - uses: bigolu/lychee-aio-action@main
+      - uses: bigolu/lychee-aio-action@6e5df3f0f6a89030a5c76f5f1502b8444891b642 # main
