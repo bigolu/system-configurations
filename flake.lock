@@ -648,11 +648,11 @@
       },
       "locked": {
         "dir": "scripts/nix",
-        "lastModified": 1790097702,
-        "narHash": "sha256-HiHN9eUknCSTTuODnA5j/0KJ1satPMA6M8N95DfykZs=",
+        "lastModified": 1790438542,
+        "narHash": "sha256-xSV4v7VJ3vd39a4hAywjo7hXtwrB598DtMOsYWqfIFA=",
         "owner": "nushell",
         "repo": "nushell",
-        "rev": "9c9f93c7274fffcd3c6ff63736aeeda6ea5bf470",
+        "rev": "2459fdd134ea4fdbae42efd6924e2b41201cf363",
         "type": "github"
       },
       "original": {

@@ -1,5 +1,5 @@
 local function is_current_buffer_too_big_to_highlight()
-	local max_filesize = 100 * 1024 -- 100 KB
+	local max_filesize = 100 * 1024 -- 100 KiB
 	-- I make sure to use something that gets the size of the buffer and not file
 	-- because I may be editing a file that isn't stored locally e.g. `nvim <url>`
 	return vim.fn.wordcount().bytes > max_filesize

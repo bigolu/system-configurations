@@ -1,14 +1,8 @@
 # Remove large or unnecessary packages from the portable shell
 pkgs:
 let
-  inherit (pkgs.lib)
-    optionals
-    foldl'
-    recursiveUpdate
-    setAttrByPath
-    ;
+  inherit (pkgs.lib) foldl' recursiveUpdate setAttrByPath;
   inherit (pkgs) runCommand;
-  inherit (pkgs.stdenv.hostPlatform) isDarwin;
 
   emptyPackage =
     # `lib.getExe` will be called with these packages so `meta.mainProgram` must be
@@ -32,18 +26,15 @@ in
     };
   };
 }
-// (makeEmptyPackageSet (
+// (makeEmptyPackageSet [
   [
-    [
-      "lixPackageSet"
-      "lix"
-    ]
-    [ "diffoscopeMinimal" ]
-    [ "difftastic" ]
-    [ "lesspipe" ]
-    [ "ripgrep-all" ]
-    [ "timg" ]
-    [ "home-manager" ]
+    "lixPackageSet"
+    "lix"
   ]
-  ++ optionals isDarwin [ [ "moreutils" ] ]
-))
+  [ "diffoscopeMinimal" ]
+  [ "difftastic" ]
+  [ "lesspipe" ]
+  [ "ripgrep-all" ]
+  [ "timg" ]
+  [ "home-manager" ]
+])
