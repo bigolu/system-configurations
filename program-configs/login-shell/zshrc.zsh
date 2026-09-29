@@ -22,6 +22,6 @@ if ((${+VSCODE_RESOLVING_ENVIRONMENT})) || [ ! -t 1 ]; then
 	return
 fi
 
-if [ "$SHELL:t" != 'nu' ] && (($+commands[nu])); then
-	SHELL="$(command -v nu)" exec nu
+if [ -z "$BIGOLU_DID_SHELL_EXEC" ] && (($+commands[nu])); then
+	BIGOLU_DID_SHELL_EXEC=true SHELL="$(command -v nu)" exec nu
 fi

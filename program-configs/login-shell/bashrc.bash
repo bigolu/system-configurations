@@ -23,6 +23,6 @@ if ! [[ $- == *i* && -z ${VSCODE_RESOLVING_ENVIRONMENT:-} && -t 1 ]]; then
 fi
 
 nu_path="$(type -P nu)"
-if [[ ${SHELL##*/} != 'nu' && -n $nu_path ]]; then
-	SHELL="$nu_path" exec "$nu_path"
+if [[ -z ${BIGOLU_DID_SHELL_EXEC:-} && -n $nu_path ]]; then
+	BIGOLU_DID_SHELL_EXEC=true SHELL="$nu_path" exec "$nu_path"
 fi
