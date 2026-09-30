@@ -284,7 +284,7 @@ $env.PROMPT_COMMAND = {
     }
 
     if $async_prompt_var in $env {
-      let stats = (gstat --no-tag)
+      let stats = gstat --no-tag
 
       let attributes = [
         (
