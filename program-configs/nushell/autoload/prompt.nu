@@ -290,23 +290,21 @@ $env.PROMPT_COMMAND = {
         (
           if ($stats
           | get wt_modified wt_deleted wt_type_changed wt_renamed
-          | any { $in > 0 }) { 'dirty' } else { null }
+          | any { $in > 0 }) { 'dirty' }
         )
         (
           if ($stats
           | get idx_added_staged idx_modified_staged idx_deleted_staged idx_renamed idx_type_changed
-          | any { $in > 0 }) { 'staged' } else { null }
+          | any { $in > 0 }) { 'staged' }
         )
-        (if $stats.wt_untracked > 0 { 'untracked' } else { null })
-        (if $stats.conflicts > 0 { 'conflicted' } else { null })
-        (if $stats.ahead > 0 { $'ahead:($stats.ahead)' } else { null })
-        (if $stats.behind > 0 { $'behind:($stats.behind)' } else { null })
+        (if $stats.wt_untracked > 0 { 'untracked' })
+        (if $stats.conflicts > 0 { 'conflicted' })
+        (if $stats.ahead > 0 { $'ahead:($stats.ahead)' })
+        (if $stats.behind > 0 { $'behind:($stats.behind)' })
       ]
       | compact
       | if ($in | is-not-empty) {
         str join "," | $"\(($in))"
-      } else {
-        null
       }
 
       [$stats.branch $attributes] | compact | str join " "
