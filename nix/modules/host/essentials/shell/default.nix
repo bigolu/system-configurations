@@ -39,8 +39,11 @@
 
       programs.nushell = {
         enable = true;
-        # TODO: It's broken
-        # plugins = with pkgs.nushellPlugins; [ formats ];
+        plugins = with pkgs.nushellPlugins; [
+          # TODO: It's broken
+          # formats
+          gstat
+        ];
       };
 
       home.packages =

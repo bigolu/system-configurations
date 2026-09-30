@@ -240,7 +240,7 @@ $env.PROMPT_COMMAND = {
     }
   }
 
-  def get-exit-code-signal [code: int] {
+  def get-exit-code-signal [code: oneof<int, nothing>] {
     match $code {
       -1 => 'SIGHUP'
       -2 => 'SIGINT'
@@ -284,33 +284,36 @@ $env.PROMPT_COMMAND = {
     }
 
     if $async_prompt_var in $env {
+      let stats = (gstat --no-tag)
 
-      # TODO: Implement in nushell to avoid overhead of going through fish
-      fish -c r#'
-        set --global __fish_git_prompt_showupstream informative
-        set --global __fish_git_prompt_showdirtystate 1
-        set --global __fish_git_prompt_showuntrackedfiles 1
-        set --global __fish_git_prompt_char_upstream_ahead ',ahead:'
-        set --global __fish_git_prompt_char_upstream_behind ',behind:'
-        set --global __fish_git_prompt_char_untrackedfiles ',untracked'
-        set --global __fish_git_prompt_char_dirtystate ',dirty'
-        set --global __fish_git_prompt_char_stagedstate ',staged'
-        set --global __fish_git_prompt_char_invalidstate ',invalid'
-        set --global __fish_git_prompt_char_stateseparator ''
-        set git_status (fish_git_prompt)
+      let attributes = [
+        (
+          if ($stats
+          | get wt_modified wt_deleted wt_type_changed wt_renamed
+          | math sum
+          | $in > 0) { 'dirty' } else { null }
+        )
+        (
+          if ($stats
+          | get idx_added_staged idx_modified_staged idx_deleted_staged idx_renamed idx_type_changed
+          | math sum
+          | $in > 0) { 'staged' } else { null }
+        )
+        (if $stats.wt_untracked > 0 { 'untracked' } else { null })
+        (if $stats.conflicts > 0 { 'conflicted' } else { null })
+        (if $stats.ahead > 0 { $'ahead:($stats.ahead)' } else { null })
+        (if $stats.behind > 0 { $'behind:($stats.behind)' } else { null })
+      ]
+      | compact
+      | if ($in | is-not-empty) {
+        $in
+        | str join ","
+        | $"\(($in))"
+      } else {
+        null
+      }
 
-        # remove parentheses and leading space
-        # e.g. ' (<branch>,dirty,untracked)' -> '<branch>,dirty,untracked'
-        set --local formatted_status (string sub --start=3 --end=-1 $git_status)
-
-        # replace first comma with ', '
-        # '<branch>,dirty,untracked' -> '<branch> (dirty,untracked'
-        set --local formatted_status (string replace ',' ' (' $formatted_status)
-        # only add the closing parentheses if we added the opening one
-        and set formatted_status (string join '' $formatted_status ')')
-
-        echo "$formatted_status"
-      '#
+      [$stats.branch $attributes] | compact | str join " "
     } else {
       $'(ansi light_gray_italic)loading($colors.reset)'
     }
