@@ -306,9 +306,7 @@ $env.PROMPT_COMMAND = {
       ]
       | compact
       | if ($in | is-not-empty) {
-        $in
-        | str join ","
-        | $"\(($in))"
+        str join "," | $"\(($in))"
       } else {
         null
       }
