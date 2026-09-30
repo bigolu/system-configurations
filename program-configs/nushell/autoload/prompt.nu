@@ -290,14 +290,12 @@ $env.PROMPT_COMMAND = {
         (
           if ($stats
           | get wt_modified wt_deleted wt_type_changed wt_renamed
-          | math sum
-          | $in > 0) { 'dirty' } else { null }
+          | any { $in > 0 }) { 'dirty' } else { null }
         )
         (
           if ($stats
           | get idx_added_staged idx_modified_staged idx_deleted_staged idx_renamed idx_type_changed
-          | math sum
-          | $in > 0) { 'staged' } else { null }
+          | any { $in > 0 }) { 'staged' } else { null }
         )
         (if $stats.wt_untracked > 0 { 'untracked' } else { null })
         (if $stats.conflicts > 0 { 'conflicted' } else { null })
