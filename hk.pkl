@@ -1,27 +1,5 @@
 amends "package://github.com/jdx/hk/releases/download/v1.56.0/hk@1.56.0#/Config.pkl"
 
-local function setShellForSteps(hooks: Mapping<String, Hook>): Mapping<String, Hook> =
-  hooks
-    .toMap()
-    .mapValues((_, hook) -> (hook) {
-      steps =
-        hook.steps
-          .toMap()
-          .mapValues((_, stepOrGroup) -> (stepOrGroup) {
-            // TODO: I want to use nushell, but hk doesn't support escaping
-            // paths for nushell yet[1].
-            //
-            // To ensure that templates like `{{files}}` are escaped properly
-            // for the Bash shell, the last path segment of the first word in
-            // `shell` must end in "bash"[1].
-            //
-            // [1]: https://github.com/jdx/hk/blob/a4f3938616fa64c9d1916fa9681faf5919d77f7f/src/step/runner.rs#L415
-            shell = "bash -o errexit -o nounset -o pipefail -c"
-          })
-          .toMapping()
-    })
-    .toMapping()
-
 exclude =
   List(
     ".vscode/ltex*",
@@ -29,249 +7,267 @@ exclude =
     "nix/pins/npins",
   )
 
-hooks =
-  setShellForSteps(new Mapping<String, Hook> {
-    ["sync"] {
-      steps = new Mapping<String, Step | Group> {
-        ["direnv"] = new Step {
-          glob =
-            List(
-              "hk.pkl",
-              ".envrc-recommended.bash",
-              // Everything below affects the nix dev shell, which direnv loads
-              "**/*.nix",
-              "flake.lock",
-              "{nix,mise/tasks}/**/*",
-            )
-          // TODO: Real-Time output only shows if the command is on a single line.
-          // This seems like a bug.
-          check = "direnv reload; direnv exec . true"
-        }
-        // Why we use a group:
-        //   - Ensure that the "direnv" step finishes before other steps start so the
-        //     devshell logs/diff get printed in that step.
-        //   - To set a `prefix` for the steps in the group.
-        ["sync-2"] = new Group {
-          prefix =
-            """
-            run_in_dev_shell() {
-              # Some of the sync jobs may depend on something from the new devshell.
-              if [[ ${IN_GIT_AUTO_SYNC:-} == 'true' ]]; then
-                nix run --file . outputsForCurrentSystem.devShells.dev -- "$@"
-              else
-                "$@"
-              fi
-            }
-            run_in_dev_shell
-            """
-          steps {
-            ["system"] = new Step {
-              // I want to take input from the user for these reasons:
-              //   - So I can input my password for `sudo`, used in the
-              //     `hk:system-sync` mise task.
-              //   - If the `--ask` flag is passed to the `sync` mise task, then
-              //     `hk:system-sync` will prompt the user for confirmation.
-              interactive = true
-              glob =
-                List(
-                  "hk.pkl",
-                  "{nix,program-configs}/**/*",
-                  "**/*.nix",
-                  "flake.lock",
-                )
-              // TODO: Despite `interactive` being enabled, I still have to use
-              // redirections to connect to the terminal.
-              check = "mise run hk:system-sync </dev/tty >/dev/tty 2>&1"
-            }
-            ["git-auto-sync"] = new Step {
-              glob =
-                List(
-                  "hk.pkl",
-                  // These could affect the version of the program being run.
-                  "**/*.nix",
-                  "flake.lock",
-                )
-              check = "git-auto-sync install mise run sync"
-            }
-            ["git-auto-check"] = new Step {
-              glob =
-                List(
-                  "hk.pkl",
-                  // These could affect the version of the program being run.
-                  "**/*.nix",
-                  "flake.lock",
-                )
-              // These steps can't run in parallel because they both fail if they
-              // can't acquire a lock for `.git/config`.
-              depends = List("git-auto-sync")
-              check = "git-auto-check install mise run check"
-            }
+hooks = new Mapping<String, Hook> {
+  ["sync"] {
+    steps = new Mapping<String, Step | Group> {
+      ["direnv"] = new Step {
+        glob =
+          List(
+            "hk.pkl",
+            ".envrc-recommended.bash",
+            // Everything below affects the nix dev shell, which direnv loads
+            "**/*.nix",
+            "flake.lock",
+            "{nix,mise/tasks}/**/*",
+          )
+        // TODO: Real-Time output only shows if the command is on a single line.
+        // This seems like a bug.
+        check = exec_nu("direnv reload; direnv exec . true")
+      }
+      // Why we use a group:
+      //   - Ensure that the "direnv" step finishes before other steps start so the
+      //     devshell logs/diff get printed in that step.
+      //   - To set a `prefix` for the steps in the group.
+      ["sync-2"] = new Group {
+        prefix = List("mise", "run", "hk:run-in-dev-shell")
+        steps {
+          ["system"] = new Step {
+            // I want to take input from the user for these reasons:
+            //   - So I can input my password for `sudo`, used in the
+            //     `hk:system-sync` mise task.
+            //   - If the `--ask` flag is passed to the `sync` mise task, then
+            //     `hk:system-sync` will prompt the user for confirmation.
+            interactive = true
+            glob =
+              List(
+                "hk.pkl",
+                "{nix,program-configs}/**/*",
+                "**/*.nix",
+                "flake.lock",
+              )
+            check = exec(List("mise", "run", "hk:system-sync"))
+          }
+          ["git-auto-sync"] = new Step {
+            glob =
+              List(
+                "hk.pkl",
+                // These could affect the version of the program being run.
+                "**/*.nix",
+                "flake.lock",
+              )
+            check = exec(List("git-auto-sync", "install", "mise", "run", "sync"))
+          }
+          ["git-auto-check"] = new Step {
+            glob =
+              List(
+                "hk.pkl",
+                // These could affect the version of the program being run.
+                "**/*.nix",
+                "flake.lock",
+              )
+            // These steps can't run in parallel because they both fail if they
+            // can't acquire a lock for `.git/config`.
+            depends = List("git-auto-sync")
+            check = exec(List("git-auto-check", "install", "mise", "run", "check"))
           }
         }
       }
     }
-    ["check"] {
-      // Ensure our pre-push hook fails, and the push gets aborted, if any
-      // files get fixed.
-      fail_on_fix = true
+  }
+  ["check"] {
+    // Ensure our pre-push hook fails, and the push gets aborted, if any
+    // files get fixed.
+    fail_on_fix = true
 
-      steps =
-        let (
-          nonFormatterFixes = new Mapping<String, Step> {
-            ["flake-lock"] = new Step {
-              fix = "nix flake lock"
-            }
-            ["readme-config-names"] = new Step {
-              // Ensure a lock is acquired for this file
-              glob = "README.md"
-              fix = "mise run hk:add-config-names-to-readme"
-            }
-            ["hk-import"] = new Step {
-              // Ensure a lock is acquired for this file
-              glob = "hk.pkl"
-              fix = "mise run hk:update-hk-import"
-            }
-            ["deadnix"] = new Step {
-              glob = "**/*.nix"
-              fix = "deadnix --quiet --edit {{files}}"
-            }
-            ["statix-fix"] = new Step {
-              glob = "**/*.nix"
-              fix = #"for file in {{files}}; do statix fix "$file"; done"#
-            }
-            ["npins"] = new Step {
-              fix = "npins upgrade"
-            }
-            ["quotes"] = new Step {
-              glob = "**/*"
-              fix = "hk util fix-smart-quotes {{files}}"
-            }
-            ["end-of-file"] = new Step {
-              glob = "**/*"
-              fix = "hk util end-of-file-fixer --fix {{files}}"
-            }
-            ["mixed-line-ending"] = new Step {
-              glob = "**/*"
-              fix = "hk util mixed-line-ending --fix {{files}}"
-            }
+    steps =
+      let (
+        nonFormatterFixes = new Mapping<String, Step> {
+          ["flake-lock"] = new Step {
+            fix = exec(List("nix", "flake", "lock"))
           }
-        )
-        let (
-          formatterFixes = new Mapping<String, Step> {
-            ["tombi-format"] = new Step {
-              glob = "**/*.toml"
-              fix = "tombi format --quiet {{files}}"
-            }
-            // This also acts a syntax checker for these file types since prettier will
-            // fail if the files aren't syntactically correct.
-            ["prettier"] = new Step {
-              glob = "**/*.{json,jsonc,yaml}"
-              fix =
+          ["readme-config-names"] = new Step {
+            // Ensure a lock is acquired for this file
+            glob = "README.md"
+            fix = exec(List("mise", "run", "hk:add-config-names-to-readme"))
+          }
+          ["hk-import"] = new Step {
+            // Ensure a lock is acquired for this file
+            glob = "hk.pkl"
+            fix = exec(List("mise", "run", "hk:update-hk-import"))
+          }
+          ["deadnix"] = new Step {
+            glob = "**/*.nix"
+            fix = exec(List("deadnix", "--quiet", "--edit", "{{files}}"))
+          }
+          ["statix-fix"] = new Step {
+            glob = "**/*.nix"
+            fix = exec_nu("$files | par-each { statix fix $in }")
+          }
+          ["npins"] = new Step {
+            fix = exec(List("npins", "upgrade"))
+          }
+          ["quotes"] = new Step {
+            glob = "**/*"
+            fix = exec(List("hk", "util", "fix-smart-quotes", "{{files}}"))
+          }
+          ["end-of-file"] = new Step {
+            glob = "**/*"
+            fix = exec(List("hk", "util", "end-of-file-fixer", "--fix", "{{files}}"))
+          }
+          ["mixed-line-ending"] = new Step {
+            glob = "**/*"
+            fix = exec(List("hk", "util", "mixed-line-ending", "--fix", "{{files}}"))
+          }
+        }
+      )
+      let (
+        formatterFixes = new Mapping<String, Step> {
+          ["tombi-format"] = new Step {
+            glob = "**/*.toml"
+            fix = exec(List("tombi", "format", "--quiet", "{{files}}"))
+          }
+          // This also acts a syntax checker for these file types since prettier will
+          // fail if the files aren't syntactically correct.
+          ["prettier"] = new Step {
+            glob = "**/*.{json,jsonc,yaml}"
+            fix =
+              exec_nu(
                 #"""
-                prettier \
-                  --cache \
-                  --cache-location "$PRJ_DATA_DIR/prettier-cache" \
-                  --cache-strategy metadata \
-                  --list-different \
-                  --write \
-                  {{files}}
-                """#
-            }
-            ["nixfmt"] = new Step {
-              glob = "**/*.nix"
-              fix = "nixfmt --strict --verify {{files}}"
-            }
-            ["stylua"] = new Step {
-              glob = "**/*.lua"
-              fix = "stylua --verify {{files}}"
-            }
-            ["pkl-format"] = new Step {
-              glob = "hk.pkl"
-              fix = "pkl format --write {{files}}"
-            }
-            ["rumdl-format-and-fix"] = new Step {
-              glob = "**/*.md"
-              fix = "rumdl fmt --silent {{files}}"
-            }
-            ["nufmt"] = new Step {
-              glob = "**/*.nu"
-              fix = "nufmt {{files}}"
-            }
+                (
+                  prettier
+                    --cache
+                    --cache-location $"($env.PRJ_DATA_DIR)/prettier-cache"
+                    --cache-strategy metadata
+                    --list-different
+                    --write
+                    ...$files
+                )
+                """#,
+              )
           }
-        )
-        // For `fail_fast` to be effective, steps should be ordered from fastest to
-        // slowest. Run this command in nushell to print the steps sorted by duration:
-        // with-env { HK_TIMING_JSON: '/dev/stdout' } { hk run check --all } | from json | get steps | transpose step duration | upsert duration {|row| $row.duration.wall_time_ms | into duration --unit ms } | sort-by duration
-        let (
-          checks = new Mapping<String, Step> {
-            ["keyd"] = new Step {
-              glob = "**/keyd/default.conf"
-              check = "type -P keyd >/dev/null && keyd check {{files}}"
-            }
-            ["actionlint"] = new Step {
-              glob = ".github/workflows/*.yaml"
-              check = "actionlint {{files}}"
-            }
-            ["rumdl-check"] = new Step {
-              glob = "**/*.md"
-              check = "rumdl check {{files}}"
-            }
-            ["editorconfig-checker"] = new Step {
-              glob = "**/*"
-              check = "editorconfig-checker {{files}}"
-            }
-            ["tombi-lint"] = new Step {
-              glob = "**/*.toml"
-              check = "tombi lint --quiet {{files}}"
-            }
-            ["large-files"] = new Step {
-              glob = "**/*"
-              check = "hk util check-added-large-files {{files}}"
-            }
-            ["case-conflict"] = new Step {
-              glob = "**/*"
-              check = "hk util check-case-conflict {{files}}"
-            }
-            ["nixpkgs-lint"] = new Step {
-              glob = "**/*.nix"
-              check = "nixpkgs-lint --include-unfinished-lints -- {{files}}"
-            }
-            ["statix-check"] = new Step {
-              glob = "**/*.nix"
-              check = #"for file in {{files}}; do statix check "$file"; done"#
-            }
-            ["pkl-lint"] = new Step {
-              glob = "hk.pkl"
-              check = "pkl eval {{files}} >/dev/null"
-            }
-            ["renovate-config-validator"] = new Step {
-              glob = "renovate.json"
-              check = "renovate-config-validator --no-global --strict {{files}}"
-            }
-            ["betterleaks"] = new Step {
-              glob = "**/*"
-              check = "betterleaks dir --no-banner --verbose --log-level warn {{files}}"
-            }
-            ["lua-ls"] = new Step {
-              // TODO: Real-Time output only shows if the command is on a single line.
-              // This seems like a bug.
-              check =
-                #"lua-language-server --logpath "$(mktemp --directory)/lua-ls-logs" --check ./program-configs/neovim --configpath "$PWD/.luarc.json""#
-            }
-            ["nix"] = new Step {
-              // TODO: Real-Time output only shows if the command is on a single line.
-              // This seems like a bug.
-              check =
-                #"dest="$PRJ_DATA_DIR/gc-roots/checks"; rm -rf "$dest"; nix build --out-link "$dest/root" --impure --expr "builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks [\"pkgs-shell-bundle\"]""#
-            }
+          ["nixfmt"] = new Step {
+            glob = "**/*.nix"
+            fix = exec(List("nixfmt", "--strict", "--verify", "{{files}}"))
           }
-        )
-          // Fixes must run before checks for these reasons:
-          //   - A fix could produce code that would fail a check
-          //   - A fix could fix an issue that would have been found by a check
-          //
-          // Non-Formatter fixes must run before formatters since they may produce
-          // code that doesn't comply with the formatting.
-          (nonFormatterFixes.toMap() + formatterFixes.toMap() + checks.toMap()).toMapping()
-    }
-  })
+          ["stylua"] = new Step {
+            glob = "**/*.lua"
+            fix = exec(List("stylua", "--verify", "{{files}}"))
+          }
+          ["pkl-format"] = new Step {
+            glob = "hk.pkl"
+            fix = exec(List("pkl", "format", "--write", "{{files}}"))
+          }
+          ["rumdl-format-and-fix"] = new Step {
+            glob = "**/*.md"
+            fix = exec(List("rumdl", "fmt", "--silent", "{{files}}"))
+          }
+          ["nufmt"] = new Step {
+            glob = "**/*.nu"
+            fix = exec(List("nufmt", "{{files}}"))
+          }
+        }
+      )
+      // For `fail_fast` to be effective, steps should be ordered from fastest to
+      // slowest. Run this command in nushell to print the steps sorted by duration:
+      // with-env { HK_TIMING_JSON: '/dev/stdout' } { hk run check --all } | from json | get steps | transpose step duration | upsert duration {|row| $row.duration.wall_time_ms | into duration --unit ms } | sort-by duration
+      let (
+        checks = new Mapping<String, Step> {
+          ["keyd"] = new Step {
+            glob = "**/keyd/default.conf"
+            check = exec_nu("if (which keyd | is-not-empty) { keyd check ...$files }")
+          }
+          ["actionlint"] = new Step {
+            glob = ".github/workflows/*.yaml"
+            check = exec(List("actionlint", "{{files}}"))
+          }
+          ["rumdl-check"] = new Step {
+            glob = "**/*.md"
+            check = exec(List("rumdl", "check", "{{files}}"))
+          }
+          ["editorconfig-checker"] = new Step {
+            glob = "**/*"
+            check = exec(List("editorconfig-checker", "{{files}}"))
+          }
+          ["tombi-lint"] = new Step {
+            glob = "**/*.toml"
+            check = exec(List("tombi", "lint", "--quiet", "{{files}}"))
+          }
+          ["large-files"] = new Step {
+            glob = "**/*"
+            check = exec(List("hk", "util", "check-added-large-files", "{{files}}"))
+          }
+          ["case-conflict"] = new Step {
+            glob = "**/*"
+            check = exec(List("hk", "util", "check-case-conflict", "{{files}}"))
+          }
+          ["nixpkgs-lint"] = new Step {
+            glob = "**/*.nix"
+            check = exec(List("nixpkgs-lint", "--include-unfinished-lints", "--", "{{files}}"))
+          }
+          ["statix-check"] = new Step {
+            glob = "**/*.nix"
+            check = exec_nu("$files | par-each { statix check $in }")
+          }
+          ["pkl-lint"] = new Step {
+            glob = "hk.pkl"
+            check = exec_nu("pkl eval ...$files | ignore --stdout")
+          }
+          ["renovate-config-validator"] = new Step {
+            glob = "renovate.json"
+            check = exec(List("renovate-config-validator", "--no-global", "--strict", "{{files}}"))
+          }
+          ["betterleaks"] = new Step {
+            glob = "**/*"
+            check =
+              exec(
+                List(
+                  "betterleaks",
+                  "dir",
+                  "--no-banner",
+                  "--verbose",
+                  "--log-level",
+                  "warn",
+                  "{{files}}",
+                ),
+              )
+          }
+          ["lua-ls"] = new Step {
+            // TODO: Real-Time output only shows if the command is on a single line.
+            // This seems like a bug.
+            check =
+              exec_nu(
+                #" lua-language-server --logpath $"(mktemp --directory)/lua-ls-logs" --check program-configs/neovim --configpath $"($env.PWD)/.luarc.json" "#,
+              )
+          }
+          ["nix"] = new Step {
+            // TODO: Real-Time output only shows if the command is on a single line.
+            // This seems like a bug.
+            check =
+              exec_nu(
+                #" let dest = $"($env.PRJ_DATA_DIR)/gc-roots/checks"; rm -rf $dest; nix build --out-link $"($dest)/root" --impure --expr 'builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks ["pkgs-shell-bundle"]' "#,
+              )
+          }
+        }
+      )
+        // Fixes must run before checks for these reasons:
+        //   - A fix could produce code that would fail a check
+        //   - A fix could fix an issue that would have been found by a check
+        //
+        // Non-Formatter fixes must run before formatters since they may produce
+        // code that doesn't comply with the formatting.
+        (nonFormatterFixes.toMap() + formatterFixes.toMap() + checks.toMap()).toMapping()
+  }
+}
+
+local function exec(args: List<String>): Command = new Command { argv = args }
+local function exec_nu(function_body: String): Command = new Command {
+  argv =
+    // TODO: Real-Time output only shows if the command is on a single line.
+    // This seems like a bug.
+    List(
+      "nu",
+      "--commands",
+      "def main [...files] { \(function_body) } ",
+      "{{files}}",
+    )
+}
