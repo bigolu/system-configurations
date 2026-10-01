@@ -24,9 +24,6 @@
       # a dependency.
       usage
 
-      # I use this for the `shell` option.
-      bash
-
       # For the sync hook and the git hooks that these programs create.
       git-auto-sync
       git-auto-check
@@ -34,7 +31,6 @@
       # For the check hook
       actionlint
       betterleaks
-      coreutils
       deadnix
       editorconfig-checker
       lua-language-server
