@@ -57,7 +57,11 @@ in
         inputs.home-manager-file-wrapper.homeModules.file-wrapper
       ];
 
-      home.stateVersion = "23.11";
+      home = {
+        stateVersion = "23.11";
+        backupFileExtension = "home-manager-backup";
+        overwriteBackup = true;
+      };
 
       fileWrapper.settings = {
         editableInstall = true;
