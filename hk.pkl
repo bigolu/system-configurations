@@ -261,8 +261,7 @@ hooks = new Mapping<String, Hook> {
 
 local function exec(args: List<String>): Command = new Command { argv = args }
 local function exec_nu(function_body: String): Command = new Command {
-  argv =
-    // TODO: Real-Time output only shows if the command is on a single line so
-    // none of these arguments can have multiple lines. This seems like a bug.
-    List("nu", "--commands", "def main [...files] { \(function_body) } ", "{{files}}")
+  // TODO: Real-Time output only shows if the command is on a single line so
+  // none of these arguments can have multiple lines. This seems like a bug.
+  argv = List("nu", "--commands", "def main [...files] { \(function_body) } ", "{{files}}")
 }
