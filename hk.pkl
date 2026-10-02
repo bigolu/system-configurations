@@ -259,6 +259,9 @@ hooks = new Mapping<String, Hook> {
   }
 }
 
+// Switch to varargs once pkl supports it[1].
+//
+// [1]: https://github.com/apple/pkl/issues/1155
 local function exec(args: List<String>): Command = new Command { argv = args }
 local function exec_nu(function_body: String): Command = new Command {
   // TODO: Real-Time output only shows if the command is on a single line so
