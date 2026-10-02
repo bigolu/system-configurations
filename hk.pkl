@@ -22,7 +22,7 @@ hooks = new Mapping<String, Hook> {
           )
         // TODO: Real-Time output only shows if the command is on a single line.
         // This seems like a bug.
-        check = exec_nu("direnv reload; direnv exec . true")
+        check = nu("direnv reload; direnv exec . true")
       }
       // Why we use a group:
       //   - Ensure that the "direnv" step finishes before other steps start so the
@@ -45,7 +45,7 @@ hooks = new Mapping<String, Hook> {
                 "**/*.nix",
                 "flake.lock",
               )
-            check = exec(List("mise", "run", "hk:system-sync"))
+            check = nu("mise run hk:system-sync")
           }
           ["git-auto-sync"] = new Step {
             glob =
@@ -55,7 +55,7 @@ hooks = new Mapping<String, Hook> {
                 "**/*.nix",
                 "flake.lock",
               )
-            check = exec(List("git-auto-sync", "install", "mise", "run", "sync"))
+            check = nu("git-auto-sync install mise run sync")
           }
           ["git-auto-check"] = new Step {
             glob =
@@ -68,7 +68,7 @@ hooks = new Mapping<String, Hook> {
             // These steps can't run in parallel because they both fail if they
             // can't acquire a lock for `.git/config`.
             depends = List("git-auto-sync")
-            check = exec(List("git-auto-check", "install", "mise", "run", "check"))
+            check = nu("git-auto-check install mise run check")
           }
         }
       }
@@ -83,40 +83,40 @@ hooks = new Mapping<String, Hook> {
       let (
         nonFormatterFixes = new Mapping<String, Step> {
           ["flake-lock"] = new Step {
-            fix = exec(List("nix", "flake", "lock"))
+            fix = nu("nix flake lock")
           }
           ["readme-config-names"] = new Step {
             // Ensure a lock is acquired for this file
             glob = "README.md"
-            fix = exec(List("mise", "run", "hk:add-config-names-to-readme"))
+            fix = nu("mise run hk:add-config-names-to-readme")
           }
           ["hk-import"] = new Step {
             // Ensure a lock is acquired for this file
             glob = "hk.pkl"
-            fix = exec(List("mise", "run", "hk:update-hk-import"))
+            fix = nu("mise run hk:update-hk-import")
           }
           ["deadnix"] = new Step {
             glob = "**/*.nix"
-            fix = exec(List("deadnix", "--quiet", "--edit", "{{files}}"))
+            fix = nu("deadnix --quiet --edit ...$files")
           }
           ["statix-fix"] = new Step {
             glob = "**/*.nix"
-            fix = exec_nu("$files | par-each { statix fix $in }")
+            fix = nu("$files | par-each { statix fix $in }")
           }
           ["npins"] = new Step {
-            fix = exec(List("npins", "upgrade"))
+            fix = nu("npins upgrade")
           }
           ["quotes"] = new Step {
             glob = "**/*"
-            fix = exec(List("hk", "util", "fix-smart-quotes", "{{files}}"))
+            fix = nu("hk util fix-smart-quotes ...$files")
           }
           ["end-of-file"] = new Step {
             glob = "**/*"
-            fix = exec(List("hk", "util", "end-of-file-fixer", "--fix", "{{files}}"))
+            fix = nu("hk util end-of-file-fixer --fix ...$files")
           }
           ["mixed-line-ending"] = new Step {
             glob = "**/*"
-            fix = exec(List("hk", "util", "mixed-line-ending", "--fix", "{{files}}"))
+            fix = nu("hk util mixed-line-ending --fix ...$files")
           }
         }
       )
@@ -124,46 +124,36 @@ hooks = new Mapping<String, Hook> {
         formatterFixes = new Mapping<String, Step> {
           ["tombi-format"] = new Step {
             glob = "**/*.toml"
-            fix = exec(List("tombi", "format", "--quiet", "{{files}}"))
+            fix = nu("tombi format --quiet ...$files")
           }
           // This also acts a syntax checker for these file types since prettier will
           // fail if the files aren't syntactically correct.
           ["prettier"] = new Step {
             glob = "**/*.{json,jsonc,yaml}"
             fix =
-              exec_nu(
-                #"""
-                (
-                  prettier
-                    --cache
-                    --cache-location $"($env.PRJ_DATA_DIR)/prettier-cache"
-                    --cache-strategy metadata
-                    --list-different
-                    --write
-                    ...$files
-                )
-                """#,
+              nu(
+                #" prettier --cache --cache-location $"($env.PRJ_DATA_DIR)/prettier-cache" --cache-strategy metadata --list-different --write ...$files "#,
               )
           }
           ["nixfmt"] = new Step {
             glob = "**/*.nix"
-            fix = exec(List("nixfmt", "--strict", "--verify", "{{files}}"))
+            fix = nu("nixfmt --strict --verify ...$files")
           }
           ["stylua"] = new Step {
             glob = "**/*.lua"
-            fix = exec(List("stylua", "--verify", "{{files}}"))
+            fix = nu("stylua --verify ...$files")
           }
           ["pkl-format"] = new Step {
             glob = "hk.pkl"
-            fix = exec(List("pkl", "format", "--write", "{{files}}"))
+            fix = nu("pkl format --write ...$files")
           }
           ["rumdl-format-and-fix"] = new Step {
             glob = "**/*.md"
-            fix = exec(List("rumdl", "fmt", "--silent", "{{files}}"))
+            fix = nu("rumdl fmt --silent ...$files")
           }
           ["nufmt"] = new Step {
             glob = "**/*.nu"
-            fix = exec(List("nufmt", "{{files}}"))
+            fix = nu("nufmt ...$files")
           }
         }
       )
@@ -174,76 +164,65 @@ hooks = new Mapping<String, Hook> {
         checks = new Mapping<String, Step> {
           ["keyd"] = new Step {
             glob = "**/keyd/default.conf"
-            check = exec_nu("if (which keyd | is-not-empty) { keyd check ...$files }")
+            check = nu("if (which keyd | is-not-empty) { keyd check ...$files }")
           }
           ["actionlint"] = new Step {
             glob = ".github/workflows/*.yaml"
-            check = exec(List("actionlint", "{{files}}"))
+            check = nu("actionlint ...$files")
           }
           ["rumdl-check"] = new Step {
             glob = "**/*.md"
-            check = exec(List("rumdl", "check", "{{files}}"))
+            check = nu("rumdl check ...$files")
           }
           ["editorconfig-checker"] = new Step {
             glob = "**/*"
-            check = exec(List("editorconfig-checker", "{{files}}"))
+            check = nu("editorconfig-checker ...$files")
           }
           ["tombi-lint"] = new Step {
             glob = "**/*.toml"
-            check = exec(List("tombi", "lint", "--quiet", "{{files}}"))
+            check = nu("tombi lint --quiet ...$files")
           }
           ["large-files"] = new Step {
             glob = "**/*"
-            check = exec(List("hk", "util", "check-added-large-files", "{{files}}"))
+            check = nu("hk util check-added-large-files ...$files")
           }
           ["case-conflict"] = new Step {
             glob = "**/*"
-            check = exec(List("hk", "util", "check-case-conflict", "{{files}}"))
+            check = nu("hk util check-case-conflict ...$files")
           }
           ["nixpkgs-lint"] = new Step {
             glob = "**/*.nix"
-            check = exec(List("nixpkgs-lint", "--include-unfinished-lints", "--", "{{files}}"))
+            check = nu("nixpkgs-lint --include-unfinished-lints -- ...$files")
           }
           ["statix-check"] = new Step {
             glob = "**/*.nix"
-            check = exec_nu("$files | par-each { statix check $in }")
+            check = nu("$files | par-each { statix check $in }")
           }
           ["pkl-lint"] = new Step {
             glob = "hk.pkl"
-            check = exec_nu("pkl eval ...$files | ignore --stdout")
+            check = nu("pkl eval ...$files | ignore --stdout")
           }
           ["renovate-config-validator"] = new Step {
             glob = "renovate.json"
-            check = exec(List("renovate-config-validator", "--no-global", "--strict", "{{files}}"))
+            check = nu("renovate-config-validator --no-global --strict ...$files")
           }
           ["betterleaks"] = new Step {
             glob = "**/*"
-            check =
-              exec(
-                List(
-                  "betterleaks",
-                  "dir",
-                  "--no-banner",
-                  "--verbose",
-                  "--log-level",
-                  "warn",
-                  "{{files}}",
-                ),
-              )
+            check = nu("betterleaks dir --no-banner --verbose --log-level warn ...$files")
           }
           ["lua-ls"] = new Step {
             // TODO: Real-Time output only shows if the command is on a single line.
             // This seems like a bug.
             check =
-              exec_nu(
-                #" lua-language-server --logpath $"(mktemp --directory)/lua-ls-logs" --check program-configs/neovim --configpath $"($env.PWD)/.luarc.json" "#,
+              nu(
+                #" lua-language-server --logpath $"($env.PRJ_DATA_DIR)/lua-ls-logs" --check program-configs/neovim --configpath $"($env.PWD)/.luarc.json" "#,
               )
           }
           ["nix"] = new Step {
             // TODO: Real-Time output only shows if the command is on a single line.
             // This seems like a bug.
             check =
-              exec_nu(
+              nu(
                 #" let dest = $"($env.PRJ_DATA_DIR)/gc-roots/checks"; rm -rf $dest; nix build --out-link $"($dest)/root" --impure --expr 'builtins.removeAttrs (import ./.).outputsForCurrentSystem.checks ["pkgs-shell-bundle"]' "#,
               )
           }
@@ -259,12 +238,8 @@ hooks = new Mapping<String, Hook> {
   }
 }
 
-// Switch to varargs once pkl supports it[1].
-//
-// [1]: https://github.com/apple/pkl/issues/1155
-local function exec(args: List<String>): Command = new Command { argv = args }
-local function exec_nu(function_body: String): Command = new Command {
+local function nu(function_body: String): Command = new Command {
   // TODO: Real-Time output only shows if the command is on a single line so
   // none of these arguments can have multiple lines. This seems like a bug.
-  argv = List("nu", "--commands", "def main [...files] { \(function_body) } ", "{{files}}")
+  argv = List("nu", "--commands", "def main [...files] { \(function_body) }", "{{files}}")
 }
