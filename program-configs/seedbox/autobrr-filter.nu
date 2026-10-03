@@ -10,11 +10,11 @@ def main [torrent] {
   $torrent
   | append (glob $"($workspace)/data/qBittorrent/BT_backup/*.torrent")
   | par-each {
-				imdl torrent show --json $in
-					| from json
-					| get content_size
-					| into filesize
-			}
+    imdl torrent show --json $in
+      | from json
+      | get content_size
+      | into filesize
+  }
   | math sum
   | assert ($in <= $max_size) $'Total torrent size is too big: ($in). Max size: ($max_size)'
 
