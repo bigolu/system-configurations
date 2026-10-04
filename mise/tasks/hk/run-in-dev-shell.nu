@@ -2,7 +2,7 @@
 #MISE hide=true
 #USAGE arg "<command>" var=#true
 
-def main [...command] {
+def --wrapped main [...command] {
 
   # Some of the sync jobs may depend on something from the new devshell.
   if $env.IN_GIT_AUTO_SYNC? == 'true' {

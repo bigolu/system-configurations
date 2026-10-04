@@ -1,0 +1,6 @@
+filter = '''
+containsAny(finding["secret"], ["widget processes", "^.*/s$"])
+'''
+
+[extend]
+useDefault = true

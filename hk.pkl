@@ -1,4 +1,4 @@
-amends "package://github.com/jdx/hk/releases/download/v1.56.0/hk@1.56.0#/Config.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pkl"
 
 exclude =
   List(
@@ -208,7 +208,10 @@ hooks = new Mapping<String, Hook> {
           }
           ["betterleaks"] = new Step {
             glob = "**/*"
-            check = nu("betterleaks dir --no-banner --verbose --log-level warn ...$files")
+            check =
+              nu(
+                "betterleaks dir --config betterleaks.toml --no-banner --verbose --log-level warn ...$files",
+              )
           }
           ["lua-ls"] = new Step {
             // TODO: Real-Time output only shows if the command is on a single line.

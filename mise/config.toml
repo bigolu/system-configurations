@@ -6,7 +6,6 @@
 #     shebang.
 #   - Shebangs don't work on Windows.
 use_file_shell_for_executable_tasks = true
-unix_default_file_shell_args = "nix-scene"
 quiet = true
 # Some tasks need stdin for things like sudo password prompts
 raw = true

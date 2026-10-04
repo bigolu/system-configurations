@@ -1,13 +1,6 @@
 { pkgs, ... }: {
   devshell = {
     startup.hk.text = ''
-      # TODO: There's a bug in the built-in pkl parser so I'm using the CLI: The
-      # built-in parser adds a trailing newline to multi-line strings, but it
-      # shouldn't[1].
-      #
-      # [1]: https://pkl-lang.org/main/current/language-reference/index.html#multiline-strings
-      export HK_PKL_BACKEND='pkl'
-
       # lua-language-server doesn't support environment variables in the middle
       # of a string so we have to do it here.
       export LUA_LS_NVIM_RUNTIME="/etc/profiles/per-user/$USER/share/nvim/runtime"
@@ -16,9 +9,7 @@
 
     packages = with pkgs; [
       hk
-      # - I run `pkl eval hk.pkl` to fetch any imports so pkl-lsp can reference them.
-      # - Since I set the environment variable `HK_PKL_BACKEND`, `hk` will use
-      #   this to parse `hk.pkl`, instead of using the pklr rust library.
+      # I run `pkl eval hk.pkl` to fetch any imports so pkl-lsp can reference them.
       pkl
       # TODO: This is required for hk's shell completion so nixpkgs should make it
       # a dependency.

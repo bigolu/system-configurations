@@ -21,9 +21,7 @@ in
 
   devshell = {
     packages = with pkgs; [
-      # TODO: As of v2026.8.3, `unix_default_file_shell_args` stopped being
-      # respected so keep this pinned until it's fixed.
-      multiverse.mise."2026.7.5"
+      mise
       # These are for autocomplete
       pkl
       nushell
@@ -31,6 +29,8 @@ in
 
     startup.mise.text = ''
       export MISE_TRUSTED_CONFIG_PATHS="$PRJ_ROOT/mise/config.toml"
+      # TODO: This setting isn't being respected from the config file
+      export MISE_UNIX_DEFAULT_FILE_SHELL_ARGS='nix-scene'
     '';
   };
 }
