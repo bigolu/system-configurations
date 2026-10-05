@@ -9,11 +9,6 @@
 
     packages = with pkgs; [
       hk
-      # I run `pkl eval hk.pkl` to fetch any imports so pkl-lsp can reference them.
-      pkl
-      # TODO: This is required for hk's shell completion so nixpkgs should make it
-      # a dependency.
-      usage
 
       # For the sync hook and the git hooks that these programs create.
       git-auto-sync

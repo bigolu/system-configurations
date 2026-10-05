@@ -13,5 +13,7 @@
 
     # For extension "pkl.pkl-vscode"
     graalvmPackages.graalvm-ce
+    # I run `pkl eval <file>.pkl` to fetch any imports so pkl-lsp can reference them.
+    pkl
   ];
 }
