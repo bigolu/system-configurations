@@ -8,42 +8,42 @@ module widgets {
         modifier: control
         keycode: char_h
         mode: [emacs vi_insert vi_normal]
-        event: { cmd: "widget history", send: ExecuteHostCommand }
+        event: {cmd: "widget history", send: ExecuteHostCommand}
       }
       {
         name: widget_directories
         modifier: alt
         keycode: char_d
         mode: [emacs vi_insert vi_normal]
-        event: { cmd: "widget directories", send: ExecuteHostCommand }
+        event: {cmd: "widget directories", send: ExecuteHostCommand}
       }
       {
         name: widget_files
         modifier: control
         keycode: char_f
         mode: [emacs vi_insert vi_normal]
-        event: { cmd: "widget files", send: ExecuteHostCommand }
+        event: {cmd: "widget files", send: ExecuteHostCommand}
       }
       {
         name: widget_grep_all
         modifier: alt
         keycode: char_g
         mode: [emacs vi_insert vi_normal]
-        event: { cmd: "widget grep-all", send: ExecuteHostCommand }
+        event: {cmd: "widget grep-all", send: ExecuteHostCommand}
       }
       {
         name: widget_grep
         modifier: control
         keycode: char_g
         mode: [emacs vi_insert vi_normal]
-        event: { cmd: "widget grep", send: ExecuteHostCommand }
+        event: {cmd: "widget grep", send: ExecuteHostCommand}
       }
       {
         name: widget_grep_ast
         modifier: alt
         keycode: char_a
         mode: [emacs vi_insert vi_normal]
-        event: { cmd: "widget grep-ast", send: ExecuteHostCommand }
+        event: {cmd: "widget grep-ast", send: ExecuteHostCommand}
       }
     ]
 
@@ -56,6 +56,7 @@ module widgets {
   export def widget [] { }
 
   export def "widget history" [] {
+
     # Separate entries by nul since they may span multiple lines.
     with-env { FZF_DEFAULT_COMMAND: 'history | reverse | get command | uniq | str join (char nul)' } {
       (
@@ -68,25 +69,25 @@ module widgets {
           --print0
       )
     }
-      | str trim --right --char (char nul)
-      | split row (char nul)
-      | str join "\n"
-      | commandline edit --insert $in
+    | str trim --right --char (char nul)
+    | split row (char nul)
+    | str join "\n"
+    | commandline edit --insert $in
   }
 
   export def "widget variables" [] {
     let non_env_vars = scope variables
-      | upsert name { str substring 1.. }
-      | each {|var| $"($var.name)\t($var.value)" }
+    | upsert name { str substring 1.. }
+    | each {|var| $"($var.name)\t($var.value)" }
 
     let env_vars = $env
-      | columns
-      | where $it != config
-      | each {|name| $"($name)\t($env | get $name)" }
+    | columns
+    | where $it != config
+    | each {|name| $"($name)\t($env | get $name)" }
 
     ($non_env_vars ++ $env_vars)
-      | str join (char nul)
-      | (
+    | str join (char nul)
+    | (
           fzf
             --read0
             --print0
@@ -95,11 +96,11 @@ module widgets {
             --preview 'echo {2..}'
             --prompt '$'
         )
-      | str trim --right --char (char nul)
-      | split row (char nul)
-      | each { split row "\t" | first }
-      | str join ' '
-      | commandline edit --insert $in
+    | str trim --right --char (char nul)
+    | split row (char nul)
+    | each { split row "\t" | first }
+    | str join ' '
+    | commandline edit --insert $in
   }
 
   export def "widget directories" [] {
@@ -112,10 +113,10 @@ module widgets {
           --keep-right
       )
     }
-      | lines
-      | each { to nuon }
-      | str join " "
-      | commandline edit --insert $in
+    | lines
+    | each { to nuon }
+    | str join " "
+    | commandline edit --insert $in
   }
 
   export def "widget files" [] {
@@ -140,10 +141,10 @@ module widgets {
           --bind "alt-e:execute:nvim {1}"
       )
     }
-      | lines
-      | each { to nuon }
-      | str join " "
-      | commandline edit --insert $in
+    | lines
+    | each { to nuon }
+    | str join " "
+    | commandline edit --insert $in
   }
 
   export def "widget manpages" [] {
@@ -162,11 +163,11 @@ module widgets {
           --preview-window '75%'
       )
     }
-      | str trim --right --char "\n"
-      # SYNC: parse
-      | parse --regex '(?<name>^[^ ]*?)\s*\((?<section>.*?)\)\s+.*'
-      | first
-      | man $in.section $in.name
+    | str trim --right --char "\n"
+    # SYNC: parse
+    | parse --regex '(?<name>^[^ ]*?)\s*\((?<section>.*?)\)\s+.*'
+    | first
+    | man $in.section $in.name
   }
 
   export def "widget grep-all" [] {
@@ -183,10 +184,10 @@ module widgets {
           --preview 'rga --pretty --context 5 {q} --rga-fzf-path=_{}'
       )
     }
-      | lines
-      | each { to nuon }
-      | str join " "
-      | commandline edit --insert $in
+    | lines
+    | each { to nuon }
+    | str join " "
+    | commandline edit --insert $in
   }
 
   export def "widget processes" [] {
@@ -316,7 +317,7 @@ module widgets {
       ^kill --signal $signal ...($procs | get pid)
     }
   }
-  
+
   export def "widget grep" [] {
     grep_base 'pattern: ' $"rg --line-number --column --colors=path:none --no-heading --color=always -- {q} ($dir_placeholder)"
   }
@@ -346,11 +347,11 @@ module widgets {
           --preview r#'bat --style=header-filename --color always --wrap=never --paging=never --terminal-width (($env.FZF_PREVIEW_COLUMNS | into int) - 2) {1} --highlight-line {2}'#
       )
     }
-      | lines
-      | each { split row ":" | first }
-      | each { to nuon }
-      | str join " "
-      | commandline edit --insert $in
+    | lines
+    | each { split row ":" | first }
+    | each { to nuon }
+    | str join " "
+    | commandline edit --insert $in
   }
 }
 

@@ -138,7 +138,8 @@
 
     nufmt = {
       url = "github:nushell/nufmt";
-      inputs.nixpkgs.follows = "nixpkgs";
+      # TODO: Doesn't work with my nixpkgs
+      # inputs.nixpkgs.follows = "nixpkgs";
     };
   };
 
