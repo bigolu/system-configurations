@@ -1,7 +1,10 @@
 #!/usr/bin/env nu
 
 def --wrapped main [...args] {
-  let start_commit = if ($args | is-not-empty) and not (is-flag $args.0) { $args.0 } else { null }
+  let start_commit = do {
+    let first_arg = $args.0?
+    if not (is-flag $first_arg) { $first_arg }
+  }
   | do {
     let start_commit_abbreviation = $in
     if $start_commit_abbreviation == null {
