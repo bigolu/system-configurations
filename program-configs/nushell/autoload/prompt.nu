@@ -240,7 +240,7 @@ $env.PROMPT_COMMAND = {
     }
   }
 
-  def get-exit-code-signal [code: oneof<int, nothing>] {
+  def get-exit-code-signal [code: int]: nothing -> oneof<string, nothing> {
     match $code {
       -1 => 'SIGHUP'
       -2 => 'SIGINT'
