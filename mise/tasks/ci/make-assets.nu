@@ -2,13 +2,19 @@
 #MISE hide=true
 
 def main [] {
-  copy_bundle_into_assets (register_asset_directory) (make_shell_bundle)
+  let asset_directory = mktemp --directory
+  register_asset_directory $asset_directory
+
+  let shell_bundle = make_shell_bundle
+
+  cp $shell_bundle ([
+    $asset_directory
+    (make_asset_name $shell_bundle)
+  ] | path join)
 }
 
-def register_asset_directory []: nothing -> string {
-  let dir = mktemp --directory
+def register_asset_directory [dir: string]: nothing -> nothing {
   $"asset-directory=($dir)\n" | save --append ($env.GITHUB_OUTPUT? | default '/dev/stderr')
-  $dir
 }
 
 def make_shell_bundle []: nothing -> string {
@@ -27,17 +33,12 @@ def make_shell_bundle []: nothing -> string {
   $bundle_gc_root | path expand
 }
 
-def copy_bundle_into_assets [asset_dir: string, bundle_store_path: string] {
-
-  # Example: /nix/store/<hash>-foo-0.1.0 -> $asset_dir/foo-linux-x86_64
-  let destination = $bundle_store_path
+# Example: /nix/store/<hash>-foo-0.1.0 -> $asset_dir/foo-linux-x86_64
+def make_asset_name [bundle: string] {
+  $bundle
   # Remove everything up to, and including, the first `-`. Then the name will
   # be everything from the beginning up until the first dash that is followed by a digit.
   | parse --regex '.*?-(?<name>.*?)-[0-9]*.*'
   | get name.0
   | $"($in)-($nu.os-info.name)-($nu.os-info.arch)"
-  | [$asset_dir $in]
-  | path join
-
-  cp $bundle_store_path $destination
 }
