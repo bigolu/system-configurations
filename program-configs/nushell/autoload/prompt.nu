@@ -2,12 +2,7 @@ $env.PROMPT_COMMAND_RIGHT = ''
 $env.TRANSIENT_PROMPT_INDICATOR = ''
 
 $env.TRANSIENT_PROMPT_COMMAND = {
-  [
-    (format-path $env.PWD)
-    (date now | format date '%r')
-  ]
-  | str join '  '
-  | $"\n(ansi light_gray_reverse) ($in) (ansi reset) "
+  $"\n(ansi light_gray_reverse) (format-path $env.PWD)  (date now | format date '%r') (ansi reset) "
 }
 
 $env.PROMPT_COMMAND = {
@@ -84,19 +79,15 @@ $env.PROMPT_COMMAND = {
   }
 
   def python-context [] {
-    if VIRTUAL_ENV not-in $env {
-      return
+    if VIRTUAL_ENV in $env {
+      $'venv: (format-path $env.VIRTUAL_ENV)'
     }
-
-    $'venv: (format-path $env.VIRTUAL_ENV)'
   }
 
   def level-context [] {
-    if ($env.SHLVL? | default 1) == 1 {
-      return
+    if ($env.SHLVL? | default 1) > 1 {
+      $'level: ($env.SHLVL)'
     }
-
-    $'level: ($env.SHLVL)'
   }
 
   def direnv-context [] {
@@ -131,11 +122,9 @@ $env.PROMPT_COMMAND = {
   }
 
   def broot-context [] {
-    if IN_BROOT not-in $env {
-      return
+    if IN_BROOT in $env {
+      $'broot: ($colors.warning)active($colors.reset)'
     }
-
-    $'broot: ($colors.warning)active($colors.reset)'
   }
 
   def path-context [] {
