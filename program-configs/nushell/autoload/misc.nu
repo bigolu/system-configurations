@@ -28,7 +28,8 @@ $env.config.keybindings ++= [
     keycode: char_x
     mode: [emacs vi_insert vi_normal]
     event: [
-      {cmd: "
+      {
+        cmd: "
           if (commandline | is-empty) {
             if __ans not-in $env or $ans.last != null {
               $env.__ans = $ans.last
@@ -36,7 +37,9 @@ $env.config.keybindings ++= [
             commandline edit '$env.__ans'
           }
           commandline edit --accept --append ' | explore'
-        ", send: ExecuteHostCommand}
+        "
+        send: ExecuteHostCommand
+      }
     ]
   }
   {
