@@ -12,20 +12,16 @@ $env.config.hooks.pre_prompt ++= [
     | (complete).stdout
     | from json
     | default {}
-    # If direnv changes the PATH, it will become a string and we need to re-convert it to a list
-    | update cells --columns [PATH] { do (env-conversions).path.from_string $in }
-    | transpose name value
-    | group-by { if $in.value == null { 'hide' } else { 'load' } }
     | do --env {
-      $in.hide?
-      | default []
-      | get name
+      $in
+      | record where value == null
+      | columns
       | hide-env ...$in
 
-      $in.load?
-      | default []
-      | transpose --as-record --header-row
-      | default --empty {}
+      $in
+      | record where value != null
+      # If direnv changes the PATH, it will become a string and we need to re-convert it to a list
+      | record apply { PATH: { do (env-conversions).path.from_string $in } }
       | load-env
     }
   }
