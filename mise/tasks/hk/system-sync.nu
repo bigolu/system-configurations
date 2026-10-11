@@ -16,11 +16,11 @@ let sudo = [
 let sync_command = do {
   let config = $env.usage_config?
   | default (
-				$env.XDG_STATE_HOME?
-					| default $"($env.HOME)/.local/state"
-					| open --raw $"($in)/bigolu/system-config-name"
-					| str trim
-			)
+    $env.XDG_STATE_HOME?
+      | default $"($env.HOME)/.local/state"
+      | open --raw $"($in)/bigolu/system-config-name"
+      | str trim
+  )
 
   if $nu.os-info.name == linux {
     if $env.ASK? == 'true' {
