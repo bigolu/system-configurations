@@ -2,5 +2,5 @@ c = get_config()  # noqa: F821
 
 c.TerminalInteractiveShell.confirm_exit = False
 c.TerminalInteractiveShell.shortcuts = [
-    {"command": "IPython:shortcuts.open_input_in_editor", "new_keys": ["c-e"]}
+    {"command": "IPython:shortcuts.open_input_in_editor", "new_keys": ["escape", "e"]}
 ]
