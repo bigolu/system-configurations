@@ -5,10 +5,9 @@
 let sudo = [
   sudo
   (which s).0.path
-]
-# The default sudoers config on Pop!_OS doesn't allow most environment variables
-# to be inherited.
-| append [
+
+  # The default sudoers config on Pop!_OS doesn't allow most environment variables
+  # to be inherited.
   (which env).0.path
   ...(debug env | items {|name, value| $"($name)=($value)" })
 ]
