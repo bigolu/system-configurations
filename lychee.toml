@@ -1,3 +1,11 @@
+#:schema https://raw.githubusercontent.com/lycheeverse/lychee/master/docs/schema.json
+# TODO: When this commit is included in a release[1], get the schema from the
+# binary rather than referencing the latest version as we do above. Instructions
+# for doing so are here[2].
+#
+# [1]: https://github.com/lycheeverse/lychee/commit/58404370c24baafba9808371d02b52a5a4bcf673
+# [2]: https://github.com/lycheeverse/lychee#configuration-file-schema
+
 no_progress = true
 verbose = "debug"
 

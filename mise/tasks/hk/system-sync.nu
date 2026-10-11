@@ -54,7 +54,7 @@ let sync_command = do {
 try {
   run-external ...$sudo ...$sync_command
 } finally {
-  if $nu.os-info.name == linux {
+  if $nu.os-info.name == linux and $env.LAST_EXIT_CODE == 0 {
     systemctl show -p InvocationID --value $"home-manager-($env.USER).service"
     | journalctl --no-pager --output cat $"_SYSTEMD_INVOCATION_ID=($in)"
     | find --invert pam_unix COMMAND=
