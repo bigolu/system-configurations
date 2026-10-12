@@ -1,6 +1,6 @@
 use std/bench
 use std/clip
-use std/util ["path add" structure]
+use std/util ["path add"]
 
 path add ~/.local/bin
 
