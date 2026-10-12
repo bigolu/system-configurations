@@ -8,6 +8,14 @@
       // The base preset adds a prefix to certain update types, but I don't
       // want one so I'll remove it.
       "additionalBranchPrefix": ""
+    },
+    {
+      "matchManagers": ["nix"],
+      "postUpgradeTasks": {
+        "commands": [
+          "nix run --file . outputsForCurrentSystem.devShells.ci -- mise run hk:update-hk-import ::: hk:upgrade-npins"
+        ]
+      }
     }
   ]
 }

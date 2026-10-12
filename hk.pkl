@@ -104,7 +104,7 @@ hooks = new Mapping<String, Hook> {
             fix = nu("$files | par-each { statix fix $in }")
           }
           ["npins"] = new Step {
-            fix = nu("npins upgrade")
+            fix = nu("mise run hk:upgrade-npins")
           }
           ["quotes"] = new Step {
             glob = "**/*"
