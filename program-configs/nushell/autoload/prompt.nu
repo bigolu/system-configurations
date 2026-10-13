@@ -28,7 +28,14 @@ $env.PROMPT_COMMAND = {
   let async_prompt_var = 'NU_ASYNC_PROMPT'
 
   def main [] {
-    let prompt = [
+    if $async_prompt_var not-in $env {
+      job spawn --description $job_ignore_label {
+        with-env { $async_prompt_var: true } { do $env.PROMPT_COMMAND }
+          | commandline set-prompt
+      }
+    }
+
+    [
       (job-context)
       (broot-context)
       (direnv-context)
@@ -44,17 +51,6 @@ $env.PROMPT_COMMAND = {
     | make_lines
     | prepend ''
     | str join "\n"
-
-    # Spawn the job after creating the prompt above to reduce the chance of the
-    # job setting the prompt before it gets set to the prompt above.
-    if $async_prompt_var not-in $env {
-      job spawn --description $job_ignore_label {
-        with-env { $async_prompt_var: true } { do $env.PROMPT_COMMAND }
-          | commandline set-prompt
-      }
-    }
-
-    $prompt
   }
 
   def make_lines []: list<string> -> list<string> {
