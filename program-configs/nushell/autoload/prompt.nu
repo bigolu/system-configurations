@@ -43,7 +43,6 @@ $env.PROMPT_COMMAND = {
     | compact
     | make_lines
     | prepend ''
-    | append (make_line last)
     | str join "\n"
 
     # Spawn the job after creating the prompt above to reduce the chance of the
@@ -62,8 +61,9 @@ $env.PROMPT_COMMAND = {
     $in
     | enumerate
     | each {|elt|
-          make_line (if $elt.index == 0 { 'first' } else { 'middle' }) $elt.item
-        }
+      make_line (if $elt.index == 0 { 'first' } else { 'middle' }) $elt.item
+    }
+    | append (make_line last)
   }
 
   def make_line [position: string, context?: string] {
