@@ -276,8 +276,8 @@ def --wrapped diff [...args] {
 #
 # Lets me start a nix shell with python and the specified python packages.
 # Example: `nix-py requests marshmallow`
-def "nu-complete nix-py" [spans] {
-  let last_token = $spans | last
+def "nu-complete nix-py" [place] {
+  let last_token = $place.command | last
   nix eval --raw --impure --expr 'with builtins; concatStringsSep "\n" (attrNames (import <nixpkgs> {}).python3Packages)'
   | lines
   | where $it starts-with $last_token
