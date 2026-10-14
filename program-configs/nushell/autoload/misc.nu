@@ -194,13 +194,7 @@ def --wrapped code [...rest: string] {
 }
 
 # comma
-def "nu-complete my-comma" [buffer] {
-  $buffer
-  # Autocomplete is only defined for comma
-  | str replace --regex '^,' 'comma'
-  | commandline complete
-}
-@complete 'nu-complete my-comma'
+@complete external
 def --wrapped , [...rest: string] {
   with-env {
     # `--with-nth` removes the '.out' extension from the entries.
