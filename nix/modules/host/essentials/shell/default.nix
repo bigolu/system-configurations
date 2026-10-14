@@ -69,7 +69,7 @@
           diffoscopeMinimal
           fd
           file
-          fish
+          fishMinimal
           fzfWithoutShellConfig
           gnutar
           gzip
