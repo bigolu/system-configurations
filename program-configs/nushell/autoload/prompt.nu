@@ -31,7 +31,7 @@ $env.PROMPT_COMMAND = {
     if $async_prompt_var not-in $env {
       job spawn --description $job_ignore_label {
         with-env { $async_prompt_var: true } { do $env.PROMPT_COMMAND }
-          | commandline set-prompt
+        | commandline set-prompt
       }
     }
 
