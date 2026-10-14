@@ -27,10 +27,6 @@ in
   };
 }
 // (makeEmptyPackageSet [
-  [
-    "lixPackageSet"
-    "lix"
-  ]
   [ "diffoscopeMinimal" ]
   [ "difftastic" ]
   [ "lesspipe" ]
