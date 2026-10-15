@@ -148,7 +148,7 @@ module widgets {
   }
 
   export def "widget manpages" [] {
-    with-env { FZF_DEFAULT_COMMAND: 'man -k .' } {
+    let manpage = with-env { FZF_DEFAULT_COMMAND: 'man -k .' } {
       (
         fzf
           --tiebreak 'chunk,begin,end'
@@ -167,7 +167,8 @@ module widgets {
     # SYNC: parse
     | parse --regex '(?<name>^[^ ]*?)\s*\((?<section>.*?)\)\s+.*'
     | first
-    | man $in.section $in.name
+
+    man $manpage.section $manpage.name
   }
 
   export def "widget grep-all" [] {
