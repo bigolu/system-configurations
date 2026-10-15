@@ -13,14 +13,13 @@ let sudo = [
 ]
 
 let sync_command = do {
-  let config = if usage_config in $env {
-    $env.usage_config
-  } else {
+  let config = $env.usage_config?
+  | default (
     $env.XDG_STATE_HOME?
-    | default $"($env.HOME)/.local/state"
-    | open --raw $"($in)/bigolu/system-config-name"
-    | str trim
-  }
+      | default $"($env.HOME)/.local/state"
+      | open --raw $"($in)/bigolu/system-config-name"
+      | str trim
+  )
 
   if $nu.os-info.name == linux {
     if $env.ASK? == 'true' {
