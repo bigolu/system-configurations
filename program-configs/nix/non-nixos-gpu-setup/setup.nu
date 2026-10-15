@@ -7,11 +7,7 @@ const self = path self
 # For nix and nvidia-smi
 path add /nix/var/nix/profiles/default/bin /usr/bin
 
-let workspace = if PRJ_ROOT in $env {
-  $"($env.PRJ_ROOT)/non-nixos-gpu"
-} else {
-  '/opt/non-nixos-gpu'
-}
+let workspace = $env.PRJ_ROOT? | default '/opt' | $'($in)/non-nixos-gpu'
 mkdir $workspace
 '*' | save --force $"($workspace)/.gitignore"
 cd $workspace
