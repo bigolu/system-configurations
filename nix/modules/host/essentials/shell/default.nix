@@ -75,6 +75,7 @@
           gzip
           less
           lesspipe
+          moreutils
           ripgrep
           ripgrep-all
           rsync
