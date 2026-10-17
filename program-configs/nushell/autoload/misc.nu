@@ -198,7 +198,7 @@ def --wrapped code [...rest: string] {
 def --wrapped , [...rest: string] {
   with-env {
     # `--with-nth` removes the '.out' extension from the entries.
-    FZF_DEFAULT_OPTS: $"($env.FZF_DEFAULT_OPTS) --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name \(string sub --end -4 {})' --delimiter '.out' --with-nth '{1}'"
+    FZF_DEFAULT_OPTS: $"($env.FZF_DEFAULT_OPTS) --separator '' --height 10 --margin 0,2,0,2 --preview-window right,75%,border-left --preview 'nix-search --details --max-results 1 --name \(echo {} | str substring ..-5)' --delimiter '.out' --with-nth '{1}'"
     COMMA_PICKER: 'fzf'
   } {
     ^, --cache-level 0 ...$rest
