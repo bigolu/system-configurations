@@ -273,14 +273,22 @@ $env.PROMPT_COMMAND = {
 
       let attributes = [
         (
-          if ($stats
-          | get wt_modified wt_deleted wt_type_changed wt_renamed
-          | any { $in > 0 }) { 'dirty' }
+          if (
+            $stats
+            | get wt_modified wt_deleted wt_type_changed wt_renamed
+            | any { $in > 0 }
+          ) {
+            'dirty'
+          }
         )
         (
-          if ($stats
-          | get idx_added_staged idx_modified_staged idx_deleted_staged idx_renamed idx_type_changed
-          | any { $in > 0 }) { 'staged' }
+          if (
+            $stats
+            | get idx_added_staged idx_modified_staged idx_deleted_staged idx_renamed idx_type_changed
+            | any { $in > 0 }
+          ) {
+            'staged'
+          }
         )
         (if $stats.wt_untracked > 0 { 'untracked' })
         (if $stats.conflicts > 0 { 'conflicted' })
