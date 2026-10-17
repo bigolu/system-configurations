@@ -29,7 +29,7 @@ $env.PROMPT_COMMAND = {
 
   def main [] {
     if $async_prompt_var not-in $env {
-      job spawn --description $job_ignore_label {
+      job spawn --auto-kill --description $job_ignore_label {
         with-env { $async_prompt_var: true } { do $env.PROMPT_COMMAND }
         | commandline set-prompt
       }
