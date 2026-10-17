@@ -207,15 +207,15 @@ $env.PROMPT_COMMAND = {
 
   def format-exit-code []: int -> string {
     let code = $in
-    let signal = get-exit-code-signal $code
-
-    $code
-    | if $signal != null {
-      $'($in)/($signal)'
+    let code_color = get-exit-code-color $code
+    let code_string = get-exit-code-signal $code
+    | if $in != null {
+      $'($code)/($in)'
     } else {
-      $in
+      $code
     }
-    | $'(get-exit-code-color $code)($in)($colors.reset)'
+
+    $'($code_color)($code_string)($colors.reset)'
   }
 
   def get-exit-code-color [code: int] {
