@@ -9,7 +9,6 @@ let job_args = if usage_job in $env {
 } else {
   []
 }
-| each { prepend '--step' }
-| flatten
+| each --flatten { prepend '--step' }
 
 hk run check --fix --all ...$job_args
