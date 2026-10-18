@@ -18,9 +18,7 @@ $env.PROMPT_COMMAND = {
 
   let colors = {
     reset: (ansi reset)
-    success: (ansi green)
     warning: (ansi yellow)
-    error: (ansi red)
     border: (ansi light_gray)
   }
 
@@ -207,7 +205,6 @@ $env.PROMPT_COMMAND = {
 
   def format-exit-code []: int -> string {
     let code = $in
-    let code_color = get-exit-code-color $code
     let code_string = get-exit-code-signal $code
     | if $in != null {
       $'($code)/($in)'
@@ -215,14 +212,7 @@ $env.PROMPT_COMMAND = {
       $code
     }
 
-    $'($code_color)($code_string)($colors.reset)'
-  }
-
-  def get-exit-code-color [code: int] {
-    match $code {
-      -2 | 130 => $colors.warning
-      _ => $colors.error
-    }
+    $'($colors.warning)($code_string)($colors.reset)'
   }
 
   def get-exit-code-signal [code: int]: nothing -> oneof<string, nothing> {
