@@ -1,4 +1,4 @@
-module widgets {
+module bigolu-widgets {
   const dir_placeholder = '{bigolu_dir}'
 
   export-env {
@@ -356,4 +356,4 @@ module widgets {
   }
 }
 
-use widgets *
+use bigolu-widgets *
