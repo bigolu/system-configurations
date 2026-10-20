@@ -4,10 +4,11 @@ use std/util "path add"
 
 const self = path self
 
-# For nix and nvidia-smi
-path add /nix/var/nix/profiles/default/bin /usr/bin
+# For nix and modinfo
+path add /nix/var/nix/profiles/default/bin /usr/sbin
 
-let workspace = $env.PRJ_ROOT? | default '/opt' | $'($in)/non-nixos-gpu'
+let is_debug = 'NON_NIXOS_GPU_DEBUG' in $env
+let workspace = if $is_debug { $env.PRJ_ROOT } else { '/opt' } | $'($in)/non-nixos-gpu'
 mkdir $workspace
 '*' | save --force $"($workspace)/.gitignore"
 cd $workspace
@@ -18,7 +19,7 @@ if DID_SET_UP_LOGGING not-in $env {
 }
 
 let last_version_file = $"($workspace)/last-version.txt"
-let current_version = (nvidia-smi --query-gpu=driver_version --format=csv,noheader)
+let current_version = modinfo -F version nvidia
 
 if ($last_version_file | path exists) and (open $last_version_file | str trim) == $current_version {
   exit
@@ -58,7 +59,7 @@ let current_package = do {
 # which means it will delete `/etc/tmpfiles.d/non-nixos-gpu.conf`. Instead, we
 # install it into the default profile.
 rm --force /nix/var/nix/gcroots/non-nixos-gpu.conf
-let default_profile = if PRJ_ROOT in $env { $"($workspace)/profile" } else { '/nix/var/nix/profiles/default' }
+let default_profile = if $is_debug { $"($workspace)/profile" } else { '/nix/var/nix/profiles/default' }
 let last_package_file = $"($workspace)/last-package.txt"
 if ($last_package_file | path exists) {
   nix profile remove (open --raw $last_package_file | str trim) --profile $default_profile
