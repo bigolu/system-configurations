@@ -47,14 +47,14 @@ module bigolu-misc {
         event: [
           {
             cmd: "
-          if (commandline | is-empty) {
-            if __ans not-in $env or $ans.last != null {
-              $env.__ans = $ans.last
-            }
-            commandline edit '$env.__ans'
-          }
-          commandline edit --accept --append ' | explore'
-        "
+              if (commandline | is-empty) {
+                if __ans not-in $env or $ans.last != null {
+                  $env.__ans = $ans.last
+                }
+                commandline edit '$env.__ans'
+              }
+              commandline edit --accept --append ' | explore'
+            "
             send: ExecuteHostCommand
           }
         ]
