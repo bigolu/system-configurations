@@ -2,7 +2,7 @@ $env.PROMPT_COMMAND_RIGHT = ''
 $env.TRANSIENT_PROMPT_INDICATOR = ''
 
 $env.TRANSIENT_PROMPT_COMMAND = {
-  $"\n(ansi light_gray_reverse) (format-path $env.PWD)  (date now | format date '%r') (ansi reset) "
+  $"\n(ansi light_gray_reverse) (date now | format date '%r') (ansi reset) "
 }
 
 $env.PROMPT_COMMAND = {
@@ -297,19 +297,19 @@ $env.PROMPT_COMMAND = {
     | $'git: ($in)'
   }
 
-  main
-}
-
-def format-path [path?: string]: oneof<string, nothing> -> string {
-  let path_in = $in
-  let path = $path | default $path_in
-  $path
-  | str replace --regex $"^($nu.home-dir)" "~"
-  # If we're on a local machine, add a hyperlink
-  | if SSH_TTY not-in $env {
-    let original_in = $in
-    $'file://($path)' | ansi link --text $original_in
-  } else {
-    $in
+  def format-path [path?: string]: oneof<string, nothing> -> string {
+    let path_in = $in
+    let path = $path | default $path_in
+    $path
+    | str replace --regex $"^($nu.home-dir)" "~"
+    # If we're on a local machine, add a hyperlink
+    | if SSH_TTY not-in $env {
+      let original_in = $in
+      $'file://($path)' | ansi link --text $original_in
+    } else {
+      $in
+    }
   }
+
+  main
 }
