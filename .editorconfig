@@ -7,5 +7,6 @@ root = true
 [*]
 insert_final_newline = true
 # Another reason we set this is so `editorconfig-checker` can verify that all
-# files use this charset.
+# files use this charset. The other editorconfig options that
+# `editorconfig-checker` can verify are already covered by `hk`.
 charset = utf-8

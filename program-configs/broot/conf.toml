@@ -73,3 +73,7 @@ key = "enter"
 internal = ":focus"
 invocation = "select"
 leave_broot = false
+
+[[verbs]]
+key = "ctrl-t"
+internal = ":toggle_tree"
