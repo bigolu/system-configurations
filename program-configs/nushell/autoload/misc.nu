@@ -1,9 +1,3 @@
-# ulimit
-#
-# Increase maxixmum number of open file descriptors that a single process can
-# have. This applies to the current process and its descendents.
-ulimit -Sn 10000
-
 module bigolu-misc {
   export use std/bench
   export use std/clip
